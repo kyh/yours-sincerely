@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - '10.15.3'
+dist: trusty
+cache:
+  directories:
+    - node_modules
+install:
+  - npm install
+  - npm run build
+script:
+  # Comment out tests until we have an MVP.
+  - exit 0
+  - nohup npm run start &
+  - sleep 3
+  - npm run test

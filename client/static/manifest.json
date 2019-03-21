@@ -1,0 +1,15 @@
+{
+  "short_name": "Inteligir",
+  "name": "Inteligir",
+  "icons": [
+    {
+      "src": "android-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#009fe8",
+  "background_color": "#2C4452"
+}
