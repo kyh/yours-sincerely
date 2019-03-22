@@ -52,7 +52,7 @@
     "next": "^8.0.3",
     "nprogress": "^0.2.0",
     "prisma-binding": "^2.3.9",
-    "prisma-client-lib": "^1.29.0",
+    "prisma-client-lib": "^1.29.1",
     "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-apollo": "^2.5.2",

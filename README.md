@@ -20,7 +20,6 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 │── /docs                        # App documentation
 │── /prisma                      # Prisma datamodel and seed data
 │── /server                      # Node.js server
-│   ├── /api                     # API routes, models, and controllers
 │   ├── /config                  # Server environment variables
 │   ├── /db                      # Prisma generated files and app schema
 │   ├── /middlewares             # Express/Yoga middleware
