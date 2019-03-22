@@ -8,6 +8,7 @@ function getUserId(context) {
     const verifiedToken = verify(token, keys.jwtSecret);
     return verifiedToken && verifiedToken.userId;
   }
+  return false;
 }
 
 module.exports = {
