@@ -7,16 +7,19 @@ import { withNotes } from '@storybook/addon-notes';
 import { withA11y } from '@storybook/addon-a11y';
 import { withConsole } from '@storybook/addon-console';
 
-import { ThemeProvider } from '@components';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import theme from '@client/utils/theme';
 
 // Storyboard decorators.
 addDecorator(withNotes);
 addDecorator(withKnobs);
 addDecorator(withA11y);
 addDecorator((story) => (
-  <ThemeProvider>
+  <MuiThemeProvider theme={this.pageContext.theme}>
+    <CssBaseline />
     <main style={{ padding: 20 }}>{story()}</main>
-  </ThemeProvider>
+  </MuiThemeProvider>
 ));
 
 addParameters({
