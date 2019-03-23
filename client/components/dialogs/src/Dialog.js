@@ -29,7 +29,7 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-function CgDialog({
+function YSDialog({
   children,
   isOpen,
   onClose,
@@ -64,4 +64,4 @@ function CgDialog({
   );
 }
 
-export default withStyles(styles)(CgDialog);
+export default withStyles(styles)(YSDialog);

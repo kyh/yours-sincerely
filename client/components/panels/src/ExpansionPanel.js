@@ -1,6 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 
-const styles = {};
-
-export default withStyles(styles)(ExpansionPanel);
+export default React.memo(ExpansionPanel);

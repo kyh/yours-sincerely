@@ -1,6 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import Table from '@material-ui/core/Table';
 
-const styles = {};
-
-export default withStyles(styles)(Table);
+export default React.memo(Table);

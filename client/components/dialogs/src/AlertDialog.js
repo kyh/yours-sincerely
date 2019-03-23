@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { Button } from '@components';
 
-function AlertDialog({
+function YSAlertDialog({
   isOpen,
   onClose,
   title,
@@ -41,4 +41,4 @@ function AlertDialog({
   );
 }
 
-export default AlertDialog;
+export default YSAlertDialog;

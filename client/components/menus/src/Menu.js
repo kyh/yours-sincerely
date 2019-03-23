@@ -1,6 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import Menu from '@material-ui/core/Menu';
 
-const styles = {};
-
-export default withStyles(styles)(Menu);
+export default React.memo(Menu);

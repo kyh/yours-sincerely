@@ -21,7 +21,7 @@ const styles = {
   },
 };
 
-const CgButton = withStyles(styles)(
+const YSButton = withStyles(styles)(
   ({ isLoading, children, classes, ...props }) => (
     <Button disabled={isLoading} {...props}>
       <div
@@ -44,4 +44,4 @@ const CgButton = withStyles(styles)(
   ),
 );
 
-export default React.memo(CgButton);
+export default React.memo(YSButton);

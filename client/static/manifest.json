@@ -1,6 +1,6 @@
 {
-  "short_name": "Inteligir",
-  "name": "Inteligir",
+  "short_name": "Yours Sincerely",
+  "name": "Yours Sincerely",
   "icons": [
     {
       "src": "android-icon-192x192.png",
@@ -10,6 +10,6 @@
   ],
   "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#009fe8",
-  "background_color": "#2C4452"
+  "theme_color": "#8389E1",
+  "background_color": "#FFFFFF"
 }

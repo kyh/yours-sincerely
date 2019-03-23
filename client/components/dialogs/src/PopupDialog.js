@@ -2,7 +2,7 @@ import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-function CgPopupDialog({
+function YSPopupDialog({
   children,
   isOpen,
   onClose,
@@ -19,4 +19,4 @@ function CgPopupDialog({
   );
 }
 
-export default CgPopupDialog;
+export default YSPopupDialog;

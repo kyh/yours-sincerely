@@ -13,7 +13,6 @@ export * from './panels';
 export * from './progress';
 export * from './selects';
 export * from './snackbars';
-export * from './steppers';
 export * from './tables';
 export * from './tabs';
 export * from './toolbars';

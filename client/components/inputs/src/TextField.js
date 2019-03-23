@@ -1,6 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import TextField from '@material-ui/core/TextField';
 
-const styles = {};
-
-export default withStyles(styles)(TextField);
+export default React.memo(TextField);

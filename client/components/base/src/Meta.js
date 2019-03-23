@@ -1,6 +1,5 @@
 import React from 'react';
 import Head from 'next/head';
-import { colors } from '@client/utils/theme';
 
 const TITLE = 'Yours sincerely | Endless senseless collaborative book';
 const DESCRIPTION =
@@ -19,7 +18,7 @@ const Meta = () => (
     <meta name="referrer" content="origin" />
 
     <meta name="application-name" content={TITLE} />
-    <meta name="theme-color" content={colors.darkblack} />
+    <meta name="theme-color" content="#8389E1" />
     <meta name="title" content={TITLE} />
     <meta name="description" content={DESCRIPTION} />
 

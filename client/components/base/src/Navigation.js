@@ -1,6 +1,7 @@
 import React from 'react';
 import NProgress from 'nprogress';
 import Router from 'next/router';
+import { withStyles } from '@material-ui/core/styles';
 
 Router.onRouteChangeStart = () => {
   NProgress.start();
@@ -13,6 +14,18 @@ Router.onRouteChangeError = () => {
   NProgress.done();
 };
 
-const Navigation = () => <h1>Head</h1>;
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+};
 
-export default Navigation;
+const Navigation = ({ classes }) => (
+  <nav className={classes.container}>Sincerely Yours</nav>
+);
+
+export default React.memo(withStyles(styles)(Navigation));
