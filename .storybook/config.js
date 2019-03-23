@@ -16,7 +16,7 @@ addDecorator(withNotes);
 addDecorator(withKnobs);
 addDecorator(withA11y);
 addDecorator((story) => (
-  <MuiThemeProvider theme={this.pageContext.theme}>
+  <MuiThemeProvider theme={theme}>
     <CssBaseline />
     <main style={{ padding: 20 }}>{story()}</main>
   </MuiThemeProvider>
@@ -34,9 +34,6 @@ addParameters({
       brandTitle: 'Yours Sincerely',
     }),
     panelPosition: 'right',
-  },
-  viewport: {
-    defaultViewport: 'iphone6',
   },
 });
 
