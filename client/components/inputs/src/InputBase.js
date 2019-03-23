@@ -1,6 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react';
 import InputBase from '@material-ui/core/InputBase';
 
-const styles = {};
-
-export default withStyles(styles)(InputBase);
+export default React.memo(InputBase);

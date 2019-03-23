@@ -53,4 +53,4 @@ const ProfileHeader = ({
   );
 };
 
-export default withStyles(styles)(ProfileHeader);
+export default React.memo(withStyles(styles)(ProfileHeader));
