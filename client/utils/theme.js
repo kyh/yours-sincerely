@@ -1,8 +1,6 @@
-import React from 'react';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { createMuiTheme } from '@material-ui/core/styles';
 
-const theme = createMuiTheme({
+export default createMuiTheme({
   palette: {
     primary: {
       // light: will be calculated from palette.primary.main,
@@ -143,12 +141,3 @@ const theme = createMuiTheme({
     },
   },
 });
-
-export default function({ children }) {
-  return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </MuiThemeProvider>
-  );
-}
