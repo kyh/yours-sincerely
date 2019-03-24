@@ -1,5 +1,5 @@
 [![Dependencies Status](https://david-dm.org/its-bananas/yours-sincerely/status.svg)](https://david-dm.org/its-bananas/yours-sincerely)
-[![Build Status](https://travis-ci.org/its-bananas/yours-sincerely.svg?branch=master)](https://travis-ci.org/its-bananas/yours-sincerely)
+[![Build Status](https://travis-ci.org/its-bananas/yours-sincerely.svg?branch=master)](https://travis-ci.org/its-bananas/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/its-bananas/yours-sincerely.svg)](https://greenkeeper.io/)
 
 # Yours Sincerely
 
