@@ -1,5 +1,5 @@
 # Specifies the HTTP endpoint of your Prisma API.
-# endpoint: ${env:PRISMA_ENDPOINT}
+#endpoint: ''
 endpoint: https://us1.prisma.sh/kaiyu-hsu-f70d57/ys-demo/dev
 
 # Defines your models, each model is mapped to the database as a table.
@@ -20,4 +20,4 @@ hooks:
 
 # Seeds initial data into the database by running a script.
 seed:
-  import: seed.graphql
+  run: node ./prisma/seed.js

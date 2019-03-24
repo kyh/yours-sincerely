@@ -1,5 +1,5 @@
 const { rule, shield } = require('graphql-shield');
-// const { getUserId } = require('../utils');
+const { getUserId } = require('@server/services/authentication');
 
 const rules = {
   isAuthenticatedUser: rule()((parent, args, context) => {
@@ -8,7 +8,11 @@ const rules = {
   }),
   isPostOwner: rule()(async (parent, { id }, context) => {
     const userId = getUserId(context);
-    const author = await context.prisma.post({ id }).author();
+    const author = await context.prisma
+      .post({
+        id,
+      })
+      .author();
     return userId === author.id;
   }),
 };
@@ -26,4 +30,6 @@ const permissions = shield({
   },
 });
 
-module.exports = permissions;
+module.exports = {
+  permissions,
+};

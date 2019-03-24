@@ -1,13 +1,3 @@
-type User {
-  id: ID! @unique
-  googleId: String @unique
-  displayName: String
-  email: String! @unique
-  password: String
-  profileImageUrl: String
-  posts: [Post!]!
-}
-
 type Post {
   id: ID! @unique
   createdAt: DateTime!
@@ -16,4 +6,12 @@ type Post {
   title: String!
   content: String
   author: User!
+}
+
+type User {
+  id: ID! @unique
+  email: String! @unique
+  password: String!
+  name: String
+  posts: [Post!]!
 }
