@@ -14,9 +14,7 @@ If you see a step below that could be improved (or is outdated), please update t
 
 - Check the version: 10.3, 9.6.8, 9.5.12, 9.4.17, 9.3.22 or newer
 
-3. For [node-gyp](https://github.com/nodejs/node-gyp), make sure you have Python 2 available and configured as the active version. You can use [pyenv](https://github.com/pyenv/pyenv) to manage Python versions.
-
-4. You'll need the Prisma CLI. Please install it via NPM or [using another method](https://www.prisma.io/docs/prisma-cli-and-configuration/using-the-prisma-cli-alx4/#installation):
+3. You'll need the Prisma CLI. Please install it via NPM or [using another method](https://www.prisma.io/docs/prisma-cli-and-configuration/using-the-prisma-cli-alx4/#installation):
 
 ```
 npm install -g prisma
@@ -38,7 +36,7 @@ npm run setup
 
 ### Building and Running Locally
 
-#### To start a dev web server with Webpack Dev Server:
+#### To start a dev web server:
 
 ```bash
 npm run dev
@@ -60,7 +58,7 @@ You can then load: [http://localhost:5000/](http://localhost:5000/)
 
 ## Deployment
 
-To deploy to staging or production, you need to be a core member of the Yours Sincerely team.
+To deploy to staging or production, you need to be a core member of the YS team.
 
 #### To deploy to development or production:
 

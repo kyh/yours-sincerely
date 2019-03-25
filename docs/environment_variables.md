@@ -1,22 +1,20 @@
 # Enviroment Variables
 
 | Environment Variable    | Config Name(name on the `config` file) | Description                                   |
-| ----------------------- | -------------------------------------- | --------------------------------------------- |
+|-------------------------|----------------------------------------|-----------------------------------------------|
 | NODE_ENV                | .env                                   | Node Environment variable                     |
 | PG_DATABASE             | .database.database                     | Postgres database name                        |
 | PG_USERNAME             | .database.username                     | Postgres database username                    |
 | PG_PASSWORD             | .database.password                     | Postgres database password                    |
 | PG_HOST                 | .database.options.host                 | Postgres database host                        |
 | PG_MAX_CONNECTIONS      | .database.options.pool.max             | Postgres number of max connections to be open |
-| API_KEY                 | .keys.inteligir.apiKey            | The API KEY                                   |
-| SESSION_SECRET          | .keys.inteligir.sessionSecret     | The session secre                             |
-| JWT_SECRET              | .keys.inteligir.jwtSecret         | JWT secret                                    |
+| JWT_SECRET              | .jwtSecret                             | JWT secret                                    |
 | STRIPE_CLIENT_ID        | .stripe.client_id                      | Stripe Client id                              |
 | STRIPE_KEY              | .stripe.key                            | Stripe key                                    |
 | STRIPE_SECRET           | .stripe.secret                         | Stripe secret                                 |
-| AWS_KEY                 | .aws.s3.key                            | AWS key                                       |
-| AWS_SECRET              | .aws.s3.secret                         | AWS secret                                    |
-| AWS_S3_BUCKET           | .aws.s3.bucket                         | AWS s3 bucket to send files                   |
+| AWS_KEY                 | .aws.key                               | AWS key                                       |
+| AWS_SECRET              | .aws.secret                            | AWS secret                                    |
+| AWS_S3_BUCKET           | .aws.bucket                            | AWS s3 bucket to send files                   |
 | MAILGUN_USER            | .mailgun.user                          | mailgun user                                  |
 | MAILGUN_API_KEY         | .mailgun.apiKey                        | mailgun password                              |
 | API_URL                 | .host.api                              | API exposed url                               |
