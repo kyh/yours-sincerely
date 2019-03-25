@@ -1,12 +1,8 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header, Text } from '@components';
 import { withStyles } from '@material-ui/core/styles';
-import Link from 'next/link';
-import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { Header, Link } from '@components';
+import Feed from '@client/containers/home/Feed';
 
 const styles = (theme) => ({
   root: {
@@ -14,15 +10,6 @@ const styles = (theme) => ({
     paddingTop: theme.spacing.unit * 20,
   },
 });
-
-const GET_FEED = gql`
-  {
-    feed {
-      id
-      content
-    }
-  }
-`;
 
 class Index extends React.Component {
   componentDidMount() {
@@ -35,22 +22,8 @@ class Index extends React.Component {
     return (
       <main className={classes.root}>
         <Header gutterBottom>Yours Sincerely</Header>
-        <Query query={GET_FEED}>
-          {({ loading, error, data }) => {
-            if (loading) return 'Loading...';
-            if (error) return `Error! ${error.message}`;
-            return data.feed.map((post) => (
-              <Text key={post.id} component="span">
-                {post.content}
-              </Text>
-            ));
-          }}
-        </Query>
-        <Text gutterBottom>
-          <Link href="/about">
-            <a>Go to the about page</a>
-          </Link>
-        </Text>
+        <Feed />
+        <Link href="/about">Go to the about page</Link>
       </main>
     );
   }
