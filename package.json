@@ -60,6 +60,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.8.5",
     "react-apollo": "^2.5.2",
+    "react-content-loader": "^4.2.1",
     "react-dom": "^16.8.5",
     "react-jss": "^8.6.1",
     "react-swipeable-views": "^0.13.1",
