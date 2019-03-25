@@ -47,7 +47,7 @@ app.prepare().then(() => {
     resolvers,
     middlewares: [permissions],
     context(request) {
-      return { pubsub, prisma, ...request };
+      return { ...request, pubsub, prisma };
     },
   });
 

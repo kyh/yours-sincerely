@@ -3,12 +3,12 @@ const { prisma } = require('../server/db/generated/prisma-client');
 async function main() {
   await prisma.createUser({
     email: 'im.kaiyu@gmail.com',
-    name: 'Alice',
+    name: 'Kaiyu',
     password: '$2b$10$dqyYw5XovLjpmkYNiRDEWuwKaRAvLaG45fnXE5b3KTccKZcRPka2m', // "secret42"
     posts: {
       create: {
-        title: 'Join us for GraphQL Conf 2019 in Berlin',
-        content: 'https://www.graphqlconf.org/',
+        content:
+          'Join us for GraphQL Conf 2019 in Berlin, https://www.graphqlconf.org/',
         published: true,
       },
     },
@@ -20,13 +20,12 @@ async function main() {
     posts: {
       create: [
         {
-          title: 'Subscribe to GraphQL Weekly for community news',
-          content: 'https://graphqlweekly.com/',
+          content:
+            'Subscribe to GraphQL Weekly for community news, https://graphqlweekly.com/',
           published: true,
         },
         {
-          title: 'Follow Prisma on Twitter',
-          content: 'https://twitter.com/prisma',
+          content: 'Follow me on Twitter, https://twitter.com/tehkaiyu',
         },
       ],
     },

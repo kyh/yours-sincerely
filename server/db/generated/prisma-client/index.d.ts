@@ -155,8 +155,6 @@ export type PostOrderByInput =
   | "updatedAt_DESC"
   | "published_ASC"
   | "published_DESC"
-  | "title_ASC"
-  | "title_DESC"
   | "content_ASC"
   | "content_DESC";
 
@@ -300,14 +298,12 @@ export interface PostSubscriptionWhereInput {
 
 export interface PostCreateInput {
   published?: Boolean;
-  title: String;
-  content?: String;
+  content: String;
   author: UserCreateOneWithoutPostsInput;
 }
 
 export interface PostUpdateManyDataInput {
   published?: Boolean;
-  title?: String;
   content?: String;
 }
 
@@ -349,20 +345,6 @@ export interface PostScalarWhereInput {
   updatedAt_gte?: DateTimeInput;
   published?: Boolean;
   published_not?: Boolean;
-  title?: String;
-  title_not?: String;
-  title_in?: String[] | String;
-  title_not_in?: String[] | String;
-  title_lt?: String;
-  title_lte?: String;
-  title_gt?: String;
-  title_gte?: String;
-  title_contains?: String;
-  title_not_contains?: String;
-  title_starts_with?: String;
-  title_not_starts_with?: String;
-  title_ends_with?: String;
-  title_not_ends_with?: String;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -396,7 +378,6 @@ export interface PostUpsertWithWhereUniqueWithoutAuthorInput {
 
 export interface PostUpdateInput {
   published?: Boolean;
-  title?: String;
   content?: String;
   author?: UserUpdateOneRequiredWithoutPostsInput;
 }
@@ -434,20 +415,6 @@ export interface PostWhereInput {
   updatedAt_gte?: DateTimeInput;
   published?: Boolean;
   published_not?: Boolean;
-  title?: String;
-  title_not?: String;
-  title_in?: String[] | String;
-  title_not_in?: String[] | String;
-  title_lt?: String;
-  title_lte?: String;
-  title_gt?: String;
-  title_gte?: String;
-  title_contains?: String;
-  title_not_contains?: String;
-  title_starts_with?: String;
-  title_not_starts_with?: String;
-  title_ends_with?: String;
-  title_not_ends_with?: String;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -488,14 +455,12 @@ export interface PostCreateManyWithoutAuthorInput {
 
 export interface PostUpdateManyMutationInput {
   published?: Boolean;
-  title?: String;
   content?: String;
 }
 
 export interface PostCreateWithoutAuthorInput {
   published?: Boolean;
-  title: String;
-  content?: String;
+  content: String;
 }
 
 export interface UserUpdateWithoutPostsDataInput {
@@ -522,7 +487,6 @@ export interface UserSubscriptionWhereInput {
 
 export interface PostUpdateWithoutAuthorDataInput {
   published?: Boolean;
-  title?: String;
   content?: String;
 }
 
@@ -565,8 +529,7 @@ export interface PostPreviousValues {
   createdAt: DateTimeOutput;
   updatedAt: DateTimeOutput;
   published: Boolean;
-  title: String;
-  content?: String;
+  content: String;
 }
 
 export interface PostPreviousValuesPromise
@@ -576,7 +539,6 @@ export interface PostPreviousValuesPromise
   createdAt: () => Promise<DateTimeOutput>;
   updatedAt: () => Promise<DateTimeOutput>;
   published: () => Promise<Boolean>;
-  title: () => Promise<String>;
   content: () => Promise<String>;
 }
 
@@ -587,7 +549,6 @@ export interface PostPreviousValuesSubscription
   createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
   updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
   published: () => Promise<AsyncIterator<Boolean>>;
-  title: () => Promise<AsyncIterator<String>>;
   content: () => Promise<AsyncIterator<String>>;
 }
 
@@ -596,8 +557,7 @@ export interface Post {
   createdAt: DateTimeOutput;
   updatedAt: DateTimeOutput;
   published: Boolean;
-  title: String;
-  content?: String;
+  content: String;
 }
 
 export interface PostPromise extends Promise<Post>, Fragmentable {
@@ -605,7 +565,6 @@ export interface PostPromise extends Promise<Post>, Fragmentable {
   createdAt: () => Promise<DateTimeOutput>;
   updatedAt: () => Promise<DateTimeOutput>;
   published: () => Promise<Boolean>;
-  title: () => Promise<String>;
   content: () => Promise<String>;
   author: <T = UserPromise>() => T;
 }
@@ -617,7 +576,6 @@ export interface PostSubscription
   createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
   updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
   published: () => Promise<AsyncIterator<Boolean>>;
-  title: () => Promise<AsyncIterator<String>>;
   content: () => Promise<AsyncIterator<String>>;
   author: <T = UserSubscription>() => T;
 }

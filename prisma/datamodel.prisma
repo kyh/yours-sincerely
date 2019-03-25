@@ -3,8 +3,7 @@ type Post {
   createdAt: DateTime!
   updatedAt: DateTime!
   published: Boolean! @default(value: "false")
-  title: String!
-  content: String
+  content: String!
   author: User!
 }
 
