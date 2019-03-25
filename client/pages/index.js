@@ -2,9 +2,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, AlertDialog, Header, Text } from '@components';
+import { Header, Text } from '@components';
 import { withStyles } from '@material-ui/core/styles';
 import Link from 'next/link';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 
 const styles = (theme) => ({
   root: {
@@ -13,49 +15,43 @@ const styles = (theme) => ({
   },
 });
 
+const GET_FEED = gql`
+  {
+    feed {
+      id
+      content
+    }
+  }
+`;
+
 class Index extends React.Component {
-  state = {
-    open: false,
-  };
-
-  handleClose = () => {
-    this.setState({
-      open: false,
-    });
-  };
-
-  handleClick = () => {
-    this.setState({
-      open: true,
-    });
-  };
+  componentDidMount() {
+    console.log('Mounted');
+  }
 
   render() {
     const { classes } = this.props;
-    const { open } = this.state;
 
     return (
-      <div className={classes.root}>
-        <AlertDialog
-          isOpen={open}
-          onClose={this.handleClose}
-          content="1-2-3-4-5"
-        />
+      <main className={classes.root}>
         <Header gutterBottom>Yours Sincerely</Header>
-        <Text gutterBottom>Hello world</Text>
+        <Query query={GET_FEED}>
+          {({ loading, error, data }) => {
+            if (loading) return 'Loading...';
+            if (error) return `Error! ${error.message}`;
+            return data.feed.map((post) => (
+              <Text key={post.id} component="span">
+                {post.content}
+              </Text>
+            ));
+          }}
+        </Query>
         <Text gutterBottom>
           <Link href="/about">
             <a>Go to the about page</a>
           </Link>
         </Text>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={this.handleClick}
-        >
-          Super Secret Password
-        </Button>
-      </div>
+      </main>
     );
   }
 }
