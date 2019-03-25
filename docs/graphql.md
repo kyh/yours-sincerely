@@ -10,7 +10,6 @@ Feel free to adjust any operation by adding or removing fields. The GraphQL Play
 query {
   feed {
     id
-    title
     content
     published
     author {
@@ -89,8 +88,7 @@ You need to be logged in for this query to work, i.e. an authentication token th
 ```graphql
 mutation {
   createDraft(
-    title: "Join our Slack"
-    content: "https://slack.itsbananas.com"
+    content: "Join our Slack: https://slack.itsbananas.com"
     authorEmail: "im.kaiyu@gmail.com"
   ) {
     id

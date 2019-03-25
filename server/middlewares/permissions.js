@@ -17,7 +17,7 @@ const rules = {
   }),
 };
 
-const permissions = shield({
+module.exports = shield({
   Query: {
     me: rules.isAuthenticatedUser,
     filterPosts: rules.isAuthenticatedUser,
@@ -29,7 +29,3 @@ const permissions = shield({
     publish: rules.isPostOwner,
   },
 });
-
-module.exports = {
-  permissions,
-};

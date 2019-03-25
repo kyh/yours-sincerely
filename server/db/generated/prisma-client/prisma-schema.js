@@ -56,8 +56,7 @@ type Post {
   createdAt: DateTime!
   updatedAt: DateTime!
   published: Boolean!
-  title: String!
-  content: String
+  content: String!
   author: User!
 }
 
@@ -69,8 +68,7 @@ type PostConnection {
 
 input PostCreateInput {
   published: Boolean
-  title: String!
-  content: String
+  content: String!
   author: UserCreateOneWithoutPostsInput!
 }
 
@@ -81,8 +79,7 @@ input PostCreateManyWithoutAuthorInput {
 
 input PostCreateWithoutAuthorInput {
   published: Boolean
-  title: String!
-  content: String
+  content: String!
 }
 
 type PostEdge {
@@ -99,8 +96,6 @@ enum PostOrderByInput {
   updatedAt_DESC
   published_ASC
   published_DESC
-  title_ASC
-  title_DESC
   content_ASC
   content_DESC
 }
@@ -110,8 +105,7 @@ type PostPreviousValues {
   createdAt: DateTime!
   updatedAt: DateTime!
   published: Boolean!
-  title: String!
-  content: String
+  content: String!
 }
 
 input PostScalarWhereInput {
@@ -147,20 +141,6 @@ input PostScalarWhereInput {
   updatedAt_gte: DateTime
   published: Boolean
   published_not: Boolean
-  title: String
-  title_not: String
-  title_in: [String!]
-  title_not_in: [String!]
-  title_lt: String
-  title_lte: String
-  title_gt: String
-  title_gte: String
-  title_contains: String
-  title_not_contains: String
-  title_starts_with: String
-  title_not_starts_with: String
-  title_ends_with: String
-  title_not_ends_with: String
   content: String
   content_not: String
   content_in: [String!]
@@ -200,20 +180,17 @@ input PostSubscriptionWhereInput {
 
 input PostUpdateInput {
   published: Boolean
-  title: String
   content: String
   author: UserUpdateOneRequiredWithoutPostsInput
 }
 
 input PostUpdateManyDataInput {
   published: Boolean
-  title: String
   content: String
 }
 
 input PostUpdateManyMutationInput {
   published: Boolean
-  title: String
   content: String
 }
 
@@ -236,7 +213,6 @@ input PostUpdateManyWithWhereNestedInput {
 
 input PostUpdateWithoutAuthorDataInput {
   published: Boolean
-  title: String
   content: String
 }
 
@@ -284,20 +260,6 @@ input PostWhereInput {
   updatedAt_gte: DateTime
   published: Boolean
   published_not: Boolean
-  title: String
-  title_not: String
-  title_in: [String!]
-  title_not_in: [String!]
-  title_lt: String
-  title_lte: String
-  title_gt: String
-  title_gte: String
-  title_contains: String
-  title_not_contains: String
-  title_starts_with: String
-  title_not_starts_with: String
-  title_ends_with: String
-  title_not_ends_with: String
   content: String
   content_not: String
   content_in: [String!]
