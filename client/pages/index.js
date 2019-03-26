@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Header, Link } from '@components';
+
 import Feed from '@client/containers/home/Feed';
+import Create from '@client/containers/home/Create';
 
 const styles = (theme) => ({
   root: {
@@ -22,8 +24,9 @@ class Index extends React.Component {
     return (
       <main className={classes.root}>
         <Header gutterBottom>Yours Sincerely</Header>
-        <Feed />
         <Link href="/about">Go to the about page</Link>
+        <Feed />
+        <Create />
       </main>
     );
   }
