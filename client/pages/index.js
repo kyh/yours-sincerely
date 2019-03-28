@@ -7,9 +7,16 @@ import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
 
 const styles = (theme) => ({
-  root: {
+  page: {
     textAlign: 'center',
-    paddingTop: theme.spacing.unit * 20,
+  },
+  container: {
+    maxWidth: 1300,
+    margin: 'auto',
+    padding: '0 20px',
+  },
+  textContainer: {
+    margin: 'auto',
   },
 });
 
@@ -22,11 +29,14 @@ class Index extends React.Component {
     const { classes } = this.props;
 
     return (
-      <main className={classes.root}>
-        <Header gutterBottom>Yours Sincerely</Header>
-        <Link href="/about">Go to the about page</Link>
-        <Feed />
-        <Create />
+      <main className={classes.page}>
+        <section className={classes.container}>
+          <Header gutterBottom>Yours Sincerely</Header>
+          <Feed />
+          <footer className={classes.textContainer}>
+            <Create />
+          </footer>
+        </section>
       </main>
     );
   }
