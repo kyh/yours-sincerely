@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Header, Link } from '@components';
+import { Header } from '@components';
 
 import LoginForm from '@client/containers/auth/LoginForm';
 
