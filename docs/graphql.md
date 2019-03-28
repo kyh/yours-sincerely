@@ -29,7 +29,7 @@ You can send the following mutation in the Playground to sign up a new user and 
 
 ```graphql
 mutation {
-  signup(name: "Kai", email: "im.kaiyu@gmail.com", password: "graphql") {
+  signup(username: "im.kaiyu@gmail.com", password: "graphql") {
     token
   }
 }
@@ -41,7 +41,7 @@ This mutation will log in an existing user by requesting a new authentication to
 
 ```graphql
 mutation {
-  login(email: "im.kaiyu@gmail.com", password: "graphql") {
+  login(username: "im.kaiyu@gmail.com", password: "graphql") {
     token
   }
 }

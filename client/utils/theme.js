@@ -22,7 +22,7 @@ export default createMuiTheme({
   brand: {
     black: '#292C36',
     white: '#FFFFFF',
-    backgroundGrey: '#F6F8FD',
+    background: '#f5f8fa',
     primary: '#8389E1',
     secondary: '#3B475F',
     backgroundBlue: '#C5EBFF',
@@ -96,6 +96,17 @@ export default createMuiTheme({
     },
   },
   overrides: {
+    MuiOutlinedInput: {
+      root: {
+        '& $notchedOutline': {
+          borderWidth: 2,
+          borderColor: '#3b475f1a',
+        },
+        '&:hover:not($disabled):not($focused):not($error) $notchedOutline': {
+          borderColor: '#3b475f1a',
+        },
+      },
+    },
     MuiButton: {
       contained: {
         boxShadow: '0 0 10px 0 rgba(224, 224, 224, 0.4);',
@@ -107,6 +118,9 @@ export default createMuiTheme({
         boxShadow: '0 0 10px 0 rgba(131, 137, 225, 0.4);',
         '&:active': {
           boxShadow: '0 0 2px 0 rgba(131, 137, 225, 0.4);',
+        },
+        '&:hover': {
+          backgroundColor: '#6e75da',
         },
       },
       containedSecondary: {
