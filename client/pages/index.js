@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Header, Link } from '@components';
+import { Header } from '@components';
 
 import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
