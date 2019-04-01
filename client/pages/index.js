@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Header } from '@components';
 
+import { Navigation } from '@components';
 import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
 
@@ -20,30 +20,22 @@ const styles = (theme) => ({
   },
 });
 
-class Index extends React.Component {
-  componentDidMount() {
-    console.log('Mounted');
-  }
-
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <main className={classes.page}>
-        <section className={classes.container}>
-          <Header gutterBottom>Yours Sincerely</Header>
-          <Feed />
-          <footer className={classes.textContainer}>
-            <Create />
-          </footer>
-        </section>
-      </main>
-    );
-  }
+function Home({ classes }) {
+  return (
+    <main className={classes.page}>
+      <Navigation />
+      <section className={classes.container}>
+        <Feed />
+        <footer className={classes.textContainer}>
+          <Create />
+        </footer>
+      </section>
+    </main>
+  );
 }
 
 Index.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Index);
+export default withStyles(styles)(Home);

@@ -30,7 +30,7 @@ const LoginForm = ({ classes }) => {
   const [password, setPassword] = useState('');
   return (
     <Mutation mutation={LOGIN}>
-      {(login) => (
+      {(login, { data, loading, error }) => (
         <form
           className={classes.form}
           onSubmit={(e) => {
@@ -58,6 +58,7 @@ const LoginForm = ({ classes }) => {
               color="primary"
               size="large"
               fullWidth
+              isLoading={loading}
             >
               Login
             </Button>

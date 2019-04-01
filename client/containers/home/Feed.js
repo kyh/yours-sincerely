@@ -5,11 +5,16 @@ import { withStyles } from '@material-ui/core/styles';
 import { Query } from 'react-apollo';
 import { Link, FeedContentLoader } from '@components';
 
-const styles = {
+const styles = (theme) => ({
   post: {
     display: 'inline-block',
+    color: theme.brand.black,
+    borderColor: 'transparent',
+    '&:hover': {
+      borderColor: theme.palette.primary.main,
+    },
   },
-};
+});
 
 const GET_FEED = gql`
   {
