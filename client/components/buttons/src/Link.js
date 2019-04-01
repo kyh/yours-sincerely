@@ -18,8 +18,13 @@ const styles = (theme) => ({
   },
 });
 
-export default withStyles(styles)(({ children, classes, ...props }) => (
+export default withStyles(styles)(({
+  children,
+  classes,
+  className = '',
+  ...props,
+}) => (
   <NextLink {...props}>
-    <a className={classes.root}>{children}</a>
+    <a className={`${classes.root} ${className}`}>{children}</a>
   </NextLink>
 ));

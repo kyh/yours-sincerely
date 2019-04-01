@@ -2,12 +2,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Header, Text } from '@components';
+import { Navigation, Header, Text, Link } from '@components';
 import { withStyles } from '@material-ui/core/styles';
-import Link from 'next/link';
 
 const styles = (theme) => ({
-  root: {
+  page: {},
+  pageContainer: {
     textAlign: 'center',
     paddingTop: theme.spacing.unit * 20,
   },
@@ -17,20 +17,16 @@ function About(props) {
   const { classes } = props;
 
   return (
-    <div className={classes.root}>
-      <Header>Sincerely Yours</Header>
-      <Text variant="subtitle1" gutterBottom>
-        about page
-      </Text>
-      <Text gutterBottom>
-        <Link href="/">
-          <a>Go to the main page</a>
-        </Link>
-      </Text>
-      <Button variant="contained" color="primary">
-        Do nothing button
-      </Button>
-    </div>
+    <main className={classes.page}>
+      <Navigation />
+      <section className={classes.pageContainer}>
+        <Header>About Yours Sincerely</Header>
+        <Text variant="subtitle1" gutterBottom>
+          about page
+        </Text>
+        <Link href="/">Go to the main page</Link>
+      </section>
+    </main>
   );
 }
 
