@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Document, { Head, Main, NextScript } from 'next/document';
 import flush from 'styled-jsx/server';
+import { Navigation } from '@components';
 
 const TITLE = 'Yours sincerely | Endless senseless collaborative book';
 const DESCRIPTION =
@@ -129,6 +130,7 @@ class MyDocument extends Document {
           />
         </Head>
         <body>
+          <Navigation />
           <Main />
           <NextScript />
         </body>

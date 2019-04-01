@@ -56,6 +56,10 @@ app.prepare().then(() => {
   server.express.use('/avatars', avatarsMiddleware);
 
   // Handle Next.js pages.
+  server.express.get('/p/:id', (req, res) => {
+    app.render(req, res, '/post', { id: req.params.id });
+  });
+
   server.express.get('*', (req, res, nxt) => {
     const { originalUrl } = req;
     if (

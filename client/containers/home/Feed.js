@@ -3,9 +3,13 @@ import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Query } from 'react-apollo';
-import { Text, FeedContentLoader } from '@components';
+import { Link, FeedContentLoader } from '@components';
 
-const styles = {};
+const styles = {
+  post: {
+    display: 'inline-block',
+  },
+};
 
 const GET_FEED = gql`
   {
@@ -16,16 +20,21 @@ const GET_FEED = gql`
   }
 `;
 
-function Feed() {
+function Feed({ classes }) {
   return (
     <Query query={GET_FEED}>
       {({ loading, error, data }) => {
         if (loading) return <FeedContentLoader />;
         if (error) return `Error! ${error.message}`;
         return data.feed.map((post) => (
-          <Text key={post.id} component="span">
+          <Link
+            key={post.id}
+            as={`/p/${post.id}`}
+            href={`/post?id=${post.id}`}
+            className={classes.post}
+          >
             {post.content}
-          </Text>
+          </Link>
         ));
       }}
     </Query>
