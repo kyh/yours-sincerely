@@ -24,8 +24,6 @@ const styles = {
   },
 };
 
-const Navigation = ({ classes }) => (
-  <nav className={classes.container}>Sincerely Yours</nav>
-);
+const Navigation = ({ classes }) => <nav className={classes.container} />;
 
 export default React.memo(withStyles(styles)(Navigation));
