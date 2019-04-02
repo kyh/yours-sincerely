@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
 import { TextField, Button } from '@components';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 
 const styles = {};
 
@@ -24,8 +26,13 @@ const GET_FEED = gql`
   }
 `;
 
+const validationSchema = Yup.object().shape({
+  content: Yup.string()
+    .max(500, 'Too long!')
+    .required('Required'),
+});
+
 const CreateDraft = () => {
-  const [draft, setDraft] = useState('');
   return (
     <Mutation
       mutation={CREATE_DRAFT}
@@ -38,24 +45,25 @@ const CreateDraft = () => {
       }}
     >
       {(createDraft) => (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            createDraft({ variables: { content: draft } });
-            setDraft('');
+        <Formik
+          initialValues={{ content: '' }}
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
+            createDraft({ variables: values });
           }}
         >
-          <TextField
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows="4"
-            margin="normal"
-            variant="outlined"
-            multiline
-            fullWidth
-          />
-          <Button type="submit">Create</Button>
-        </form>
+          <Form autoComplete="off">
+            <TextField
+              name="content"
+              rows="4"
+              margin="normal"
+              variant="outlined"
+              multiline
+              fullWidth
+            />
+            <Button type="submit">Create</Button>
+          </Form>
+        </Formik>
       )}
     </Mutation>
   );
