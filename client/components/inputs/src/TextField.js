@@ -1,4 +1,6 @@
 import React from 'react';
-import TextField from '@material-ui/core/TextField';
+import { FormikTextField } from 'formik-material-fields';
 
-export default (props) => <TextField variant="outlined" fullWidth {...props} />;
+export default (props) => (
+  <FormikTextField variant="outlined" fullWidth {...props} />
+);

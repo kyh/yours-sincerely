@@ -34,7 +34,7 @@ function Home({ classes }) {
   );
 }
 
-Index.propTypes = {
+Home.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
