@@ -15,21 +15,43 @@ Router.onRouteChangeError = () => {
   NProgress.done();
 };
 
-const styles = {
+const styles = (theme) => ({
   container: {
-    display: 'flex',
+    maxWidth: theme.brand.maxWidth,
+    margin: '0 auto',
+    padding: `0 ${theme.spacing.unit * 3}px`,
   },
-};
+  nav: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: `${theme.spacing.unit * 3}px 0`,
+    '& a': {
+      marginRight: theme.spacing.unit * 3,
+      border: 'none',
+      '&:hover': {
+        color: theme.palette.primary.dark,
+      },
+      '&:last-child': {
+        marginRight: 0,
+      },
+    },
+  },
+});
 
 function Navigation({ classes }) {
   return (
-    <nav className={classes.container}>
-      <Link href="/">
-        <Logo />
-      </Link>
-      <Link href="/about">About</Link>
-      <Link href="/login">Login</Link>
-    </nav>
+    <section className={classes.container}>
+      <nav className={classes.nav}>
+        <Link href="/">
+          <Logo />
+        </Link>
+        <div>
+          <Link href="/about">About</Link>
+          <Link href="/login">Login</Link>
+        </div>
+      </nav>
+    </section>
   );
 }
 

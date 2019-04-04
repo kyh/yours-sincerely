@@ -7,9 +7,11 @@ import { Link, FeedContentLoader } from '@components';
 
 const styles = (theme) => ({
   post: {
-    display: 'inline-block',
+    display: 'inline',
     color: theme.brand.black,
     borderColor: 'transparent',
+    fontSize: 20,
+    lineHeight: '32px',
     '&:hover': {
       borderColor: theme.palette.primary.main,
     },

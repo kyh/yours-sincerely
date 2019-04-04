@@ -41,6 +41,8 @@ export default createMuiTheme({
     lightOrange: '',
     Orange: '',
     darkOrange: '',
+    // Positioning.
+    maxWidth: 736,
   },
   typography: {
     useNextVariants: true,

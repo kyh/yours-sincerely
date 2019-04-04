@@ -7,16 +7,13 @@ import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
 
 const styles = (theme) => ({
-  page: {
-    textAlign: 'center',
-  },
   container: {
-    maxWidth: 1300,
+    maxWidth: theme.brand.maxWidth,
     margin: 'auto',
-    padding: '0 20px',
+    padding: `0 ${theme.spacing.unit * 3}px`,
   },
-  textContainer: {
-    margin: 'auto',
+  feed: {
+    paddingTop: theme.spacing.unit * 5,
   },
 });
 
@@ -25,8 +22,10 @@ function Home({ classes }) {
     <main className={classes.page}>
       <Navigation />
       <section className={classes.container}>
-        <Feed />
-        <footer className={classes.textContainer}>
+        <section className={classes.feed}>
+          <Feed />
+        </section>
+        <footer className={classes.create}>
           <Create />
         </footer>
       </section>

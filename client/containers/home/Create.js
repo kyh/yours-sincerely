@@ -28,8 +28,8 @@ const GET_FEED = gql`
 
 const validationSchema = Yup.object().shape({
   content: Yup.string()
-    .max(500, 'Too long!')
-    .required('Required'),
+    .max(500, 'For now, we only allow short stories')
+    .required("Don't forget the details"),
 });
 
 const CreateDraft = () => {
