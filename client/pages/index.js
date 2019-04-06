@@ -10,10 +10,7 @@ const styles = (theme) => ({
   container: {
     maxWidth: theme.brand.maxWidth,
     margin: 'auto',
-    padding: `0 ${theme.spacing.unit * 3}px`,
-  },
-  feed: {
-    paddingTop: theme.spacing.unit * 5,
+    padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
   },
 });
 

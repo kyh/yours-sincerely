@@ -21,9 +21,7 @@ function About(props) {
       <Navigation />
       <section className={classes.pageContainer}>
         <Header>About Yours Sincerely</Header>
-        <Text variant="subtitle1" gutterBottom>
-          about page
-        </Text>
+        <Text gutterBottom>about page</Text>
         <Link href="/">Go to the main page</Link>
       </section>
     </main>

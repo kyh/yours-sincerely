@@ -11,7 +11,7 @@ const Header = ({ children, ...props }) => {
 
 Header.defaultProps = {
   component: 'h1',
-  variant: 'h4',
+  variant: 'h2',
 };
 
 export default Header;

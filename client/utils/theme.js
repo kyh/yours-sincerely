@@ -46,7 +46,7 @@ export default createMuiTheme({
   },
   typography: {
     useNextVariants: true,
-    // Use the system font instead of the default Roboto font.
+    fontSize: 16,
     fontFamily: [
       '-apple-system',
       'BlinkMacSystemFont',
