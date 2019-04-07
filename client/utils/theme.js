@@ -43,6 +43,7 @@ export default createMuiTheme({
     darkOrange: '',
     // Positioning.
     maxWidth: 736,
+    borderColor: '#3b475f1a',
   },
   typography: {
     useNextVariants: true,

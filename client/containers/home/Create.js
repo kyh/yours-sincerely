@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
-import { TextField, Button } from '@components';
+import { TextField, Dialog, Button } from '@components';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
@@ -33,39 +33,54 @@ const validationSchema = Yup.object().shape({
 });
 
 const CreateDraft = () => {
+  const [isOpen, toggleOpen] = useState(false);
   return (
-    <Mutation
-      mutation={CREATE_DRAFT}
-      update={(cache, { data: { createDraft } }) => {
-        const { posts } = cache.readQuery({ query: GET_FEED });
-        cache.writeQuery({
-          query: GET_FEED,
-          data: { posts: posts.concat([createDraft]) },
-        });
-      }}
-    >
-      {(createDraft) => (
-        <Formik
-          initialValues={{ content: '' }}
-          validationSchema={validationSchema}
-          onSubmit={(values) => {
-            createDraft({ variables: values });
+    <>
+      <TextField
+        name="content"
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        defaultField
+        placeholder="Continue the story..."
+        InputProps={{
+          readOnly: true,
+        }}
+        onClick={() => toggleOpen(!isOpen)}
+      />
+      <Dialog isOpen={isOpen} onClose={() => toggleOpen(!isOpen)}>
+        <Mutation
+          mutation={CREATE_DRAFT}
+          update={(cache, { data: { createDraft } }) => {
+            const { posts } = cache.readQuery({ query: GET_FEED });
+            cache.writeQuery({
+              query: GET_FEED,
+              data: { posts: posts.concat([createDraft]) },
+            });
           }}
         >
-          <Form autoComplete="off">
-            <TextField
-              name="content"
-              rows="4"
-              margin="normal"
-              variant="outlined"
-              multiline
-              fullWidth
-            />
-            <Button type="submit">Create</Button>
-          </Form>
-        </Formik>
-      )}
-    </Mutation>
+          {(createDraft) => (
+            <Formik
+              initialValues={{ content: '' }}
+              validationSchema={validationSchema}
+              onSubmit={(values) => {
+                createDraft({ variables: values });
+              }}
+            >
+              <Form autoComplete="off">
+                <TextField
+                  name="content"
+                  margin="normal"
+                  variant="outlined"
+                  fullWidth
+                  autoFocus
+                />
+              </Form>
+            </Formik>
+          )}
+        </Mutation>
+      </Dialog>
+    </>
   );
 };
 
