@@ -4,7 +4,7 @@ import ContentLoader from 'react-content-loader';
 function FeedContentLoader(props) {
   return (
     <ContentLoader
-      height={160}
+      height={150}
       width={400}
       speed={2}
       primaryColor="#f3f3f3"

@@ -7,13 +7,28 @@ import { Link, FeedContentLoader } from '@components';
 
 const styles = (theme) => ({
   post: {
+    position: 'relative',
     display: 'inline',
     color: theme.brand.black,
     borderColor: 'transparent',
     fontSize: 20,
     lineHeight: '32px',
+    marginLeft: theme.spacing.unit * 2,
     '&:hover': {
       borderColor: theme.palette.primary.main,
+    },
+    '&::before': {
+      content: '"•"',
+      color: '#3b475f40',
+      position: 'absolute',
+      left: -12,
+      top: -5,
+    },
+    '&:first-child': {
+      marginLeft: 0,
+    },
+    '&:first-child::before': {
+      content: '""',
     },
   },
 });

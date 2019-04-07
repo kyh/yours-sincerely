@@ -40,7 +40,6 @@ function YSDialog({
 }) {
   return (
     <Dialog
-      fullScreen
       open={isOpen}
       onClose={onClose}
       TransitionComponent={Transition}
