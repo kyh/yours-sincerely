@@ -12,6 +12,9 @@ const styles = (theme) => ({
     margin: 'auto',
     padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
   },
+  feed: {
+    marginBottom: theme.spacing.unit * 3,
+  },
 });
 
 function Home({ classes }) {
