@@ -5,10 +5,14 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import Slide from '@material-ui/core/Slide';
 import ArrowBack from '@material-ui/icons/ArrowBack';
+import Grow from '@material-ui/core/Grow';
 
 const styles = {
+  paper: {
+    boxShadow: 'none',
+    maxWidth: 736,
+  },
   appBar: {
     position: 'relative',
     backgroundColor: 'transparent',
@@ -26,7 +30,7 @@ const styles = {
 };
 
 function Transition(props) {
-  return <Slide direction="up" {...props} />;
+  return <Grow {...props} />;
 }
 
 function YSDialog({
@@ -34,15 +38,19 @@ function YSDialog({
   isOpen,
   onClose,
   title,
-  rightButton,
+  toolbarRight,
   classes,
   ...props
 }) {
   return (
     <Dialog
+      classes={{
+        paper: classes.paper,
+      }}
       open={isOpen}
       onClose={onClose}
       TransitionComponent={Transition}
+      fullWidth
       {...props}
     >
       <AppBar className={classes.appBar}>
@@ -55,7 +63,7 @@ function YSDialog({
               {title}
             </Typography>
           )}
-          {!!rightButton && rightButton}
+          {!!toolbarRight && toolbarRight()}
         </Toolbar>
       </AppBar>
       {children}

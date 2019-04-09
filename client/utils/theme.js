@@ -44,6 +44,7 @@ export default createMuiTheme({
     // Positioning.
     maxWidth: 736,
     borderColor: '#3b475f1a',
+    boxShadow: '0 3px 10px rgba(50, 50, 93, .11), 0 1px 2px rgba(0, 0, 0, .08)',
   },
   typography: {
     useNextVariants: true,
@@ -99,6 +100,11 @@ export default createMuiTheme({
     },
   },
   overrides: {
+    MuiBackdrop: {
+      root: {
+        backgroundColor: 'rgba(59, 71, 95, 0.85)',
+      },
+    },
     MuiOutlinedInput: {
       root: {
         '& $notchedOutline': {
