@@ -11,7 +11,6 @@ import {
   Tooltip,
 } from '@components';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 
 const styles = (theme) => ({
   button: {
@@ -60,13 +59,7 @@ const GET_FEED = gql`
   }
 `;
 
-const MAX_CHARACTERS = 1000;
-
-const validationSchema = Yup.object().shape({
-  content: Yup.string()
-    .max(MAX_CHARACTERS, 'For now, we only allow shorter stories')
-    .required("Don't forget the details"),
-});
+const MAX_WORDS = 101;
 
 class CreateDraft extends PureComponent {
   state = {
@@ -77,15 +70,31 @@ class CreateDraft extends PureComponent {
     this.setState(({ isOpen }) => ({ isOpen: !isOpen }));
   };
 
-  renderCharactersLeft = (content) => {
+  validateForm = ({ content }) => {
+    const errors = {};
+
+    if (!content && !content.trim()) {
+      errors.content = 'This doesn’t look right...';
+    } else if (this.getWordsLeft(content) < 0) {
+      errors.content = 'For now, we only allow shorter stories';
+    }
+
+    return errors;
+  };
+
+  getWordsLeft = (content) => {
+    return MAX_WORDS - content.split(/\W+/).length;
+  };
+
+  renderWordsLeft = (content) => {
     const { classes } = this.props;
-    const left = MAX_CHARACTERS - content.length;
+    const left = this.getWordsLeft(content);
     if (left >= 0) {
-      return <Text variant="caption">{left} characters left</Text>;
+      return <Text variant="caption">{left} words left</Text>;
     }
     return (
       <Text variant="caption" className={classes.red}>
-        {Math.abs(left)} characters over
+        {Math.abs(left)} words over
       </Text>
     );
   };
@@ -93,7 +102,10 @@ class CreateDraft extends PureComponent {
   renderPostingAs = () => {
     const { classes } = this.props;
     return (
-      <Tooltip title="We've created this name for you" placement="bottom">
+      <Tooltip
+        title="Since you're not logged in, we've created this name for you"
+        placement="bottom"
+      >
         <Text variant="caption" className={classes.dialogCaption}>
           Posting as whale-freak-3
         </Text>
@@ -112,7 +124,7 @@ class CreateDraft extends PureComponent {
       >
         <Formik
           initialValues={{ content: '' }}
-          validationSchema={validationSchema}
+          validate={this.validateForm}
           onSubmit={(values) => {
             console.log(values);
             createDraft({ variables: values });
@@ -133,7 +145,7 @@ class CreateDraft extends PureComponent {
                 autoFocus
               />
               <footer className={classes.footer}>
-                {this.renderCharactersLeft(values.content)}
+                {this.renderWordsLeft(values.content)}
                 <Button
                   className={classes.submit}
                   type="submit"

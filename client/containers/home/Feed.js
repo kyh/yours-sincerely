@@ -13,7 +13,7 @@ const styles = (theme) => ({
     borderColor: 'transparent',
     fontSize: 20,
     lineHeight: '32px',
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit * 3,
     '&:hover': {
       borderColor: theme.palette.primary.main,
     },
@@ -21,7 +21,7 @@ const styles = (theme) => ({
       content: '"•"',
       color: '#3b475f40',
       position: 'absolute',
-      left: -12,
+      left: -16,
       top: -5,
     },
     '&:first-child': {
