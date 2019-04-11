@@ -2,32 +2,21 @@ const { prisma } = require('../server/db/generated/prisma-client');
 
 async function main() {
   await prisma.createUser({
-    username: 'kaiyuhsu',
+    username: 'kyh',
     email: 'im.kaiyu@gmail.com',
     name: 'Kaiyu',
     password: '$2b$10$dqyYw5XovLjpmkYNiRDEWuwKaRAvLaG45fnXE5b3KTccKZcRPka2m', // "secret42"
     posts: {
-      create: {
-        content:
-          'Join us for GraphQL Conf 2019 in Berlin, https://www.graphqlconf.org/',
-        published: true,
-      },
-    },
-  });
-  await prisma.createUser({
-    username: 'cathyli',
-    email: 'cathy@abc.io',
-    name: 'Cathy',
-    password: '$2b$10$o6KioO.taArzboM44Ig85O3ZFZYZpR3XD7mI8T29eP4znU/.xyJbW', // "secret43"
-    posts: {
       create: [
         {
           content:
-            'Subscribe to GraphQL Weekly for community news, https://graphqlweekly.com/',
+            'What does it mean to be a part of something like this? An endless, senseless story. Pen to paper, fingers to keyboard, words to scripture, thoughts to reflections, heart to heart. To have us all just spew out what’s on our minds at the moment -- kind of connects us all, just for a second, doesn’t it?',
           published: true,
         },
         {
-          content: 'Follow me on Twitter, https://twitter.com/tehkaiyu',
+          content:
+            'If you have trouble falling asleep, write down all the thoughts swimming around your head before getting into bed as a way to clear your mind.',
+          published: true,
         },
       ],
     },
