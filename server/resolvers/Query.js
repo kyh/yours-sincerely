@@ -1,6 +1,10 @@
+const Moniker = require('moniker');
 const { getUserId } = require('@server/services/authentication');
 
 const Query = {
+  randomUsername: () => {
+    return Moniker.choose();
+  },
   me: (parent, args, context) => {
     const userId = getUserId(context);
     return context.prisma.user({ id: userId });
@@ -11,14 +15,7 @@ const Query = {
   filterPosts: (parent, { searchString }, context) => {
     return context.prisma.posts({
       where: {
-        OR: [
-          {
-            title_contains: searchString,
-          },
-          {
-            content_contains: searchString,
-          },
-        ],
+        content_contains: searchString,
       },
     });
   },

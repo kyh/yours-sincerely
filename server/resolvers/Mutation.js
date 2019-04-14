@@ -4,10 +4,11 @@ const { getUserId } = require('@server/services/authentication');
 const keys = require('@server/config/keys');
 
 const Mutation = {
-  signup: async (parent, { username, password }, context) => {
+  signup: async (parent, { username, email, password }, context) => {
     const hashedPassword = await hash(password, 10);
     const user = await context.prisma.createUser({
       username,
+      email,
       password: hashedPassword,
     });
     return {
@@ -15,10 +16,10 @@ const Mutation = {
       user,
     };
   },
-  login: async (parent, { username, password }, context) => {
-    const user = await context.prisma.user({ username });
+  login: async (parent, { email, password }, context) => {
+    const user = await context.prisma.user({ email });
     if (!user) {
-      throw new Error(`No user found for username: ${username}`);
+      throw new Error(`No user found for email: ${email}`);
     }
     const passwordValid = await compare(password, user.password);
     if (!passwordValid) {
