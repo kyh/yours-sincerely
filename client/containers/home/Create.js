@@ -25,6 +25,9 @@ const styles = (theme) => ({
   form: {
     padding: `0 ${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
   },
+  input: {
+    lineHeight: '32px',
+  },
   footer: {
     display: 'flex',
     justifyContent: 'space-between',

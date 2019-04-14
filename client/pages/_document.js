@@ -98,6 +98,12 @@ class MyDocument extends Document {
             href="static/favicons/apple-icon-180x180.png"
           />
           <link
+            rel="shortcut icon"
+            type="image/png"
+            sizes="192x192"
+            href="static/favicons/android-icon-192x192.png"
+          />
+          <link
             rel="icon"
             type="image/png"
             sizes="32x32"
@@ -115,7 +121,6 @@ class MyDocument extends Document {
             sizes="16x16"
             href="static/favicons/favicon-16x16.png"
           />
-
           <link
             rel="stylesheet"
             type="text/css"
