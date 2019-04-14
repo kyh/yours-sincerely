@@ -9,7 +9,7 @@ const path = require('path');
 const { GraphQLServer, PubSub } = require('graphql-yoga');
 
 /**
- * Express/Yoga Middlewares.
+ * Middlewares.
  */
 const avatarsMiddleware = require('adorable-avatars');
 const helmet = require('helmet');
@@ -24,9 +24,6 @@ const { resolvers } = require('@server/resolvers');
 
 const PORT = process.env.PORT || 5000;
 const IS_DEV = process.env.NODE_ENV !== 'production';
-
-// Set up services.
-require('express-async-errors');
 
 /**
  * SSR is done using `Next.js`:
