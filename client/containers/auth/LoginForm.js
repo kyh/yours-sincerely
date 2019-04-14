@@ -15,12 +15,12 @@ const styles = (theme) => ({
 });
 
 const LOGIN = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
       token
       user {
         id
-        username
+        email
         name
       }
     }
@@ -28,7 +28,7 @@ const LOGIN = gql`
 `;
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string()
+  email: Yup.string()
     .min(2, 'Just a little longer')
     .max(50, 'Just a little shorter')
     .required('You can change this later'),
@@ -43,7 +43,7 @@ const LoginForm = ({ classes }) => {
       {(login, { data, loading, error }) => (
         <Formik
           initialValues={{
-            username: '',
+            email: '',
             password: '',
           }}
           validationSchema={validationSchema}
@@ -52,11 +52,7 @@ const LoginForm = ({ classes }) => {
           }}
         >
           <Form>
-            <TextField
-              label="Username"
-              name="username"
-              className={classes.field}
-            />
+            <TextField label="Email" name="email" className={classes.field} />
             <TextField
               label="Password"
               name="password"
