@@ -61,6 +61,9 @@ export default createMuiTheme({
       '"Segoe UI Emoji"',
       '"Segoe UI Symbol"',
     ].join(','),
+    body1: {
+      lineHeight: 1.65,
+    },
     subtitle1: {
       fontWeight: 500,
       fontSize: '0.875rem',
