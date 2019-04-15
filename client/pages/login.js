@@ -28,6 +28,11 @@ const styles = (theme) => ({
     borderRadius: 8,
     boxShadow: '0 3px 10px rgba(50, 50, 93, .11), 0 1px 2px rgba(0, 0, 0, .08)',
     padding: '40px',
+  },
+  logoContainer: {
+    '&:hover': {
+      borderColor: 'transparent',
+    },
     '& .logo': {
       width: 80,
       marginBottom: theme.spacing.unit,
@@ -69,19 +74,21 @@ function Login(props) {
     <main className={classes.page}>
       <section className={classes.container}>
         <div className={classes.card}>
-          <Logo />
+          <Link href="/" className={classes.logoContainer}>
+            <Logo />
+          </Link>
           <Header className={classes.header}>Welcome back</Header>
           <Text className={classes.subHeader}>Log into your account</Text>
           <LoginForm />
           <footer className={classes.footerContainer}>
-            <Link>Forgot your password?</Link>
+            <Link href="/forgot_password">Forgot your password?</Link>
           </footer>
         </div>
         <div className={classes.moreContainer}>
-          <Link>Create Account</Link>
+          <Link href="/signup">Create Account</Link>
           <div className={classes.moreRight}>
-            <Link>Privacy</Link>
-            <Link>Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </div>
         </div>
       </section>
