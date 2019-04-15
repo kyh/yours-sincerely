@@ -29,12 +29,11 @@ const LOGIN = gql`
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
-    .min(2, 'Just a little longer')
-    .max(50, 'Just a little shorter')
-    .required('You can change this later'),
+    .email('That doesn’t seem right')
+    .required('That doesn’t seem right'),
   password: Yup.string()
     .min(6, 'Just a little longer')
-    .required('Try something memorable'),
+    .required('That doesn’t seem right'),
 });
 
 const LoginForm = ({ classes }) => {
