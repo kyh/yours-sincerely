@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
-import { TextField, Button } from '@components';
+import { TextField, Button, Snackbar } from '@components';
+import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({
   form: {},
@@ -37,9 +38,14 @@ const validationSchema = Yup.object().shape({
 });
 
 const LoginForm = ({ classes }) => {
+  const [isErrorState, setErrorState] = useState(false);
   return (
-    <Mutation mutation={LOGIN}>
-      {(login, { data, loading, error }) => (
+    <Mutation
+      mutation={LOGIN}
+      onError={() => setErrorState(true)}
+      onCompleted={() => redirect({}, '/')}
+    >
+      {(login, { loading, error }) => (
         <Formik
           initialValues={{
             email: '',
@@ -51,6 +57,12 @@ const LoginForm = ({ classes }) => {
           }}
         >
           <Form>
+            <Snackbar
+              isOpen={isErrorState}
+              variant="error"
+              message={error && error.graphQLErrors[0].message}
+              onClose={() => setErrorState(false)}
+            />
             <TextField label="Email" name="email" className={classes.field} />
             <TextField
               label="Password"

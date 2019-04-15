@@ -69,7 +69,6 @@ const styles = (theme) => ({
 
 function Login(props) {
   const { classes } = props;
-
   return (
     <main className={classes.page}>
       <section className={classes.container}>

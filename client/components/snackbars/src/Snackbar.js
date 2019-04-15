@@ -78,16 +78,16 @@ const StyledSnackbarContent = withStyles(styles)((props) => {
 });
 
 function StyledSnackbar({
-  isOpen,
-  onClose,
+  isOpen = false,
+  onClose = () => {},
   variant = 'success',
   message = 'This is a success message!',
 }) {
   return (
     <Snackbar
       anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
+        vertical: 'top',
+        horizontal: 'center',
       }}
       open={isOpen}
       autoHideDuration={6000}
