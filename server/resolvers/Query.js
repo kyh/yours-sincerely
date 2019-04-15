@@ -1,9 +1,15 @@
 const Moniker = require('moniker');
 const { getUserId } = require('@server/services/authentication');
 
+const usernameGenerator = Moniker.generator([
+  Moniker.adjective,
+  Moniker.adjective,
+  Moniker.noun,
+]);
+
 const Query = {
   randomUsername: () => {
-    return Moniker.choose();
+    return usernameGenerator.choose();
   },
   me: (parent, args, context) => {
     const userId = getUserId(context);
