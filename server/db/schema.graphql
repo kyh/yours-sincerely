@@ -12,13 +12,8 @@ type Mutation {
   createDraft(content: String!): Post!
   deletePost(id: ID!): Post
   publish(id: ID!): Post
-  signup(username: String!, password: String!): AuthPayload!
-  login(email: String!, password: String!): AuthPayload!
-}
-
-type AuthPayload {
-  token: String!
-  user: User!
+  signup(username: String!, password: String!): User!
+  login(email: String!, password: String!): User!
 }
 
 type Post {
@@ -36,5 +31,4 @@ type User {
   email: String
   username: String!
   posts: [Post!]!
-  permissions: [Permission]
 }
