@@ -1,5 +1,4 @@
 const Moniker = require('moniker');
-const { getUserId } = require('@server/services/authentication');
 
 const usernameGenerator = Moniker.generator([
   Moniker.adjective,
@@ -12,8 +11,9 @@ const Query = {
     return usernameGenerator.choose();
   },
   me: (parent, args, context) => {
-    const userId = getUserId(context);
-    return context.prisma.user({ id: userId });
+    debugger;
+    if (!context.userId) return null;
+    return context.prisma.user({ id: context.userId });
   },
   feed: (parent, args, context) => {
     return context.prisma.posts({ where: { published: true } });

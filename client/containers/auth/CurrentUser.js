@@ -15,7 +15,7 @@ const GET_CURRENT_USER = gql`
 
 const CurrentUser = (props) => (
   <Query {...props} query={GET_CURRENT_USER}>
-    {(payload) => props.children(payload)}
+    {(result) => props.children(result)}
   </Query>
 );
 

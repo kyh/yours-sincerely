@@ -45,7 +45,7 @@ const styles = (theme) => ({
 function Navigation({ classes }) {
   return (
     <CurrentUser>
-      {({ data }) => (
+      {({ data: { me } }) => (
         <section className={classes.container}>
           <nav className={classes.nav}>
             <Link href="/">
@@ -53,7 +53,8 @@ function Navigation({ classes }) {
             </Link>
             <div>
               <Link href="/about">About</Link>
-              {data && data.me ? <Logout /> : <Link href="/login">Login</Link>}
+              {!me && <Link href="/login">Login</Link>}
+              {me && <Logout />}
             </div>
           </nav>
         </section>
