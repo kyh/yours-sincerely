@@ -13,6 +13,7 @@ const { GraphQLServer, PubSub } = require('graphql-yoga');
  */
 const avatarsMiddleware = require('adorable-avatars');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const permissions = require('@server/middlewares/permissions');
 
 /**
@@ -50,6 +51,7 @@ app.prepare().then(() => {
 
   // Set up express middlewares.
   server.express.use(helmet());
+  server.express.use(cookieParser());
   server.express.use('/avatars', avatarsMiddleware);
 
   // Handle Next.js pages.
