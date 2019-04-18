@@ -40,6 +40,7 @@
     "apollo-boost": "^0.3.1",
     "aws-sdk": "^2.437.0",
     "bcrypt": "^3.0.6",
+    "cookie-parser": "^1.4.4",
     "env-cmd": "^8.0.2",
     "formik": "^1.5.2",
     "formik-material-fields": "0.0.4",
