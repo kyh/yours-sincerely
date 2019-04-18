@@ -1,6 +1,5 @@
 const { hash, compare } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
-const { getUserId } = require('@server/services/authentication');
 const keys = require('@server/config/keys');
 
 const Mutation = {
@@ -45,7 +44,7 @@ const Mutation = {
     return { message: `We'll miss you!` };
   },
   createDraft: async (parent, { title, content }, context) => {
-    const userId = getUserId(context);
+    const { userId } = context;
     return context.prisma.createPost({
       title,
       content,

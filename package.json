@@ -18,6 +18,7 @@
     "dev": "env-cmd ./config/.env.local nodemon server/index.js --ext js,graphql",
     "dev:storybook": "start-storybook -p 5010 -s ./client",
     "build": "env-cmd ./config/.env.local next build client",
+    "debug": "env-cmd ./config/.env.local ndb node server/index.js",
     "deploy": "node tools/deploy",
     "deploy:schema": "prisma deploy",
     "deploy:storybook": "storybook-to-ghpages",
