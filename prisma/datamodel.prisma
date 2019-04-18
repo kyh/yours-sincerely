@@ -1,17 +1,25 @@
-type Post {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  published: Boolean! @default(value: "false")
-  content: String!
-  author: User!
+enum Permission {
+  ADMIN
+  USER
 }
 
 type User {
-  id: ID! @unique
-  username: String! @unique
+  id: ID! @id
   email: String! @unique
-  password: String!
+  username: String! @unique
   name: String
+  password: String!
+  resetToken: String
+  resetTokenExpiry: Float
   posts: [Post!]!
+  permissions: [Permission]
+}
+
+type Post {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  published: Boolean! @default(value: false)
+  content: String!
+  author: User!
 }
