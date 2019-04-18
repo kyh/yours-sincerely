@@ -32,8 +32,9 @@ type Post {
 
 type User {
   id: ID!
-  username: String!
-  email: String
   name: String
+  email: String
+  username: String!
   posts: [Post!]!
+  permissions: [Permission]
 }
