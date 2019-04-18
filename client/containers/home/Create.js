@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
+import { Formik, Form } from 'formik';
 import {
   InputBase,
   Dialog,
@@ -10,7 +11,7 @@ import {
   Text,
   Tooltip,
 } from '@components';
-import { Formik, Form } from 'formik';
+import { GET_FEED } from './Feed';
 
 const styles = (theme) => ({
   button: {
@@ -47,15 +48,6 @@ const styles = (theme) => ({
 const CREATE_DRAFT = gql`
   mutation CreateDraft($content: String!) {
     createDraft(content: $content) {
-      id
-      content
-    }
-  }
-`;
-
-const GET_FEED = gql`
-  {
-    feed {
       id
       content
     }

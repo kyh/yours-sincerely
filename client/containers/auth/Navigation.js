@@ -4,6 +4,9 @@ import Router from 'next/router';
 import { withStyles } from '@material-ui/core/styles';
 import { Logo, Link } from '@components';
 
+import CurrentUser from './CurrentUser';
+import Logout from './Logout';
+
 Router.onRouteChangeStart = () => {
   NProgress.start();
 };
@@ -26,7 +29,7 @@ const styles = (theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: `${theme.spacing.unit * 3}px 0`,
-    '& a': {
+    '& a, & button': {
       marginRight: theme.spacing.unit * 3,
       border: 'none',
       '&:hover': {
@@ -41,17 +44,21 @@ const styles = (theme) => ({
 
 function Navigation({ classes }) {
   return (
-    <section className={classes.container}>
-      <nav className={classes.nav}>
-        <Link href="/">
-          <Logo />
-        </Link>
-        <div>
-          <Link href="/about">About</Link>
-          <Link href="/login">Login</Link>
-        </div>
-      </nav>
-    </section>
+    <CurrentUser>
+      {({ data }) => (
+        <section className={classes.container}>
+          <nav className={classes.nav}>
+            <Link href="/">
+              <Logo />
+            </Link>
+            <div>
+              <Link href="/about">About</Link>
+              {data && data.me ? <Logout /> : <Link href="/login">Login</Link>}
+            </div>
+          </nav>
+        </section>
+      )}
+    </CurrentUser>
   );
 }
 

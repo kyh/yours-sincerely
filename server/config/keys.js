@@ -1,5 +1,6 @@
 module.exports = {
   jwtSecret: process.env.JWT_SECRET,
+  cookieName: process.env.COOKIE_NAME,
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

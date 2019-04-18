@@ -21,10 +21,16 @@ const styles = (theme) => ({
 export default withStyles(styles)(({
   children,
   classes,
+  onClick,
   className = '',
   ...props,
 }) => (
   <NextLink {...props}>
-    <a className={`${classes.root} ${className}`}>{children}</a>
+    <a
+      className={`${classes.root} ${className}`}
+      onClick={onClick}
+    >
+      {children}
+    </a>
   </NextLink>
 ));

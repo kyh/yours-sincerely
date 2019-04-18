@@ -2,8 +2,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navigation, Header, Text, Link } from '@components';
+import { Header, Text, Link } from '@components';
 import { withStyles } from '@material-ui/core/styles';
+import Navigation from '@client/containers/auth/Navigation';
 
 const styles = (theme) => ({
   page: {},

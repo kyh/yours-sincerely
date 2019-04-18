@@ -68,3 +68,4 @@ Feed.propTypes = {
 };
 
 export default withStyles(styles)(Feed);
+export { GET_FEED };

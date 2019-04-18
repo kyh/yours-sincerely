@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
-import { Navigation } from '@components';
+import Navigation from '@client/containers/auth/Navigation';
 import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
 

@@ -1,5 +1,9 @@
 scalar DateTime
 
+type SuccessMessage {
+  message: String
+}
+
 type Query {
   me: User
   randomUsername: String!
@@ -14,6 +18,7 @@ type Mutation {
   publish(id: ID!): Post
   signup(username: String!, password: String!): User!
   login(email: String!, password: String!): User!
+  logout: SuccessMessage
 }
 
 type Post {
