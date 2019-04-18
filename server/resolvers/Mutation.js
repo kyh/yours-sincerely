@@ -13,7 +13,7 @@ const Mutation = {
       permissions: { set: ['USER'] },
     });
     const token = sign({ userId: user.id }, keys.jwtSecret);
-    context.response.cookie('token', token, {
+    context.response.cookie(keys.cookieName, token, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
@@ -33,12 +33,16 @@ const Mutation = {
     // 3. Generate the JWT Token
     const token = sign({ userId: user.id }, keys.jwtSecret);
     // 4. Set the cookie with the token
-    context.response.cookie('token', token, {
+    context.response.cookie(keys.cookieName, token, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     // 5. Return the user
     return user;
+  },
+  logout(parent, args, context) {
+    context.response.clearCookie(keys.cookieName);
+    return { message: `We'll miss you!` };
   },
   createDraft: async (parent, { title, content }, context) => {
     const userId = getUserId(context);
