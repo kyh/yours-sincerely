@@ -12,14 +12,16 @@ type User {
   resetToken: String
   resetTokenExpiry: Float
   posts: [Post!]!
-  permissions: [Permission]
+  permissions: [Permission] @scalarList(strategy:RELATION)
+  updatedAt: DateTime! @updatedAt
+  createdAt: DateTime! @createdAt
 }
 
 type Post {
   id: ID! @id
-  createdAt: DateTime! @createdAt
-  updatedAt: DateTime! @updatedAt
   published: Boolean! @default(value: false)
   content: String!
   author: User!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }
