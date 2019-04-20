@@ -22,7 +22,7 @@ npm install -g prisma
 
 ### Getting Started
 
-Yours Sincerely uses a **GraphQL server** built with [graphql-yoga](https://github.com/prisma/graphql-yoga) & [graphql-shield](https://github.com/maticzav/graphql-shield). The database interface uses [Prisma](https://github.com/prisma/prisma). Frontend is a SSR **React app** via [next.js](https://github.com/zeit/next.js).
+Yours Sincerely uses a **GraphQL server** built with [express](https://github.com/expressjs/express) & [apollo-server](https://github.com/apollographql/apollo-server). The database interface uses [Prisma](https://github.com/prisma/prisma). Frontend is a SSR **React app** via [next.js](https://github.com/zeit/next.js).
 
 #### How to install
 
