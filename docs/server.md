@@ -4,7 +4,7 @@ Yours Sincerely's backend is built using [GraphQL Yoga](https://github.com/prism
 
 ### Updating the API
 
-If you want to change the GraphQL API, you need to adjust the GraphQL schema in [`../server/db/schema.graphql`](../server/db/schema.graphql) and the respective resolver functions.
+If you want to change the GraphQL API, you need to adjust the GraphQL schema in [`../server/schema/schema.graphql`](../serverschemab/schema.graphql) and the respective resolver functions.
 
 <Details><Summary><strong>Adding an operation without updating the datamodel</strong></Summary>
 
@@ -95,9 +95,9 @@ After having updated the datamodel, you need to deploy the changes:
 npm run deploy:schema
 ```
 
-Note that this also invokes `prisma generate` (because of the `post-deploy` hook in [`prisma.yml`](../prisma/prisma.yml)) which regenerates the Prisma client in [`../server/db/generated/prisma-client`](../server/db/generated/prisma-client).
+Note that this also invokes `prisma generate` (because of the `post-deploy` hook in [`prisma.yml`](../prisma/prisma.yml)) which regenerates the Prisma client in [`../server/schema/generated/prisma-client`](../server/schema/generated/prisma-client).
 
-To now enable users to add comments to posts, you need to add the `Comment` type as well as the corresponding operation to the GraphQL schema in [`../server/db/schema.graphql`](../server/db/schema.graphql):
+To now enable users to add comments to posts, you need to add the `Comment` type as well as the corresponding operation to the GraphQL schema in [`../server/schema/schema.graphql`](../serverschemab/schema.graphql):
 
 ```diff
 type Query {
