@@ -1,8 +1,13 @@
 module.exports = {
   nodeEnv: process.env.NODE_ENV,
   port: process.env.PORT,
-  jwtSecret: process.env.JWT_SECRET,
-  cookieName: process.env.COOKIE_NAME,
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
+  },
+  db: {
+    prismaEndpoint: process.env.PRISMA_ENDPOINT,
+    prismaSecret: process.env.PRISMA_SECRET,
+  },
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

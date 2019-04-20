@@ -11,9 +11,8 @@ const Query = {
     return usernameGenerator.choose();
   },
   me: (parent, args, context) => {
-    debugger;
-    if (!context.userId) return null;
-    return context.prisma.user({ id: context.userId });
+    if (!context.user) return null;
+    return context.prisma.user({ id: context.user.userId });
   },
   feed: (parent, args, context) => {
     return context.prisma.posts({ where: { published: true } });

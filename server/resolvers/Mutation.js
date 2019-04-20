@@ -11,9 +11,8 @@ const Mutation = {
       password: hashedPassword,
       permissions: { set: ['USER'] },
     });
-    const token = sign({ userId: user.id }, keys.jwtSecret);
-    context.response.cookie(keys.cookieName, token, {
-      httpOnly: true,
+    const token = sign({ userId: user.id }, keys.auth.jwtSecret);
+    context.response.cookie('token', token, {
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     return user;
@@ -30,17 +29,16 @@ const Mutation = {
       throw new Error('Invalid password');
     }
     // 3. Generate the JWT Token
-    const token = sign({ userId: user.id }, keys.jwtSecret);
+    const token = sign({ userId: user.id }, keys.auth.jwtSecret);
     // 4. Set the cookie with the token
-    context.response.cookie(keys.cookieName, token, {
-      httpOnly: true,
+    context.response.cookie('token', token, {
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     // 5. Return the user
     return user;
   },
   logout(parent, args, context) {
-    context.response.clearCookie(keys.cookieName);
+    context.response.clearCookie('token');
     return { message: `We'll miss you!` };
   },
   createDraft: async (parent, { title, content }, context) => {

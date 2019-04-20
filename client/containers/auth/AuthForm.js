@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
-import { Mutation } from 'react-apollo';
+import { Mutation, withApollo } from 'react-apollo';
 
 import { TextField, Button, Snackbar } from '@components';
 import redirect from '@client/utils/redirect';
@@ -50,7 +50,11 @@ class AuthForm extends PureComponent {
   };
 
   onSubmitSuccess = () => {
-    redirect({}, '/');
+    // Force a reload of all the current queries now that the user is
+    // logged in
+    this.props.client.cache.reset().then(() => {
+      redirect({}, '/');
+    });
   };
 
   render() {
@@ -106,4 +110,4 @@ class AuthForm extends PureComponent {
   }
 }
 
-export default withStyles(styles)(AuthForm);
+export default withStyles(styles)(withApollo(AuthForm));
