@@ -2,7 +2,7 @@ import React from 'react';
 import App, { Container } from 'next/app';
 
 import { ApolloProvider } from 'react-apollo';
-import withApolloClient from '@client/utils/with-apollo-client';
+import withApollo from '@client/utils/with-apollo';
 
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,6 +11,16 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import getPageContext from '@client/utils/getPageContext';
 
 class MyApp extends App {
+  static async getInitialProps({ Component, ctx }) {
+    let pageProps = {};
+    if (Component.getInitialProps) {
+      pageProps = await Component.getInitialProps(ctx);
+    }
+    // this exposes the query to the user
+    pageProps.query = ctx.query;
+    return { pageProps };
+  }
+
   constructor() {
     super();
     this.pageContext = getPageContext();
@@ -25,7 +35,7 @@ class MyApp extends App {
   }
 
   render() {
-    const { Component, pageProps, apolloClient } = this.props;
+    const { Component, pageProps, apollo } = this.props;
     return (
       <Container>
         <JssProvider
@@ -37,7 +47,7 @@ class MyApp extends App {
             sheetsManager={this.pageContext.sheetsManager}
           >
             <CssBaseline />
-            <ApolloProvider client={apolloClient}>
+            <ApolloProvider client={apollo}>
               <Component pageContext={this.pageContext} {...pageProps} />
             </ApolloProvider>
           </MuiThemeProvider>
@@ -47,4 +57,4 @@ class MyApp extends App {
   }
 }
 
-export default withApolloClient(MyApp);
+export default withApollo(MyApp);
