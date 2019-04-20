@@ -8,7 +8,7 @@ require('module-alias/register');
  * - https://github.com/zeit/next.js
  *
  * GraphQl Apollo server: server graphql endpoints.
- * - https://github.com/prisma/graphql-yoga
+ * - https://github.com/apollographql/apollo-server
  *
  * This is the entrypoint to the YS backend. See files under `/web`
  * on the creation of each app.

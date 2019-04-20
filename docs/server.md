@@ -1,10 +1,10 @@
 # Evolving the server
 
-Yours Sincerely's backend is built using [GraphQL Yoga](https://github.com/prisma/graphql-yoga) and [NextJS](https://github.com/zeit/next.js). We use a Postgres database with [Prisma](https://github.com/prisma/prisma) bindings to help with the GraphQL interface.
+Yours Sincerely's backend is built using [Express](https://github.com/expressjs/express), [Apollo Server](https://github.com/apollographql/apollo-server) and [NextJS](https://github.com/zeit/next.js). We use a Postgres database with [Prisma](https://github.com/prisma/prisma) bindings to help with the GraphQL interface.
 
 ### Updating the API
 
-If you want to change the GraphQL API, you need to adjust the GraphQL schema in [`../server/schema/schema.graphql`](../serverschemab/schema.graphql) and the respective resolver functions.
+If you want to change the GraphQL API, you need to adjust the GraphQL schema in [`../server/schema/schema.graphql`](../server/schema/schema.graphql) and the respective resolver functions.
 
 <Details><Summary><strong>Adding an operation without updating the datamodel</strong></Summary>
 
