@@ -21,8 +21,8 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 │── /prisma                      # Prisma datamodel and seed data
 │── /server                      # Node.js server
 │   ├── /config                  # Server environment variables
-│   ├── /db                      # Prisma generated files and app schema
-│   ├── /middlewares             # Express/Yoga middleware
+│   ├── /schema                  # Prisma generated files and app schema
+│   ├── /middlewares             # Express/Apollo middleware
 │   ├── /resolvers               # GraphQl resolvers
 │   ├── /services                # Server Helper functions/Utilities/Services
 │   └── index.js                 # Server entry point

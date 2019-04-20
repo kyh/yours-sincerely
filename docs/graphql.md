@@ -1,6 +1,6 @@
 # Using the GraphQL API
 
-The schema that specifies the API operations of your GraphQL server is defined in [`../server/db/schema.graphql`](../server/db/schema.graphql). Below are a number of operations that you can send to the API using the [GraphQL Playground](http://localhost:5000/playground).
+The schema that specifies the API operations of your GraphQL server is defined in [`../server/dschemaschema.graphql`](../server/schema/schema.graphql). Below are a number of operations that you can send to the API using the [GraphQL Playground](http://localhost:5000/playground).
 
 Feel free to adjust any operation by adding or removing fields. The GraphQL Playground helps you with its auto-completion and query validation features.
 

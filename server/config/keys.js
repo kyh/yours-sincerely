@@ -1,4 +1,6 @@
 module.exports = {
+  nodeEnv: process.env.NODE_ENV,
+  port: process.env.PORT,
   jwtSecret: process.env.JWT_SECRET,
   cookieName: process.env.COOKIE_NAME,
   google: {
