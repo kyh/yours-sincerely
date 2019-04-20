@@ -13,6 +13,7 @@ const Mutation = {
     });
     const token = sign({ userId: user.id }, keys.auth.jwtSecret);
     context.response.cookie('token', token, {
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     return user;
@@ -32,6 +33,7 @@ const Mutation = {
     const token = sign({ userId: user.id }, keys.auth.jwtSecret);
     // 4. Set the cookie with the token
     context.response.cookie('token', token, {
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     // 5. Return the user

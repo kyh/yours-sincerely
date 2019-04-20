@@ -2,18 +2,18 @@ const { ApolloServer } = require('apollo-server-express');
 const { prisma } = require('@server/schema/generated/prisma-client');
 const keys = require('@server/config/keys');
 const schema = require('@server/schema');
-const { getUser } = require('@server/util/authentication');
+const { parseRequest, getUser } = require('@server/util/authentication');
 
 function createApollo() {
   const apolloServer = new ApolloServer({
     schema,
     context: ({ req, res }) => {
-      console.log(req.headers);
+      const token = parseRequest(req);
       return {
         prisma,
         request: req,
         response: res,
-        user: getUser(req.headers.authorization),
+        user: getUser(token),
       };
     },
     playground: keys.nodeEnv === 'development',
