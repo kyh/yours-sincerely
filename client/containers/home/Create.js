@@ -123,66 +123,61 @@ class CreateDraft extends PureComponent {
   };
 
   renderForm = (createDraft, { loading, error }) => {
-    const { isOpen } = this.state;
     const { classes } = this.props;
     return (
-      <Dialog
-        isOpen={isOpen}
-        onClose={this.toggleForm}
-        toolbarRight={this.renderPostingAs}
-      >
-        <Formik
-          initialValues={{ content: '' }}
-          validate={this.validateForm}
-          onSubmit={(values) => createDraft({ variables: values })}
-          render={({ handleSubmit, handleReset, handleChange, values }) => (
-            <>
-              <Snackbar
-                isOpen={this.state.isErrorState}
-                variant="error"
-                message={error && error.graphQLErrors[0].message}
-                onClose={this.closeErrorState}
+      <Formik
+        initialValues={{ content: '' }}
+        validate={this.validateForm}
+        onSubmit={(values) => createDraft({ variables: values })}
+        render={({ handleSubmit, handleReset, handleChange, values }) => (
+          <>
+            <Snackbar
+              isOpen={this.state.isErrorState}
+              variant="error"
+              message={error && error.graphQLErrors[0].message}
+              onClose={this.closeErrorState}
+            />
+            <form
+              className={classes.form}
+              autoComplete="off"
+              onSubmit={handleSubmit}
+              onReset={handleReset}
+            >
+              <InputBase
+                className={classes.input}
+                placeholder="Continue the story..."
+                name="content"
+                margin="none"
+                rows={10}
+                onChange={handleChange}
+                value={values.content}
+                multiline
+                fullWidth
+                autoFocus
               />
-              <form
-                className={classes.form}
-                autoComplete="off"
-                onSubmit={handleSubmit}
-                onReset={handleReset}
-              >
-                <InputBase
-                  className={classes.input}
-                  placeholder="Continue the story..."
-                  name="content"
-                  margin="none"
-                  rows={10}
-                  onChange={handleChange}
-                  value={values.content}
-                  multiline
-                  fullWidth
-                  autoFocus
-                />
-                <footer className={classes.footer}>
-                  {this.renderWordsLeft(values.content)}
-                  <Button
-                    className={classes.submit}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    isLoading={loading}
-                  >
-                    Post
-                  </Button>
-                </footer>
-              </form>
-            </>
-          )}
-        />
-      </Dialog>
+              <footer className={classes.footer}>
+                {this.renderWordsLeft(values.content)}
+                <Button
+                  className={classes.submit}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  isLoading={loading}
+                >
+                  Post
+                </Button>
+              </footer>
+            </form>
+          </>
+        )}
+      />
     );
   };
 
   render() {
+    const { isOpen } = this.state;
     const { classes } = this.props;
+
     return (
       <section>
         <ButtonBase
@@ -204,7 +199,13 @@ class CreateDraft extends PureComponent {
             });
           }}
         >
-          {this.renderForm}
+          <Dialog
+            isOpen={isOpen}
+            onClose={this.toggleForm}
+            toolbarRight={this.renderPostingAs}
+          >
+            {this.renderForm}
+          </Dialog>
         </Mutation>
       </section>
     );
