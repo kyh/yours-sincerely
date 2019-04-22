@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
-import { Formik, Form } from 'formik';
+import { Formik } from 'formik';
 import {
   InputBase,
   Dialog,
@@ -10,6 +10,7 @@ import {
   ButtonBase,
   Text,
   Tooltip,
+  Snackbar,
 } from '@components';
 import { GET_FEED } from './Feed';
 
@@ -59,6 +60,7 @@ const MAX_WORDS = 101;
 class CreateDraft extends PureComponent {
   state = {
     isOpen: false,
+    isErrorState: false,
   };
 
   toggleForm = () => {
@@ -81,9 +83,17 @@ class CreateDraft extends PureComponent {
     return MAX_WORDS - content.split(/\W+/).length;
   };
 
-  onSubmitError = () => {};
+  closeErrorState = () => {
+    this.setState({ isErrorState: false });
+  };
 
-  onSubmitSuccess = () => {};
+  onSubmitError = () => {
+    this.setState({ isErrorState: true });
+  };
+
+  onSubmitSuccess = () => {
+    this.closeErrorState();
+  };
 
   renderWordsLeft = (content) => {
     const { classes } = this.props;
@@ -112,7 +122,7 @@ class CreateDraft extends PureComponent {
     );
   };
 
-  renderForm = (createDraft) => {
+  renderForm = (createDraft, { loading, error }) => {
     const { isOpen } = this.state;
     const { classes } = this.props;
     return (
@@ -124,40 +134,49 @@ class CreateDraft extends PureComponent {
         <Formik
           initialValues={{ content: '' }}
           validate={this.validateForm}
-          onSubmit={(values) => {
-            console.log(values);
-            createDraft({ variables: values });
-          }}
-        >
-          {({ values, handleChange, isSubmitting }) => (
-            <Form autoComplete="off" className={classes.form}>
-              <InputBase
-                className={classes.input}
-                placeholder="Continue the story..."
-                name="content"
-                margin="none"
-                rows={10}
-                onChange={handleChange}
-                value={values.content}
-                multiline
-                fullWidth
-                autoFocus
+          onSubmit={(values) => createDraft({ variables: values })}
+          render={({ handleSubmit, handleReset, handleChange, values }) => (
+            <>
+              <Snackbar
+                isOpen={this.state.isErrorState}
+                variant="error"
+                message={error && error.graphQLErrors[0].message}
+                onClose={this.closeErrorState}
               />
-              <footer className={classes.footer}>
-                {this.renderWordsLeft(values.content)}
-                <Button
-                  className={classes.submit}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  isLoading={isSubmitting}
-                >
-                  Post
-                </Button>
-              </footer>
-            </Form>
+              <form
+                className={classes.form}
+                autoComplete="off"
+                onSubmit={handleSubmit}
+                onReset={handleReset}
+              >
+                <InputBase
+                  className={classes.input}
+                  placeholder="Continue the story..."
+                  name="content"
+                  margin="none"
+                  rows={10}
+                  onChange={handleChange}
+                  value={values.content}
+                  multiline
+                  fullWidth
+                  autoFocus
+                />
+                <footer className={classes.footer}>
+                  {this.renderWordsLeft(values.content)}
+                  <Button
+                    className={classes.submit}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    isLoading={loading}
+                  >
+                    Post
+                  </Button>
+                </footer>
+              </form>
+            </>
           )}
-        </Formik>
+        />
       </Dialog>
     );
   };

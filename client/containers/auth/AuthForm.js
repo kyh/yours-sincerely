@@ -78,31 +78,56 @@ class AuthForm extends PureComponent {
     );
   };
 
-  renderForm = (formikProps, loading) => {
+  renderForm = (login, { loading, error }) => {
     const { classes } = this.props;
-    const {
-      values: { email, password },
-      handleSubmit,
-      handleReset,
-    } = formikProps;
-
     return (
-      <form onSubmit={handleSubmit} onReset={handleReset}>
-        {this.renderFormField('email', 'Email', email, formikProps)}
-        {this.renderFormField('password', 'Password', password, formikProps)}
-        <footer className={classes.footer}>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            isLoading={loading}
-          >
-            Login
-          </Button>
-        </footer>
-      </form>
+      <Formik
+        initialValues={{
+          email: '',
+          password: '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(values) => login({ variables: values })}
+        render={(formikProps) => (
+          <>
+            <Snackbar
+              isOpen={this.state.isErrorState}
+              variant="error"
+              message={error && error.graphQLErrors[0].message}
+              onClose={this.closeErrorState}
+            />
+            <form
+              onSubmit={formikProps.handleSubmit}
+              onReset={formikProps.handleReset}
+            >
+              {this.renderFormField(
+                'email',
+                'Email',
+                formikProps.values.email,
+                formikProps,
+              )}
+              {this.renderFormField(
+                'password',
+                'Password',
+                formikProps.values.password,
+                formikProps,
+              )}
+              <footer className={classes.footer}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  isLoading={loading}
+                >
+                  Login
+                </Button>
+              </footer>
+            </form>
+          </>
+        )}
+      />
     );
   };
 
@@ -113,27 +138,7 @@ class AuthForm extends PureComponent {
         onError={this.onSubmitError}
         onCompleted={this.onSubmitSuccess}
       >
-        {(login, { loading, error }) => (
-          <Formik
-            initialValues={{
-              email: '',
-              password: '',
-            }}
-            validationSchema={validationSchema}
-            onSubmit={(values) => login({ variables: values })}
-            render={(formikProps) => (
-              <>
-                <Snackbar
-                  isOpen={this.state.isErrorState}
-                  variant="error"
-                  message={error && error.graphQLErrors[0].message}
-                  onClose={this.closeErrorState}
-                />
-                {this.renderForm(formikProps, loading)}
-              </>
-            )}
-          />
-        )}
+        {this.renderForm}
       </Mutation>
     );
   }
