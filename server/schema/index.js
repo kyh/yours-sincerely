@@ -7,6 +7,6 @@ const permissions = require('@server/middlewares/permissions');
 
 const typeDefs = importSchema(path.resolve('server/schema/schema.graphql'));
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-const schemaWithMiddleware = applyMiddleware(schema);
+const schemaWithMiddleware = applyMiddleware(schema, permissions);
 
 module.exports = schemaWithMiddleware;
