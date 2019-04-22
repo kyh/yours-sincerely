@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import gql from 'graphql-tag';
-import { Formik, Form } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation, withApollo } from 'react-apollo';
@@ -57,8 +57,56 @@ class AuthForm extends PureComponent {
     });
   };
 
-  render() {
+  renderFormField = (id, label, value, formikProps) => {
     const { classes } = this.props;
+    const { errors, touched, handleChange, setFieldTouched } = formikProps;
+    return (
+      <TextField
+        id={id}
+        name={id}
+        label={label}
+        className={classes.field}
+        helperText={touched[id] ? errors[id] : ''}
+        error={touched[id] && Boolean(errors[id])}
+        value={value}
+        onChange={(e) => {
+          e.persist();
+          handleChange(e);
+        }}
+        onBlur={() => setFieldTouched(id, true, false)}
+      />
+    );
+  };
+
+  renderForm = (formikProps, loading) => {
+    const { classes } = this.props;
+    const {
+      values: { email, password },
+      handleSubmit,
+      handleReset,
+    } = formikProps;
+
+    return (
+      <form onSubmit={handleSubmit} onReset={handleReset}>
+        {this.renderFormField('email', 'Email', email, formikProps)}
+        {this.renderFormField('password', 'Password', password, formikProps)}
+        <footer className={classes.footer}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            isLoading={loading}
+          >
+            Login
+          </Button>
+        </footer>
+      </form>
+    );
+  };
+
+  render() {
     return (
       <Mutation
         mutation={LOGIN}
@@ -72,38 +120,19 @@ class AuthForm extends PureComponent {
               password: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              login({ variables: values });
-            }}
-          >
-            <Form>
-              <Snackbar
-                isOpen={this.state.isErrorState}
-                variant="error"
-                message={error && error.graphQLErrors[0].message}
-                onClose={this.closeErrorState}
-              />
-              <TextField label="Email" name="email" className={classes.field} />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                className={classes.field}
-              />
-              <footer className={classes.footer}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  isLoading={loading}
-                >
-                  Login
-                </Button>
-              </footer>
-            </Form>
-          </Formik>
+            onSubmit={(values) => login({ variables: values })}
+            render={(formikProps) => (
+              <>
+                <Snackbar
+                  isOpen={this.state.isErrorState}
+                  variant="error"
+                  message={error && error.graphQLErrors[0].message}
+                  onClose={this.closeErrorState}
+                />
+                {this.renderForm(formikProps, loading)}
+              </>
+            )}
+          />
         )}
       </Mutation>
     );

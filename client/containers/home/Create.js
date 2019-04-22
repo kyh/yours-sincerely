@@ -81,6 +81,10 @@ class CreateDraft extends PureComponent {
     return MAX_WORDS - content.split(/\W+/).length;
   };
 
+  onSubmitError = () => {};
+
+  onSubmitSuccess = () => {};
+
   renderWordsLeft = (content) => {
     const { classes } = this.props;
     const left = this.getWordsLeft(content);
@@ -171,6 +175,8 @@ class CreateDraft extends PureComponent {
         </ButtonBase>
         <Mutation
           mutation={CREATE_DRAFT}
+          onError={this.onSubmitError}
+          onCompleted={this.onSubmitSuccess}
           update={(cache, { data: { createDraft } }) => {
             const { posts } = cache.readQuery({ query: GET_FEED });
             cache.writeQuery({
