@@ -92,7 +92,10 @@ class CreateDraft extends PureComponent {
   };
 
   onSubmitSuccess = () => {
-    this.closeErrorState();
+    this.setState({
+      isErrorState: false,
+      isOpen: false,
+    });
   };
 
   renderWordsLeft = (content) => {
@@ -124,60 +127,65 @@ class CreateDraft extends PureComponent {
 
   renderForm = (createDraft, { loading, error }) => {
     const { classes } = this.props;
+    const { isOpen } = this.state;
     return (
-      <Formik
-        initialValues={{ content: '' }}
-        validate={this.validateForm}
-        onSubmit={(values) => createDraft({ variables: values })}
-        render={({ handleSubmit, handleReset, handleChange, values }) => (
-          <>
-            <Snackbar
-              isOpen={this.state.isErrorState}
-              variant="error"
-              message={error && error.graphQLErrors[0].message}
-              onClose={this.closeErrorState}
-            />
-            <form
-              className={classes.form}
-              autoComplete="off"
-              onSubmit={handleSubmit}
-              onReset={handleReset}
-            >
-              <InputBase
-                className={classes.input}
-                placeholder="Continue the story..."
-                name="content"
-                margin="none"
-                rows={10}
-                onChange={handleChange}
-                value={values.content}
-                multiline
-                fullWidth
-                autoFocus
+      <Dialog
+        isOpen={isOpen}
+        onClose={this.toggleForm}
+        toolbarRight={this.renderPostingAs}
+      >
+        <Formik
+          initialValues={{ content: '' }}
+          validate={this.validateForm}
+          onSubmit={(values) => createDraft({ variables: values })}
+          render={({ handleSubmit, handleReset, handleChange, values }) => (
+            <>
+              <Snackbar
+                isOpen={this.state.isErrorState}
+                variant="error"
+                message={error && error.graphQLErrors[0].message}
+                onClose={this.closeErrorState}
               />
-              <footer className={classes.footer}>
-                {this.renderWordsLeft(values.content)}
-                <Button
-                  className={classes.submit}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  isLoading={loading}
-                >
-                  Post
-                </Button>
-              </footer>
-            </form>
-          </>
-        )}
-      />
+              <form
+                className={classes.form}
+                autoComplete="off"
+                onSubmit={handleSubmit}
+                onReset={handleReset}
+              >
+                <InputBase
+                  className={classes.input}
+                  placeholder="Continue the story..."
+                  name="content"
+                  margin="none"
+                  rows={10}
+                  onChange={handleChange}
+                  value={values.content}
+                  multiline
+                  fullWidth
+                  autoFocus
+                />
+                <footer className={classes.footer}>
+                  {this.renderWordsLeft(values.content)}
+                  <Button
+                    className={classes.submit}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    isLoading={loading}
+                  >
+                    Post
+                  </Button>
+                </footer>
+              </form>
+            </>
+          )}
+        />
+      </Dialog>
     );
   };
 
   render() {
-    const { isOpen } = this.state;
     const { classes } = this.props;
-
     return (
       <section>
         <ButtonBase
@@ -192,20 +200,14 @@ class CreateDraft extends PureComponent {
           onError={this.onSubmitError}
           onCompleted={this.onSubmitSuccess}
           update={(cache, { data: { createDraft } }) => {
-            const { posts } = cache.readQuery({ query: GET_FEED });
+            const { feed } = cache.readQuery({ query: GET_FEED });
             cache.writeQuery({
               query: GET_FEED,
-              data: { posts: posts.concat([createDraft]) },
+              data: { feed: feed.concat([createDraft]) },
             });
           }}
         >
-          <Dialog
-            isOpen={isOpen}
-            onClose={this.toggleForm}
-            toolbarRight={this.renderPostingAs}
-          >
-            {this.renderForm}
-          </Dialog>
+          {this.renderForm}
         </Mutation>
       </section>
     );
