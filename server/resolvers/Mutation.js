@@ -44,7 +44,7 @@ const Mutation = {
     return { message: `We'll miss you!` };
   },
   createDraft: async (parent, { title, content }, context) => {
-    const { userId } = context;
+    const { userId } = context.user;
     return context.prisma.createPost({
       title,
       content,
