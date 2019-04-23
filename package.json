@@ -14,17 +14,17 @@
     "npm": "6.9.0"
   },
   "scripts": {
+    "start": "node --max_old_space_size=460 server",
     "setup": "npm i && node tools/generate-env && npm run deploy:schema",
     "dev": "env-cmd ./config/.env.local nodemon server/index.js --ext js,graphql",
     "dev:storybook": "start-storybook -p 5010 -s ./client",
-    "build": "env-cmd ./config/.env.local next build client",
+    "build": "next build client",
     "debug": "env-cmd ./config/.env.local ndb node server/index.js",
     "deploy": "node tools/deploy",
     "deploy:schema": "prisma deploy",
     "deploy:storybook": "storybook-to-ghpages",
     "test": "env-cmd ./config/.env.test jest --watch --runInBand",
-    "create:components": "node ./tools/components/create-components.js",
-    "heroku-postbuild": "npm run build"
+    "create:components": "node ./tools/components/create-components.js"
   },
   "_moduleAliases": {
     "@server": "./server",
