@@ -21,7 +21,7 @@
     "build": "next build client",
     "debug": "env-cmd ./config/.env.local ndb node server/index.js",
     "deploy": "node tools/deploy",
-    "deploy:schema:dev": "prisma deploy -e ./config/.env.local",
+    "deploy:schema:dev": "prisma deploy -e ./config/.env.dev",
     "deploy:schema:prod": "prisma deploy -e ./config/.env.prod",
     "deploy:storybook": "storybook-to-ghpages",
     "test": "env-cmd ./config/.env.test jest --watch --runInBand",
