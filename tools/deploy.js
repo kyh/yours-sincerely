@@ -23,6 +23,15 @@ function execPromise(command) {
   });
 }
 
+function beforeDeploy(answers) {
+  if (answers.prisma) {
+    return execLog(
+      `npm run deploy:schema -- -e ./config/.env.${answers.location}`,
+    );
+  }
+  return Promise.resolve();
+}
+
 function deploy(location, branch) {
   return execLog(`git push -f ${location} ${branch}:master`);
 }
@@ -45,9 +54,16 @@ exec('git fetch origin', () => {
         default: () => execPromise('git rev-parse --abbrev-ref HEAD'),
         filter: (val) => val.replace(/\n$/, ''),
       },
+      {
+        type: 'confirm',
+        name: 'prisma',
+        message: 'Would you like to deploy a new prisma schema?',
+        default: false,
+      },
     ])
-    // TODO: Ask whether to deploy prisma.
     .then(async (answers) => {
+      await beforeDeploy(answers);
+
       if (answers.location === DEPLOY_LOCATIONS.dev.value) {
         console.log('Deploying YS to dev:');
         await deploy(answers.location, answers.branch);
