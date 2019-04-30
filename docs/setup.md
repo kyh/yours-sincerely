@@ -68,10 +68,6 @@ npm run deploy
 
 The deploy script will guide you through the rest of the deployment process.
 
-Release tag names follow [semantic versioning](http://semver.org/) e.g.
-
-- `v1.0.0`
-
 ## Debugging Tips
 
 You can debug node apps by attaching an `ndb` instance to your running node server. First install the
