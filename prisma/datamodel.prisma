@@ -4,7 +4,7 @@ enum Permission {
 }
 
 type User {
-  id: ID! @id
+  id: ID! @unique
   email: String! @unique
   username: String! @unique
   name: String
@@ -18,7 +18,7 @@ type User {
 }
 
 type Post {
-  id: ID! @id
+  id: ID! @unique
   published: Boolean! @default(value: false)
   content: String!
   author: User!

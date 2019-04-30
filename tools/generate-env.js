@@ -23,7 +23,6 @@ const OVERRIDES = {
   local: {
     API_URL: 'http://localhost:5000',
     APP_URL: 'http://localhost:5000',
-    JWT_SECRET: '123123',
   },
 };
 
