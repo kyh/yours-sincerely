@@ -69,11 +69,6 @@ exec('git fetch origin', () => {
         await deploy(answers.location, answers.branch);
       }
 
-      if (answers.location === DEPLOY_LOCATIONS.staging.value) {
-        console.log('Deploying YS to staging:');
-        await deploy(answers.location, answers.branch);
-      }
-
       if (answers.location === DEPLOY_LOCATIONS.prod.value) {
         console.log('Deploying YS to prod:');
         await deploy(answers.location, answers.branch);
