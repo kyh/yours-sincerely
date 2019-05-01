@@ -15,7 +15,7 @@ For example, to add a new mutation that updates a user's name, you can extend th
 ```diff
 type Mutation {
   signupUser(email: String!, name: String): User!
-  createDraft(content: String!, authorEmail: String!): Post!
+  createPost(content: String!, authorEmail: String!): Post!
   deletePost(id: ID!): Post
   publish(id: ID!): Post
 + updateUserName(id: ID!, newName: String!): User
@@ -106,7 +106,7 @@ type Query {
 
 type Mutation {
   signupUser(email: String!, name: String): User!
-  createDraft(content: String!!, authorEmail: String!): Post!
+  createPost(content: String!!, authorEmail: String!): Post!
   deletePost(id: ID!): Post
   publish(id: ID!): Post
   updateUserName(id: ID!, newName: String!): User

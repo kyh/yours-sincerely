@@ -46,9 +46,9 @@ const styles = (theme) => ({
   },
 });
 
-const CREATE_DRAFT = gql`
-  mutation CreateDraft($content: String!) {
-    createDraft(content: $content) {
+const CREATE_POST = gql`
+  mutation CreatePost($content: String!) {
+    createPost(content: $content) {
       id
       content
     }
@@ -57,7 +57,7 @@ const CREATE_DRAFT = gql`
 
 const MAX_WORDS = 101;
 
-class CreateDraft extends PureComponent {
+class CreatePost extends PureComponent {
   state = {
     isOpen: false,
     isErrorState: false,
@@ -125,7 +125,7 @@ class CreateDraft extends PureComponent {
     );
   };
 
-  renderForm = (createDraft, { loading, error }) => {
+  renderForm = (createPost, { loading, error }) => {
     const { classes } = this.props;
     const { isOpen } = this.state;
     return (
@@ -137,7 +137,7 @@ class CreateDraft extends PureComponent {
         <Formik
           initialValues={{ content: '' }}
           validate={this.validateForm}
-          onSubmit={(values) => createDraft({ variables: values })}
+          onSubmit={(values) => createPost({ variables: values })}
           render={({ handleSubmit, handleReset, handleChange, values }) => (
             <>
               <Snackbar
@@ -196,14 +196,14 @@ class CreateDraft extends PureComponent {
           Continue the story...
         </ButtonBase>
         <Mutation
-          mutation={CREATE_DRAFT}
+          mutation={CREATE_POST}
           onError={this.onSubmitError}
           onCompleted={this.onSubmitSuccess}
-          update={(cache, { data: { createDraft } }) => {
+          update={(cache, { data: { createPost } }) => {
             const { feed } = cache.readQuery({ query: GET_FEED });
             cache.writeQuery({
               query: GET_FEED,
-              data: { feed: feed.concat([createDraft]) },
+              data: { feed: feed.concat([createPost]) },
             });
           }}
         >
@@ -214,4 +214,4 @@ class CreateDraft extends PureComponent {
   }
 }
 
-export default withStyles(styles)(CreateDraft);
+export default withStyles(styles)(CreatePost);

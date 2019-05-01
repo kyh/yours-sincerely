@@ -90,7 +90,7 @@ You need to be logged in for this query to work, i.e. an authentication token th
 
 ```graphql
 mutation {
-  createDraft(
+  createPost(
     content: "Join our Slack: https://slack.itsbananas.com"
     authorEmail: "im.kaiyu@gmail.com"
   ) {
