@@ -42,6 +42,6 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 - [The design process](docs/design.md)
 - [Product Features](docs/product.md)
 
-## Discussion
+## Community
 
 If you have any questions, ping us on [Slack](https://itsbananas.slack.com).

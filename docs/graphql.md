@@ -29,8 +29,11 @@ You can send the following mutation in the Playground to sign up a new user and 
 
 ```graphql
 mutation {
-  signup(username: "im.kaiyu@gmail.com", password: "graphql") {
-    token
+  createUser(data: {
+    email: "im.kaiyu@gmail.com",
+    password: "graphql"
+  }) {
+    email
   }
 }
 ```
@@ -114,8 +117,6 @@ mutation {
 
 #### Search for posts with a specific title or content
 
-You need to be logged in for this query to work, i.e. an authentication token that was retrieved through a `signup` or `login` mutation needs to be added to the `Authorization` header in the GraphQL Playground.
-
 ```graphql
 {
   filterPosts(searchString: "graphql") {
@@ -133,8 +134,6 @@ You need to be logged in for this query to work, i.e. an authentication token th
 ```
 
 #### Retrieve a single post
-
-You need to be logged in for this query to work, i.e. an authentication token that was retrieved through a `signup` or `login` mutation needs to be added to the `Authorization` header in the GraphQL Playground.
 
 ```graphql
 {
