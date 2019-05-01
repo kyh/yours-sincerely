@@ -43,22 +43,17 @@ const Mutation = {
     context.response.clearCookie('token');
     return { message: `We'll miss you!` };
   },
-  createDraft: async (parent, { title, content }, context) => {
+  createPost: async (parent, { title, content }, context) => {
     const { userId } = context.user;
     return context.prisma.createPost({
       title,
       content,
+      published: true,
       author: { connect: { id: userId } },
     });
   },
   deletePost: async (parent, { id }, context) => {
     return context.prisma.deletePost({ id });
-  },
-  publish: async (parent, { id }, context) => {
-    return context.prisma.updatePost({
-      where: { id },
-      data: { published: true },
-    });
   },
 };
 

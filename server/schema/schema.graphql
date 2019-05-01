@@ -13,9 +13,8 @@ type Query {
 }
 
 type Mutation {
-  createDraft(content: String!): Post!
+  createPost(content: String!): Post!
   deletePost(id: ID!): Post
-  publish(id: ID!): Post
   signup(username: String!, password: String!): User!
   login(email: String!, password: String!): User!
   logout: SuccessMessage

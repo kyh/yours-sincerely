@@ -13,7 +13,7 @@ const rules = {
 module.exports = shield({
   Query: {},
   Mutation: {
-    createDraft: rules.isAuthenticatedUser,
+    createPost: rules.isAuthenticatedUser,
     deletePost: rules.isPostOwner,
     publish: rules.isPostOwner,
   },
