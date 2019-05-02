@@ -8,7 +8,7 @@ const styles = {};
 
 const GET_POST = gql`
   query Post($id: ID!) {
-    post(id: $id) {
+    post(where: { id: $id }) {
       id
       content
     }
@@ -19,9 +19,9 @@ function Post({ classes, postId }) {
   return (
     <Query query={GET_POST} variables={{ id: postId }}>
       {({ loading, error, data }) => {
-        console.log(data);
         if (loading) return <FeedContentLoader />;
-        if (error) return `Error! ${error.message}`;
+        if (error) return <Text>Error: {error.message}</Text>;
+        if (!data.post) return <Text>No Post Found for {postId}</Text>;
         return <Text className={classes.text}>{data.post.content}</Text>;
       }}
     </Query>
