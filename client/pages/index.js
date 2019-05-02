@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Navigation from '@client/containers/auth/Navigation';
 import Feed from '@client/containers/home/Feed';
 import Create from '@client/containers/home/Create';
+import Pagination from '@client/containers/home/Pagination';
 
 const styles = (theme) => ({
   container: {
@@ -15,23 +16,34 @@ const styles = (theme) => ({
   feed: {
     marginBottom: theme.spacing.unit * 3,
   },
+  pagination: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
 });
 
-function Home({ classes }) {
+function Home({ classes, page }) {
   return (
     <main className={classes.page}>
       <Navigation />
       <section className={classes.container}>
         <section className={classes.feed}>
-          <Feed />
+          <Feed page={page} />
         </section>
-        <footer className={classes.create}>
+        <section className={classes.create}>
           <Create />
-        </footer>
+        </section>
+        <section className={classes.pagination}>
+          <Pagination page={page} />
+        </section>
       </section>
     </main>
   );
 }
+
+Home.getInitialProps = ({ query }) => {
+  return { page: parseFloat(query.page) || 1 };
+};
 
 Home.propTypes = {
   classes: PropTypes.object.isRequired,

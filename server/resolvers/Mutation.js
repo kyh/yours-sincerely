@@ -48,7 +48,6 @@ const Mutation = {
     return context.prisma.createPost({
       title,
       content,
-      published: true,
       author: { connect: { id: userId } },
     });
   },
