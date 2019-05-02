@@ -33,26 +33,36 @@ const styles = (theme) => ({
   },
 });
 
-const GET_FEED = gql`
+const GET_POSTS = gql`
   {
-    feed {
+    posts {
       id
       content
     }
   }
 `;
 
-function Feed({ classes }) {
+function Feed({ page, classes }) {
   return (
-    <Query query={GET_FEED}>
-      {({ loading, error, data }) => {
+    <Query
+      query={GET_POSTS}
+      variables={{
+        type: 'TOP',
+        offset: 0,
+        limit: 10,
+      }}
+    >
+      {({ loading, error, data, fetchMore }) => {
         if (loading) return <FeedContentLoader />;
         if (error) return `Error! ${error.message}`;
-        return data.feed.map((post) => (
+        return data.posts.map((post) => (
           <Link
             key={post.id}
             as={`/p/${post.id}`}
-            href={`/post?id=${post.id}`}
+            href={{
+              pathname: 'post',
+              query: { id: post.id },
+            }}
             className={classes.post}
           >
             {post.content}
@@ -68,4 +78,4 @@ Feed.propTypes = {
 };
 
 export default withStyles(styles)(Feed);
-export { GET_FEED };
+export { GET_POSTS };

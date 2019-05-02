@@ -15,6 +15,5 @@ module.exports = shield({
   Mutation: {
     createPost: rules.isAuthenticatedUser,
     deletePost: rules.isPostOwner,
-    publish: rules.isPostOwner,
   },
 });

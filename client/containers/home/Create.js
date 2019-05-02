@@ -12,7 +12,7 @@ import {
   Tooltip,
   Snackbar,
 } from '@components';
-import { GET_FEED } from './Feed';
+import { GET_POSTS } from './Feed';
 
 const styles = (theme) => ({
   button: {
@@ -200,10 +200,10 @@ class CreatePost extends PureComponent {
           onError={this.onSubmitError}
           onCompleted={this.onSubmitSuccess}
           update={(cache, { data: { createPost } }) => {
-            const { feed } = cache.readQuery({ query: GET_FEED });
+            const { posts } = cache.readQuery({ query: GET_POSTS });
             cache.writeQuery({
-              query: GET_FEED,
-              data: { feed: feed.concat([createPost]) },
+              query: GET_POSTS,
+              data: { posts: posts.concat([createPost]) },
             });
           }}
         >
