@@ -1,32 +1,26 @@
-scalar DateTime
+# import * from './generated/prisma.graphql'
 
 type SuccessMessage {
   message: String
 }
 
 type Query {
-  me: User
   randomUsername: String!
-  feed: [Post!]!
-  filterPosts(searchString: String): [Post!]!
-  post(id: ID!): Post
+  me: User
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post]!
+  post(where: PostWhereUniqueInput!): Post
+  postsConnection(where: PostWhereInput): PostConnection!
 }
 
 type Mutation {
-  createPost(content: String!): Post!
-  deletePost(id: ID!): Post
   signup(username: String!, password: String!): User!
   login(email: String!, password: String!): User!
   logout: SuccessMessage
-}
-
-type Post {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  published: Boolean!
-  content: String!
-  author: User!
+  createPost(content: String!): Post!
+  deletePost(id: ID!): Post
+  # requestReset(email: String!): SuccessMessage
+  # resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
+  # updatePermissions(permissions: [Permission], userId: ID!): User
 }
 
 type User {
@@ -35,4 +29,5 @@ type User {
   email: String
   username: String!
   posts: [Post!]!
+  permissions: [Permission!]!
 }

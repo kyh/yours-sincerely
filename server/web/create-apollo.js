@@ -1,6 +1,6 @@
 const { ApolloServer } = require('apollo-server-express');
-const { prisma } = require('@server/schema/generated/prisma-client');
 const keys = require('@server/config/keys');
+const prisma = require('@server/services/db');
 const schema = require('@server/schema');
 const { parseRequest, getUser } = require('@server/util/authentication');
 

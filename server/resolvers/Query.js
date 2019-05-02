@@ -1,3 +1,4 @@
+const { forwardTo } = require('prisma-binding');
 const Moniker = require('moniker');
 
 const usernameGenerator = Moniker.generator([
@@ -14,19 +15,9 @@ const Query = {
     if (!context.user) return null;
     return context.prisma.user({ id: context.user.userId });
   },
-  feed: (parent, args, context) => {
-    return context.prisma.posts({ where: { published: true } });
-  },
-  filterPosts: (parent, { searchString }, context) => {
-    return context.prisma.posts({
-      where: {
-        content_contains: searchString,
-      },
-    });
-  },
-  post: (parent, { id }, context) => {
-    return context.prisma.post({ id });
-  },
+  posts: forwardTo('prisma'),
+  post: forwardTo('prisma'),
+  postsConnection: forwardTo('prisma'),
 };
 
 module.exports = {

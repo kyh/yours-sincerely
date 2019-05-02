@@ -5,6 +5,6 @@ projects:
       endpoints:
         local: http://localhost:5000/graphql
   prisma:
-    schemaPath: "src/generated/prisma.graphql"
+    schemaPath: "server/schema/generated/prisma.graphql"
     extensions:
       prisma: prisma/prisma.yml
