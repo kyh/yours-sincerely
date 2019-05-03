@@ -3,7 +3,7 @@ module.exports = ({ componentName }) => {
 import { storiesOf } from '@storybook/react';
 import React from 'react';
 import styled from 'styled-components';
-import { ${componentName}, Box } from '@components';
+import { ${componentName}, Box } from '@ysds';
 
 storiesOf('${componentName}', module)
   .add('${componentName} component', () => (

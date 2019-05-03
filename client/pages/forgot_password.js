@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header, Text } from '@components';
+import { Header, Text } from '@ysds';
 import { withStyles } from '@material-ui/core/styles';
 import Link from 'next/link';
 

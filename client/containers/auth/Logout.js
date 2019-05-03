@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Link } from '@components';
+import { Link } from '@ysds';
 import { GET_CURRENT_USER } from './CurrentUser';
 
 const LOGOUT = gql`

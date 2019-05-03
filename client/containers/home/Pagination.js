@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '@components';
+import { Link } from '@ysds';
 
 const styles = (theme) => ({});
 
