@@ -34,7 +34,7 @@ function Pagination({ page }) {
                   query: { page: page - 1 },
                 }}
               >
-                Next Page
+                Previous Page
               </Link>
             )}
             {page < pages && (
@@ -45,7 +45,7 @@ function Pagination({ page }) {
                   query: { page: page + 1 },
                 }}
               >
-                Previous Page
+                Next Page
               </Link>
             )}
           </section>
