@@ -7,7 +7,7 @@ import {
   Radio,
   RadioGroup,
   Select,
-} from '@ysds';
+} from '@components';
 
 const store = new Store({
   checked: true,

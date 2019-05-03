@@ -11,7 +11,7 @@ import {
   Text,
   Tooltip,
   Snackbar,
-} from '@ysds';
+} from '@components';
 import { GET_POSTS } from './Feed';
 
 const styles = (theme) => ({
