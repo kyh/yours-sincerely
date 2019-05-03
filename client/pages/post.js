@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Query } from 'react-apollo';
-import { Text, FeedContentLoader } from '@ysds';
+import { Text, FeedContentLoader } from '@components';
 
 const styles = {};
 

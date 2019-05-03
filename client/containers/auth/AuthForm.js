@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation, withApollo } from 'react-apollo';
 
-import { TextField, Button, Snackbar } from '@ysds';
+import { TextField, Button, Snackbar } from '@components';
 import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({

@@ -29,8 +29,7 @@
   "_moduleAliases": {
     "@server": "./server",
     "@client": "./client",
-    "@components": "./client/components",
-    "@ysds": "./client/system"
+    "@components": "./client/components"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./tests/setup.js"
