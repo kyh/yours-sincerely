@@ -3,7 +3,7 @@ module.exports = ({ componentName }) => {
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { Box } from '@components';
+import { Box } from '@ysds';
 
 export default class ${componentName} extends PureComponent {
   static propTypes = {};

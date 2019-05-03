@@ -2,7 +2,7 @@ import React from 'react';
 import NProgress from 'nprogress';
 import Router from 'next/router';
 import { withStyles } from '@material-ui/core/styles';
-import { Logo, Link } from '@components';
+import { Logo, Link } from '@ysds';
 
 import CurrentUser from './CurrentUser';
 import Logout from './Logout';
