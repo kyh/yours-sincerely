@@ -1,4 +1,3 @@
-import { withStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 
 const styles = {
@@ -9,4 +8,4 @@ const styles = {
   },
 };
 
-export default withStyles(styles)(Tab);
+export default Tab;
