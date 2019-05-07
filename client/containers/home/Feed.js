@@ -43,13 +43,13 @@ const GET_POSTS = gql`
   }
 `;
 
-function Feed({ page, classes }) {
+function Feed({ currentPage, classes }) {
   return (
     <Query
       query={GET_POSTS}
       // fetchPolicy="network-only"
       variables={{
-        skip: page * perPage - perPage,
+        skip: currentPage * perPage - perPage,
       }}
     >
       {({ loading, error, data }) => {
@@ -75,6 +75,7 @@ function Feed({ page, classes }) {
 
 Feed.propTypes = {
   classes: PropTypes.object.isRequired,
+  currentPage: PropTypes.number.isRequired,
 };
 
 export default withStyles(styles)(Feed);

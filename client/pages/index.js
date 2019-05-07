@@ -3,50 +3,26 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
 import Navigation from '@client/containers/auth/Navigation';
-import Feed from '@client/containers/home/Feed';
-import Create from '@client/containers/home/Create';
-import Pagination from '@client/containers/home/Pagination';
+import HomeContent from '@client/containers/home/HomeContent';
 
-const styles = (theme) => ({
-  container: {
-    maxWidth: theme.brand.maxWidth,
-    margin: 'auto',
-    padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
-  },
-  feed: {
-    marginBottom: theme.spacing.unit * 3,
-  },
-  pagination: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-});
+const styles = (theme) => ({});
 
-function Home({ classes, page }) {
+function Home({ classes, currentPage }) {
   return (
     <main className={classes.page}>
       <Navigation />
-      <section className={classes.container}>
-        <section className={classes.feed}>
-          <Feed page={page} />
-        </section>
-        <section className={classes.create}>
-          <Create />
-        </section>
-        <section className={classes.pagination}>
-          <Pagination page={page} />
-        </section>
-      </section>
+      <HomeContent currentPage={currentPage} />
     </main>
   );
 }
 
 Home.getInitialProps = ({ query }) => {
-  return { page: parseFloat(query.page) || 1 };
+  return { currentPage: parseFloat(query.page) };
 };
 
 Home.propTypes = {
   classes: PropTypes.object.isRequired,
+  currentPage: PropTypes.number.isRequired,
 };
 
 export default withStyles(styles)(Home);
