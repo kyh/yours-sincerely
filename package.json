@@ -17,14 +17,14 @@
     "setup": "npm i && node tools/generate-env",
     "build": "next build client",
     "start": "node --max_old_space_size=460 server",
-    "dev": "env-cmd ./config/.env.local nodemon server/index.js --ext js,graphql",
+    "dev": "env-cmd -f ./config/.env.local nodemon server/index.js --ext js,graphql",
     "dev:storybook": "start-storybook -p 5010 -s ./client",
-    "dev:debug": "env-cmd ./config/.env.local ndb node server/index.js",
+    "dev:debug": "env-cmd -f ./config/.env.local ndb node server/index.js",
     "deploy": "node tools/deploy",
     "deploy:schema": "prisma deploy",
     "deploy:storybook": "storybook-to-ghpages",
     "create:components": "node ./tools/components/create-components.js",
-    "test": "env-cmd ./config/.env.test jest --watch --runInBand"
+    "test": "env-cmd -f ./config/.env.test jest --watch --runInBand"
   },
   "_moduleAliases": {
     "@server": "./server",
