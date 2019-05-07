@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '@components';
+import { perPage } from '@client/utils/constants';
 
 const styles = (theme) => ({});
 
@@ -23,7 +24,7 @@ function Pagination({ page }) {
       {({ data, loading, error }) => {
         if (loading || error) return null;
         const { count } = data.postsConnection.aggregate;
-        const pages = Math.ceil(count / 1);
+        const pages = Math.ceil(count / perPage);
         return (
           <section>
             {page > 1 && (
