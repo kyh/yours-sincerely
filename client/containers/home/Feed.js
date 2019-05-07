@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Query } from 'react-apollo';
 import { Link, FeedContentLoader } from '@components';
+import { perPage } from '@client/utils/constants';
 
 const styles = (theme) => ({
   post: {
@@ -34,8 +35,8 @@ const styles = (theme) => ({
 });
 
 const GET_POSTS = gql`
-  {
-    posts {
+  query GET_POSTS($skip: Int = 0, $first: Int = ${perPage}) {
+    posts(first: $first, skip: $skip, orderBy: createdAt_DESC) {
       id
       content
     }
@@ -46,13 +47,12 @@ function Feed({ page, classes }) {
   return (
     <Query
       query={GET_POSTS}
+      // fetchPolicy="network-only"
       variables={{
-        type: 'TOP',
-        offset: 0,
-        limit: 10,
+        skip: page * perPage - perPage,
       }}
     >
-      {({ loading, error, data, fetchMore }) => {
+      {({ loading, error, data }) => {
         if (loading) return <FeedContentLoader />;
         if (error) return `Error! ${error.message}`;
         return data.posts.map((post) => (
