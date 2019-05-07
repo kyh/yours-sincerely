@@ -11,7 +11,7 @@ const styles = {
   },
 };
 
-function CgListItem({
+function YSListItem({
   classes,
   icon,
   primaryText,
@@ -30,4 +30,4 @@ function CgListItem({
   );
 }
 
-export default withStyles(styles)(CgListItem);
+export default withStyles(styles)(YSListItem);

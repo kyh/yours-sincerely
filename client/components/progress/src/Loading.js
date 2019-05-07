@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = {
@@ -8,16 +7,15 @@ const styles = {
   },
 };
 
-function Loading({ classes }) {
+function Loading() {
   return (
     <CircularProgress
       variant="indeterminate"
       disableShrink
-      className={classes.loading}
       size={24}
       thickness={4}
     />
   );
 }
 
-export default withStyles(styles)(Loading);
+export default React.memo(Loading);

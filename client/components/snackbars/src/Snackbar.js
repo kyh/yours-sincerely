@@ -77,7 +77,7 @@ const StyledSnackbarContent = withStyles(styles)((props) => {
   );
 });
 
-function StyledSnackbar({
+function YSSnackbar({
   isOpen = false,
   onClose = () => {},
   variant = 'success',
@@ -102,4 +102,4 @@ function StyledSnackbar({
   );
 }
 
-export default StyledSnackbar;
+export default React.memo(YSSnackbar);

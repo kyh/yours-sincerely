@@ -22,4 +22,4 @@ function FeedContentLoader(props) {
   );
 }
 
-export default FeedContentLoader;
+export default React.memo(FeedContentLoader);
