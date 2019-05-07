@@ -36,7 +36,7 @@ const styles = (theme) => ({
 
 const GET_POSTS = gql`
   query GET_POSTS($skip: Int = 0, $first: Int = ${perPage}) {
-    posts(first: $first, skip: $skip, orderBy: createdAt_DESC) {
+    posts(first: $first, skip: $skip, orderBy: createdAt_ASC) {
       id
       content
     }
