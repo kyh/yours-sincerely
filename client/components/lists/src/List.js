@@ -1,4 +1,3 @@
-import React from 'react';
 import List from '@material-ui/core/List';
 
-export default React.memo(List);
+export default List;

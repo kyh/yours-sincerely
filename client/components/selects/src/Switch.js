@@ -1,3 +1,4 @@
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Switch from '@material-ui/core/Switch';
 
@@ -42,4 +43,4 @@ const styles = (theme) => ({
   },
 });
 
-export default withStyles(styles)(Switch);
+export default React.memo(withStyles(styles)(Switch));
