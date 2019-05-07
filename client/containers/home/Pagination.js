@@ -1,12 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from '@components';
-import { perPage } from '@client/utils/constants';
-
-const styles = (theme) => ({});
 
 const PAGINATION_QUERY = gql`
   query PAGINATION_QUERY {
@@ -18,46 +13,43 @@ const PAGINATION_QUERY = gql`
   }
 `;
 
-function Pagination({ page }) {
+function Pagination({ currentPage, totalPages }) {
   return (
-    <Query query={PAGINATION_QUERY}>
-      {({ data, loading, error }) => {
-        if (loading || error) return null;
-        const { count } = data.postsConnection.aggregate;
-        const pages = Math.ceil(count / perPage);
-        return (
-          <section>
-            {page > 1 && (
-              <Link
-                prefetch
-                href={{
-                  pathname: '/',
-                  query: { page: page - 1 },
-                }}
-              >
-                Previous Page
-              </Link>
-            )}
-            {page < pages && (
-              <Link
-                prefetch
-                href={{
-                  pathname: '/',
-                  query: { page: page + 1 },
-                }}
-              >
-                Next Page
-              </Link>
-            )}
-          </section>
-        );
-      }}
-    </Query>
+    <>
+      {currentPage > 1 ? (
+        <Link
+          prefetch
+          href={{
+            pathname: '/',
+            query: { page: currentPage - 1 },
+          }}
+        >
+          « Previous Page
+        </Link>
+      ) : (
+        <span />
+      )}
+      {currentPage < totalPages ? (
+        <Link
+          prefetch
+          href={{
+            pathname: '/',
+            query: { page: currentPage + 1 },
+          }}
+        >
+          Next Page »
+        </Link>
+      ) : (
+        <span />
+      )}
+    </>
   );
 }
 
 Pagination.propTypes = {
-  classes: PropTypes.object.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(Pagination);
+export default Pagination;
+export { PAGINATION_QUERY };

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation } from 'react-apollo';
@@ -187,7 +188,7 @@ class CreatePost extends PureComponent {
   render() {
     const { classes } = this.props;
     return (
-      <section>
+      <>
         <ButtonBase
           onClick={this.toggleForm}
           className={classes.button}
@@ -209,9 +210,15 @@ class CreatePost extends PureComponent {
         >
           {this.renderForm}
         </Mutation>
-      </section>
+      </>
     );
   }
 }
+
+CreatePost.propTypes = {
+  classes: PropTypes.object.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
+};
 
 export default withStyles(styles)(CreatePost);
