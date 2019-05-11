@@ -39,7 +39,7 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 - [Using the GraphQL API](docs/graphql.md)
 - [Updating the client](docs/client.md)
 - [List of supported environment variables](docs/environment_variables.md)
-- [The design process](docs/design.md)
+- [Design System](docs/design.md)
 - [Product Features](docs/product.md)
 
 ## Community
