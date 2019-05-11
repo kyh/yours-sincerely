@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { Logo, Header, Text, Link } from '@components';
+import { Logo, Header, Text, Link, Card } from '@components';
 
 import AuthForm from '@client/containers/auth/AuthForm';
 
@@ -24,9 +24,7 @@ const styles = (theme) => ({
     },
   },
   card: {
-    background: theme.brand.white,
     borderRadius: 8,
-    boxShadow: '0 3px 10px rgba(50, 50, 93, .11), 0 1px 2px rgba(0, 0, 0, .08)',
     padding: '40px',
   },
   logoContainer: {
@@ -72,7 +70,7 @@ function Login(props) {
   return (
     <main className={classes.page}>
       <section className={classes.container}>
-        <div className={classes.card}>
+        <Card className={classes.card}>
           <Link href="/" className={classes.logoContainer}>
             <Logo />
           </Link>
@@ -82,7 +80,7 @@ function Login(props) {
           <footer className={classes.footerContainer}>
             <Link href="/forgot_password">Forgot your password?</Link>
           </footer>
-        </div>
+        </Card>
         <div className={classes.moreContainer}>
           <Link href="/signup">Create Account</Link>
           <div className={classes.moreRight}>

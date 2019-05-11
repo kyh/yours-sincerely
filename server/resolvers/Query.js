@@ -11,9 +11,12 @@ const Query = {
   randomUsername: () => {
     return usernameGenerator.choose();
   },
-  me: (parent, args, context) => {
+  me: (parent, args, context, info) => {
     if (!context.user) return null;
-    return context.prisma.user({ id: context.user.userId });
+    return context.prisma.query.user(
+      { where: { id: context.user.userId } },
+      info,
+    );
   },
   posts: forwardTo('prisma'),
   post: forwardTo('prisma'),
