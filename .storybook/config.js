@@ -32,6 +32,7 @@ addParameters({
       appContentBg: 'white',
       appBorderRadius: 5,
       brandTitle: 'Yours Sincerely',
+      brandImage: 'https://yourssincerely.org/static/assets/logo.svg',
     }),
     panelPosition: 'right',
   },
