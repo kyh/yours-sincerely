@@ -1,13 +1,13 @@
 # How to help
 
-### What is Yours Sincerely?
+#### What is Yours Sincerely?
 
-### Where to begin
+#### Where to begin
 
-### Product management
+#### Product management
 
-### App architecture
+#### App architecture
 
-### Product design
+#### Product design
 
-### Community
+#### Community
