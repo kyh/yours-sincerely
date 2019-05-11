@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import NextLink from 'next/link';
 
@@ -18,19 +19,21 @@ const styles = (theme) => ({
   },
 });
 
-export default withStyles(styles)(({
-  children,
-  classes,
-  onClick,
-  className = '',
-  ...props,
-}) => (
-  <NextLink {...props}>
-    <a
-      className={`${classes.root} ${className}`}
-      onClick={onClick}
-    >
-      {children}
-    </a>
-  </NextLink>
-));
+function YSLink({ classes, children, onClick, className, ...props }) {
+  return (
+    <NextLink {...props}>
+      <a className={`${classes.root} ${className || ''}`} onClick={onClick}>
+        {children}
+      </a>
+    </NextLink>
+  );
+}
+
+YSLink.propTypes = {
+  classes: PropTypes.object.isRequired,
+  children: PropTypes.any,
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+};
+
+export default withStyles(styles)(YSLink);
