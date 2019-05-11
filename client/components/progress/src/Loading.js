@@ -1,12 +1,6 @@
 import React from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const styles = {
-  loading: {
-    animationDuration: '550ms',
-  },
-};
-
 function Loading() {
   return (
     <CircularProgress

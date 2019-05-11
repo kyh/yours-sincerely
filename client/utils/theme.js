@@ -103,6 +103,17 @@ export default createMuiTheme({
     },
   },
   overrides: {
+    MuiCircularProgress: {
+      root: {
+        animationDuration: '550ms !important',
+      },
+    },
+    MuiPaper: {
+      elevation1: {
+        boxShadow:
+          '0 3px 10px rgba(50, 50, 93, .11), 0 1px 2px rgba(0, 0, 0, .08)',
+      },
+    },
     MuiBackdrop: {
       root: {
         backgroundColor: 'rgba(59, 71, 95, 0.85)',
