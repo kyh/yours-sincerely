@@ -3,14 +3,19 @@ const { sign } = require('jsonwebtoken');
 const keys = require('@server/config/keys');
 
 const Mutation = {
-  signup: async (parent, { username, password }, context) => {
-    const hashedPassword = await hash(password, 10);
+  signup: async (parent, args, context, info) => {
+    const hashedPassword = await hash(args.password, 10);
     // Create the user in the database
-    const user = await context.prisma.createUser({
-      username,
-      password: hashedPassword,
-      permissions: { set: ['USER'] },
-    });
+    const user = await context.db.mutation.createUser(
+      {
+        data: {
+          ...args,
+          password: hashedPassword,
+          permissions: { set: ['USER'] },
+        },
+      },
+      info,
+    );
     const token = sign({ userId: user.id }, keys.auth.jwtSecret);
     context.response.cookie('token', token, {
       httpOnly: true,
@@ -20,7 +25,7 @@ const Mutation = {
   },
   login: async (parent, { email, password }, context) => {
     // 1. Check if there is a user with that email
-    const user = await context.prisma.user({ email });
+    const user = await context.prisma.query.user({ where: { email } });
     if (!user) {
       throw new Error(`No user found for email: ${email}`);
     }
@@ -43,16 +48,24 @@ const Mutation = {
     context.response.clearCookie('token');
     return { message: `We'll miss you!` };
   },
-  createPost: async (parent, { title, content }, context) => {
+  createPost: async (parent, args, context, info) => {
     const { userId } = context.user;
-    return context.prisma.createPost({
-      title,
-      content,
-      author: { connect: { id: userId } },
-    });
+    return context.db.mutation.createItem(
+      {
+        data: {
+          ...args,
+          author: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      },
+      info,
+    );
   },
   deletePost: async (parent, { id }, context) => {
-    return context.prisma.deletePost({ id });
+    return context.prisma.mutation.deletePost({ where: { id } });
   },
 };
 

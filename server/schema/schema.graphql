@@ -13,8 +13,8 @@ type Query {
 }
 
 type Mutation {
-  signup(username: String!, password: String!): User!
-  login(email: String!, password: String!): User!
+  signup(email: String, username: String!, password: String!): User!
+  login(email: String!, username: String, password: String!): User!
   logout: SuccessMessage
   createPost(content: String!): Post!
   deletePost(id: ID!): Post
