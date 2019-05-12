@@ -1,11 +1,9 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Logo, Header, Text, Link, Card } from '@components';
 
-import AuthForm from '@client/containers/auth/AuthForm';
+import LoginForm from '@client/containers/auth/LoginForm';
 
 const styles = (theme) => ({
   page: {
@@ -76,7 +74,7 @@ function Login(props) {
           </Link>
           <Header className={classes.header}>Welcome back</Header>
           <Text className={classes.subHeader}>Log into your account</Text>
-          <AuthForm />
+          <LoginForm />
           <footer className={classes.footerContainer}>
             <Link href="/forgot_password">Forgot your password?</Link>
           </footer>

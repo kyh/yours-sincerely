@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
 import { Mutation, withApollo } from 'react-apollo';
 
-import { TextField, Button, Snackbar } from '@components';
+import { FormField, Button, Snackbar } from '@components';
 import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({
@@ -13,12 +13,22 @@ const styles = (theme) => ({
   field: {
     marginBottom: theme.spacing.unit * 2,
   },
+  passwordContainer: {
+    display: 'flex',
+    marginBottom: theme.spacing.unit * 2,
+  },
+  passwordField: {
+    marginRight: theme.spacing.unit,
+    '&:last-child': {
+      marginRight: 0,
+    },
+  },
   footer: {},
 });
 
-const LOGIN = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
+const SIGNUP = gql`
+  mutation Signup($username: String!, $email: String, $password: String!) {
+    signup(username: $username, email: $email, password: $password) {
       id
       username
       email
@@ -28,15 +38,19 @@ const LOGIN = gql`
 `;
 
 const validationSchema = Yup.object().shape({
+  username: Yup.string().required('Required'),
   email: Yup.string()
     .email('That doesn’t seem right')
-    .required('That doesn’t seem right'),
+    .required('Required'),
   password: Yup.string()
     .min(6, 'Just a little longer')
     .required('That doesn’t seem right'),
+  passwordConfirm: Yup.string()
+    .oneOf([Yup.ref('password'), 'Passwords do not match'])
+    .required('Password confirm is required'),
 });
 
-class AuthForm extends PureComponent {
+class SignupForm extends PureComponent {
   state = {
     isErrorState: false,
   };
@@ -57,37 +71,18 @@ class AuthForm extends PureComponent {
     });
   };
 
-  renderFormField = (id, label, value, formikProps) => {
-    const { classes } = this.props;
-    const { errors, touched, handleChange, setFieldTouched } = formikProps;
-    return (
-      <TextField
-        id={id}
-        name={id}
-        label={label}
-        className={classes.field}
-        helperText={touched[id] ? errors[id] : ''}
-        error={touched[id] && Boolean(errors[id])}
-        value={value}
-        onChange={(e) => {
-          e.persist();
-          handleChange(e);
-        }}
-        onBlur={() => setFieldTouched(id, true, false)}
-      />
-    );
-  };
-
-  renderForm = (login, { loading, error }) => {
+  renderForm = (signup, { loading, error }) => {
     const { classes } = this.props;
     return (
       <Formik
         initialValues={{
+          username: '',
           email: '',
           password: '',
+          passwordConfirm: '',
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => login({ variables: values })}
+        onSubmit={(values) => signup({ variables: values })}
         render={(formikProps) => (
           <>
             <Snackbar
@@ -100,18 +95,38 @@ class AuthForm extends PureComponent {
               onSubmit={formikProps.handleSubmit}
               onReset={formikProps.handleReset}
             >
-              {this.renderFormField(
-                'email',
-                'Email',
-                formikProps.values.email,
-                formikProps,
-              )}
-              {this.renderFormField(
-                'password',
-                'Password',
-                formikProps.values.password,
-                formikProps,
-              )}
+              <FormField
+                id="username"
+                className={classes.field}
+                label="Handle"
+                value={formikProps.values.username}
+                formikProps={formikProps}
+              />
+              <FormField
+                id="email"
+                className={classes.field}
+                label="Email"
+                value={formikProps.values.email}
+                formikProps={formikProps}
+              />
+              <section className={classes.passwordContainer}>
+                <FormField
+                  id="password"
+                  className={classes.passwordField}
+                  label="Password"
+                  value={formikProps.values.password}
+                  formikProps={formikProps}
+                  type="password"
+                />
+                <FormField
+                  id="passwordConfirm"
+                  className={classes.passwordField}
+                  label="Confirm"
+                  value={formikProps.values.passwordConfirm}
+                  formikProps={formikProps}
+                  type="password"
+                />
+              </section>
               <footer className={classes.footer}>
                 <Button
                   type="submit"
@@ -121,7 +136,7 @@ class AuthForm extends PureComponent {
                   fullWidth
                   isLoading={loading}
                 >
-                  Login
+                  Sign Up
                 </Button>
               </footer>
             </form>
@@ -134,7 +149,7 @@ class AuthForm extends PureComponent {
   render() {
     return (
       <Mutation
-        mutation={LOGIN}
+        mutation={SIGNUP}
         onError={this.onSubmitError}
         onCompleted={this.onSubmitSuccess}
       >
@@ -144,4 +159,5 @@ class AuthForm extends PureComponent {
   }
 }
 
-export default withStyles(styles)(withApollo(AuthForm));
+export default withStyles(styles)(withApollo(SignupForm));
+export { SIGNUP };
