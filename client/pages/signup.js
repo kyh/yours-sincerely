@@ -2,30 +2,84 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header, Text } from '@components';
 import { withStyles } from '@material-ui/core/styles';
-import Link from 'next/link';
+import { Logo, Header, Link, Card } from '@components';
+
+import SignupForm from '@client/containers/auth/SignupForm';
 
 const styles = (theme) => ({
-  root: {
-    textAlign: 'center',
-    paddingTop: theme.spacing.unit * 20,
+  page: {
+    display: 'flex',
+    height: '100vh',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.brand.background,
+  },
+  container: {
+    maxWidth: 450,
+    margin: 'auto',
+    '& a': {
+      borderColor: 'transparent',
+    },
+  },
+  card: {
+    borderRadius: 8,
+    padding: '40px',
+  },
+  logoContainer: {
+    '&:hover': {
+      borderColor: 'transparent',
+    },
+    '& .logo': {
+      width: 80,
+      marginBottom: theme.spacing.unit,
+    },
+  },
+  header: {
+    fontSize: '1.6rem',
+    marginBottom: theme.spacing.unit * 4,
+  },
+  moreContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: `${theme.spacing.unit * 2}px 0`,
+    '& a': {
+      fontSize: '0.9rem',
+      color: theme.palette.secondary.main,
+    },
+  },
+  moreRight: {
+    '& a': {
+      marginRight: theme.spacing.unit * 2,
+    },
+    '& a:last-child': {
+      marginRight: 0,
+    },
   },
 });
 
 function Signup(props) {
   const { classes } = props;
-
   return (
-    <div className={classes.root}>
-      <Header>Signup</Header>
-      <Text>No option to sign up yet</Text>
-      <Text gutterBottom>
-        <Link href="/login">
-          <a>Go to login</a>
-        </Link>
-      </Text>
-    </div>
+    <main className={classes.page}>
+      <section className={classes.container}>
+        <Card className={classes.card}>
+          <Link href="/" className={classes.logoContainer}>
+            <Logo />
+          </Link>
+          <Header className={classes.header}>Create your account</Header>
+          <SignupForm />
+        </Card>
+        <div className={classes.moreContainer}>
+          <Link href="/login">Log in instead</Link>
+          <div className={classes.moreRight}>
+            <Link href="/about">About</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
 
