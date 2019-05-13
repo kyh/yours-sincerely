@@ -14,13 +14,19 @@ const styles = (theme) => ({
     marginBottom: theme.spacing.unit * 2,
   },
   passwordContainer: {
-    display: 'flex',
-    marginBottom: theme.spacing.unit * 2,
+    '@media (min-width: 700px)': {
+      display: 'flex',
+      marginBottom: theme.spacing.unit * 2,
+    },
   },
   passwordField: {
-    marginRight: theme.spacing.unit,
-    '&:last-child': {
-      marginRight: 0,
+    marginBottom: theme.spacing.unit * 2,
+    '@media (min-width: 700px)': {
+      marginBottom: 0,
+      marginRight: theme.spacing.unit,
+      '&:last-child': {
+        marginRight: 0,
+      },
     },
   },
   footer: {},
@@ -41,13 +47,13 @@ const validationSchema = Yup.object().shape({
   username: Yup.string().required('Required'),
   email: Yup.string()
     .email('That doesn’t seem right')
-    .required('Required'),
+    .required('Your email is required'),
   password: Yup.string()
     .min(6, 'Just a little longer')
-    .required('That doesn’t seem right'),
+    .required('Your password is required'),
   passwordConfirm: Yup.string()
-    .oneOf([Yup.ref('password'), 'Passwords do not match'])
-    .required('Password confirm is required'),
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Required'),
 });
 
 class SignupForm extends PureComponent {

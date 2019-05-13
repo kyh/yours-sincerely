@@ -110,6 +110,7 @@ export default createMuiTheme({
     MuiFormHelperText: {
       contained: {
         margin: '8px 0 0',
+        lineHeight: 1.4,
       },
     },
     MuiCircularProgress: {
