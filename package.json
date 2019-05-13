@@ -41,7 +41,7 @@
     "apollo-boost": "^0.3.1",
     "apollo-server": "^2.5.0",
     "apollo-server-express": "^2.5.0",
-    "aws-sdk": "^2.453.0",
+    "aws-sdk": "^2.454.0",
     "bcrypt": "^3.0.6",
     "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
@@ -104,7 +104,7 @@
     "jest": "^24.8.0",
     "lodash": "^4.17.11",
     "nodemon": "^1.19.0",
-    "prettier": "^1.17.0",
+    "prettier": "^1.17.1",
     "pretty-quick": "^1.10.0",
     "react-test-renderer": "^16.8.6"
   }
