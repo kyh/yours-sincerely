@@ -9,7 +9,9 @@ import SignupForm from '@client/containers/auth/SignupForm';
 
 const styles = (theme) => ({
   page: {
+    textAlign: 'center',
     '@media (min-width: 700px)': {
+      textAlign: 'left',
       display: 'flex',
       height: '100vh',
       justifyContent: 'center',
@@ -49,19 +51,21 @@ const styles = (theme) => ({
   },
   header: {
     fontSize: '1.6rem',
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: theme.spacing.unit * 2,
+    '@media (min-width: 700px)': {
+      marginBottom: theme.spacing.unit * 4,
+    },
   },
   moreContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.unit * 2}px`,
+    padding: `0 ${theme.spacing.unit * 2}px`,
     '& a': {
       fontSize: '0.9rem',
       color: theme.palette.secondary.main,
     },
     '@media (min-width: 700px)': {
-      paddingLeft: 0,
-      paddingRight: 0,
+      padding: `${theme.spacing.unit * 2}px 0`,
     },
   },
   moreRight: {

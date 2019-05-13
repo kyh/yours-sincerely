@@ -39,6 +39,14 @@ const styles = (theme) => ({
         marginRight: 0,
       },
     },
+    '& .get-started': {
+      padding: theme.spacing.unit,
+      border: `2px solid ${theme.palette.primary.main}`,
+      borderRadius: 4,
+      '&:hover': {
+        borderColor: theme.palette.primary.dark,
+      },
+    },
   },
 });
 
@@ -52,9 +60,19 @@ function Navigation({ classes }) {
               <Logo />
             </Link>
             <div>
-              <Link href="/about">About</Link>
-              {!me && <Link href="/login">Login</Link>}
-              {me && <Logout />}
+              {!me && (
+                <>
+                  <Link href="/login">Log in</Link>
+                  <Link className="get-started" href="/signup">
+                    Get Started
+                  </Link>
+                </>
+              )}
+              {me && (
+                <>
+                  <Logout />
+                </>
+              )}
             </div>
           </nav>
         </section>
