@@ -107,6 +107,11 @@ export default createMuiTheme({
     },
   },
   overrides: {
+    MuiFormHelperText: {
+      contained: {
+        margin: '8px 0 0',
+      },
+    },
     MuiCircularProgress: {
       root: {
         animationDuration: '550ms !important',
