@@ -1,7 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Header, Text, Link } from '@components';
 import { withStyles } from '@material-ui/core/styles';
 import Navigation from '@client/containers/auth/Navigation';
@@ -463,9 +460,5 @@ function Privacy(props) {
     </main>
   );
 }
-
-Privacy.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
 export default withStyles(styles)(Privacy);

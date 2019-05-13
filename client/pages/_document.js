@@ -10,7 +10,7 @@ const PREVIEW_IMAGE_URL = '';
 const SITE_URL = 'https://yourssincerely.org';
 const FB_ID = '';
 
-export default class MyDocument extends Document {
+export default class YSDocument extends Document {
   static getInitialProps = (ctx) => {
     // Resolution order
     //

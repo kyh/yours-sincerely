@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import Navigation from '@client/containers/auth/Navigation';
 import HomeContent from '@client/containers/home/HomeContent';
 

@@ -1,8 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Logo, Header, Text, Link, Card } from '@components';
-
 import LoginForm from '@client/containers/auth/LoginForm';
 
 const styles = (theme) => ({
@@ -102,9 +100,5 @@ function Login(props) {
     </main>
   );
 }
-
-Login.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
 export default withStyles(styles)(Login);
