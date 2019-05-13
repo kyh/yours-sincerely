@@ -21,27 +21,19 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 
 // Basic table.
-let id = 0;
-function createData1(name, calories, fat, carbs, protein) {
-  id += 1;
+function createData(id, name, calories, fat, carbs, protein) {
   return { id, name, calories, fat, carbs, protein };
 }
 
 const rows1 = [
-  createData1('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData1('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData1('Eclair', 262, 16.0, 24, 6.0),
-  createData1('Cupcake', 305, 3.7, 67, 4.3),
-  createData1('Gingerbread', 356, 16.0, 49, 3.9),
+  createData(1, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
+  createData(2, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
+  createData(3, 'Eclair', 262, 16.0, 24, 6.0),
+  createData(4, 'Cupcake', 305, 3.7, 67, 4.3),
+  createData(5, 'Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
 // Enhanced Table.
-let counter = 0;
-function createData2(name, calories, fat, carbs, protein) {
-  counter += 1;
-  return { id: counter, name, calories, fat, carbs, protein };
-}
-
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -137,6 +129,7 @@ class EnhancedTableHead extends React.Component {
 }
 
 const EnhancedTableToolbar = (props) => {
+  // eslint-disable-next-line react/prop-types
   const { numSelected, classes } = props;
 
   return (
@@ -201,25 +194,26 @@ const StyledEnhancedTableToolbar = withStyles((theme) => ({
   },
 }))(EnhancedTableToolbar);
 
+// eslint-disable-next-line react/no-multi-comp
 class EnhancedTable extends React.Component {
   state = {
     order: 'asc',
     orderBy: 'calories',
     selected: [],
     data: [
-      createData2('Cupcake', 305, 3.7, 67, 4.3),
-      createData2('Donut', 452, 25.0, 51, 4.9),
-      createData2('Eclair', 262, 16.0, 24, 6.0),
-      createData2('Frozen yoghurt', 159, 6.0, 24, 4.0),
-      createData2('Gingerbread', 356, 16.0, 49, 3.9),
-      createData2('Honeycomb', 408, 3.2, 87, 6.5),
-      createData2('Ice cream sandwich', 237, 9.0, 37, 4.3),
-      createData2('Jelly Bean', 375, 0.0, 94, 0.0),
-      createData2('KitKat', 518, 26.0, 65, 7.0),
-      createData2('Lollipop', 392, 0.2, 98, 0.0),
-      createData2('Marshmallow', 318, 0, 81, 2.0),
-      createData2('Nougat', 360, 19.0, 9, 37.0),
-      createData2('Oreo', 437, 18.0, 63, 4.0),
+      createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
+      createData(2, 'Donut', 452, 25.0, 51, 4.9),
+      createData(3, 'Eclair', 262, 16.0, 24, 6.0),
+      createData(4, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
+      createData(5, 'Gingerbread', 356, 16.0, 49, 3.9),
+      createData(6, 'Honeycomb', 408, 3.2, 87, 6.5),
+      createData(7, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
+      createData(8, 'Jelly Bean', 375, 0.0, 94, 0.0),
+      createData(9, 'KitKat', 518, 26.0, 65, 7.0),
+      createData(10, 'Lollipop', 392, 0.2, 98, 0.0),
+      createData(11, 'Marshmallow', 318, 0, 81, 2.0),
+      createData(12, 'Nougat', 360, 19.0, 9, 37.0),
+      createData(13, 'Oreo', 437, 18.0, 63, 4.0),
     ],
     page: 0,
     rowsPerPage: 5,
