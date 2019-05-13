@@ -10,7 +10,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 
 import getPageContext from '@client/utils/getPageContext';
 
-class MyApp extends App {
+class YSApp extends App {
   static async getInitialProps({ Component, ctx }) {
     let pageProps = {};
     if (Component.getInitialProps) {
@@ -57,4 +57,4 @@ class MyApp extends App {
   }
 }
 
-export default withApollo(MyApp);
+export default withApollo(YSApp);

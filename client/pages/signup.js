@@ -1,7 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { Logo, Header, Link, Card } from '@components';
 
@@ -102,9 +99,5 @@ function Signup(props) {
     </main>
   );
 }
-
-Signup.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
 export default withStyles(styles)(Signup);
