@@ -9,22 +9,34 @@ import SignupForm from '@client/containers/auth/SignupForm';
 
 const styles = (theme) => ({
   page: {
-    display: 'flex',
-    height: '100vh',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.brand.background,
+    '@media (min-width: 700px)': {
+      display: 'flex',
+      height: '100vh',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.brand.background,
+      padding: 0,
+    },
   },
   container: {
-    maxWidth: 450,
+    maxWidth: 700,
     margin: 'auto',
     '& a': {
       borderColor: 'transparent',
     },
   },
   card: {
-    borderRadius: 8,
-    padding: '40px',
+    padding: theme.spacing.unit * 2,
+    boxShadow: 'none',
+    '@media (min-width: 700px)': {
+      boxShadow: theme.brand.boxShadow,
+      borderRadius: 8,
+      padding: '40px 350px 40px 40px',
+      backgroundImage: 'url("/static/assets/girl-typing.svg")',
+      backgroundSize: '60%',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: '132% 60%',
+    },
   },
   logoContainer: {
     '&:hover': {
@@ -42,10 +54,14 @@ const styles = (theme) => ({
   moreContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.unit * 2}px 0`,
+    padding: `${theme.spacing.unit * 2}px`,
     '& a': {
       fontSize: '0.9rem',
       color: theme.palette.secondary.main,
+    },
+    '@media (min-width: 700px)': {
+      paddingLeft: 0,
+      paddingRight: 0,
     },
   },
   moreRight: {

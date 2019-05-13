@@ -7,12 +7,15 @@ import LoginForm from '@client/containers/auth/LoginForm';
 
 const styles = (theme) => ({
   page: {
-    display: 'flex',
-    height: '100vh',
-    justifyContent: 'center',
-    alignItems: 'center',
     textAlign: 'center',
-    backgroundColor: theme.brand.background,
+    '@media (min-width: 450px)': {
+      display: 'flex',
+      height: '100vh',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.brand.background,
+      padding: 0,
+    },
   },
   container: {
     maxWidth: 450,
@@ -22,8 +25,13 @@ const styles = (theme) => ({
     },
   },
   card: {
-    borderRadius: 8,
-    padding: '40px',
+    padding: theme.spacing.unit * 2,
+    boxShadow: 'none',
+    '@media (min-width: 450px)': {
+      boxShadow: theme.brand.boxShadow,
+      padding: '40px',
+      borderRadius: 8,
+    },
   },
   logoContainer: {
     '&:hover': {
@@ -47,10 +55,14 @@ const styles = (theme) => ({
   moreContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.unit * 2}px 0`,
+    padding: `${theme.spacing.unit * 2}px`,
     '& a': {
       fontSize: '0.9rem',
       color: theme.palette.secondary.main,
+    },
+    '@media (min-width: 450px)': {
+      paddingLeft: 0,
+      paddingRight: 0,
     },
   },
   moreRight: {
