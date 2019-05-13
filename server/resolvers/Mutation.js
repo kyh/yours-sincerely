@@ -6,7 +6,7 @@ const Mutation = {
   signup: async (parent, args, context, info) => {
     const hashedPassword = await hash(args.password, 10);
     // Create the user in the database
-    const user = await context.db.mutation.createUser(
+    const user = await context.prisma.mutation.createUser(
       {
         data: {
           ...args,
@@ -50,7 +50,7 @@ const Mutation = {
   },
   createPost: async (parent, args, context, info) => {
     const { userId } = context.user;
-    return context.db.mutation.createItem(
+    return context.prisma.mutation.createItem(
       {
         data: {
           ...args,
