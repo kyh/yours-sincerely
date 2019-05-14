@@ -13,7 +13,9 @@ import {
   Tooltip,
   Snackbar,
 } from '@components';
-import { GET_POSTS } from './Feed';
+import CurrentUser from '@client/containers/auth/CurrentUser';
+import RandomUsername from '@client/containers/auth/RandomUsername';
+import { GET_POSTS } from '@client/containers/home/Feed';
 
 const styles = (theme) => ({
   button: {
@@ -115,14 +117,28 @@ class CreatePost extends PureComponent {
   renderPostingAs = () => {
     const { classes } = this.props;
     return (
-      <Tooltip
-        title="Since you're not logged in, we've created this name for you"
-        placement="bottom"
-      >
-        <Text variant="caption" className={classes.dialogCaption}>
-          Posting as whale-freak-3
-        </Text>
-      </Tooltip>
+      <CurrentUser>
+        {({ data: { me } }) =>
+          me ? (
+            <Text variant="caption" className={classes.dialogCaption}>
+              Posting as {me}
+            </Text>
+          ) : (
+            <RandomUsername>
+              {({ data: { randomUsername } }) => (
+                <Tooltip
+                  title="Since you're not logged in, we've created this name for you"
+                  placement="bottom"
+                >
+                  <Text variant="caption" className={classes.dialogCaption}>
+                    Posting as {randomUsername}
+                  </Text>
+                </Tooltip>
+              )}
+            </RandomUsername>
+          )
+        }
+      </CurrentUser>
     );
   };
 
