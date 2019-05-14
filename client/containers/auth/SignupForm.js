@@ -13,22 +13,6 @@ const styles = (theme) => ({
   field: {
     marginBottom: theme.spacing.unit * 2,
   },
-  passwordContainer: {
-    '@media (min-width: 700px)': {
-      display: 'flex',
-      marginBottom: theme.spacing.unit * 2,
-    },
-  },
-  passwordField: {
-    marginBottom: theme.spacing.unit * 2,
-    '@media (min-width: 700px)': {
-      marginBottom: 0,
-      marginRight: theme.spacing.unit,
-      '&:last-child': {
-        marginRight: 0,
-      },
-    },
-  },
   footer: {},
 });
 
@@ -44,16 +28,13 @@ const SIGNUP = gql`
 `;
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required('Required'),
+  username: Yup.string().required('This will be how people find you'),
   email: Yup.string()
     .email('That doesn’t seem right')
-    .required('Your email is required'),
+    .required('This is how you log in'),
   password: Yup.string()
     .min(6, 'Just a little longer')
     .required('Your password is required'),
-  passwordConfirm: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Required'),
 });
 
 class SignupForm extends PureComponent {
@@ -85,7 +66,6 @@ class SignupForm extends PureComponent {
           username: '',
           email: '',
           password: '',
-          passwordConfirm: '',
         }}
         validationSchema={validationSchema}
         onSubmit={(values) => signup({ variables: values })}
@@ -104,7 +84,7 @@ class SignupForm extends PureComponent {
               <FormField
                 id="username"
                 className={classes.field}
-                label="Handle"
+                label="Username"
                 value={formikProps.values.username}
                 formikProps={formikProps}
               />
@@ -115,24 +95,14 @@ class SignupForm extends PureComponent {
                 value={formikProps.values.email}
                 formikProps={formikProps}
               />
-              <section className={classes.passwordContainer}>
-                <FormField
-                  id="password"
-                  className={classes.passwordField}
-                  label="Password"
-                  value={formikProps.values.password}
-                  formikProps={formikProps}
-                  type="password"
-                />
-                <FormField
-                  id="passwordConfirm"
-                  className={classes.passwordField}
-                  label="Confirm"
-                  value={formikProps.values.passwordConfirm}
-                  formikProps={formikProps}
-                  type="password"
-                />
-              </section>
+              <FormField
+                id="password"
+                className={classes.field}
+                label="Password"
+                value={formikProps.values.password}
+                formikProps={formikProps}
+                type="password"
+              />
               <footer className={classes.footer}>
                 <Button
                   type="submit"

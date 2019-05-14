@@ -1,5 +1,5 @@
 # source: https://ys-prisma-dev-ac8353c4c4.herokuapp.com/ys-dev/dev
-# timestamp: Thu May 02 2019 09:00:27 GMT-0700 (Pacific Daylight Time)
+# timestamp: Mon May 13 2019 19:44:22 GMT-0700 (Pacific Daylight Time)
 
 type AggregatePost {
   count: Int!
@@ -432,10 +432,9 @@ type Subscription {
 
 type User implements Node {
   id: ID!
-  email: String!
   username: String!
-  name: String
   password: String!
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
@@ -453,10 +452,9 @@ type UserConnection {
 }
 
 input UserCreateInput {
-  email: String!
   username: String!
-  name: String
   password: String!
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: UserCreatepermissionsInput
@@ -473,10 +471,9 @@ input UserCreatepermissionsInput {
 }
 
 input UserCreateWithoutPostsInput {
-  email: String!
   username: String!
-  name: String
   password: String!
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: UserCreatepermissionsInput
@@ -494,14 +491,12 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
-  email_ASC
-  email_DESC
   username_ASC
   username_DESC
-  name_ASC
-  name_DESC
   password_ASC
   password_DESC
+  email_ASC
+  email_DESC
   resetToken_ASC
   resetToken_DESC
   resetTokenExpiry_ASC
@@ -514,10 +509,9 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
-  email: String!
   username: String!
-  name: String
   password: String!
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: [Permission!]!
@@ -563,10 +557,9 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
-  email: String
   username: String
-  name: String
   password: String
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: UserUpdatepermissionsInput
@@ -574,10 +567,9 @@ input UserUpdateInput {
 }
 
 input UserUpdateManyMutationInput {
-  email: String
   username: String
-  name: String
   password: String
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: UserUpdatepermissionsInput
@@ -595,10 +587,9 @@ input UserUpdatepermissionsInput {
 }
 
 input UserUpdateWithoutPostsDataInput {
-  email: String
   username: String
-  name: String
   password: String
+  email: String
   resetToken: String
   resetTokenExpiry: Float
   permissions: UserUpdatepermissionsInput
@@ -658,46 +649,6 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  email: String
-
-  """All values that are not equal to given value."""
-  email_not: String
-
-  """All values that are contained in given list."""
-  email_in: [String!]
-
-  """All values that are not contained in given list."""
-  email_not_in: [String!]
-
-  """All values less than the given value."""
-  email_lt: String
-
-  """All values less than or equal the given value."""
-  email_lte: String
-
-  """All values greater than the given value."""
-  email_gt: String
-
-  """All values greater than or equal the given value."""
-  email_gte: String
-
-  """All values containing the given string."""
-  email_contains: String
-
-  """All values not containing the given string."""
-  email_not_contains: String
-
-  """All values starting with the given string."""
-  email_starts_with: String
-
-  """All values not starting with the given string."""
-  email_not_starts_with: String
-
-  """All values ending with the given string."""
-  email_ends_with: String
-
-  """All values not ending with the given string."""
-  email_not_ends_with: String
   username: String
 
   """All values that are not equal to given value."""
@@ -738,46 +689,6 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   username_not_ends_with: String
-  name: String
-
-  """All values that are not equal to given value."""
-  name_not: String
-
-  """All values that are contained in given list."""
-  name_in: [String!]
-
-  """All values that are not contained in given list."""
-  name_not_in: [String!]
-
-  """All values less than the given value."""
-  name_lt: String
-
-  """All values less than or equal the given value."""
-  name_lte: String
-
-  """All values greater than the given value."""
-  name_gt: String
-
-  """All values greater than or equal the given value."""
-  name_gte: String
-
-  """All values containing the given string."""
-  name_contains: String
-
-  """All values not containing the given string."""
-  name_not_contains: String
-
-  """All values starting with the given string."""
-  name_starts_with: String
-
-  """All values not starting with the given string."""
-  name_not_starts_with: String
-
-  """All values ending with the given string."""
-  name_ends_with: String
-
-  """All values not ending with the given string."""
-  name_not_ends_with: String
   password: String
 
   """All values that are not equal to given value."""
@@ -818,6 +729,46 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
+  email: String
+
+  """All values that are not equal to given value."""
+  email_not: String
+
+  """All values that are contained in given list."""
+  email_in: [String!]
+
+  """All values that are not contained in given list."""
+  email_not_in: [String!]
+
+  """All values less than the given value."""
+  email_lt: String
+
+  """All values less than or equal the given value."""
+  email_lte: String
+
+  """All values greater than the given value."""
+  email_gt: String
+
+  """All values greater than or equal the given value."""
+  email_gte: String
+
+  """All values containing the given string."""
+  email_contains: String
+
+  """All values not containing the given string."""
+  email_not_contains: String
+
+  """All values starting with the given string."""
+  email_starts_with: String
+
+  """All values not starting with the given string."""
+  email_not_starts_with: String
+
+  """All values ending with the given string."""
+  email_ends_with: String
+
+  """All values not ending with the given string."""
+  email_not_ends_with: String
   resetToken: String
 
   """All values that are not equal to given value."""
@@ -888,5 +839,4 @@ input UserWhereInput {
 input UserWhereUniqueInput {
   id: ID
   email: String
-  username: String
 }

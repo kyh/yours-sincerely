@@ -21,7 +21,7 @@
     "dev:storybook": "start-storybook -p 5010 -s ./client",
     "dev:debug": "env-cmd -f ./config/.env.local ndb node server/index.js",
     "deploy": "node tools/deploy",
-    "deploy:schema": "prisma deploy",
+    "deploy:schema": "prisma deploy -e ./config/.env.local",
     "deploy:storybook": "storybook-to-ghpages",
     "create:components": "node ./tools/components/create-components.js",
     "test": "env-cmd -f ./config/.env.test jest --watch --runInBand"
