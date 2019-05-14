@@ -114,29 +114,38 @@ class CreatePost extends PureComponent {
     );
   };
 
-  renderPostingAs = () => {
+  renderPostingAsRandom = () => {
     const { classes } = this.props;
+    return (
+      <RandomUsername>
+        {({ data: { randomUsername } }) => (
+          <Tooltip
+            title="Since you're not logged in, we've created this name for you"
+            placement="bottom"
+          >
+            <Text variant="caption" className={classes.dialogCaption}>
+              Posting as {randomUsername}
+            </Text>
+          </Tooltip>
+        )}
+      </RandomUsername>
+    );
+  };
+
+  renderPostingAsMe = (me) => {
+    const { classes } = this.props;
+    return (
+      <Text variant="caption" className={classes.dialogCaption}>
+        Posting as {me.username}
+      </Text>
+    );
+  };
+
+  renderPostingAs = () => {
     return (
       <CurrentUser>
         {({ data: { me } }) =>
-          me ? (
-            <Text variant="caption" className={classes.dialogCaption}>
-              Posting as {me}
-            </Text>
-          ) : (
-            <RandomUsername>
-              {({ data: { randomUsername } }) => (
-                <Tooltip
-                  title="Since you're not logged in, we've created this name for you"
-                  placement="bottom"
-                >
-                  <Text variant="caption" className={classes.dialogCaption}>
-                    Posting as {randomUsername}
-                  </Text>
-                </Tooltip>
-              )}
-            </RandomUsername>
-          )
+          me ? this.renderPostingAsMe() : this.renderPostingAsRandom()
         }
       </CurrentUser>
     );
