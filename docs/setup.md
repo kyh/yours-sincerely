@@ -16,7 +16,18 @@ If you see a step below that could be improved (or is outdated), please update t
 npm install -g prisma
 ```
 
-3. If you're going to be deploying, you'll also need to install the Heroku CLI. Please install it from [here](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
+##### Optional
+
+3. If you're going to be deploying, you'll also need to install the Heroku CLI. Please install it from [here](https://devcenter.heroku.com/articles/heroku-cli#download-and-install).
+
+You'll also need to set up your git remotes:
+```
+heroku git:remote -a ys-development
+git remote rename heroku prod
+
+heroku git:remote -a ys-app
+git remote rename heroku dev
+```
 
 ### Getting Started
 
