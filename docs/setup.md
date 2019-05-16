@@ -20,6 +20,8 @@ If you see a step below that could be improved (or is outdated), please update t
 npm install -g prisma
 ```
 
+4. You'll also need to install the Heroku CLI. Please install it from here: https://devcenter.heroku.com/articles/heroku-cli#download-and-install
+
 ### Getting Started
 
 Yours Sincerely uses a **GraphQL server** built with [express](https://github.com/expressjs/express) & [apollo-server](https://github.com/apollographql/apollo-server). The database interface uses [Prisma](https://github.com/prisma/prisma). Frontend is a SSR **React app** via [next.js](https://github.com/zeit/next.js).
