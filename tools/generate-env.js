@@ -23,6 +23,8 @@ const OVERRIDES = {
   local: {
     API_URL: 'http://localhost:5000',
     APP_URL: 'http://localhost:5000',
+    PORT: 5000,
+    NODE_ENV: 'development',
   },
 };
 
