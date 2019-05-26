@@ -171,7 +171,7 @@ const EnhancedTableToolbar = (props) => {
 
 const YSEnhancedTableToolbar = withStyles((theme) => ({
   root: {
-    paddingRight: theme.spacing(),
+    paddingRight: theme.spacing(1),
   },
   highlight:
     theme.palette.type === 'light'

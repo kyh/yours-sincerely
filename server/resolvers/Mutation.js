@@ -1,3 +1,4 @@
+const { UserInputError } = require('apollo-server');
 const { hash, compare } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
 const keys = require('@server/config/keys');
@@ -27,12 +28,12 @@ const Mutation = {
     // 1. Check if there is a user with that email
     const user = await context.prisma.query.user({ where: { email } });
     if (!user) {
-      throw new Error(`No user found for email: ${email}`);
+      throw new UserInputError(`No user found for email: ${email}`);
     }
     // 2. Check if their password is correct
     const passwordValid = await compare(password, user.password);
     if (!passwordValid) {
-      throw new Error('Invalid password');
+      throw new UserInputError('Invalid password');
     }
     // 3. Generate the JWT Token
     const token = sign({ userId: user.id }, keys.auth.jwtSecret);

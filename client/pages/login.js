@@ -37,7 +37,7 @@ const styles = (theme) => ({
     },
     '& .logo': {
       width: 80,
-      marginBottom: theme.spacing(),
+      marginBottom: theme.spacing(1),
     },
   },
   header: {

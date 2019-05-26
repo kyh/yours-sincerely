@@ -40,7 +40,7 @@ const styles = (theme) => ({
       },
     },
     '& .get-started': {
-      padding: theme.spacing(),
+      padding: theme.spacing(1),
       border: `2px solid ${theme.palette.primary.main}`,
       borderRadius: 4,
       '&:hover': {
