@@ -13,7 +13,7 @@ import {
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 
 const store = new Store({
-  isOpen: false,
+  open: false,
 });
 
 storiesOf('Components|Data Display|Dialog', module)
@@ -22,12 +22,12 @@ storiesOf('Components|Data Display|Dialog', module)
       <Button
         variant="outlined"
         color="primary"
-        onClick={() => store.set({ isOpen: true })}
+        onClick={() => store.set({ open: true })}
       >
         Open popup dialog
       </Button>
       <PopupDialog
-        onClose={() => store.set({ isOpen: false })}
+        onClose={() => store.set({ open: false })}
         title="Select account"
       >
         <List>
@@ -35,45 +35,44 @@ storiesOf('Components|Data Display|Dialog', module)
             <ListItem
               button
               primaryText={email}
-              onClick={() => store.set({ isOpen: false })}
+              onClick={() => store.set({ open: false })}
               key={email}
             />
           ))}
           <ListItem
             button
             primaryText="Add new account"
-            onClick={() => store.set({ isOpen: false })}
+            onClick={() => store.set({ open: false })}
+            key="add-account"
           />
         </List>
       </PopupDialog>
     </State>
   ))
-  .add('Fullscreen Dialog', () => (
+  .add('Large Dialog', () => (
     <State store={store}>
       <Button
         variant="outlined"
         color="primary"
-        onClick={() => store.set({ isOpen: true })}
+        onClick={() => store.set({ open: true })}
       >
-        Open fullscreen dialog
+        Open Large dialog
       </Button>
-      <Dialog
-        onClose={() => store.set({ isOpen: false })}
-        title="Select account"
-      >
+      <Dialog onClose={() => store.set({ open: false })} title="Select account">
         <List>
           {emails.map((email) => (
             <ListItem
               button
               primaryText={email}
-              onClick={() => store.set({ isOpen: false })}
+              onClick={() => store.set({ open: false })}
               key={email}
             />
           ))}
           <ListItem
             button
             primaryText="Add new account"
-            onClick={() => store.set({ isOpen: false })}
+            onClick={() => store.set({ open: false })}
+            key="add-account"
           />
         </List>
       </Dialog>
@@ -84,12 +83,12 @@ storiesOf('Components|Data Display|Dialog', module)
       <Button
         variant="outlined"
         color="primary"
-        onClick={() => store.set({ isOpen: true })}
+        onClick={() => store.set({ open: true })}
       >
         Open confirmation dialog
       </Button>
       <AlertDialog
-        onClose={() => store.set({ isOpen: false })}
+        onClose={() => store.set({ open: false })}
         title="Use Google's location service?"
         content="Let Google help apps determine location. This means sending anonymous
           location data to Google, even when no apps are running."

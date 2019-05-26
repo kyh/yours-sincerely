@@ -23,9 +23,15 @@ storiesOf('Components|Navigation|Menu', module).add('Menu component', () => (
       open={Boolean(store.get('anchorEl'))}
       onClose={() => store.set({ open: false })}
     >
-      <MenuItem onClick={() => store.set({ open: false })}>Profile</MenuItem>
-      <MenuItem onClick={() => store.set({ open: false })}>My account</MenuItem>
-      <MenuItem onClick={() => store.set({ open: false })}>Logout</MenuItem>
+      <MenuItem onClick={() => store.set({ open: false })} key="profile">
+        Profile
+      </MenuItem>
+      <MenuItem onClick={() => store.set({ open: false })} key="my-account">
+        My account
+      </MenuItem>
+      <MenuItem onClick={() => store.set({ open: false })} key="logout">
+        Logout
+      </MenuItem>
     </Menu>
   </State>
 ));

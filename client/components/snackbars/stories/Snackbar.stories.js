@@ -6,7 +6,7 @@ storiesOf('Components|Feedback|Snackbar', module).add(
   'Snackbar component',
   () => (
     <div>
-      <Snackbar isOpen />
+      <Snackbar open />
     </div>
   ),
 );

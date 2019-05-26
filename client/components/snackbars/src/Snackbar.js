@@ -78,7 +78,7 @@ const YSSnackbarContent = withStyles(styles)((props) => {
 });
 
 function YSSnackbar({
-  isOpen = false,
+  open = false,
   onClose = () => {},
   variant = 'success',
   message = 'This is a success message!',
@@ -89,7 +89,7 @@ function YSSnackbar({
         vertical: 'top',
         horizontal: 'center',
       }}
-      open={isOpen}
+      open={open}
       autoHideDuration={6000}
       onClose={onClose}
     >

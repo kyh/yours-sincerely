@@ -62,12 +62,12 @@ const MAX_WORDS = 101;
 
 class CreatePost extends PureComponent {
   state = {
-    isOpen: false,
+    open: false,
     isErrorState: false,
   };
 
   toggleForm = () => {
-    this.setState(({ isOpen }) => ({ isOpen: !isOpen }));
+    this.setState(({ open }) => ({ open: !open }));
   };
 
   validateForm = ({ content }) => {
@@ -97,7 +97,7 @@ class CreatePost extends PureComponent {
   onSubmitSuccess = () => {
     this.setState({
       isErrorState: false,
-      isOpen: false,
+      open: false,
     });
   };
 
@@ -153,10 +153,10 @@ class CreatePost extends PureComponent {
 
   renderForm = (createPost, { loading, error }) => {
     const { classes } = this.props;
-    const { isOpen } = this.state;
+    const { open } = this.state;
     return (
       <Dialog
-        isOpen={isOpen}
+        open={open}
         onClose={this.toggleForm}
         toolbarRight={this.renderPostingAs}
       >
@@ -167,7 +167,7 @@ class CreatePost extends PureComponent {
           render={({ handleSubmit, handleReset, handleChange, values }) => (
             <>
               <Snackbar
-                isOpen={this.state.isErrorState}
+                open={this.state.isErrorState}
                 variant="error"
                 message={error && error.graphQLErrors[0].message}
                 onClose={this.closeErrorState}
