@@ -28,7 +28,7 @@ const styles = (theme) => ({
     cursor: 'text',
   },
   form: {
-    padding: `0 ${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
+    padding: `0 ${theme.spacing(3)}px ${theme.spacing(2)}px`,
   },
   input: {
     lineHeight: '32px',
@@ -41,11 +41,11 @@ const styles = (theme) => ({
     color: theme.palette.error.main,
   },
   submit: {
-    padding: `6px ${theme.spacing.unit * 3}px`,
+    padding: `6px ${theme.spacing(3)}px`,
   },
   dialogCaption: {
     color: theme.palette.primary.main,
-    paddingRight: theme.spacing.unit * 3,
+    paddingRight: theme.spacing(3),
   },
 });
 

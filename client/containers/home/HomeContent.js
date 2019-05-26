@@ -14,13 +14,13 @@ const styles = (theme) => ({
   container: {
     maxWidth: theme.brand.maxWidth,
     margin: 'auto',
-    padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
+    padding: `${theme.spacing(5)}px ${theme.spacing(3)}px`,
   },
   feed: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
   create: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
   },
   pagination: {
     display: 'flex',

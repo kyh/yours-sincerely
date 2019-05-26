@@ -6,15 +6,15 @@ import Navigation from '@client/containers/auth/Navigation';
 const styles = (theme) => ({
   page: {},
   pageContainer: {
-    padding: theme.spacing.unit * 3,
+    padding: theme.spacing(3),
     maxWidth: theme.brand.maxWidth,
     margin: 'auto',
   },
   header: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: theme.spacing(4),
   },
   section: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
 });
 

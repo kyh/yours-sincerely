@@ -1,8 +1,6 @@
 import { storiesOf } from '@storybook/react';
 import React from 'react';
-import { Box } from 'reflexbox';
-
-import { Header, Text, Divider } from '@components';
+import { Header, Text, Divider, Box } from '@components';
 
 storiesOf('Base|Typography', module)
   .add('Header component', () => (

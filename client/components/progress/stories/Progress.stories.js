@@ -1,16 +1,17 @@
 import { storiesOf } from '@storybook/react';
 import React from 'react';
-import { Box, Flex } from 'reflexbox';
+import { Loading, Progress, Box } from '@components';
 
-import { Loading, Progress } from '@components';
-
-storiesOf('Components|Progress', module).add('Loading Components', () => (
-  <Box>
-    <Box mb={40}>
-      <Progress />
+storiesOf('Components|Feedback|Progress', module).add(
+  'Loading Components',
+  () => (
+    <Box>
+      <Box mb={40}>
+        <Progress />
+      </Box>
+      <Box display="flex" justify="center">
+        <Loading />
+      </Box>
     </Box>
-    <Flex justify="center">
-      <Loading />
-    </Flex>
-  </Box>
-));
+  ),
+);

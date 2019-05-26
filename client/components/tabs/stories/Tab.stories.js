@@ -78,6 +78,6 @@ class TabbedSection extends React.Component {
   }
 }
 
-storiesOf('Components|Tabs', module).add('Tabs component', () => (
+storiesOf('Components|Navigation|Tabs', module).add('Tabs component', () => (
   <TabbedSection />
 ));

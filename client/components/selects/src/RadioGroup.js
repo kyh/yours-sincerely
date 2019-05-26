@@ -13,7 +13,7 @@ const styles = (theme) => ({
     display: 'flex',
   },
   group: {
-    margin: `${theme.spacing.unit}px 0`,
+    margin: `${theme.spacing()}px 0`,
   },
 });
 

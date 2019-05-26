@@ -169,9 +169,9 @@ const EnhancedTableToolbar = (props) => {
   );
 };
 
-const StyledEnhancedTableToolbar = withStyles((theme) => ({
+const YSEnhancedTableToolbar = withStyles((theme) => ({
   root: {
-    paddingRight: theme.spacing.unit,
+    paddingRight: theme.spacing(),
   },
   highlight:
     theme.palette.type === 'light'
@@ -277,7 +277,7 @@ class EnhancedTable extends React.Component {
 
     return (
       <div className={classes.root}>
-        <StyledEnhancedTableToolbar numSelected={selected.length} />
+        <YSEnhancedTableToolbar numSelected={selected.length} />
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <EnhancedTableHead
@@ -344,10 +344,10 @@ class EnhancedTable extends React.Component {
   }
 }
 
-const StyledEnhancedTable = withStyles((theme) => ({
+const YSEnhancedTable = withStyles((theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing(3),
   },
   table: {
     minWidth: 1020,
@@ -357,7 +357,7 @@ const StyledEnhancedTable = withStyles((theme) => ({
   },
 }))(EnhancedTable);
 
-storiesOf('Components|Table', module)
+storiesOf('Components|Data Display|Table', module)
   .add('Basic Table Component', () => (
     <div style={{ maxWidth: 700, margin: '30px auto' }}>
       <Table>
@@ -388,6 +388,6 @@ storiesOf('Components|Table', module)
   ))
   .add('Enhanced Table Component', () => (
     <div style={{ maxWidth: 700, margin: '30px auto' }}>
-      <StyledEnhancedTable />
+      <YSEnhancedTable />
     </div>
   ));

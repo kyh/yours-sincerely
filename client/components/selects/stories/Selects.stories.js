@@ -15,7 +15,7 @@ const store = new Store({
   value: 10,
 });
 
-storiesOf('Components|Selects', module)
+storiesOf('Components|Inputs|Selects', module)
   .add('Checkboxes', () => (
     <div>
       <div>

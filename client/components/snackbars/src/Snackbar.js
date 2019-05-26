@@ -39,7 +39,7 @@ const styles = (theme) => ({
   },
   iconVariant: {
     opacity: 0.9,
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(),
   },
   message: {
     display: 'flex',
@@ -47,7 +47,7 @@ const styles = (theme) => ({
   },
 });
 
-const StyledSnackbarContent = withStyles(styles)((props) => {
+const YSSnackbarContent = withStyles(styles)((props) => {
   const { classes, className, message, onClose, variant, ...other } = props;
   const Icon = variantIcon[variant];
 
@@ -93,7 +93,7 @@ function YSSnackbar({
       autoHideDuration={6000}
       onClose={onClose}
     >
-      <StyledSnackbarContent
+      <YSSnackbarContent
         onClose={onClose}
         variant={variant}
         message={message}

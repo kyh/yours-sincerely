@@ -7,7 +7,7 @@ const styles = (theme) => ({
   page: {},
   pageContainer: {
     textAlign: 'center',
-    paddingTop: theme.spacing.unit * 20,
+    paddingTop: theme.spacing(20),
   },
 });
 

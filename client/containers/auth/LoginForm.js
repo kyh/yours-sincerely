@@ -11,7 +11,7 @@ import redirect from '@client/utils/redirect';
 const styles = (theme) => ({
   form: {},
   field: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
   },
   footer: {},
 });

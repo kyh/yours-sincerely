@@ -3,7 +3,7 @@ import React from 'react';
 import { List, ListItem } from '@components';
 import FolderIcon from '@material-ui/icons/Folder';
 
-storiesOf('Components|List', module).add('List component', () => (
+storiesOf('Components|Data Display|List', module).add('List component', () => (
   <List dense>
     <ListItem
       button
