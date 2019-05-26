@@ -25,7 +25,7 @@ const styles = (theme) => ({
     },
   },
   card: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     boxShadow: 'none',
     '@media (min-width: 700px)': {
       boxShadow: theme.brand.boxShadow,
@@ -43,31 +43,31 @@ const styles = (theme) => ({
     },
     '& .logo': {
       width: 80,
-      marginBottom: theme.spacing.unit,
+      marginBottom: theme.spacing(),
     },
   },
   header: {
     fontSize: '1.6rem',
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
     '@media (min-width: 700px)': {
-      marginBottom: theme.spacing.unit * 4,
+      marginBottom: theme.spacing(4),
     },
   },
   moreContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: `0 ${theme.spacing.unit * 2}px`,
+    padding: `0 ${theme.spacing(2)}px`,
     '& a': {
       fontSize: '0.9rem',
       color: theme.palette.secondary.main,
     },
     '@media (min-width: 700px)': {
-      padding: `${theme.spacing.unit * 2}px 0`,
+      padding: `${theme.spacing(2)}px 0`,
     },
   },
   moreRight: {
     '& a': {
-      marginRight: theme.spacing.unit * 2,
+      marginRight: theme.spacing(2),
     },
     '& a:last-child': {
       marginRight: 0,

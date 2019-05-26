@@ -9,7 +9,7 @@ const store = new Store({
   isLoading: false,
 });
 
-storiesOf('Components|Buttons', module).add('Button component', () => (
+storiesOf('Components|Inputs|Buttons', module).add('Button component', () => (
   <div>
     <div>
       <Button variant="contained" style={{ margin: 10 }}>

@@ -16,7 +16,7 @@ const store = new Store({
   isOpen: false,
 });
 
-storiesOf('Components|Dialog', module)
+storiesOf('Components|Data Display|Dialog', module)
   .add('Basic Popup Dialog', () => (
     <State store={store}>
       <Button

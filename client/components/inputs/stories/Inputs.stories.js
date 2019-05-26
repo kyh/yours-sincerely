@@ -10,8 +10,8 @@ const styles = (theme) => ({
     flexWrap: 'wrap',
   },
   textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(),
+    marginRight: theme.spacing(),
     width: '100%',
   },
 });
@@ -255,7 +255,7 @@ class TextFields extends React.Component {
 
 const StyledTextFields = withStyles(styles)(TextFields);
 
-storiesOf('Components|Forms', module).add('TextField component', () => (
+storiesOf('Components|Inputs|Forms', module).add('TextField component', () => (
   <div>
     <StyledTextFields />
   </div>

@@ -2,8 +2,7 @@ import { storiesOf } from '@storybook/react';
 import classnames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
-import { Box } from 'reflexbox';
-import { Header, List, ListItem } from '@components';
+import { Header, List, ListItem, Box } from '@components';
 
 const styles = (theme) => {
   const brandColors = Object.keys(theme.brand).reduce((map, brandColor) => {
@@ -54,7 +53,7 @@ storiesOf('Base|Colors', module).add('Brand colors', () => (
       <ListItem
         icon={<StyledBox primary />}
         primaryText="Primary"
-        secondaryText="#8389E1"
+        secondaryText="#FF543B"
       />
       <ListItem
         icon={<StyledBox secondary />}

@@ -113,9 +113,9 @@ class ExpansionPanels extends React.Component {
   }
 }
 
-const StyledExpansionPanel = withStyles(styles)(ExpansionPanels);
+const YSExpansionPanel = withStyles(styles)(ExpansionPanels);
 
-storiesOf('Components|ExpansionPanel', module).add(
+storiesOf('Components|Navigation|ExpansionPanel', module).add(
   'ExpansionPanel component',
-  () => <StyledExpansionPanel />,
+  () => <YSExpansionPanel />,
 );

@@ -8,7 +8,7 @@ const store = new Store({
   anchorEl: null,
 });
 
-storiesOf('Components|Menu', module).add('Menu component', () => (
+storiesOf('Components|Navigation|Menu', module).add('Menu component', () => (
   <State store={store}>
     <Button
       aria-owns={store.get('anchorEl') ? 'simple-menu' : undefined}

@@ -22,15 +22,15 @@ const styles = (theme) => ({
   container: {
     maxWidth: theme.brand.maxWidth,
     margin: '0 auto',
-    padding: `0 ${theme.spacing.unit * 3}px`,
+    padding: `0 ${theme.spacing(3)}px`,
   },
   nav: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.unit * 3}px 0`,
+    padding: `${theme.spacing(3)}px 0`,
     '& a, & button': {
-      marginRight: theme.spacing.unit * 3,
+      marginRight: theme.spacing(3),
       border: 'none',
       '&:hover': {
         color: theme.palette.primary.dark,
@@ -40,7 +40,7 @@ const styles = (theme) => ({
       },
     },
     '& .get-started': {
-      padding: theme.spacing.unit,
+      padding: theme.spacing(),
       border: `2px solid ${theme.palette.primary.main}`,
       borderRadius: 4,
       '&:hover': {

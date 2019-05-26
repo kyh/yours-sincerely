@@ -14,7 +14,7 @@ const styles = (theme) => ({
     borderColor: 'transparent',
     fontSize: 20,
     lineHeight: '32px',
-    marginLeft: theme.spacing.unit * 3,
+    marginLeft: theme.spacing(3),
     '&:hover': {
       borderColor: theme.palette.primary.main,
     },
