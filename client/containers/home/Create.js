@@ -169,7 +169,7 @@ class CreatePost extends PureComponent {
               <Snackbar
                 open={this.state.isErrorState}
                 variant="error"
-                message={error && error.graphQLErrors[0].message}
+                message={error && error.message}
                 onClose={this.closeErrorState}
               />
               <form
