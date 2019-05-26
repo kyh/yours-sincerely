@@ -72,7 +72,7 @@ class SignupForm extends PureComponent {
         render={(formikProps) => (
           <>
             <Snackbar
-              isOpen={this.state.isErrorState}
+              open={this.state.isErrorState}
               variant="error"
               message={error && error.graphQLErrors[0].message}
               onClose={this.closeErrorState}

@@ -4,7 +4,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 function YSPopupDialog({
   children,
-  isOpen,
+  open,
   onClose,
   title,
   rightButton,
@@ -12,7 +12,7 @@ function YSPopupDialog({
   ...props
 }) {
   return (
-    <Dialog open={isOpen} onClose={onClose} {...props}>
+    <Dialog open={open} onClose={onClose} {...props}>
       {title && <DialogTitle>{title}</DialogTitle>}
       {children}
     </Dialog>

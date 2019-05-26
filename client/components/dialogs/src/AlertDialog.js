@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Button } from '@components';
 
 function YSAlertDialog({
-  isOpen,
+  open,
   onClose,
   title,
   content,
@@ -17,7 +17,7 @@ function YSAlertDialog({
 }) {
   return (
     <Dialog
-      open={isOpen}
+      open={open}
       onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"

@@ -35,7 +35,7 @@ function Transition(props) {
 
 function YSDialog({
   children,
-  isOpen,
+  open,
   onClose,
   title,
   toolbarRight,
@@ -47,7 +47,7 @@ function YSDialog({
       classes={{
         paper: classes.paper,
       }}
-      open={isOpen}
+      open={open}
       onClose={onClose}
       TransitionComponent={Transition}
       fullWidth

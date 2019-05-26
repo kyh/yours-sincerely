@@ -6,7 +6,7 @@ storiesOf('Components|Feedback|Progress', module).add(
   'Loading Components',
   () => (
     <Box>
-      <Box mb={40}>
+      <Box mb={3}>
         <Progress />
       </Box>
       <Box display="flex" justify="center">
