@@ -4,19 +4,23 @@ enum Permission {
 }
 
 type User {
-  id: ID! @unique
+  id: ID! @id
   username: String!
   password: String!
   email: String @unique
   resetToken: String
   resetTokenExpiry: Float
   posts: [Post!]!
-  permissions: [Permission]
+  permissions: [Permission] @scalarList(strategy: RELATION)
+  updatedAt: DateTime! @updatedAt
+  createdAt: DateTime! @createdAt
 }
 
 type Post {
-  id: ID! @unique
-  published: Boolean! @default(value: "true")
+  id: ID! @id
+  published: Boolean! @default(value: true)
   content: String!
   author: User!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 }

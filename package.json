@@ -26,15 +26,12 @@
     "lint": "eslint --ext .js --env browser,node client/ server/",
     "lint:fix": "eslint --fix --ext .js --env browser,node client/ server",
     "create:components": "node ./tools/components/create-components.js",
-    "test": "env-cmd -f ./config/.env.test jest --watch --runInBand"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "_moduleAliases": {
     "@server": "./server",
     "@client": "./client",
     "@components": "./client/components"
-  },
-  "jest": {
-    "setupTestFrameworkScriptFile": "./tests/setup.js"
   },
   "dependencies": {
     "@material-ui/core": "^4.0.1",
