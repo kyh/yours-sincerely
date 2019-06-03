@@ -44,4 +44,4 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 
 ## Community
 
-If you have any questions, ping us on [Slack](https://itsbananas.slack.com).
+If you have any questions, ping us on [Discord](https://discord.gg/8WCcghH).
