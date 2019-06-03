@@ -6,7 +6,13 @@ const { resolvers } = require('@server/resolvers');
 const permissions = require('@server/middlewares/permissions');
 
 const typeDefs = importSchema(path.resolve('server/schema/schema.graphql'));
-const schema = makeExecutableSchema({ typeDefs, resolvers });
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+  resolverValidationOptions: {
+    requireResolversForResolveType: false,
+  },
+});
 const middlewares = [permissions];
 const schemaWithMiddleware = applyMiddleware(schema, ...middlewares);
 
