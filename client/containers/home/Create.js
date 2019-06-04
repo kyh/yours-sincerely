@@ -153,7 +153,7 @@ class CreatePost extends PureComponent {
 
   renderForm = (createPost, { loading, error }) => {
     const { classes } = this.props;
-    const { open } = this.state;
+    const { open, isErrorState } = this.state;
     return (
       <Dialog
         open={open}
@@ -167,7 +167,7 @@ class CreatePost extends PureComponent {
           render={({ handleSubmit, handleReset, handleChange, values }) => (
             <>
               <Snackbar
-                open={this.state.isErrorState}
+                open={isErrorState}
                 variant="error"
                 message={error && error.message}
                 onClose={this.closeErrorState}
