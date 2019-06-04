@@ -64,7 +64,7 @@ function HomeContent({ currentPage, classes }) {
 
 HomeContent.propTypes = {
   classes: PropTypes.object.isRequired,
-  currentPage: PropTypes.number.isRequired,
+  currentPage: PropTypes.number,
 };
 
 export default withStyles(styles)(HomeContent);

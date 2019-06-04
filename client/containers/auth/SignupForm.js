@@ -49,12 +49,12 @@ class SignupForm extends PureComponent {
     this.setState({ isErrorState: true });
   };
 
-  onSubmitSuccess = () => {
+  onSubmitSuccess = async () => {
     // Force a reload of all the current queries now that the user is
-    // logged in
-    this.props.client.cache.reset().then(() => {
-      redirect({}, '/');
-    });
+    // logged in.
+    const { client } = this.props;
+    await client.resetStore();
+    redirect({}, '/');
   };
 
   renderForm = (signup, { loading, error }) => {

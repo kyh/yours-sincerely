@@ -63,7 +63,7 @@ function YSDialog({
               {title}
             </Typography>
           )}
-          {!!toolbarRight && toolbarRight()}
+          {!!toolbarRight && toolbarRight}
         </Toolbar>
       </AppBar>
       {children}
