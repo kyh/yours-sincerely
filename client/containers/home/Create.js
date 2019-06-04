@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
-import { Mutation } from 'react-apollo';
+import { Mutation, withApollo } from 'react-apollo';
 import { Formik } from 'formik';
 import {
   InputBase,
@@ -14,8 +14,12 @@ import {
   Snackbar,
 } from '@components';
 import CurrentUser from '@client/containers/auth/CurrentUser';
-import RandomUsername from '@client/containers/auth/RandomUsername';
+import RandomUsername, {
+  GET_RANDOM_USERNAME,
+} from '@client/containers/auth/RandomUsername';
 import { GET_POSTS } from '@client/containers/home/Feed';
+import { SIGNUP } from '@client/containers/auth/SignupForm';
+import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({
   button: {
@@ -90,6 +94,26 @@ class CreatePost extends PureComponent {
     this.setState({ isErrorState: false });
   };
 
+  onSubmit = async (values, me, createPost) => {
+    const { client } = this.props;
+    if (!me) {
+      // Create an account for this user if they're not logged in.
+      const { data } = await client.query({ query: GET_RANDOM_USERNAME });
+      await client.mutate({
+        mutation: SIGNUP,
+        variables: {
+          username: data.randomUsername,
+          password: Math.random()
+            .toString(36)
+            .slice(-8),
+        },
+      });
+    }
+    await createPost({ variables: values });
+    await client.resetStore();
+    redirect({}, window.location.href);
+  };
+
   onSubmitError = () => {
     this.setState({ isErrorState: true });
   };
@@ -141,72 +165,70 @@ class CreatePost extends PureComponent {
     );
   };
 
-  renderPostingAs = () => {
-    return (
-      <CurrentUser>
-        {({ data: { me } }) =>
-          me ? this.renderPostingAsMe() : this.renderPostingAsRandom()
-        }
-      </CurrentUser>
-    );
+  renderPostingAs = (me) => {
+    return me ? this.renderPostingAsMe(me) : this.renderPostingAsRandom();
   };
 
   renderForm = (createPost, { loading, error }) => {
     const { classes } = this.props;
     const { open, isErrorState } = this.state;
     return (
-      <Dialog
-        open={open}
-        onClose={this.toggleForm}
-        toolbarRight={this.renderPostingAs}
-      >
-        <Formik
-          initialValues={{ content: '' }}
-          validate={this.validateForm}
-          onSubmit={(values) => createPost({ variables: values })}
-          render={({ handleSubmit, handleReset, handleChange, values }) => (
-            <>
-              <Snackbar
-                open={isErrorState}
-                variant="error"
-                message={error && error.message}
-                onClose={this.closeErrorState}
-              />
-              <form
-                className={classes.form}
-                autoComplete="off"
-                onSubmit={handleSubmit}
-                onReset={handleReset}
-              >
-                <InputBase
-                  className={classes.input}
-                  placeholder="Continue the story..."
-                  name="content"
-                  margin="none"
-                  rows={10}
-                  onChange={handleChange}
-                  value={values.content}
-                  multiline
-                  fullWidth
-                  autoFocus
-                />
-                <footer className={classes.footer}>
-                  {this.renderWordsLeft(values.content)}
-                  <Button
-                    className={classes.submit}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    isLoading={loading}
+      <CurrentUser>
+        {({ data: { me } }) => (
+          <Dialog
+            open={open}
+            onClose={this.toggleForm}
+            toolbarRight={this.renderPostingAs(me)}
+          >
+            <Formik
+              initialValues={{ content: '' }}
+              validate={this.validateForm}
+              onSubmit={(values) => this.onSubmit(values, me, createPost)}
+              render={({ handleSubmit, handleReset, handleChange, values }) => (
+                <>
+                  <Snackbar
+                    open={isErrorState}
+                    variant="error"
+                    message={error && error.message}
+                    onClose={this.closeErrorState}
+                  />
+                  <form
+                    className={classes.form}
+                    autoComplete="off"
+                    onSubmit={handleSubmit}
+                    onReset={handleReset}
                   >
-                    Post
-                  </Button>
-                </footer>
-              </form>
-            </>
-          )}
-        />
-      </Dialog>
+                    <InputBase
+                      className={classes.input}
+                      placeholder="Continue the story..."
+                      name="content"
+                      margin="none"
+                      rows={10}
+                      onChange={handleChange}
+                      value={values.content}
+                      multiline
+                      fullWidth
+                      autoFocus
+                    />
+                    <footer className={classes.footer}>
+                      {this.renderWordsLeft(values.content)}
+                      <Button
+                        className={classes.submit}
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        isLoading={loading}
+                      >
+                        {me ? 'Post' : 'Write as guest'}
+                      </Button>
+                    </footer>
+                  </form>
+                </>
+              )}
+            />
+          </Dialog>
+        )}
+      </CurrentUser>
     );
   };
 
@@ -246,4 +268,4 @@ CreatePost.propTypes = {
   totalPages: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(CreatePost);
+export default withStyles(styles)(withApollo(CreatePost));

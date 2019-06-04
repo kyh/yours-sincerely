@@ -51,7 +51,7 @@ const Mutation = {
   },
   createPost: async (parent, args, context, info) => {
     const { userId } = context.user;
-    return context.prisma.mutation.createItem(
+    return context.prisma.mutation.createPost(
       {
         data: {
           ...args,
