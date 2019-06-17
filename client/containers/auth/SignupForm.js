@@ -27,7 +27,7 @@ const Composed = adopt({
   // eslint-disable-next-line react/prop-types
   signup: ({ render, onError, onCompleted }) => (
     <Signup onError={onError} onCompleted={onCompleted}>
-      {(signup, signupProps) => render({ signup, signupProps })}
+      {(mutation, params) => render({ mutation, params })}
     </Signup>
   ),
   // eslint-disable-next-line react/prop-types
@@ -69,8 +69,8 @@ class SignupForm extends PureComponent {
     redirect({}, '/');
   };
 
-  renderForm = ({ formik, signupProps }) => {
-    const { loading, error } = signupProps;
+  renderForm = ({ formik, signup }) => {
+    const { loading, error } = signup.params;
     const { isErrorState } = this.state;
     const { classes } = this.props;
     return (

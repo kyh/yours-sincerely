@@ -29,9 +29,9 @@ const styles = {
   },
 };
 
-function Transition(props) {
-  return <Grow {...props} />;
-}
+const Transition = React.forwardRef((props, ref) => {
+  return <Grow {...props} ref={ref} />;
+});
 
 function YSDialog({
   children,

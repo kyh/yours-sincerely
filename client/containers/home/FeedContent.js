@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
-import { Query } from 'react-apollo';
+
+import Feed from '@client/containers/home/Feed';
 import { Link, FeedContentLoader } from '@components';
-import { perPage } from '@client/utils/constants';
 
 const styles = (theme) => ({
   post: {
@@ -34,24 +33,9 @@ const styles = (theme) => ({
   },
 });
 
-const GET_POSTS = gql`
-  query GET_POSTS($skip: Int = 0, $first: Int = ${perPage}) {
-    posts(first: $first, skip: $skip, orderBy: createdAt_ASC) {
-      id
-      content
-    }
-  }
-`;
-
-function Feed({ currentPage, classes }) {
+function FeedContent({ currentPage, classes }) {
   return (
-    <Query
-      query={GET_POSTS}
-      // fetchPolicy="network-only"
-      variables={{
-        skip: currentPage * perPage - perPage,
-      }}
-    >
+    <Feed currentPage={currentPage}>
       {({ loading, error, data }) => {
         if (loading) return <FeedContentLoader />;
         if (error) return `Error! ${error.message}`;
@@ -69,14 +53,13 @@ function Feed({ currentPage, classes }) {
           </Link>
         ));
       }}
-    </Query>
+    </Feed>
   );
 }
 
-Feed.propTypes = {
+FeedContent.propTypes = {
   classes: PropTypes.object.isRequired,
   currentPage: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(Feed);
-export { GET_POSTS };
+export default withStyles(styles)(FeedContent);
