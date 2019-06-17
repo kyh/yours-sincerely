@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { perPage } from '@client/utils/constants';
 
 import Feed from '@client/containers/home/Feed';
-import Create from '@client/containers/home/Create';
+import CreatePost from '@client/containers/home/CreatePost';
 import Pagination, {
   PAGINATION_QUERY,
 } from '@client/containers/home/Pagination';
@@ -50,7 +50,7 @@ function HomeContent({ currentPage, classes }) {
               <Feed currentPage={page} />
             </section>
             <section className={classes.create}>
-              <Create currentPage={page} totalPages={totalPages} />
+              <CreatePost currentPage={page} totalPages={totalPages} />
             </section>
             <section className={classes.pagination}>
               <Pagination currentPage={page} totalPages={totalPages} />

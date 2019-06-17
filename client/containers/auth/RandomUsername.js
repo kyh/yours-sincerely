@@ -9,9 +9,9 @@ const GET_RANDOM_USERNAME = gql`
   }
 `;
 
-const RandomUsername = (props) => (
-  <Query {...props} query={GET_RANDOM_USERNAME}>
-    {(result) => props.children(result)}
+const RandomUsername = ({ children, ...rest }) => (
+  <Query query={GET_RANDOM_USERNAME} {...rest}>
+    {(result, params) => children(result, params)}
   </Query>
 );
 

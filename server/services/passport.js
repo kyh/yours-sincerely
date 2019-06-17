@@ -1,14 +1,14 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const keys = require('@server/config/keys');
-// const db = require('@server/schema/db');
+const prisma = require('@server/services/db');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await db.query.user({ where: { id } });
+  const user = await prisma.query.user({ where: { id } });
   done(null, user);
 });
 
@@ -22,7 +22,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const existingUser = await db.query.user({
+        const existingUser = await prisma.query.user({
           where: { googleId: profile.id },
         });
 
@@ -30,7 +30,7 @@ passport.use(
           return done(null, existingUser);
         }
 
-        const user = await db.mutation.createUser({
+        const user = await prisma.mutation.createUser({
           data: {
             googleId: profile.id,
             displayName: profile.displayName,

@@ -64,7 +64,7 @@ const CREATE_POST = gql`
 
 const MAX_WORDS = 101;
 
-class CreatePost extends PureComponent {
+class CreatePostForm extends PureComponent {
   state = {
     open: false,
     isErrorState: false,
@@ -262,10 +262,10 @@ class CreatePost extends PureComponent {
   }
 }
 
-CreatePost.propTypes = {
+CreatePostForm.propTypes = {
   classes: PropTypes.object.isRequired,
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(withApollo(CreatePost));
+export default withStyles(styles)(withApollo(CreatePostForm));
