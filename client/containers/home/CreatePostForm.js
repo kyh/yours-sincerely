@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
-import { Mutation, withApollo } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { adopt } from 'react-adopt';
 import { Formik } from 'formik';
+import redirect from '@client/utils/redirect';
+
 import {
   InputBase,
   Dialog,
@@ -14,12 +16,12 @@ import {
   Snackbar,
 } from '@components';
 import CurrentUser from '@client/containers/auth/CurrentUser';
-import RandomUsername, {
-  GET_RANDOM_USERNAME,
-} from '@client/containers/auth/RandomUsername';
+import RandomUsername from '@client/containers/auth/RandomUsername';
+import CreatePost from '@client/containers/home/CreatePost';
 import { GET_POSTS } from '@client/containers/home/Feed';
-import { SIGNUP } from '@client/containers/auth/SignupForm';
-import redirect from '@client/utils/redirect';
+import { SIGNUP } from '@client/containers/auth/Signup';
+
+const MAX_WORDS = 100;
 
 const styles = (theme) => ({
   button: {
@@ -53,16 +55,30 @@ const styles = (theme) => ({
   },
 });
 
-const CREATE_POST = gql`
-  mutation CreatePost($content: String!) {
-    createPost(content: $content) {
-      id
-      content
-    }
-  }
-`;
-
-const MAX_WORDS = 101;
+const Composed = adopt({
+  // eslint-disable-next-line react/prop-types
+  post: ({ render, onError, onCompleted, update }) => (
+    <CreatePost onError={onError} onCompleted={onCompleted} update={update}>
+      {(createPost, createPostProps) => render({ createPost, createPostProps })}
+    </CreatePost>
+  ),
+  // eslint-disable-next-line react/prop-types
+  currentUser: ({ render }) => <CurrentUser>{render}</CurrentUser>,
+  // eslint-disable-next-line react/prop-types
+  randomUsername: ({ render }) => <RandomUsername>{render}</RandomUsername>,
+  // eslint-disable-next-line react/prop-types
+  formik: ({ render, validateForm, onSubmit }) => {
+    return (
+      <Formik
+        initialValues={{ content: '' }}
+        validate={validateForm}
+        onSubmit={onSubmit}
+      >
+        {render}
+      </Formik>
+    );
+  },
+});
 
 class CreatePostForm extends PureComponent {
   state = {
@@ -87,7 +103,7 @@ class CreatePostForm extends PureComponent {
   };
 
   getWordsLeft = (content) => {
-    return MAX_WORDS - content.split(/\W+/).length;
+    return MAX_WORDS - content.split(/\W+/).length + 1;
   };
 
   closeErrorState = () => {
@@ -125,6 +141,14 @@ class CreatePostForm extends PureComponent {
     });
   };
 
+  onUpdate = (cache, { data: { createPost } }) => {
+    const { posts } = cache.readQuery({ query: GET_POSTS });
+    cache.writeQuery({
+      query: GET_POSTS,
+      data: { posts: posts.concat([createPost]) },
+    });
+  };
+
   renderWordsLeft = (content) => {
     const { classes } = this.props;
     const left = this.getWordsLeft(content);
@@ -138,97 +162,90 @@ class CreatePostForm extends PureComponent {
     );
   };
 
-  renderPostingAsRandom = () => {
+  renderPostingAsRandom = (username) => {
     const { classes } = this.props;
     return (
-      <RandomUsername>
-        {({ data: { randomUsername } }) => (
-          <Tooltip
-            title="Since you're not logged in, we've created this name for you"
-            placement="bottom"
-          >
-            <Text variant="caption" className={classes.dialogCaption}>
-              Posting as {randomUsername}
-            </Text>
-          </Tooltip>
-        )}
-      </RandomUsername>
+      <Tooltip
+        title="Since you're not logged in, we've created this name for you"
+        placement="bottom"
+      >
+        <Text variant="caption" className={classes.dialogCaption}>
+          Posting as {username}
+        </Text>
+      </Tooltip>
     );
   };
 
-  renderPostingAsMe = (me) => {
+  renderPostingAsMe = (username) => {
     const { classes } = this.props;
     return (
       <Text variant="caption" className={classes.dialogCaption}>
-        Posting as {me.username}
+        Posting as {username}
       </Text>
     );
   };
 
-  renderPostingAs = (me) => {
-    return me ? this.renderPostingAsMe(me) : this.renderPostingAsRandom();
+  renderPostingAs = ({ me, username }) => {
+    return me
+      ? this.renderPostingAsMe(me.username)
+      : this.renderPostingAsRandom(username);
   };
 
-  renderForm = (createPost, { loading, error }) => {
+  renderForm = ({ post, currentUser, randomUsername, formik }) => {
     const { classes } = this.props;
     const { open, isErrorState } = this.state;
+    console.log(post, currentUser, randomUsername, formik);
     return (
-      <CurrentUser>
-        {({ data: { me } }) => (
-          <Dialog
-            open={open}
-            onClose={this.toggleForm}
-            toolbarRight={this.renderPostingAs(me)}
+      <Dialog
+        open={open}
+        onClose={this.toggleForm}
+        toolbarRight={this.renderPostingAs({
+          me: currentUser.data.me,
+          username: randomUsername.data.randomUsername,
+        })}
+      >
+        <>
+          <Snackbar
+            open={isErrorState}
+            variant="error"
+            message={
+              post.createPostProps.error && post.createPostProps.error.message
+            }
+            onClose={this.closeErrorState}
+          />
+          <form
+            className={classes.form}
+            autoComplete="off"
+            onSubmit={formik.handleSubmit}
+            onReset={formik.handleReset}
           >
-            <Formik
-              initialValues={{ content: '' }}
-              validate={this.validateForm}
-              onSubmit={(values) => this.onSubmit(values, me, createPost)}
-              render={({ handleSubmit, handleReset, handleChange, values }) => (
-                <>
-                  <Snackbar
-                    open={isErrorState}
-                    variant="error"
-                    message={error && error.message}
-                    onClose={this.closeErrorState}
-                  />
-                  <form
-                    className={classes.form}
-                    autoComplete="off"
-                    onSubmit={handleSubmit}
-                    onReset={handleReset}
-                  >
-                    <InputBase
-                      className={classes.input}
-                      placeholder="Continue the story..."
-                      name="content"
-                      margin="none"
-                      rows={10}
-                      onChange={handleChange}
-                      value={values.content}
-                      multiline
-                      fullWidth
-                      autoFocus
-                    />
-                    <footer className={classes.footer}>
-                      {this.renderWordsLeft(values.content)}
-                      <Button
-                        className={classes.submit}
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        isLoading={loading}
-                      >
-                        {me ? 'Post' : 'Write as guest'}
-                      </Button>
-                    </footer>
-                  </form>
-                </>
-              )}
+            <InputBase
+              className={classes.input}
+              placeholder="Continue the story..."
+              name="content"
+              margin="none"
+              rows={10}
+              onChange={formik.handleChange}
+              value={formik.values.content}
+              multiline
+              fullWidth
+              autoFocus
             />
-          </Dialog>
-        )}
-      </CurrentUser>
+            <footer className={classes.footer}>
+              {this.renderWordsLeft(formik.values.content)}
+              <Button
+                className={classes.submit}
+                type="submit"
+                variant="contained"
+                color="primary"
+                isLoading={post.createPostProps.loading}
+              >
+                {currentUser.data.me ? 'Post' : 'Write as guest'}
+              </Button>
+            </footer>
+          </form>
+        </>
+      </Dialog>
     );
   };
 
@@ -243,20 +260,15 @@ class CreatePostForm extends PureComponent {
         >
           Continue the story...
         </ButtonBase>
-        <Mutation
-          mutation={CREATE_POST}
+        <Composed
+          validateForm={this.validateForm}
+          onSubmit={this.onSubmit}
           onError={this.onSubmitError}
           onCompleted={this.onSubmitSuccess}
-          update={(cache, { data: { createPost } }) => {
-            const { posts } = cache.readQuery({ query: GET_POSTS });
-            cache.writeQuery({
-              query: GET_POSTS,
-              data: { posts: posts.concat([createPost]) },
-            });
-          }}
+          update={this.onUpdate}
         >
           {this.renderForm}
-        </Mutation>
+        </Composed>
       </>
     );
   }
