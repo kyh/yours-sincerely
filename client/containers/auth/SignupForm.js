@@ -1,30 +1,17 @@
 import React, { PureComponent } from 'react';
-import gql from 'graphql-tag';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { withStyles } from '@material-ui/core/styles';
-import { Mutation, withApollo } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { adopt } from 'react-adopt';
 
 import { FormField, Button, Snackbar } from '@components';
+import Signup from '@client/containers/auth/Signup';
 import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({
-  form: {},
-  field: {
-    marginBottom: theme.spacing(2),
-  },
-  footer: {},
+  field: { marginBottom: theme.spacing(2) },
 });
-
-const SIGNUP = gql`
-  mutation Signup($username: String!, $email: String, $password: String!) {
-    signup(username: $username, email: $email, password: $password) {
-      id
-      username
-      email
-    }
-  }
-`;
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required('This will be how people find you'),
@@ -34,6 +21,31 @@ const validationSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, 'Just a little longer')
     .required('Your password is required'),
+});
+
+const Composed = adopt({
+  // eslint-disable-next-line react/prop-types
+  signup: ({ render, onError, onCompleted }) => (
+    <Signup onError={onError} onCompleted={onCompleted}>
+      {(signup, signupProps) => render({ signup, signupProps })}
+    </Signup>
+  ),
+  // eslint-disable-next-line react/prop-types
+  formik: ({ render, signup }) => {
+    return (
+      <Formik
+        initialValues={{
+          username: '',
+          email: '',
+          password: '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(values) => signup({ variables: values })}
+      >
+        {render}
+      </Formik>
+    );
+  },
 });
 
 class SignupForm extends PureComponent {
@@ -57,82 +69,65 @@ class SignupForm extends PureComponent {
     redirect({}, '/');
   };
 
-  renderForm = (signup, { loading, error }) => {
+  renderForm = ({ formik, signupProps }) => {
+    const { loading, error } = signupProps;
+    const { isErrorState } = this.state;
     const { classes } = this.props;
     return (
-      <Formik
-        initialValues={{
-          username: '',
-          email: '',
-          password: '',
-        }}
-        validationSchema={validationSchema}
-        onSubmit={(values) => signup({ variables: values })}
-        render={(formikProps) => (
-          <>
-            <Snackbar
-              open={this.state.isErrorState}
-              variant="error"
-              message={error && error.message}
-              onClose={this.closeErrorState}
-            />
-            <form
-              onSubmit={formikProps.handleSubmit}
-              onReset={formikProps.handleReset}
+      <>
+        <Snackbar
+          open={isErrorState}
+          variant="error"
+          message={error && error.message}
+          onClose={this.closeErrorState}
+        />
+        <form onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+          <FormField
+            id="username"
+            className={classes.field}
+            label="Username"
+            value={formik.values.username}
+            formikProps={formik}
+          />
+          <FormField
+            id="email"
+            className={classes.field}
+            label="Email"
+            value={formik.values.email}
+            formikProps={formik}
+          />
+          <FormField
+            id="password"
+            className={classes.field}
+            label="Password"
+            value={formik.values.password}
+            formikProps={formik}
+            type="password"
+          />
+          <footer className={classes.footer}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              isLoading={loading}
             >
-              <FormField
-                id="username"
-                className={classes.field}
-                label="Username"
-                value={formikProps.values.username}
-                formikProps={formikProps}
-              />
-              <FormField
-                id="email"
-                className={classes.field}
-                label="Email"
-                value={formikProps.values.email}
-                formikProps={formikProps}
-              />
-              <FormField
-                id="password"
-                className={classes.field}
-                label="Password"
-                value={formikProps.values.password}
-                formikProps={formikProps}
-                type="password"
-              />
-              <footer className={classes.footer}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  isLoading={loading}
-                >
-                  Sign Up
-                </Button>
-              </footer>
-            </form>
-          </>
-        )}
-      />
+              Sign Up
+            </Button>
+          </footer>
+        </form>
+      </>
     );
   };
 
   render() {
     return (
-      <Mutation
-        mutation={SIGNUP}
-        onError={this.onSubmitError}
-        onCompleted={this.onSubmitSuccess}
-      >
+      <Composed onError={this.onSubmitError} onCompleted={this.onSubmitSuccess}>
         {this.renderForm}
-      </Mutation>
+      </Composed>
     );
   }
 }
 
 export default withStyles(styles)(withApollo(SignupForm));
-export { SIGNUP };
