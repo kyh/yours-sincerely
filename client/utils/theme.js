@@ -106,6 +106,20 @@ export default createMuiTheme({
     },
   },
   overrides: {
+    MuiLink: {
+      root: {
+        color: '#8389E1',
+        textDecoration: 'none',
+        backgroundColor: 'transparent',
+        borderBottom: '2px solid #e0e0e0',
+        paddingBottom: 1,
+        transition: 'color 0.2s linear, border-color 0.2s linear',
+        cursor: 'pointer',
+        '&:hover': {
+          borderColor: '#8389E1',
+        },
+      },
+    },
     MuiFormHelperText: {
       contained: {
         margin: '8px 0 0',
