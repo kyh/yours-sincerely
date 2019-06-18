@@ -38,7 +38,7 @@ const Composed = adopt({
           password: '',
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => login({ variables: values })}
+        onSubmit={(values) => login.mutation({ variables: values })}
       >
         {render}
       </Formik>
