@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -18,8 +19,7 @@ import {
 import CurrentUser from '@client/containers/auth/CurrentUser';
 import RandomUsername from '@client/containers/auth/RandomUsername';
 import CreatePost from '@client/containers/home/CreatePost';
-import { GET_POSTS } from '@client/containers/home/Feed';
-import { SIGNUP } from '@client/containers/auth/Signup';
+import Signup from '@client/containers/auth/Signup';
 
 const MAX_WORDS = 100;
 
@@ -56,23 +56,34 @@ const styles = (theme) => ({
 });
 
 const Composed = adopt({
-  // eslint-disable-next-line react/prop-types
-  post: ({ render, onError, onCompleted, update }) => (
-    <CreatePost onError={onError} onCompleted={onCompleted} update={update}>
-      {(createPost, createPostProps) => render({ createPost, createPostProps })}
+  post: ({ render, onError, onCompleted }) => (
+    <CreatePost onError={onError} onCompleted={onCompleted}>
+      {(mutation, params) => render({ mutation, params })}
     </CreatePost>
   ),
-  // eslint-disable-next-line react/prop-types
+  signup: ({ render, onError, onCompleted }) => (
+    <Signup onError={onError} onCompleted={onCompleted}>
+      {(mutation, params) => render({ mutation, params })}
+    </Signup>
+  ),
   currentUser: ({ render }) => <CurrentUser>{render}</CurrentUser>,
-  // eslint-disable-next-line react/prop-types
   randomUsername: ({ render }) => <RandomUsername>{render}</RandomUsername>,
-  // eslint-disable-next-line react/prop-types
-  formik: ({ render, validateForm, onSubmit }) => {
+  formik: ({
+    render,
+    validateForm,
+    onSubmit,
+    post,
+    currentUser,
+    randomUsername,
+    signup,
+  }) => {
     return (
       <Formik
         initialValues={{ content: '' }}
         validate={validateForm}
-        onSubmit={onSubmit}
+        onSubmit={(values) =>
+          onSubmit(values, post, currentUser, randomUsername, signup)
+        }
       >
         {render}
       </Formik>
@@ -110,22 +121,20 @@ class CreatePostForm extends PureComponent {
     this.setState({ isErrorState: false });
   };
 
-  onSubmit = async (values, me, createPost) => {
+  onSubmit = async (values, post, currentUser, randomUsername, signup) => {
     const { client } = this.props;
-    if (!me) {
+    if (!currentUser.data.me) {
       // Create an account for this user if they're not logged in.
-      const { data } = await client.query({ query: GET_RANDOM_USERNAME });
-      await client.mutate({
-        mutation: SIGNUP,
+      await signup.mutation({
         variables: {
-          username: data.randomUsername,
+          username: randomUsername.data.randomUsername,
           password: Math.random()
             .toString(36)
             .slice(-8),
         },
       });
     }
-    await createPost({ variables: values });
+    await post.mutation({ variables: values });
     await client.resetStore();
     redirect({}, window.location.href);
   };
@@ -138,14 +147,6 @@ class CreatePostForm extends PureComponent {
     this.setState({
       isErrorState: false,
       open: false,
-    });
-  };
-
-  onUpdate = (cache, { data: { createPost } }) => {
-    const { posts } = cache.readQuery({ query: GET_POSTS });
-    cache.writeQuery({
-      query: GET_POSTS,
-      data: { posts: posts.concat([createPost]) },
     });
   };
 
@@ -162,8 +163,15 @@ class CreatePostForm extends PureComponent {
     );
   };
 
-  renderPostingAsRandom = (username) => {
+  renderPostingAs = ({ me, username }) => {
     const { classes } = this.props;
+    if (me) {
+      return (
+        <Text variant="caption" className={classes.dialogCaption}>
+          Posting as {me.username}
+        </Text>
+      );
+    }
     return (
       <Tooltip
         title="Since you're not logged in, we've created this name for you"
@@ -176,25 +184,9 @@ class CreatePostForm extends PureComponent {
     );
   };
 
-  renderPostingAsMe = (username) => {
-    const { classes } = this.props;
-    return (
-      <Text variant="caption" className={classes.dialogCaption}>
-        Posting as {username}
-      </Text>
-    );
-  };
-
-  renderPostingAs = ({ me, username }) => {
-    return me
-      ? this.renderPostingAsMe(me.username)
-      : this.renderPostingAsRandom(username);
-  };
-
   renderForm = ({ post, currentUser, randomUsername, formik }) => {
     const { classes } = this.props;
     const { open, isErrorState } = this.state;
-    console.log(post, currentUser, randomUsername, formik);
     return (
       <Dialog
         open={open}
@@ -208,9 +200,7 @@ class CreatePostForm extends PureComponent {
           <Snackbar
             open={isErrorState}
             variant="error"
-            message={
-              post.createPostProps.error && post.createPostProps.error.message
-            }
+            message={post.params.error && post.params.error.message}
             onClose={this.closeErrorState}
           />
           <form
@@ -238,7 +228,7 @@ class CreatePostForm extends PureComponent {
                 type="submit"
                 variant="contained"
                 color="primary"
-                isLoading={post.createPostProps.loading}
+                isLoading={post.params.loading}
               >
                 {currentUser.data.me ? 'Post' : 'Write as guest'}
               </Button>
@@ -265,7 +255,6 @@ class CreatePostForm extends PureComponent {
           onSubmit={this.onSubmit}
           onError={this.onSubmitError}
           onCompleted={this.onSubmitSuccess}
-          update={this.onUpdate}
         >
           {this.renderForm}
         </Composed>
