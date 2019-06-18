@@ -1,39 +1,87 @@
+/* eslint-disable jsx-a11y/anchor-has-content */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import classnames from 'classnames';
+import { withRouter } from 'next/router';
 import NextLink from 'next/link';
+import MuiLink from '@material-ui/core/Link';
 
-const styles = (theme) => ({
-  root: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.main,
-    textDecoration: 'none',
-    backgroundColor: 'transparent',
-    borderBottom: `2px solid ${theme.palette.grey[300]}`,
-    paddingBottom: 1,
-    transition: 'color 0.2s linear, border-color 0.2s linear',
-    cursor: 'pointer',
-    '&:hover': {
-      borderColor: theme.palette.primary.main,
-    },
-  },
+const NextComposed = React.forwardRef(function NextComposed(props, ref) {
+  const { as, href, prefetch, ...other } = props;
+
+  return (
+    <NextLink href={href} prefetch={prefetch} as={as}>
+      <a ref={ref} {...other} />
+    </NextLink>
+  );
 });
 
-function YSLink({ classes, children, onClick, className, ...props }) {
+NextComposed.propTypes = {
+  as: PropTypes.string,
+  href: PropTypes.string,
+  prefetch: PropTypes.bool,
+};
+
+// A styled version of the Next.js Link component:
+// https://nextjs.org/docs/#with-link
+function Link(props) {
+  const {
+    className: classNameProps,
+    activeClassName,
+    router,
+    innerRef,
+    naked,
+    href,
+    ...other
+  } = props;
+
+  const className = classnames(classNameProps, {
+    [activeClassName]: router.pathname === href && activeClassName,
+  });
+
+  if (naked) {
+    return (
+      <NextComposed
+        className={className}
+        ref={innerRef}
+        href={href}
+        {...other}
+      />
+    );
+  }
+
   return (
-    <NextLink {...props}>
-      <a className={`${classes.root} ${className || ''}`} onClick={onClick}>
-        {children}
-      </a>
-    </NextLink>
+    <MuiLink
+      underline="none"
+      component={NextComposed}
+      className={className}
+      ref={innerRef}
+      href={href}
+      {...other}
+    />
   );
 }
 
-YSLink.propTypes = {
-  classes: PropTypes.object.isRequired,
-  children: PropTypes.any,
-  onClick: PropTypes.func,
+Link.propTypes = {
+  activeClassName: PropTypes.string,
+  as: PropTypes.string,
   className: PropTypes.string,
+  href: PropTypes.string,
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  naked: PropTypes.bool,
+  onClick: PropTypes.func,
+  prefetch: PropTypes.bool,
+  router: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
-export default withStyles(styles)(YSLink);
+Link.defaultProps = {
+  activeClassName: 'active',
+};
+
+const RouterLink = withRouter(Link);
+
+export default React.forwardRef((props, ref) => (
+  <RouterLink {...props} innerRef={ref} />
+));

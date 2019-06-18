@@ -43,10 +43,7 @@ function FeedContent({ currentPage, classes }) {
           <Link
             key={post.id}
             as={`/p/${post.id}`}
-            href={{
-              pathname: 'post',
-              query: { id: post.id },
-            }}
+            href={`/post/?id=${post.id}`}
             className={classes.post}
           >
             {post.content}
