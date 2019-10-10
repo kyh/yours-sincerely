@@ -24,11 +24,6 @@ function execPromise(command) {
 }
 
 function beforeDeploy(answers) {
-  if (answers.prisma) {
-    return execLog(
-      `npm run deploy:schema -- -e ./config/.env.${answers.location}`,
-    );
-  }
   return Promise.resolve();
 }
 
@@ -53,12 +48,6 @@ exec('git fetch origin', () => {
         message: 'What branch do you want to deploy?',
         default: () => execPromise('git rev-parse --abbrev-ref HEAD'),
         filter: (val) => val.replace(/\n$/, ''),
-      },
-      {
-        type: 'confirm',
-        name: 'prisma',
-        message: 'Would you like to deploy a new prisma schema?',
-        default: false,
       },
     ])
     .then(async (answers) => {

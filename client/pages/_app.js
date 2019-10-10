@@ -1,16 +1,17 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import App, { Container } from 'next/app';
+import App from 'next/app';
 
 // Connect Apollo
-import { ApolloProvider } from 'react-apollo';
-import withApollo from '@client/utils/with-apollo';
+import { ApolloProvider } from '@apollo/react-hooks';
+import withApolloClient from '@client/utils/withApolloClient';
 
 // Connect UI Theme
 import { ThemeProvider } from '@material-ui/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '@client/utils/theme';
 
-class YSApp extends App {
+class IntApp extends App {
   componentDidMount() {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
@@ -20,18 +21,16 @@ class YSApp extends App {
   }
 
   render() {
-    const { Component, pageProps, apollo } = this.props;
+    const { Component, pageProps, apolloClient } = this.props;
     return (
-      <Container>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ApolloProvider client={apollo}>
-            <Component {...pageProps} />
-          </ApolloProvider>
-        </ThemeProvider>
-      </Container>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ApolloProvider client={apolloClient}>
+          <Component {...pageProps} />
+        </ApolloProvider>
+      </ThemeProvider>
     );
   }
 }
 
-export default withApollo(YSApp);
+export default withApolloClient(IntApp);

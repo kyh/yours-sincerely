@@ -1,10 +1,10 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * This tool generates .env.local, .env.dev, .env.prod files.
  *
  * It uses a Heroku app as a base, and overrides the Heroku config
  * for some environments.
  */
-
 const _ = require('lodash');
 const Promise = require('bluebird');
 const util = require('util');
@@ -21,7 +21,7 @@ const ENV_TO_APP_MAPPING = {
 
 const OVERRIDES = {
   local: {
-    API_URL: 'http://localhost:5000',
+    API_URL: 'https://ys-hasura-dev.herokuapp.com',
     APP_URL: 'http://localhost:5000',
     PORT: 5000,
     NODE_ENV: 'development',
