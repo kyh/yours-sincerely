@@ -4,7 +4,6 @@
 const express = require('express');
 
 // Middlewares.
-const avatarsMiddleware = require('adorable-avatars');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 
@@ -13,7 +12,6 @@ function createExpress() {
 
   app.use(helmet());
   app.use(cookieParser());
-  app.use('/avatars', avatarsMiddleware);
 
   return app;
 }

@@ -1,15 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Query } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
-import { perPage } from '@client/utils/constants';
-
-import Navigation from '@client/containers/auth/Navigation';
-import FeedContent from '@client/containers/home/FeedContent';
-import CreatePostForm from '@client/containers/home/CreatePostForm';
-import Pagination, {
-  PAGINATION_QUERY,
-} from '@client/containers/home/Pagination';
+import Navigation from '@client/containers/Navigation';
 
 const styles = (theme) => ({
   container: {
@@ -41,7 +33,12 @@ function Home({ currentPage, classes }) {
   return (
     <main>
       <Navigation />
-      <Query query={PAGINATION_QUERY}>
+      Main
+    </main>
+  );
+}
+
+/* <Query query={PAGINATION_QUERY}>
         {({ data, loading, error }) => {
           if (loading || error) return null;
           const { count } = data.postsConnection.aggregate;
@@ -61,10 +58,7 @@ function Home({ currentPage, classes }) {
             </section>
           );
         }}
-      </Query>
-    </main>
-  );
-}
+      </Query> */
 
 Home.getInitialProps = ({ query }) => {
   return { currentPage: parseFloat(query.page) };

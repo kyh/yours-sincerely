@@ -4,9 +4,6 @@ import Router from 'next/router';
 import { withStyles } from '@material-ui/core/styles';
 import { Logo, Link } from '@components';
 
-import CurrentUser from './CurrentUser';
-import Logout from './Logout';
-
 Router.onRouteChangeStart = () => {
   NProgress.start();
 };
@@ -52,32 +49,19 @@ const styles = (theme) => ({
 
 function Navigation({ classes }) {
   return (
-    <CurrentUser>
-      {({ data: { me } }) => (
-        <section className={classes.container}>
-          <nav className={classes.nav}>
-            <Link href="/">
-              <Logo />
-            </Link>
-            <div>
-              {!me && (
-                <>
-                  <Link href="/login">Log in</Link>
-                  <Link className="get-started" href="/signup">
-                    Get Started
-                  </Link>
-                </>
-              )}
-              {me && (
-                <>
-                  <Logout />
-                </>
-              )}
-            </div>
-          </nav>
-        </section>
-      )}
-    </CurrentUser>
+    <section className={classes.container}>
+      <nav className={classes.nav}>
+        <Link href="/">
+          <Logo />
+        </Link>
+        <div>
+          <Link href="/login">Log in</Link>
+          <Link className="get-started" href="/signup">
+            Get Started
+          </Link>
+        </div>
+      </nav>
+    </section>
   );
 }
 
