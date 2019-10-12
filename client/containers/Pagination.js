@@ -1,17 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import gql from 'graphql-tag';
 import { Link } from '@components';
-
-const PAGINATION_QUERY = gql`
-  query PAGINATION_QUERY {
-    postsConnection {
-      aggregate {
-        count
-      }
-    }
-  }
-`;
 
 function Pagination({ currentPage, totalPages }) {
   return (
@@ -52,4 +41,3 @@ Pagination.propTypes = {
 };
 
 export default Pagination;
-export { PAGINATION_QUERY };
