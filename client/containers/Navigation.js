@@ -3,6 +3,8 @@ import NProgress from 'nprogress';
 import Router from 'next/router';
 import { withStyles } from '@material-ui/core/styles';
 
+import { useAuth } from '@hooks/auth';
+
 import { Logo, Link } from '@components';
 
 Router.onRouteChangeStart = () => {
@@ -49,6 +51,8 @@ const styles = (theme) => ({
 });
 
 function Navigation({ classes }) {
+  const [authState] = useAuth();
+  console.log(authState);
   return (
     <section className={classes.container}>
       <nav className={classes.nav}>

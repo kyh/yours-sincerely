@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
-import LoginForm from '@containers/LoginForm';
+import AuthForm from '@containers/AuthForm';
 import { Logo, Header, Text, Link, Card } from '@components';
 
 const styles = (theme) => ({
@@ -85,7 +85,7 @@ function Login(props) {
           </Link>
           <Header className={classes.header}>Welcome back</Header>
           <Text className={classes.subHeader}>Log into your account</Text>
-          <LoginForm />
+          <AuthForm isLoginForm />
           <footer className={classes.footerContainer}>
             <Link href="/forgot_password">Forgot your password?</Link>
           </footer>

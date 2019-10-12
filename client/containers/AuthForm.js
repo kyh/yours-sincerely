@@ -3,6 +3,7 @@ import useForm from 'react-hook-form';
 import { withStyles } from '@material-ui/core/styles';
 
 import { emailValidation } from '@utils/validation';
+import firebase from '@utils/firebase';
 import redirect from '@utils/redirect';
 
 import { TextField, Button, Snackbar } from '@components';
@@ -11,11 +12,16 @@ const styles = (theme) => ({
   field: { marginBottom: theme.spacing(2) },
 });
 
-function SignupForm({ classes }) {
+const FIREBASE_METHODS = {
+  signup: 'createUserWithEmailAndPassword',
+  login: 'signInWithEmailAndPassword',
+};
+
+function AuthForm({ isLoginForm, classes }) {
   const { register, errors, handleSubmit } = useForm({
     mode: 'onBlur',
   });
-  const [signupState, setSignupState] = useState({
+  const [loginState, setLoginState] = useState({
     isLoading: false,
     isErrorOpen: false,
     errorMessage: '',
@@ -23,27 +29,37 @@ function SignupForm({ classes }) {
 
   const onSubmit = (data) => {
     console.log(data);
-    setSignupState({
+    const fbAuth = firebase.auth();
+    const fbMethodName = isLoginForm
+      ? FIREBASE_METHODS.login
+      : FIREBASE_METHODS.signup;
+
+    setLoginState({
       isLoading: true,
       isErrorOpen: false,
       errorMessage: '',
     });
-    setTimeout(() => {
-      setSignupState({
-        isLoading: false,
-        isErrorOpen: true,
-        errorMessage: 'Incorrect email',
+
+    fbAuth[fbMethodName](data.email, data.password)
+      .then(() => {
+        redirect({}, '/');
+      })
+      .catch((error) => {
+        setLoginState({
+          isLoading: false,
+          isErrorOpen: true,
+          errorMessage: error.message,
+        });
       });
-    }, 1000);
   };
 
   return (
     <>
       <Snackbar
-        open={signupState.isErrorOpen}
+        open={loginState.isErrorOpen}
         variant="error"
-        message={signupState.errorMessage}
-        onClose={() => setSignupState({ isErrorOpen: false, errorMessage: '' })}
+        message={loginState.errorMessage}
+        onClose={() => setLoginState({ isErrorOpen: false, errorMessage: '' })}
       />
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
@@ -72,9 +88,9 @@ function SignupForm({ classes }) {
             color="primary"
             size="large"
             fullWidth
-            isLoading={signupState.isLoading}
+            isLoading={loginState.isLoading}
           >
-            Sign Up
+            {isLoginForm ? 'Login' : 'Sign Up'}
           </Button>
         </footer>
       </form>
@@ -82,4 +98,4 @@ function SignupForm({ classes }) {
   );
 }
 
-export default withStyles(styles)(SignupForm);
+export default withStyles(styles)(AuthForm);
