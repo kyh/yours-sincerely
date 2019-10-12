@@ -1,8 +1,8 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Logo, Header, Link, Card } from '@components';
 
-import SignupForm from '@client/containers/auth/SignupForm';
+import SignupForm from '@containers/SignupForm';
+import { Logo, Header, Link, Card } from '@components';
 
 const styles = (theme) => ({
   page: {

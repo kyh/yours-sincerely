@@ -1,6 +1,7 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Navigation from '@client/containers/Navigation';
+
+import Navigation from '@containers/Navigation';
 import { Header, Text, Link } from '@components';
 
 const styles = (theme) => ({

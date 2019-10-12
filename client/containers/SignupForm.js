@@ -5,9 +5,10 @@ import { withStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
 import { adopt } from 'react-adopt';
 
+import redirect from '@utils/redirect';
+
+import Signup from '@containers/auth/Signup';
 import { FormField, Button, Snackbar } from '@components';
-import Signup from '@client/containers/auth/Signup';
-import redirect from '@client/utils/redirect';
 
 const styles = (theme) => ({
   field: { marginBottom: theme.spacing(2) },
