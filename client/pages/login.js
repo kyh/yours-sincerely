@@ -1,7 +1,8 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Logo, Header, Text, Link, Card } from '@components';
+
 // import LoginForm from '@client/containers/auth/LoginForm';
+import { Logo, Header, Text, Link, Card } from '@components';
 
 const styles = (theme) => ({
   page: {

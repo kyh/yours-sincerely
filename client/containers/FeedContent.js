@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useGetPosts } from '@client/hooks/getPosts';
 import { withStyles } from '@material-ui/core/styles';
+
+import { useGetPosts } from '@hooks/getPosts';
+
 import { Link, FeedContentLoader } from '@components';
 
 const styles = (theme) => ({
@@ -33,7 +35,7 @@ const styles = (theme) => ({
 });
 
 function FeedContent({ currentPage, classes }) {
-  const { loading, error, data } = useGetPosts();
+  const { loading, error, data } = useGetPosts(currentPage);
   if (loading) return <FeedContentLoader />;
   if (error) return `Error! ${error.message}`;
   return data.posts.map((post) => (

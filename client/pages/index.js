@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useGetPostsAggregate } from '@client/hooks/getPostsAggregate';
-import { perPage } from '@client/utils/constants';
 import { withStyles } from '@material-ui/core/styles';
-import FeedContent from '@client/containers/FeedContent';
-import CreatePostForm from '@client/containers/CreatePostForm';
-import Pagination from '@client/containers/Pagination';
-import Navigation from '@client/containers/Navigation';
+
+import { useGetPostsAggregate } from '@hooks/getPostsAggregate';
+import { perPage } from '@utils/constants';
+
+import FeedContent from '@containers/FeedContent';
+import Pagination from '@containers/Pagination';
+import Navigation from '@containers/Navigation';
 
 const styles = (theme) => ({
   container: {
