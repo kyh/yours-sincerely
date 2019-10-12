@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useGetPosts } from '@client/hooks/getPosts';
 import { withStyles } from '@material-ui/core/styles';
-
-import Feed from '@client/containers/home/Feed';
 import { Link, FeedContentLoader } from '@components';
 
 const styles = (theme) => ({
@@ -34,24 +33,19 @@ const styles = (theme) => ({
 });
 
 function FeedContent({ currentPage, classes }) {
-  return (
-    <Feed currentPage={currentPage}>
-      {({ loading, error, data }) => {
-        if (loading) return <FeedContentLoader />;
-        if (error) return `Error! ${error.message}`;
-        return data.posts.map((post) => (
-          <Link
-            key={post.id}
-            as={`/p/${post.id}`}
-            href={`/post/?id=${post.id}`}
-            className={classes.post}
-          >
-            {post.content}
-          </Link>
-        ));
-      }}
-    </Feed>
-  );
+  const { loading, error, data } = useGetPosts();
+  if (loading) return <FeedContentLoader />;
+  if (error) return `Error! ${error.message}`;
+  return data.posts.map((post) => (
+    <Link
+      key={post.id}
+      as={`/p/${post.id}`}
+      href={`/post/?id=${post.id}`}
+      className={classes.post}
+    >
+      {post.content}
+    </Link>
+  ));
 }
 
 FeedContent.propTypes = {

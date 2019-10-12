@@ -1,0 +1,19 @@
+{
+  "name": "ys-firebase",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell"
+  },
+  "dependencies": {
+    "firebase-admin": "~7.0.0",
+    "firebase-functions": "^2.0.3"
+  },
+  "engines": {
+    "node": "8"
+  },
+  "private": true
+}

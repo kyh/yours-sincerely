@@ -19,8 +19,9 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 │── /config                      # Environment configuration
 │── /docs                        # App documentation
 │── /tests                       # Test setup files
-│── /tools                       # Setup and deployment scripts
-└── /worker                      # JavaScript worker modules
+│── /server                      # Next.js/Express server
+│── /functions                   # Firebase tools
+└── /tools                       # Setup and deployment scripts
 ```
 
 ## Want to contribute?

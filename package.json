@@ -42,6 +42,7 @@
     "classnames": "^2.2.6",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
+    "firebase": "^7.2.0",
     "formik": "^1.5.8",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
@@ -56,6 +57,7 @@
     "react-adopt": "^0.6.0",
     "react-content-loader": "^4.3.1",
     "react-dom": "^16.10.2",
+    "react-firebase-hooks": "^2.1.0",
     "react-swipeable-views": "^0.13.3",
     "react-transition-group": "^4.3.0",
     "yup": "^0.27.0"
