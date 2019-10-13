@@ -58,7 +58,6 @@
     "react": "^16.10.2",
     "react-content-loader": "^4.3.1",
     "react-dom": "^16.10.2",
-    "react-firebase-hooks": "^2.1.0",
     "react-hook-form": "^3.23.18",
     "react-swipeable-views": "^0.13.3",
     "react-transition-group": "^4.3.0"

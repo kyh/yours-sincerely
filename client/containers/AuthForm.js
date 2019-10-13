@@ -28,7 +28,6 @@ function AuthForm({ isLoginForm, classes }) {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
     const fbAuth = firebase.auth();
     const fbMethodName = isLoginForm
       ? FIREBASE_METHODS.login
