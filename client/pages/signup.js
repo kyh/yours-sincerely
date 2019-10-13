@@ -1,8 +1,8 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Logo, Header, Link, Card } from '@components';
 
-import SignupForm from '@client/containers/auth/SignupForm';
+import AuthForm from '@containers/AuthForm';
+import { Logo, Header, Link, Card } from '@components';
 
 const styles = (theme) => ({
   page: {
@@ -85,7 +85,7 @@ function Signup(props) {
             <Logo />
           </Link>
           <Header className={classes.header}>Create your account</Header>
-          <SignupForm />
+          <AuthForm />
         </Card>
         <div className={classes.moreContainer}>
           <Link href="/login">Log in instead</Link>

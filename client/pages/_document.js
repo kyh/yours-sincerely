@@ -1,6 +1,7 @@
 import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/styles';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import flush from 'styled-jsx/server';
 
 const TITLE = 'Yours sincerely | Endless senseless collaborative book';
@@ -165,6 +166,7 @@ YSDocument.getInitialProps = async (ctx) => {
 
   ctx.renderPage = () =>
     originalRenderPage({
+      // eslint-disable-next-line react/jsx-props-no-spreading
       enhanceApp: (App) => (props) => sheets.collect(<App {...props} />),
     });
 
@@ -174,10 +176,10 @@ YSDocument.getInitialProps = async (ctx) => {
     ...initialProps,
     // Styles fragment is rendered after the app and page rendering finish.
     styles: (
-      <React.Fragment>
+      <>
         {sheets.getStyleElement()}
         {flush() || null}
-      </React.Fragment>
+      </>
     ),
   };
 };

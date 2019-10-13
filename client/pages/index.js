@@ -1,15 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Query } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
-import { perPage } from '@client/utils/constants';
 
-import Navigation from '@client/containers/auth/Navigation';
-import FeedContent from '@client/containers/home/FeedContent';
-import CreatePostForm from '@client/containers/home/CreatePostForm';
-import Pagination, {
-  PAGINATION_QUERY,
-} from '@client/containers/home/Pagination';
+import { useGetPostsAggregate } from '@hooks/getPostsAggregate';
+import { perPage } from '@utils/constants';
+
+import FeedContent from '@containers/FeedContent';
+import Pagination from '@containers/Pagination';
+import Navigation from '@containers/Navigation';
 
 const styles = (theme) => ({
   container: {
@@ -38,30 +36,26 @@ const styles = (theme) => ({
 });
 
 function Home({ currentPage, classes }) {
+  const { loading, error, data } = useGetPostsAggregate();
+  if (loading || error) return null;
+  const { count } = data.posts_aggregate.aggregate;
+  const totalPages = Math.ceil(count / perPage);
+  const page = currentPage || totalPages;
+
   return (
     <main>
       <Navigation />
-      <Query query={PAGINATION_QUERY}>
-        {({ data, loading, error }) => {
-          if (loading || error) return null;
-          const { count } = data.postsConnection.aggregate;
-          const totalPages = Math.ceil(count / perPage);
-          const page = currentPage || totalPages;
-          return (
-            <section className={classes.container}>
-              <section className={classes.feed}>
-                <FeedContent currentPage={page} />
-              </section>
-              <section className={classes.create}>
-                <CreatePostForm currentPage={page} totalPages={totalPages} />
-              </section>
-              <section className={classes.pagination}>
-                <Pagination currentPage={page} totalPages={totalPages} />
-              </section>
-            </section>
-          );
-        }}
-      </Query>
+      <section className={classes.container}>
+        <section className={classes.feed}>
+          <FeedContent currentPage={page} />
+        </section>
+        <section className={classes.create}>
+          {/* <CreatePostForm currentPage={page} totalPages={totalPages} /> */}
+        </section>
+        <section className={classes.pagination}>
+          <Pagination currentPage={page} totalPages={totalPages} />
+        </section>
+      </section>
     </main>
   );
 }
