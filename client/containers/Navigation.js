@@ -3,7 +3,8 @@ import NProgress from 'nprogress';
 import Router from 'next/router';
 import { withStyles } from '@material-ui/core/styles';
 
-import { useAuth } from '@hooks/auth';
+import { useAuth, AUTH_STATES } from '@hooks/auth';
+import firebase from '@utils/firebase';
 
 import { Logo, Link } from '@components';
 
@@ -52,7 +53,8 @@ const styles = (theme) => ({
 
 function Navigation({ classes }) {
   const [authState] = useAuth();
-  console.log(authState);
+  const logout = () => firebase.auth().signOut();
+
   return (
     <section className={classes.container}>
       <nav className={classes.nav}>
@@ -60,10 +62,21 @@ function Navigation({ classes }) {
           <Logo />
         </Link>
         <div>
-          <Link href="/login">Log in</Link>
-          <Link className="get-started" href="/signup">
-            Get Started
-          </Link>
+          {authState.status === AUTH_STATES.out && (
+            <>
+              <Link href="/login">Log in</Link>
+              <Link className="get-started" href="/signup">
+                Get Started
+              </Link>
+            </>
+          )}
+          {authState.status === AUTH_STATES.in && (
+            <>
+              <Link href="/" onClick={logout}>
+                Logout
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </section>

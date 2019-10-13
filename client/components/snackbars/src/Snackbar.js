@@ -81,7 +81,7 @@ function YSSnackbar({
   open = false,
   onClose = () => {},
   variant = 'success',
-  message = 'This is a success message!',
+  message = '',
 }) {
   return (
     <Snackbar
@@ -90,7 +90,7 @@ function YSSnackbar({
         horizontal: 'center',
       }}
       open={open}
-      autoHideDuration={6000}
+      autoHideDuration={10000}
       onClose={onClose}
     >
       <YSSnackbarContent
