@@ -18,26 +18,17 @@ To write is to put pen to paper or fingers to keyboard. If you have trouble fall
 │   └── next.config.js           # Next.js SSR configuration
 │── /config                      # Environment configuration
 │── /docs                        # App documentation
-│── /prisma                      # Prisma datamodel and seed data
-│── /server                      # Node.js server
-│   ├── /config                  # Server environment variables
-│   ├── /schema                  # Prisma generated files and app schema
-│   ├── /middlewares             # Express/Apollo middleware
-│   ├── /resolvers               # GraphQl resolvers
-│   ├── /services                # Server Helper functions/Utilities/Services
-│   └── index.js                 # Server entry point
 │── /tests                       # Test setup files
-│── /tools                       # Setup and deployment scripts
-└── /worker                      # JavaScript worker modules
+│── /server                      # Next.js/Express server
+│── /functions                   # Firebase tools
+└── /tools                       # Setup and deployment scripts
 ```
 
 ## Want to contribute?
 
 - [How can I help?](docs/how-to-help.md)
 - [Setup your local YS instance](docs/setup.md)
-- [Evolving the server](docs/server.md)
 - [Using the GraphQL API](docs/graphql.md)
-- [Updating the client](docs/client.md)
 - [List of supported environment variables](docs/environment_variables.md)
 - [Design System](docs/design.md)
 - [Product Features](docs/product.md)
