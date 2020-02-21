@@ -1,5 +1,0 @@
-projects:
-  server:
-    extensions:
-      endpoints:
-        local: https://ys-hasura-dev.herokuapp.com/

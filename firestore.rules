@@ -1,0 +1,23 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /posts/{post} {
+      allow read: if true;
+      allow create: if request.auth.uid == request.resource.data.createdBy;
+      allow update, delete: if request.auth.uid == resource.data.createdBy;
+    }
+
+    match /postLikes/{postLike} {
+      allow read: if true;
+      allow create: if request.auth.uid == request.resource.data.createdBy;
+      allow update, delete: if request.auth.uid == resource.data.createdBy;
+    }
+
+    match /subscriptions/{subscription} {
+      allow read: if request.auth.uid == resource.data.createdBy;
+      allow create: if request.auth.uid == request.resource.data.createdBy;
+      allow update, delete: if request.auth.uid == resource.data.createdBy;
+    }
+
+  }
+}
