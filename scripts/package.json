@@ -1,0 +1,11 @@
+{
+  "name": "ys-scripts",
+  "version": "1.0.0",
+  "description": "maint scripts to help developers work with data in ys apps",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "chalk": "^2.3.2",
+    "firebase-admin": "^5.11.0"
+  }
+}

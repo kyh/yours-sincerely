@@ -1,38 +1,18 @@
-[![Dependencies Status](https://david-dm.org/its-bananas/yours-sincerely/status.svg)](https://david-dm.org/its-bananas/yours-sincerely)
-[![Build Status](https://travis-ci.org/its-bananas/yours-sincerely.svg?branch=master)](https://travis-ci.org/its-bananas/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/its-bananas/yours-sincerely.svg)](https://greenkeeper.io/)
+A modern web-app boilerplate with Create React App and Firebase. Focused on simplicity for new devs, rapid prototyping, and smallish projects.
 
-# Yours Sincerely
+### **Full documentation at [getys.org](http://getys.org)**
 
-> Endless senseless collaborative book
+### **[Live Demo](https://demo.getys.org)**
 
-To write is to put pen to paper or fingers to keyboard. If you have trouble falling asleep, write down all the thoughts swimming around your head before getting into bed as a way to clear your mind.
+## Folders
 
-## Directory Layout
+Child folders each have their own readmes
 
-```
-├── /client                      # ReactJS client, which contains most of our UI
-│   ├── /components              # React components, reusable across all pages
-│   ├── /pages                   # App route definitions
-│   ├── /static                  # Static assets
-│   └── /utils                   # Client side helper functions/Utilities/Services
-│   └── next.config.js           # Next.js SSR configuration
-│── /config                      # Environment configuration
-│── /docs                        # App documentation
-│── /tests                       # Test setup files
-│── /server                      # Next.js/Express server
-│── /functions                   # Firebase tools
-└── /tools                       # Setup and deployment scripts
-```
+- [`/functions`](https://github.com/sampl/ys/tree/master/functions) - contains all the backend code (not much)
+- [`/public`](https://github.com/sampl/ys/tree/master/public) - files that will be available as-is on the web server
+- [`/scripts`](https://github.com/sampl/ys/tree/master/scripts) - convenience scripts for developers
+- [`/src`](https://github.com/sampl/ys/tree/master/src) - the front-end app
 
-## Want to contribute?
+## License
 
-- [How can I help?](docs/how-to-help.md)
-- [Setup your local YS instance](docs/setup.md)
-- [Using the GraphQL API](docs/graphql.md)
-- [List of supported environment variables](docs/environment_variables.md)
-- [Design System](docs/design.md)
-- [Product Features](docs/product.md)
-
-## Community
-
-If you have any questions, ping us on [Discord](https://discord.gg/8WCcghH).
+[MIT License](https://en.wikipedia.org/wiki/MIT_License)
