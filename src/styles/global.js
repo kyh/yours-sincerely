@@ -1,36 +1,44 @@
+import styledNormalize from 'styled-normalize';
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
-  *:before,
-  *:after,
-  * {
+  ${styledNormalize}
+
+  html {
     box-sizing: border-box;
-    font-family: sans-serif;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
   }
 
-  html,
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
   body {
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
+    color: ${({ theme }) => theme.ui.text};
+    background-color: ${({ theme }) => theme.ui.background};
+    text-rendering: optimizeLegibility;
+    font-family: 'HelveticaNow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    letter-spacing: -0.2px;
   }
 
-  html,
-  body,
-  #root {
-    min-height: 100vh;
+  a {
+    color: inherit;
+    text-decoration: inherit;
   }
 
-  p {
-    margin: 0 0 1rem;
-  }
-
-  hr {
+  /* Remove button styling */
+  button,
+  input[type='submit'],
+  input[type='reset'] {
+    background: none;
+    color: inherit;
     border: none;
-    height: 1px;
-    background: #eee;
-    margin: 1rem 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
   }
 `;
 
