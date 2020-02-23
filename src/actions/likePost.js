@@ -1,5 +1,4 @@
 import Firebase from 'firebase/app';
-
 import { prepareDocForCreate } from './helpers/firestoreHelpers';
 
 const likePost = post => {

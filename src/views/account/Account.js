@@ -1,10 +1,11 @@
 import React from 'react';
 
-import logIn from '../../actions/logIn';
-import FirebaseAuth from '../misc/FirebaseAuth';
-import Error from '../misc/Error';
+import logIn from 'actions/logIn';
+import FirebaseAuth from 'views/misc/FirebaseAuth';
+import Error from 'views/misc/Error';
+
+import { Page } from 'styles/layout';
 import Profile from './Profile';
-import { Page } from '../../styles/layout';
 
 const Account = () => (
   <Page>
