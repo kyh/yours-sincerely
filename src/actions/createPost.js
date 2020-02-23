@@ -3,7 +3,8 @@ import slugify from 'slugify';
 import { prepareDocForCreate } from './helpers/firestoreHelpers';
 
 const createPost = values => {
-  values.slug = slugify(values.title, { lower: true });
+  const firstWords = values.content.replace(/(([^\s]+\s\s*){4})(.*)/, '');
+  values.slug = slugify(firstWords, { lower: true });
   values._likeCount = 0;
 
   return Firebase.firestore()
