@@ -1,10 +1,10 @@
 import React from 'react';
 
-import Error from '../misc/Error';
-import createSubscription from '../../actions/createSubscription';
-import updateSubscription from '../../actions/updateSubscription';
-import deleteSubscription from '../../actions/deleteSubscription';
-import YSSubscription from '../misc/Subscription';
+import createSubscription from 'actions/createSubscription';
+import updateSubscription from 'actions/updateSubscription';
+import deleteSubscription from 'actions/deleteSubscription';
+import Error from 'views/misc/Error';
+import YSSubscription from 'views/misc/Subscription';
 
 class Subscription extends React.Component {
   // https://stripe.com/docs/checkout#integration-custom

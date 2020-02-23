@@ -1,15 +1,15 @@
 import React from 'react';
 import { FirestoreCollection } from 'react-firestore';
 
-import Error from '../misc/Error';
-import { InternalLink } from '../../styles/links';
-import { Page } from '../../styles/layout';
+import Error from 'views/misc/Error';
+import { InternalLink } from 'styles/links';
+import { Page } from 'styles/layout';
 
 const PostList = () => (
   <Page>
     <InternalLink to="/new">New post</InternalLink>
     <hr />
-    <FirestoreCollection path={'posts'} sort="_likeCount:desc">
+    <FirestoreCollection path="posts" sort="createdAt:desc">
       {({ error, isLoading, data }) => {
         if (error) {
           return <Error error={error} />;
@@ -28,6 +28,7 @@ const PostList = () => (
             {data.map(post => (
               <div key={post.id}>
                 <InternalLink to={`/${post.slug}`}>{post.title}</InternalLink>
+                {post.content}
                 <p>
                   {post._likeCount || 0}{' '}
                   {post._likeCount && post._likeCount === 1 ? 'like' : 'likes'}

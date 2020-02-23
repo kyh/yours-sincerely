@@ -3,10 +3,10 @@
 
 import React from 'react';
 
-import logIn from '../../actions/logIn';
-import FirebaseAuth from '../misc/FirebaseAuth';
-import { HeaderFooterWrapper, Header, Footer } from '../../styles/layout';
-import { HeaderLink } from '../../styles/links';
+import logIn from 'actions/logIn';
+import FirebaseAuth from 'views/misc/FirebaseAuth';
+import { HeaderFooterWrapper, Header, Footer } from 'styles/layout';
+import { HeaderLink } from 'styles/links';
 
 const Layout = ({ children }) => (
   <HeaderFooterWrapper>

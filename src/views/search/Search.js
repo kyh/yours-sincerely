@@ -4,9 +4,10 @@
 import React from 'react';
 import { InstantSearch, Hits, SearchBox } from 'react-instantsearch-dom';
 
+import SearchStyles from 'styles/search';
+import { Page } from 'styles/layout';
+
 import SearchResult from './SearchResult';
-import SearchStyles from '../../styles/search';
-import { Page } from '../../styles/layout';
 
 const Search = () => (
   <Page>

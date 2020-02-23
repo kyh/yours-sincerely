@@ -1,11 +1,13 @@
 import React from 'react';
 import { FirestoreCollection } from 'react-firestore';
 
-import Error from '../misc/Error';
-import FirebaseAuth from '../misc/FirebaseAuth';
+import Error from 'views/misc/Error';
+import FirebaseAuth from 'views/misc/FirebaseAuth';
+
+import { InternalLink } from 'styles/links';
+import { Page } from 'styles/layout';
+
 import LikeButton from './LikeButton';
-import { InternalLink } from '../../styles/links';
-import { Page } from '../../styles/layout';
 
 const Post = ({ match }) => (
   <Page>

@@ -5,7 +5,8 @@
   "homepage": "https://yours-sincerely.org",
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
-    "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'"
+    "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'",
+    "deploy:dev": " sh -ac '. ./.env.dev; firebase use dev && react-scripts build && firebase deploy'"
   },
   "dependencies": {
     "firebase": "^7.9.1",
