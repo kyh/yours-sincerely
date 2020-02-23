@@ -2,48 +2,47 @@
 // similar API to react-firestore, but instead of returning a collection or document,
 // it returns the logged in user (or null if not logged in) along with loading state and errors
 
-import Firebase from 'firebase/app'
-import React from 'react'
+import Firebase from 'firebase/app';
+import React, { useState, useEffect, useRef } from 'react';
 
-class FirebaseAuth extends React.Component {
-
-  state = {
+const FirebaseAuth = ({ children }) => {
+  const ref = useRef({});
+  const [state, setState] = useState({
     isLoading: true,
     error: null,
-    auth: null,
-  }
+    auth: null
+  });
 
-  componentDidMount() {
-    this.unsubscribe = Firebase.auth()
-      .onAuthStateChanged(this.handleAuth, this.handleError)
-  }
+  useEffect(() => {
+    ref.current.unsubscribe = Firebase.auth().onAuthStateChanged(
+      handleAuth,
+      handleError
+    );
 
-  componentWillUnmount() {
-    if (this.unsubscribe) {
-      this.unsubscribe()
-    }
-  }
+    return () => {
+      if (ref.current.unsubscribe) {
+        ref.current.unsubscribe();
+      }
+    };
+  }, []);
 
-  handleAuth = auth => {
-    this.setState({
+  const handleAuth = auth => {
+    setState({
       isLoading: false,
       auth,
-      error: null,
-    })
-  }
+      error: null
+    });
+  };
 
-  handleError = error => {
-    this.setState({
+  const handleError = error => {
+    setState({
       isLoading: false,
       auth: null,
-      error,
-    })
-  }
+      error
+    });
+  };
 
-  render() {
-    return this.props.children(this.state)
-  }
+  return children(state);
+};
 
-}
-
-export default FirebaseAuth
+export default FirebaseAuth;
