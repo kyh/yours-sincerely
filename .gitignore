@@ -3,8 +3,6 @@ build
 node_modules
 .firebaserc
 firebase-debug.log
-.env.dev
-.env.stage
-.env.live
+.env
 serviceAccountKey*
 .firebase

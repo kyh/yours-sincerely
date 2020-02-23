@@ -1,26 +1,25 @@
 {
-  "name": "ys",
+  "name": "yours-sincerely",
   "version": "0.1.0",
   "private": true,
   "homepage": "https://yours-sincerely.org",
-  "dependencies": {
-    "firebase": "^6.1.0",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
-    "react-firestore": "^0.8.1",
-    "react-ga": "^2.5.3",
-    "react-instantsearch-dom": "^5.2.3",
-    "react-router-dom": "^4.2.2",
-    "react-scripts": "^3.2.0",
-    "react-transition-group": "^2.3.1",
-    "slugify": "^1.3.0",
-    "styled-components": "^3.3.2"
-  },
   "scripts": {
-    "start": "sh -ac '. ./.env.dev;   firebase use dev   && react-scripts start'",
-    "dev": "  sh -ac '. ./.env.dev;   firebase use dev   && react-scripts build && firebase deploy'",
-    "stage": "sh -ac '. ./.env.stage; firebase use stage && react-scripts build && firebase deploy'",
-    "live": " sh -ac '. ./.env.live;  firebase use live  && react-scripts build && firebase deploy'"
+    "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
+    "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'"
+  },
+  "dependencies": {
+    "firebase": "^7.9.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-firestore": "^1.0.1",
+    "react-instantsearch-dom": "^6.3.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.4.0",
+    "slugify": "^1.3.6",
+    "styled-components": "^5.0.1"
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1"
   },
   "browserslist": {
     "production": [
