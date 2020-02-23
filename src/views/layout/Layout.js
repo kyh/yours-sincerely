@@ -12,13 +12,7 @@ const Layout = ({ children }) => (
   <HeaderFooterWrapper>
     <Header>
       <HeaderLink to="/">YS</HeaderLink>
-
       <div style={{ float: 'right' }}>
-        <HeaderLink to="/search">
-          <span role="img" aria-label="search">
-            🔎
-          </span>
-        </HeaderLink>{' '}
         <FirebaseAuth>
           {({ isLoading, error, auth }) => {
             if (isLoading) {
@@ -42,9 +36,7 @@ const Layout = ({ children }) => (
         </FirebaseAuth>
       </div>
     </Header>
-
     {children}
-
     <Footer>© {new Date().getFullYear()}</Footer>
   </HeaderFooterWrapper>
 );

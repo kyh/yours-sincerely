@@ -1,14 +1,7 @@
-import Firebase from 'firebase/app'
-import ReactGA from 'react-ga'
+import Firebase from 'firebase/app';
 
 const logOut = () => {
+  return Firebase.auth().signOut();
+};
 
-  ReactGA.event({
-    category: 'User',
-    action: 'Log out',
-  })
-
-  return Firebase.auth().signOut()
-}
-
-export default logOut
+export default logOut;
