@@ -3,7 +3,7 @@ import { FirestoreCollection } from 'react-firestore';
 
 import Error from 'views/misc/Error';
 import { InternalLink } from 'styles/links';
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 
 const PostList = () => (
   <Page>

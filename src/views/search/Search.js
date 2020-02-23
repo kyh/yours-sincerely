@@ -5,7 +5,7 @@ import React from 'react';
 import { InstantSearch, Hits, SearchBox } from 'react-instantsearch-dom';
 
 import SearchStyles from 'styles/search';
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 
 import SearchResult from './SearchResult';
 

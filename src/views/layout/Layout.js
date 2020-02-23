@@ -25,13 +25,7 @@ const Layout = ({ children }) => (
               return '⚠️ login error';
             }
             if (auth) {
-              return (
-                <HeaderLink to={`/account`}>
-                  <span role="img" aria-label="account">
-                    👤
-                  </span>
-                </HeaderLink>
-              );
+              return <HeaderLink to={`/account`}>Profile</HeaderLink>;
             } else {
               return <button onClick={logIn}>log in</button>;
             }
@@ -64,7 +58,6 @@ const Navigation = styled.div`
 const HeaderLink = styled(Link)`
   color: ${({ theme }) => theme.colors.black};
   text-decoration: none;
-  font-size: 1.2rem;
 `;
 
 const Page = styled.div`

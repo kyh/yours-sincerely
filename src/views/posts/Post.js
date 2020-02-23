@@ -5,7 +5,7 @@ import Error from 'views/misc/Error';
 import FirebaseAuth from 'views/misc/FirebaseAuth';
 
 import { InternalLink } from 'styles/links';
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 
 import LikeButton from './LikeButton';
 
