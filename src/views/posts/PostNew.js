@@ -4,7 +4,7 @@ import FirebaseAuth from 'views/misc/FirebaseAuth';
 import Error from 'views/misc/Error';
 import logIn from 'actions/logIn';
 import createPost from 'actions/createPost';
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 import PostForm from './PostForm';
 
 const PostNew = ({ history }) => (

@@ -4,7 +4,7 @@ import logIn from 'actions/logIn';
 import FirebaseAuth from 'views/misc/FirebaseAuth';
 import Error from 'views/misc/Error';
 
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 import Profile from './Profile';
 
 const Account = () => (
@@ -28,11 +28,7 @@ const Account = () => (
           );
         }
 
-        return (
-          <div>
-            <Profile auth={auth} />
-          </div>
-        );
+        return <Profile auth={auth} />;
       }}
     </FirebaseAuth>
   </Page>

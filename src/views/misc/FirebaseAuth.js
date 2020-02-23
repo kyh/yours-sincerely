@@ -3,7 +3,7 @@
 // it returns the logged in user (or null if not logged in) along with loading state and errors
 
 import Firebase from 'firebase/app';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const FirebaseAuth = ({ children }) => {
   const ref = useRef({});

@@ -4,7 +4,7 @@ import { FirestoreCollection } from 'react-firestore';
 import Error from 'views/misc/Error';
 import deletePost from 'actions/deletePost';
 import updatePost from 'actions/updatePost';
-import { Page } from 'styles/layout';
+import Page from 'components/Page';
 import PostForm from './PostForm';
 
 const PostEdit = ({ match, history }) => (
