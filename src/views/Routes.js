@@ -31,11 +31,13 @@ const Routes = () => (
     <Route path="/login">
       <Login />
     </Route>
-    <Route path="/:slug/edit">
+    <Route path="/:postId/edit">
       <PostEdit />
     </Route>
-    <Route path="/:slug">
-      <Post />
+    <Route path="/:postId">
+      <Layout>
+        <Post />
+      </Layout>
     </Route>
     <Route>
       <Error />

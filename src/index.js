@@ -4,13 +4,10 @@
 import Firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { debounce } from 'lodash';
-
-import App from './views/App';
-
-console.log('create-react-app env:', process.env.NODE_ENV);
 
 // connect our app to firebase
 const dbConfig = {
@@ -20,14 +17,23 @@ const dbConfig = {
 };
 Firebase.initializeApp(dbConfig);
 
+// resize listeners
 const onResize = () => {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 };
-
 const debouncedResize = debounce(onResize, 100);
 window.addEventListener('resize', debouncedResize);
 onResize();
 
-// render the App component to our document root with React
-ReactDOM.render(<App />, document.getElementById('root'));
+// render react app
+const render = () => {
+  const App = require('./views/App').default;
+  ReactDOM.render(<App />, document.getElementById('root'));
+};
+
+render();
+
+if (process.env.NODE_ENV === 'development' && module.hot) {
+  module.hot.accept('./views/App', render);
+}
