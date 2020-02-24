@@ -17,7 +17,7 @@ const Layout = ({ children }) => (
         <Logo />
       </NavLink>
       <NavRight>
-        <NavLink to="/account">Profile</NavLink>
+        <NavLink to="/profile">Profile</NavLink>
         <NavButtonLink to="/new">New Post</NavButtonLink>
       </NavRight>
     </Navigation>
@@ -48,4 +48,11 @@ const NavButtonLink = styled(Link)`
   border: 2px solid ${({ theme }) => theme.colors.primary};
   padding: ${({ theme }) => `${theme.spacings(1)} ${theme.spacings(3)}`};
   border-radius: 4px;
+  &:hover {
+    color: ${({ theme }) => theme.ui.button.hover.background};
+    border-color: ${({ theme }) => theme.ui.button.hover.background};
+  }
+  &:active {
+    transform: scale(0.95);
+  }
 `;

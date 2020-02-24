@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import ContentLoader from 'react-content-loader';
 import FirebaseAuth from 'views/misc/FirebaseAuth';
 import Error from 'views/misc/Error';
 import logIn, { loginTypes } from 'actions/logIn';
@@ -22,7 +22,7 @@ const PostNew = ({ history }) => (
     <FirebaseAuth>
       {({ isLoading, error, auth }) => {
         if (error) return <Error error={error} />;
-        if (isLoading) return <div>loading...</div>;
+        if (isLoading) return <PostNewContentLoader />;
         return (
           <PostForm
             onSubmit={async values => {
@@ -37,6 +37,21 @@ const PostNew = ({ history }) => (
       }}
     </FirebaseAuth>
   </PageContainer>
+);
+
+const PostNewContentLoader = () => (
+  <ContentLoader
+    height={300}
+    width="100%"
+    speed={3}
+    primaryColor="#f3f3f3"
+    secondaryColor="#ecebeb"
+  >
+    <rect x="0" y="20" width="100%" height="25" rx="4" ry="4" />
+    <rect x="0" y="60" width="100%" height="25" rx="4" ry="4" />
+    <rect x="0" y="100" width="100%" height="25" rx="4" ry="4" />
+    <rect x="0" y="140" width="60%" height="25" rx="4" ry="4" />
+  </ContentLoader>
 );
 
 export default PostNew;

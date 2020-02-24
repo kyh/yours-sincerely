@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import Button from 'components/Button';
 
-const PostForm = ({ post, onSubmit }) => {
+const PostForm = ({ post, onSubmit, isSubmitting }) => {
   const submit = event => {
     event.preventDefault();
     const { content } = event.target.elements;
@@ -14,12 +15,15 @@ const PostForm = ({ post, onSubmit }) => {
   return (
     <Form onSubmit={submit}>
       <SubmitContainer>
-        <button type="submit">Save post</button>
+        <Button type="submit" disabled={isSubmitting}>
+          Make Post
+        </Button>
       </SubmitContainer>
       <Textarea
         type="text"
         name="content"
         defaultValue={post ? post.content : ''}
+        placeholder="Hello in there?"
         autoFocus
         required
       />
@@ -35,14 +39,16 @@ const Textarea = styled.textarea`
   width: 100%;
   height: 100%;
   border: none;
-  padding: 0 0 20px;
   resize: none;
   outline: none;
+  padding: ${({ theme }) => theme.spacings(6)} 0;
+  font-size: ${({ theme }) => theme.typography.post.fontSize};
+  line-height: ${({ theme }) => theme.typography.post.lineHeight};
 `;
 
 const SubmitContainer = styled.header`
   position: absolute;
-  top: -60px;
+  top: -68px;
   right: 0;
   display: flex;
   flex-direction: row-reverse;

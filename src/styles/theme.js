@@ -59,6 +59,10 @@ export const lightTheme = {
     h6: {
       fontSize: '1rem',
       fontWeight: 700
+    },
+    post: {
+      fontSize: '1.2rem',
+      lineHeight: '32px'
     }
   },
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
@@ -73,7 +77,7 @@ export const lightTheme = {
     },
     button: {
       color: colors.white,
-      fontWeight: 600,
+      fontWeight: 400,
       background: colors.primary,
       shadow: '0 0 10px 0 rgba(131, 137, 225, 0.4);',
       hover: {
