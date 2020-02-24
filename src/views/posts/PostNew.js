@@ -17,8 +17,8 @@ const PostNew = ({ history }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const onCreatePost = async () => {
-    const values = localStorage.getItem('post');
-    await createPost(JSON.parse(values));
+    const postString = localStorage.getItem('post');
+    await createPost(JSON.parse(postString));
     localStorage.removeItem('post');
     history.push('/');
   };
@@ -36,10 +36,10 @@ const PostNew = ({ history }) => {
           if (isLoading) return <PostNewContentLoader />;
           return (
             <PostForm
-              post={JSON.parse(localStorage.getItem('post') || '')}
-              onSubmit={async values => {
-                const post = JSON.stringify(values);
-                localStorage.setItem('post', post);
+              post={JSON.parse(localStorage.getItem('post') || {})}
+              onSubmit={async post => {
+                const postString = JSON.stringify(post);
+                localStorage.setItem('post', postString);
                 if (!auth) {
                   setIsLoginModalOpen(true);
                 } else {
