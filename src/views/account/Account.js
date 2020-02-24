@@ -4,11 +4,11 @@ import logIn from 'actions/logIn';
 import FirebaseAuth from 'views/misc/FirebaseAuth';
 import Error from 'views/misc/Error';
 
-import Page from 'components/Page';
+import PageContent from 'components/PageContent';
 import Profile from './Profile';
 
 const Account = () => (
-  <Page>
+  <PageContent>
     <FirebaseAuth>
       {({ isLoading, error, auth }) => {
         if (isLoading) {
@@ -31,7 +31,7 @@ const Account = () => (
         return <Profile auth={auth} />;
       }}
     </FirebaseAuth>
-  </Page>
+  </PageContent>
 );
 
 export default Account;

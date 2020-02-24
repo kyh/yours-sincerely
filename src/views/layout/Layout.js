@@ -5,67 +5,47 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
+import Navigation from 'components/Navigation';
 import Logo from 'components/Logo';
-import logIn from 'actions/logIn';
-import FirebaseAuth from 'views/misc/FirebaseAuth';
+import PageContainer from 'components/PageContainer';
+import PageFooter from 'components/PageFooter';
 
 const Layout = ({ children }) => (
   <PageContainer>
     <Navigation>
-      <HeaderLink to="/">
+      <NavLink to="/">
         <Logo />
-      </HeaderLink>
-      <div>
-        <FirebaseAuth>
-          {({ isLoading, error, auth }) => {
-            if (isLoading) {
-              return '...';
-            }
-            if (error) {
-              return '⚠️ login error';
-            }
-            if (auth) {
-              return <HeaderLink to={`/account`}>Profile</HeaderLink>;
-            } else {
-              return <button onClick={logIn}>log in</button>;
-            }
-          }}
-        </FirebaseAuth>
-      </div>
+      </NavLink>
+      <NavRight>
+        <NavLink to="/account">Profile</NavLink>
+        <NavButtonLink to="/new">New Post</NavButtonLink>
+      </NavRight>
     </Navigation>
     {children}
-    <Footer>© {new Date().getFullYear()}</Footer>
+    <PageFooter>© {new Date().getFullYear()}</PageFooter>
   </PageContainer>
 );
 
 export default Layout;
 
-const PageContainer = styled.div`
-  max-width: ${({ theme }) => theme.ui.maxWidth};
-  margin: 0 auto;
-  display: grid;
-  grid-template-rows: max-content auto max-content;
-  min-height: 100vh;
+const NavRight = styled.div`
+  a {
+    margin-right: ${({ theme }) => theme.spacings(5)};
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
 `;
 
-const Navigation = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${({ theme }) => theme.spacings(3)};
+const NavLink = styled(Link)`
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+  }
 `;
 
-const HeaderLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.black};
-  text-decoration: none;
-`;
-
-const Page = styled.div`
-  padding: 1rem;
-`;
-
-const Footer = styled.div`
-  padding: 1rem;
-  text-align: center;
-  opacity: 0.3;
+const NavButtonLink = styled(Link)`
+  color: ${({ theme }) => theme.colors.primary};
+  border: 2px solid ${({ theme }) => theme.colors.primary};
+  padding: ${({ theme }) => `${theme.spacings(1)} ${theme.spacings(3)}`};
+  border-radius: 4px;
 `;

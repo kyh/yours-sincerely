@@ -1,16 +1,19 @@
 import Firebase from 'firebase/app';
 
-const logIn = () => {
-  const provider = new Firebase.auth.GoogleAuthProvider();
+export const loginTypes = {
+  anonymous: 'anonymous',
+  google: 'google'
+};
 
-  return Firebase.auth()
-    .signInWithRedirect(provider)
-    .then(result => {
-      console.log(`logged in as ${result.user.displayName}`);
-    })
-    .catch(error => {
-      console.error('could not sign in', error);
-    });
+const getProvider = {
+  [loginTypes.anonymous]: () => null,
+  [loginTypes.google]: () => new Firebase.auth.GoogleAuthProvider()
+};
+
+const logIn = loginType => {
+  const provider = getProvider[loginType]();
+  if (provider) return Firebase.auth().signInWithRedirect(provider);
+  return Firebase.auth().signInAnonymously();
 };
 
 export default logIn;

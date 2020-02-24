@@ -1,9 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-import { InternalLink } from 'styles/links';
-
-const SearchResult = ({ hit }) => (
-  <InternalLink to={`/${hit.slug}`}>{hit.title}</InternalLink>
-);
+const SearchResult = ({ hit }) => <Link to={`/${hit.slug}`}>{hit.title}</Link>;
 
 export default SearchResult;
