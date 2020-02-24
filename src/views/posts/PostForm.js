@@ -25,7 +25,7 @@ const PostForm = ({ post, onSubmit, isSubmitting }) => {
         required
       />
       <SubmitContainer>
-        <span>This post will expire on {format(expiry, 'do MMMM')}</span>
+        <span>This post will expire on {format(expiry, 'MMMM do')}</span>
         <Button type="submit" disabled={isSubmitting}>
           Publish
         </Button>
