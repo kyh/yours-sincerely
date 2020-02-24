@@ -18,7 +18,13 @@ const PostAuthForm = ({ onSubmit }) => {
       <NameContainer>
         <p>
           Duh, back in the '90s I was on a very famous TV show. <br />
-          I'm <input type="text" name="name" placeholder="Bojack the horse" />
+          I'm{' '}
+          <input
+            type="text"
+            name="name"
+            placeholder="Bojack the horse"
+            required
+          />
         </p>
         <Button type="submit">Now publish my post</Button>
       </NameContainer>
