@@ -10,23 +10,14 @@ const Post = ({ match }) => (
   <PageContent>
     <FirestoreCollection
       path={'posts'}
-      filter={['slug', '==', match.params.slug]}
+      filter={['id', '==', match.params.postId]}
     >
       {({ error, isLoading, data }) => {
-        if (error) {
-          return <Error error={error} />;
-        }
+        if (error) return <Error error={error} />;
+        if (isLoading) return <p>loading...</p>;
+        if (data.length === 0) return <Error />;
 
-        if (isLoading) {
-          return <p>loading...</p>;
-        }
-
-        if (data.length === 0) {
-          return <Error />;
-        }
-
-        const post = data[0];
-
+        const [post] = data;
         return (
           <div>
             <p>{post.content}</p>

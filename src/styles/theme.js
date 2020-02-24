@@ -87,7 +87,7 @@ export const lightTheme = {
       active: {}
     },
     modal: {
-      backdrop: 'rgba(59, 71, 95, 0.85)'
+      background: '#fff'
     }
   }
 };

@@ -3,17 +3,11 @@ import Firebase from 'firebase/app';
 import styled from 'styled-components';
 import { FirestoreCollection } from 'react-firestore';
 import { Link } from 'react-router-dom';
+import { subDays } from 'date-fns';
 import ContentLoader from 'react-content-loader';
-
 import Error from 'views/misc/Error';
 import PageContent from 'components/PageContent';
-
-const getNDaysAgo = n => {
-  const date = new Date();
-  const pastDate = date.getDate() - n;
-  date.setDate(pastDate);
-  return date;
-};
+import LikeButton from 'views/posts/LikeButton';
 
 const PostList = () => (
   <PageContent>
@@ -23,7 +17,7 @@ const PostList = () => (
       filter={[
         'createdAt',
         '>=',
-        Firebase.firestore.Timestamp.fromDate(getNDaysAgo(7))
+        Firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7))
       ]}
     >
       {({ error, isLoading, data }) => {
@@ -35,13 +29,10 @@ const PostList = () => (
           <div>
             {data.map(post => (
               <div key={post.id}>
-                <Link to={`/${post.slug}`}>
+                <Link to={`/${post.id}`}>
                   <PostContent>{post.content}</PostContent>
                 </Link>
-                <p>
-                  {post._likeCount || 0}{' '}
-                  {post._likeCount && post._likeCount === 1 ? 'like' : 'likes'}
-                </p>
+                <LikeButton post={post} />
               </div>
             ))}
           </div>

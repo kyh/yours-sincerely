@@ -1,8 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import Button from 'components/Button';
+import { addDays, format } from 'date-fns';
 
 const PostForm = ({ post, onSubmit, isSubmitting }) => {
+  const expiry = addDays(new Date(), 7);
   const submit = event => {
     event.preventDefault();
     const { content } = event.target.elements;
@@ -14,11 +16,6 @@ const PostForm = ({ post, onSubmit, isSubmitting }) => {
 
   return (
     <Form onSubmit={submit}>
-      <SubmitContainer>
-        <Button type="submit" disabled={isSubmitting}>
-          Make Post
-        </Button>
-      </SubmitContainer>
       <Textarea
         type="text"
         name="content"
@@ -27,6 +24,12 @@ const PostForm = ({ post, onSubmit, isSubmitting }) => {
         autoFocus
         required
       />
+      <SubmitContainer>
+        <span>This post will expire on {format(expiry, 'do MMMM')}</span>
+        <Button type="submit" disabled={isSubmitting}>
+          Publish
+        </Button>
+      </SubmitContainer>
     </Form>
   );
 };
@@ -41,17 +44,24 @@ const Textarea = styled.textarea`
   border: none;
   resize: none;
   outline: none;
-  padding: ${({ theme }) => theme.spacings(6)} 0;
+  padding: ${({ theme }) => theme.spacings(6)} 0 80px;
   font-size: ${({ theme }) => theme.typography.post.fontSize};
   line-height: ${({ theme }) => theme.typography.post.lineHeight};
 `;
 
-const SubmitContainer = styled.header`
+const SubmitContainer = styled.section`
   position: absolute;
-  top: -68px;
+  bottom: 20px;
+  left: 0;
   right: 0;
   display: flex;
-  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    font-size: 0.8rem;
+    color: #919294;
+  }
 `;
 
 export default PostForm;
