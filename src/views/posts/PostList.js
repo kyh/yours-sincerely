@@ -35,7 +35,9 @@ const PostList = () => (
           <div>
             {data.map(post => (
               <div key={post.id}>
-                <Link to={`/${post.slug}`}>{post.content}</Link>
+                <Link to={`/${post.slug}`}>
+                  <PostContent>{post.content}</PostContent>
+                </Link>
                 <p>
                   {post._likeCount || 0}{' '}
                   {post._likeCount && post._likeCount === 1 ? 'like' : 'likes'}
@@ -63,7 +65,7 @@ const FeedContentLoader = () => (
     <rect x="0" y="120" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="160" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="200" width="100%" height="25" rx="4" ry="4" />
-    <rect x="0" y="240" width="100%" height="25" rx="4" ry="4" />
+    <rect x="0" y="240" width="40%" height="25" rx="4" ry="4" />
   </ContentLoader>
 );
 
@@ -92,6 +94,11 @@ const EmptyPostContainer = styled.section`
       text-decoration: underline;
     }
   }
+`;
+
+const PostContent = styled.p`
+  font-size: ${({ theme }) => theme.typography.post.fontSize};
+  line-height: ${({ theme }) => theme.typography.post.lineHeight};
 `;
 
 export default PostList;

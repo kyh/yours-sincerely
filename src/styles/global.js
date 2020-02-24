@@ -26,7 +26,7 @@ const GlobalStyle = createGlobalStyle`
   a {
     color: inherit;
     text-decoration: none;
-    transition: color 0.2s linear, border-color 0.2s linear;
+    transition: 0.2s ease;
   }
 
   /* Remove button styling */
