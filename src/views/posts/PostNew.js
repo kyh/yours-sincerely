@@ -36,7 +36,7 @@ const PostNew = ({ history }) => {
           if (isLoading) return <PostNewContentLoader />;
           return (
             <PostForm
-              post={JSON.parse(localStorage.getItem('post') || {})}
+              post={JSON.parse(localStorage.getItem('post') || '{}')}
               onSubmit={async post => {
                 const postString = JSON.stringify(post);
                 localStorage.setItem('post', postString);
