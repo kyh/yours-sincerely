@@ -64,7 +64,7 @@ export const lightTheme = {
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
   spacings: memoize(calculateSpacing),
   ui: {
-    maxWidth: '736px',
+    maxWidth: '786px',
     text: colors.black,
     background: colors.background,
     border: '#3b475f1a',

@@ -25,7 +25,8 @@ const GlobalStyle = createGlobalStyle`
 
   a {
     color: inherit;
-    text-decoration: inherit;
+    text-decoration: none;
+    transition: color 0.2s linear, border-color 0.2s linear;
   }
 
   /* Remove button styling */
@@ -39,6 +40,14 @@ const GlobalStyle = createGlobalStyle`
     font: inherit;
     cursor: pointer;
     outline: inherit;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  p {
+    margin: 0 0 ${({ theme }) => theme.spacings(2)};
   }
 `;
 

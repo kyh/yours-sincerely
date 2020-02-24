@@ -6,7 +6,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 import ErrorBoundary from './misc/ErrorBoundary';
 import Routes from './Routes';
-import Layout from './layout/Layout';
 import GlobalStyle from 'styles/global';
 import { lightTheme } from 'styles/theme';
 
@@ -16,9 +15,7 @@ const App = () => (
       <BrowserRouter>
         <GlobalStyle />
         <ErrorBoundary>
-          <Layout>
-            <Routes />
-          </Layout>
+          <Routes />
         </ErrorBoundary>
       </BrowserRouter>
     </FirestoreProvider>

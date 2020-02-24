@@ -6,6 +6,7 @@ import 'firebase/auth';
 import 'firebase/firestore';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { debounce } from 'lodash';
 
 import App from './views/App';
 
@@ -18,6 +19,15 @@ const dbConfig = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
 };
 Firebase.initializeApp(dbConfig);
+
+const onResize = () => {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
+
+const debouncedResize = debounce(onResize, 100);
+window.addEventListener('resize', debouncedResize);
+onResize();
 
 // render the App component to our document root with React
 ReactDOM.render(<App />, document.getElementById('root'));

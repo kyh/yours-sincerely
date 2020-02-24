@@ -4,11 +4,11 @@ import { FirestoreCollection } from 'react-firestore';
 import Error from 'views/misc/Error';
 import deletePost from 'actions/deletePost';
 import updatePost from 'actions/updatePost';
-import Page from 'components/Page';
+import PageContent from 'components/PageContent';
 import PostForm from './PostForm';
 
 const PostEdit = ({ match, history }) => (
-  <Page>
+  <PageContent>
     <FirestoreCollection
       path={'posts'}
       filter={['slug', '==', match.params.slug]}
@@ -48,7 +48,7 @@ const PostEdit = ({ match, history }) => (
         );
       }}
     </FirestoreCollection>
-  </Page>
+  </PageContent>
 );
 
 export default PostEdit;
