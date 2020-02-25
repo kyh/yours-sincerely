@@ -20,6 +20,12 @@ const Button = styled.button`
   &:active {
     transform: scale(0.95);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: ${({ theme }) => theme.ui.button.disabled.background};
+    box-shadow: ${({ theme }) => theme.ui.button.disabled.shadow};
+  }
 `;
 
 export default Button;

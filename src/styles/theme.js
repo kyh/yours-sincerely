@@ -1,3 +1,4 @@
+import { css } from 'styled-components';
 import { memoize } from 'lodash';
 
 const SPACING_UNIT = 4;
@@ -30,11 +31,31 @@ const colors = {
   backgroundOrange: '',
   lightOrange: '',
   orange: '',
-  darkOrange: ''
+  darkOrange: '',
+  grey: '#858688',
+  lightGrey: '#C2C2C3',
+  backgroundGrey: '#FAFBFB'
 };
+
+const breakpointsMap = {
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200
+};
+
+const breakpoints = Object.keys(breakpointsMap).reduce((acc, label) => {
+  acc[label] = (...args) => css`
+    @media (max-width: ${breakpointsMap[label]}px) {
+      ${css(...args)};
+    }
+  `;
+  return acc;
+}, {});
 
 export const lightTheme = {
   colors,
+  breakpoints,
   typography: {
     h1: {
       fontSize: '2.5rem',
@@ -84,10 +105,13 @@ export const lightTheme = {
         shadow: '0 0 2px 0 rgba(131, 137, 225, 0.4);',
         background: '#6e75da'
       },
-      active: {}
+      disabled: {
+        background: colors.lightGrey,
+        shadow: 'none'
+      }
     },
     modal: {
-      background: '#fff'
+      background: colors.white
     }
   }
 };

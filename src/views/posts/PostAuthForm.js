@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import logIn, { loginTypes } from 'actions/logIn';
 import Button from 'components/Button';
+import Input from 'components/Input';
 
 const PostAuthForm = ({ onSubmit }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const anonymousLogin = async event => {
+    setIsLoading(true);
     event.preventDefault();
     const { name } = event.target.elements;
-    const values = {
-      name: name.value
-    };
-    await logIn(loginTypes.anonymous);
+    const { user } = await logIn(loginTypes.anonymous);
+    await user.updateProfile({ displayName: name.value });
+    return onSubmit();
   };
 
   return (
@@ -19,14 +22,17 @@ const PostAuthForm = ({ onSubmit }) => {
         <p>
           Duh, back in the '90s I was on a very famous TV show. <br />
           I'm{' '}
-          <input
+          <Input
             type="text"
             name="name"
             placeholder="Bojack the horse"
+            disabled={isLoading}
             required
           />
         </p>
-        <Button type="submit">Now publish my post</Button>
+        <Button type="submit" disabled={isLoading}>
+          Now publish my post
+        </Button>
       </NameContainer>
       <ConnectContainer>
         <button type="button" onClick={() => logIn(loginTypes.google)}>
@@ -79,20 +85,6 @@ const NameContainer = styled.div`
     line-height: 1.8;
     margin-bottom: ${({ theme }) => theme.spacings(7)};
   }
-  input {
-    border: none;
-    background: transparent;
-    border-bottom: 1px dashed ${({ theme }) => theme.colors.secondary};
-    border-radius: 4px;
-    font-size: 1rem;
-    padding: ${({ theme }) => theme.spacings(3)};
-    transition: 0.2s ease;
-
-    &:focus {
-      outline: none;
-      background: ${({ theme }) => theme.ui.border};
-    }
-  }
   button {
     max-width: 200px;
   }
@@ -109,10 +101,10 @@ const ConnectContainer = styled.div`
     content: 'Or connect your account';
     position: absolute;
     top: -7px;
-    background: #fff;
+    background: white;
     padding: 0 8px;
     font-size: 0.7rem;
-    color: #bbb;
+    color: ${({ theme }) => theme.colors.grey};
   }
 `;
 

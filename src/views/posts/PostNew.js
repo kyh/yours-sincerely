@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import ContentLoader from 'react-content-loader';
 import FirebaseAuth from 'views/misc/FirebaseAuth';
 import Error from 'views/misc/Error';
@@ -13,7 +13,8 @@ import Modal from 'components/Modal';
 import PostForm from './PostForm';
 import PostAuthForm from './PostAuthForm';
 
-const PostNew = ({ history }) => {
+const PostNew = () => {
+  const history = useHistory();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const onCreatePost = async () => {

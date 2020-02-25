@@ -4,20 +4,17 @@ import Firebase from 'firebase/app';
 import 'firebase/auth';
 
 const prepareDocForCreate = doc => {
-  // timestamps
-  doc.createdBy = Firebase.auth().currentUser
-    ? Firebase.auth().currentUser.uid
-    : null;
+  const currentUser = Firebase.auth().currentUser;
+  doc.createdBy = currentUser ? currentUser.uid : null;
   doc.createdAt = Firebase.firestore.Timestamp.now();
+  doc.createdByDisplayName = currentUser ? currentUser.displayName : null;
 
   return doc;
 };
 
 const prepareDocForUpdate = doc => {
-  // timestamps
-  doc.updatedBy = Firebase.auth().currentUser
-    ? Firebase.auth().currentUser.uid
-    : null;
+  const currentUser = Firebase.auth().currentUser;
+  doc.updatedBy = currentUser ? currentUser.uid : null;
   doc.updatedAt = Firebase.firestore.Timestamp.now();
 
   // don't save the id as part of the document
