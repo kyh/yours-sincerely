@@ -6,7 +6,11 @@ import { Link } from 'react-router-dom';
 import { subDays } from 'date-fns';
 import ContentLoader from 'react-content-loader';
 import Error from 'views/misc/Error';
+
 import PageContent from 'components/PageContent';
+import PostContent from 'components/PostContent';
+import PostFooter from 'components/PostFooter';
+import PostSignature from 'components/PostSignature';
 import LikeButton from 'views/posts/LikeButton';
 
 const PostList = () => (
@@ -24,16 +28,18 @@ const PostList = () => (
         if (error) return <Error error={error} />;
         if (isLoading) return <FeedContentLoader />;
         if (data.length === 0) return <EmptyPost />;
-
         return (
           <div>
             {data.map(post => (
-              <div key={post.id}>
+              <PostContainer key={post.id}>
                 <Link to={`/${post.id}`}>
                   <PostContent>{post.content}</PostContent>
                 </Link>
-                <LikeButton post={post} />
-              </div>
+                <PostFooter>
+                  <PostSignature>{post.createdByDisplayName}</PostSignature>
+                  <LikeButton post={post} />
+                </PostFooter>
+              </PostContainer>
             ))}
           </div>
         );
@@ -87,9 +93,8 @@ const EmptyPostContainer = styled.section`
   }
 `;
 
-const PostContent = styled.p`
-  font-size: ${({ theme }) => theme.typography.post.fontSize};
-  line-height: ${({ theme }) => theme.typography.post.lineHeight};
+const PostContainer = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacings(5)};
 `;
 
 export default PostList;

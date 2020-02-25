@@ -8,6 +8,10 @@ const PageContainer = styled.section`
   grid-template-rows: max-content auto max-content;
   min-height: calc((var(--vh, 1vh) * 100));
   background: ${({ background }) => background || 'transparent'};
+
+  ${({ theme }) => theme.breakpoints.sm`
+    padding: 0 ${({ theme }) => theme.spacings(4)};
+  `}
 `;
 
 export default PageContainer;
