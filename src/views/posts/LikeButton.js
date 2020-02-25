@@ -9,11 +9,10 @@ import FirebaseAuth from 'views/misc/FirebaseAuth';
 const LikeButton = ({ post }) => (
   <FirebaseAuth>
     {({ auth }) => {
+      const filter = [['postId', '==', post.id]];
+      if (auth) filter.push(['createdBy', '==', auth.uid]);
       return (
-        <FirestoreCollection
-          path="postLikes"
-          filter={['postId', '==', post.id]}
-        >
+        <FirestoreCollection path="postLikes" filter={filter}>
           {({ error, isLoading, data }) => {
             if (error || isLoading) return <StyledLikeButton disabled />;
             const [userLike] = data;
