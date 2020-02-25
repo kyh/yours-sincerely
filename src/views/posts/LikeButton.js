@@ -8,15 +8,11 @@ import FirebaseAuth from 'views/misc/FirebaseAuth';
 
 const LikeButton = ({ post }) => (
   <FirebaseAuth>
-    {({ isLoading, error, auth }) => {
-      if (!auth || isLoading || error) return <StyledLikeButton disabled />;
+    {({ auth }) => {
       return (
         <FirestoreCollection
           path="postLikes"
-          filter={[
-            ['postId', '==', post.id],
-            ['createdBy', '==', auth.uid]
-          ]}
+          filter={['postId', '==', post.id]}
         >
           {({ error, isLoading, data }) => {
             if (error || isLoading) return <StyledLikeButton disabled />;
@@ -24,6 +20,7 @@ const LikeButton = ({ post }) => (
             return (
               <LikeContainer>
                 <StyledLikeButton
+                  disabled={!auth}
                   isLiked={userLike}
                   onClick={() =>
                     userLike ? unlikePost(userLike) : likePost(post)
@@ -53,6 +50,9 @@ const StyledLikeButton = styled.button`
   background-size: 1450px 50px;
   span {
     margin-left: 40px;
+  }
+  :disabled {
+    cursor: default;
   }
 
   ${({ isLiked }) =>
