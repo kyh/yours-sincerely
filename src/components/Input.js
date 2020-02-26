@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Input = styled.input`
+export const Input = styled.input`
   border: none;
   background: transparent;
   border-bottom: 1px dashed ${({ theme }) => theme.colors.secondary};
@@ -14,5 +14,3 @@ const Input = styled.input`
     background: ${({ theme }) => theme.ui.border};
   }
 `;
-
-export default Input;

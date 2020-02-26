@@ -28,12 +28,12 @@ onResize();
 
 // render react app
 const render = () => {
-  const App = require('./views/App').default;
+  const { App } = require('./features/App');
   ReactDOM.render(<App />, document.getElementById('root'));
 };
 
 render();
 
 if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept('./views/App', render);
+  module.hot.accept('./features/App', render);
 }

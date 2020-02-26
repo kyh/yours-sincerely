@@ -6,7 +6,7 @@ export const iconMap = {
   x: raw('./icon-svgs/x.svg')
 };
 
-const Icon = ({ icon, color, size, rotate }) => {
+export const Icon = ({ icon, color, size, rotate }) => {
   const iconSvg = iconMap[icon];
   if (!iconSvg) return null;
   return (
@@ -26,10 +26,12 @@ const iconSizeMap = {
   md: '24px',
   lg: '40px'
 };
+
 const getDimensions = iconSize => {
   if (typeof iconSize === 'number') return `${iconSize}px`;
   return iconSizeMap[iconSize];
 };
+
 const getSvgStyles = props => {
   const { iconSize, iconColor, rotate } = props;
 
@@ -51,5 +53,3 @@ const StyledIcon = styled.div`
     ${getSvgStyles}
   }
 `;
-
-export default Icon;

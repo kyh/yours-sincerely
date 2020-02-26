@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Button = styled.button`
+export const Button = styled.button`
   padding: ${({ theme }) => `0 ${theme.spacings(5)}`};
   background-color: ${({ theme }) => theme.ui.button.background};
   color: ${({ theme }) => theme.ui.button.color};
@@ -27,5 +27,3 @@ const Button = styled.button`
     box-shadow: ${({ theme }) => theme.ui.button.disabled.shadow};
   }
 `;
-
-export default Button;

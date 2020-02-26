@@ -1,7 +1,7 @@
 import styledNormalize from 'styled-normalize';
 import { createGlobalStyle } from 'styled-components';
 
-const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
   ${styledNormalize}
 
   html {
@@ -50,5 +50,3 @@ const GlobalStyle = createGlobalStyle`
     margin: 0 0 ${({ theme }) => theme.spacings(2)};
   }
 `;
-
-export default GlobalStyle;

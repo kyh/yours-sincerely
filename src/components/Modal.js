@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import ReactModal from 'react-modal';
-import Icon from 'components/Icon';
+import { Icon } from 'components/Icon';
 
 const ModalStyle = createGlobalStyle`
   .modal {
@@ -28,7 +28,7 @@ const ModalStyle = createGlobalStyle`
   }
 `;
 
-const Modal = ({
+export const Modal = ({
   children,
   open,
   closeButton,
@@ -90,5 +90,3 @@ const ModalBody = styled.section`
   overflow: auto;
   -webkit-overflow-scroll: touch;
 `;
-
-export default Modal;
