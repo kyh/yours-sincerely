@@ -4,7 +4,7 @@
 
 import { createGlobalStyle } from 'styled-components';
 
-const SearchStyles = createGlobalStyle`
+export const SearchStyles = createGlobalStyle`
   .ais-SearchBox-input {
     padding: .5rem;
     border-radius: 3px;
@@ -37,5 +37,3 @@ const SearchStyles = createGlobalStyle`
     padding: 1rem 0;
   }
 `;
-
-export default SearchStyles;
