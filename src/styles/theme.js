@@ -33,7 +33,7 @@ const colors = {
   orange: '',
   darkOrange: '',
   grey: '#858688',
-  lightGrey: '#C2C2C3',
+  lightGrey: '#aab8c2',
   backgroundGrey: '#FAFBFB'
 };
 

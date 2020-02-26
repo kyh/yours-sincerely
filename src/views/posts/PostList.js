@@ -5,11 +5,13 @@ import { FirestoreCollection } from 'react-firestore';
 import { Link } from 'react-router-dom';
 import { subDays } from 'date-fns';
 import ContentLoader from 'react-content-loader';
+import ReactTooltip from 'react-tooltip';
 import Error from 'views/misc/Error';
 
+import PostTimer from 'components/PostTimer';
 import PageContent from 'components/PageContent';
 import PostContent from 'components/PostContent';
-import PostFooter from 'components/PostFooter';
+import PostFooter, { PostFooterRight } from 'components/PostFooter';
 import PostSignature from 'components/PostSignature';
 import LikeButton from 'views/posts/LikeButton';
 
@@ -37,10 +39,18 @@ const PostList = () => (
                 </Link>
                 <PostFooter>
                   <PostSignature>{post.createdByDisplayName}</PostSignature>
-                  <LikeButton post={post} />
+                  <PostFooterRight>
+                    <LikeButton post={post} />
+                    <PostTimer post={post} />
+                  </PostFooterRight>
                 </PostFooter>
               </PostContainer>
             ))}
+            <ReactTooltip
+              effect="solid"
+              event="mouseenter click"
+              eventOff="mouseout"
+            />
           </div>
         );
       }}

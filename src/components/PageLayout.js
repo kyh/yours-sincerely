@@ -1,5 +1,4 @@
-// this Layout component wraps every page with the app header on top
-// check out App.js to see how it's used
+// The PageLayout component wraps every page with the app header on top
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -10,7 +9,7 @@ import Logo from 'components/Logo';
 import PageContainer from 'components/PageContainer';
 import PageFooter from 'components/PageFooter';
 
-const Layout = ({ children }) => (
+const PageLayout = ({ children }) => (
   <PageContainer>
     <Navigation>
       <NavLink to="/">
@@ -26,7 +25,7 @@ const Layout = ({ children }) => (
   </PageContainer>
 );
 
-export default Layout;
+export default PageLayout;
 
 const NavRight = styled.div`
   a {
