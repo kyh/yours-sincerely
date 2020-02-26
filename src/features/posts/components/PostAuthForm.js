@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { login, loginTypes } from 'features/misc/actions/authActions';
+import { login, loginTypes } from 'features/auth/actions/authActions';
 import { Button } from 'components/Button';
 import { Input } from 'components/Input';
 

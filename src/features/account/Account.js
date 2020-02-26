@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { login } from 'features/misc/actions/authActions';
-import { FirebaseAuth } from 'features/misc/FirebaseAuth';
+import { login } from 'features/auth/actions/authActions';
+import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 import { Error } from 'features/misc/Error';
 import { PageContent } from 'components/Page';
 import { Profile } from './Profile';

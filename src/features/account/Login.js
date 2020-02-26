@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { Redirect, Link } from 'react-router-dom';
 
-import { login, loginTypes } from 'features/misc/actions/authActions';
-import { FirebaseAuth } from 'features/misc/FirebaseAuth';
+import { login, loginTypes } from 'features/auth/actions/authActions';
+import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 import { Error } from 'features/misc/Error';
 
 import { Logo } from 'components/Logo';
