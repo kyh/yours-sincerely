@@ -5,6 +5,8 @@
 
 > Write as if your arms are wide open, and hold them far apart
 
+Ephemeral anonymous blog to send each other tiny beautiful letters
+
 ## Directory Layout
 
 ```
