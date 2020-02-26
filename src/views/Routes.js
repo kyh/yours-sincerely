@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import Layout from './layout/Layout';
+import PageLayout from 'components/PageLayout';
 
 import PostList from './posts/PostList';
 import Post from './posts/Post';
@@ -16,17 +16,17 @@ import Error from './misc/Error';
 const Routes = () => (
   <Switch>
     <Route exact path="/">
-      <Layout>
+      <PageLayout>
         <PostList />
-      </Layout>
+      </PageLayout>
     </Route>
     <Route path="/new">
       <PostNew />
     </Route>
     <Route path="/profile">
-      <Layout>
+      <PageLayout>
         <Account />
-      </Layout>
+      </PageLayout>
     </Route>
     <Route path="/login">
       <Login />
@@ -35,9 +35,9 @@ const Routes = () => (
       <PostEdit />
     </Route>
     <Route path="/:postId">
-      <Layout>
+      <PageLayout>
         <Post />
-      </Layout>
+      </PageLayout>
     </Route>
     <Route>
       <Error />
