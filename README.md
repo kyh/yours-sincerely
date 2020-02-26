@@ -1,18 +1,23 @@
-A modern web-app boilerplate with Create React App and Firebase. Focused on simplicity for new devs, rapid prototyping, and smallish projects.
+[![Dependencies Status](https://david-dm.org/its-bananas/yours-sincerely/status.svg)](https://david-dm.org/its-bananas/yours-sincerely)
+[![Build Status](https://travis-ci.org/its-bananas/yours-sincerely.svg?branch=master)](https://travis-ci.org/its-bananas/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/its-bananas/yours-sincerely.svg)](https://greenkeeper.io/)
 
-### **Full documentation at [getys.org](http://getys.org)**
+# Yours Sincerely
 
-### **[Live Demo](https://demo.getys.org)**
+> Write as if your arms are wide open, and hold them far apart
 
-## Folders
+## Directory Layout
 
-Child folders each have their own readmes
+```
+├── /src                         # ReactJS client, which contains most of our UI
+│   ├── /components              # React components, reusable across all pages
+│   ├── /features                # App routes and feature specific code
+│   ├── /styles                  # Global theme definitions
+│   └── /utils                   # Client side helper functions/Utilities/Services
+│── /scripts                     # DB Migrations/seed
+│── /public                      # Static assets
+└── /functions                   # Firebase serverless functions
+```
 
-- [`/functions`](https://github.com/sampl/ys/tree/master/functions) - contains all the backend code (not much)
-- [`/public`](https://github.com/sampl/ys/tree/master/public) - files that will be available as-is on the web server
-- [`/scripts`](https://github.com/sampl/ys/tree/master/scripts) - convenience scripts for developers
-- [`/src`](https://github.com/sampl/ys/tree/master/src) - the front-end app
+## Community
 
-## License
-
-[MIT License](https://en.wikipedia.org/wiki/MIT_License)
+If you have any questions, ping us on [Discord](https://discord.gg/8WCcghH).
