@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import ContentLoader from 'react-content-loader';
-import { FirebaseAuth } from 'features/misc/FirebaseAuth';
+import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 import { Error } from 'features/misc/Error';
 
 import { PageContainer } from 'components/Page';

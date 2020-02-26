@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { FirestoreCollection } from 'react-firestore';
 
 import { likePost, unlikePost } from 'features/posts/actions/likeActions';
-import { FirebaseAuth } from 'features/misc/FirebaseAuth';
+import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 
 export const LikeButton = ({ post }) => (
   <FirebaseAuth>

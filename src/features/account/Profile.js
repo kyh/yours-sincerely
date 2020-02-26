@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { logout } from 'features/misc/actions/authActions';
+import { logout } from 'features/auth/actions/authActions';
 
 export const Profile = ({ auth }) => {
   const history = useHistory();
