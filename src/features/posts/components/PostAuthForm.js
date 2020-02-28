@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { login, loginTypes } from 'features/auth/actions/authActions';
 import { Button } from 'components/Button';
 import { Input } from 'components/Input';
+import { ConnectSection } from 'components/ConnectSection';
 
 export const PostAuthForm = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -34,11 +35,11 @@ export const PostAuthForm = ({ onSubmit }) => {
           Now publish my post
         </Button>
       </NameContainer>
-      <ConnectContainer>
+      <ConnectSection text="Or connect your account">
         <button type="button" onClick={() => login(loginTypes.google)}>
           <img src="/assets/google-button.svg" alt="Sign in with Google" />
         </button>
-      </ConnectContainer>
+      </ConnectSection>
     </PostAuthFormContainer>
   );
 };
@@ -87,23 +88,5 @@ const NameContainer = styled.div`
   }
   button {
     max-width: 200px;
-  }
-`;
-
-const ConnectContainer = styled.div`
-  display: flex;
-  position: relative;
-  justify-content: center;
-  padding-top: ${({ theme }) => theme.spacings(4)};
-  margin-top: ${({ theme }) => theme.spacings(8)};
-  border-top: 1px solid ${({ theme }) => theme.ui.border};
-  &::before {
-    content: 'Or connect your account';
-    position: absolute;
-    top: -7px;
-    background: white;
-    padding: 0 8px;
-    font-size: 0.7rem;
-    color: ${({ theme }) => theme.colors.grey};
   }
 `;
