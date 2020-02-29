@@ -1,5 +1,26 @@
+import { subDays } from 'date-fns';
 import firebase from 'firebase/app';
 import { prepareDocForCreate, prepareDocForUpdate } from 'util/firestoreUtil';
+
+const getExpiry = () => {
+  return firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7));
+};
+let expiry = getExpiry();
+setInterval(() => {
+  expiry = getExpiry();
+}, 1000 * 60 * 60);
+
+export const getPostListQuery = () => {
+  return firebase
+    .firestore()
+    .collection('posts')
+    .where('createdAt', '>=', expiry)
+    .orderBy('createdAt', 'desc');
+};
+
+export const getPostQuery = postId => {
+  return firebase.firestore().doc(`posts/${postId}`);
+};
 
 export const createPost = values => {
   values._likeCount = 0;
