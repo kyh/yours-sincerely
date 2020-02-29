@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { login, loginTypes } from 'features/auth/actions/authActions';
 import { ConnectSection } from 'components/ConnectSection';
-import { ProfileDetails } from './components/ProfileDetails';
+import { Text } from 'components/Text';
+import { ProfileDetails } from './ProfileDetails';
 
 export const NoProfile = () => {
   return (
@@ -11,10 +12,10 @@ export const NoProfile = () => {
         <img src="/assets/reading.svg" alt="Not logged in" />
         <div>
           <h1>You’re not signed in...</h1>
-          <p>
+          <Text>
             But, you can still <Link to="/new">make a post</Link> anonymously
             without an account
-          </p>
+          </Text>
         </div>
       </ProfileDetails>
       <ConnectSection text="Or sign in with" bg="#f5f8fa">
