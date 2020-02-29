@@ -6,16 +6,16 @@ import { Input } from 'components/Input';
 import { logout } from 'features/auth/actions/authActions';
 import { ProfileDetails } from './ProfileDetails';
 
-export const Profile = ({ auth }) => {
+export const Profile = ({ user }) => {
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
 
   const onBlur = async event => {
     const name = event.target.value;
     event.preventDefault();
-    if (name && name !== auth.displayName) {
+    if (name && name !== user.displayName) {
       setIsLoading(true);
-      await auth.updateProfile({ displayName: name });
+      await user.updateProfile({ displayName: name });
       setIsLoading(false);
     }
   };
@@ -30,7 +30,7 @@ export const Profile = ({ auth }) => {
           name="name"
           placeholder="Bojack the horse"
           disabled={isLoading}
-          defaultValue={auth.displayName}
+          defaultValue={user.displayName}
           onBlur={onBlur}
           required
         />

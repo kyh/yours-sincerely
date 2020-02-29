@@ -1,23 +1,24 @@
 import React from 'react';
 import ContentLoader from 'react-content-loader';
-import { FirebaseAuth } from 'features/auth/FirebaseAuth';
+import firebase from 'firebase/app';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
 import { Error } from 'features/misc/Error';
 import { PageContent } from 'components/Page';
 import { Profile } from './components/Profile';
 import { NoProfile } from './components/NoProfile';
 
-export const ProfilePage = () => (
-  <PageContent>
-    <FirebaseAuth>
-      {({ isLoading, error, auth }) => {
-        if (isLoading) return <ProfileLoader />;
-        if (error) return <Error error={error} />;
-        if (!auth) return <NoProfile />;
-        return <Profile auth={auth} />;
-      }}
-    </FirebaseAuth>
-  </PageContent>
-);
+export const ProfilePage = () => {
+  const [user, isLoading, error] = useAuthState(firebase.auth());
+  return (
+    <PageContent>
+      {isLoading && <ProfileLoader />}
+      {!isLoading && error && <Error error={error} />}
+      {!isLoading && !user && <NoProfile />}
+      {!isLoading && user && <Profile user={user} />}
+    </PageContent>
+  );
+};
 
 const ProfileLoader = () => (
   <ContentLoader height={300} width="100%" speed={3}>
