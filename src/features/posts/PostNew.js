@@ -38,6 +38,7 @@ export const PostNew = () => {
           if (isLoading) return <PostNewContentLoader />;
           return (
             <PostForm
+              postingAs={auth ? auth.displayName : null}
               post={JSON.parse(localStorage.getItem('post') || '{}')}
               onSubmit={async post => {
                 const postString = JSON.stringify(post);

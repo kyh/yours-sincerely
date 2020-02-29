@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Button } from 'components/Button';
 import { addDays, format } from 'date-fns';
 
-export const PostForm = ({ post, onSubmit, isSubmitting }) => {
+export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
   const expiry = addDays(new Date(), 7);
   const submit = event => {
     event.preventDefault();
@@ -25,7 +25,16 @@ export const PostForm = ({ post, onSubmit, isSubmitting }) => {
         required
       />
       <SubmitContainer>
-        <span>This post will expire on {format(expiry, 'MMMM do')}</span>
+        <PostDetails>
+          <span className="posting-as">
+            {postingAs
+              ? `Publishing as: ${postingAs}`
+              : 'Publishing anonymously'}
+          </span>
+          <span className="expiry">
+            This post will expire on {format(expiry, 'MMMM do')}
+          </span>
+        </PostDetails>
         <Button type="submit" disabled={isSubmitting}>
           Publish
         </Button>
@@ -57,9 +66,17 @@ const SubmitContainer = styled.section`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
 
+const PostDetails = styled.div`
   span {
+    display: block;
     font-size: 0.8rem;
+  }
+  .posting-as {
+    margin-bottom: ${({ theme }) => theme.spacings(2)};
+  }
+  .expiry {
     color: #919294;
   }
 `;
