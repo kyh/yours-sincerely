@@ -3,14 +3,14 @@ import ContentLoader from 'react-content-loader';
 import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 import { Error } from 'features/misc/Error';
 import { PageContent } from 'components/Page';
-import { Profile } from './Profile';
-import { NoProfile } from './NoProfile';
+import { Profile } from './components/Profile';
+import { NoProfile } from './components/NoProfile';
 
-export const Account = () => (
+export const ProfilePage = () => (
   <PageContent>
     <FirebaseAuth>
       {({ isLoading, error, auth }) => {
-        if (isLoading) return <AccountLoader />;
+        if (isLoading) return <ProfileLoader />;
         if (error) return <Error error={error} />;
         if (!auth) return <NoProfile />;
         return <Profile auth={auth} />;
@@ -19,7 +19,7 @@ export const Account = () => (
   </PageContent>
 );
 
-const AccountLoader = () => (
+const ProfileLoader = () => (
   <ContentLoader
     height={300}
     width="100%"

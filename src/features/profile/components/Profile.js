@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 
 import { Input } from 'components/Input';
 import { logout } from 'features/auth/actions/authActions';
-import { ProfileDetails } from './components/ProfileDetails';
+import { ProfileDetails } from './ProfileDetails';
 
 export const Profile = ({ auth }) => {
   const history = useHistory();
