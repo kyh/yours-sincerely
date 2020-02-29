@@ -1,10 +1,11 @@
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import { prepareDocForCreate, prepareDocForUpdate } from 'util/firestoreUtil';
 
 export const createPost = values => {
   values._likeCount = 0;
 
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('posts')
     .add(prepareDocForCreate(values))
     .then(() => values)
@@ -14,7 +15,8 @@ export const createPost = values => {
 };
 
 export const updatePost = (postId, values) => {
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('posts')
     .doc(postId)
     .update(prepareDocForUpdate(values))
@@ -24,7 +26,8 @@ export const updatePost = (postId, values) => {
 };
 
 export const deletePost = post => {
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('posts')
     .doc(post.id)
     .delete()

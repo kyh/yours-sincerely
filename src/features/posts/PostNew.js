@@ -67,13 +67,7 @@ export const PostNew = () => {
 };
 
 const PostNewContentLoader = () => (
-  <ContentLoader
-    height={300}
-    width="100%"
-    speed={3}
-    primaryColor="#f3f3f3"
-    secondaryColor="#ecebeb"
-  >
+  <ContentLoader height={300} width="100%" speed={3}>
     <rect x="0" y="20" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="60" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="100" width="100%" height="25" rx="4" ry="4" />

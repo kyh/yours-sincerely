@@ -1,5 +1,5 @@
 import React from 'react';
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import styled from 'styled-components';
 import { FirestoreCollection } from 'react-firestore';
 import { Link } from 'react-router-dom';
@@ -16,57 +16,53 @@ import { PostFooter, PostFooterRight } from './components/PostFooter';
 import { PostSignature } from './components/PostSignature';
 import { LikeButton } from './components/LikeButton';
 
-export const PostList = () => (
-  <PageContent>
-    <FirestoreCollection
-      path="posts"
-      sort="createdAt:desc"
-      filter={[
-        'createdAt',
-        '>=',
-        Firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7))
-      ]}
-    >
-      {({ error, isLoading, data }) => {
-        if (error) return <Error error={error} />;
-        if (isLoading) return <FeedContentLoader />;
-        if (data.length === 0) return <EmptyPost />;
-        return (
-          <div>
-            {data.map(post => (
-              <PostContainer key={post.id}>
-                <Link to={`/${post.id}`}>
-                  <PostContent>{post.content}</PostContent>
-                </Link>
-                <PostFooter>
-                  <PostSignature>{post.createdByDisplayName}</PostSignature>
-                  <PostFooterRight>
-                    <LikeButton post={post} />
-                    <PostTimer post={post} />
-                  </PostFooterRight>
-                </PostFooter>
-              </PostContainer>
-            ))}
-            <ReactTooltip
-              effect="solid"
-              event="mouseenter click"
-              eventOff="mouseout"
-            />
-          </div>
-        );
-      }}
-    </FirestoreCollection>
-  </PageContent>
-);
+export const PostList = () => {
+  return (
+    <PageContent>
+      <FirestoreCollection
+        path="posts"
+        sort="createdAt:desc"
+        filter={[
+          'createdAt',
+          '>=',
+          firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7))
+        ]}
+      >
+        {({ error, isLoading, data }) => {
+          if (error) return <Error error={error} />;
+          if (isLoading) return <FeedContentLoader />;
+          if (data.length === 0) return <EmptyPost />;
+          return (
+            <div>
+              {data.map(post => (
+                <PostContainer key={post.id}>
+                  <Link to={`/${post.id}`}>
+                    <PostContent>{post.content}</PostContent>
+                  </Link>
+                  <PostFooter>
+                    <PostSignature>{post.createdByDisplayName}</PostSignature>
+                    <PostFooterRight>
+                      <LikeButton post={post} />
+                      <PostTimer post={post} />
+                    </PostFooterRight>
+                  </PostFooter>
+                </PostContainer>
+              ))}
+              <ReactTooltip
+                effect="solid"
+                event="mouseenter click"
+                eventOff="mouseout"
+              />
+            </div>
+          );
+        }}
+      </FirestoreCollection>
+    </PageContent>
+  );
+};
 
 const FeedContentLoader = () => (
-  <ContentLoader
-    height={300}
-    width="100%"
-    speed={3}
-    primaryColor="#f3f3f3"
-    secondaryColor="#ecebeb"
-  >
+  <ContentLoader height={300} width="100%" speed={3}>
     <rect x="0" y="0" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="40" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="80" width="100%" height="25" rx="4" ry="4" />

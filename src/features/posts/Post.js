@@ -35,13 +35,7 @@ export const Post = () => {
 };
 
 const PostContentLoader = () => (
-  <ContentLoader
-    height={300}
-    width="100%"
-    speed={3}
-    primaryColor="#f3f3f3"
-    secondaryColor="#ecebeb"
-  >
+  <ContentLoader height={300} width="100%" speed={3}>
     <rect x="0" y="0" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="40" width="100%" height="25" rx="4" ry="4" />
     <rect x="0" y="80" width="30%" height="25" rx="4" ry="4" />

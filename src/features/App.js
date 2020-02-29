@@ -1,5 +1,5 @@
 import React from 'react';
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import { ThemeProvider } from 'styled-components';
 import { FirestoreProvider } from 'react-firestore';
 import { BrowserRouter } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { lightTheme } from 'styles/theme';
 
 export const App = () => (
   <ThemeProvider theme={lightTheme}>
-    <FirestoreProvider firebase={Firebase}>
+    <FirestoreProvider firebase={firebase}>
       <BrowserRouter>
         <GlobalStyle />
         <ErrorBoundary>

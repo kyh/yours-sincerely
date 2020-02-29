@@ -1,7 +1,7 @@
 // the main file in our front-end app
 // create-react-app expects a file in src/index.js and loads everything from here
 
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 
@@ -15,7 +15,7 @@ const dbConfig = {
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
 };
-Firebase.initializeApp(dbConfig);
+firebase.initializeApp(dbConfig);
 
 // resize listeners
 const onResize = () => {

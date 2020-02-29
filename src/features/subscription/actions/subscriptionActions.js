@@ -1,4 +1,4 @@
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import { prepareDocForCreate, prepareDocForUpdate } from 'util/firestoreUtil';
 
 export const createSubscription = token => {
@@ -6,7 +6,8 @@ export const createSubscription = token => {
     tempStripePaymentTokenId: token.id
   });
 
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('subscriptions')
     .add(prepareDocForCreate(subscription))
     .catch(error => {
@@ -19,7 +20,8 @@ export const updateSubscription = (subscriptionId, token) => {
     tempStripePaymentTokenId: token.id
   });
 
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('subscriptions')
     .doc(subscriptionId)
     .update(subscription)
@@ -29,7 +31,8 @@ export const updateSubscription = (subscriptionId, token) => {
 };
 
 export const deleteSubscription = subscription => {
-  return Firebase.firestore()
+  return firebase
+    .firestore()
     .collection('subscriptions')
     .doc(subscription.id)
     .delete()

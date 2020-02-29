@@ -5,35 +5,37 @@ import { FirestoreCollection } from 'react-firestore';
 import { likePost, unlikePost } from 'features/posts/actions/likeActions';
 import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 
-export const LikeButton = ({ post }) => (
-  <FirebaseAuth>
-    {({ auth }) => {
-      const filter = [['postId', '==', post.id]];
-      if (auth) filter.push(['createdBy', '==', auth.uid]);
-      return (
-        <FirestoreCollection path="postLikes" filter={filter}>
-          {({ error, isLoading, data }) => {
-            if (error || isLoading) return <StyledLikeButton disabled />;
-            const [userLike] = data;
-            return (
-              <LikeContainer>
-                <StyledLikeButton
-                  disabled={!auth}
-                  isLiked={userLike}
-                  onClick={() =>
-                    userLike ? unlikePost(userLike) : likePost(post)
-                  }
-                >
-                  <span>{post._likeCount || 0}</span>
-                </StyledLikeButton>
-              </LikeContainer>
-            );
-          }}
-        </FirestoreCollection>
-      );
-    }}
-  </FirebaseAuth>
-);
+export const LikeButton = ({ post }) => {
+  return (
+    <FirebaseAuth>
+      {({ auth }) => {
+        const filter = [['postId', '==', post.id]];
+        if (auth) filter.push(['createdBy', '==', auth.uid]);
+        return (
+          <FirestoreCollection path="postLikes" filter={filter}>
+            {({ error, isLoading, data }) => {
+              if (error || isLoading) return <StyledLikeButton disabled />;
+              const [userLike] = data;
+              return (
+                <LikeContainer>
+                  <StyledLikeButton
+                    disabled={!auth}
+                    isLiked={userLike}
+                    onClick={() =>
+                      userLike ? unlikePost(userLike) : likePost(post)
+                    }
+                  >
+                    <span>{post._likeCount || 0}</span>
+                  </StyledLikeButton>
+                </LikeContainer>
+              );
+            }}
+          </FirestoreCollection>
+        );
+      }}
+    </FirebaseAuth>
+  );
+};
 
 const LikeContainer = styled.div`
   display: inline-flex;
