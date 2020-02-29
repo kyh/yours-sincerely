@@ -1,21 +1,21 @@
-// Helper functions for working with Firebase Firestore
+// Helper functions for working with firebase Firestore
 
-import Firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 
 export const prepareDocForCreate = doc => {
-  const currentUser = Firebase.auth().currentUser;
+  const currentUser = firebase.auth().currentUser;
   doc.createdBy = currentUser ? currentUser.uid : null;
-  doc.createdAt = Firebase.firestore.Timestamp.now();
+  doc.createdAt = firebase.firestore.Timestamp.now();
   doc.createdByDisplayName = currentUser ? currentUser.displayName : null;
 
   return doc;
 };
 
 export const prepareDocForUpdate = doc => {
-  const currentUser = Firebase.auth().currentUser;
+  const currentUser = firebase.auth().currentUser;
   doc.updatedBy = currentUser ? currentUser.uid : null;
-  doc.updatedAt = Firebase.firestore.Timestamp.now();
+  doc.updatedAt = firebase.firestore.Timestamp.now();
 
   // don't save the id as part of the document
   delete doc.id;
