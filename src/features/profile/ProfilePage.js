@@ -1,7 +1,7 @@
 import React from 'react';
-import ContentLoader from 'react-content-loader';
 import firebase from 'firebase/app';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import ContentLoader from 'react-content-loader';
 
 import { Error } from 'features/misc/Error';
 import { PageContent } from 'components/Page';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { FirestoreDocument } from 'react-firestore';
+import { useDocument } from 'react-firebase-hooks/firestore';
 import ContentLoader from 'react-content-loader';
 
 import { Error } from 'features/misc/Error';
@@ -10,26 +10,25 @@ import { PostContent } from './components/PostContent';
 import { PostFooter } from './components/PostFooter';
 import { PostSignature } from './components/PostSignature';
 import { LikeButton } from './components/LikeButton';
+import { getPostQuery } from './actions/postActions';
 
 export const Post = () => {
   const { postId } = useParams();
+  const [doc, isLoading, error] = useDocument(getPostQuery(postId));
+  const post = doc ? doc.data() : null;
   return (
     <PageContent>
-      <FirestoreDocument path={`posts/${postId}`}>
-        {({ error, isLoading, data: post }) => {
-          if (error) return <Error error={error} />;
-          if (isLoading) return <PostContentLoader />;
-          return (
-            <>
-              <PostContent>{post.content}</PostContent>
-              <PostFooter>
-                <PostSignature>{post.createdByDisplayName}</PostSignature>
-                <LikeButton post={post} />
-              </PostFooter>
-            </>
-          );
-        }}
-      </FirestoreDocument>
+      {isLoading && <PostContentLoader />}
+      {!isLoading && error && <Error error={error} />}
+      {!isLoading && post && (
+        <>
+          <PostContent>{post.content}</PostContent>
+          <PostFooter>
+            <PostSignature>{post.createdByDisplayName}</PostSignature>
+            <LikeButton postId={doc.id} post={post} />
+          </PostFooter>
+        </>
+      )}
     </PageContent>
   );
 };

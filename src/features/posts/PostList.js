@@ -1,9 +1,8 @@
 import React from 'react';
-import firebase from 'firebase/app';
-import styled from 'styled-components';
-import { FirestoreCollection } from 'react-firestore';
 import { Link } from 'react-router-dom';
-import { subDays } from 'date-fns';
+import styled from 'styled-components';
+import { useCollection } from 'react-firebase-hooks/firestore';
+
 import ContentLoader from 'react-content-loader';
 import ReactTooltip from 'react-tooltip';
 import { Error } from 'features/misc/Error';
@@ -16,47 +15,43 @@ import { PostFooter, PostFooterRight } from './components/PostFooter';
 import { PostSignature } from './components/PostSignature';
 import { LikeButton } from './components/LikeButton';
 
+import { getPostListQuery } from './actions/postActions';
+
 export const PostList = () => {
+  const [collection, isLoading, error] = useCollection(getPostListQuery());
+  const docs = collection ? collection.docs : null;
+
   return (
     <PageContent>
-      <FirestoreCollection
-        path="posts"
-        sort="createdAt:desc"
-        filter={[
-          'createdAt',
-          '>=',
-          firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7))
-        ]}
-      >
-        {({ error, isLoading, data }) => {
-          if (error) return <Error error={error} />;
-          if (isLoading) return <FeedContentLoader />;
-          if (data.length === 0) return <EmptyPost />;
-          return (
-            <div>
-              {data.map(post => (
-                <PostContainer key={post.id}>
-                  <Link to={`/${post.id}`}>
-                    <PostContent>{post.content}</PostContent>
-                  </Link>
-                  <PostFooter>
-                    <PostSignature>{post.createdByDisplayName}</PostSignature>
-                    <PostFooterRight>
-                      <LikeButton post={post} />
-                      <PostTimer post={post} />
-                    </PostFooterRight>
-                  </PostFooter>
-                </PostContainer>
-              ))}
-              <ReactTooltip
-                effect="solid"
-                event="mouseenter click"
-                eventOff="mouseout"
-              />
-            </div>
-          );
-        }}
-      </FirestoreCollection>
+      {isLoading && <FeedContentLoader />}
+      {!isLoading && error && <Error error={error} />}
+      {!isLoading && docs && !docs.length && <EmptyPost />}
+      {!isLoading && docs && docs.length && (
+        <div>
+          {docs.map(doc => {
+            const post = doc.data();
+            return (
+              <PostContainer key={doc.id}>
+                <Link to={`/${doc.id}`}>
+                  <PostContent>{post.content}</PostContent>
+                </Link>
+                <PostFooter>
+                  <PostSignature>{post.createdByDisplayName}</PostSignature>
+                  <PostFooterRight>
+                    <LikeButton postId={doc.id} post={post} />
+                    <PostTimer post={post} />
+                  </PostFooterRight>
+                </PostFooter>
+              </PostContainer>
+            );
+          })}
+          <ReactTooltip
+            effect="solid"
+            event="mouseenter click"
+            eventOff="mouseout"
+          />
+        </div>
+      )}
     </PageContent>
   );
 };
