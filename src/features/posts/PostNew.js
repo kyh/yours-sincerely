@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import ContentLoader from 'react-content-loader';
-import { FirebaseAuth } from 'features/auth/FirebaseAuth';
+import firebase from 'firebase/app';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
 import { Error } from 'features/misc/Error';
 
 import { PageContainer } from 'components/Page';
@@ -17,6 +19,7 @@ import { PostAuthForm } from './components/PostAuthForm';
 export const PostNew = () => {
   const history = useHistory();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [user, isLoading, error] = useAuthState(firebase.auth());
 
   const onCreatePost = async () => {
     const postString = localStorage.getItem('post');
@@ -32,27 +35,23 @@ export const PostNew = () => {
           <Logo />
         </Link>
       </Navigation>
-      <FirebaseAuth>
-        {({ isLoading, error, auth }) => {
-          if (error) return <Error error={error} />;
-          if (isLoading) return <PostNewContentLoader />;
-          return (
-            <PostForm
-              postingAs={auth ? auth.displayName : null}
-              post={JSON.parse(localStorage.getItem('post') || '{}')}
-              onSubmit={async post => {
-                const postString = JSON.stringify(post);
-                localStorage.setItem('post', postString);
-                if (!auth) {
-                  setIsLoginModalOpen(true);
-                } else {
-                  onCreatePost();
-                }
-              }}
-            />
-          );
-        }}
-      </FirebaseAuth>
+      {isLoading && <PostNewContentLoader />}
+      {!isLoading && error && <Error error={error} />}
+      {!isLoading && (
+        <PostForm
+          postingAs={user ? user.displayName : null}
+          post={JSON.parse(localStorage.getItem('post') || '{}')}
+          onSubmit={async post => {
+            const postString = JSON.stringify(post);
+            localStorage.setItem('post', postString);
+            if (!user) {
+              setIsLoginModalOpen(true);
+            } else {
+              onCreatePost();
+            }
+          }}
+        />
+      )}
       <Modal
         open={isLoginModalOpen}
         title="Are you a real person?"

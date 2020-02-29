@@ -1,39 +1,33 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
+import firebase from 'firebase/app';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { FirestoreCollection } from 'react-firestore';
 
 import { likePost, unlikePost } from 'features/posts/actions/likeActions';
-import { FirebaseAuth } from 'features/auth/FirebaseAuth';
 
 export const LikeButton = ({ post }) => {
+  const [user, isLoading] = useAuthState(firebase.auth());
+  const filter = [['postId', '==', post.id]];
+  if (!isLoading && user) filter.push(['createdBy', '==', user.uid]);
   return (
-    <FirebaseAuth>
-      {({ auth }) => {
-        const filter = [['postId', '==', post.id]];
-        if (auth) filter.push(['createdBy', '==', auth.uid]);
+    <FirestoreCollection path="postLikes" filter={filter}>
+      {({ error, isLoading, data }) => {
+        if (error || isLoading) return <StyledLikeButton disabled />;
+        const [userLike] = data;
         return (
-          <FirestoreCollection path="postLikes" filter={filter}>
-            {({ error, isLoading, data }) => {
-              if (error || isLoading) return <StyledLikeButton disabled />;
-              const [userLike] = data;
-              return (
-                <LikeContainer>
-                  <StyledLikeButton
-                    disabled={!auth}
-                    isLiked={userLike}
-                    onClick={() =>
-                      userLike ? unlikePost(userLike) : likePost(post)
-                    }
-                  >
-                    <span>{post._likeCount || 0}</span>
-                  </StyledLikeButton>
-                </LikeContainer>
-              );
-            }}
-          </FirestoreCollection>
+          <LikeContainer>
+            <StyledLikeButton
+              disabled={!user}
+              isLiked={userLike}
+              onClick={() => (userLike ? unlikePost(userLike) : likePost(post))}
+            >
+              <span>{post._likeCount || 0}</span>
+            </StyledLikeButton>
+          </LikeContainer>
         );
       }}
-    </FirebaseAuth>
+    </FirestoreCollection>
   );
 };
 
