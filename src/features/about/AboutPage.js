@@ -7,6 +7,7 @@ export const AboutPage = () => (
     <Quote>
       An ephemeral anonymous blog to send each other tiny beautiful letters
     </Quote>
+    <Quote>Notes to no one</Quote>
     <Quote>
       YS is a public art project with optional anonymity. It is also a direct
       channel to the inner lives of other humans who, in other contexts, rarely
