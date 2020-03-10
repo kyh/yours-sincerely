@@ -7,6 +7,7 @@ import { Post } from './posts/Post';
 import { PostNew } from './posts/PostNew';
 import { PostEdit } from './posts/PostEdit';
 import { ProfilePage } from './profile/ProfilePage';
+import { AboutPage } from './about/AboutPage';
 import { Error } from './misc/Error';
 
 export const Routes = () => (
@@ -22,6 +23,11 @@ export const Routes = () => (
     <Route path="/profile">
       <PageLayout>
         <ProfilePage />
+      </PageLayout>
+    </Route>
+    <Route path="/about">
+      <PageLayout>
+        <AboutPage />
       </PageLayout>
     </Route>
     <Route path="/:postId/edit">
