@@ -77,8 +77,17 @@ const ProfileForm = styled.form`
     margin-top: ${({ theme }) => theme.spacings(3)};
   }
   .logout {
-    margin-top: auto;
+    display: inline-block;
+    margin: auto auto 0;
     color: ${({ theme }) => theme.colors.red};
-    padding: ${({ theme }) => theme.spacings(3)};
+    padding: ${({ theme }) => `${theme.spacings(3)} ${theme.spacings(6)}`};
+    border-radius: 4px;
+    transition: background 0.23s ease;
+    &:hover {
+      background: ${({ theme }) => theme.colors.backgroundRed};
+    }
+    ${({ theme }) => theme.breakpoints.sm`
+      margin: ${({ theme }) => theme.spacings(10)} auto;
+    `}
   }
 `;
