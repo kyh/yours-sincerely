@@ -1,6 +1,3 @@
-// the main routes of our app are defined here using react-router
-// https://reacttraining.com/react-router/web/example/basic
-
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { PageLayout } from 'components/Page';

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
 import { Input } from 'components/Input';
+import { Spinner } from 'components/Spinner';
 import { logout } from 'features/auth/actions/authActions';
 import { ProfileDetails } from './ProfileDetails';
 
@@ -24,16 +25,19 @@ export const Profile = ({ user }) => {
     <ProfileDetails>
       <img src="/assets/reading.svg" alt="Not logged in" />
       <ProfileForm>
-        <NameInput
-          type="text"
-          id="name"
-          name="name"
-          placeholder="Bojack the horse"
-          disabled={isLoading}
-          defaultValue={user.displayName}
-          onBlur={onBlur}
-          required
-        />
+        <InputContainer>
+          <NameInput
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Bojack the horse"
+            disabled={isLoading}
+            defaultValue={user.displayName}
+            onBlur={onBlur}
+            required
+          />
+          <InputSpinner loading={isLoading} />
+        </InputContainer>
         <button
           type="button"
           className="logout"
@@ -46,6 +50,17 @@ export const Profile = ({ user }) => {
     </ProfileDetails>
   );
 };
+
+const InputContainer = styled.div`
+  position: relative;
+`;
+
+const InputSpinner = styled(Spinner)`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+`;
 
 const NameInput = styled(Input)`
   font-size: 2rem;
