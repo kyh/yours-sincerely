@@ -69,6 +69,7 @@ const NameInput = styled(Input)`
 `;
 
 const ProfileForm = styled.form`
+  width: 100%;
   display: flex;
   flex-direction: column;
 
@@ -76,7 +77,8 @@ const ProfileForm = styled.form`
     margin-top: ${({ theme }) => theme.spacings(3)};
   }
   .logout {
-    color: ${({ theme }) => theme.colors.red};
     margin-top: auto;
+    color: ${({ theme }) => theme.colors.red};
+    padding: ${({ theme }) => theme.spacings(3)};
   }
 `;
