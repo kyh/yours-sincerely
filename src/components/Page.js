@@ -22,12 +22,23 @@ export const PageContent = styled.section`
   padding: ${({ theme }) => theme.spacings(5)} 0;
 `;
 
-export const PageFooter = styled.div`
-  padding: 1rem;
-  text-align: center;
-  opacity: 0.3;
+export const PageFooter = styled.footer`
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
   letter-spacing: -1px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.grey};
+
+  a {
+    margin-right: ${({ theme }) => theme.spacings(3)};
+    &:hover {
+      text-decoration: underline;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
 `;
 
 export const PageLayout = ({ children }) => (
@@ -42,7 +53,13 @@ export const PageLayout = ({ children }) => (
       </NavRight>
     </Navigation>
     {children}
-    <PageFooter>© {new Date().getFullYear()}</PageFooter>
+    <PageFooter>
+      <span>© {new Date().getFullYear()}, Kaiyu Hsu</span>
+      <div>
+        <Link to="/about">About</Link>
+        <a href="https://github.com/tehkaiyu/yours-sincerely">Github</a>
+      </div>
+    </PageFooter>
   </PageContainer>
 );
 

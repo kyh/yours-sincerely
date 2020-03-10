@@ -21,4 +21,4 @@ Ephemeral anonymous blog to send each other tiny beautiful letters
 
 ## Community
 
-If you have any questions, ping me @Kai on [Slack](https://join.slack.com/t/playhouse-gg/shared_invite/zt-cmze8pmv-g7Z1ceutMlfLri2hfwo~5A).
+If you have any questions, ping me (@kai) on [Slack](https://join.slack.com/t/playhouse-gg/shared_invite/zt-cmze8pmv-g7Z1ceutMlfLri2hfwo~5A).
