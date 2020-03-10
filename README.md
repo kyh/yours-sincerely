@@ -1,5 +1,4 @@
 [![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
-[![Build Status](https://travis-ci.org/tehkaiyu/yours-sincerely.svg?branch=master)](https://travis-ci.org/tehkaiyu/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/tehkaiyu/yours-sincerely.svg)](https://greenkeeper.io/)
 
 # Yours Sincerely
 
