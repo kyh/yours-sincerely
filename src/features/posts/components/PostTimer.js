@@ -39,5 +39,5 @@ const Pie = styled.div`
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background-color: ${({ theme }) => theme.colors.lightGrey};
+  background-color: ${({ theme }) => theme.colors.grey};
 `;
