@@ -1,5 +1,5 @@
-[![Dependencies Status](https://david-dm.org/its-bananas/yours-sincerely/status.svg)](https://david-dm.org/its-bananas/yours-sincerely)
-[![Build Status](https://travis-ci.org/its-bananas/yours-sincerely.svg?branch=master)](https://travis-ci.org/its-bananas/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/its-bananas/yours-sincerely.svg)](https://greenkeeper.io/)
+[![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
+[![Build Status](https://travis-ci.org/tehkaiyu/yours-sincerely.svg?branch=master)](https://travis-ci.org/tehkaiyu/yours-sincerely) [![Greenkeeper badge](https://badges.greenkeeper.io/tehkaiyu/yours-sincerely.svg)](https://greenkeeper.io/)
 
 # Yours Sincerely
 
@@ -22,4 +22,4 @@ Ephemeral anonymous blog to send each other tiny beautiful letters
 
 ## Community
 
-If you have any questions, ping us on [Discord](https://discord.gg/8WCcghH).
+If you have any questions, ping me @Kai on [Slack](https://join.slack.com/t/playhouse-gg/shared_invite/zt-cmze8pmv-g7Z1ceutMlfLri2hfwo~5A).

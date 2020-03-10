@@ -26,7 +26,7 @@ export const PostList = () => {
       {isLoading && <FeedContentLoader />}
       {!isLoading && error && <Error error={error} />}
       {!isLoading && docs && !docs.length && <EmptyPost />}
-      {!isLoading && docs && docs.length && (
+      {!isLoading && docs && !!docs.length && (
         <div>
           {docs.map(doc => {
             const post = doc.data();

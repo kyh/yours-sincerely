@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { Button } from 'components/Button';
 import { addDays, format } from 'date-fns';
 
@@ -27,9 +28,13 @@ export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
       <SubmitContainer>
         <PostDetails>
           <span className="posting-as">
-            {postingAs
-              ? `Publishing as: ${postingAs}`
-              : 'Publishing anonymously'}
+            {postingAs ? (
+              <span>
+                Publishing as: <Link to="/profile">{postingAs}</Link>
+              </span>
+            ) : (
+              'Publishing anonymously'
+            )}
           </span>
           <span className="expiry">
             This post will expire on {format(expiry, 'MMMM do')}
@@ -75,6 +80,11 @@ const PostDetails = styled.div`
   }
   .posting-as {
     margin-bottom: ${({ theme }) => theme.spacings(2)};
+
+    a {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
   }
   .expiry {
     color: #919294;
