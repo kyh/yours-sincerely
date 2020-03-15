@@ -19,6 +19,10 @@ Ephemeral anonymous blog to send each other tiny beautiful letters
 └── /functions                   # Firebase serverless functions
 ```
 
+## Setting up
+
+YS is a [React](https://reactjs.org/) app built on top of [Firebase](https://firebase.google.com/). Read the [Example README]() on how set up your own
+
 ## Community
 
-If you have any questions, ping me (@kai) on [Slack](https://join.slack.com/t/playhouse-gg/shared_invite/zt-cmze8pmv-g7Z1ceutMlfLri2hfwo~5A).
+If you have any questions, ping me (@kai) on [Slack](https://join.slack.com/t/playhouse-gg/shared_invite/zt-cmze8pmv-g7Z1ceutMlfLri2hfwo~5A)
