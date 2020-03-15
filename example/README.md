@@ -2,22 +2,22 @@
 
 This section will show you how to create your own YS instance and ship it live.
 
-### Before you begin
+## Before you begin
 
 Make sure you have git and Node JS installed.
 
 Run `npm i -g firebase-tools` to install the Firebase command line tools. After it installs, run `firebase login`.
 
-#### Creating your app
+## Creating your app
 
 We're going to clone the YS repo onto your computer, create Firebase projects in the Firebase console, and then add keys from the console to your code.
 
-#### Get the code
+### Get the code
 
 In your terminal, cd to the folder where you want your project to live
 Clone this repo by running `git clone https://github.com/tehkaiyu/yours-sincerely .` And you can then install your node_modules with `npm i`
 
-#### Connect to the database
+### Connect to the database
 
 YS uses multiple `Firebase` projects. Each project has its own URL and its own separate copy of the database. This lets you develop your app without affecting the live version.
 
@@ -44,7 +44,7 @@ Back in the Firebase console:
 - Click "Set up sign-in method"
 - Click "Google", toggle the "Enable" switch, and hit "Save"
 
-#### Running the app
+## Running the app
 
 When you're finished setting things up, start your app by running npm start in your terminal. You should see a basic web app appear in your browser!
 
@@ -52,7 +52,7 @@ Try logging in, then make sure you can create and like posts.
 
 Now go back to your text editor and try editing some files. When you save, the changes should automatically appear in the browser without refreshing.
 
-### Going live
+## Going live
 
 First, you'll probably want to buy a domain and connect it to your project on the Firebase console hosting page before going live.
 
