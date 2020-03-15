@@ -21,7 +21,7 @@ Ephemeral anonymous blog to send each other tiny beautiful letters
 
 ## Setting up
 
-YS is a [React](https://reactjs.org/) app built on top of [Firebase](https://firebase.google.com/). Read the [Example README]() on how set up your own
+YS is a [React](https://reactjs.org/) app built on top of [Firebase](https://firebase.google.com/). Read the [Example README](https://github.com/tehkaiyu/yours-sincerely/tree/master/example) on how set up your own
 
 ## Community
 
