@@ -9,6 +9,10 @@ export const AboutPage = () => (
     </Quote>
     <Quote>Notes to no one</Quote>
     <Quote>
+      It’s like a magical graffiti wall in a foot traffic part of town
+    </Quote>
+    <Quote>Like signing the cast of a popular kid at school</Quote>
+    <Quote>
       YS is a public art project with optional anonymity. It is also a direct
       channel to the inner lives of other humans who, in other contexts, rarely
       reveal such vulnerability
