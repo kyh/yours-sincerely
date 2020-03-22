@@ -5,27 +5,28 @@
   "homepage": "https://yours-sincerely.org",
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
-    "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'"
+    "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'",
+    "lint": "prettier ."
   },
   "dependencies": {
     "date-fns": "^2.11.0",
-    "firebase": "^7.11.0",
+    "firebase": "^7.12.0",
     "lodash": "^4.17.15",
     "raw.macro": "^0.3.0",
-    "react": "^16.13.0",
+    "react": "^16.13.1",
     "react-content-loader": "^5.0.2",
-    "react-dom": "^16.13.0",
+    "react-dom": "^16.13.1",
     "react-firebase-hooks": "^2.1.1",
-    "react-instantsearch-dom": "^6.3.0",
+    "react-instantsearch-dom": "^6.4.0",
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "^3.4.1",
     "react-tooltip": "^4.1.2",
     "styled-components": "^5.0.1",
     "styled-normalize": "^8.0.7"
   },
   "devDependencies": {
-    "prettier": "^1.19.1"
+    "prettier": "^2.0.1"
   },
   "browserslist": {
     "production": [
