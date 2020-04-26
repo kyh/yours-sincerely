@@ -1,12 +1,12 @@
-import React from 'react';
-import firebase from 'firebase/app';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import ContentLoader from 'react-content-loader';
+import React from "react";
+import firebase from "firebase/app";
+import { useAuthState } from "react-firebase-hooks/auth";
+import ContentLoader from "react-content-loader";
 
-import { Error } from 'features/misc/Error';
-import { PageContent } from 'components/Page';
-import { Profile } from './components/Profile';
-import { NoProfile } from './components/NoProfile';
+import { Error } from "features/misc/Error";
+import { PageContent } from "components/Page";
+import { Profile } from "./components/Profile";
+import { NoProfile } from "./components/NoProfile";
 
 export const ProfilePage = () => {
   const [user, isLoading, error] = useAuthState(firebase.auth());

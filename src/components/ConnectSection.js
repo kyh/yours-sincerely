@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ConnectSection = styled.div`
   display: flex;
@@ -11,7 +11,7 @@ export const ConnectSection = styled.div`
     content: '${({ text }) => text}';
     position: absolute;
     top: -7px;
-    background: ${({ bg }) => bg || 'white'};
+    background: ${({ bg }) => bg || "white"};
     padding: 0 8px;
     font-size: 0.7rem;
     color: ${({ theme }) => theme.colors.grey};

@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 export const AboutPage = () => (
   <AboutContainer>
@@ -52,7 +52,7 @@ const Quote = styled.p`
   margin: 0 0 ${({ theme }) => theme.spacings(10)};
   position: relative;
   &::before {
-    content: ' ';
+    content: " ";
     display: block;
     position: absolute;
     left: -12px;

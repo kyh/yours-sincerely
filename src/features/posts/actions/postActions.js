@@ -1,6 +1,6 @@
-import { subDays } from 'date-fns';
-import firebase from 'firebase/app';
-import { prepareDocForCreate, prepareDocForUpdate } from 'util/firestoreUtil';
+import { subDays } from "date-fns";
+import firebase from "firebase/app";
+import { prepareDocForCreate, prepareDocForUpdate } from "util/firestoreUtil";
 
 const getExpiry = () => {
   return firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7));
@@ -13,24 +13,24 @@ setInterval(() => {
 export const getPostListQuery = () => {
   return firebase
     .firestore()
-    .collection('posts')
-    .where('createdAt', '>=', expiry)
-    .orderBy('createdAt', 'desc');
+    .collection("posts")
+    .where("createdAt", ">=", expiry)
+    .orderBy("createdAt", "desc");
 };
 
-export const getPostQuery = postId => {
+export const getPostQuery = (postId) => {
   return firebase.firestore().doc(`posts/${postId}`);
 };
 
-export const createPost = values => {
+export const createPost = (values) => {
   values._likeCount = 0;
 
   return firebase
     .firestore()
-    .collection('posts')
+    .collection("posts")
     .add(prepareDocForCreate(values))
     .then(() => values)
-    .catch(error => {
+    .catch((error) => {
       alert(`Whoops, couldn't create the post: ${error.message}`);
     });
 };
@@ -38,21 +38,21 @@ export const createPost = values => {
 export const updatePost = (postId, values) => {
   return firebase
     .firestore()
-    .collection('posts')
+    .collection("posts")
     .doc(postId)
     .update(prepareDocForUpdate(values))
-    .catch(error => {
+    .catch((error) => {
       alert(`Whoops, couldn't edit the post: ${error.message}`);
     });
 };
 
-export const deletePost = post => {
+export const deletePost = (post) => {
   return firebase
     .firestore()
-    .collection('posts')
+    .collection("posts")
     .doc(post.id)
     .delete()
-    .catch(error => {
+    .catch((error) => {
       alert(`Whoops, couldn't delete the post: ${error.message}`);
     });
 };

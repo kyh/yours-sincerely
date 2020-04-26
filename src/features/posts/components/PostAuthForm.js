@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { login, loginTypes } from 'features/auth/actions/authActions';
-import { Button } from 'components/Button';
-import { Input } from 'components/Input';
-import { ConnectSection } from 'components/ConnectSection';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { login, loginTypes } from "features/auth/actions/authActions";
+import { Button } from "components/Button";
+import { Input } from "components/Input";
+import { ConnectSection } from "components/ConnectSection";
 
 export const PostAuthForm = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const anonymousLogin = async event => {
+  const anonymousLogin = async (event) => {
     setIsLoading(true);
     event.preventDefault();
     const { name } = event.target.elements;
@@ -22,7 +22,7 @@ export const PostAuthForm = ({ onSubmit }) => {
       <NameContainer>
         <p>
           Duh, back in the '90s I was on a very famous TV show. <br />
-          I'm{' '}
+          I'm{" "}
           <Input
             type="text"
             name="name"
@@ -48,7 +48,7 @@ const PostAuthFormContainer = styled.form`
   padding: ${({ theme }) => `0 ${theme.spacings(5)} 140px`};
   &::before,
   &::after {
-    content: '';
+    content: "";
     display: block;
     position: absolute;
     height: 160px;
@@ -68,7 +68,7 @@ const PostAuthFormContainer = styled.form`
 
   &:after {
     right: 0;
-    background-image: url('/assets/zombieing.svg');
+    background-image: url("/assets/zombieing.svg");
     background-position: -20px -10px;
     transform: scaleX(-1);
   }

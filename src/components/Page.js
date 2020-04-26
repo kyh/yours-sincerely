@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { Navigation } from 'components/Navigation';
-import { Logo } from 'components/Logo';
+import React from "react";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { Navigation } from "components/Navigation";
+import { Logo } from "components/Logo";
 
 export const PageContainer = styled.section`
   max-width: ${({ theme }) => theme.ui.maxWidth};
@@ -11,7 +11,7 @@ export const PageContainer = styled.section`
   display: grid;
   grid-template-rows: max-content auto max-content;
   min-height: calc((var(--vh, 1vh) * 100));
-  background: ${({ background }) => background || 'transparent'};
+  background: ${({ background }) => background || "transparent"};
 
   ${({ theme }) => theme.breakpoints.sm`
     padding: 0 ${({ theme }) => theme.spacings(4)};

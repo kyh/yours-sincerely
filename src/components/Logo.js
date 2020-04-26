@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export const Logo = ({ width = 120 }) => (
   <svg className="logo" width={width} viewBox="0 0 142 69">

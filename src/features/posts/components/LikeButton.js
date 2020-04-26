@@ -1,13 +1,13 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import firebase from 'firebase/app';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollection } from 'react-firebase-hooks/firestore';
+import React from "react";
+import styled, { css } from "styled-components";
+import firebase from "firebase/app";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
 import {
   getUserLikeQuery,
   likePost,
-  unlikePost
-} from 'features/posts/actions/likeActions';
+  unlikePost,
+} from "features/posts/actions/likeActions";
 
 export const LikeButton = ({ postId, post }) => {
   const [user, isLoadingAuth] = useAuthState(firebase.auth());
@@ -46,7 +46,7 @@ const LikeContainer = styled.div`
 const StyledLikeButton = styled.button`
   width: 50px;
   height: 50px;
-  background-image: url('/assets/like.png');
+  background-image: url("/assets/like.png");
   background-size: 1450px 50px;
   span {
     margin-left: 40px;
