@@ -9,7 +9,7 @@ export const NoProfile = () => {
   return (
     <>
       <ProfileDetails>
-        <img src="/assets/reading.svg" alt="Not logged in" />
+        <img src="/assets/dancing.svg" alt="Not logged in" />
         <div>
           <h1>You’re not signed in...</h1>
           <Text>

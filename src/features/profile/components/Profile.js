@@ -23,7 +23,7 @@ export const Profile = ({ user }) => {
 
   return (
     <ProfileDetails>
-      <img src="/assets/reading.svg" alt="Not logged in" />
+      <img src="/assets/dancing.svg" alt="Not logged in" />
       <ProfileForm>
         <InputContainer>
           <NameInput
