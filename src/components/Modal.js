@@ -1,7 +1,7 @@
-import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
-import ReactModal from 'react-modal';
-import { Icon } from 'components/Icon';
+import React from "react";
+import styled, { createGlobalStyle } from "styled-components";
+import ReactModal from "react-modal";
+import { Icon } from "components/Icon";
 
 const ModalStyle = createGlobalStyle`
   .modal {
@@ -34,7 +34,7 @@ export const Modal = ({
   closeButton,
   title,
   onRequestClose,
-  maxWidth
+  maxWidth,
 }) => {
   return (
     <>
@@ -47,8 +47,8 @@ export const Modal = ({
         ariaHideApp={false}
         style={{
           content: {
-            maxWidth: maxWidth
-          }
+            maxWidth: maxWidth,
+          },
         }}
       >
         {closeButton && (

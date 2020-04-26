@@ -1,16 +1,16 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { Button } from 'components/Button';
-import { addDays, format } from 'date-fns';
+import React from "react";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { Button } from "components/Button";
+import { addDays, format } from "date-fns";
 
 export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
   const expiry = addDays(new Date(), 7);
-  const submit = event => {
+  const submit = (event) => {
     event.preventDefault();
     const { content } = event.target.elements;
     const values = {
-      content: content.value
+      content: content.value,
     };
     onSubmit(values);
   };
@@ -20,7 +20,7 @@ export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
       <Textarea
         type="text"
         name="content"
-        defaultValue={post ? post.content : ''}
+        defaultValue={post ? post.content : ""}
         placeholder="Hello in there?"
         autoFocus
         required
@@ -33,11 +33,11 @@ export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
                 Publishing as: <Link to="/profile">{postingAs}</Link>
               </span>
             ) : (
-              'Publishing anonymously'
+              "Publishing anonymously"
             )}
           </span>
           <span className="expiry">
-            This post will expire on {format(expiry, 'MMMM do')}
+            This post will expire on {format(expiry, "MMMM do")}
           </span>
         </PostDetails>
         <Button type="submit" disabled={isSubmitting}>

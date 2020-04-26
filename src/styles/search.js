@@ -2,7 +2,7 @@
 // https://community.algolia.com/react-instantsearch/guide/Styling_widgets.html
 // https://www.styled-components.com/docs/api#injectglobal
 
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from "styled-components";
 
 export const SearchStyles = createGlobalStyle`
   .ais-SearchBox-input {

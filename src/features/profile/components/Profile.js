@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { useHistory } from "react-router-dom";
 
-import { Input } from 'components/Input';
-import { Spinner } from 'components/Spinner';
-import { logout } from 'features/auth/actions/authActions';
-import { ProfileDetails } from './ProfileDetails';
+import { Input } from "components/Input";
+import { Spinner } from "components/Spinner";
+import { logout } from "features/auth/actions/authActions";
+import { ProfileDetails } from "./ProfileDetails";
 
 export const Profile = ({ user }) => {
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onBlur = async event => {
+  const onBlur = async (event) => {
     const name = event.target.value;
     event.preventDefault();
     if (name && name !== user.displayName) {

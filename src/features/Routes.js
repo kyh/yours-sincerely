@@ -1,14 +1,14 @@
-import React from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { PageLayout } from 'components/Page';
+import React from "react";
+import { Switch, Route } from "react-router-dom";
+import { PageLayout } from "components/Page";
 
-import { PostList } from './posts/PostList';
-import { Post } from './posts/Post';
-import { PostNew } from './posts/PostNew';
-import { PostEdit } from './posts/PostEdit';
-import { ProfilePage } from './profile/ProfilePage';
-import { AboutPage } from './about/AboutPage';
-import { Error } from './misc/Error';
+import { PostList } from "./posts/PostList";
+import { Post } from "./posts/Post";
+import { PostNew } from "./posts/PostNew";
+import { PostEdit } from "./posts/PostEdit";
+import { ProfilePage } from "./profile/ProfilePage";
+import { AboutPage } from "./about/AboutPage";
+import { Error } from "./misc/Error";
 
 export const Routes = () => (
   <Switch>

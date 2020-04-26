@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import ContentLoader from 'react-content-loader';
-import firebase from 'firebase/app';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import ContentLoader from "react-content-loader";
+import firebase from "firebase/app";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-import { Error } from 'features/misc/Error';
+import { Error } from "features/misc/Error";
 
-import { PageContainer } from 'components/Page';
-import { Navigation } from 'components/Navigation';
-import { Logo } from 'components/Logo';
-import { Modal } from 'components/Modal';
+import { PageContainer } from "components/Page";
+import { Navigation } from "components/Navigation";
+import { Logo } from "components/Logo";
+import { Modal } from "components/Modal";
 
-import { createPost } from './actions/postActions';
+import { createPost } from "./actions/postActions";
 
-import { PostForm } from './components/PostForm';
-import { PostAuthForm } from './components/PostAuthForm';
+import { PostForm } from "./components/PostForm";
+import { PostAuthForm } from "./components/PostAuthForm";
 
 export const PostNew = () => {
   const history = useHistory();
@@ -22,10 +22,10 @@ export const PostNew = () => {
   const [user, isLoading, error] = useAuthState(firebase.auth());
 
   const onCreatePost = async () => {
-    const postString = localStorage.getItem('post');
+    const postString = localStorage.getItem("post");
     await createPost(JSON.parse(postString));
-    localStorage.removeItem('post');
-    history.push('/');
+    localStorage.removeItem("post");
+    history.push("/");
   };
 
   return (
@@ -40,10 +40,10 @@ export const PostNew = () => {
       {!isLoading && (
         <PostForm
           postingAs={user ? user.displayName : null}
-          post={JSON.parse(localStorage.getItem('post') || '{}')}
-          onSubmit={async post => {
+          post={JSON.parse(localStorage.getItem("post") || "{}")}
+          onSubmit={async (post) => {
             const postString = JSON.stringify(post);
-            localStorage.setItem('post', postString);
+            localStorage.setItem("post", postString);
             if (!user) {
               setIsLoginModalOpen(true);
             } else {

@@ -1,16 +1,16 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useDocument } from 'react-firebase-hooks/firestore';
-import ContentLoader from 'react-content-loader';
+import React from "react";
+import { useParams } from "react-router-dom";
+import { useDocument } from "react-firebase-hooks/firestore";
+import ContentLoader from "react-content-loader";
 
-import { Error } from 'features/misc/Error';
-import { PageContent } from 'components/Page';
+import { Error } from "features/misc/Error";
+import { PageContent } from "components/Page";
 
-import { PostContent } from './components/PostContent';
-import { PostFooter } from './components/PostFooter';
-import { PostSignature } from './components/PostSignature';
-import { LikeButton } from './components/LikeButton';
-import { getPostQuery } from './actions/postActions';
+import { PostContent } from "./components/PostContent";
+import { PostFooter } from "./components/PostFooter";
+import { PostSignature } from "./components/PostSignature";
+import { LikeButton } from "./components/LikeButton";
+import { getPostQuery } from "./actions/postActions";
 
 export const Post = () => {
   const { postId } = useParams();

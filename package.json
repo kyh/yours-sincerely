@@ -6,7 +6,7 @@
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
     "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'",
-    "lint": "prettier ."
+    "format": "prettier . --write"
   },
   "dependencies": {
     "date-fns": "^2.12.0",
@@ -26,6 +26,7 @@
     "styled-normalize": "^8.0.7"
   },
   "devDependencies": {
+    "husky": "^4.2.5",
     "prettier": "^2.0.5"
   },
   "browserslist": {

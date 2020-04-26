@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from 'styled-components';
-import firebase from 'firebase/app';
-import { addDays, formatDistance } from 'date-fns';
+import React from "react";
+import styled from "styled-components";
+import firebase from "firebase/app";
+import { addDays, formatDistance } from "date-fns";
 
-const getPercentage = createdAt => {
+const getPercentage = (createdAt) => {
   const now = firebase.firestore.Timestamp.now().toDate();
   const start = createdAt.toDate();
   const end = addDays(createdAt.toDate(), 7);
@@ -11,7 +11,7 @@ const getPercentage = createdAt => {
     now,
     start,
     end,
-    percentage: Math.round(((now - start) / (end - start)) * 100)
+    percentage: Math.round(((now - start) / (end - start)) * 100),
   };
 };
 

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { login, loginTypes } from 'features/auth/actions/authActions';
-import { ConnectSection } from 'components/ConnectSection';
-import { Text } from 'components/Text';
-import { ProfileDetails } from './ProfileDetails';
+import React from "react";
+import { Link } from "react-router-dom";
+import { login, loginTypes } from "features/auth/actions/authActions";
+import { ConnectSection } from "components/ConnectSection";
+import { Text } from "components/Text";
+import { ProfileDetails } from "./ProfileDetails";
 
 export const NoProfile = () => {
   return (

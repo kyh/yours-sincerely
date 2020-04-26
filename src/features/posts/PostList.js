@@ -1,21 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { useCollection } from 'react-firebase-hooks/firestore';
+import React from "react";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { useCollection } from "react-firebase-hooks/firestore";
 
-import ContentLoader from 'react-content-loader';
-import ReactTooltip from 'react-tooltip';
-import { Error } from 'features/misc/Error';
+import ContentLoader from "react-content-loader";
+import ReactTooltip from "react-tooltip";
+import { Error } from "features/misc/Error";
 
-import { PageContent } from 'components/Page';
+import { PageContent } from "components/Page";
 
-import { PostTimer } from './components/PostTimer';
-import { PostContent } from './components/PostContent';
-import { PostFooter, PostFooterRight } from './components/PostFooter';
-import { PostSignature } from './components/PostSignature';
-import { LikeButton } from './components/LikeButton';
+import { PostTimer } from "./components/PostTimer";
+import { PostContent } from "./components/PostContent";
+import { PostFooter, PostFooterRight } from "./components/PostFooter";
+import { PostSignature } from "./components/PostSignature";
+import { LikeButton } from "./components/LikeButton";
 
-import { getPostListQuery } from './actions/postActions';
+import { getPostListQuery } from "./actions/postActions";
 
 export const PostList = () => {
   const [collection, isLoading, error] = useCollection(getPostListQuery());
@@ -28,7 +28,7 @@ export const PostList = () => {
       {!isLoading && docs && !docs.length && <EmptyPost />}
       {!isLoading && docs && !!docs.length && (
         <div>
-          {docs.map(doc => {
+          {docs.map((doc) => {
             const post = doc.data();
             return (
               <PostContainer key={doc.id}>
@@ -71,7 +71,7 @@ const FeedContentLoader = () => (
 const EmptyPost = () => (
   <EmptyPostContainer>
     <h1>
-      It's kind of lonely here... could you help{' '}
+      It's kind of lonely here... could you help{" "}
       <Link to="/new">start something?</Link>
     </h1>
     <img src="/assets/reading.svg" alt="No posts" />

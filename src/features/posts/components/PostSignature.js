@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const PostSignature = styled.div`
   font-style: italic;
@@ -8,7 +8,7 @@ export const PostSignature = styled.div`
   text-overflow: ellipsis;
 
   &::before {
-    content: '— ';
+    content: "— ";
     vertical-align: 1px;
     margin-right: 4px;
     display: inline-block;

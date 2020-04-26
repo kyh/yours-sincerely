@@ -1,10 +1,10 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import raw from 'raw.macro';
+import React from "react";
+import styled, { css } from "styled-components";
+import raw from "raw.macro";
 
 export const iconMap = {
-  x: raw('./icon-svgs/x.svg'),
-  check: raw('./icon-svgs/check.svg')
+  x: raw("./icon-svgs/x.svg"),
+  check: raw("./icon-svgs/check.svg"),
 };
 
 export const Icon = ({ icon, color, size, rotate, ...rest }) => {
@@ -23,23 +23,23 @@ export const Icon = ({ icon, color, size, rotate, ...rest }) => {
 };
 
 const iconSizeMap = {
-  xs: '12px',
-  sm: '20px',
-  md: '24px',
-  lg: '40px'
+  xs: "12px",
+  sm: "20px",
+  md: "24px",
+  lg: "40px",
 };
 
-const getDimensions = iconSize => {
-  if (typeof iconSize === 'number') return `${iconSize}px`;
+const getDimensions = (iconSize) => {
+  if (typeof iconSize === "number") return `${iconSize}px`;
   return iconSizeMap[iconSize];
 };
 
-const getSvgStyles = props => {
+const getSvgStyles = (props) => {
   const { iconSize, iconColor, rotate } = props;
 
   return css`
-    width: ${iconSize ? getDimensions(iconSize) : 'initial'};
-    height: ${iconSize ? getDimensions(iconSize) : 'intial'};
+    width: ${iconSize ? getDimensions(iconSize) : "initial"};
+    height: ${iconSize ? getDimensions(iconSize) : "intial"};
     path {
       fill: ${({ theme }) =>
         iconColor ? theme.colors[iconColor] : theme.ui.text};

@@ -1,16 +1,16 @@
-import firebase from 'firebase/app';
+import firebase from "firebase/app";
 
 export const loginTypes = {
-  anonymous: 'anonymous',
-  google: 'google'
+  anonymous: "anonymous",
+  google: "google",
 };
 
 const getProvider = {
   [loginTypes.anonymous]: () => null,
-  [loginTypes.google]: () => new firebase.auth.GoogleAuthProvider()
+  [loginTypes.google]: () => new firebase.auth.GoogleAuthProvider(),
 };
 
-export const login = loginType => {
+export const login = (loginType) => {
   const provider = getProvider[loginType]();
   if (provider) return firebase.auth().signInWithRedirect(provider);
   return firebase.auth().signInAnonymously();

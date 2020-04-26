@@ -1,29 +1,22 @@
-import firebase from 'firebase/app';
-import { prepareDocForCreate } from 'util/firestoreUtil';
+import firebase from "firebase/app";
+import { prepareDocForCreate } from "util/firestoreUtil";
 
 export const getUserLikeQuery = (postId = 1, userId = 1) => {
   return firebase
     .firestore()
-    .collection('postLikes')
-    .where('postId', '==', postId)
-    .where('createdBy', '==', userId);
+    .collection("postLikes")
+    .where("postId", "==", postId)
+    .where("createdBy", "==", userId);
 };
 
-export const likePost = postId => {
+export const likePost = (postId) => {
   const like = prepareDocForCreate({
-    postId
+    postId,
   });
 
-  return firebase
-    .firestore()
-    .collection('postLikes')
-    .add(like);
+  return firebase.firestore().collection("postLikes").add(like);
 };
 
-export const unlikePost = userLikeId => {
-  return firebase
-    .firestore()
-    .collection('postLikes')
-    .doc(userLikeId)
-    .delete();
+export const unlikePost = (userLikeId) => {
+  return firebase.firestore().collection("postLikes").doc(userLikeId).delete();
 };
