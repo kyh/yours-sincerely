@@ -1,18 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { login, loginTypes } from "features/auth/actions/authActions";
+import { isIOS } from "util/platform";
 import { ConnectSection } from "components/ConnectSection";
 import { Text } from "components/Text";
 import { ProfileDetails } from "./ProfileDetails";
 
 export const NoProfile = () => {
-  const isIOS = window.config && window.config.platform === "ios";
   return (
     <>
       <ProfileDetails>
         <img src="/assets/dancing.svg" alt="Not logged in" />
         <div>
-          {isIOS ? (
+          {isIOS() ? (
             <>
               <h1>No account required</h1>
               <Text>
@@ -30,7 +30,7 @@ export const NoProfile = () => {
           )}
         </div>
       </ProfileDetails>
-      {!isIOS && (
+      {!isIOS() && (
         <ConnectSection text="Or sign in with" bg="#f5f8fa">
           <button type="button" onClick={() => login(loginTypes.google)}>
             <img src="/assets/google-button.svg" alt="Sign in with Google" />
