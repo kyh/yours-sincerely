@@ -6,23 +6,37 @@ import { Text } from "components/Text";
 import { ProfileDetails } from "./ProfileDetails";
 
 export const NoProfile = () => {
+  const isIOS = window.config && window.config.platform === "ios";
   return (
     <>
       <ProfileDetails>
         <img src="/assets/dancing.svg" alt="Not logged in" />
         <div>
-          <h1>You’re not signed in...</h1>
-          <Text>
-            But, you can still <Link to="/new">make a post</Link> anonymously
-            without an account
-          </Text>
+          {isIOS ? (
+            <>
+              <h1>No account required</h1>
+              <Text>
+                Just <Link to="/new">make a post</Link> to get started
+              </Text>
+            </>
+          ) : (
+            <>
+              <h1>You’re not signed in...</h1>
+              <Text>
+                But, you can still <Link to="/new">make a post</Link>{" "}
+                anonymously without an account
+              </Text>
+            </>
+          )}
         </div>
       </ProfileDetails>
-      <ConnectSection text="Or sign in with" bg="#f5f8fa">
-        <button type="button" onClick={() => login(loginTypes.google)}>
-          <img src="/assets/google-button.svg" alt="Sign in with Google" />
-        </button>
-      </ConnectSection>
+      {!isIOS && (
+        <ConnectSection text="Or sign in with" bg="#f5f8fa">
+          <button type="button" onClick={() => login(loginTypes.google)}>
+            <img src="/assets/google-button.svg" alt="Sign in with Google" />
+          </button>
+        </ConnectSection>
+      )}
     </>
   );
 };
