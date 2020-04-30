@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export const AboutPage = () => (
   <AboutContainer>
-    <h1>About</h1>
+    <h1 className="title">About</h1>
     <Quote>
       An ephemeral anonymous blog to send each other tiny beautiful letters
     </Quote>
@@ -18,6 +18,7 @@ export const AboutPage = () => (
       reveal such vulnerability
     </Quote>
     <a
+      className="request"
       href="https://github.com/tehkaiyu/yours-sincerely/issues/new"
       target="_blank"
       rel="noopener noreferrer"
@@ -31,13 +32,13 @@ const AboutContainer = styled.section`
   max-width: 400px;
   margin: 0 auto;
 
-  h1 {
+  .title {
     text-align: center;
     font-size: ${({ theme }) => theme.typography.h4.fontSize};
     margin: 0 0 ${({ theme }) => theme.spacings(5)};
   }
 
-  a {
+  .request {
     display: block;
     text-align: center;
     color: ${({ theme }) => theme.colors.primary};

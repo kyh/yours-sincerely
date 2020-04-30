@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { login, loginTypes } from "features/auth/actions/authActions";
+import { isIOS } from "util/platform";
 import { Button } from "components/Button";
 import { Input } from "components/Input";
 import { ConnectSection } from "components/ConnectSection";
+import { PrivacyTerms } from "components/PrivacyTerms";
 
 export const PostAuthForm = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,17 +37,27 @@ export const PostAuthForm = ({ onSubmit }) => {
           Now publish my post
         </Button>
       </NameContainer>
-      <ConnectSection text="Or connect your account">
-        <button type="button" onClick={() => login(loginTypes.google)}>
-          <img src="/assets/google-button.svg" alt="Sign in with Google" />
-        </button>
-      </ConnectSection>
+      {isIOS() ? (
+        <PrivacyTerms />
+      ) : (
+        <ConnectSection text="Or connect your account">
+          <button type="button" onClick={() => login(loginTypes.google)}>
+            <img src="/assets/google-button.svg" alt="Sign in with Google" />
+          </button>
+        </ConnectSection>
+      )}
     </PostAuthFormContainer>
   );
 };
 
 const PostAuthFormContainer = styled.form`
   padding: ${({ theme }) => `0 ${theme.spacings(5)} 140px`};
+
+  .privacy-terms {
+    text-align: center;
+    margin-top: ${({ theme }) => theme.spacings(4)};
+  }
+
   &::before,
   &::after {
     content: "";
