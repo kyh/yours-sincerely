@@ -30,6 +30,7 @@ export const PostList = () => {
         <div>
           {docs.map((doc) => {
             const post = doc.data();
+            if (post._flagged) return null;
             return (
               <PostContainer key={doc.id}>
                 <Link to={`/${doc.id}`}>

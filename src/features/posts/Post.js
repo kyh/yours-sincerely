@@ -23,12 +23,14 @@ export const Post = () => {
       {!isLoading && error && <Error error={error} />}
       {!isLoading && post && (
         <>
-          <PostContent>{post.content}</PostContent>
+          <PostContent>
+            {post._flagged ? "This post is under review" : post.content}
+          </PostContent>
           <PostFooter>
             <PostSignature>{post.createdByDisplayName}</PostSignature>
             <PostFooterRight>
               <LikeButton postId={doc.id} post={post} />
-              <FlagButton postId={doc.id} post={post} />
+              <FlagButton postId={doc.id} />
             </PostFooterRight>
           </PostFooter>
         </>
