@@ -4,7 +4,7 @@ import { PrivacyTerms } from "components/PrivacyTerms";
 
 export const AboutPage = () => (
   <AboutContainer>
-    <div>
+    <div className="about-content">
       <h1 className="title">About</h1>
       <Quote>
         An ephemeral anonymous blog to send each other tiny beautiful letters
@@ -37,6 +37,10 @@ const AboutContainer = styled.section`
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+
+  .about-content {
+    margin: 0 0 ${({ theme }) => theme.spacings(5)};
+  }
 
   .title {
     text-align: center;
