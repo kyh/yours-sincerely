@@ -5,7 +5,7 @@ export const PrivacyTerms = () => (
   <Container className="privacy-terms">
     By posting on YS, you agree to our{" "}
     <a
-      href="http://https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/PRIVACY.md"
+      href="https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/PRIVACY.md"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -13,7 +13,7 @@ export const PrivacyTerms = () => (
     </a>{" "}
     and{" "}
     <a
-      href="http://https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/TERMS.md"
+      href="https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/TERMS.md"
       target="_blank"
       rel="noopener noreferrer"
     >
