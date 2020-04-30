@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDocument } from "react-firebase-hooks/firestore";
 import ContentLoader from "react-content-loader";
 
+import { isIOS } from "util/platform";
 import { Error } from "features/misc/Error";
 import { PageContent } from "components/Page";
 
@@ -30,7 +31,7 @@ export const Post = () => {
             <PostSignature>{post.createdByDisplayName}</PostSignature>
             <PostFooterRight>
               <LikeButton postId={doc.id} post={post} />
-              <FlagButton postId={doc.id} />
+              {isIOS() ? <FlagButton postId={doc.id} /> : null}
             </PostFooterRight>
           </PostFooter>
         </>
