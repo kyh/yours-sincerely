@@ -24,6 +24,9 @@ export const PrivacyTerms = () => (
 
 const Container = styled.section`
   line-height: 1.6;
+  font-size: 13px;
+  font-style: italic;
+  color: ${({ theme }) => theme.colors.grey};
 
   > a {
     display: inline;

@@ -1,36 +1,42 @@
 import React from "react";
 import styled from "styled-components";
+import { PrivacyTerms } from "components/PrivacyTerms";
 
 export const AboutPage = () => (
   <AboutContainer>
-    <h1 className="title">About</h1>
-    <Quote>
-      An ephemeral anonymous blog to send each other tiny beautiful letters
-    </Quote>
-    <Quote>Notes to no one</Quote>
-    <Quote>
-      It’s like a magical graffiti wall in a foot traffic part of town
-    </Quote>
-    <Quote>Like signing the cast of a popular kid at school</Quote>
-    <Quote>
-      YS is a public art project with optional anonymity. It is also a direct
-      channel to the inner lives of other humans who, in other contexts, rarely
-      reveal such vulnerability
-    </Quote>
-    <a
-      className="request"
-      href="https://github.com/tehkaiyu/yours-sincerely/issues/new"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      What is YS to you?
-    </a>
+    <div>
+      <h1 className="title">About</h1>
+      <Quote>
+        An ephemeral anonymous blog to send each other tiny beautiful letters
+      </Quote>
+      <Quote>Notes to no one</Quote>
+      <Quote>
+        It’s like a magical graffiti wall in a foot traffic part of town
+      </Quote>
+      <Quote>Like signing the cast of a popular kid at school</Quote>
+      <Quote>
+        YS is a public art project with optional anonymity. It is also a direct
+        channel to the inner lives of other humans who, in other contexts,
+        rarely reveal such vulnerability
+      </Quote>
+      <a
+        className="request"
+        href="https://github.com/tehkaiyu/yours-sincerely/issues/new"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        What is YS to you?
+      </a>
+    </div>
+    <PrivacyTerms />
   </AboutContainer>
 );
 
 const AboutContainer = styled.section`
   max-width: 400px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 
   .title {
     text-align: center;
@@ -45,6 +51,10 @@ const AboutContainer = styled.section`
     &:hover {
       text-decoration: underline;
     }
+  }
+
+  .privacy-terms {
+    margin-top: auto;
   }
 `;
 
