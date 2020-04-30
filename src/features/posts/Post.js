@@ -7,9 +7,10 @@ import { Error } from "features/misc/Error";
 import { PageContent } from "components/Page";
 
 import { PostContent } from "./components/PostContent";
-import { PostFooter } from "./components/PostFooter";
+import { PostFooter, PostFooterRight } from "./components/PostFooter";
 import { PostSignature } from "./components/PostSignature";
 import { LikeButton } from "./components/LikeButton";
+import { FlagButton } from "./components/FlagButton";
 import { getPostQuery } from "./actions/postActions";
 
 export const Post = () => {
@@ -25,7 +26,10 @@ export const Post = () => {
           <PostContent>{post.content}</PostContent>
           <PostFooter>
             <PostSignature>{post.createdByDisplayName}</PostSignature>
-            <LikeButton postId={doc.id} post={post} />
+            <PostFooterRight>
+              <LikeButton postId={doc.id} post={post} />
+              <FlagButton postId={doc.id} post={post} />
+            </PostFooterRight>
           </PostFooter>
         </>
       )}

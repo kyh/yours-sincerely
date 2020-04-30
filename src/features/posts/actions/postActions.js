@@ -24,6 +24,7 @@ export const getPostQuery = (postId) => {
 
 export const createPost = (values) => {
   values._likeCount = 0;
+  values._flagged = false;
 
   return firebase
     .firestore()
@@ -55,4 +56,12 @@ export const deletePost = (post) => {
     .catch((error) => {
       alert(`Whoops, couldn't delete the post: ${error.message}`);
     });
+};
+
+export const flagPost = (postId) => {
+  const flag = prepareDocForCreate({
+    postId,
+  });
+
+  return firebase.firestore().collection("postFlags").add(flag);
 };

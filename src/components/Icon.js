@@ -5,6 +5,7 @@ import raw from "raw.macro";
 export const iconMap = {
   x: raw("./icon-svgs/x.svg"),
   check: raw("./icon-svgs/check.svg"),
+  more: raw("./icon-svgs/more-vertical.svg"),
 };
 
 export const Icon = ({ icon, color, size, rotate, ...rest }) => {
@@ -44,7 +45,8 @@ const getSvgStyles = (props) => {
       fill: ${({ theme }) =>
         iconColor ? theme.colors[iconColor] : theme.ui.text};
     }
-    polyline {
+    polyline,
+    circle {
       stroke: ${({ theme }) =>
         iconColor ? theme.colors[iconColor] : theme.ui.text};
     }
