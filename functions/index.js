@@ -20,6 +20,6 @@ exports.updatePostLikeCount = functions.firestore
   .document("postLikes/{postLikeId}")
   .onWrite(postLikes.updatePostLikeCount);
 
-exports.updatePostLikeCount = functions.firestore
+exports.updatePostFlag = functions.firestore
   .document("postFlags/{postFlagId}")
   .onWrite(postFlags.updatePostFlag);
