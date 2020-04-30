@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { Modal } from "components/Modal";
 import { Icon } from "components/Icon";
 import { flagPost } from "features/posts/actions/postActions";
 
 export const FlagButton = ({ postId }) => {
+  const history = useHistory();
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div>
@@ -24,7 +26,13 @@ export const FlagButton = ({ postId }) => {
           >
             Report...
           </ModalButton>
-          <ModalButton type="button" onClick={() => flagPost(postId)}>
+          <ModalButton
+            type="button"
+            onClick={() => {
+              flagPost(postId);
+              history.push("/");
+            }}
+          >
             Mark as inappropriate
           </ModalButton>
         </ModalContent>
