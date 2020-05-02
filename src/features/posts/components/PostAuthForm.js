@@ -9,6 +9,7 @@ import { PrivacyTerms } from "components/PrivacyTerms";
 
 export const PostAuthForm = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isChecked, setIsChecked] = useState(!isIOS());
 
   const anonymousLogin = async (event) => {
     setIsLoading(true);
@@ -33,12 +34,12 @@ export const PostAuthForm = ({ onSubmit }) => {
             required
           />
         </p>
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={!isChecked || isLoading}>
           Now publish my post
         </Button>
       </NameContainer>
       {isIOS() ? (
-        <PrivacyTerms />
+        <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
       ) : (
         <ConnectSection text="Or connect your account">
           <button type="button" onClick={() => login(loginTypes.google)}>
@@ -54,7 +55,8 @@ const PostAuthFormContainer = styled.form`
   padding: ${({ theme }) => `0 ${theme.spacings(5)} 140px`};
 
   .privacy-terms {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin-top: ${({ theme }) => theme.spacings(4)};
   }
 
