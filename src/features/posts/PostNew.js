@@ -5,6 +5,7 @@ import firebase from "firebase/app";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 import { Error } from "features/misc/Error";
+import { getCurrentUserClaim } from "features/auth/actions/authActions";
 
 import { PageContainer } from "components/Page";
 import { Navigation } from "components/Navigation";
@@ -22,12 +23,15 @@ export const PostNew = () => {
   const [user, isLoading, error] = useAuthState(firebase.auth());
 
   const onCreatePost = async () => {
-    if (user._flagged) {
+    const idTokenResult = await getCurrentUserClaim();
+
+    if (idTokenResult.claims.flagged) {
       alert(
         "Sorry, something you posted has been marked inappropriate, we have suspended your account until we review your post"
       );
       return;
     }
+
     const postString = localStorage.getItem("post");
     await createPost(JSON.parse(postString));
     localStorage.removeItem("post");
@@ -50,10 +54,10 @@ export const PostNew = () => {
           onSubmit={async (post) => {
             const postString = JSON.stringify(post);
             localStorage.setItem("post", postString);
-            if (!user) {
-              setIsLoginModalOpen(true);
-            } else {
+            if (!!user) {
               onCreatePost();
+            } else {
+              setIsLoginModalOpen(true);
             }
           }}
         />
