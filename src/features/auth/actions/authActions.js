@@ -16,6 +16,10 @@ export const login = (loginType) => {
   return firebase.auth().signInAnonymously();
 };
 
+export const getCurrentUser = () => {
+  return firebase.auth().currentUser;
+};
+
 export const logout = () => {
   return firebase.auth().signOut();
 };

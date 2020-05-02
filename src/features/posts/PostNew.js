@@ -22,6 +22,12 @@ export const PostNew = () => {
   const [user, isLoading, error] = useAuthState(firebase.auth());
 
   const onCreatePost = async () => {
+    if (user._flagged) {
+      alert(
+        "Sorry, something you posted has been marked inappropriate, we have suspended your account until we review your post"
+      );
+      return;
+    }
     const postString = localStorage.getItem("post");
     await createPost(JSON.parse(postString));
     localStorage.removeItem("post");

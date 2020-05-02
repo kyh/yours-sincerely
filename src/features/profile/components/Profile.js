@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import { Input } from "components/Input";
 import { Spinner } from "components/Spinner";
 import { logout } from "features/auth/actions/authActions";
+import { isIOS } from "util/platform";
 import { ProfileDetails } from "./ProfileDetails";
 
 export const Profile = ({ user }) => {
@@ -38,14 +39,16 @@ export const Profile = ({ user }) => {
           />
           <InputSpinner loading={isLoading} />
         </InputContainer>
-        <button
-          type="button"
-          className="logout"
-          disabled={isLoading}
-          onClick={() => logout().then(() => history.push(`/`))}
-        >
-          Log out
-        </button>
+        {!isIOS() && (
+          <button
+            type="button"
+            className="logout"
+            disabled={isLoading}
+            onClick={() => logout().then(() => history.push(`/`))}
+          >
+            Log out
+          </button>
+        )}
       </ProfileForm>
     </ProfileDetails>
   );
