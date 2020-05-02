@@ -4,14 +4,26 @@ import { Link } from "react-router-dom";
 import { Button } from "components/Button";
 import { addDays, format } from "date-fns";
 
+const postKey = "post";
+
+export const storePost = (post) => {
+  const postString = JSON.stringify(post);
+  localStorage.setItem(postKey, postString);
+};
+
+export const getStoredPostAndClear = () => {
+  const postString = localStorage.getItem(postKey);
+  localStorage.removeItem(postKey);
+  return JSON.parse(postString);
+};
+
 export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
   const expiry = addDays(new Date(), 7);
   const submit = (event) => {
     event.preventDefault();
     const { content } = event.target.elements;
-    const values = {
-      content: content.value,
-    };
+    const values = { content: content.value };
+    storePost(values);
     onSubmit(values);
   };
 
@@ -22,6 +34,7 @@ export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
         name="content"
         defaultValue={post ? post.content : ""}
         placeholder="Hello in there?"
+        onBlur={(e) => storePost({ content: e.target.value })}
         autoFocus
         required
       />
