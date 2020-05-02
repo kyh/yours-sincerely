@@ -19,16 +19,18 @@ import { PostAuthForm } from "./components/PostAuthForm";
 
 export const PostNew = () => {
   const history = useHistory();
+  const [isSubmitting, setIsSubisSubmitting] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [user, isLoading, error] = useAuthState(firebase.auth());
 
   const onCreatePost = async () => {
+    setIsSubisSubmitting(true);
     const idTokenResult = await getCurrentUserClaim();
-
     if (idTokenResult.claims.flagged) {
       alert(
         "Sorry, something you posted has been marked inappropriate, we have suspended your account until we review your post"
       );
+      setIsSubisSubmitting(false);
       return;
     }
 
@@ -51,6 +53,7 @@ export const PostNew = () => {
         <PostForm
           postingAs={user ? user.displayName : null}
           post={JSON.parse(localStorage.getItem("post") || "{}")}
+          isSubmitting={isSubmitting}
           onSubmit={async (post) => {
             const postString = JSON.stringify(post);
             localStorage.setItem("post", postString);
