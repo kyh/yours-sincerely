@@ -14,7 +14,7 @@ import { Modal } from "components/Modal";
 
 import { createPost } from "./actions/postActions";
 
-import { PostForm } from "./components/PostForm";
+import { PostForm, getStoredPostAndClear } from "./components/PostForm";
 import { PostAuthForm } from "./components/PostAuthForm";
 
 export const PostNew = () => {
@@ -34,9 +34,8 @@ export const PostNew = () => {
       return;
     }
 
-    const postString = localStorage.getItem("post");
-    await createPost(JSON.parse(postString));
-    localStorage.removeItem("post");
+    const post = getStoredPostAndClear();
+    await createPost(post);
     history.push("/");
   };
 
@@ -54,15 +53,7 @@ export const PostNew = () => {
           postingAs={user ? user.displayName : null}
           post={JSON.parse(localStorage.getItem("post") || "{}")}
           isSubmitting={isSubmitting}
-          onSubmit={async (post) => {
-            const postString = JSON.stringify(post);
-            localStorage.setItem("post", postString);
-            if (!!user) {
-              onCreatePost();
-            } else {
-              setIsLoginModalOpen(true);
-            }
-          }}
+          onSubmit={() => (!!user ? onCreatePost() : setIsLoginModalOpen(true))}
         />
       )}
       <Modal
