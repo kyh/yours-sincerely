@@ -31,7 +31,6 @@ export const Post = () => {
             <PostSignature>{post.createdByDisplayName}</PostSignature>
             <PostFooterRight>
               <LikeButton postId={doc.id} post={post} />
-              <FlagButton postId={doc.id} />
               {isIOS() ? <FlagButton postId={doc.id} /> : null}
             </PostFooterRight>
           </PostFooter>
