@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { useDocument } from "react-firebase-hooks/firestore";
 import ContentLoader from "react-content-loader";
 
-import { isIOS } from "util/platform";
 import { Error } from "features/misc/Error";
 import { PageContent } from "components/Page";
 
