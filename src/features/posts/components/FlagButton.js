@@ -4,8 +4,9 @@ import styled from "styled-components";
 import { Modal } from "components/Modal";
 import { Icon } from "components/Icon";
 import { flagPost } from "features/posts/actions/postActions";
+import { blockUser } from "features/posts/actions/blockActions";
 
-export const FlagButton = ({ postId }) => {
+export const FlagButton = ({ postId, post }) => {
   const history = useHistory();
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -35,6 +36,15 @@ export const FlagButton = ({ postId }) => {
           >
             Mark as inappropriate
           </ModalButton>
+          <ModalButton
+            type="button"
+            onClick={() => {
+              blockUser(post.createdBy);
+              history.push("/");
+            }}
+          >
+            Stop seeing content from this user
+          </ModalButton>
         </ModalContent>
       </Modal>
     </div>
@@ -62,9 +72,14 @@ const ModalButton = styled.button`
   width: 100%;
   padding: ${({ theme }) => theme.spacings(5)};
   border-bottom: 1px solid ${({ theme }) => theme.ui.border};
+  line-height: 1.6;
   transition: all 0.2s ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.ui.background};
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 `;
