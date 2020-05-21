@@ -16,19 +16,35 @@ import { PostSignature } from "./components/PostSignature";
 import { LikeButton } from "./components/LikeButton";
 
 import { getPostListQuery } from "./actions/postActions";
+import { getBlockedUsersQuery } from "./actions/blockActions";
 
 export const PostList = () => {
-  const [collection, isLoading, error] = useCollection(getPostListQuery());
-  const docs = collection ? collection.docs : null;
+  const [collection, isLoadingPosts, error] = useCollection(getPostListQuery());
+  const [blockedCollection, isLoadingBlocked] = useCollection(
+    getBlockedUsersQuery()
+  );
+  const docs = collection ? collection.docs : [];
+  const blocked = blockedCollection ? blockedCollection.docs : [];
+
+  const blockMap = blocked.reduce((map, bd) => {
+    map[bd.data().blockedUser] = true;
+    return map;
+  }, {});
+
+  const postDocs = docs.filter((pd) => {
+    return !blockMap[pd.data().createdBy];
+  });
 
   return (
     <PageContent>
-      {isLoading && <FeedContentLoader />}
-      {!isLoading && error && <Error error={error} />}
-      {!isLoading && docs && !docs.length && <EmptyPost />}
-      {!isLoading && docs && !!docs.length && (
+      {(isLoadingPosts || isLoadingBlocked) && <FeedContentLoader />}
+      {!isLoadingPosts && !isLoadingBlocked && error && <Error error={error} />}
+      {!isLoadingPosts && !isLoadingBlocked && !postDocs.length && (
+        <EmptyPost />
+      )}
+      {!isLoadingPosts && !isLoadingBlocked && !!postDocs.length && (
         <div>
-          {docs.map((doc) => {
+          {postDocs.map((doc) => {
             const post = doc.data();
             if (post._flagged) return null;
             return (
