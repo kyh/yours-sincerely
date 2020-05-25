@@ -8,6 +8,8 @@ import { PostNew } from "./posts/PostNew";
 import { PostEdit } from "./posts/PostEdit";
 import { ProfilePage } from "./profile/ProfilePage";
 import { AboutPage } from "./about/AboutPage";
+import { PrivacyPage } from "./about/PrivacyPage";
+import { TermsPage } from "./about/TermsPage";
 import { Error } from "./misc/Error";
 
 export const Routes = () => (
@@ -28,6 +30,16 @@ export const Routes = () => (
     <Route path="/about">
       <PageLayout>
         <AboutPage />
+      </PageLayout>
+    </Route>
+    <Route path="/privacy">
+      <PageLayout>
+        <PrivacyPage />
+      </PageLayout>
+    </Route>
+    <Route path="/terms">
+      <PageLayout>
+        <TermsPage />
       </PageLayout>
     </Route>
     <Route path="/:postId/edit">
