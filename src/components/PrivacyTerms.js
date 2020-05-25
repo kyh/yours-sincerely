@@ -10,7 +10,7 @@ export const PrivacyTerms = ({
   const [viewedPrivacy, setViewedPrivacy] = useState(false);
   const [viewedTerms, setViewedTerms] = useState(false);
 
-  const onCheck = (event) => {
+  const onCheck = () => {
     if (!viewedPrivacy) {
       alert("Please read through the privacy policy");
       return;
@@ -29,7 +29,7 @@ export const PrivacyTerms = ({
       <div>
         By posting on YS, you agree to our{" "}
         <a
-          href="https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/PRIVACY.md"
+          href="https://yourssincerely.org/privacy"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setViewedPrivacy(true)}
@@ -38,7 +38,7 @@ export const PrivacyTerms = ({
         </a>{" "}
         and{" "}
         <a
-          href="https://github.com/tehkaiyu/yours-sincerely/blob/master/.github/TERMS.md"
+          href="https://yourssincerely.org/terms"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setViewedTerms(true)}
