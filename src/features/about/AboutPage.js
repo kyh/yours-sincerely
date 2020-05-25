@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { PrivacyTerms } from "components/PrivacyTerms";
+import { AboutContainer } from "./components/AboutContainer";
 
 export const AboutPage = () => (
   <AboutContainer>
@@ -31,36 +32,6 @@ export const AboutPage = () => (
     <PrivacyTerms />
   </AboutContainer>
 );
-
-const AboutContainer = styled.section`
-  max-width: 400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-
-  .about-content {
-    margin: 0 0 ${({ theme }) => theme.spacings(5)};
-  }
-
-  .title {
-    text-align: center;
-    font-size: ${({ theme }) => theme.typography.h4.fontSize};
-    margin: 0 0 ${({ theme }) => theme.spacings(5)};
-  }
-
-  .request {
-    display: block;
-    text-align: center;
-    color: ${({ theme }) => theme.colors.primary};
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  .privacy-terms {
-    margin-top: auto;
-  }
-`;
 
 const Quote = styled.p`
   line-height: 1.6;
