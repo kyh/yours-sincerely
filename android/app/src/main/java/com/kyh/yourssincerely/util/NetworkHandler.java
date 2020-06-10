@@ -1,4 +1,4 @@
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

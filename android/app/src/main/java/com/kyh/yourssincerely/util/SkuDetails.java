@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import org.json.JSONException;
 import org.json.JSONObject;

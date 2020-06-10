@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.android.yourssincerely">
+    package="com.kyh.yourssincerely">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
-        android:name="com.android.yourssincerely.SuperViewWeb"
+        android:name="com.kyh.yourssincerely.SuperViewWeb"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,7 +27,7 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name="com.android.yourssincerely.QRScanner"/>
+        <activity android:name="com.kyh.yourssincerely.QRScanner"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -56,7 +56,7 @@
             android:value="DISABLE" />
 
         <activity
-            android:name="com.android.yourssincerely.MainActivity"
+            android:name="com.kyh.yourssincerely.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="fullSensor"
@@ -83,7 +83,7 @@
             <!--</intent-filter>-->
         </activity>
 
-        <service android:name="com.android.yourssincerely.firebase.MyFirebaseMessagingService">
+        <service android:name="com.kyh.yourssincerely.firebase.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

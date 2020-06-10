@@ -1,10 +1,10 @@
-package com.android.yourssincerely.firebase;
+package com.kyh.yourssincerely.firebase;
 
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.android.yourssincerely.MainActivity;
-import com.android.yourssincerely.util.Pref;
+import com.kyh.yourssincerely.MainActivity;
+import com.kyh.yourssincerely.util.Pref;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import android.app.Activity;
 import android.app.PendingIntent;

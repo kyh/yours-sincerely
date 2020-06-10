@@ -1,9 +1,9 @@
-package com.android.yourssincerely;
+package com.kyh.yourssincerely;
 
 import android.app.Application;
 import android.content.Intent;
 
-import com.android.yourssincerely.util.Pref;
+import com.kyh.yourssincerely.util.Pref;
 import com.onesignal.OSNotificationOpenResult;
 import com.onesignal.OneSignal;
 
