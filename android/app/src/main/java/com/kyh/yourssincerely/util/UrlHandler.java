@@ -1,4 +1,4 @@
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,7 +11,7 @@ import androidx.core.app.ActivityCompat;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import com.android.yourssincerely.R;
+import com.kyh.yourssincerely.R;
 
 /**
  * Created by dragank on 10/1/2016.

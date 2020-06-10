@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 /**
  * Exception thrown when something went wrong with in-app billing.

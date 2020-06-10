@@ -1,4 +1,4 @@
-package com.android.yourssincerely;
+package com.kyh.yourssincerely;
 
 import android.content.Intent;
 import androidx.annotation.NonNull;
@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.android.yourssincerely.R;
-import com.android.yourssincerely.util.PermissionUtil;
+import com.kyh.yourssincerely.R;
+import com.kyh.yourssincerely.util.PermissionUtil;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;

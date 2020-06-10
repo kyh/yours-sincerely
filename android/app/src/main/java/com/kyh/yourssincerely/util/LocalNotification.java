@@ -1,4 +1,4 @@
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,8 +11,8 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 
-import com.android.yourssincerely.MainActivity;
-import com.android.yourssincerely.R;
+import com.kyh.yourssincerely.MainActivity;
+import com.kyh.yourssincerely.R;
 
 /**
  * Created by DRAGAN on 3/5/2017.

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 /**
  * Represents the result of an in-app billing operation.
@@ -42,4 +42,3 @@ public class IabResult {
     public boolean isFailure() { return !isSuccess(); }
     public String toString() { return "IabResult: " + getMessage(); }
 }
-

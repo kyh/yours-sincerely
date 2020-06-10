@@ -1,10 +1,9 @@
-package com.android.yourssincerely;
+package com.kyh.yourssincerely;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.android.yourssincerely.R;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;

@@ -1,4 +1,4 @@
-package com.android.yourssincerely;
+package com.kyh.yourssincerely;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -49,18 +49,18 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.android.yourssincerely.util.IabBroadcastReceiver;
-import com.android.yourssincerely.util.IabHelper;
-import com.android.yourssincerely.util.IabResult;
-import com.android.yourssincerely.util.Inventory;
-import com.android.yourssincerely.util.NetworkHandler;
-import com.android.yourssincerely.util.PermissionUtil;
-import com.android.yourssincerely.util.Pref;
-import com.android.yourssincerely.util.ProgressDialogHelper;
-import com.android.yourssincerely.util.Purchase;
-import com.android.yourssincerely.util.UrlHandler;
-import com.android.yourssincerely.BuildConfig;
-import com.android.yourssincerely.R;
+import com.kyh.yourssincerely.util.IabBroadcastReceiver;
+import com.kyh.yourssincerely.util.IabHelper;
+import com.kyh.yourssincerely.util.IabResult;
+import com.kyh.yourssincerely.util.Inventory;
+import com.kyh.yourssincerely.util.NetworkHandler;
+import com.kyh.yourssincerely.util.PermissionUtil;
+import com.kyh.yourssincerely.util.Pref;
+import com.kyh.yourssincerely.util.ProgressDialogHelper;
+import com.kyh.yourssincerely.util.Purchase;
+import com.kyh.yourssincerely.util.UrlHandler;
+import com.kyh.yourssincerely.BuildConfig;
+import com.kyh.yourssincerely.R;
 import com.google.android.gms.ads.doubleclick.PublisherAdView;
 
 import java.io.File;

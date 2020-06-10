@@ -1,4 +1,4 @@
-package com.android.yourssincerely;
+package com.kyh.yourssincerely;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -11,11 +11,11 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import com.android.yourssincerely.util.LocalNotification;
-import com.android.yourssincerely.util.Pref;
-import com.android.yourssincerely.util.ProgressDialogHelper;
-import com.android.yourssincerely.util.UrlHandler;
-import com.android.yourssincerely.R;
+import com.kyh.yourssincerely.util.LocalNotification;
+import com.kyh.yourssincerely.util.Pref;
+import com.kyh.yourssincerely.util.ProgressDialogHelper;
+import com.kyh.yourssincerely.util.UrlHandler;
+import com.kyh.yourssincerely.R;
 import com.onesignal.OneSignal;
 
 import org.json.JSONObject;
@@ -248,4 +248,3 @@ public class WebAppInterface {
         }
     }
 }
-

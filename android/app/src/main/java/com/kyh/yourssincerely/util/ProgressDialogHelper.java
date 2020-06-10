@@ -1,10 +1,10 @@
-package com.android.yourssincerely.util;
+package com.kyh.yourssincerely.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.view.View;
 
-import com.android.yourssincerely.R;
+import com.kyh.yourssincerely.R;
 
 /**
  * Created by dragank on 2/25/2016.
