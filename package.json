@@ -7,7 +7,9 @@
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
     "deploy": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'",
     "deploy:dev": " sh -ac '. ./.env.dev; firebase use dev && react-scripts build && firebase deploy'",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "date-fns": "^2.14.0",
@@ -24,7 +26,8 @@
     "react-scripts": "^3.4.1",
     "react-tooltip": "^4.2.7",
     "styled-components": "^5.1.1",
-    "styled-normalize": "^8.0.7"
+    "styled-normalize": "^8.0.7",
+    "snyk": "^1.352.1"
   },
   "devDependencies": {
     "husky": "^4.2.5",
@@ -47,5 +50,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "snyk": true
 }
