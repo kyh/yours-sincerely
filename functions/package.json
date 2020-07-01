@@ -15,7 +15,7 @@
     "prepare": "npm run snyk-protect"
   },
   "dependencies": {
-    "algoliasearch": "^3.26.0",
+    "algoliasearch": "^3.35.1",
     "firebase-admin": "^8.8.0",
     "firebase-functions": "^3.3.0",
     "stripe": "^5.10.0",
