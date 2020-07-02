@@ -2,9 +2,10 @@
 
 # Yours Sincerely
 
-> Write as if your arms are wide open, and hold them far apart
+[App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely) | 
+[Website](https://yourssincerely.org/)
 
-Ephemeral anonymous blog to send each other tiny beautiful letters
+> Write as if your arms are wide open, and hold them far apart. An ephemeral anonymous blog to send each other tiny beautiful letters
 
 ## Directory Layout
 
