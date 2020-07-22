@@ -19,7 +19,7 @@
     "firebase-admin": "^8.12.1",
     "firebase-functions": "^3.7.0",
     "stripe": "^5.10.0",
-    "snyk": "^1.352.1"
+    "snyk": "^1.355.0"
   },
   "snyk": true
 }
