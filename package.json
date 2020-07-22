@@ -15,7 +15,7 @@
     "date-fns": "^2.14.0",
     "firebase": "^7.15.5",
     "lodash": "^4.17.15",
-    "raw.macro": "^0.3.0",
+    "raw.macro": "^0.3.1",
     "react": "^16.13.1",
     "react-content-loader": "^5.1.0",
     "react-dom": "^16.13.1",
