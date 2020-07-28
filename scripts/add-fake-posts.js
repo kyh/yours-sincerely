@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 const chalk = require("chalk");
 
-const postData = require("./data/fake-posts.json");
+const postData = require("./data/fake-posts.js");
 
 // init firebase
 const serviceAccount = require("./serviceAccountKey.dev.json");
