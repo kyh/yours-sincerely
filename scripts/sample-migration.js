@@ -9,7 +9,7 @@ admin.initializeApp({
 });
 const db = require("firebase-admin").firestore();
 
-console.log(chalk.blue(`Making all post titles UPPERCASE...`));
+console.log(chalk.blue(`Making all post createdByDisplayName's UPPERCASE...`));
 
 // if you're collection is big, you might want to paginate the query
 // so you don't download the entire thing at once:
@@ -32,6 +32,6 @@ db.collection("posts")
 const updatePost = (doc) => {
   console.log(`  migrating post ${doc.id}...`);
   return db.collection("posts").doc(doc.id).update({
-    title: doc.data().title.toUpperCase(),
+    createdByDisplayName: doc.data().createdByDisplayName.toUpperCase(),
   });
 };
