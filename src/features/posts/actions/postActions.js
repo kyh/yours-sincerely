@@ -2,9 +2,14 @@ import { subDays } from "date-fns";
 import firebase from "firebase/app";
 import { prepareDocForCreate, prepareDocForUpdate } from "util/firestoreUtil";
 
+export const POST_EXPIRY_DAYS_AGO = 21;
+
 const getExpiry = () => {
-  return firebase.firestore.Timestamp.fromDate(subDays(new Date(), 7));
+  return firebase.firestore.Timestamp.fromDate(
+    subDays(new Date(), POST_EXPIRY_DAYS_AGO)
+  );
 };
+
 let expiry = getExpiry();
 setInterval(() => {
   expiry = getExpiry();
