@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { Button } from "components/Button";
 import { addDays, format } from "date-fns";
-import { POST_EXPIRY_DAYS_AGO } from "../actions/postActions";
+import { POST_EXPIRY_DAYS_AGO } from "features/posts/actions/postActions";
 
 const postKey = "post";
 
