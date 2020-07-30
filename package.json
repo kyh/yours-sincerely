@@ -15,7 +15,7 @@
     "date-fns": "^2.15.0",
     "firebase": "^7.17.1",
     "lodash": "^4.17.19",
-    "raw.macro": "^0.3.1",
+    "raw.macro": "^0.4.1",
     "react": "^16.13.1",
     "react-content-loader": "^5.1.0",
     "react-dom": "^16.13.1",
@@ -24,7 +24,7 @@
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.2.0",
     "react-tooltip": "^4.2.7",
-    "snyk": "^1.367.0",
+    "snyk": "^1.369.1",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7"
   },

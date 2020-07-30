@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { Button } from "components/Button";
 import { addDays, format } from "date-fns";
+import { POST_EXPIRY_DAYS_AGO } from "../actions/postActions";
 
 const postKey = "post";
 
@@ -18,7 +19,7 @@ export const getStoredPostAndClear = () => {
 };
 
 export const PostForm = ({ postingAs, post, onSubmit, isSubmitting }) => {
-  const expiry = addDays(new Date(), 7);
+  const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
   const submit = (event) => {
     event.preventDefault();
     const { content } = event.target.elements;
