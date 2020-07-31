@@ -5,8 +5,9 @@
   "homepage": "https://yours-sincerely.org",
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
-    "deploy:prod": " sh -ac '. ./.env.prod; firebase use prod && react-scripts build && firebase deploy'",
-    "deploy:dev": " sh -ac '. ./.env.dev; firebase use dev && react-scripts build && firebase deploy'",
+    "build": "react-scripts build",
+    "deploy:prod": " sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
+    "deploy:dev": " sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
     "test": "echo \"No tests \" && exit 0",
     "format": "prettier . --write",
     "snyk-protect": "snyk protect",
