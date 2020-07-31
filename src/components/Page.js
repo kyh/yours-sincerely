@@ -18,7 +18,7 @@ export const PageContainer = styled.section`
   `}
 `;
 
-export const PageContent = styled.section`
+export const PageContent = styled.main`
   padding: ${({ theme }) => theme.spacings(5)} 0;
 `;
 
