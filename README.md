@@ -1,10 +1,10 @@
-![Firebase Deploy](https://github.com/tehkaiyu/yours-sincerely/workflows/Firebase%20Deploy/badge.svg)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/tehkaiyu/yours-sincerely/issues) [![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
+[![Firebase Deploy](https://github.com/tehkaiyu/yours-sincerely/workflows/Firebase%20Deploy/badge.svg?branch=master)](https://github.com/tehkaiyu/yours-sincerely/actions)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/tehkaiyu/yours-sincerely/issues)
+[![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
 
 # Yours Sincerely
 
-[App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely) | 
-[Website](https://yourssincerely.org/)
+[App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely) | [Website](https://yourssincerely.org/)
 
 > Write as if your arms are wide open, and hold them far apart. An ephemeral anonymous blog to send each other tiny beautiful letters
 
