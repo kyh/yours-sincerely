@@ -1,3 +1,4 @@
+![Firebase Deploy](https://github.com/tehkaiyu/yours-sincerely/workflows/Firebase%20Deploy/badge.svg)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/tehkaiyu/yours-sincerely/issues) [![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
 
 # Yours Sincerely
