@@ -6,8 +6,9 @@
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
     "build": "react-scripts build",
-    "deploy:prod": " sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
-    "deploy:dev": " sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
+    "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
+    "deploy:dev": "sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
+    "deploy:functions": "sh -ac '. ./.env.prod; firebase use prod && firebase deploy --only functions'",
     "test": "echo \"No tests \" && exit 0",
     "format": "prettier . --write",
     "snyk-protect": "snyk protect",
