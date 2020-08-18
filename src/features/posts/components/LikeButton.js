@@ -92,6 +92,7 @@ const useHeartAnimation = (deps = [], iconRef, iconContainerRef) => {
     heart.current = createHeartAnimation(iconRef.current);
     circle.current = createCircleAnimation(iconContainerRef.current);
     burst.current = createBurstAnimation(iconContainerRef.current);
+    // eslint-disable-next-line
   }, deps);
 
   return playAnimation;

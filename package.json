@@ -29,7 +29,7 @@
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.2.0",
     "react-tooltip": "^4.2.8",
-    "snyk": "^1.374.0",
+    "snyk": "^1.377.1",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7"
   },
