@@ -15,9 +15,11 @@ jobs:
         run: npm install
       - name: Run Tests
         env:
-          CI: true
+          CI: false
         run: npm test
       - name: Build
+        env:
+          CI: false
         run: npm run build
       - name: Archive Production Artifact
         uses: actions/upload-artifact@master

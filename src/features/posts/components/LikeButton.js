@@ -53,23 +53,16 @@ const createBurstAnimation = (el) => {
     children: {
       radius: 2.5,
       fill: [
-        // { '#91D2FA' : '#BDEFD8' },
-        // { '#91D2FA' : '#ADD6CA' },
         { "#9EC9F5": "#9ED8C6" },
         { "#91D3F7": "#9AE4CF" },
-
         { "#DC93CF": "#E3D36B" },
         { "#CF8EEF": "#CBEB98" },
-
         { "#87E9C6": "#1FCC93" },
         { "#A7ECD0": "#9AE4CF" },
-
         { "#87E9C6": "#A635D9" },
         { "#D58EB3": "#E0B6F5" },
-
         { "#F48BA2": "#CF8EEF" },
         { "#91D3F7": "#A635D9" },
-
         { "#CF8EEF": "#CBEB98" },
         { "#87E9C6": "#A635D9" },
       ],
@@ -78,7 +71,6 @@ const createBurstAnimation = (el) => {
       degreeShift: [13, null],
       duration: [500, 700],
       easing: "quint.out",
-      // speed: .1
     },
   });
 };
