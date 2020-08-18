@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import styled, { css } from "styled-components";
 import raw from "raw.macro";
 
@@ -6,25 +6,29 @@ export const iconMap = {
   x: raw("./icon-svgs/x.svg"),
   check: raw("./icon-svgs/check.svg"),
   more: raw("./icon-svgs/more-vertical.svg"),
+  heart: raw("./icon-svgs/heart.svg"),
 };
 
-export const Icon = ({ icon, color, size, rotate, ...rest }) => {
-  const iconSvg = iconMap[icon];
-  if (!iconSvg) return null;
-  return (
-    <StyledIcon
-      className="icon"
-      iconColor={color}
-      dangerouslySetInnerHTML={{ __html: iconSvg }}
-      iconSize={size}
-      rotate={rotate}
-      {...rest}
-    />
-  );
-};
+export const Icon = forwardRef(
+  ({ icon, color, size, rotate, ...rest }, ref) => {
+    const iconSvg = iconMap[icon];
+    if (!iconSvg) return null;
+    return (
+      <StyledIcon
+        ref={ref}
+        className="icon"
+        iconColor={color}
+        dangerouslySetInnerHTML={{ __html: iconSvg }}
+        iconSize={size}
+        rotate={rotate}
+        {...rest}
+      />
+    );
+  }
+);
 
 const iconSizeMap = {
-  xs: "12px",
+  xs: "16px",
   sm: "20px",
   md: "24px",
   lg: "40px",
