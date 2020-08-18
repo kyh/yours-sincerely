@@ -30,6 +30,7 @@ const createCircleAnimation = (el) => {
   if (!el) return;
   return new mojs.Shape({
     parent: el,
+    className: "pointer-none",
     left: 8,
     stroke: { "#E5214A": "#CC8EF5" },
     strokeWidth: { [2 * CIRCLE_RADIUS]: 0 },
@@ -45,6 +46,7 @@ const createBurstAnimation = (el) => {
   if (!el) return;
   return new mojs.Burst({
     parent: el,
+    className: "pointer-none",
     left: 8,
     radius: { 4: RADIUS },
     angle: 45,

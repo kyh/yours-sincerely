@@ -49,4 +49,8 @@ export const GlobalStyle = createGlobalStyle`
   p {
     margin: 0 0 ${({ theme }) => theme.spacings(2)};
   }
+
+  .pointer-none {
+    pointer-events: none;
+  }
 `;
