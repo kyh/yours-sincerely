@@ -52,8 +52,8 @@ export const FlagButton = ({ postId, post }) => {
 };
 
 const IconContainer = styled.button`
-  width: 45px;
-  height: 45px;
+  width: ${({ theme }) => theme.spacings(8)};
+  height: ${({ theme }) => theme.spacings(8)};
   border-radius: 100%;
   transition: 0.2s ease;
   &:hover {
