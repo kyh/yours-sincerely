@@ -113,7 +113,7 @@ const EmptyPostContainer = styled.section`
 `;
 
 const PostContainer = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacings(5)};
+  margin-bottom: ${({ theme }) => theme.spacings(7)};
 `;
 
 export default PostList;

@@ -15,6 +15,7 @@
     "prepare": "npm run snyk-protect"
   },
   "dependencies": {
+    "@mojs/core": "^0.288.2",
     "date-fns": "^2.15.0",
     "firebase": "^7.18.0",
     "lodash": "^4.17.20",
