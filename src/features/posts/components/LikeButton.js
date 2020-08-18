@@ -153,8 +153,8 @@ const StyledLikeButton = styled.button`
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 50px;
   height: 30px;
+  width: 40px;
   border-radius: 5px;
   &:disabled {
     cursor: default;
@@ -173,7 +173,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const LikeLoader = () => (
-  <ContentLoader height={30} width={50} speed={3}>
+  <ContentLoader height={30} width={40} speed={3}>
     <rect x="0" y="5" width="100%" height="20px" rx="4" ry="4" />
   </ContentLoader>
 );
