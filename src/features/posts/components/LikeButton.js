@@ -25,7 +25,6 @@ const createHeartAnimation = (el) => {
 };
 
 const CIRCLE_RADIUS = 20;
-const RADIUS = 32;
 const createCircleAnimation = (el) => {
   if (!el) return;
   return new mojs.Shape({
@@ -42,13 +41,14 @@ const createCircleAnimation = (el) => {
   });
 };
 
+const BURST_RADIUS = 32;
 const createBurstAnimation = (el) => {
   if (!el) return;
   return new mojs.Burst({
     parent: el,
     className: "pointer-none",
     left: 8,
-    radius: { 4: RADIUS },
+    radius: { 4: BURST_RADIUS },
     angle: 45,
     count: 14,
     timeline: { delay: 300 },
