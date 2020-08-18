@@ -5,6 +5,7 @@
   "homepage": "https://yours-sincerely.org",
   "scripts": {
     "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
+    "dev": "npm start",
     "build": "react-scripts build",
     "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
     "deploy:dev": "sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
