@@ -18,7 +18,7 @@
   "dependencies": {
     "@mojs/core": "^0.288.2",
     "date-fns": "^2.15.0",
-    "firebase": "^7.18.0",
+    "firebase": "^7.19.0",
     "lodash": "^4.17.20",
     "raw.macro": "^0.4.2",
     "react": "^16.13.1",
@@ -30,14 +30,14 @@
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.2.0",
     "react-tooltip": "^4.2.8",
-    "snyk": "^1.377.1",
+    "snyk": "^1.381.1",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7"
   },
   "devDependencies": {
     "husky": "^4.2.5",
     "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1",
+    "pretty-quick": "^3.0.0",
     "react-scripts": "^3.4.3"
   },
   "husky": {
