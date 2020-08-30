@@ -6,12 +6,6 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "chalk": "^4.1.0",
-    "firebase-admin": "^9.0.0",
-    "snyk": "^1.369.2"
-  },
-  "scripts": {
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
-  },
-  "snyk": true
+    "firebase-admin": "^9.1.1"
+  }
 }
