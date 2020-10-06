@@ -11,7 +11,7 @@ export const PostFooterRight = styled.div`
   align-items: center;
 
   > div {
-    margin-right: ${({ theme }) => theme.spacings(5)};
+    margin-right: ${({ theme }) => theme.spacings(4)};
     &:last-of-type {
       margin-right: 0;
     }
