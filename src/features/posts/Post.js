@@ -10,6 +10,7 @@ import { PostContent } from "./components/PostContent";
 import { PostFooter, PostFooterRight } from "./components/PostFooter";
 import { PostSignature } from "./components/PostSignature";
 import { LikeButton } from "./components/LikeButton";
+import { ShareButton } from "./components/ShareButton";
 import { FlagButton } from "./components/FlagButton";
 import { getPostQuery } from "./actions/postActions";
 
@@ -29,6 +30,7 @@ export const Post = () => {
           <PostFooter>
             <PostSignature>{post.createdByDisplayName}</PostSignature>
             <PostFooterRight>
+              <ShareButton postId={doc.id} />
               <LikeButton postId={doc.id} post={post} />
               <FlagButton postId={doc.id} post={post} />
             </PostFooterRight>

@@ -51,7 +51,7 @@ export const FlagButton = ({ postId, post }) => {
   );
 };
 
-const IconContainer = styled.button`
+export const IconContainer = styled.button`
   width: ${({ theme }) => theme.spacings(8)};
   height: ${({ theme }) => theme.spacings(8)};
   border-radius: 100%;

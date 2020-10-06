@@ -7,6 +7,7 @@ export const iconMap = {
   check: raw("./icon-svgs/check.svg"),
   more: raw("./icon-svgs/more-vertical.svg"),
   heart: raw("./icon-svgs/heart.svg"),
+  share: raw("./icon-svgs/share.svg"),
 };
 
 export const Icon = forwardRef(
@@ -45,17 +46,16 @@ const getSvgStyles = (props) => {
   return css`
     width: ${iconSize ? getDimensions(iconSize) : "initial"};
     height: ${iconSize ? getDimensions(iconSize) : "intial"};
-    path {
-      fill: ${({ theme }) =>
-        iconColor ? theme.colors[iconColor] : theme.ui.text};
-    }
-    polyline,
-    circle {
-      stroke: ${({ theme }) =>
-        iconColor ? theme.colors[iconColor] : theme.ui.text};
-    }
-    transform: rotate(${rotate});
+    color: ${({ theme }) =>
+      iconColor ? theme.colors[iconColor] : theme.ui.text};
+    fill: currentColor;
+    stroke: currentColor;
+    ${rotate && `transform: rotate(${rotate});`}
     transition: fill 0.23s ease;
+
+    .no-fill {
+      fill: none;
+    }
   `;
 };
 

@@ -14,6 +14,7 @@ import { PostContent } from "./components/PostContent";
 import { PostFooter, PostFooterRight } from "./components/PostFooter";
 import { PostSignature } from "./components/PostSignature";
 import { LikeButton } from "./components/LikeButton";
+import { ShareButton } from "./components/ShareButton";
 
 import { getPostListQuery } from "./actions/postActions";
 import { getBlockedUsersQuery } from "./actions/blockActions";
@@ -55,6 +56,7 @@ export const PostList = () => {
                 <PostFooter>
                   <PostSignature>{post.createdByDisplayName}</PostSignature>
                   <PostFooterRight>
+                    <ShareButton postId={doc.id} />
                     <LikeButton postId={doc.id} post={post} />
                     <PostTimer post={post} />
                   </PostFooterRight>
