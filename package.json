@@ -4,14 +4,31 @@
   "private": true,
   "homepage": "https://yours-sincerely.org",
   "scripts": {
-    "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
-    "dev": "npm start",
     "build": "react-scripts build",
-    "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
     "deploy:dev": "sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
     "deploy:functions": "sh -ac '. ./.env.prod; firebase use prod && firebase deploy --only functions'",
-    "test": "echo \"No tests \" && exit 0",
-    "format": "prettier . --write"
+    "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
+    "dev": "npm start",
+    "format": "prettier . --write",
+    "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
+    "test": "echo \"No tests \" && exit 0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "dependencies": {
     "@mojs/core": "^0.288.2",
@@ -36,22 +53,5 @@
     "prettier": "^2.1.2",
     "pretty-quick": "^3.1.0",
     "react-scripts": "^3.4.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
