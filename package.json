@@ -33,7 +33,7 @@
   "dependencies": {
     "@mojs/core": "^0.288.2",
     "date-fns": "^2.16.1",
-    "firebase": "^7.24.0",
+    "firebase": "^8.0.2",
     "lodash": "^4.17.20",
     "raw.macro": "^0.4.2",
     "react": "^17.0.1",
