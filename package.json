@@ -5,6 +5,7 @@
   "homepage": "https://yours-sincerely.org",
   "scripts": {
     "build": "react-scripts build",
+    "clean": "rm -rf build",
     "deploy:dev": "sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
     "deploy:functions": "sh -ac '. ./.env.prod; firebase use prod && firebase deploy --only functions'",
     "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
@@ -33,7 +34,7 @@
   "dependencies": {
     "@mojs/core": "^0.288.2",
     "date-fns": "^2.16.1",
-    "firebase": "^8.0.2",
+    "firebase": "^8.1.1",
     "lodash": "^4.17.20",
     "raw.macro": "^0.4.2",
     "react": "^17.0.1",
