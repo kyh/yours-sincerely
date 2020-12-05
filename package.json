@@ -34,7 +34,7 @@
   "dependencies": {
     "@mojs/core": "^0.288.2",
     "date-fns": "^2.16.1",
-    "firebase": "^8.1.1",
+    "firebase": "^8.1.2",
     "lodash": "^4.17.20",
     "raw.macro": "^0.4.2",
     "react": "^17.0.1",
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "husky": "^4.3.0",
-    "prettier": "^2.2.0",
+    "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "react-scripts": "^4.0.1"
   }
