@@ -1,6 +1,6 @@
-[![Firebase Deploy](https://github.com/tehkaiyu/yours-sincerely/workflows/Firebase%20Deploy/badge.svg?branch=master)](https://github.com/tehkaiyu/yours-sincerely/actions)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/tehkaiyu/yours-sincerely/issues)
-[![Dependencies Status](https://david-dm.org/tehkaiyu/yours-sincerely/status.svg)](https://david-dm.org/tehkaiyu/yours-sincerely)
+[![Firebase Deploy](https://github.com/kyh/yours-sincerely/workflows/Firebase%20Deploy/badge.svg?branch=master)](https://github.com/kyh/yours-sincerely/actions)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/kyh/yours-sincerely/issues)
+[![Dependencies Status](https://david-dm.org/kyh/yours-sincerely/status.svg)](https://david-dm.org/kyh/yours-sincerely)
 
 # Yours Sincerely
 
@@ -23,7 +23,7 @@
 
 ## Setting up
 
-YS is a [React](https://reactjs.org/) app built on top of [Firebase](https://firebase.google.com/). Read the [Example README](https://github.com/tehkaiyu/yours-sincerely/tree/master/example) on how set up your own
+YS is a [React](https://reactjs.org/) app built on top of [Firebase](https://firebase.google.com/). Read the [Example README](https://github.com/kyh/yours-sincerely/tree/master/example) on how set up your own
 
 ## Community
 
