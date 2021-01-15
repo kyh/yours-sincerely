@@ -45,7 +45,7 @@
     "react-instantsearch-dom": "^6.8.2",
     "react-modal": "^3.12.1",
     "react-router-dom": "^5.2.0",
-    "react-tooltip": "^4.2.12",
+    "react-tooltip": "^4.2.13",
     "styled-components": "^5.2.1",
     "styled-normalize": "^8.0.7"
   },
