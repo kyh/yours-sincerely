@@ -15,7 +15,7 @@ We're going to clone the YS repo onto your computer, create Firebase projects in
 ### Get the code
 
 In your terminal, cd to the folder where you want your project to live
-Clone this repo by running `git clone https://github.com/tehkaiyu/yours-sincerely .` And you can then install your node_modules with `npm i`
+Clone this repo by running `git clone https://github.com/kyh/yours-sincerely .` And you can then install your node_modules with `npm i`
 
 ### Connect to the database
 

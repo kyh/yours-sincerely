@@ -22,7 +22,7 @@ export const AboutPage = () => (
       </Quote>
       <a
         className="request"
-        href="https://github.com/tehkaiyu/yours-sincerely/issues/new"
+        href="https://github.com/kyh/yours-sincerely/issues/new"
         target="_blank"
         rel="noopener noreferrer"
       >

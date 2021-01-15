@@ -57,7 +57,7 @@ export const PageLayout = ({ children }) => (
       <span>© {new Date().getFullYear()}, Kaiyu Hsu</span>
       <div>
         <Link to="/about">About</Link>
-        <a href="https://github.com/tehkaiyu/yours-sincerely">Github</a>
+        <a href="https://github.com/kyh/yours-sincerely">Github</a>
       </div>
     </PageFooter>
   </PageContainer>
