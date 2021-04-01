@@ -11,13 +11,13 @@ export const iconMap = {
 };
 
 export const Icon = forwardRef(
-  ({ icon, color, size, rotate, ...rest }, ref) => {
+  ({ icon, color, size, rotate, className = "", ...rest }, ref) => {
     const iconSvg = iconMap[icon];
     if (!iconSvg) return null;
     return (
       <StyledIcon
         ref={ref}
-        className="icon"
+        className={`${className} icon`}
         iconColor={color}
         dangerouslySetInnerHTML={{ __html: iconSvg }}
         iconSize={size}
@@ -63,5 +63,8 @@ const StyledIcon = styled.div`
   display: inline-flex;
   > svg {
     ${getSvgStyles}
+  }
+  &.no-fill polyline {
+    fill: none;
   }
 `;

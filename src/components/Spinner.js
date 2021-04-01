@@ -26,6 +26,7 @@ export const Spinner = ({ loading = false, ...rest }) => {
     <SpinnerContainer {...rest}>
       <Svg isShown={state === States.loading} />
       <Icon
+        className="no-fill"
         icon="check"
         size="sm"
         color="green"
