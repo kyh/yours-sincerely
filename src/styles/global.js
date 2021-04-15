@@ -18,7 +18,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.ui.text};
     background-color: ${({ theme }) => theme.ui.background};
     text-rendering: optimizeLegibility;
-    font-family: 'HelveticaNow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+    font-family: "HelveticaNow", -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     letter-spacing: -0.2px;
   }
