@@ -11,6 +11,7 @@ const getExpiry = () => {
 };
 
 let expiry = getExpiry();
+
 setInterval(() => {
   expiry = getExpiry();
 }, 1000 * 60 * 60);
