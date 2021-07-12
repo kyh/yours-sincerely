@@ -1,6 +1,6 @@
 # Firebase backend functions
 
-This folder contains a little backend code for updating our search index when a post changes, keeping subscriptions in sync with stripe, and updating the number of likes on each post, etc.
+This folder contains a little backend code for updating our search index when a post changes and updating the number of likes on each post, etc.
 
 **[Documentation for Firebase Functions](https://firebase.google.com/docs/functions/)**
 

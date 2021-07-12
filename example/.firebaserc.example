@@ -1,6 +1,0 @@
-{
-  "projects": {
-    "dev": "PROJECT_ID_GOES_HERE",
-    "prod": "PROJECT_ID_GOES_HERE"
-  }
-}

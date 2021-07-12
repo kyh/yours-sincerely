@@ -3,18 +3,13 @@ const functions = require("firebase-functions");
 
 admin.initializeApp(functions.config().firebase);
 
+// const search = require("./lib/search");
 const postFlags = require("./lib/postFlags");
 const postLikes = require("./lib/postLikes");
-const search = require("./lib/search");
-const subscriptions = require("./lib/subscriptions");
 
-exports.updatePostInSearchIndex = functions.firestore
-  .document("posts/{postId}")
-  .onWrite(search.updatePostInSearchIndex);
-
-exports.updateStripeSubscription = functions.firestore
-  .document("subscriptions/{subscriptionId}")
-  .onWrite(subscriptions.updateStripeSubscription);
+// exports.updatePostInSearchIndex = functions.firestore
+//   .document("posts/{postId}")
+//   .onWrite(search.updatePostInSearchIndex);
 
 exports.updatePostLikeCount = functions.firestore
   .document("postLikes/{postLikeId}")
