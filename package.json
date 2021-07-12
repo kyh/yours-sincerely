@@ -1,55 +1,15 @@
 {
   "name": "yours-sincerely",
-  "version": "0.1.0",
-  "private": true,
-  "homepage": "https://yours-sincerely.org",
+  "workspaces": [
+    "web"
+  ],
   "scripts": {
-    "build": "react-scripts build",
-    "clean": "rm -rf build",
-    "deploy:dev": "sh -ac '. ./.env.dev; firebase use dev && npm run build && firebase deploy'",
-    "deploy:functions": "sh -ac '. ./.env.prod; firebase use prod && firebase deploy --only functions'",
-    "deploy:prod": "sh -ac '. ./.env.prod; firebase use prod && npm run build && firebase deploy'",
-    "dev": "npm start",
-    "format": "prettier . --write",
-    "start": "sh -ac '. ./.env.dev; firebase use dev && react-scripts start'",
-    "test": "echo \"No tests \" && exit 0",
+    "dev": "npm run dev --workspace=web",
     "postinstall": "husky install"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "dependencies": {
-    "@mojs/core": "^1.0.2",
-    "date-fns": "^2.18.0",
-    "firebase": "^8.7.1",
-    "lodash": "^4.17.20",
-    "raw.macro": "^0.4.2",
-    "react": "^17.0.1",
-    "react-content-loader": "^6.0.1",
-    "react-dom": "^17.0.1",
-    "react-firebase-hooks": "^3.0.1",
-    "react-modal": "^3.14.3",
-    "react-router-dom": "^5.2.0",
-    "react-tooltip": "^4.2.13",
-    "styled-components": "^5.2.1",
-    "styled-normalize": "^8.0.7"
   },
   "devDependencies": {
     "husky": "^7.0.1",
-    "prettier": "^2.3.2",
-    "pretty-quick": "^3.1.1",
-    "react-scripts": "^4.0.1"
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0"
   }
 }

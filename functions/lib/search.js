@@ -3,8 +3,8 @@ const Algolia = require("algoliasearch");
 
 const ALGOLIA_APP_ID = functions.config().algolia.app_id;
 const ALGOLIA_ADMIN_KEY = functions.config().algolia.admin_key;
-let algolia = Algolia(ALGOLIA_APP_ID, ALGOLIA_ADMIN_KEY);
-let postIndex = algolia.initIndex("posts");
+const algolia = Algolia(ALGOLIA_APP_ID, ALGOLIA_ADMIN_KEY);
+const postIndex = algolia.initIndex("posts");
 
 // Algolia search - update search index
 // https://www.algolia.com/doc/tutorials/indexing/3rd-party-service/firebase-algolia/
