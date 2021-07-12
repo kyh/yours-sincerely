@@ -18,6 +18,7 @@ This repository is a monorepo managed through [npm workspaces](https://docs.npmj
 │       ├── /pages               # App routes
 │       └── /util                # Utility modules
 ├── /scripts                     # Migration scripts
+├── /functions                   # Firebase functions
 └── /native                      # iOS/Android clients
 ```
 

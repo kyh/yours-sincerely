@@ -25,9 +25,7 @@ const Post = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { status: postStatus, data: post, error } = usePost(router.query.pid);
-  const { status: likesStatus, dataMap: likesMap } = usePostLikes(
-    user && user.uid
-  );
+  const { dataMap: likesMap } = usePostLikes(user && user.uid);
 
   return (
     <PageContent>
@@ -42,11 +40,7 @@ const Post = () => {
             <PostSignature>{post.createdByDisplayName}</PostSignature>
             <PostFooterRight>
               <ShareButton post={post} />
-              <LikeButton
-                post={post}
-                isLoading={likesStatus === "loading"}
-                defaultLikeId={likesMap[post.id]}
-              />
+              <LikeButton post={post} defaultLikeId={likesMap[post.id]} />
               <FlagButton post={post} />
             </PostFooterRight>
           </PostFooter>
