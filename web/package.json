@@ -1,0 +1,47 @@
+{
+  "name": "@ys/web",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "stripe-webhook": "stripe listen --forward-to localhost:3000/api/stripe-webhook"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "dependencies": {
+    "@analytics/google-analytics": "^0.5.2",
+    "@mojs/core": "^1.0.2",
+    "@stripe/stripe-js": "^1.12.1",
+    "analytics": "^0.7.4",
+    "date-fns": "^2.18.0",
+    "firebase": "^8.7.1",
+    "firebase-admin": "^9.4.2",
+    "lodash": "^4.17.20",
+    "next": "^11.0.1",
+    "query-string": "^7.0.0",
+    "raw-body": "^2.4.1",
+    "react": "^17.0.1",
+    "react-content-loader": "^6.0.1",
+    "react-dom": "^17.0.1",
+    "react-feather": "^2.0.9",
+    "react-modal": "^3.14.3",
+    "react-tooltip": "^4.2.13",
+    "stripe": "^8.133.0",
+    "styled-components": "^5.2.1",
+    "styled-normalize": "^8.0.7"
+  }
+}

@@ -9,6 +9,10 @@ exports.updatePostFlag = (change, context) => {
     admin.firestore().collection("posts").doc(postId).update({
       _flagged: true,
     }),
+    admin.firestore().collection("users").doc(createdBy).update({
+      flagged: true,
+    }),
+    // we'll want to deprecate custom user claims.
     admin.auth().setCustomUserClaims(createdBy, { flagged: true }),
   ]);
 };

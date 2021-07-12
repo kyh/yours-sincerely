@@ -1,9 +1,9 @@
 {
-  "name": "functions",
+  "name": "@ys/functions",
   "description": "Cloud Functions for Firebase",
   "private": true,
   "engines": {
-    "node": "10"
+    "node": "14"
   },
   "scripts": {
     "serve": "firebase serve --only functions",
