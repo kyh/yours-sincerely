@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import ContentLoader from "react-content-loader";
 import mojs from "@mojs/core";
 import { lightTheme } from "util/theme";
 import { useAuth } from "actions/auth";
 import { likePost, unlikePost } from "actions/post";
+import isThisHour from "date-fns/esm/isThisHour/index.js";
 
 const createHeartAnimation = (el) => {
   if (!el) return;
@@ -15,6 +15,7 @@ const createHeartAnimation = (el) => {
     duration: 1000,
     delay: 300,
     radius: 11,
+    isShowStart: false,
   }).play(1000);
 };
 
@@ -91,7 +92,7 @@ const useHeartAnimation = (iconRef, iconContainerRef) => {
   return playAnimation;
 };
 
-export const LikeButton = ({ isLoading, post, defaultLikeId }) => {
+export const LikeButton = ({ post, defaultLikeId }) => {
   const { user } = useAuth();
   const [likeCount, setLikeCount] = useState(post._likeCount || 0);
   const [likeId, setLikeId] = useState(defaultLikeId);
@@ -111,14 +112,6 @@ export const LikeButton = ({ isLoading, post, defaultLikeId }) => {
       setLikeId(like.id);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div>
-        <LikeLoader />
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -169,16 +162,5 @@ const StyledIcon = styled.svg`
       color ? theme.colors[color] : theme.ui.text};
   }
 `;
-
-const LikeLoader = ({ postId }) => (
-  <ContentLoader
-    uniqueKey={`like-loader-${postId}`}
-    height={30}
-    width={40}
-    speed={3}
-  >
-    <rect x="0" y="5" width="100%" height="20px" rx="4" ry="4" />
-  </ContentLoader>
-);
 
 export default LikeButton;

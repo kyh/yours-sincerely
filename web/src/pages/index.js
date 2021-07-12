@@ -26,9 +26,7 @@ const LikeButton = dynamic(() => import("components/LikeButton"), {
 export const PostList = () => {
   const { user } = useAuth();
   const { status: postsStatus, data: posts, error } = usePosts();
-  const { status: likesStatus, dataMap: likesMap } = usePostLikes(
-    user && user.uid
-  );
+  const { dataMap: likesMap } = usePostLikes(user && user.uid);
 
   return (
     <PageContent>
@@ -49,11 +47,7 @@ export const PostList = () => {
                   <PostSignature>{post.createdByDisplayName}</PostSignature>
                   <PostFooterRight>
                     <ShareButton post={post} />
-                    <LikeButton
-                      post={post}
-                      isLoading={likesStatus === "loading"}
-                      defaultLikeId={likesMap[post.id]}
-                    />
+                    <LikeButton post={post} defaultLikeId={likesMap[post.id]} />
                     <PostTimer post={post} />
                   </PostFooterRight>
                 </PostFooter>
