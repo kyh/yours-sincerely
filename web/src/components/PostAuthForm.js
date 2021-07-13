@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import styled from "styled-components";
 import { Button } from "components/Button";
 import { Input } from "components/Input";
@@ -48,7 +49,12 @@ export const PostAuthForm = ({ onSubmit }) => {
       ) : (
         <ConnectSection text="Or connect your account">
           <button type="button" onClick={googleLogin}>
-            <img src="/assets/google-button.svg" alt="Sign in with Google" />
+            <Image
+              src="/assets/google-button.svg"
+              alt="Sign in with Google"
+              width={195}
+              height={50}
+            />
           </button>
         </ConnectSection>
       )}

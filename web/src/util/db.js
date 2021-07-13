@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useRef } from "react";
-import firebase from "./firebase";
+import firebase from "util/firebase";
 
 export { firebase };
 

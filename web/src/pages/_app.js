@@ -1,10 +1,10 @@
-import React from "react";
-import "util/analytics.js";
-import { AuthProvider } from "actions/auth.js";
-import { ThemeProvider } from "util/theme.js";
+import { Fragment } from "react";
+import { AuthProvider } from "actions/auth";
+import { ThemeProvider } from "util/theme";
+import "util/analytics";
 
 const MyApp = ({ Component, pageProps }) => {
-  const Layout = Component.Layout ? Component.Layout : React.Fragment;
+  const Layout = Component.Layout ? Component.Layout : Fragment;
   return (
     <ThemeProvider>
       <AuthProvider>

@@ -1,4 +1,3 @@
-import React from "react";
 import { Share } from "react-feather";
 import { IconContainer } from "components/FlagButton";
 import { lightTheme } from "util/theme";

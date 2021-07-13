@@ -1,37 +1,42 @@
-import React from "react";
+import Head from "next/head";
 import styled from "styled-components";
 import { PageLayout } from "components/Page";
 import { PrivacyTerms } from "components/PrivacyTerms";
 import { AboutContainer } from "components/AboutContainer";
 
 const AboutPage = () => (
-  <AboutContainer>
-    <div className="about-content">
-      <h1 className="title">About</h1>
-      <Quote>
-        An ephemeral anonymous blog to send each other tiny beautiful letters
-      </Quote>
-      <Quote>Notes to no one</Quote>
-      <Quote>
-        It’s like a magical graffiti wall in a foot traffic part of town
-      </Quote>
-      <Quote>Like signing the cast of a popular kid at school</Quote>
-      <Quote>
-        YS is a public art project with optional anonymity. It is also a direct
-        channel to the inner lives of other humans who, in other contexts,
-        rarely reveal such vulnerability
-      </Quote>
-      <a
-        className="request"
-        href="https://github.com/kyh/yours-sincerely/issues/new"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        What is YS to you?
-      </a>
-    </div>
-    <PrivacyTerms />
-  </AboutContainer>
+  <>
+    <Head>
+      <title>Yours Sincerely | About</title>
+    </Head>
+    <AboutContainer>
+      <div className="about-content">
+        <h1 className="title">About</h1>
+        <Quote>
+          An ephemeral anonymous blog to send each other tiny beautiful letters
+        </Quote>
+        <Quote>Notes to no one</Quote>
+        <Quote>
+          It’s like a magical graffiti wall in a foot traffic part of town
+        </Quote>
+        <Quote>Like signing the cast of a popular kid at school</Quote>
+        <Quote>
+          YS is a public art project with optional anonymity. It is also a
+          direct channel to the inner lives of other humans who, in other
+          contexts, rarely reveal such vulnerability
+        </Quote>
+        <a
+          className="request"
+          href="https://github.com/kyh/yours-sincerely/issues/new"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          What is YS to you?
+        </a>
+      </div>
+      <PrivacyTerms />
+    </AboutContainer>
+  </>
 );
 
 AboutPage.Layout = PageLayout;

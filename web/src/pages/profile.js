@@ -1,4 +1,4 @@
-import React from "react";
+import Head from "next/head";
 import ContentLoader from "react-content-loader";
 import { PageLayout, PageContent } from "components/Page";
 import { Profile } from "components/Profile";
@@ -8,11 +8,16 @@ import { useAuth } from "actions/auth";
 const ProfilePage = () => {
   const { user } = useAuth();
   return (
-    <PageContent>
-      {user === null && <ProfileLoader />}
-      {user === false && <NoProfile />}
-      {!!user && <Profile />}
-    </PageContent>
+    <>
+      <Head>
+        <title>Yours Sincerely | Profile</title>
+      </Head>
+      <PageContent>
+        {user === null && <ProfileLoader />}
+        {user === false && <NoProfile />}
+        {!!user && <Profile />}
+      </PageContent>
+    </>
   );
 };
 

@@ -1,8 +1,7 @@
-import React from "react";
 import styled from "styled-components";
-import firebase from "firebase/app";
 import { addDays, formatDistance } from "date-fns";
 import { POST_EXPIRY_DAYS_AGO } from "actions/post";
+import { firebase } from "util/db";
 
 const getPercentage = (createdAt) => {
   const now = firebase.firestore.Timestamp.now().toDate();

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/router";
+import styled from "styled-components";
 import { Input } from "components/Input";
 import { Spinner } from "components/Spinner";
 import { ProfileDetails } from "components/ProfileDetails";
@@ -29,7 +30,12 @@ export const Profile = () => {
 
   return (
     <ProfileDetails>
-      <img src="/assets/dancing.svg" alt="Logged in" />
+      <Image
+        src="/assets/dancing.svg"
+        alt="Logged in"
+        width={300}
+        height={225}
+      />
       <ProfileForm>
         <InputContainer>
           <NameInput

@@ -1,5 +1,5 @@
-import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ConnectSection } from "components/ConnectSection";
 import { Text } from "components/Text";
 import { ProfileDetails } from "components/ProfileDetails";
@@ -16,7 +16,12 @@ export const NoProfile = () => {
   return (
     <>
       <ProfileDetails>
-        <img src="/assets/dancing.svg" alt="Not logged in" />
+        <Image
+          src="/assets/dancing.svg"
+          alt="Not logged in"
+          width={300}
+          height={225}
+        />
         <div>
           {isIOS() ? (
             <>
@@ -46,7 +51,12 @@ export const NoProfile = () => {
       {!isIOS() && (
         <ConnectSection text="Or sign in with" bg="#f5f8fa">
           <button type="button" onClick={googleLogin}>
-            <img src="/assets/google-button.svg" alt="Sign in with Google" />
+            <Image
+              src="/assets/google-button.svg"
+              alt="Sign in with Google"
+              width={195}
+              height={50}
+            />
           </button>
         </ConnectSection>
       )}
