@@ -1,9 +1,7 @@
 import { useReducer, useEffect, useRef } from "react";
-import firebase from "util/firebase";
+import { firebase, firestore } from "util/firebase";
 
-export { firebase };
-
-export const firestore = firebase.firestore();
+export { firebase, firestore };
 
 export const prepareDocForCreate = (doc) => {
   const currentUser = firebase.auth().currentUser;
