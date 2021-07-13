@@ -11,4 +11,12 @@ if (!firebase.apps.length) {
   });
 }
 
-export default firebase;
+const firestore = firebase.firestore();
+const auth = firebase.auth();
+
+if (typeof window !== "undefined" && location.hostname === "localhost") {
+  firestore.useEmulator("localhost", 8080);
+  auth.useEmulator("http://localhost:9099");
+}
+
+export { firebase, firestore };

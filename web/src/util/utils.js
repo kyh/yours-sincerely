@@ -1,4 +1,4 @@
-import firebase from "util/firebase";
+import { firebase } from "util/firebase";
 
 export const apiRequest = async (path, method = "GET", data) => {
   const accessToken = firebase.auth().currentUser
