@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import mojs from "@mojs/core";
 import { lightTheme } from "util/theme";
 import { useAuth } from "actions/auth";
 import { likePost, unlikePost } from "actions/post";
-import isThisHour from "date-fns/esm/isThisHour/index.js";
 
 const createHeartAnimation = (el) => {
   if (!el) return;
@@ -72,18 +71,20 @@ const createBurstAnimation = (el) => {
   });
 };
 
-const useHeartAnimation = (iconRef, iconContainerRef) => {
+const useHeartAnimation = (enabled, iconRef, iconContainerRef) => {
   const heart = useRef(null);
   const circle = useRef(null);
   const burst = useRef(null);
 
   const playAnimation = () => {
+    if (!enabled) return;
     heart.current.replay();
     burst.current.replay();
     circle.current.replay();
   };
 
   useEffect(() => {
+    if (!enabled) return;
     heart.current = createHeartAnimation(iconRef.current);
     circle.current = createCircleAnimation(iconContainerRef.current);
     burst.current = createBurstAnimation(iconContainerRef.current);
@@ -98,7 +99,7 @@ export const LikeButton = ({ post, defaultLikeId }) => {
   const [likeId, setLikeId] = useState(defaultLikeId);
   const iconRef = useRef(null);
   const iconContainerRef = useRef(null);
-  const playAnimation = useHeartAnimation(iconRef, iconContainerRef);
+  const playAnimation = useHeartAnimation(!!user, iconRef, iconContainerRef);
 
   const toggleLike = async () => {
     if (likeId) {

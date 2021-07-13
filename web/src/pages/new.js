@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
@@ -34,33 +35,40 @@ const PostNew = () => {
   };
 
   return (
-    <PageContainer background="white">
-      <Navigation>
-        <Link href="/">
-          <a>
-            <Logo />
-          </a>
-        </Link>
-      </Navigation>
-      {user === null && <PostNewContentLoader />}
-      {user !== null && (
-        <PostForm
-          postingAs={user ? user.displayName : null}
-          post={JSON.parse(localStorage.getItem("post") || "{}")}
-          isSubmitting={isSubmitting}
-          onSubmit={() => (!!user ? onCreatePost() : setIsLoginModalOpen(true))}
-        />
-      )}
-      <Modal
-        open={isLoginModalOpen}
-        title="Are you a real person?"
-        onRequestClose={() => setIsLoginModalOpen(false)}
-        maxWidth={600}
-        closeButton
-      >
-        <PostAuthForm onSubmit={onCreatePost} />
-      </Modal>
-    </PageContainer>
+    <>
+      <Head>
+        <title>Yours Sincerely | New Post</title>
+      </Head>
+      <PageContainer background="white">
+        <Navigation>
+          <Link href="/">
+            <a>
+              <Logo />
+            </a>
+          </Link>
+        </Navigation>
+        {user === null && <PostNewContentLoader />}
+        {user !== null && (
+          <PostForm
+            postingAs={user ? user.displayName : null}
+            post={JSON.parse(localStorage.getItem("post") || "{}")}
+            isSubmitting={isSubmitting}
+            onSubmit={() =>
+              !!user ? onCreatePost() : setIsLoginModalOpen(true)
+            }
+          />
+        )}
+        <Modal
+          open={isLoginModalOpen}
+          title="Are you a real person?"
+          onRequestClose={() => setIsLoginModalOpen(false)}
+          maxWidth={600}
+          closeButton
+        >
+          <PostAuthForm onSubmit={onCreatePost} />
+        </Modal>
+      </PageContainer>
+    </>
   );
 };
 

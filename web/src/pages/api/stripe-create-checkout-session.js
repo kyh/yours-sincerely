@@ -1,6 +1,6 @@
-const requireAuth = require("./_require-auth.js");
-const { getUser, updateUser } = require("./_db.js");
-const stripe = require("./_stripe.js");
+const requireAuth = require("./_require-auth");
+const { getUser, updateUser } = require("./_db");
+const stripe = require("./_stripe");
 
 export default requireAuth(async (req, res) => {
   const body = req.body;

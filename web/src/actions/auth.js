@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useContext,
-  createContext,
-} from "react";
+import { useState, useEffect, useMemo, useContext, createContext } from "react";
 import router from "next/router";
 import queryString from "query-string";
 import { firebase, firestore, useQuery } from "util/db";

@@ -1,4 +1,4 @@
-import React from "react";
+import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
@@ -28,25 +28,32 @@ const Post = () => {
   const { dataMap: likesMap } = usePostLikes(user && user.uid);
 
   return (
-    <PageContent>
-      {postStatus === "loading" && <PostContentLoader />}
-      {error && <Error error={error} />}
-      {postStatus === "success" && post && (
-        <>
-          <PostContent>
-            {post._flagged ? "This post is under review" : post.content}
-          </PostContent>
-          <PostFooter>
-            <PostSignature>{post.createdByDisplayName}</PostSignature>
-            <PostFooterRight>
-              <ShareButton post={post} />
-              <LikeButton post={post} defaultLikeId={likesMap[post.id]} />
-              <FlagButton post={post} />
-            </PostFooterRight>
-          </PostFooter>
-        </>
-      )}
-    </PageContent>
+    <>
+      <Head>
+        <title>
+          Yours Sincerely | {post ? post.createdByDisplayName : "Loading"}
+        </title>
+      </Head>
+      <PageContent>
+        {postStatus === "loading" && <PostContentLoader />}
+        {error && <Error error={error} />}
+        {postStatus === "success" && post && (
+          <>
+            <PostContent>
+              {post._flagged ? "This post is under review" : post.content}
+            </PostContent>
+            <PostFooter>
+              <PostSignature>{post.createdByDisplayName}</PostSignature>
+              <PostFooterRight>
+                <ShareButton post={post} />
+                <LikeButton post={post} defaultLikeId={likesMap[post.id]} />
+                <FlagButton post={post} />
+              </PostFooterRight>
+            </PostFooter>
+          </>
+        )}
+      </PageContent>
+    </>
   );
 };
 

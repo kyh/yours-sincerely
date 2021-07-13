@@ -1,4 +1,4 @@
-const firebaseAdmin = require("./_firebase.js");
+const firebaseAdmin = require("./_firebase");
 
 // Middleware for requiring authentication and getting user
 const requireAuth = (fn) => async (req, res) => {

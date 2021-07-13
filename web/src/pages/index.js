@@ -1,5 +1,6 @@
-import React from "react";
+import Head from "next/head";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import styled from "styled-components";
 import ContentLoader from "react-content-loader";
@@ -29,39 +30,47 @@ export const PostList = () => {
   const { dataMap: likesMap } = usePostLikes(user && user.uid);
 
   return (
-    <PageContent>
-      {postsStatus === "loading" && <FeedContentLoader />}
-      {error && <Error error={error} />}
-      {postsStatus === "success" && !posts.length && <EmptyPost />}
-      {postsStatus === "success" && !!posts.length && (
-        <div>
-          {posts.map((post) => {
-            return (
-              <PostContainer key={post.id}>
-                <Link href={`/${post.id}`}>
-                  <a>
-                    <PostContent>{post.content}</PostContent>
-                  </a>
-                </Link>
-                <PostFooter>
-                  <PostSignature>{post.createdByDisplayName}</PostSignature>
-                  <PostFooterRight>
-                    <ShareButton post={post} />
-                    <LikeButton post={post} defaultLikeId={likesMap[post.id]} />
-                    <PostTimer post={post} />
-                  </PostFooterRight>
-                </PostFooter>
-              </PostContainer>
-            );
-          })}
-          <ReactTooltip
-            effect="solid"
-            event="mouseenter click"
-            eventOff="mouseout"
-          />
-        </div>
-      )}
-    </PageContent>
+    <>
+      <Head>
+        <title>Yours Sincerely</title>
+      </Head>
+      <PageContent>
+        {postsStatus === "loading" && <FeedContentLoader />}
+        {error && <Error error={error} />}
+        {postsStatus === "success" && !posts.length && <EmptyPost />}
+        {postsStatus === "success" && !!posts.length && (
+          <div>
+            {posts.map((post) => {
+              return (
+                <PostContainer key={post.id}>
+                  <Link href={`/${post.id}`}>
+                    <a>
+                      <PostContent>{post.content}</PostContent>
+                    </a>
+                  </Link>
+                  <PostFooter>
+                    <PostSignature>{post.createdByDisplayName}</PostSignature>
+                    <PostFooterRight>
+                      <ShareButton post={post} />
+                      <LikeButton
+                        post={post}
+                        defaultLikeId={likesMap[post.id]}
+                      />
+                      <PostTimer post={post} />
+                    </PostFooterRight>
+                  </PostFooter>
+                </PostContainer>
+              );
+            })}
+            <ReactTooltip
+              effect="solid"
+              event="mouseenter click"
+              eventOff="mouseout"
+            />
+          </div>
+        )}
+      </PageContent>
+    </>
   );
 };
 
@@ -87,7 +96,7 @@ const EmptyPost = () => (
         <a>start something?</a>
       </Link>
     </h1>
-    <img src="/assets/reading.svg" alt="No posts" />
+    <Image src="/assets/reading.svg" alt="No posts" width={400} height={300} />
   </EmptyPostContainer>
 );
 
