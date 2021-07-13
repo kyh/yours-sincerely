@@ -25,6 +25,7 @@ This repository is a monorepo managed through [npm workspaces](https://docs.npmj
 ### Install dependencies
 
 ```
+npm install firebase-tools -g
 npm install
 ```
 
@@ -34,7 +35,7 @@ npm install
 npm run dev
 ```
 
-When the above command completes you'll be able to view your website at `http://localhost:3000`
+This will start both the [Firebase local emulators](https://firebase.google.com/docs/emulator-suite) and the Next.js development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
 
 ## 🥞 Stack
 
@@ -118,29 +119,29 @@ function MyComponent() {
 <details>
 <summary><b>Database</b></summary>
 <p>
-  This project uses <a href="https://firebase.google.com/products/firestore">Cloud Firestore</a> and includes some data fetching hooks to get you started (located in <code><a href="src/util/db.js">src/util/db.js</a></code>). You'll want to edit that file and add any additional query hooks you need for your project.
+  This project uses <a href="https://firebase.google.com/products/firestore">Cloud Firestore</a> with query hooks located in `actions/*` folder
 
 ```js
-import { useAuth } from 'util/auth.js';
-import { useItems } from 'util/db.js';
-import ItemsList from './ItemsList.js';
+import { useAuth } from 'actions/auth.js';
+import { usePosts } from 'actions/post.js';
+import PostList from './PostList.js';
 
-function ItemsPage(){
+function PostsPage(){
   const auth = useAuth();
 
-  // Fetch items by owner
+  // Fetch posts by owner
   // Returned status value will be "idle" if we're waiting on
   // the uid value or "loading" if the query is executing.
   const uid = auth.user ? auth.user.uid : undefined;
-  const { data: items, status } = useItems(uid);
+  const { data: posts, status } = usePosts(uid);
 
-  // Once we have items data render ItemsList component
+  // Once we have posts data render PostsList component
   return (
     <div>
       {(status === "idle" || status === "loading") ? (
         <span>One moment please</span>
       ) : (
-        <ItemsList data={items}>
+        <PostsList data={posts}>
       )}
     </div>
   );
