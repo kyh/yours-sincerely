@@ -1,0 +1,8 @@
+{
+  "name": "@ys/firebase",
+  "private": true,
+  "description": "Firebase settings",
+  "scripts": {
+    "dev": "firebase emulators:start"
+  }
+}

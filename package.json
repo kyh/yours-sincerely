@@ -2,13 +2,13 @@
   "name": "yours-sincerely",
   "workspaces": [
     "web",
-    "functions",
+    "firebase",
     "scripts"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run emulators\" \"npm run dev:web\"",
+    "dev": "concurrently --kill-others \"npm run dev:firebase\" \"npm run dev:web\"",
     "dev:web": "npm run dev --workspace=web",
-    "emulators": "firebase emulators:start",
+    "dev:firebase": "npm run dev --workspace=firebase",
     "postinstall": "husky install"
   },
   "devDependencies": {

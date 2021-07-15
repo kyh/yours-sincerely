@@ -1,14 +1,11 @@
 {
   "name": "@ys/functions",
-  "description": "Cloud Functions for Firebase",
   "private": true,
-  "engines": {
-    "node": "14"
-  },
+  "description": "Cloud Functions for Firebase",
   "scripts": {
     "serve": "firebase serve --only functions",
     "shell": "firebase experimental:functions:shell",
-    "start": "npm run shell",
+    "dev": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
@@ -17,5 +14,8 @@
     "firebase-admin": "^9.1.1",
     "firebase-functions": "^3.11.0",
     "stripe": "^8.90.0"
+  },
+  "engines": {
+    "node": "14"
   }
 }
