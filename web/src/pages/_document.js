@@ -35,7 +35,6 @@ export default class MyDocument extends Document {
         <Head>
           <meta name="referrer" content="origin" />
           <meta name="application-name" content="Yours sincerely" />
-          <meta name="theme-color" content="#8389E1" />
           <meta
             name="keywords"
             content="anonymous blog, write letters, yours sincerely"
