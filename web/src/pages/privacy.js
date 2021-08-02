@@ -1,12 +1,10 @@
-import Head from "next/head";
+import { SEO } from "components/SEO";
 import { PageLayout } from "components/Page";
 import { AboutContainer } from "components/AboutContainer";
 
 const PrivacyPage = () => (
   <>
-    <Head>
-      <title>Yours Sincerely | Privacy</title>
-    </Head>
+    <SEO title="Privacy Policy" />
     <AboutContainer>
       <div className="about-content">
         <h1 className="title">Privacy Policy</h1>

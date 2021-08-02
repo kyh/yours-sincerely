@@ -9,6 +9,58 @@ import { memoize } from "lodash";
 export const GlobalStyle = createGlobalStyle`
   ${styledNormalize}
 
+  @font-face {
+    font-family: "HelveticaNow";
+    src: url(/fonts/subset-HelveticaNowText-BoldIt.woff2)
+        format("woff2"),
+      url(/fonts/subset-HelveticaNowText-BoldIt.woff) format("woff");
+    font-weight: 700;
+    font-style: italic;
+    font-display: fallback;
+  }
+
+  @font-face {
+    font-family: "HelveticaNow";
+    src: url(/fonts/subset-HelveticaNowText-It.woff2)
+        format("woff2"),
+      url(/fonts/subset-HelveticaNowText-It.woff) format("woff");
+    font-weight: 400;
+    font-style: italic;
+    font-display: fallback;
+  }
+
+  @font-face {
+    font-family: "HelveticaNow";
+    src: url(/fonts/subset-HelveticaNowText-Regular.woff2)
+        format("woff2"),
+      url(/fonts/subset-HelveticaNowText-Regular.woff)
+        format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: fallback;
+  }
+
+  @font-face {
+    font-family: "HelveticaNow";
+    src: url(/fonts/subset-HelveticaNowDisplay-Black.woff2)
+        format("woff2"),
+      url(/fonts/subset-HelveticaNowDisplay-Black.woff)
+        format("woff");
+    font-weight: 900;
+    font-style: normal;
+    font-display: fallback;
+  }
+
+  @font-face {
+    font-family: "HelveticaNow";
+    src: url(/fonts/subset-HelveticaNowText-Bold.woff2)
+        format("woff2"),
+      url(/fonts/subset-HelveticaNowText-Bold.woff) format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: fallback;
+  }
+
   html {
     box-sizing: border-box;
   }
