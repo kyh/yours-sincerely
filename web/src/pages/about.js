@@ -1,14 +1,12 @@
-import Head from "next/head";
 import styled from "styled-components";
+import { SEO } from "components/SEO";
 import { PageLayout } from "components/Page";
 import { PrivacyTerms } from "components/PrivacyTerms";
 import { AboutContainer } from "components/AboutContainer";
 
 const AboutPage = () => (
   <>
-    <Head>
-      <title>Yours Sincerely | About</title>
-    </Head>
+    <SEO title="About" />
     <AboutContainer>
       <div className="about-content">
         <h1 className="title">About</h1>

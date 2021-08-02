@@ -1,12 +1,10 @@
-import Head from "next/head";
+import { SEO } from "components/SEO";
 import { PageLayout } from "components/Page";
 import { AboutContainer } from "components/AboutContainer";
 
 const TermsPage = () => (
   <>
-    <Head>
-      <title>Yours Sincerely | Terms</title>
-    </Head>
+    <SEO title="Terms of Use" />
     <AboutContainer>
       <div className="about-content">
         <h1 className="title">Terms of Use</h1>

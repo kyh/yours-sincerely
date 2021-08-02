@@ -1,5 +1,5 @@
-import Head from "next/head";
 import ContentLoader from "react-content-loader";
+import { SEO } from "components/SEO";
 import { PageLayout, PageContent } from "components/Page";
 import { Profile } from "components/Profile";
 import { NoProfile } from "components/NoProfile";
@@ -9,9 +9,7 @@ const ProfilePage = () => {
   const { user } = useAuth();
   return (
     <>
-      <Head>
-        <title>Yours Sincerely | Profile</title>
-      </Head>
+      <SEO title="Profile" />
       <PageContent>
         {user === null && <ProfileLoader />}
         {user === false && <NoProfile />}

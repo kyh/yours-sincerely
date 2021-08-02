@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
+import { SEO } from "components/SEO";
 import { PageContainer } from "components/Page";
 import { Navigation } from "components/Navigation";
 import { Logo } from "components/Logo";
@@ -36,9 +36,7 @@ const PostNew = () => {
 
   return (
     <>
-      <Head>
-        <title>Yours Sincerely | New Post</title>
-      </Head>
+      <SEO title="New Post" />
       <PageContainer background="white">
         <Navigation>
           <Link href="/">

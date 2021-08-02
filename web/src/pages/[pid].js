@@ -1,7 +1,7 @@
-import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import ContentLoader from "react-content-loader";
+import { SEO } from "components/SEO";
 import { Error } from "components/Error";
 import { PageLayout, PageContent } from "components/Page";
 import { PostContent } from "components/PostContent";
@@ -29,11 +29,7 @@ const Post = () => {
 
   return (
     <>
-      <Head>
-        <title>
-          Yours Sincerely | {post ? post.createdByDisplayName : "Loading"}
-        </title>
-      </Head>
+      <SEO title={post ? post.createdByDisplayName : "Loading"} />
       <PageContent>
         {postStatus === "loading" && <PostContentLoader />}
         {error && <Error error={error} />}

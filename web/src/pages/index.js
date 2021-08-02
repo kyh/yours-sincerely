@@ -1,10 +1,10 @@
-import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import styled from "styled-components";
 import ContentLoader from "react-content-loader";
 import ReactTooltip from "react-tooltip";
+import { SEO } from "components/SEO";
 import { Error } from "components/Error";
 import { PageLayout, PageContent } from "components/Page";
 import { PostTimer } from "components/PostTimer";
@@ -31,9 +31,7 @@ export const PostList = () => {
 
   return (
     <>
-      <Head>
-        <title>Yours Sincerely</title>
-      </Head>
+      <SEO />
       <PageContent>
         {postsStatus === "loading" && <FeedContentLoader />}
         {error && <Error error={error} />}
