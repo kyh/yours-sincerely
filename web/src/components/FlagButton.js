@@ -24,7 +24,7 @@ export const FlagButton = ({ post }) => {
         <ModalContent>
           <ModalButton
             as="a"
-            href={`mailto:im.kaiyu@gmail.com?subject=Report Post: ${post.id}`}
+            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
           >
             Report...
           </ModalButton>

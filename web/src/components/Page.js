@@ -59,7 +59,16 @@ export const PageLayout = ({ children }) => (
     </Navigation>
     {children}
     <PageFooter>
-      <span>© {new Date().getFullYear()}, Kaiyu Hsu</span>
+      <span>
+        ©{new Date().getFullYear()}, Made with{" "}
+        <a
+          href="https://github.com/kyh/inteligir"
+          target="_blank"
+          rel="noreferrer"
+        >
+          💻
+        </a>
+      </span>
       <div>
         <Link href="/about">
           <a>About</a>
