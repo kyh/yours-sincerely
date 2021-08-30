@@ -190,7 +190,7 @@ const TermsPage = () => (
         <h4>Contact Us</h4>
         <p>
           If you have any questions or suggestions about my Terms and
-          Conditions, do not hesitate to contact me at im.kaiyu@gmail.com.
+          Conditions, do not hesitate to contact me at kai@kyh.io.
         </p>
       </div>
     </AboutContainer>

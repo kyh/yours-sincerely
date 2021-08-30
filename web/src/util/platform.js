@@ -19,3 +19,8 @@ export const isWeb = () => {
 export const isAndroid = () => {
   return window.config.platform === "android";
 };
+
+export const isWebMobile = () =>
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );

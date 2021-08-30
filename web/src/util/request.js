@@ -34,8 +34,3 @@ export const CustomError = (code, message) => {
   error.code = code;
   return error;
 };
-
-export const isMobile = () =>
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
