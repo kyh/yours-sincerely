@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: dev_postgres_container
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  redis:
+    container_name: dev_redis_container
+    image: redis:latest
+    command: ["redis-server", "--bind", "redis", "--port", "6379"]
+    ports:
+      - 6379:6379
+
+  maildev:
+    container_name: dev_maildev_container
+    image: djfarrelly/maildev
+    ports:
+      - "1080:80"
+      - "1025:25"
