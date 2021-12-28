@@ -4,8 +4,9 @@ import { isIOS } from "~/lib/core/util/platform";
 export const NoProfile = () => {
   return (
     <>
-      <section className="flex">
+      <section className="sm:flex">
         <img
+          className="m-auto"
           src="/assets/dancing.svg"
           alt="Not logged in"
           width={300}
