@@ -1,3 +1,121 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url(/fonts/subset-HelveticaNowText-BoldIt.woff2) format("woff2"),
+    url(/fonts/subset-HelveticaNowText-BoldIt.woff) format("woff");
+  font-weight: 700;
+  font-style: italic;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url(/fonts/subset-HelveticaNowText-It.woff2) format("woff2"),
+    url(/fonts/subset-HelveticaNowText-It.woff) format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url(/fonts/subset-HelveticaNowText-Regular.woff2) format("woff2"),
+    url(/fonts/subset-HelveticaNowText-Regular.woff) format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url(/fonts/subset-HelveticaNowDisplay-Black.woff2) format("woff2"),
+    url(/fonts/subset-HelveticaNowDisplay-Black.woff) format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url(/fonts/subset-HelveticaNowText-Bold.woff2) format("woff2"),
+    url(/fonts/subset-HelveticaNowText-Bold.woff) format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: fallback;
+}
+
+@layer base {
+  a {
+    @apply text-primary hover:underline;
+  }
+
+  body {
+    @apply text-slate-900 bg-slate-50;
+  }
+}
+
+@layer components {
+  .page {
+    @apply max-w-3xl m-auto px-12 grid min-h-screen;
+    grid-template-rows: max-content auto max-content;
+  }
+
+  .checkbox {
+    --border: #d1d6ee;
+    --border-hover: #bbc1e1;
+    --border-active: theme("colors.secondary");
+    --tick: #fff;
+
+    @apply relative inline-block p-3;
+
+    input,
+    svg {
+      @apply block p-5;
+    }
+
+    input {
+      @apply rounded-md cursor-pointer transition duration-300 ease-in-out;
+      box-shadow: inset 0 0 0 var(--s, 1px) var(--b, var(--border));
+      &:hover {
+        --s: 2px;
+        --b: var(--border-hover);
+      }
+      &:checked {
+        --b: var(--border-active);
+        --s: 2px;
+        transition-delay: 0.4s;
+        & + svg {
+          --a: 16.1 86.12;
+          --o: 102.22;
+        }
+      }
+    }
+
+    svg {
+      @apply absolute top-0 left-0 w-5 h-5 pointer-events-none m-3;
+      fill: none;
+      stroke-width: 2px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke: var(--stroke, var(--border-active));
+      transform: scale(var(--scale, 1)) translateZ(0);
+      stroke-dasharray: var(--a, 86.12);
+      stroke-dashoffset: var(--o, 86.12);
+      transition: stroke-dasharray 0.6s, stroke-dashoffset 0.6s;
+    }
+  }
+
+  .quote {
+    @apply relative;
+  }
+
+  .quote::before {
+    @apply absolute block -left-3 -top-1 w-6 h-4 -z-10 opacity-25;
+    content: " ";
+    background-image: url(/assets/quote.svg);
+    background-repeat: no-repeat;
+  }
+}
