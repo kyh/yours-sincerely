@@ -59,7 +59,7 @@
 
 @layer components {
   .page {
-    @apply max-w-3xl m-auto px-12 grid min-h-screen;
+    @apply max-w-3xl m-auto grid min-h-screen px-4 sm:px-12;
     grid-template-rows: max-content auto max-content;
   }
 
