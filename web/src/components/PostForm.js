@@ -4,7 +4,7 @@ import { Button } from "components/Button";
 import { addDays, format } from "date-fns";
 import { POST_EXPIRY_DAYS_AGO } from "actions/post";
 
-const postKey = "post";
+const postKey = "ys-post";
 
 export const storePost = (post) => {
   const postString = JSON.stringify(post);
