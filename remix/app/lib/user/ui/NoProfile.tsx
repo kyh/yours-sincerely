@@ -1,5 +1,7 @@
-import { Link, Form } from "remix";
+import { Link } from "remix";
+import { Divide } from "~/lib/core/ui/Divide";
 import { isIOS } from "~/lib/core/util/platform";
+import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 
 export const NoProfile = () => {
   return (
@@ -35,30 +37,8 @@ export const NoProfile = () => {
       </section>
       {!isIOS() && (
         <div>
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-50 text-slate-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
-          <Form
-            className="flex justify-center"
-            action="/api/auth/google"
-            method="post"
-          >
-            <button type="submit">
-              <img
-                src="/assets/google-button.svg"
-                alt="Sign in with Google"
-                width={195}
-                height={50}
-              />
-            </button>
-          </Form>
+          <Divide>Or continue with</Divide>
+          <SocialLoginForm />
         </div>
       )}
     </>
