@@ -1,20 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { PostForm } from "~/lib/post/ui/PostForm";
 
 const Page = () => {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(true);
-  const [localPost, setLocalPost] = useState({});
-
-  useEffect(() => {
-    setLocalPost(JSON.parse(localStorage.getItem("post") || "{}"));
-  }, []);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <main>
       <PostForm
         postingAs={undefined}
-        post={localPost}
         isSubmitting={false}
         onSubmit={() => setIsLoginModalOpen(true)}
       />

@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Link } from "remix";
 import { addDays, format } from "date-fns";
+import { Button } from "~/lib/core/ui/Button";
 import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 
 const postKey = "ys-post";
@@ -9,10 +11,15 @@ export const storePost = (post: Post) => {
   localStorage.setItem(postKey, postString);
 };
 
-export const getStoredPostAndClear = () => {
+export const getStoredPost = () => {
   const postString = localStorage.getItem(postKey) || "{}";
-  localStorage.removeItem(postKey);
   return JSON.parse(postString) as Post;
+};
+
+export const getStoredPostAndClear = () => {
+  const post = getStoredPost();
+  localStorage.removeItem(postKey);
+  return post;
 };
 
 type Props = {
@@ -23,12 +30,17 @@ type Props = {
 };
 
 export const PostForm = ({
-  postingAs,
   post,
+  postingAs,
   onSubmit,
   isSubmitting,
 }: Props) => {
   const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
+  const [localPost, setLocalPost] = useState<Post>(post || {});
+
+  useEffect(() => {
+    if (!post) setLocalPost(getStoredPost());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,19 +51,19 @@ export const PostForm = ({
   };
 
   return (
-    <form className="relative" onSubmit={handleSubmit}>
+    <form className="relative h-full" onSubmit={handleSubmit}>
       <textarea
         className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg"
         name="content"
-        defaultValue={post ? post.content : ""}
+        defaultValue={localPost.content || ""}
         placeholder="Hello in there?"
         onBlur={(e) => storePost({ content: e.target.value })}
         autoFocus
         required
       />
       <footer className="absolute bottom-5 left-0 right-0 flex justify-between items-center">
-        <div className="text-sm">
-          <span className="block mb-2">
+        <div className="text-xs">
+          <span className="block mb-1">
             {postingAs ? (
               <>
                 Publishing as:{" "}
@@ -63,57 +75,14 @@ export const PostForm = ({
               "Publishing anonymously"
             )}
           </span>
-          <span className="block">
+          <span className="block text-slate-500">
             This post will expire on {format(expiry, "MMMM do")}
           </span>
         </div>
-        <button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting}>
           Publish
-        </button>
+        </Button>
       </footer>
     </form>
   );
 };
-
-// const Form = styled.form`
-//   position: relative;
-// `;
-
-// const Textarea = styled.textarea`
-//   width: 100%;
-//   height: 100%;
-//   border: none;
-//   resize: none;
-//   outline: none;
-//   padding: ${({ theme }) => theme.spacings(6)} 0 80px;
-//   font-size: ${({ theme }) => theme.typography.post.fontSize};
-//   line-height: ${({ theme }) => theme.typography.post.lineHeight};
-// `;
-
-// const SubmitContainer = styled.section`
-//   position: absolute;
-//   bottom: 20px;
-//   left: 0;
-//   right: 0;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-// `;
-
-// const PostDetails = styled.div`
-//   span {
-//     display: block;
-//     font-size: 0.8rem;
-//   }
-//   .posting-as {
-//     margin-bottom: ${({ theme }) => theme.spacings(2)};
-
-//     a {
-//       text-decoration: underline;
-//       text-decoration-style: dotted;
-//     }
-//   }
-//   .expiry {
-//     color: #919294;
-//   }
-// `;
