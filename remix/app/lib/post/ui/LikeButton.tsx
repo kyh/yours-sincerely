@@ -9,15 +9,6 @@ const getMojs = () => {
 };
 
 const createHeartAnimation = (el: HTMLElement) => {
-  new mojs.Html({
-    el,
-    scale: { 0: 1 },
-    easing: "elastic.out",
-    duration: 1000,
-    delay: 300,
-    radius: 11,
-    isShowStart: false,
-  }).play(1000);
   return new mojs.Html({
     el,
     scale: { 0: 1 },
@@ -80,15 +71,20 @@ const createBurstAnimation = (el: HTMLElement) => {
   });
 };
 
+type MojsRef = HTMLElement & {
+  replay: () => {};
+  play: (_step: number) => {};
+};
+
 const useHeartAnimation = (
   enabled: boolean,
   iconRef: any,
   iconButtonRef: any
 ) => {
   const [initialized, setInitialized] = useState(false);
-  const heart = useRef<null | (HTMLElement & { replay: () => {} })>(null);
-  const circle = useRef<null | (HTMLElement & { replay: () => {} })>(null);
-  const burst = useRef<null | (HTMLElement & { replay: () => {} })>(null);
+  const heart = useRef<null | MojsRef>(null);
+  const circle = useRef<null | MojsRef>(null);
+  const burst = useRef<null | MojsRef>(null);
 
   const playAnimation = () => {
     if (!enabled) return;
@@ -101,9 +97,17 @@ const useHeartAnimation = (
     if (!enabled) return;
     if (!initialized && iconRef.current && iconButtonRef.current) {
       getMojs();
-      heart.current = createHeartAnimation(iconRef.current);
-      circle.current = createCircleAnimation(iconButtonRef.current);
-      burst.current = createBurstAnimation(iconButtonRef.current);
+      // weird bug where .play initialization sometimes fails
+      heart.current = heart.current
+        ? heart.current.play(1000)
+        : createHeartAnimation(iconRef.current);
+
+      circle.current =
+        circle.current || createCircleAnimation(iconButtonRef.current);
+
+      burst.current =
+        burst.current || createBurstAnimation(iconButtonRef.current);
+
       setInitialized(true);
     }
   }, [iconRef, iconButtonRef]);

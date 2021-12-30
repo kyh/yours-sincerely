@@ -35,7 +35,7 @@ export const PostContent = ({
         <div className="before:content-['—_'] inline-block mr-1 align-[1px] italic">
           {post._createdBy}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           {showShare && <ShareButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}
