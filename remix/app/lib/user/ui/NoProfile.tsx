@@ -6,13 +6,13 @@ export const NoProfile = () => {
     <>
       <section className="sm:flex">
         <img
-          className="m-auto"
+          className="m-auto sm:w-1/2"
           src="/assets/dancing.svg"
           alt="Not logged in"
           width={300}
           height={225}
         />
-        <div className="flex-auto">
+        <div className="sm:w-1/2">
           {isIOS() ? (
             <>
               <h1 className="text-3xl font-bold my-5">No account required</h1>
