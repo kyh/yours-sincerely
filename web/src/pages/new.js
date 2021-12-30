@@ -7,7 +7,7 @@ import { PageContainer } from "components/Page";
 import { Navigation } from "components/Navigation";
 import { Logo } from "components/Logo";
 import { Modal } from "components/Modal";
-import { PostForm, getStoredPostAndClear } from "components/PostForm";
+import { PostForm, postKey, getStoredPostAndClear } from "components/PostForm";
 import { PostAuthForm } from "components/PostAuthForm";
 import { useAuth } from "actions/auth";
 import { createPost } from "actions/post";
@@ -49,7 +49,7 @@ const PostNew = () => {
         {user !== null && (
           <PostForm
             postingAs={user ? user.displayName : null}
-            post={JSON.parse(localStorage.getItem("post") || "{}")}
+            post={JSON.parse(localStorage.getItem(postKey) || "{}")}
             isSubmitting={isSubmitting}
             onSubmit={() =>
               !!user ? onCreatePost() : setIsLoginModalOpen(true)
