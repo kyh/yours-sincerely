@@ -2,8 +2,11 @@ import { Authenticator } from "remix-auth";
 import { sessionStorage } from "~/lib/auth/server/middleware/session.server";
 import { User } from "~/lib/user/data/userSchema";
 
-import { signupStrategy, loginStrategy } from "~/lib/auth/server/strategy/form";
-import { googleStrategy } from "~/lib/auth/server/strategy/google";
+import {
+  signupStrategy,
+  loginStrategy,
+} from "~/lib/auth/server/strategy/form.server";
+import { googleStrategy } from "~/lib/auth/server/strategy/google.server";
 
 export let authenticator = new Authenticator<User>(sessionStorage);
 

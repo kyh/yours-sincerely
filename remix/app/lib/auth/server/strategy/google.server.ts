@@ -1,6 +1,6 @@
 import { GoogleStrategy } from "remix-auth-google";
-import { getAccount } from "~/lib/user/server/accountService";
-import { createUser } from "~/lib/user/server/userService";
+import { getAccount } from "~/lib/user/server/accountService.server";
+import { createUser } from "~/lib/user/server/userService.server";
 
 export const googleStrategy = new GoogleStrategy(
   {
