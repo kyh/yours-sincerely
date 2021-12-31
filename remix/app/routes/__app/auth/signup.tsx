@@ -1,7 +1,15 @@
-import { Link } from "remix";
+import { Link, ActionFunction } from "remix";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { Divide } from "~/lib/core/ui/Divide";
+
+export const action: ActionFunction = async ({ request }) => {
+  return await authenticator.authenticate("signup", request, {
+    successRedirect: "/",
+    failureRedirect: "/auth/signup",
+  });
+};
 
 const Page = () => {
   return (
