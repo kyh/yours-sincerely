@@ -1,23 +1,26 @@
 import { Form, Link } from "remix";
 import { TextField, Checkbox } from "~/lib/core/ui/FormField";
 import { Button } from "~/lib/core/ui/Button";
-import { AuthInput } from "~/lib/auth/data/authSchema";
 
 type Props = {
   authType: "signup" | "login" | "request" | "confirm";
   submitButtonText: React.ReactNode;
 };
 
-export const AuthForm = ({ authType, submitButtonText }: Props) => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = new FormData(e.target as HTMLFormElement);
-    const input = Object.fromEntries(data.entries()) as AuthInput;
-    console.log(input);
-  };
+const actionMap: Record<Props["authType"], string> = {
+  signup: "/auth/signup",
+  login: "/auth/login",
+  request: "/auth/request-password-reset",
+  confirm: "/auth/confirm-password-reset",
+};
 
+export const AuthForm = ({ authType, submitButtonText }: Props) => {
   return (
-    <Form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+    <Form
+      className="flex flex-col gap-5"
+      method="post"
+      action={actionMap[authType]}
+    >
       {authType !== "confirm" && (
         <TextField
           id="email"

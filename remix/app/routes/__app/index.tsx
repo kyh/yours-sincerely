@@ -2,15 +2,20 @@ import { Link, LoaderFunction, useLoaderData } from "remix";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { Post } from "~/lib/post/data/postSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { Session } from "~/lib/auth/data/authSchema";
 
 type LoaderData = {
+  user: Session["user"];
   postList: Post[];
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const user = await authenticator.isAuthenticated(request);
   const postList = await getPostList();
 
   const data: LoaderData = {
+    user,
     postList,
   };
 
@@ -18,7 +23,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 const Page = () => {
-  const { postList } = useLoaderData<LoaderData>();
+  const { postList, user } = useLoaderData<LoaderData>();
+  console.log(postList, user);
   return (
     <>
       {!!postList.length && (
