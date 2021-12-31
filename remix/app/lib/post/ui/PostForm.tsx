@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "remix";
+import { Form, Link } from "remix";
 import { addDays, format } from "date-fns";
 import { Button } from "~/lib/core/ui/Button";
 import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
@@ -51,7 +51,7 @@ export const PostForm = ({
   };
 
   return (
-    <form className="relative h-full" onSubmit={handleSubmit}>
+    <Form className="relative h-full" onSubmit={handleSubmit}>
       <textarea
         className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg"
         name="content"
@@ -83,6 +83,6 @@ export const PostForm = ({
           Publish
         </Button>
       </footer>
-    </form>
+    </Form>
   );
 };
