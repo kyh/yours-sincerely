@@ -1,6 +1,9 @@
 import { FormStrategy } from "remix-auth-form";
-import { createUser, getUserPasswordHash } from "~/lib/user/server/userService";
-import { validatePassword } from "~/lib/auth/server/authService";
+import {
+  createUser,
+  getUserPasswordHash,
+} from "~/lib/user/server/userService.server";
+import { validatePassword } from "~/lib/auth/server/authService.server";
 
 export const signupStrategy = new FormStrategy(async ({ form }) => {
   const email = form.get("email") as string;
