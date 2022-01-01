@@ -55,6 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const post = await createPost({
     content: content || "",
+    createdBy,
     user: {
       connectOrCreate: {
         where: {
