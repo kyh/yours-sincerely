@@ -1,7 +1,8 @@
 import { addDays } from "date-fns";
 import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import { Post, Like, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import { Like } from "~/lib/post/data/likeSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { defaultSelect } from "~/lib/user/server/userService.server";
 

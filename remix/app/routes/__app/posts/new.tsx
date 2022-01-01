@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  MetaFunction,
   LoaderFunction,
   ActionFunction,
   redirect,
@@ -16,7 +17,7 @@ import {
 } from "~/lib/auth/server/middleware/session.server";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
 import { Post } from "~/lib/post/data/postSchema";
-import { Session } from "~/lib/auth/data/authSchema";
+import { User } from "~/lib/user/data/userSchema";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";
 import { Divide } from "~/lib/core/ui/Divide";
@@ -24,8 +25,16 @@ import { TextField } from "~/lib/core/ui/FormField";
 import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 
+export let meta: MetaFunction = () => {
+  return {
+    title: "New Post",
+    description:
+      "An ephemeral anonymous blog to send each other tiny beautiful letters",
+  };
+};
+
 type LoaderData = {
-  user: Session["user"];
+  user: User | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {

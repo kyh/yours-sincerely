@@ -1,6 +1,4 @@
-import { Post as PrismaPost, Like as PrismaLike } from "@prisma/client";
-
-export type Like = PrismaLike;
+import { Post as PrismaPost } from "@prisma/client";
 
 export type Post = Partial<PrismaPost> & {
   createdBy?: string;

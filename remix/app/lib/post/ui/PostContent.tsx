@@ -25,7 +25,10 @@ export const PostContent = ({
   return (
     <article>
       {showLink ? (
-        <Link className="text-slate-900 hover:no-underline" to={`/${post.id}`}>
+        <Link
+          className="text-slate-900 hover:no-underline"
+          to={`/posts/${post.id}`}
+        >
           <p className="text-lg">{post.content}</p>
         </Link>
       ) : (
@@ -35,10 +38,10 @@ export const PostContent = ({
         <div className="before:content-['—_'] inline-block mr-1 align-[1px] italic">
           {post.createdBy}
         </div>
-        <div className="flex items-center">
-          {showShare && <ShareButton post={post} />}
+        <div className="flex items-center gap-1">
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}
+          {showShare && <ShareButton post={post} />}
           {showMore && <MoreButton post={post} />}
         </div>
       </footer>

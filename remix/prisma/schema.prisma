@@ -37,12 +37,13 @@ model User {
   role   UserRole @default(USER)
   tokens Token[]
 
-  posts    Post[]
-  comments Comment[]
-  likes    Like[]
-  flags    Flag[]
-  // blocks    Block[]   @relation(name: "UserBlocks")
-  // blockedBy Block[]   @relation(name: "UserBlockedBy")
+  posts Post[]
+
+  likes Like[]
+  flags Flag[]
+
+  blockedBy Blocks[] @relation("blocker")
+  blocking  Blocks[] @relation("blocking")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,23 +80,16 @@ model Post {
   id      String @id @default(cuid())
   content String
 
-  comments Comment[]
-  likes    Like[]
-  flags    Flag[]
+  likes Like[]
+  flags Flag[]
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // rootId String? @unique
+  // root   Post?   @relation(name: "root", fields: [rootId], references: [id])
+  // child  Post?   @relation(name: "root")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Comment {
-  id      String @id @default(cuid())
-  content String
-
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId String?
+  parent   Post?   @relation(name: "comments", fields: [parentId], references: [id])
+  comments Post[]  @relation(name: "comments")
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -105,8 +99,6 @@ model Comment {
 }
 
 model Like {
-  id String @id @default(cuid())
-
   postId String
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -115,10 +107,13 @@ model Like {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@id([postId, userId])
 }
 
 model Flag {
-  id String @id @default(cuid())
+  comment  String?
+  resolved Boolean @default(false)
 
   postId String
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -128,17 +123,16 @@ model Flag {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@id([postId, userId])
 }
 
-// model Block {
-//   id String @id @default(cuid())
+model Blocks {
+  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id])
+  blockerId String
 
-//   blockUserId String
-//   blockUser   User   @relation(name: "UserBlocks", fields: [blockUserId], references: [id], onDelete: Cascade)
+  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id])
+  blockingId String
 
-//   userId String
-//   user   User   @relation(name: "UserBlockedBy", fields: [userId], references: [id], onDelete: Cascade)
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+  @@id([blockerId, blockingId])
+}

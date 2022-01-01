@@ -1,11 +1,11 @@
 import { LoaderFunction, useLoaderData } from "remix";
 import { authenticator } from "~/lib/auth/server/middleware/auth.server";
-import { Session } from "~/lib/auth/data/authSchema";
+import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
 import { NoProfile } from "~/lib/user/ui/NoProfile";
 
 type LoaderData = {
-  user: Session["user"];
+  user: User | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
