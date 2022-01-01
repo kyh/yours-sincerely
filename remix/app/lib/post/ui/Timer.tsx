@@ -21,9 +21,7 @@ type Props = {
 };
 
 export const Timer = ({ post }: Props) => {
-  const { percentage, now, end } = getPercentage(
-    post.createdAt || addDays(new Date(), -3)
-  );
+  const { percentage, now, end } = getPercentage(new Date(post.createdAt!));
   return (
     <div className="flex items-center p-2 rounded-lg">
       <div

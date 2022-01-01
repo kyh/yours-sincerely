@@ -33,7 +33,7 @@ export const PostContent = ({
       )}
       <footer className="flex items-center justify-between mt-4">
         <div className="before:content-['—_'] inline-block mr-1 align-[1px] italic">
-          {post._createdBy}
+          {post.createdBy}
         </div>
         <div className="flex items-center">
           {showShare && <ShareButton post={post} />}
