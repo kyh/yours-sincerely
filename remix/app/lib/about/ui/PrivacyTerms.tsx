@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Checkbox } from "~/lib/core/ui/Checkbox";
+import { Checkbox } from "~/lib/core/ui/FormField";
 
 export const PrivacyTerms = ({
   withCheckbox = false,
@@ -24,7 +24,9 @@ export const PrivacyTerms = ({
 
   return (
     <section className="text-sm italic flex items-center text-slate-500">
-      {withCheckbox && <Checkbox onChange={onCheck} checked={isChecked} />}
+      {withCheckbox && (
+        <Checkbox id="terms" onChange={onCheck} checked={isChecked} />
+      )}
       <div>
         By posting on YS, you agree to our{" "}
         <a

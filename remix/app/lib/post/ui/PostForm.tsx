@@ -42,15 +42,15 @@ export const PostForm = ({
     if (!post) setLocalPost(getStoredPost());
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = new FormData(e.target as HTMLFormElement);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const data = new FormData(event.target as HTMLFormElement);
     storePost(Object.fromEntries(data.entries()));
     onSubmit();
   };
 
   return (
-    <Form className="relative h-full" onSubmit={handleSubmit}>
+    <Form className="relative h-full" method="post" onSubmit={handleSubmit}>
       <textarea
         className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg"
         name="content"
