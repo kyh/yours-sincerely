@@ -1,18 +1,37 @@
+import { LoaderFunction, useLoaderData } from "remix";
 import { PostContent } from "~/lib/post/ui/PostContent";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { getPost } from "~/lib/post/server/postService.server";
+import { Post } from "~/lib/post/data/postSchema";
 
-const post = {
-  content:
-    "Matt and I knew that we were planting a flower scheduled for scything. Still, we couldn’t stop ourselves. We museum hopped, savored afternoon scones, explored England’s Suffolk Coast by train. In the sticky summer heat, we bared all, hoping we could evade the blade of my inevitable departure. Love often blooms that way: blind to opportunity, reckless with its velocity and need for nourishment. Now, an ocean apart, as I plan life in Cambridge, Mass., and he remains in Cambridge, England, we know desiccation is unavoidable. Yet, we also know that some plants can survive drought to bloom again.",
-  _createdBy: "Jonathan Chan",
+type LoaderData = {
+  post: Post | null;
 };
 
-const Page = () => (
-  <main className="py-5 flex flex-col gap-8">
-    {post && (
-      <PostContent post={post} showLink={false} showTimer={false} showMore />
-    )}
-    {!post && <p className="text-lg">This post is under review</p>}
-  </main>
-);
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const user = await authenticator.isAuthenticated(request);
+  const post = await getPost({ id: params.pid }, user);
+
+  const data: LoaderData = {
+    post,
+  };
+
+  return data;
+};
+
+const Page = () => {
+  const { post } = useLoaderData<LoaderData>();
+
+  return (
+    <main className="py-5 flex flex-col gap-8">
+      {post && (
+        <PostContent post={post} showLink={false} showTimer={false} showMore />
+      )}
+      {!post && (
+        <p className="text-lg">This post does not exist or is under review</p>
+      )}
+    </main>
+  );
+};
 
 export default Page;

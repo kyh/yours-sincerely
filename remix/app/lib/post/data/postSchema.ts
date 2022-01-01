@@ -1,9 +1,12 @@
-import { Post as PrismaPost } from "@prisma/client";
+import { Post as PrismaPost, Like as PrismaLike } from "@prisma/client";
+
+export type Like = PrismaLike;
 
 export type Post = Partial<PrismaPost> & {
-  _createdBy?: string;
-  _likeCount?: number;
-  _isLiked?: boolean;
+  createdBy?: string;
+  likeCount?: number;
+  isLiked?: boolean;
+  commentCount?: number;
 };
 
 export const POST_EXPIRY_DAYS_AGO = 21;

@@ -1,24 +1,103 @@
+import { addDays } from "date-fns";
 import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import { Post } from "~/lib/post/data/postSchema";
+import { Post, Like, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import { User } from "~/lib/user/data/userSchema";
+import { defaultSelect } from "~/lib/user/server/userService.server";
 
-export const getPostList = async () => {
-  const list = await prisma.post.findMany();
-  return list;
-};
+const formatPost = (
+  post: Post & {
+    user: {
+      name: string | null;
+    };
+    likes: Like[];
+    _count: {
+      comments: number;
+      likes: number;
+      flags: number;
+    };
+  }
+): Post => ({
+  ...post,
+  createdBy: post.user.name || "Anonymous",
+  commentCount: post._count.comments,
+  likeCount: post._count.likes,
+  isLiked: !!post.likes.length,
+});
 
-export const getPost = async (input: Pick<Post, "id">) => {
-  const post = await prisma.post.findUnique({
-    where: { id: input.id },
+export const getPostList = async (user: User | null) => {
+  const list = await prisma.post.findMany({
+    where: {
+      createdAt: {
+        gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      likes: {
+        where: {
+          userId: user?.id || "",
+        },
+      },
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+          flags: true,
+        },
+      },
+    },
   });
 
-  return post;
+  return list.filter((post) => post._count.flags < 1).map(formatPost) as Post[];
+};
+
+export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
+  const post = await prisma.post.findUnique({
+    where: { id: input.id },
+    include: {
+      comments: true,
+      likes: {
+        where: {
+          userId: user?.id || "",
+        },
+      },
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+          flags: true,
+        },
+      },
+    },
+  });
+
+  if (!post || post._count.flags > 0) return null;
+
+  return formatPost(post);
 };
 
 export const createPost = async (input: Prisma.PostCreateInput) => {
   const { id, ...data } = input;
   const created = await prisma.post.create({
     data,
+    include: {
+      user: {
+        select: defaultSelect,
+      },
+    },
   });
 
   return created;

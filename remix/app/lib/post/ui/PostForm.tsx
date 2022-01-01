@@ -23,10 +23,10 @@ export const getStoredPostAndClear = () => {
 };
 
 type Props = {
-  postingAs?: string;
+  postingAs?: string | null;
   post?: Post;
   isSubmitting: boolean;
-  onSubmit: (post: Post) => void;
+  onSubmit: () => void;
 };
 
 export const PostForm = ({
@@ -45,9 +45,8 @@ export const PostForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = new FormData(e.target as HTMLFormElement);
-    const input = Object.fromEntries(data.entries()) as Post;
-    storePost(input);
-    onSubmit(input);
+    storePost(Object.fromEntries(data.entries()));
+    onSubmit();
   };
 
   return (

@@ -41,7 +41,7 @@ export const AuthForm = ({ authType, submitButtonText }: Props) => {
       )}
       {authType === "login" && (
         <div className="flex items-center justify-between">
-          <Checkbox id="remember-me" name="remember-me" label="Remember me" />
+          <Checkbox id="rememberMe" name="rememberMe" label="Remember me" />
           <Link
             className="text-slate-500 text-sm"
             to="/auth/request-password-reset"

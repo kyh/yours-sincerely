@@ -3,7 +3,7 @@ import { prisma } from "~/lib/core/server/prisma.server";
 import { User } from "~/lib/user/data/userSchema";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
 
-const defaultSelect = {
+export const defaultSelect = {
   id: true,
   email: true,
   emailVerified: true,
