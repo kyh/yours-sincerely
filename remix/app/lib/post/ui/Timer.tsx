@@ -23,7 +23,11 @@ type Props = {
 export const Timer = ({ post }: Props) => {
   const { percentage, now, end } = getPercentage(new Date(post.createdAt!));
   return (
-    <div className="flex items-center p-2 rounded-lg">
+    <button
+      type="button"
+      className="flex items-center p-2 rounded-lg"
+      data-tooltip={`Dissapears in ${formatDistance(now, end)}`}
+    >
       <div
         className="relative inline-block bg-slate-400 bg-blend-overlay w-4 h-4 rounded-full bg-center	bg-[length:150%]"
         style={{
@@ -33,8 +37,7 @@ export const Timer = ({ post }: Props) => {
         )`,
         }}
         data-percentage={percentage}
-        data-tip={`Post expires in ${formatDistance(now, end)}.`}
       />
-    </div>
+    </button>
   );
 };

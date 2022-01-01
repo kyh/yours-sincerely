@@ -8,9 +8,6 @@ import { defaultSelect } from "~/lib/user/server/userService.server";
 
 const formatPost = (
   post: Post & {
-    user: {
-      name: string | null;
-    };
     likes: Like[];
     _count: {
       comments: number;
@@ -20,7 +17,7 @@ const formatPost = (
   }
 ): Post => ({
   ...post,
-  createdBy: post.user.name || "Anonymous",
+  createdBy: post.createdBy || "Anonymous",
   commentCount: post._count.comments,
   likeCount: post._count.likes,
   isLiked: !!post.likes.length,
@@ -40,11 +37,6 @@ export const getPostList = async (user: User | null) => {
       likes: {
         where: {
           userId: user?.id || "",
-        },
-      },
-      user: {
-        select: {
-          name: true,
         },
       },
       _count: {
@@ -68,11 +60,6 @@ export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
       likes: {
         where: {
           userId: user?.id || "",
-        },
-      },
-      user: {
-        select: {
-          name: true,
         },
       },
       _count: {

@@ -77,8 +77,9 @@ enum TokenType {
 }
 
 model Post {
-  id      String @id @default(cuid())
-  content String
+  id        String  @id @default(cuid())
+  content   String
+  createdBy String?
 
   likes Like[]
   flags Flag[]
