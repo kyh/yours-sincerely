@@ -14,7 +14,7 @@ export const TextField = ({ id, label, className, ...rest }: Props) => (
     <input
       id={id}
       type="text"
-      className={`w-full border-t-0 border-x-0 border-b-2 border-slate-500 border-dotted rounded transition focus:bg-slate-100 focus:border-slate-500 ${
+      className={`w-full bg-transparent border-t-0 border-x-0 border-b-2 border-slate-500 border-dotted rounded transition focus:bg-slate-100 focus:border-slate-500 ${
         className || ""
       }`}
       {...rest}

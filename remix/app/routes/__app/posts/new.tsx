@@ -24,6 +24,8 @@ import { Divide } from "~/lib/core/ui/Divide";
 import { TextField } from "~/lib/core/ui/FormField";
 import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
+import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
+import { isIOS } from "~/lib/core/util/platform";
 
 export let meta: MetaFunction = () => {
   return {
@@ -84,6 +86,7 @@ const Page = () => {
   const submit = useSubmit();
   const transition = useTransition();
   const [isOpen, setIsOpen] = useState(false);
+  const [isChecked, setIsChecked] = useState(!isIOS());
 
   const submitPost = (e?: React.FormEvent) => {
     if (!user && !e) return setIsOpen(true);
@@ -114,27 +117,50 @@ const Page = () => {
         isSubmitting={transition.state === "submitting"}
         onSubmit={submitPost}
       />
-      <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
+      <Dialog
+        className="pb-[110px]"
+        isOpen={isOpen}
+        handleClose={() => setIsOpen(false)}
+      >
         <h1 className="text-2xl font-bold mb-4">
           Even ghostwriters have names
         </h1>
-        <Form onSubmit={submitPost}>
+        <Form method="post" onSubmit={submitPost}>
           <TextField
             id="createdBy"
             name="createdBy"
             label="I'd like to publish as"
             placeholder="Bojack the horse"
+            required
           />
           <Button
             type="submit"
-            className="mt-4"
-            disabled={transition.state === "submitting"}
+            className="mt-4 pl-8 pr-8"
+            disabled={transition.state === "submitting" || !isChecked}
           >
             Publish
           </Button>
         </Form>
-        <Divide bgColor="bg-white">Or continue with</Divide>
-        <SocialLoginForm />
+        {isIOS() ? (
+          <div className="mt-3 text-left">
+            <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
+          </div>
+        ) : (
+          <>
+            <Divide bgColor="bg-white">Or continue with</Divide>
+            <SocialLoginForm />
+          </>
+        )}
+        <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full">
+          <div
+            style={{ backgroundPosition: "-50px -10px" }}
+            className="absolute bg-no-repeat bg-cover w-1/2 h-full left-0 bg-[url('/assets/bikini.svg')]"
+          />
+          <div
+            style={{ backgroundPosition: "-35px 40px" }}
+            className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 bg-[url('/assets/zombieing.svg')] scale-x-[-1]"
+          />
+        </div>
       </Dialog>
     </main>
   );

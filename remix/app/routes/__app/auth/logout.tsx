@@ -5,7 +5,7 @@ import {
   destroySession,
 } from "~/lib/auth/server/middleware/session.server";
 
-export let action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   return redirect("/", {
     headers: {
       "Set-Cookie": await destroySession(await getSession(request)),
@@ -13,6 +13,6 @@ export let action: ActionFunction = async ({ request }) => {
   });
 };
 
-export let loader: LoaderFunction = () => {
+export const loader: LoaderFunction = () => {
   throw new Response("", { status: 404 });
 };

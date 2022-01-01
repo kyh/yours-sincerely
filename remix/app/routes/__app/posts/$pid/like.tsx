@@ -2,7 +2,9 @@ import { ActionFunction, LoaderFunction, redirect, json } from "remix";
 import { authenticator } from "~/lib/auth/server/middleware/auth.server";
 import { createLike, deleteLike } from "~/lib/post/server/likeService.server";
 
-export let loader: LoaderFunction = () => redirect("/");
+export const loader: LoaderFunction = () => {
+  throw new Response("", { status: 404 });
+};
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await authenticator.isAuthenticated(request);
