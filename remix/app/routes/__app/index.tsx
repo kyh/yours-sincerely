@@ -1,11 +1,13 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 
 type LoaderData = {
   postList: Post[];
+  user: User | null;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -14,6 +16,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const data: LoaderData = {
     postList,
+    user,
   };
 
   return data;
@@ -40,7 +43,7 @@ const EmptyPost = () => (
   <main className="max-w-sm m-auto text-center">
     <h1 className="text-2xl font-bold">
       It's kind of lonely here... could you help{" "}
-      <Link to="/new">start something?</Link>
+      <Link to="/posts/new">start something?</Link>
     </h1>
     <img src="/assets/reading.svg" alt="No posts" width={400} height={300} />
   </main>

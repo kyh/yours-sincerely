@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useLoaderData, useFetcher, FormMethod } from "remix";
+import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";
 
 let mojs: any;
@@ -119,30 +121,41 @@ type Props = {
   post: Post;
 };
 
+type LoaderData = {
+  user: User | null;
+};
+
 export const LikeButton = ({ post }: Props) => {
-  const [likeCount, setLikeCount] = useState(post._likeCount || 0);
-  const [isLiked, setIsLiked] = useState(post._isLiked || false);
+  const { user } = useLoaderData<LoaderData>();
+  const fetcher = useFetcher();
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
-  const playAnimation = useHeartAnimation(true, iconRef, iconButtonRef);
+  const playAnimation = useHeartAnimation(!!user, iconRef, iconButtonRef);
 
   const toggleLike = async () => {
+    let method: FormMethod = "delete";
     if (isLiked) {
       setLikeCount(likeCount - 1);
       setIsLiked(false);
     } else {
+      method = "post";
       setLikeCount(likeCount + 1);
       playAnimation();
       setIsLiked(true);
     }
+
+    fetcher.submit(null, { method, action: `/posts/${post.id}/like` });
   };
 
   return (
     <button
       ref={iconButtonRef}
       type="button"
-      className="relative flex gap-2 items-center p-2 rounded-lg transition hover:bg-slate-100"
+      className="relative flex gap-2 items-center p-2 rounded-lg transition hover:bg-slate-100 disabled:hover:bg-transparent"
       onClick={toggleLike}
+      disabled={!user}
     >
       <svg
         className={`${isLiked ? "text-red-500" : "text-slate-400"}`}

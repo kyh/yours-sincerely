@@ -19,7 +19,7 @@ export const NoProfile = () => {
             <>
               <h1 className="text-3xl font-bold my-5">No account required</h1>
               <p>
-                Just <Link to="/new">make a post</Link> to get started
+                Just <Link to="/posts/new">make a post</Link> to get started
               </p>
             </>
           ) : (
@@ -28,7 +28,7 @@ export const NoProfile = () => {
                 You’re not signed in...
               </h1>
               <p>
-                But, you can still <Link to="/new">make a post</Link>{" "}
+                But, you can still <Link to="/posts/new">make a post</Link>{" "}
                 anonymously without an account
               </p>
             </>

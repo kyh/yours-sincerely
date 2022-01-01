@@ -1,9 +1,9 @@
 import { Form, useLoaderData } from "remix";
-import { Session } from "~/lib/auth/data/authSchema";
+import { User } from "~/lib/user/data/userSchema";
 import { isIOS } from "~/lib/core/util/platform";
 
 type LoaderData = {
-  user: Session["user"];
+  user: User | null;
 };
 
 export const Profile = () => {
