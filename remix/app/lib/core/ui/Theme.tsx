@@ -4,7 +4,16 @@ export const themeKey = "theme";
 
 export type Theme = "default" | "light" | "dark";
 
-const getInitialTheme = (): Theme => {
+export const isDark = (rawTheme: Theme) => {
+  return (
+    rawTheme === "dark" ||
+    (rawTheme === "default" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
+  );
+};
+
+export const getInitialTheme = (): Theme => {
   if (typeof window !== "undefined" && window.localStorage) {
     const storedPrefs = window.localStorage.getItem(themeKey);
 
@@ -18,6 +27,18 @@ const getInitialTheme = (): Theme => {
   }
 
   return "default";
+};
+
+export const setDocumentTheme = (rawTheme: Theme) => {
+  if (isDark(rawTheme)) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
+  if (rawTheme) {
+    localStorage.setItem(themeKey, rawTheme);
+  }
 };
 
 export const ThemeContext = createContext<{
@@ -35,24 +56,8 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState(getInitialTheme);
 
-  const rawSetTheme = (rawTheme: Theme) => {
-    if (
-      rawTheme === "dark" ||
-      (rawTheme === "default" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    if (rawTheme) {
-      localStorage.setItem(themeKey, rawTheme);
-    }
-  };
-
   useEffect(() => {
-    rawSetTheme(theme);
+    setDocumentTheme(theme);
   }, [theme]);
 
   return (

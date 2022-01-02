@@ -2,7 +2,7 @@ import { Form, useFormAction } from "remix";
 
 export const SocialLoginForm = () => (
   <Form className="flex justify-center" action="/auth" method="post">
-    <button formAction={useFormAction("/auth/google")}>
+    <button className="z-10" formAction={useFormAction("/auth/google")}>
       <img
         src="/assets/google-button.svg"
         alt="Sign in with Google"
