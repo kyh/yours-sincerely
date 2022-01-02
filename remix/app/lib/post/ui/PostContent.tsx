@@ -29,10 +29,10 @@ export const PostContent = ({
           className="text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
-          <p className="text-lg">{post.content}</p>
+          <p className="text-lg whitespace-pre-wrap">{post.content}</p>
         </Link>
       ) : (
-        <p className="text-lg">{post.content}</p>
+        <p className="text-lg whitespace-pre-wrap">{post.content}</p>
       )}
       <footer className="flex items-center justify-between mt-4">
         <div className="before:content-['Yours_Sincerely,_'] inline-block mr-1 align-[1px] italic">
