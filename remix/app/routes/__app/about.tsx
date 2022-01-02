@@ -5,7 +5,7 @@ const quoteClass =
 
 const Page = () => (
   <main className="max-w-[25rem] mx-auto flex flex-col gap-5">
-    <div className="prose prose-slate">
+    <div className="prose prose-slate dark:prose-invert">
       <h1 className="text-2xl font-bold text-center">About</h1>
       <p className={quoteClass}>
         An ephemeral anonymous blog to send each other tiny beautiful letters
