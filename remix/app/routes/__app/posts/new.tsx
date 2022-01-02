@@ -128,7 +128,6 @@ const Page = () => {
         </h1>
         <Form method="post" onSubmit={submitPost}>
           <TextField
-            className="dark:focus:bg-slate-100 dark:focus:border-slate-500"
             id="createdBy"
             name="createdBy"
             label="I'd like to publish as"
@@ -149,18 +148,20 @@ const Page = () => {
           </div>
         ) : (
           <>
-            <Divide bgColor="bg-white">Or continue with</Divide>
+            <Divide bgColor="bg-white dark:bg-slate-900">
+              Or continue with
+            </Divide>
             <SocialLoginForm />
           </>
         )}
-        <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full">
+        <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full dark:opacity-90">
           <div
             style={{ backgroundPosition: "-50px -10px" }}
             className="absolute bg-no-repeat bg-cover w-1/2 h-full left-0 bg-[url('/assets/bikini.svg')]"
           />
           <div
             style={{ backgroundPosition: "-35px 40px" }}
-            className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 bg-[url('/assets/zombieing.svg')] scale-x-[-1]"
+            className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 scale-x-[-1] bg-[url('/assets/zombieing.svg')]"
           />
         </div>
       </Dialog>

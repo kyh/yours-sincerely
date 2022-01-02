@@ -8,6 +8,9 @@ type Props = {
   post: Post;
 };
 
+const iconClassName =
+  "bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg dark:bg-slate-600 dark:text-slate-200 dark:hover:text-primary-light";
+
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
@@ -60,7 +63,7 @@ export const ShareButton = ({ post }: Props) => {
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
         <div className="flex justify-center gap-5">
           <a
-            className="bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg"
+            className={iconClassName}
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodedPostUrl}`}
             target="_blank"
             rel="noopener"
@@ -77,7 +80,7 @@ export const ShareButton = ({ post }: Props) => {
             </svg>
           </a>
           <a
-            className="bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg"
+            className={iconClassName}
             href={`http://twitter.com/share?url=${encodedPostUrl}`}
             target="_blank"
             rel="noopener"
@@ -95,7 +98,7 @@ export const ShareButton = ({ post }: Props) => {
             </svg>
           </a>
           <a
-            className="bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg"
+            className={iconClassName}
             href={`https://telegram.me/share/url?url=${encodedPostUrl}`}
             target="_blank"
             rel="noopener"
@@ -112,12 +115,12 @@ export const ShareButton = ({ post }: Props) => {
             </svg>
           </a>
         </div>
-        <Divide bgColor="bg-white">Or share with link</Divide>
+        <Divide bgColor="bg-white dark:bg-slate-900">Or share with link</Divide>
         <div className="relative">
           <input
             id="share"
             type="text"
-            className="border-0 w-full rounded transition bg-slate-100 "
+            className="border-0 w-full rounded transition bg-slate-100 dark:bg-slate-600"
             value={postUrl}
             onClick={copyLink}
             ref={ref}
@@ -125,7 +128,7 @@ export const ShareButton = ({ post }: Props) => {
           />
           <button
             type="button"
-            className="absolute right-3 top-1 p-2 bg-slate-100 transition hover:text-primary-dark"
+            className="absolute right-3 top-1 p-2 bg-slate-100 transition hover:text-primary-dark dark:bg-slate-600 dark:hover:text-primary-light"
             onClick={copyLink}
           >
             <svg

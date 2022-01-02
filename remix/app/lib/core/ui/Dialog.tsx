@@ -38,7 +38,7 @@ export const Dialog = ({ isOpen, handleClose, className, children }: Props) => (
           leaveTo="opacity-0 scale-95"
         >
           <div
-            className={`inline-block w-full max-w-md p-6 my-10 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:text-slate-900 ${className}`}
+            className={`inline-block w-full max-w-md p-6 my-10 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:bg-slate-900 ${className}`}
           >
             {children}
           </div>
