@@ -11,7 +11,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = user?.id;
   const postId = params.pid;
 
-  if (userId && postId) {
+  if (!userId || !postId) return json({ success: false }, { status: 400 });
+
+  try {
     if (request.method === "POST") {
       await createLike({
         user: {
@@ -32,7 +34,8 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
 
     return json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return json({ success: false, error }, { status: 500 });
   }
-
-  return json({ success: false });
 };

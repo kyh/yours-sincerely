@@ -1,6 +1,9 @@
 import { ActionFunction, LoaderFunction, redirect, json } from "remix";
 import { authenticator } from "~/lib/auth/server/middleware/auth.server";
-import { createFlag, deleteFlag } from "~/lib/post/server/flagService.server";
+import {
+  createBlock,
+  deleteBlock,
+} from "~/lib/user/server/blockService.server";
 
 export const loader: LoaderFunction = () => {
   throw new Response("", { status: 404 });
@@ -8,29 +11,30 @@ export const loader: LoaderFunction = () => {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await authenticator.isAuthenticated(request);
-  const userId = user?.id;
-  const postId = params.pid;
+  const blockerId = user?.id;
+  const blockingId = params.uid;
 
-  if (!userId || !postId) return json({ success: false }, { status: 400 });
+  if (!blockerId || !blockingId)
+    return json({ success: false }, { status: 400 });
 
   try {
     if (request.method === "POST") {
-      await createFlag({
-        user: {
+      await createBlock({
+        blocker: {
           connect: {
-            id: userId,
+            id: blockerId,
           },
         },
-        post: {
+        blocking: {
           connect: {
-            id: postId,
+            id: blockingId,
           },
         },
       });
     }
 
     if (request.method === "DELETE") {
-      await deleteFlag({ userId, postId });
+      await deleteBlock({ blockerId, blockingId });
     }
 
     return redirect("/");
