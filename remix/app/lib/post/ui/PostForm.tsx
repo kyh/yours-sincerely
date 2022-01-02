@@ -52,7 +52,7 @@ export const PostForm = ({
   return (
     <Form className="relative h-full" method="post" onSubmit={handleSubmit}>
       <textarea
-        className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg"
+        className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg dark:bg-slate-800"
         name="content"
         defaultValue={localPost.content || ""}
         placeholder="Hello in there?"

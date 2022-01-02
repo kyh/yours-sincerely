@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: "class",
   content: ["./app/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -17,10 +18,10 @@ module.exports = {
         ],
       },
       colors: {
-        "primary-bg": "#e6e7f9",
-        "primary-light": "#9da2e7",
+        "primary-bg": "#E6E7F9",
+        "primary-light": "#9DA2E7",
         primary: "#8389E1",
-        "primary-dark": "#4a52d3",
+        "primary-dark": "#4A52D3",
         secondary: "#3B475F",
       },
       boxShadow: {

@@ -26,7 +26,7 @@ export const PostContent = ({
     <article>
       {showLink ? (
         <Link
-          className="text-slate-900 hover:no-underline"
+          className="text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
           <p className="text-lg">{post.content}</p>
@@ -35,7 +35,7 @@ export const PostContent = ({
         <p className="text-lg">{post.content}</p>
       )}
       <footer className="flex items-center justify-between mt-4">
-        <div className="before:content-['—_'] inline-block mr-1 align-[1px] italic">
+        <div className="before:content-['Yours_Sincerely,_'] inline-block mr-1 align-[1px] italic">
           {post.createdBy}
         </div>
         <div className="flex items-center gap-1">

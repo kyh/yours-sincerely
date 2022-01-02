@@ -128,6 +128,7 @@ const Page = () => {
         </h1>
         <Form method="post" onSubmit={submitPost}>
           <TextField
+            className="dark:focus:bg-slate-100 dark:focus:border-slate-500"
             id="createdBy"
             name="createdBy"
             label="I'd like to publish as"

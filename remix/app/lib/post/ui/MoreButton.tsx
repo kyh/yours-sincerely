@@ -38,7 +38,7 @@ export const MoreButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="text-slate-500 p-2 rounded-lg transition hover:bg-slate-100"
+        className="text-slate-500 p-2 rounded-lg transition hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setIsOpen(true)}
       >
         <svg

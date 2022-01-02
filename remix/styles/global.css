@@ -53,7 +53,7 @@
   }
 
   body {
-    @apply text-slate-900 bg-slate-50;
+    @apply text-slate-900 bg-slate-50 dark:text-slate-50 dark:bg-slate-800;
   }
 
   [type="text"]:focus,
@@ -86,7 +86,7 @@
   }
 
   [data-tooltip]::after {
-    @apply hidden absolute top-0 left-1/2 pointer-events-none py-2 px-3 whitespace-nowrap shadow-md bg-slate-800 text-slate-50 text-xs rounded-md;
+    @apply hidden absolute top-0 left-1/2 pointer-events-none py-2 px-3 whitespace-nowrap shadow-md bg-slate-800 text-slate-50 text-xs rounded-md dark:bg-slate-900;
     content: attr(data-tooltip);
     transform: translate(-50%, -100%);
     animation: tooltip-fade-in 0.23s ease;

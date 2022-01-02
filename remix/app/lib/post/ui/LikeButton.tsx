@@ -153,7 +153,7 @@ export const LikeButton = ({ post }: Props) => {
     <button
       ref={iconButtonRef}
       type="button"
-      className="relative flex gap-2 items-center p-2 rounded-lg transition hover:bg-slate-100 disabled:hover:bg-transparent"
+      className="relative flex gap-2 items-center p-2 rounded-lg transition hover:bg-slate-100 disabled:hover:bg-transparent dark:hover:bg-slate-700"
       onClick={toggleLike}
       disabled={!user}
     >
