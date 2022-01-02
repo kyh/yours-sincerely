@@ -6,6 +6,7 @@ import { Flag } from "~/lib/post/data/flagSchema";
 import { Like } from "~/lib/post/data/likeSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { defaultSelect } from "~/lib/user/server/userService.server";
+import { getBlockList } from "~/lib/user/server/blockService.server";
 
 const formatPost = (
   post: Post & {
@@ -26,6 +27,13 @@ const formatPost = (
 });
 
 export const getPostList = async (user: User | null) => {
+  const blocks = await getBlockList(user);
+
+  const blockingMap = blocks.reduce((acc, block) => {
+    acc[block.blockingId] = true;
+    return acc;
+  }, {} as Record<string, boolean>);
+
   const list = await prisma.post.findMany({
     where: {
       createdAt: {
@@ -57,7 +65,19 @@ export const getPostList = async (user: User | null) => {
   });
 
   return list
-    .filter((post) => post.flags.length < 1 && post._count.flags < 3)
+    .filter((post) => {
+      if (
+        // if post has been flagged by user
+        post.flags.length ||
+        // if post has been flagged many times
+        post._count.flags > 2 ||
+        // if post is created a someone the user has blocked
+        blockingMap[post.userId]
+      ) {
+        return false;
+      }
+      return true;
+    })
     .map(formatPost) as Post[];
 };
 
@@ -86,7 +106,7 @@ export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
     },
   });
 
-  if (!post || !!post.flags.length || post._count.flags > 2) return null;
+  if (!post || post.flags.length || post._count.flags > 2) return null;
 
   return formatPost(post);
 };

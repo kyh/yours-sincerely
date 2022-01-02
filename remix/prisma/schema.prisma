@@ -42,8 +42,8 @@ model User {
   likes Like[]
   flags Flag[]
 
-  blockedBy Block[] @relation("blocker")
-  blocking  Block[] @relation("blocking")
+  blockedBy Block[] @relation("blocking")
+  blocking  Block[] @relation("blocker")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -129,11 +129,11 @@ model Flag {
 }
 
 model Block {
-  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id])
   blockerId String
+  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id])
 
-  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id])
   blockingId String
+  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id])
 
   @@id([blockerId, blockingId])
 }
