@@ -28,10 +28,6 @@ export const Dialog = ({ isOpen, handleClose, className, children }: Props) => (
           <HeadlessDialog.Overlay className="fixed inset-0 bg-secondary opacity-70" />
         </Transition.Child>
 
-        {/* This element is to trick the browser into centering the modal contents. */}
-        <span className="inline-block h-screen align-middle" aria-hidden="true">
-          &#8203;
-        </span>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -42,7 +38,7 @@ export const Dialog = ({ isOpen, handleClose, className, children }: Props) => (
           leaveTo="opacity-0 scale-95"
         >
           <div
-            className={`inline-block w-full max-w-md p-6 my-8 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl ${className}`}
+            className={`inline-block w-full max-w-md p-6 my-10 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl ${className}`}
           >
             {children}
           </div>

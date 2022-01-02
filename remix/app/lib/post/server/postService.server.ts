@@ -2,12 +2,14 @@ import { addDays } from "date-fns";
 import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import { Flag } from "~/lib/post/data/flagSchema";
 import { Like } from "~/lib/post/data/likeSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { defaultSelect } from "~/lib/user/server/userService.server";
 
 const formatPost = (
   post: Post & {
+    flags: Flag[];
     likes: Like[];
     _count: {
       comments: number;
@@ -34,6 +36,11 @@ export const getPostList = async (user: User | null) => {
       createdAt: "desc",
     },
     include: {
+      flags: {
+        where: {
+          userId: user?.id || "",
+        },
+      },
       likes: {
         where: {
           userId: user?.id || "",
@@ -49,7 +56,9 @@ export const getPostList = async (user: User | null) => {
     },
   });
 
-  return list.filter((post) => post._count.flags < 1).map(formatPost) as Post[];
+  return list
+    .filter((post) => post.flags.length < 1 && post._count.flags < 3)
+    .map(formatPost) as Post[];
 };
 
 export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
@@ -57,6 +66,11 @@ export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
     where: { id: input.id },
     include: {
       comments: true,
+      flags: {
+        where: {
+          userId: user?.id || "",
+        },
+      },
       likes: {
         where: {
           userId: user?.id || "",
@@ -72,7 +86,7 @@ export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
     },
   });
 
-  if (!post || post._count.flags > 0) return null;
+  if (!post || !!post.flags.length || post._count.flags > 2) return null;
 
   return formatPost(post);
 };
