@@ -5,7 +5,7 @@ import { Logo } from "~/lib/core/ui/Logo";
 
 const Page = () => {
   const matches = useMatches();
-  const childRoute = matches.at(-1);
+  const childRoute = matches[matches.length - 1];
   const isNewPage = childRoute && childRoute.pathname === "/posts/new";
 
   return (
@@ -32,7 +32,7 @@ const Page = () => {
 
 const Nav = ({ isNewPage }: { isNewPage?: boolean }) => {
   return (
-    <nav className="flex py-5 justify-between items-center text-slate-500 text-sm leading-4 dark:text-slate-300">
+    <nav className="flex items-center justify-between py-5 text-sm leading-4 text-slate-500 dark:text-slate-300">
       <Link to="/">
         <Logo className="w-[7.5rem]" />
       </Link>
@@ -48,7 +48,7 @@ const Nav = ({ isNewPage }: { isNewPage?: boolean }) => {
           </li>
           <li>
             <Link
-              className="inline-flex items-center px-3 py-2 border-2 border-primary shadow-primary-sm rounded-md transition text-primary bg-white dark:bg-slate-800 hover:text-primary-dark hover:bg-primary-bg hover:no-underline dark:hover:text-primary-light dark:hover:border-primary-light"
+              className="inline-flex items-center px-3 py-2 transition bg-white border-2 rounded-md border-primary shadow-primary-sm text-primary dark:bg-slate-800 hover:text-primary-dark hover:bg-primary-bg hover:no-underline dark:hover:text-primary-light dark:hover:border-primary-light"
               to="/posts/new"
             >
               New Post
@@ -70,7 +70,7 @@ const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
   };
 
   return (
-    <footer className="flex py-5 justify-between items-center text-slate-500 text-sm leading-4 mt-5 dark:text-slate-100">
+    <footer className="flex items-center justify-between py-5 mt-5 text-sm leading-4 text-slate-500 dark:text-slate-100">
       <span>©{new Date().getFullYear()}, Made with 💻</span>
       <ul className="flex items-center gap-3">
         <li>
@@ -90,7 +90,7 @@ const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
         </li>
         <li>
           <select
-            className="py-1 px-2 text-xs rounded border-slate-500 bg-none text-center bg-transparent focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
+            className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
             value={theme}
             onChange={onThemeChange}
           >
