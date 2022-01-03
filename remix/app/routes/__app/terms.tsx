@@ -1,5 +1,14 @@
+import { MetaFunction } from "remix";
+import { createMeta } from "~/lib/core/util/meta";
+
+export let meta: MetaFunction = () => {
+  return createMeta({
+    title: "Terms of Use",
+  });
+};
+
 const Page = () => (
-  <main className="prose prose-slate mx-auto">
+  <main className="mx-auto prose prose-slate">
     <h1 className="text-2xl font-bold text-center">Terms of Use</h1>
     <p>
       By downloading or using the app, these terms will automatically apply to

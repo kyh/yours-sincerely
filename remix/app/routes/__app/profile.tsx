@@ -4,12 +4,20 @@ import {
   useLoaderData,
   json,
   redirect,
+  MetaFunction,
 } from "remix";
 import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
 import { updateUser } from "~/lib/user/server/userService.server";
+import { createMeta } from "~/lib/core/util/meta";
 import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
 import { NoProfile } from "~/lib/user/ui/NoProfile";
+
+export let meta: MetaFunction = () => {
+  return createMeta({
+    title: "Profile",
+  });
+};
 
 type LoaderData = {
   user: User | null;

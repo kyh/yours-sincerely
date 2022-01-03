@@ -1,5 +1,14 @@
+import { MetaFunction } from "remix";
+import { createMeta } from "~/lib/core/util/meta";
+
+export let meta: MetaFunction = () => {
+  return createMeta({
+    title: "Privacy Policy",
+  });
+};
+
 const Page = () => (
-  <main className="prose prose-slate mx-auto">
+  <main className="mx-auto prose prose-slate">
     <h1 className="text-2xl font-bold text-center">Privacy Policy</h1>
     <p>
       Kaiyu Hsu built the Yours Sincerely app as an Open Source app. This

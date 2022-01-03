@@ -15,6 +15,7 @@ import {
 } from "~/lib/auth/server/middleware/auth.server";
 import { createPost } from "~/lib/post/server/postService.server";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
+import { createMeta } from "~/lib/core/util/meta";
 import { Post } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { Dialog } from "~/lib/core/ui/Dialog";
@@ -27,11 +28,9 @@ import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
 import { isIOS } from "~/lib/core/util/platform";
 
 export let meta: MetaFunction = () => {
-  return {
+  return createMeta({
     title: "New Post",
-    description:
-      "An ephemeral anonymous blog to send each other tiny beautiful letters",
-  };
+  });
 };
 
 type LoaderData = {
