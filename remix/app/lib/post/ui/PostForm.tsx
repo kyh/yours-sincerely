@@ -52,7 +52,7 @@ export const PostForm = ({
   return (
     <Form className="relative h-full" method="post" onSubmit={handleSubmit}>
       <textarea
-        className="w-full h-full pt-6 pb-20 resize-none border-none outline-none text-lg dark:bg-slate-800"
+        className="w-full h-full pt-6 pb-20 text-lg border-none outline-none resize-none dark:bg-slate-800"
         name="content"
         defaultValue={localPost.content || ""}
         placeholder="Hello in there?"
@@ -60,15 +60,13 @@ export const PostForm = ({
         autoFocus
         required
       />
-      <footer className="absolute bottom-5 left-0 right-0 flex justify-between items-center">
+      <footer className="absolute left-0 right-0 flex items-center justify-between bottom-5">
         <div className="text-xs">
           <span className="block mb-1">
             {postingAs ? (
               <>
                 Publishing as:{" "}
-                <Link className="" to="/profile">
-                  {postingAs}
-                </Link>
+                <Link to="/profile?fromPath=/posts/new">{postingAs}</Link>
               </>
             ) : (
               "Publishing anonymously"

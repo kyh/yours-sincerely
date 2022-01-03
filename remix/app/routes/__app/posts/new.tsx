@@ -75,7 +75,7 @@ export const action: ActionFunction = async ({ request }) => {
     return redirect("/", { headers });
   }
 
-  return redirect(`/`);
+  return redirect("/");
 };
 
 const Page = () => {
@@ -119,7 +119,7 @@ const Page = () => {
         isOpen={isOpen}
         handleClose={() => setIsOpen(false)}
       >
-        <h1 className="text-2xl font-bold mb-4">
+        <h1 className="mb-4 text-2xl font-bold">
           Even ghostwriters have names
         </h1>
         <Form method="post" onSubmit={submitPost}>
@@ -132,7 +132,7 @@ const Page = () => {
           />
           <Button
             type="submit"
-            className="mt-4 pl-8 pr-8"
+            className="pl-8 pr-8 mt-4"
             disabled={transition.state === "submitting" || !isChecked}
           >
             Publish
