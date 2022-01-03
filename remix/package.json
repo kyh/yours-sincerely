@@ -8,19 +8,21 @@
     "seed": "npx ts-node -T prisma/seed.ts"
   },
   "scripts": {
-    "build": "npm run build:css && remix build",
+    "build": "npm run build:prisma && npm run build:css && npm run build:remix",
+    "build:prisma": "PRISMA_CLIENT_ENGINE_TYPE='dataproxy' dotenv -- prisma generate",
     "build:css": "tailwindcss -i ./styles/global.css -o ./app/tailwind.css --minify",
-    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "build:remix": "remix build",
+    "dev": "concurrently \"npm run dev:css\" \"npm run dev:remix\"",
     "dev:css": "tailwindcss -i ./styles/global.css -o ./app/tailwind.css --watch",
+    "dev:remix": "remix dev",
     "postinstall": "remix setup node",
     "start": "remix-serve build",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
-    "prisma:generate": "dotenv -e .env.local -- prisma generate",
-    "prisma:migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
-    "prisma:migrate:prod": "dotenv -e .env.local -- prisma migrate deploy",
-    "prisma:reset": "dotenv -e .env.local -- prisma migrate reset",
-    "prisma:seed": "dotenv -e .env.local -- prisma db seed"
+    "prisma:migrate:dev": "dotenv -- prisma migrate dev",
+    "prisma:migrate:prod": "dotenv -- prisma migrate deploy",
+    "prisma:reset": "dotenv -- prisma migrate reset",
+    "prisma:seed": "dotenv -- prisma db seed"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
