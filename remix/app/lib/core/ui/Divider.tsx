@@ -3,7 +3,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-export const Divide = ({ bgColor, children }: Props) => (
+export const Divider = ({ bgColor, children }: Props) => (
   <div className="relative my-5">
     <div className="absolute inset-0 flex items-center">
       <div className="w-full border-t border-slate-300 dark:border-slate-600" />

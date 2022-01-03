@@ -11,7 +11,7 @@ export const signupStrategy = new FormStrategy(async ({ form }) => {
 
   const user = await createUser({ email, password });
 
-  return user;
+  return user.id;
 });
 
 export const loginStrategy = new FormStrategy(async ({ form }) => {
@@ -28,5 +28,5 @@ export const loginStrategy = new FormStrategy(async ({ form }) => {
     throw new Error("Invalid credentials");
   }
 
-  return user;
+  return user.id;
 });

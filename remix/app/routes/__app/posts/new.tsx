@@ -9,18 +9,17 @@ import {
   useTransition,
   Form,
 } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
-import { createPost } from "~/lib/post/server/postService.server";
 import {
-  getSession,
-  commitSession,
-} from "~/lib/auth/server/middleware/session.server";
+  isAuthenticated,
+  attachUserSession,
+} from "~/lib/auth/server/middleware/auth.server";
+import { createPost } from "~/lib/post/server/postService.server";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";
-import { Divide } from "~/lib/core/ui/Divide";
+import { Divider } from "~/lib/core/ui/Divider";
 import { TextField } from "~/lib/core/ui/FormField";
 import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
@@ -40,7 +39,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await authenticator.isAuthenticated(request);
+  const user = await isAuthenticated(request);
   const data: LoaderData = {
     user,
   };
@@ -49,9 +48,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const user = await authenticator.isAuthenticated(request);
+  const user = await isAuthenticated(request);
   const formData = await request.formData();
   const { content, createdBy } = Object.fromEntries(formData) as Post;
+  const tempPassword = Math.random().toString(36).substring(2, 15);
 
   const post = await createPost({
     content: content || "",
@@ -63,9 +63,7 @@ export const action: ActionFunction = async ({ request }) => {
         },
         create: {
           name: createdBy,
-          passwordHash: await createPasswordHash(
-            Math.random().toString(36).substring(2, 15)
-          ),
+          passwordHash: await createPasswordHash(tempPassword),
         },
       },
     },
@@ -73,9 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   // Log user in after creation
   if (!user) {
-    const session = await getSession(request);
-    session.set(authenticator.sessionKey, post.user);
-    const headers = new Headers({ "Set-Cookie": await commitSession(session) });
+    const headers = await attachUserSession(request, post.user.id);
     return redirect("/", { headers });
   }
 
@@ -148,9 +144,9 @@ const Page = () => {
           </div>
         ) : (
           <>
-            <Divide bgColor="bg-white dark:bg-slate-900">
+            <Divider bgColor="bg-white dark:bg-slate-900">
               Or continue with
-            </Divide>
+            </Divider>
             <SocialLoginForm />
           </>
         )}

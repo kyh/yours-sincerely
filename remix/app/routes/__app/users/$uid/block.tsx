@@ -1,5 +1,5 @@
 import { ActionFunction, LoaderFunction, redirect, json } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
 import {
   createBlock,
   deleteBlock,
@@ -10,7 +10,7 @@ export const loader: LoaderFunction = () => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const user = await authenticator.isAuthenticated(request);
+  const user = await isAuthenticated(request);
   const blockerId = user?.id;
   const blockingId = params.uid;
 
