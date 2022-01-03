@@ -4,6 +4,7 @@ import { User } from "~/lib/user/data/userSchema";
 import { getPost } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
+import { createMeta } from "~/lib/core/util/meta";
 
 export let meta: MetaFunction = ({
   data,
@@ -11,15 +12,15 @@ export let meta: MetaFunction = ({
   data: LoaderData | undefined;
 }) => {
   if (!data || !data.post) {
-    return {
+    return createMeta({
       title: "Invalid Post",
       description: "This post does not exist or is under review",
-    };
+    });
   }
-  return {
-    title: `Yours Sincerely, ${data.post.createdBy}`,
+  return createMeta({
+    siteTitle: `Yours Sincerely, ${data.post.createdBy}`,
     description: `A lovely letter by ${data.post.createdBy} which will dissapear into the ether in a few days`,
-  };
+  });
 };
 
 type LoaderData = {
@@ -43,7 +44,7 @@ const Page = () => {
   const { post } = useLoaderData<LoaderData>();
 
   return (
-    <main className="py-5 flex flex-col gap-8">
+    <main className="flex flex-col gap-8 py-5">
       {post && (
         <PostContent post={post} showLink={false} showTimer={false} showMore />
       )}
