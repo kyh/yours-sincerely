@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { Dialog } from "~/lib/core/ui/Dialog";
-import { Divide } from "~/lib/core/ui/Divide";
+import { Divider } from "~/lib/core/ui/Divider";
 import { Post } from "~/lib/post/data/postSchema";
 
 type Props = {
@@ -115,7 +115,9 @@ export const ShareButton = ({ post }: Props) => {
             </svg>
           </a>
         </div>
-        <Divide bgColor="bg-white dark:bg-slate-900">Or share with link</Divide>
+        <Divider bgColor="bg-white dark:bg-slate-900">
+          Or share with link
+        </Divider>
         <div className="relative">
           <input
             id="share"

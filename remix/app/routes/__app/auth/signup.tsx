@@ -1,11 +1,11 @@
 import { Link, ActionFunction } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { authenticate } from "~/lib/auth/server/middleware/auth.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
-import { Divide } from "~/lib/core/ui/Divide";
+import { Divider } from "~/lib/core/ui/Divider";
 
 export const action: ActionFunction = async ({ request }) => {
-  return await authenticator.authenticate("signup", request, {
+  return authenticate("signup", request, {
     successRedirect: "/",
     failureRedirect: "/auth/signup",
   });
@@ -22,7 +22,7 @@ const Page = () => {
       </hgroup>
       <div className="bg-white p-8 shadow-md rounded-lg">
         <AuthForm authType="signup" submitButtonText="Sign up" />
-        <Divide bgColor="bg-white">Or continue with</Divide>
+        <Divider bgColor="bg-white">Or continue with</Divider>
         <SocialLoginForm />
       </div>
       <div className="flex justify-between mt-2">

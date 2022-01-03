@@ -1,14 +1,7 @@
-import {
-  Form,
-  useLoaderData,
-  useFormAction,
-  useSubmit,
-  useTransition,
-} from "remix";
+import { Form, useLoaderData, useFormAction, useTransition } from "remix";
+import { Button } from "~/lib/core/ui/Button";
 import { TextField } from "~/lib/core/ui/FormField";
-import { Spinner } from "~/lib/core/ui/Spinner";
 import { User } from "~/lib/user/data/userSchema";
-import { isIOS } from "~/lib/core/util/platform";
 
 type LoaderData = {
   user: User;
@@ -16,52 +9,39 @@ type LoaderData = {
 
 export const Profile = () => {
   const { user } = useLoaderData<LoaderData>();
-  const submit = useSubmit();
   const transition = useTransition();
 
-  const handleNameBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    submit({ name: event.target.value }, { method: "post", replace: true });
-  };
-
   return (
-    <section className="sm:flex">
-      <img
-        className="m-auto sm:w-1/2"
-        src="/assets/dancing.svg"
-        alt="Not logged in"
-        width={300}
-        height={225}
+    <Form className="max-w-sm mx-auto flex flex-col gap-8" method="post">
+      <TextField
+        label="Your alias"
+        id="name"
+        name="name"
+        className="text-2xl font-bold"
+        defaultValue={user.name || ""}
+        placeholder="Anonymous"
       />
-      <div className="sm:w-1/2">
-        <Form method="post">
-          <div className="relative">
-            <TextField
-              label="Your alias"
-              id="name"
-              name="name"
-              className="text-2xl font-bold"
-              defaultValue={user.name || ""}
-              disabled={transition.state === "submitting"}
-              onBlur={handleNameBlur}
-            />
-            <Spinner
-              className="absolute right-2 top-9"
-              loading={transition.state === "submitting"}
-            />
-          </div>
-          {!isIOS() && (
-            <button
-              className="mt-10 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 rounded-md w-full justify-center transition text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto"
-              type="submit"
-              formAction={useFormAction("/auth/logout")}
-              formMethod="post"
-            >
-              Logout
-            </button>
-          )}
-        </Form>
+      <TextField
+        label="Email"
+        id="email"
+        name="email"
+        className="text-2xl font-bold"
+        placeholder="your@mail.com"
+        defaultValue={user.email || ""}
+      />
+      <div className="flex items-center justify-between">
+        <Button type="submit" disabled={transition.state === "submitting"}>
+          Save Changes
+        </Button>
+        <button
+          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 rounded-md justify-center transition text-red-700 hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-300"
+          type="submit"
+          formAction={useFormAction("/auth/logout")}
+          formMethod="post"
+        >
+          Logout
+        </button>
       </div>
-    </section>
+    </Form>
   );
 };

@@ -14,7 +14,7 @@ export const googleStrategy = new GoogleStrategy(
       providerAccountId: profile.id,
     });
 
-    if (account) return account.user;
+    if (account) return account.user.id;
 
     const user = await createUser({
       name: profile.displayName,
@@ -28,6 +28,6 @@ export const googleStrategy = new GoogleStrategy(
       },
     });
 
-    return user;
+    return user.id;
   }
 );

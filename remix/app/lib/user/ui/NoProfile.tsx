@@ -1,5 +1,5 @@
 import { Link } from "remix";
-import { Divide } from "~/lib/core/ui/Divide";
+import { Divider } from "~/lib/core/ui/Divider";
 import { isIOS } from "~/lib/core/util/platform";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 
@@ -37,7 +37,7 @@ export const NoProfile = () => {
       </section>
       {!isIOS() && (
         <div>
-          <Divide>Or continue with</Divide>
+          <Divider>Or continue with</Divider>
           <SocialLoginForm />
         </div>
       )}

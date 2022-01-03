@@ -1,5 +1,5 @@
 import { LoaderFunction, MetaFunction, useLoaderData } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPost } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
@@ -28,7 +28,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await authenticator.isAuthenticated(request);
+  const user = await isAuthenticated(request);
   const post = await getPost({ id: params.pid }, user);
 
   const data: LoaderData = {
