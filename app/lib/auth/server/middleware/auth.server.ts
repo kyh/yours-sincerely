@@ -12,13 +12,11 @@ import {
 } from "~/lib/auth/server/strategy/form.server";
 import { googleStrategy } from "~/lib/auth/server/strategy/google.server";
 
-const authenticator = new Authenticator<User["id"]>(sessionStorage);
+export const authenticator = new Authenticator<User["id"]>(sessionStorage);
 
 authenticator.use(signupStrategy, "signup");
 authenticator.use(loginStrategy, "login");
 authenticator.use(googleStrategy, "google");
-
-export const { sessionKey, authenticate } = authenticator;
 
 export const isAuthenticated = async (request: Request) => {
   const userId = await authenticator.isAuthenticated(request);
@@ -28,7 +26,7 @@ export const isAuthenticated = async (request: Request) => {
 
 export const attachUserSession = async (request: Request, id: User["id"]) => {
   const session = await getSession(request);
-  session.set(sessionKey, id);
+  session.set(authenticator.sessionKey, id);
   const headers = new Headers({ "Set-Cookie": await commitSession(session) });
   return headers;
 };

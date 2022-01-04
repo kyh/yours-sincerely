@@ -1,9 +1,9 @@
 import { LoaderFunction } from "remix";
-import { authenticate } from "~/lib/auth/server/middleware/auth.server";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
 
-export const loader: LoaderFunction = ({ request }) => {
-  return authenticate("google", request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  return authenticator.authenticate("google", request, {
     successRedirect: "/",
-    failureRedirect: "/login",
+    failureRedirect: "/auth/login",
   });
 };

@@ -1,8 +1,8 @@
 import { ActionFunction, LoaderFunction, redirect } from "remix";
-import { authenticate } from "~/lib/auth/server/middleware/auth.server";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
 
-export const loader: LoaderFunction = () => redirect("/login");
+export const loader: LoaderFunction = () => redirect("/auth/login");
 
-export const action: ActionFunction = ({ request }) => {
-  return authenticate("google", request);
+export const action: ActionFunction = async ({ request }) => {
+  return authenticator.authenticate("google", request);
 };
