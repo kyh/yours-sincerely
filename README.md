@@ -9,144 +9,60 @@
 
 ## 👉 Get Started
 
-This repository is a monorepo managed through [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
+The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) application structure. You can find the entry point the web application in the `app` directory.
+
+You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory.
 
 ```
-├── /web                         # Next.js web client
-|   └── /src
-│       ├── /components          # Shared React components
-│       ├── /pages               # App routes
-│       └── /util                # Utility modules
-├── /scripts                     # Migration scripts
-├── /functions                   # Firebase functions
-└── /native                      # iOS/Android clients
+├── /api                     # Remix server
+├── /app                     # Web client
+|   ├── /lib                 # Feature source code (most of the logic lives here)
+|   └── /routes              # Remix file sytem routes
+├── /prisma                  # Prisma schema and database associated files
+├── /public                  # Static assets
+└── /styles                  # Global styles
 ```
 
 ### Install dependencies
 
-```
-npm install firebase-tools -g
+- [Node.js](https://nodejs.org/en/) - LTS version recommended
+- [Docker](https://www.docker.com/get-started) - [Compose](https://docs.docker.com/compose/) to run multi containers locally
+
+We leverage [Docker Compose](https://docs.docker.com/compose/overview/) to manage db/3p API containers for each project.
+
+### Local Development
+
+```sh
+# Installing dependencies
 npm install
+
+# Start a docker container containing your local database
+npm run docker:start
+# If you run into `invalid mount config for type "bind": bind source path does not exist: /db` error, you need to create a db folder - `mkdir db`
+
+# Run db migrations
+npm run db:migrate:dev
+
+# Seed your database
+npm run db:seed
+
+# To start the apps
+npm run dev # or npm run dev:api && npm run dev:web if you'd like to run them independently
 ```
 
-### Run the development server
-
-```
-npm run dev
-```
-
-This will start both the [Firebase local emulators](https://firebase.google.com/docs/emulator-suite) and the Next.js development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
+This will start the [Next.js](https://nextjs.org/) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
 
 ## 🥞 Stack
 
 This project uses the following libraries and services:
 
-- Framework - [Next.js](https://nextjs.org)
-- Authentication - [Firebase Auth](https://firebase.google.com/products/auth)
-- Database - [Cloud Firestore](https://firebase.google.com/products/firestore)
+- Framework - [Remix](https://remix.run)
+- Styling - [Tailwind](https://tailwindcss.com)
+- Database - [MySQL (PlanetScale)](https://planetscale.com/) + [Prisma](https://www.prisma.io/)
 - Payments - [Stripe](https://stripe.com)
-- Contact Form - [Google Sheets](https://www.google.com/sheets/about/)
-- Analytics - [Google Analytics](https://googleanalytics.com)
+- Analytics - [Splitbee](https://splitbee.io/)
 - Hosting - [Vercel](https://vercel.com)
 
-## 📚 Guide
+## 📚 Documentation
 
-<details>
-<summary><b>Routing</b></summary>
-<p>
-  This project uses the built-in Next.js router and its convenient <code>useRouter</code> hook. Learn more in the <a target="_blank" href="https://github.com/zeit/next.js/#routing">Next.js docs</a>.
-
-```js
-import Link from "next/link";
-import { useRouter } from "next/router";
-
-function MyComponent() {
-  // Get the router object
-  const router = useRouter();
-
-  // Get value from query string (?postId=123) or route param (/:postId)
-  console.log(router.query.postId);
-
-  // Get current pathname
-  console.log(router.pathname);
-
-  // Navigate with the <Link> component or with router.push()
-  return (
-    <div>
-      <Link href="/about">
-        <a>About</a>
-      </Link>
-      <button onClick={(e) => router.push("/about")}>About</button>
-    </div>
-  );
-}
-```
-
-</p>
-</details>
-
-<details>
-<summary><b>Authentication</b></summary>
-<p>
-  This project uses <a href="https://firebase.google.com">Firebase Auth</a> and includes a convenient <code>useAuth</code> hook (located in <code><a href="src/util/auth.js">src/util/auth.js</a></code>) that wraps Firebase and gives you common authentication methods. Depending on your needs you may want to edit this file and expose more Firebase functionality.
-
-```js
-import { useAuth } from "util/auth.js";
-
-function MyComponent() {
-  // Get the auth object in any component
-  const auth = useAuth();
-
-  // Depending on auth state show signin or signout button
-  // auth.user will either be an object, null when loading, or false if signed out
-  return (
-    <div>
-      {auth.user ? (
-        <button onClick={(e) => auth.signout()}>Signout</button>
-      ) : (
-        <button onClick={(e) => auth.signin("hello@divjoy.com", "yolo")}>
-          Signin
-        </button>
-      )}
-    </div>
-  );
-}
-```
-
-</p>
-</details>
-
-<details>
-<summary><b>Database</b></summary>
-<p>
-  This project uses <a href="https://firebase.google.com/products/firestore">Cloud Firestore</a> with query hooks located in `actions/*` folder
-
-```js
-import { useAuth } from 'actions/auth.js';
-import { usePosts } from 'actions/post.js';
-import PostList from './PostList.js';
-
-function PostsPage(){
-  const auth = useAuth();
-
-  // Fetch posts by owner
-  // Returned status value will be "idle" if we're waiting on
-  // the uid value or "loading" if the query is executing.
-  const uid = auth.user ? auth.user.uid : undefined;
-  const { data: posts, status } = usePosts(uid);
-
-  // Once we have posts data render PostsList component
-  return (
-    <div>
-      {(status === "idle" || status === "loading") ? (
-        <span>One moment please</span>
-      ) : (
-        <PostsList data={posts}>
-      )}
-    </div>
-  );
-}
-```
-
-</p>
-</details>
+For further documentation you can refer to the [`/docs`](/docs) directory.
