@@ -1,5 +1,5 @@
 import { Link, ActionFunction, MetaFunction } from "remix";
-import { authenticate } from "~/lib/auth/server/middleware/auth.server";
+import { authenticator } from "~/lib/auth/server/middleware/auth.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { Divider } from "~/lib/core/ui/Divider";
@@ -12,7 +12,7 @@ export let meta: MetaFunction = () => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  return authenticate("signup", request, {
+  return authenticator.authenticate("signup", request, {
     successRedirect: "/",
     failureRedirect: "/auth/signup",
   });

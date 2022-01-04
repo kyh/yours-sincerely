@@ -19,6 +19,7 @@
     "start": "remix-serve build",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
+    "prisma:generate": "dotenv -- prisma generate",
     "prisma:migrate:dev": "dotenv -- prisma migrate dev",
     "prisma:migrate:prod": "dotenv -- prisma migrate deploy",
     "prisma:reset": "dotenv -- prisma migrate reset",
@@ -49,12 +50,12 @@
     "@types/bcrypt": "^5.0.0",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
-    "concurrently": "^6.5.1",
+    "concurrently": "^7.0.0",
     "husky": "^7.0.1",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "prisma": "^3.7.0",
-    "tailwindcss": "^3.0.8",
+    "tailwindcss": "^3.0.9",
     "typescript": "^4.1.2"
   },
   "engines": {
