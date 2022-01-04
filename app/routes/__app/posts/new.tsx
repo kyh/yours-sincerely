@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MetaFunction,
   LoaderFunction,
@@ -25,7 +25,7 @@ import { TextField } from "~/lib/core/ui/FormField";
 import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
-import { isIOS } from "~/lib/core/util/platform";
+import { usePlatform } from "~/lib/core/ui/Platform";
 
 export let meta: MetaFunction = () => {
   return createMeta({
@@ -78,11 +78,16 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const Page = () => {
+  const { isIOS } = usePlatform();
   const { user } = useLoaderData<LoaderData>();
   const submit = useSubmit();
   const transition = useTransition();
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecked, setIsChecked] = useState(!isIOS());
+  const [isChecked, setIsChecked] = useState(true);
+
+  useEffect(() => {
+    if (isIOS) setIsChecked(false);
+  }, [isIOS]);
 
   const submitPost = (e?: React.FormEvent) => {
     if (!user && !e) return setIsOpen(true);
@@ -137,7 +142,7 @@ const Page = () => {
             Publish
           </Button>
         </Form>
-        {isIOS() ? (
+        {isIOS ? (
           <div className="mt-3 text-left">
             <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
           </div>

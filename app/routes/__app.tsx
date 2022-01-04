@@ -1,6 +1,7 @@
 import { Outlet, Link, useMatches } from "remix";
 import { Toaster } from "react-hot-toast";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
+import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { Logo } from "~/lib/core/ui/Logo";
 
 const Page = () => {
@@ -9,24 +10,26 @@ const Page = () => {
   const isNewPage = childRoute && childRoute.pathname === "/posts/new";
 
   return (
-    <ThemeProvider>
-      <section
-        className={`page ${isNewPage ? "bg-white dark:bg-slate-800" : ""}`}
-      >
-        <Toaster
-          position="bottom-center"
-          toastOptions={{
-            style: {
-              background: "rgb(15 23 42)",
-              color: "rgb(248 250 252)",
-            },
-          }}
-        />
-        <Nav isNewPage={isNewPage} />
-        <Outlet />
-        <Footer isNewPage={isNewPage} />
-      </section>
-    </ThemeProvider>
+    <PlatformProvider>
+      <ThemeProvider>
+        <section
+          className={`page ${isNewPage ? "bg-white dark:bg-slate-800" : ""}`}
+        >
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                background: "rgb(15 23 42)",
+                color: "rgb(248 250 252)",
+              },
+            }}
+          />
+          <Nav isNewPage={isNewPage} />
+          <Outlet />
+          <Footer isNewPage={isNewPage} />
+        </section>
+      </ThemeProvider>
+    </PlatformProvider>
   );
 };
 

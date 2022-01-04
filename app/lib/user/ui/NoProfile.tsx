@@ -1,9 +1,10 @@
 import { Link } from "remix";
 import { Divider } from "~/lib/core/ui/Divider";
-import { isIOS } from "~/lib/core/util/platform";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
+import { usePlatform } from "~/lib/core/ui/Platform";
 
 export const NoProfile = () => {
+  const { isIOS } = usePlatform();
   return (
     <>
       <section className="sm:flex">
@@ -15,16 +16,16 @@ export const NoProfile = () => {
           height={225}
         />
         <div className="sm:w-1/2">
-          {isIOS() ? (
+          {isIOS ? (
             <>
-              <h1 className="text-3xl font-bold my-5">No account required</h1>
+              <h1 className="my-5 text-3xl font-bold">No account required</h1>
               <p>
                 Just <Link to="/posts/new">make a post</Link> to get started
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-bold my-5">
+              <h1 className="my-5 text-3xl font-bold">
                 You’re not signed in...
               </h1>
               <p>
@@ -35,7 +36,7 @@ export const NoProfile = () => {
           )}
         </div>
       </section>
-      {!isIOS() && (
+      {!isIOS && (
         <div>
           <Divider>Or continue with</Divider>
           <SocialLoginForm />
