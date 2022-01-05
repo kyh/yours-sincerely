@@ -29,8 +29,6 @@ You'll notice that the Remix routes are just thin wrappers and most of the heavy
 - [Node.js](https://nodejs.org/en/) - LTS version recommended
 - [Docker](https://www.docker.com/get-started) - [Compose](https://docs.docker.com/compose/) to run multi containers locally
 
-We leverage [Docker Compose](https://docs.docker.com/compose/overview/) to manage db/3p API containers for each project.
-
 ### Local Development
 
 ```sh
@@ -51,7 +49,7 @@ npm run db:seed
 npm run dev # or npm run dev:api && npm run dev:web if you'd like to run them independently
 ```
 
-This will start the [Next.js](https://nextjs.org/) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
+This will start the [Remix](https://remix.run) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
 
 ## 🥞 Stack
 

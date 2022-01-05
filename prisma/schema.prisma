@@ -1,15 +1,15 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["dataproxy", "referentialIntegrity"]
-}
-
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
   referentialIntegrity = "prisma"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["dataproxy", "referentialIntegrity"]
 }
 
 model Account {
@@ -80,7 +80,7 @@ enum TokenType {
 
 model Post {
   id        String  @id @default(cuid())
-  content   String
+  content   String  @db.Text
   createdBy String?
 
   likes Like[]
