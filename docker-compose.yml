@@ -7,8 +7,8 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DB: dev
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_DB: yours-sincerely
 
   maildev:
     container_name: dev_maildev_container

@@ -21,7 +21,7 @@ model Account {
   expiresAt         Int?
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -46,8 +46,8 @@ model User {
   likes Like[]
   flags Flag[]
 
-  blockedBy Block[] @relation("blocking")
-  blocking  Block[] @relation("blocker")
+  blockedBy Block[] @relation(name: "blocking")
+  blocking  Block[] @relation(name: "blocker")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,7 +65,7 @@ model Token {
   expiresAt   DateTime?
   sentTo      String?
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   userId String
 
   createdAt DateTime @default(now())
@@ -98,7 +98,7 @@ model Post {
   comments Post[]  @relation(name: "comments")
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,10 +108,10 @@ model Post {
 
 model Like {
   postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -125,10 +125,10 @@ model Flag {
   resolved Boolean @default(false)
 
   postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -139,10 +139,10 @@ model Flag {
 
 model Block {
   blockerId String
-  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id])
+  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id], onUpdate: NoAction)
 
   blockingId String
-  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id])
+  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id], onUpdate: NoAction)
 
   @@id([blockerId, blockingId])
   @@index([blockerId])
