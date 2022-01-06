@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { randomBytes } from "crypto";
 import {
   MetaFunction,
   LoaderFunction,
@@ -50,7 +51,7 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   const formData = await request.formData();
   const { content, createdBy } = Object.fromEntries(formData) as Post;
-  const tempPassword = Math.random().toString(36).substring(2, 15);
+  const tempPassword = randomBytes(20).toString("hex");
 
   const post = await createPost({
     content: content || "",

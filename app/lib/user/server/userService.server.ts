@@ -86,9 +86,14 @@ export const createUser = async (
 };
 
 export const updateUser = async (
-  input: Pick<User, "id"> & Prisma.UserUpdateInput
+  input: Pick<User, "id"> & Prisma.UserUpdateInput & { password?: string }
 ) => {
-  const { id, ...data } = input;
+  const { id, password, ...data } = input;
+
+  if (password) {
+    data.passwordHash = await createPasswordHash(password);
+  }
+
   const updated = await prisma.user.update({
     where: { id },
     data,
