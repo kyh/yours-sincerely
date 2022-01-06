@@ -28,7 +28,7 @@ const Page = () => {
         </h2>
       </hgroup>
       <div className="p-8 bg-white rounded-lg shadow-md dark:bg-slate-900">
-        <AuthForm authType="signup" submitButtonText="Sign up" />
+        <AuthForm authType="signup" />
         <Divider bgColor="bg-white dark:bg-slate-900">Or continue with</Divider>
         <SocialLoginForm />
       </div>
