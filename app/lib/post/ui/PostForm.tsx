@@ -27,6 +27,7 @@ type Props = {
   post?: Post;
   isSubmitting: boolean;
   onSubmit: () => void;
+  updatePostingAs: () => void;
 };
 
 export const PostForm = ({
@@ -34,6 +35,7 @@ export const PostForm = ({
   postingAs,
   onSubmit,
   isSubmitting,
+  updatePostingAs,
 }: Props) => {
   const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
   const [localPost, setLocalPost] = useState<Post>(post || {});
@@ -65,10 +67,26 @@ export const PostForm = ({
           <span className="block mb-1">
             {postingAs ? (
               <>
-                Publishing as: <span>{postingAs}</span>
+                Publishing as:{" "}
+                <button
+                  type="button"
+                  className="underline decoration-dotted underline-offset-2"
+                  onClick={updatePostingAs}
+                >
+                  {postingAs}
+                </button>
               </>
             ) : (
-              "Publishing anonymously"
+              <>
+                Publishing{" "}
+                <button
+                  type="button"
+                  className="underline decoration-dotted underline-offset-2"
+                  onClick={updatePostingAs}
+                >
+                  anonymously
+                </button>
+              </>
             )}
           </span>
           <span className="block text-slate-500">

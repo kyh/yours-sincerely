@@ -18,6 +18,7 @@ import {
   generateToken,
   createPasswordHash,
 } from "~/lib/auth/server/authService.server";
+import { updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
@@ -76,9 +77,10 @@ export const action: ActionFunction = async ({ request }) => {
   if (!user) {
     const headers = await attachUserSession(request, post.user.id);
     return redirect("/", { headers });
+  } else {
+    await updateUser({ id: user.id, displayName: createdBy });
+    return redirect("/");
   }
-
-  return redirect("/");
 };
 
 const Page = () => {
@@ -88,28 +90,25 @@ const Page = () => {
   const transition = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
+  const [postingAs, setPostingAs] = useState(user?.displayName || "");
 
   useEffect(() => {
     if (isIOS) setIsChecked(false);
   }, [isIOS]);
 
-  const submitPost = (e?: React.FormEvent) => {
-    if (!user && !e) return setIsOpen(true);
+  const savePostingAs = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = new FormData(e.target as HTMLFormElement);
+    const input = Object.fromEntries(data.entries()) as {
+      createdBy: string;
+    };
+    setPostingAs(input.createdBy);
+    setIsOpen(false);
+  };
 
-    let createdBy = user?.displayName || "Anonymous";
-
-    if (e) {
-      e.preventDefault();
-      const data = new FormData(e.target as HTMLFormElement);
-      const input = Object.fromEntries(data.entries()) as {
-        createdBy: string;
-      };
-      createdBy = input["createdBy"];
-    }
-
+  const submitPost = () => {
     const { content } = getStoredPostAndClear();
-    const submission = { content: content || "", createdBy };
-
+    const submission = { content: content || "", createdBy: postingAs };
     submit(submission, {
       method: "post",
     });
@@ -118,9 +117,10 @@ const Page = () => {
   return (
     <main>
       <PostForm
-        postingAs={user?.displayName}
+        postingAs={postingAs}
         isSubmitting={transition.state === "submitting"}
         onSubmit={submitPost}
+        updatePostingAs={() => setIsOpen(true)}
       />
       <Dialog
         className="pb-[110px]"
@@ -130,7 +130,7 @@ const Page = () => {
         <h1 className="mb-4 text-2xl font-bold">
           Even ghostwriters have names
         </h1>
-        <Form method="post" onSubmit={submitPost}>
+        <Form method="post" onSubmit={savePostingAs}>
           <TextField
             id="createdBy"
             name="createdBy"
@@ -143,7 +143,7 @@ const Page = () => {
             className="pl-8 pr-8 mt-4"
             disabled={transition.state === "submitting" || !isChecked}
           >
-            Publish
+            Save and continue
           </Button>
         </Form>
         {isIOS ? (
