@@ -9,23 +9,6 @@
   fill: currentColor;
 }
 
-.block {
-  stroke: #ddd6fe;
-  stroke-width: 1px;
-  shape-rendering: geometricPrecision;
-}
-
-.footer {
-  display: flex;
-}
-
-.legend-colors {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.2em;
-}
-
 @keyframes loadingAnimation {
   0% {
     fill: var(--activity-calendar-loading);

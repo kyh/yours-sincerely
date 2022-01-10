@@ -1,4 +1,4 @@
-import { FunctionComponent, CSSProperties, ReactNode } from "react";
+import { FunctionComponent, CSSProperties } from "react";
 import { format, getDay, getYear, parseISO } from "date-fns";
 import type { Day as WeekDay } from "date-fns";
 
@@ -120,13 +120,8 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   theme: themeProp,
   weekStart = 0, // Sunday
 }: Props) => {
-  if (loading) {
-    data = generateEmptyData();
-  }
-
-  if (data.length === 0) {
-    return null;
-  }
+  if (loading) data = generateEmptyData();
+  if (data.length === 0) return null;
 
   const weeks = groupByWeeks(data, weekStart);
   const totalCount = data.reduce((sum, day) => sum + day.count, 0);
@@ -258,7 +253,8 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
               fill={theme[`level${day.level}` as keyof Theme]}
               rx={blockRadius}
               ry={blockRadius}
-              className="block"
+              strokeWidth={1}
+              stroke={theme.stroke}
               data-date={day.date}
               data-tip={getTooltipMessage(day)}
               key={day.date}
@@ -280,10 +276,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     }
 
     return (
-      <footer
-        className="footer"
-        style={{ marginTop: 2 * blockMargin, fontSize }}
-      >
+      <footer className="flex" style={{ marginTop: 2 * blockMargin, fontSize }}>
         {/* Placeholder */}
         {loading && <div>&nbsp;</div>}
 
@@ -298,7 +291,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         )}
 
         {!loading && !hideColorLegend && (
-          <div className="legend-colors">
+          <div className="ml-auto flex items-center gap-1">
             <span style={{ marginRight: "0.4em" }}>
               {labels?.legend?.less ?? "Less"}
             </span>

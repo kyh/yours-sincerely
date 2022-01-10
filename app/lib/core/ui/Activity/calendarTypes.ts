@@ -27,6 +27,7 @@ export interface Theme {
   readonly level2: string;
   readonly level1: string;
   readonly level0: string;
+  readonly stroke: string;
 }
 
 export type SVGRectEventHandler = Omit<

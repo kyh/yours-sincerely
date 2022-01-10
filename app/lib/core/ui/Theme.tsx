@@ -44,9 +44,11 @@ export const setDocumentTheme = (rawTheme: Theme) => {
 export const ThemeContext = createContext<{
   theme: Theme;
   setTheme: React.Dispatch<React.SetStateAction<Theme>>;
+  isDarkMode: boolean;
 }>({
   theme: "light",
   setTheme: () => {},
+  isDarkMode: false,
 });
 
 export const useTheme = () => {
@@ -55,13 +57,14 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState(getInitialTheme);
+  const isDarkMode = isDark(theme);
 
   useEffect(() => {
     setDocumentTheme(theme);
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );
