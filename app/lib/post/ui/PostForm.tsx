@@ -23,6 +23,7 @@ export const getStoredPostAndClear = () => {
 };
 
 type Props = {
+  placeholder?: string;
   postingAs?: string | null;
   post?: Post;
   isSubmitting: boolean;
@@ -31,6 +32,7 @@ type Props = {
 };
 
 export const PostForm = ({
+  placeholder = "Hello world",
   post,
   postingAs,
   onSubmit,
@@ -57,7 +59,7 @@ export const PostForm = ({
         className="w-full h-full pt-6 pb-20 text-lg border-none outline-none resize-none dark:bg-slate-800"
         name="content"
         defaultValue={localPost.content || ""}
-        placeholder="Hello in there?"
+        placeholder={placeholder}
         onBlur={(e) => storePost({ content: e.target.value })}
         autoFocus
         required
