@@ -35,8 +35,14 @@ export const PostContent = ({
         <p className="text-lg whitespace-pre-wrap">{post.content}</p>
       )}
       <footer className="flex items-center justify-between mt-4">
-        <div className="before:content-['Yours_Sincerely,_'] inline-block mr-1 align-[1px] italic">
-          {post.createdBy}
+        <div className="italic">
+          <span className="inline-flex mr-1 align-[1px]">Yours Sincerely,</span>
+          <Link
+            className="inline-flex text-slate-900 underline underline-offset-2 decoration-dotted dark:text-slate-50"
+            to={`/${post.userId}`}
+          >
+            {post.createdBy}
+          </Link>
         </div>
         <div className="flex items-center gap-1">
           {showLike && <LikeButton post={post} />}

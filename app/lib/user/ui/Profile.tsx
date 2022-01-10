@@ -1,9 +1,10 @@
 import { Link, Form, useTransition } from "remix";
+import { useTheme } from "~/lib/core/ui/Theme";
 import {
   ActivityCalendar,
   ActivityWeek,
   Day,
-  fullDayLabel,
+  FULL_DAY_LABELS,
 } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";
 
@@ -19,8 +20,27 @@ type Props = {
   };
 };
 
+const lightTheme = {
+  level4: "#312e81",
+  level3: "#4338ca",
+  level2: "#6366f1",
+  level1: "#a5b4fc",
+  level0: "#e0e7ff",
+  stroke: "#ddd6fe",
+};
+
+const darkTheme = {
+  level4: "#6366f1",
+  level3: "#4f46e5",
+  level2: "#4338ca",
+  level1: "#3730a3",
+  level0: "#272567",
+  stroke: "#312e81",
+};
+
 export const Profile = ({ user, stats, showEdit }: Props) => {
   const transition = useTransition();
+  const { isDarkMode } = useTheme();
 
   return (
     <section className="flex flex-col max-w-lg gap-8 mx-auto">
@@ -32,15 +52,26 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
           </Link>
         )}
       </h1>
-      <ActivityCalendar data={stats.heatmap.stats} />
+      <ActivityCalendar
+        data={stats.heatmap.stats}
+        theme={isDarkMode ? darkTheme : lightTheme}
+      />
       <div>
         <h2 className="font-bold text-sm">
           Favorite day to write is on{" "}
           <span className="text-primary">
-            {fullDayLabel[stats.daily.max.day as keyof typeof fullDayLabel]}s
+            {
+              FULL_DAY_LABELS[
+                stats.daily.max.day as keyof typeof FULL_DAY_LABELS
+              ]
+            }
+            s
           </span>
         </h2>
-        <ActivityWeek data={stats.daily.stats} />
+        <ActivityWeek
+          data={stats.daily.stats}
+          theme={isDarkMode ? darkTheme : lightTheme}
+        />
       </div>
       {showEdit && (
         <Form

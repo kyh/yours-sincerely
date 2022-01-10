@@ -20,6 +20,7 @@ export const DEFAULT_THEME = {
   level2: "#8b5cf6",
   level1: "#c4b5fd",
   level0: "#ede9fe",
+  stroke: "#ddd6fe",
 };
 
 interface Label {
@@ -171,7 +172,7 @@ export const DEFAULT_WEEKDAY_LABELS = [
   "Sat",
 ];
 
-export const fullDayLabel = {
+export const FULL_DAY_LABELS = {
   Sun: "Sunday",
   Mon: "Monday",
   Tue: "Tuesday",

@@ -92,4 +92,8 @@
   .tooltip::after {
     content: none !important;
   }
+
+  .dark .tooltip {
+    background: theme("colors.slate.900") !important;
+  }
 }

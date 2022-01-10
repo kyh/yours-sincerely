@@ -1,20 +1,23 @@
 import { Theme } from "./calendarTypes";
 import {
-  DEFAULT_THEME,
+  getTheme,
   DEFAULT_WEEKDAY_LABELS,
-  fullDayLabel,
+  FULL_DAY_LABELS,
 } from "./calendarUtil";
 
 type Props = {
   data: Record<string, { count: number; level: number }>;
+  theme?: Theme;
 };
 
-export const ActivityWeek = ({ data }: Props) => {
+export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
+  const theme = getTheme(themeProp);
+
   return (
     <svg width="100%" height="100px">
       <rect
         className="block"
-        fill="#ede9fe"
+        fill={theme.level0}
         width="100%"
         height="16px"
         rx="8px"
@@ -30,9 +33,11 @@ export const ActivityWeek = ({ data }: Props) => {
             cy="50px"
             rx={data[day] ? `${data[day].level * 4}` : "0"}
             ry={data[day] ? `${data[day].level * 4}` : "0"}
-            fill={DEFAULT_THEME[`level${data[day].level}` as keyof Theme]}
+            fill={theme[`level${data[day].level}` as keyof typeof theme]}
+            strokeWidth={1}
+            stroke={theme.stroke}
             data-tip={`${data[day].count} posts ${
-              fullDayLabel[day as keyof typeof fullDayLabel]
+              FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
             }s`}
           />
         ))}
@@ -43,6 +48,7 @@ export const ActivityWeek = ({ data }: Props) => {
             key={day}
             x={`${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`}
             y="96px"
+            fill="currentColor"
           >
             {day.charAt(0)}
           </text>
