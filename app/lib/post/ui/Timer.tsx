@@ -26,7 +26,7 @@ export const Timer = ({ post }: Props) => {
     <button
       type="button"
       className="flex items-center p-2 rounded-lg"
-      data-tooltip={`Dissapears in ${formatDistance(now, end)}`}
+      data-tip={`Dissapears in ${formatDistance(now, end)}`}
     >
       <div
         className="relative inline-block bg-slate-400 bg-blend-overlay w-4 h-4 rounded-full bg-center	bg-[length:150%]"

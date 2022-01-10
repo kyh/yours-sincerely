@@ -30,11 +30,15 @@ const getTokenExpiration = (tokenType: TokenType) => {
   }
 };
 
+export const generateToken = () => {
+  return randomBytes(20).toString("hex");
+};
+
 export const createToken = async (
   tokenType: TokenType,
   input: Omit<Prisma.TokenCreateInput, "token" | "type" | "expiresAt">
 ) => {
-  const token = randomBytes(20).toString("hex");
+  const token = generateToken();
   const expiresAt = getTokenExpiration(tokenType);
 
   const created = await prisma.token.create({

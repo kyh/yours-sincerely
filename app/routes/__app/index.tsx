@@ -1,4 +1,5 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
+import ReactTooltip from "react-tooltip";
 import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
@@ -32,6 +33,7 @@ const Page = () => {
           {postList.map((post) => (
             <PostContent key={post.id} post={post} />
           ))}
+          <ReactTooltip effect="solid" className="tooltip" />
         </main>
       )}
       {!postList.length && <EmptyPost />}

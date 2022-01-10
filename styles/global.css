@@ -81,30 +81,15 @@
     grid-template-rows: max-content auto max-content;
   }
 
-  [data-tooltip] {
-    position: relative;
+  .tooltip {
+    @apply !py-2 !px-3 !shadow-md !text-slate-50 !text-xs !rounded-md !m-0;
+    border: none !important;
+    background: theme("colors.slate.800") !important;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease !important;
   }
 
-  [data-tooltip]::after {
-    @apply hidden absolute top-0 left-1/2 pointer-events-none py-2 px-3 whitespace-nowrap shadow-md bg-slate-800 text-slate-50 text-xs rounded-md dark:bg-slate-900;
-    content: attr(data-tooltip);
-    transform: translate(-50%, -100%);
-    animation: tooltip-fade-in 0.23s ease;
-  }
-
-  [data-tooltip]:hover::after,
-  [data-tooltip]:focus::after {
-    @apply block;
-  }
-
-  @keyframes tooltip-fade-in {
-    from {
-      transform: translate(-50%, -100%) scale(0.95);
-      opacity: 0;
-    }
-    to {
-      transform: translate(-50%, -100%) scale(1);
-      opacity: 1;
-    }
+  .tooltip::before,
+  .tooltip::after {
+    content: none !important;
   }
 }

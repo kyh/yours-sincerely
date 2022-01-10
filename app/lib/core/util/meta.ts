@@ -3,7 +3,7 @@ const ogImage = `${url}/favicon/featured.png`;
 
 export const createMeta = ({
   title = "",
-  siteTitle = "Yours sincerely",
+  siteTitle = "Yours Sincerely",
   description = "Write as if your arms are wide open, and hold them far apart. An ephemeral anonymous blog to send each other tiny beautiful letters.",
 } = {}) => {
   const finalTitle = title ? `${title} | ${siteTitle}` : siteTitle;

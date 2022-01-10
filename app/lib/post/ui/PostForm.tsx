@@ -65,8 +65,7 @@ export const PostForm = ({
           <span className="block mb-1">
             {postingAs ? (
               <>
-                Publishing as:{" "}
-                <Link to="/profile?fromPath=/posts/new">{postingAs}</Link>
+                Publishing as: <span>{postingAs}</span>
               </>
             ) : (
               "Publishing anonymously"

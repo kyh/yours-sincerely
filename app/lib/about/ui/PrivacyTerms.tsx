@@ -28,7 +28,7 @@ export const PrivacyTerms = ({
         <Checkbox id="terms" onChange={onCheck} checked={isChecked} />
       )}
       <div>
-        By posting on YS, you agree to our{" "}
+        By writing on YS, you agree to our{" "}
         <a
           href="https://yourssincerely.org/privacy"
           target="_blank"
