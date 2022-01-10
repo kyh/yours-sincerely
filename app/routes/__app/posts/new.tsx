@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { randomBytes } from "crypto";
 import {
   MetaFunction,
   LoaderFunction,
@@ -15,7 +14,10 @@ import {
   attachUserSession,
 } from "~/lib/auth/server/middleware/auth.server";
 import { createPost } from "~/lib/post/server/postService.server";
-import { createPasswordHash } from "~/lib/auth/server/authService.server";
+import {
+  generateToken,
+  createPasswordHash,
+} from "~/lib/auth/server/authService.server";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
@@ -40,6 +42,7 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
+
   const data: LoaderData = {
     user,
   };
@@ -51,7 +54,7 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   const formData = await request.formData();
   const { content, createdBy } = Object.fromEntries(formData) as Post;
-  const tempPassword = randomBytes(20).toString("hex");
+  const tempPassword = generateToken();
 
   const post = await createPost({
     content: content || "",
@@ -62,7 +65,7 @@ export const action: ActionFunction = async ({ request }) => {
           id: user?.id || "",
         },
         create: {
-          name: createdBy,
+          displayName: createdBy,
           passwordHash: await createPasswordHash(tempPassword),
         },
       },
@@ -93,7 +96,7 @@ const Page = () => {
   const submitPost = (e?: React.FormEvent) => {
     if (!user && !e) return setIsOpen(true);
 
-    let createdBy = user?.name || "Anonymous";
+    let createdBy = user?.displayName || "Anonymous";
 
     if (e) {
       e.preventDefault();
@@ -115,7 +118,7 @@ const Page = () => {
   return (
     <main>
       <PostForm
-        postingAs={user?.name}
+        postingAs={user?.displayName}
         isSubmitting={transition.state === "submitting"}
         onSubmit={submitPost}
       />

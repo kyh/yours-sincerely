@@ -17,9 +17,9 @@ export const googleStrategy = new GoogleStrategy(
     if (account) return account.user.id;
 
     const user = await createUser({
-      name: profile.displayName,
       email: profile.emails ? profile.emails[0].value : "",
-      image: profile.photos ? profile.photos[0].value : "",
+      displayName: profile.displayName,
+      displayImage: profile.photos ? profile.photos[0].value : "",
       account: {
         provider: profile.provider,
         providerAccountId: profile.id,

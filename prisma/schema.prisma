@@ -32,8 +32,8 @@ model User {
   username      String?   @unique
   email         String?   @unique
   emailVerified DateTime?
-  name          String?
-  image         String?
+  displayName   String?
+  displayImage  String?
 
   accounts     Account[]
   passwordHash String?

@@ -30,7 +30,7 @@ export const MoreButton = ({ post }: Props) => {
   const handleBlockUser = async () => {
     await fetcher.submit(null, {
       method: "post",
-      action: `/users/${post.userId}/block`,
+      action: `/${post.userId}/block`,
     });
   };
 

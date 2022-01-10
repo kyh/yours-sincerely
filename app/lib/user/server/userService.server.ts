@@ -2,13 +2,15 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 import { User } from "~/lib/user/data/userSchema";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
+import { addDays } from "date-fns";
 
 export const defaultSelect = {
   id: true,
+  username: true,
   email: true,
   emailVerified: true,
-  name: true,
-  image: true,
+  displayName: true,
+  displayImage: true,
   role: true,
   updatedAt: false,
   createdAt: false,
@@ -28,6 +30,26 @@ export const getUser = async (input: Prisma.UserWhereUniqueInput) => {
   const user = await prisma.user.findUnique({
     where: input,
     select: defaultSelect,
+  });
+
+  return user;
+};
+
+export const getUserWithPosts = async (
+  input: Prisma.UserWhereUniqueInput,
+  lastNDays: number
+) => {
+  const user = await prisma.user.findUnique({
+    where: input,
+    include: {
+      posts: {
+        where: {
+          createdAt: {
+            gte: addDays(new Date(), -lastNDays),
+          },
+        },
+      },
+    },
   });
 
   return user;
@@ -56,8 +78,8 @@ export const createUser = async (
 ) => {
   const data: Prisma.UserCreateInput = {
     email: input.email,
-    name: input.name,
-    image: input.image,
+    displayName: input.displayName,
+    displayImage: input.displayImage,
   };
 
   if (input.password) {
