@@ -13,11 +13,12 @@ import {
   isAuthenticated,
   attachUserSession,
 } from "~/lib/auth/server/middleware/auth.server";
-import { createPost } from "~/lib/post/server/postService.server";
 import {
   generateToken,
   createPasswordHash,
 } from "~/lib/auth/server/authService.server";
+import { createPost } from "~/lib/post/server/postService.server";
+import { getRandomPrompt } from "~/lib/post/server/promptService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post } from "~/lib/post/data/postSchema";
@@ -39,13 +40,16 @@ export let meta: MetaFunction = () => {
 
 type LoaderData = {
   user: User | null;
+  promptContent: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
+  const [prompt] = await getRandomPrompt(1);
 
   const data: LoaderData = {
     user,
+    promptContent: prompt.content,
   };
 
   return data;
@@ -85,7 +89,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Page = () => {
   const { isIOS } = usePlatform();
-  const { user } = useLoaderData<LoaderData>();
+  const { user, promptContent } = useLoaderData<LoaderData>();
   const submit = useSubmit();
   const transition = useTransition();
   const [isOpen, setIsOpen] = useState(false);
@@ -118,6 +122,7 @@ const Page = () => {
     <main>
       <PostForm
         postingAs={postingAs}
+        placeholder={promptContent}
         isSubmitting={transition.state === "submitting"}
         onSubmit={submitPost}
         updatePostingAs={() => setIsOpen(true)}

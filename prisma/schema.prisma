@@ -149,3 +149,8 @@ model Block {
   @@index([blockerId])
   @@index([blockingId])
 }
+
+model Prompt {
+  id      String @id @default(cuid())
+  content String @db.Text
+}
