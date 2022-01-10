@@ -45,7 +45,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
   return (
     <section className="flex flex-col max-w-lg gap-8 mx-auto">
       <h1 className="text-3xl font-bold">
-        {user.displayName}{" "}
+        {user.displayName || "Anonymous"}{" "}
         {showEdit && (
           <Link className="text-sm font-normal" to={`/${user.id}/edit`}>
             Edit
