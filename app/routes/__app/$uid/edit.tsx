@@ -42,19 +42,17 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   if (!user) return json({ success: false });
 
-  const { fromPath, ...input } = Object.fromEntries(
-    await request.formData()
-  ) as User & { fromPath?: string };
+  const input = Object.fromEntries(await request.formData()) as User;
 
   await updateUser({ ...input, id: user.id });
 
-  return redirect(fromPath || "/");
+  return redirect("/");
 };
 
 const Page = () => {
   const { user } = useLoaderData<LoaderData>();
   return (
-    <main className="pt-5">
+    <main className="w-full max-w-md pt-5 mx-auto">
       <EditProfile user={user} />
     </main>
   );

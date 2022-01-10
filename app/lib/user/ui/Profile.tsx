@@ -43,7 +43,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
   const { isDarkMode } = useTheme();
 
   return (
-    <section className="flex flex-col max-w-lg gap-8 mx-auto">
+    <section className="flex flex-col gap-8">
       <h1 className="text-3xl font-bold">
         {user.displayName || "Anonymous"}{" "}
         {showEdit && (
@@ -57,7 +57,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
         theme={isDarkMode ? darkTheme : lightTheme}
       />
       <div>
-        <h2 className="font-bold text-sm">
+        <h2 className="text-sm font-bold">
           Favorite day to write is on{" "}
           <span className="text-primary">
             {
