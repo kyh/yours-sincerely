@@ -55,7 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 const Page = () => {
   const { user, stats, showEdit } = useLoaderData<LoaderData>();
   return (
-    <main className="pt-5">
+    <main className="w-full max-w-md pt-5 mx-auto">
       <Profile user={user} stats={stats} showEdit={showEdit} />
       <ReactTooltip effect="solid" className="tooltip" />
     </main>

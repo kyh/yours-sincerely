@@ -7,7 +7,10 @@ type Props = {
 export const TextField = ({ id, label, className, ...rest }: Props) => (
   <div className="text-left">
     {label && (
-      <label className="text-sm block cursor-pointer mb-1" htmlFor={id}>
+      <label
+        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer"
+        htmlFor={id}
+      >
         {label}
       </label>
     )}
@@ -28,7 +31,7 @@ export const Checkbox = ({ id, label, className, ...rest }: Props) => (
       id={id}
       name="remember-me"
       type="checkbox"
-      className="h-4 w-4 text-primary focus:ring-primary border-slate-500 rounded transition"
+      className="w-4 h-4 transition rounded text-primary focus:ring-primary border-slate-500"
       {...rest}
     />
     <label
