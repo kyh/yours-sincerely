@@ -32,27 +32,27 @@ model User {
   username      String?   @unique
   email         String?   @unique
   emailVerified DateTime?
-  displayName   String?
-  displayImage  String?
 
-  setting Setting?
+  // Profile Details
+  displayName  String?
+  displayImage String?
 
+  // User Settings
+  weeklyDigestEmail Boolean @default(false)
+
+  // Account Settings
+  role         UserRole  @default(USER)
   accounts     Account[]
   passwordHash String?
 
-  role   UserRole @default(USER)
-  tokens Token[]
-
-  posts Post[]
-
-  likes Like[]
-  flags Flag[]
-
+  tokens    Token[]
+  posts     Post[]
+  likes     Like[]
+  flags     Flag[]
   blockedBy Block[] @relation(name: "blocking")
   blocking  Block[] @relation(name: "blocker")
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 enum UserRole {
@@ -82,15 +82,6 @@ enum TokenType {
   REFRESH_TOKEN
   VERIFY_EMAIL
   RESET_PASSWORD
-}
-
-model Setting {
-  id String @id @default(cuid())
-
-  weeklyDigestEmail Boolean @default(false)
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Post {
