@@ -1,4 +1,5 @@
 import { LoaderFunction, MetaFunction, useLoaderData, redirect } from "remix";
+import { ClientOnly } from "remix-utils";
 import ReactTooltip from "react-tooltip";
 import { createMeta } from "~/lib/core/util/meta";
 import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
@@ -57,7 +58,9 @@ const Page = () => {
   return (
     <main className="w-full max-w-md pt-5 mx-auto">
       <Profile user={user} stats={stats} showEdit={showEdit} />
-      <ReactTooltip effect="solid" className="tooltip" />
+      <ClientOnly>
+        <ReactTooltip effect="solid" className="tooltip" />
+      </ClientOnly>
     </main>
   );
 };

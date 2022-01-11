@@ -8,7 +8,7 @@ export const TextField = ({ id, label, className, ...rest }: Props) => (
   <div className="text-left">
     {label && (
       <label
-        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer"
+        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer dark:text-slate-100"
         htmlFor={id}
       >
         {label}

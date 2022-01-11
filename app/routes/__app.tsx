@@ -1,4 +1,5 @@
 import { Outlet, Link, useMatches } from "remix";
+import { ClientOnly } from "remix-utils";
 import { Toaster } from "react-hot-toast";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
@@ -69,7 +70,9 @@ const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
   if (isNewPage) return null;
 
   const onThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTheme(event.target.value as Theme);
+    const updated =
+      event.target.value === "default" ? null : event.target.value;
+    setTheme(updated as Theme);
   };
 
   return (
@@ -92,15 +95,17 @@ const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
           </a>
         </li>
         <li>
-          <select
-            className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
-            value={theme}
-            onChange={onThemeChange}
-          >
-            <option value="default">Default</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+          <ClientOnly>
+            <select
+              className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
+              value={theme || "default"}
+              onChange={onThemeChange}
+            >
+              <option value="default">Default</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </ClientOnly>
         </li>
       </ul>
     </footer>

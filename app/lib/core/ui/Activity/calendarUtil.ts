@@ -182,6 +182,16 @@ export const FULL_DAY_LABELS = {
   Sat: "Saturday",
 };
 
+export const CALENDAR_LABELS = {
+  Sun: "SU",
+  Mon: "MO",
+  Tue: "TU",
+  Wed: "WE",
+  Thu: "TH",
+  Fri: "FR",
+  Sat: "SA",
+};
+
 export const DEFAULT_LABELS = {
   months: DEFAULT_MONTH_LABELS,
   weekdays: DEFAULT_WEEKDAY_LABELS,
