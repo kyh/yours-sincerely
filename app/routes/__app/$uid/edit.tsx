@@ -42,9 +42,14 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   if (!user) return json({ success: false });
 
-  const input = Object.fromEntries(await request.formData()) as User;
+  const input = Object.fromEntries(await request.formData()) as Partial<User>;
 
-  await updateUser({ ...input, id: user.id });
+  await updateUser({
+    ...input,
+    // @ts-expect-error
+    weeklyDigestEmail: input.weeklyDigestEmail === "true",
+    id: user.id,
+  });
 
   return redirect("/");
 };

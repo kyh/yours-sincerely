@@ -17,6 +17,9 @@ const makeDuration = (event: CalendarEvent) => {
 const makeTime = (time: string) =>
   new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, "");
 
+const makeRRule = (recurring: string[]) =>
+  `RRULE:FREQ=WEEKLY;BYDAY=${recurring.map((d) => d.toUpperCase()).join(",")}`;
+
 type Query = { [key: string]: null | boolean | number | string };
 
 const makeUrl = (base: string, query: Query) =>
@@ -38,9 +41,7 @@ const makeGoogleCalendarUrl = (event: CalendarEvent) =>
     text: event.name,
     location: event.location || null,
     details: event.details || null,
-    recur: `RRULE:FREQ=WEEKLY;BYDAY=${event.recurring
-      .map((d) => d.toUpperCase())
-      .join(",")}`,
+    recur: makeRRule(event.recurring),
   });
 
 const makeOutlookCalendarUrl = (event: CalendarEvent) =>
@@ -73,7 +74,6 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "BEGIN:VEVENT",
-    // `URL:${document.URL}`,
     `DTSTART:${makeTime(event.startsAt)}`,
     `DTEND:${makeTime(event.endsAt)}`,
     `SUMMARY:${event.name}`,
@@ -81,6 +81,7 @@ const makeICSCalendarUrl = (event: CalendarEvent) => {
     `LOCATION:${event.location}`,
     "END:VEVENT",
     "END:VCALENDAR",
+    makeRRule(event.recurring),
   ];
 
   return encodeURI(`data:text/calendar;charset=utf8,${components.join("\n")}`);

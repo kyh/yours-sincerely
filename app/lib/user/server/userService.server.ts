@@ -12,7 +12,7 @@ export const defaultSelect = {
   displayName: true,
   displayImage: true,
   role: true,
-  updatedAt: false,
+  weeklyDigestEmail: true,
   createdAt: false,
   passwordHash: false,
 };

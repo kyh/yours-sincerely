@@ -18,7 +18,7 @@ type Props = {
 export const EditProfile = ({ user }: Props) => {
   const transition = useTransition();
   const [recurring, setRecurring] = useState([] as string[]);
-  const [weeklyDigest, setWeeklyDigest] = useState(false);
+  const [weeklyDigest, setWeeklyDigest] = useState(user.weeklyDigestEmail);
 
   const handleRecurringDayChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -101,6 +101,11 @@ export const EditProfile = ({ user }: Props) => {
               Weekly Digest
             </Switch.Label>
             <dd className="flex mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
+              <input
+                type="hidden"
+                name="weeklyDigestEmail"
+                value={weeklyDigest.toString()}
+              />
               <Switch
                 checked={weeklyDigest}
                 onChange={setWeeklyDigest}
