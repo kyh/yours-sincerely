@@ -1,4 +1,5 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
+import { ClientOnly } from "remix-utils";
 import ReactTooltip from "react-tooltip";
 import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
 import { User } from "~/lib/user/data/userSchema";
@@ -29,11 +30,13 @@ const Page = () => {
   return (
     <>
       {!!postList.length && (
-        <main className="py-5 flex flex-col gap-8">
+        <main className="flex flex-col gap-8 py-5">
           {postList.map((post) => (
             <PostContent key={post.id} post={post} />
           ))}
-          <ReactTooltip effect="solid" className="tooltip" />
+          <ClientOnly>
+            <ReactTooltip effect="solid" className="tooltip" />
+          </ClientOnly>
         </main>
       )}
       {!postList.length && <EmptyPost />}

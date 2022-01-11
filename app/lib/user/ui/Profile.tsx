@@ -1,4 +1,5 @@
-import { Link, Form, useTransition } from "remix";
+import { Link } from "remix";
+import { ClientOnly } from "remix-utils";
 import { useTheme } from "~/lib/core/ui/Theme";
 import {
   ActivityCalendar,
@@ -38,8 +39,18 @@ const darkTheme = {
   stroke: "#312e81",
 };
 
+const Loading = () => {
+  return (
+    <div className="animate-pulse">
+      <div className="h-[120px] rounded bg-slate-200 dark:bg-slate-700"></div>
+      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-2"></div>
+      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-8"></div>
+      <div className="h-[90px] rounded  bg-slate-200 dark:bg-slate-700 mt-2"></div>
+    </div>
+  );
+};
+
 export const Profile = ({ user, stats, showEdit }: Props) => {
-  const transition = useTransition();
   const { isDarkMode } = useTheme();
 
   return (
@@ -52,42 +63,29 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
           </Link>
         )}
       </h1>
-      <ActivityCalendar
-        data={stats.heatmap.stats}
-        theme={isDarkMode ? darkTheme : lightTheme}
-      />
-      <div>
-        <h2 className="text-sm font-bold">
-          Favorite day to write is on{" "}
-          <span className="text-primary">
-            {
-              FULL_DAY_LABELS[
-                stats.daily.max.day as keyof typeof FULL_DAY_LABELS
-              ]
-            }
-            s
-          </span>
-        </h2>
-        <ActivityWeek
-          data={stats.daily.stats}
+      <ClientOnly fallback={<Loading />}>
+        <ActivityCalendar
+          data={stats.heatmap.stats}
           theme={isDarkMode ? darkTheme : lightTheme}
         />
-      </div>
-      {showEdit && (
-        <Form
-          className="flex justify-center"
-          action="/auth/logout"
-          method="post"
-        >
-          <button
-            className="inline-flex items-center justify-center px-3 py-2 text-sm leading-4 text-red-700 transition border border-transparent rounded-md hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-300"
-            type="submit"
-            disabled={transition.state === "submitting"}
-          >
-            Logout
-          </button>
-        </Form>
-      )}
+        <div>
+          <h2 className="text-sm font-bold">
+            Favorite day to write is on{" "}
+            <span className="text-primary">
+              {
+                FULL_DAY_LABELS[
+                  stats.daily.max.day as keyof typeof FULL_DAY_LABELS
+                ]
+              }
+              s
+            </span>
+          </h2>
+          <ActivityWeek
+            data={stats.daily.stats}
+            theme={isDarkMode ? darkTheme : lightTheme}
+          />
+        </div>
+      </ClientOnly>
     </section>
   );
 };
