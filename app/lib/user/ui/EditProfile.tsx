@@ -62,7 +62,7 @@ export const EditProfile = ({ user }: Props) => {
           <div className="py-4 sm:py-5">
             <div className="flex justify-between items-top">
               <dt className="text-sm font-medium text-slate-500 dark:text-slate-100">
-                Writing Reminders
+                Set up writing reminders
               </dt>
               <dd>
                 <CalendarMenu text="Add Reminder" recurring={recurring} />

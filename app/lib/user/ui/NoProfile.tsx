@@ -4,7 +4,7 @@ import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { usePlatform } from "~/lib/core/ui/Platform";
 
 export const NoProfile = () => {
-  const { isIOS } = usePlatform();
+  const { isWeb } = usePlatform();
   return (
     <>
       <section className="sm:flex">
@@ -16,7 +16,7 @@ export const NoProfile = () => {
           height={225}
         />
         <div className="sm:w-1/2">
-          {isIOS ? (
+          {!isWeb ? (
             <>
               <h1 className="my-5 text-3xl font-bold">No account required</h1>
               <p>
@@ -36,7 +36,7 @@ export const NoProfile = () => {
           )}
         </div>
       </section>
-      {!isIOS && (
+      {isWeb && (
         <div>
           <Divider>Or continue with</Divider>
           <SocialLoginForm />
