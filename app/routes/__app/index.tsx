@@ -6,6 +6,7 @@ import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
+import { useInfiniteScroll } from "~/lib/core/ui/InfiniteScroll";
 
 type LoaderData = {
   postList: Post[];
@@ -14,7 +15,9 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
-  const postList = await getPostList(user);
+  const url = new URL(request.url);
+  const cursor = url.searchParams.get("c");
+  const postList = await getPostList(user, cursor);
 
   const data: LoaderData = {
     postList,
@@ -26,20 +29,34 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const Page = () => {
   const { postList } = useLoaderData<LoaderData>();
+  const {
+    fetcher,
+    hasNextPage,
+    ref,
+    data: posts,
+  } = useInfiniteScroll({
+    initialData: postList,
+    fetcherResultKey: "postList",
+  });
 
   return (
     <>
-      {!!postList.length && (
+      {!!posts.length && (
         <main className="flex flex-col gap-8 py-5">
-          {postList.map((post) => (
+          {posts.map((post) => (
             <PostContent key={post.id} post={post} />
           ))}
           <ClientOnly>
             <ReactTooltip effect="solid" className="tooltip" />
           </ClientOnly>
+          {fetcher.state === "idle" && hasNextPage && (
+            <div className="text-center" ref={ref}>
+              Loading...
+            </div>
+          )}
         </main>
       )}
-      {!postList.length && <EmptyPost />}
+      {!posts.length && <EmptyPost />}
     </>
   );
 };

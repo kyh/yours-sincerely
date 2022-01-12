@@ -26,7 +26,9 @@ const formatPost = (
   isLiked: !!post.likes.length,
 });
 
-export const getPostList = async (user: User | null) => {
+type CursorOption = { skip: number; cursor: { id: string } } | {};
+
+export const getPostList = async (user: User | null, cursor: string | null) => {
   const blocks = await getBlockList(user);
 
   const blockingMap = blocks.reduce((acc, block) => {
@@ -34,11 +36,21 @@ export const getPostList = async (user: User | null) => {
     return acc;
   }, {} as Record<string, boolean>);
 
+  const cursorOption: CursorOption = cursor
+    ? {
+        skip: 1,
+        cursor: { id: cursor },
+      }
+    : {};
+
   const list = await prisma.post.findMany({
+    take: 5,
+    ...cursorOption,
     where: {
       createdAt: {
         gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
       },
+      parentId: null,
     },
     orderBy: {
       createdAt: "desc",
