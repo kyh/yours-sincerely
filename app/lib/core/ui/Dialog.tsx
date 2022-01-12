@@ -8,7 +8,12 @@ type Props = {
   children?: React.ReactNode;
 };
 
-export const Dialog = ({ isOpen, handleClose, className, children }: Props) => (
+export const Dialog = ({
+  isOpen,
+  handleClose,
+  className = "",
+  children,
+}: Props) => (
   <Transition appear show={isOpen} as={Fragment}>
     <HeadlessDialog
       as="div"

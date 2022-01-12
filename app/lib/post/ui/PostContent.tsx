@@ -1,4 +1,5 @@
 import { Link } from "remix";
+import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { Post } from "~/lib/post/data/postSchema";
 import { ShareButton } from "~/lib/post/ui/ShareButton";
 import { LikeButton } from "~/lib/post/ui/LikeButton";
@@ -26,7 +27,7 @@ export const PostContent = ({
     <article>
       {showLink ? (
         <Link
-          className="text-slate-900 hover:no-underline dark:text-slate-50"
+          className="block text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
           <p className="text-lg whitespace-pre-wrap">{post.content}</p>
@@ -35,14 +36,9 @@ export const PostContent = ({
         <p className="text-lg whitespace-pre-wrap">{post.content}</p>
       )}
       <footer className="flex items-center justify-between mt-4">
-        <div className="italic">
+        <div className="flex items-center italic">
           <span className="inline-flex mr-1 align-[1px]">Yours Sincerely,</span>
-          <Link
-            className="inline-flex text-slate-900 underline underline-offset-2 decoration-dotted dark:text-slate-50"
-            to={`/${post.userId}`}
-          >
-            {post.createdBy}
-          </Link>
+          <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
         <div className="flex items-center gap-1">
           {showLike && <LikeButton post={post} />}
