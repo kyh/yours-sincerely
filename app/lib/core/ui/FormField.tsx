@@ -44,3 +44,29 @@ export const Checkbox = ({ id, label, className, ...rest }: Props) => (
     </label>
   </div>
 );
+
+type TextAreaProps = {
+  id: string;
+  label?: React.ReactNode;
+  className?: string;
+} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+export const TextArea = ({ id, label, className, ...rest }: TextAreaProps) => (
+  <div className="text-left">
+    {label && (
+      <label
+        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer dark:text-slate-100"
+        htmlFor={id}
+      >
+        {label}
+      </label>
+    )}
+    <textarea
+      id={id}
+      className={`w-full bg-transparent border-t-0 border-x-0 border-b-2 border-slate-500 border-dotted rounded transition focus:bg-slate-100 focus:border-slate-500 dark:focus:bg-slate-600 dark:focus:border-slate-200 min-h-[100px] ${
+        className || ""
+      }`}
+      {...rest}
+    />
+  </div>
+);

@@ -1,4 +1,4 @@
-import { addDays } from "date-fns";
+import { addDays, isBefore } from "date-fns";
 import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
@@ -8,27 +8,44 @@ import { User } from "~/lib/user/data/userSchema";
 import { defaultSelect } from "~/lib/user/server/userService.server";
 import { getBlockList } from "~/lib/user/server/blockService.server";
 
-const formatPost = (
-  post: Post & {
-    flags: Flag[];
-    likes: Like[];
-    _count: {
-      comments: number;
-      likes: number;
-      flags: number;
-    };
+type QueriedPost = Post & {
+  flags: Flag[];
+  likes: Like[];
+  _count: {
+    comments?: number;
+    likes?: number;
+    flags?: number;
+  };
+};
+
+const formatPost = (post: QueriedPost): Post => {
+  const formatted = {
+    ...post,
+    createdBy: post.createdBy || "Anonymous",
+    commentCount: post._count.comments,
+    likeCount: post._count.likes,
+    isLiked: !!post.likes.length,
+  };
+
+  if (formatted.comments) {
+    const comments = formatted.comments as QueriedPost[];
+    formatted.comments = comments.map((c: QueriedPost) => formatPost(c));
   }
-): Post => ({
-  ...post,
-  createdBy: post.createdBy || "Anonymous",
-  commentCount: post._count.comments,
-  likeCount: post._count.likes,
-  isLiked: !!post.likes.length,
-});
+
+  return formatted;
+};
 
 type CursorOption = { skip: number; cursor: { id: string } } | {};
 
-export const getPostList = async (user: User | null, cursor: string | null) => {
+type PostFilters = {
+  parentId?: string | null;
+  cursor?: string | null;
+};
+
+export const getPostList = async (
+  user: User | null,
+  filters: PostFilters = {}
+) => {
   const blocks = await getBlockList(user);
 
   const blockingMap = blocks.reduce((acc, block) => {
@@ -36,21 +53,27 @@ export const getPostList = async (user: User | null, cursor: string | null) => {
     return acc;
   }, {} as Record<string, boolean>);
 
-  const cursorOption: CursorOption = cursor
+  const cursorOption: CursorOption = filters.cursor
     ? {
         skip: 1,
-        cursor: { id: cursor },
+        cursor: { id: filters.cursor },
       }
     : {};
+
+  const whereOption = filters.parentId
+    ? { parentId: filters.parentId }
+    : {
+        createdAt: {
+          gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
+        },
+        parentId: null,
+      };
 
   const list = await prisma.post.findMany({
     take: 5,
     ...cursorOption,
     where: {
-      createdAt: {
-        gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
-      },
-      parentId: null,
+      ...whereOption,
     },
     orderBy: {
       createdAt: "desc",
@@ -81,7 +104,7 @@ export const getPostList = async (user: User | null, cursor: string | null) => {
       if (
         // if post has been flagged by user
         post.flags.length ||
-        // if post has been flagged many times
+        // if post has been flagged many times (by anyone)
         post._count.flags > 2 ||
         // if post is created a someone the user has blocked
         blockingMap[post.userId]
@@ -94,31 +117,53 @@ export const getPostList = async (user: User | null, cursor: string | null) => {
 };
 
 export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
+  const inclusions = {
+    flags: {
+      where: {
+        userId: user?.id || "",
+      },
+    },
+    likes: {
+      where: {
+        userId: user?.id || "",
+      },
+    },
+    _count: {
+      select: {
+        comments: true,
+        likes: true,
+        flags: true,
+      },
+    },
+  };
+
   const post = await prisma.post.findUnique({
-    where: { id: input.id },
+    where: {
+      id: input.id,
+    },
     include: {
-      comments: true,
-      flags: {
-        where: {
-          userId: user?.id || "",
+      comments: {
+        orderBy: {
+          createdAt: "desc",
         },
+        include: inclusions,
       },
-      likes: {
-        where: {
-          userId: user?.id || "",
-        },
-      },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          flags: true,
-        },
-      },
+      ...inclusions,
     },
   });
 
-  if (!post || post.flags.length || post._count.flags > 2) return null;
+  if (
+    // if post doesnt exist
+    !post ||
+    // if user has flagged the post
+    post.flags.length ||
+    // if post has been flagged many times (by anyone)
+    post._count.flags > 2 ||
+    // if post has timed out
+    isBefore(post.createdAt, addDays(new Date(), -POST_EXPIRY_DAYS_AGO))
+  ) {
+    return null;
+  }
 
   return formatPost(post);
 };

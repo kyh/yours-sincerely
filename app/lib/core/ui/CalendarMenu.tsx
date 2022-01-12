@@ -22,6 +22,9 @@ export const CalendarMenu = ({
     recurring,
   });
 
+  const menuItemClassName =
+    "flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-100 hover:no-underline";
+
   return (
     <Menu as="div" className="relative inline-block text-left">
       <Menu.Button className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 bg-white border rounded-md shadow-sm text-slate-700 border-slate-300 hover:bg-slate-50">
@@ -41,17 +44,13 @@ export const CalendarMenu = ({
             <a
               href={links.google}
               target="_blank"
-              className="flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-200 hover:no-underline"
+              className={menuItemClassName}
             >
               Google Calendar
             </a>
           </Menu.Item>
           <Menu.Item>
-            <a
-              href={links.ics}
-              target="_blank"
-              className="flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-200 hover:no-underline"
-            >
+            <a href={links.ics} target="_blank" className={menuItemClassName}>
               Apple Calendar
             </a>
           </Menu.Item>
@@ -59,17 +58,13 @@ export const CalendarMenu = ({
             <a
               href={links.outlook}
               target="_blank"
-              className="flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-200 hover:no-underline"
+              className={menuItemClassName}
             >
               Outlook Calendar
             </a>
           </Menu.Item>
           <Menu.Item>
-            <a
-              href={links.yahoo}
-              target="_blank"
-              className="flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-200 hover:no-underline"
-            >
+            <a href={links.yahoo} target="_blank" className={menuItemClassName}>
               Yahoo Calendar
             </a>
           </Menu.Item>
