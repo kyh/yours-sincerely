@@ -92,7 +92,6 @@ const Page = () => {
             showTimer={false}
             showMore
           />
-          <hr />
           <div className="flex flex-col gap-3">
             {user && (
               <fetcher.Form
@@ -105,6 +104,7 @@ const Page = () => {
                   id="comment"
                   name="content"
                   placeholder={`Reply to ${post.createdBy}`}
+                  autoFocus
                   required
                 />
                 <button
@@ -116,10 +116,13 @@ const Page = () => {
               </fetcher.Form>
             )}
             <h1 className="text-sm">Comments ({post.commentCount || 0})</h1>
-            {post?.comments &&
-              post.comments.map((comment) => (
-                <CommentContent key={comment.id} post={comment} />
-              ))}
+            {post?.comments && (
+              <div className="flex flex-col gap-6">
+                {post.comments.map((comment) => (
+                  <CommentContent key={comment.id} post={comment} />
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
