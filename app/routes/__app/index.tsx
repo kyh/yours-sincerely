@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("c");
-  const postList = await getPostList(user, cursor);
+  const postList = await getPostList(user, { cursor });
 
   const data: LoaderData = {
     postList,

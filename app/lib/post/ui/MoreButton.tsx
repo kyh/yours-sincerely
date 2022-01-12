@@ -20,6 +20,16 @@ export const MoreButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const fetcher = useFetcher();
 
+  const isLoggedIn = !!user;
+  const isPostOwner = user && user.id === post.userId;
+
+  const handleDeletePost = async () => {
+    await fetcher.submit(null, {
+      method: "delete",
+      action: `/posts/${post.id}`,
+    });
+  };
+
   const handleFlagPost = async () => {
     await fetcher.submit(null, {
       method: "post",
@@ -38,7 +48,7 @@ export const MoreButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="text-slate-500 p-2 rounded-lg transition hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setIsOpen(true)}
       >
         <svg
@@ -65,7 +75,16 @@ export const MoreButton = ({ post }: Props) => {
           >
             Report
           </a>
-          {!!user && (
+          {isLoggedIn && isPostOwner && (
+            <button
+              className={buttonClass}
+              type="button"
+              onClick={handleDeletePost}
+            >
+              Delete Post
+            </button>
+          )}
+          {isLoggedIn && !isPostOwner && (
             <button
               className={buttonClass}
               type="button"
@@ -74,7 +93,7 @@ export const MoreButton = ({ post }: Props) => {
               Mark as inappropriate
             </button>
           )}
-          {!!user && (
+          {isLoggedIn && !isPostOwner && (
             <button
               className={buttonClass}
               type="button"

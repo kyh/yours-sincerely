@@ -5,6 +5,7 @@ export type Post = Partial<PrismaPost> & {
   likeCount?: number | null;
   isLiked?: boolean | null;
   commentCount?: number | null;
+  comments?: Post[];
 };
 
 export const POST_EXPIRY_DAYS_AGO = 21;
