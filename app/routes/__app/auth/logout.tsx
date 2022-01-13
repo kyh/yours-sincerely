@@ -1,8 +1,9 @@
 import type { ActionFunction, LoaderFunction } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { notFound } from "remix-utils";
+import { authenticator } from "~/lib/auth/server/authenticator.server";
 
 export const loader: LoaderFunction = () => {
-  throw new Response("", { status: 404 });
+  throw notFound({ message: "This page doesn't exists." });
 };
 
 export const action: ActionFunction = async ({ request }) => {

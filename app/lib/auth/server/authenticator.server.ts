@@ -1,21 +1,12 @@
-import { createCookieSessionStorage, Session } from "remix";
-import { Authenticator } from "remix-auth";
-import { cookieOptions } from "~/lib/auth/server/authConfig";
+import { Authenticator, AuthorizationError } from "remix-auth";
 import { User } from "~/lib/user/data/userSchema";
+import { sessionStorage, getSession } from "~/lib/core/server/session.server";
 import { getUser } from "~/lib/user/server/userService.server";
 import {
   signupStrategy,
   loginStrategy,
 } from "~/lib/auth/server/strategy/form.server";
 import { googleStrategy } from "~/lib/auth/server/strategy/google.server";
-
-export const sessionStorage = createCookieSessionStorage({
-  cookie: cookieOptions,
-});
-
-export const getSession = (request: Request): Promise<Session> => {
-  return sessionStorage.getSession(request.headers.get("Cookie"));
-};
 
 export const authenticator = new Authenticator<User["id"]>(sessionStorage);
 
@@ -37,3 +28,5 @@ export const attachUserSession = async (request: Request, id: User["id"]) => {
   });
   return headers;
 };
+
+export { AuthorizationError };

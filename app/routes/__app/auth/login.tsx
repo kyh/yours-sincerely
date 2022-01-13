@@ -1,5 +1,9 @@
 import { Link, ActionFunction, MetaFunction } from "remix";
-import { authenticator } from "~/lib/auth/server/middleware/auth.server";
+import { badRequest, serverError } from "remix-utils";
+import {
+  authenticator,
+  AuthorizationError,
+} from "~/lib/auth/server/authenticator.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { Divider } from "~/lib/core/ui/Divider";
@@ -12,10 +16,17 @@ export let meta: MetaFunction = () => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  return authenticator.authenticate("login", request, {
-    successRedirect: "/",
-    failureRedirect: "/auth/login",
-  });
+  try {
+    return await authenticator.authenticate("login", request, {
+      successRedirect: "/",
+      throwOnError: true,
+    });
+  } catch (error) {
+    if (error instanceof Response) return error;
+    if (error instanceof AuthorizationError)
+      return badRequest({ message: error.message });
+    return serverError(error);
+  }
 };
 
 const Page = () => {

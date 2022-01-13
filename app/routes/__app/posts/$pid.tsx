@@ -8,7 +8,7 @@ import {
   useLoaderData,
   useFetcher,
 } from "remix";
-import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPost, deletePost } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
