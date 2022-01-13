@@ -12,7 +12,7 @@ import {
 import {
   isAuthenticated,
   attachUserSession,
-} from "~/lib/auth/server/middleware/auth.server";
+} from "~/lib/auth/server/authenticator.server";
 import {
   generateToken,
   createPasswordHash,

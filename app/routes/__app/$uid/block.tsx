@@ -1,12 +1,13 @@
 import { ActionFunction, LoaderFunction, redirect, json } from "remix";
-import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
+import { notFound } from "remix-utils";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import {
   createBlock,
   deleteBlock,
 } from "~/lib/user/server/blockService.server";
 
 export const loader: LoaderFunction = () => {
-  throw new Response("", { status: 404 });
+  throw notFound({ message: "This page doesn't exists." });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {

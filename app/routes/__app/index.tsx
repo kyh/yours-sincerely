@@ -1,7 +1,7 @@
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import { ClientOnly } from "remix-utils";
 import ReactTooltip from "react-tooltip";
-import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";

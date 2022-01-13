@@ -6,7 +6,7 @@ import {
   MetaFunction,
   useLoaderData,
 } from "remix";
-import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUser, updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
 import { User } from "~/lib/user/data/userSchema";

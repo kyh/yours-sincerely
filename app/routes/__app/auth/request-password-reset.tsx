@@ -1,10 +1,4 @@
-import {
-  MetaFunction,
-  ActionFunction,
-  json,
-  useActionData,
-  useTransition,
-} from "remix";
+import { MetaFunction, ActionFunction, json, useActionData } from "remix";
 import { createMeta } from "~/lib/core/util/meta";
 import { sendEmail } from "~/lib/core/server/email.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
@@ -50,7 +44,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const Page = () => {
-  const transition = useTransition();
   const action = useActionData();
 
   return (
@@ -67,10 +60,7 @@ const Page = () => {
             We've sent a password reset link to your email.
           </p>
         ) : (
-          <AuthForm
-            authType="request"
-            loading={transition.state === "loading"}
-          />
+          <AuthForm authType="request" />
         )}
       </div>
     </main>

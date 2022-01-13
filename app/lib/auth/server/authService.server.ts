@@ -53,7 +53,9 @@ export const createToken = async (
   return created;
 };
 
-export const validateToken = async (token: string, tokenType: TokenType) => {
+export const validateToken = async (tokenType: TokenType, token?: string) => {
+  if (!token) return false;
+
   const savedToken = await prisma.token.findUnique({
     where: {
       token_type: {

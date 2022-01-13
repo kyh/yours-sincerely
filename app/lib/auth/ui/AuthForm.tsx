@@ -1,11 +1,17 @@
-import { Form, Link } from "remix";
-import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useTransition,
+  useSearchParams,
+} from "remix";
+import toast from "react-hot-toast";
 import { TextField, Checkbox } from "~/lib/core/ui/FormField";
 import { Button } from "~/lib/core/ui/Button";
 
 type Props = {
   authType: "signup" | "login" | "request" | "confirm";
-  loading?: boolean;
 };
 
 const actionMap: Record<Props["authType"], { button: string; url: string }> = {
@@ -27,17 +33,25 @@ const actionMap: Record<Props["authType"], { button: string; url: string }> = {
   },
 };
 
-export const AuthForm = ({ authType, loading }: Props) => {
-  const { button, url } = actionMap[authType];
+export const AuthForm = ({ authType }: Props) => {
+  const transition = useTransition();
+  const action = useActionData();
   const [searchParams] = useSearchParams();
+  const { button, url } = actionMap[authType];
 
   const token = searchParams.get("token");
+  const redirectTo = searchParams.get("redirectTo");
+
+  useEffect(() => {
+    if (action && action.message) {
+      toast.error(action.message);
+    }
+  }, [action]);
 
   return (
     <Form className="flex flex-col gap-5" method="post" action={url}>
-      {authType === "confirm" && (
-        <input type="hidden" name="token" value={token || ""} />
-      )}
+      <input type="hidden" name="redirectTo" value={redirectTo || "/"} />
+      <input type="hidden" name="token" value={token || ""} />
       {authType !== "confirm" && (
         <TextField
           id="email"
@@ -45,6 +59,7 @@ export const AuthForm = ({ authType, loading }: Props) => {
           type="email"
           placeholder="your@mail.com"
           label="Email"
+          required
         />
       )}
       {authType !== "request" && (
@@ -54,20 +69,25 @@ export const AuthForm = ({ authType, loading }: Props) => {
           type="password"
           placeholder="********"
           label="Password"
+          required
         />
       )}
       {authType === "login" && (
         <div className="flex items-center justify-between">
           <Checkbox id="rememberMe" name="rememberMe" label="Remember me" />
           <Link
-            className="text-slate-500 text-sm"
+            className="text-sm text-slate-500"
             to="/auth/request-password-reset"
           >
             Forgot password
           </Link>
         </div>
       )}
-      <Button className="w-full mt-2" type="submit" disabled={loading}>
+      <Button
+        className="w-full mt-2"
+        type="submit"
+        disabled={transition.state !== "idle"}
+      >
         {button}
       </Button>
     </Form>

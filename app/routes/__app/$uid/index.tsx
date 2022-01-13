@@ -5,7 +5,7 @@ import { createMeta } from "~/lib/core/util/meta";
 import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
-import { isAuthenticated } from "~/lib/auth/server/middleware/auth.server";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUserWithPosts } from "~/lib/user/server/userService.server";
 import {
   createPostsHeatmap,

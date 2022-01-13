@@ -1,1 +1,6 @@
-export type AuthInput = { email: string; password: string };
+export type AuthInput = {
+  email: string;
+  password: string;
+  redirectTo?: string;
+  token?: string;
+};
