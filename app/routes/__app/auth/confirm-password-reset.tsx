@@ -2,7 +2,7 @@ import { MetaFunction, ActionFunction, redirect } from "remix";
 import { badRequest } from "remix-utils";
 import { createMeta } from "~/lib/core/util/meta";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
-import { AuthInput } from "~/lib/auth/data/authSchema";
+import { AuthInput, isPasswordValid } from "~/lib/auth/data/authSchema";
 import { attachUserSession } from "~/lib/auth/server/authenticator.server";
 import { validateToken } from "~/lib/auth/server/authService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
@@ -23,6 +23,10 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (!validated) {
     return badRequest({ message: "Invalid token" });
+  }
+
+  if (!isPasswordValid(password)) {
+    return badRequest({ message: "Password must be at least 5 characters" });
   }
 
   const updated = await updateUser({ id: validated.id, password });

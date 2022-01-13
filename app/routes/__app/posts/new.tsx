@@ -5,10 +5,13 @@ import {
   ActionFunction,
   redirect,
   useLoaderData,
+  useActionData,
   useSubmit,
   useTransition,
   Form,
 } from "remix";
+import { badRequest } from "remix-utils";
+import toast from "react-hot-toast";
 import {
   isAuthenticated,
   attachUserSession,
@@ -21,7 +24,7 @@ import { createPost } from "~/lib/post/server/postService.server";
 import { getRandomPrompt } from "~/lib/post/server/promptService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
-import { Post } from "~/lib/post/data/postSchema";
+import { Post, isPostContentValid } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";
@@ -59,10 +62,15 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   const formData = await request.formData();
   const { content, createdBy } = Object.fromEntries(formData) as Post;
+
+  if (!isPostContentValid(content)) {
+    return badRequest({ message: "You'll need to write a bit more than that" });
+  }
+
   const tempPassword = generateToken();
 
   const post = await createPost({
-    content: content || "",
+    content,
     createdBy,
     user: {
       connectOrCreate: {
@@ -89,6 +97,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Page = () => {
   const { isIOS } = usePlatform();
+  const action = useActionData();
   const { user, promptContent } = useLoaderData<LoaderData>();
   const submit = useSubmit();
   const transition = useTransition();
@@ -99,6 +108,12 @@ const Page = () => {
   useEffect(() => {
     if (isIOS) setIsChecked(false);
   }, [isIOS]);
+
+  useEffect(() => {
+    if (action && action.message) {
+      toast.error(action.message);
+    }
+  }, [action]);
 
   const savePostingAs = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +138,7 @@ const Page = () => {
       <PostForm
         postingAs={postingAs}
         placeholder={promptContent}
-        isSubmitting={transition.state === "submitting"}
+        isSubmitting={transition.state !== "idle"}
         onSubmit={submitPost}
         updatePostingAs={() => setIsOpen(true)}
       />
@@ -146,7 +161,7 @@ const Page = () => {
           <Button
             type="submit"
             className="pl-8 pr-8 mt-4"
-            disabled={transition.state === "submitting" || !isChecked}
+            disabled={transition.state !== "idle" || !isChecked}
           >
             Save and continue
           </Button>
