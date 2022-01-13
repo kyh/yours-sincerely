@@ -1,11 +1,11 @@
 import { FormStrategy } from "remix-auth-form";
-import validator from "validator";
 import {
   getUser,
   createUser,
   getUserPasswordHash,
 } from "~/lib/user/server/userService.server";
 import { validatePassword } from "~/lib/auth/server/authService.server";
+import { isPasswordValid, isEmailValid } from "~/lib/auth/data/authSchema";
 
 export const signupStrategy = new FormStrategy(async ({ form }) => {
   const email = form.get("email") as string;
@@ -14,8 +14,8 @@ export const signupStrategy = new FormStrategy(async ({ form }) => {
   const existingUser = await getUser({ email });
 
   if (existingUser) throw new Error("User already exists");
-  if (!validator.isEmail(email)) throw new Error("Invalid email");
-  if (!validator.isLength(password, { min: 5 }))
+  if (!isEmailValid(email)) throw new Error("Invalid email");
+  if (!isPasswordValid(password))
     throw new Error("Password must be at least 5 characters");
 
   const user = await createUser({ email, password });

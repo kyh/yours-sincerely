@@ -19,7 +19,6 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     return await authenticator.authenticate("login", request, {
       successRedirect: "/",
-      throwOnError: true,
     });
   } catch (error) {
     if (error instanceof Response) return error;

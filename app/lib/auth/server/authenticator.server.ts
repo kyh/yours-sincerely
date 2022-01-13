@@ -8,7 +8,9 @@ import {
 } from "~/lib/auth/server/strategy/form.server";
 import { googleStrategy } from "~/lib/auth/server/strategy/google.server";
 
-export const authenticator = new Authenticator<User["id"]>(sessionStorage);
+export const authenticator = new Authenticator<User["id"]>(sessionStorage, {
+  throwOnError: true,
+});
 
 authenticator.use(signupStrategy, "signup");
 authenticator.use(loginStrategy, "login");
