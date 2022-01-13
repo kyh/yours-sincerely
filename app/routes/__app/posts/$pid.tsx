@@ -4,10 +4,10 @@ import {
   LoaderFunction,
   ActionFunction,
   redirect,
-  json,
   useLoaderData,
   useFetcher,
 } from "remix";
+import { badRequest, serverError } from "remix-utils";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPost, deletePost } from "~/lib/post/server/postService.server";
@@ -57,7 +57,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = user?.id;
   const postId = params.pid;
 
-  if (!userId || !postId) return json({ success: false }, { status: 400 });
+  if (!userId || !postId) return badRequest({ message: "Invalid post" });
 
   try {
     if (request.method === "DELETE") {
@@ -66,8 +66,8 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     return redirect("/");
   } catch (error) {
-    console.error(error);
-    return json({ success: false, error }, { status: 500 });
+    if (error instanceof Error) return badRequest({ message: error.message });
+    return serverError({ message: "Something went wrong" });
   }
 };
 
