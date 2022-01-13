@@ -19,8 +19,10 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
       }}
       panelContent={
         <div className="flow-root not-italic rounded-md">
-          <h4 className="font-bold text-slate-900">{displayName}</h4>
-          <span className="block text-sm text-gray-500">
+          <h4 className="font-bold text-slate-900 dark:text-slate-50">
+            {displayName}
+          </h4>
+          <span className="block text-sm text-gray-500 dark:text-slate-300">
             Stats coming soon...
           </span>
         </div>
