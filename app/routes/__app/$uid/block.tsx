@@ -1,5 +1,5 @@
-import { ActionFunction, LoaderFunction, redirect, json } from "remix";
-import { notFound } from "remix-utils";
+import { ActionFunction, LoaderFunction, redirect } from "remix";
+import { notFound, badRequest, serverError } from "remix-utils";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import {
   createBlock,
@@ -16,7 +16,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const blockingId = params.uid;
 
   if (!blockerId || !blockingId)
-    return json({ success: false }, { status: 400 });
+    return badRequest({ message: "Invalid block" });
 
   try {
     if (request.method === "POST") {
@@ -40,7 +40,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     return redirect("/");
   } catch (error) {
-    console.error(error);
-    return json({ success: false, error }, { status: 500 });
+    if (error instanceof Error) return badRequest({ message: error.message });
+    return serverError({ message: "Something went wrong" });
   }
 };

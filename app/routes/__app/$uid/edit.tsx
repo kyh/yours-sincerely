@@ -1,11 +1,11 @@
 import {
   LoaderFunction,
   ActionFunction,
-  json,
   redirect,
   MetaFunction,
   useLoaderData,
 } from "remix";
+import { unauthorized } from "remix-utils";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUser, updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
@@ -40,7 +40,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
-  if (!user) return json({ success: false });
+  if (!user) return unauthorized({ message: "Cannot update profile" });
 
   const input = Object.fromEntries(await request.formData()) as Partial<User>;
 
