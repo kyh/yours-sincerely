@@ -19,9 +19,8 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     return await authenticator.authenticate("signup", request, {
       successRedirect: "/",
-      throwOnError: true,
     });
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Response) return error;
     if (error instanceof AuthorizationError)
       return badRequest({ message: error.message });
