@@ -36,8 +36,8 @@ export const PostContent = ({
         <p className="text-lg whitespace-pre-wrap">{post.content}</p>
       )}
       <footer className="flex items-center justify-between mt-4">
-        <div className="flex items-center italic">
-          <span className="inline-flex mr-1 align-[1px]">Yours Sincerely,</span>
+        <div className="italic sm:flex sm:items-center">
+          <span className="mr-1 align-[1px]">Yours Sincerely,</span>
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
         <div className="flex items-center gap-1">
