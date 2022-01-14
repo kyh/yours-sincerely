@@ -35,7 +35,7 @@ export const ShareButton = ({ post }: Props) => {
           if (navigator.share) {
             navigator.share({
               title: "A tiny beautiful letter",
-              url: `${window.location.href}/${post.id}`,
+              url: postUrl,
             });
           } else {
             setIsOpen(true);
