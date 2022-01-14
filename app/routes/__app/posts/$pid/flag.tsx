@@ -1,5 +1,6 @@
 import { ActionFunction, LoaderFunction, redirect } from "remix";
 import { notFound, badRequest, serverError } from "remix-utils";
+import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { createFlag, deleteFlag } from "~/lib/post/server/flagService.server";
 
@@ -34,7 +35,12 @@ export const action: ActionFunction = async ({ request, params }) => {
       await deleteFlag({ userId, postId });
     }
 
-    return redirect("/");
+    const headers = await flashAndCommit(
+      request,
+      "You have flagged this post, we will be reviewing it shortly"
+    );
+
+    return redirect("/", { headers });
   } catch (error) {
     if (error instanceof Error) return badRequest({ message: error.message });
     return serverError({ message: "Something went wrong" });

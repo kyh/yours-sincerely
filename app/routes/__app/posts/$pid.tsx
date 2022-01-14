@@ -8,6 +8,7 @@ import {
   useFetcher,
 } from "remix";
 import { badRequest, serverError } from "remix-utils";
+import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPost, deletePost } from "~/lib/post/server/postService.server";
@@ -64,7 +65,9 @@ export const action: ActionFunction = async ({ request, params }) => {
       await deletePost({ id: postId });
     }
 
-    return redirect("/");
+    const headers = await flashAndCommit(request, "Your post has been removed");
+
+    return redirect("/", { headers });
   } catch (error) {
     if (error instanceof Error) return badRequest({ message: error.message });
     return serverError({ message: "Something went wrong" });

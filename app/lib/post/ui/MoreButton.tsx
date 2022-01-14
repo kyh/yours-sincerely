@@ -13,7 +13,7 @@ type LoaderData = {
 };
 
 const buttonClass =
-  "text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100";
+  "text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800";
 
 export const MoreButton = ({ post }: Props) => {
   const { user } = useLoaderData<LoaderData>();
@@ -68,7 +68,7 @@ export const MoreButton = ({ post }: Props) => {
         </svg>
       </button>
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
-        <div className="flex flex-col justify-center divide-y">
+        <div className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
           <a
             className={buttonClass}
             href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}

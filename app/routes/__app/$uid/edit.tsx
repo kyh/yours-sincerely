@@ -6,6 +6,7 @@ import {
   useLoaderData,
 } from "remix";
 import { unauthorized } from "remix-utils";
+import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUser, updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
@@ -51,7 +52,9 @@ export const action: ActionFunction = async ({ request }) => {
     id: user.id,
   });
 
-  return redirect("/");
+  const headers = await flashAndCommit(request, "User profile updated");
+
+  return redirect(`/${user.id}`, { headers });
 };
 
 const Page = () => {
