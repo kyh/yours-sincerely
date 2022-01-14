@@ -13,8 +13,13 @@ import {
 import { badRequest } from "remix-utils";
 import toast from "react-hot-toast";
 import {
+  getSession,
+  commitSession,
+  flash,
+} from "~/lib/core/server/session.server";
+import {
   isAuthenticated,
-  attachUserSession,
+  setUserSession,
 } from "~/lib/auth/server/authenticator.server";
 import {
   generateToken,
@@ -85,14 +90,20 @@ export const action: ActionFunction = async ({ request }) => {
     },
   });
 
+  const session = await getSession(request);
+  await flash(session, "Your love letter has been published");
+
   // Log user in after creation
   if (!user) {
-    const headers = await attachUserSession(request, post.user.id);
-    return redirect("/", { headers });
+    const session = await getSession(request);
+    await setUserSession(session, post.user.id);
   } else {
     await updateUser({ id: user.id, displayName: createdBy });
-    return redirect("/");
   }
+
+  const headers = await commitSession(session);
+
+  return redirect("/", { headers });
 };
 
 const Page = () => {

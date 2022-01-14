@@ -15,15 +15,15 @@ export const sessionStorage = createCookieSessionStorage({
   cookie: cookieOptions,
 });
 
-export const getSession = (request: Request): Promise<Session> => {
-  return sessionStorage.getSession(request.headers.get("Cookie"));
+export const getSession = async (request: Request) => {
+  const session = await sessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
+
+  return session;
 };
 
-const flashKey = "flashMessage";
-
-export const flash = async (request: Request, message: string) => {
-  const session = await getSession(request);
-  session.flash(flashKey, message);
+export const commitSession = async (session: Session) => {
   const headers = new Headers({
     "Set-Cookie": await sessionStorage.commitSession(session),
   });
@@ -31,9 +31,38 @@ export const flash = async (request: Request, message: string) => {
   return headers;
 };
 
+type Flash = {
+  type?: "default" | "success" | "error";
+  message?: string;
+};
+
+const flashKey = "flashMessage";
+
+export const flash = async (
+  session: Session,
+  message: string,
+  type: Flash["type"] = "default"
+) => {
+  session.flash(flashKey, JSON.stringify({ type, message }));
+
+  return session;
+};
+
+export const flashAndCommit = async (
+  request: Request,
+  message: string,
+  type: Flash["type"] = "default"
+) => {
+  const session = await getSession(request);
+  await flash(session, message, type);
+  const headers = await commitSession(session);
+  return headers;
+};
+
 export const getFlash = async (request: Request) => {
   const session = await getSession(request);
-  const message = session.get(flashKey) || null;
+  const flash: Flash = JSON.parse(session.get(flashKey) || "{}");
+  const headers = await commitSession(session);
 
-  return message;
+  return { ...flash, headers };
 };

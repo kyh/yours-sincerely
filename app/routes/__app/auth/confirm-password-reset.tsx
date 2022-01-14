@@ -3,7 +3,7 @@ import { badRequest } from "remix-utils";
 import { createMeta } from "~/lib/core/util/meta";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { AuthInput, isPasswordValid } from "~/lib/auth/data/authSchema";
-import { attachUserSession } from "~/lib/auth/server/authenticator.server";
+import { setUserSessionAndCommit } from "~/lib/auth/server/authenticator.server";
 import { validateToken } from "~/lib/auth/server/authService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
 
@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const updated = await updateUser({ id: validated.id, password });
-  const headers = await attachUserSession(request, updated.id);
+  const headers = await setUserSessionAndCommit(request, updated.id);
 
   return redirect(redirectTo || "/", { headers });
 };

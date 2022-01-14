@@ -1,6 +1,9 @@
-import { Link, LoaderFunction, useLoaderData } from "remix";
+import { useEffect } from "react";
+import { Link, LoaderFunction, useLoaderData, json } from "remix";
 import { ClientOnly } from "remix-utils";
 import ReactTooltip from "react-tooltip";
+import toast from "react-hot-toast";
+import { getFlash } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
@@ -11,6 +14,7 @@ import { useInfiniteScroll } from "~/lib/core/ui/InfiniteScroll";
 type LoaderData = {
   postList: Post[];
   user: User | null;
+  message?: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -18,17 +22,19 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const cursor = url.searchParams.get("c");
   const postList = await getPostList(user, { cursor });
+  const { message, headers } = await getFlash(request);
 
   const data: LoaderData = {
     postList,
     user,
+    message,
   };
 
-  return data;
+  return json(data, { headers });
 };
 
 const Page = () => {
-  const { postList } = useLoaderData<LoaderData>();
+  const { postList, message } = useLoaderData<LoaderData>();
   const {
     fetcher,
     hasNextPage,
@@ -38,6 +44,10 @@ const Page = () => {
     initialData: postList,
     fetcherResultKey: "postList",
   });
+
+  useEffect(() => {
+    if (message) toast(message);
+  }, [message]);
 
   return (
     <>

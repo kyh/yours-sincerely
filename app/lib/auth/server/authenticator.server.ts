@@ -1,6 +1,11 @@
+import { Session } from "remix";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { User } from "~/lib/user/data/userSchema";
-import { sessionStorage, getSession } from "~/lib/core/server/session.server";
+import {
+  sessionStorage,
+  getSession,
+  commitSession,
+} from "~/lib/core/server/session.server";
 import { getUser } from "~/lib/user/server/userService.server";
 import {
   signupStrategy,
@@ -22,12 +27,20 @@ export const isAuthenticated = async (request: Request) => {
   return getUser({ id: userId });
 };
 
-export const attachUserSession = async (request: Request, id: User["id"]) => {
-  const session = await getSession(request);
+export const setUserSession = async (session: Session, id: User["id"]) => {
   session.set(authenticator.sessionKey, id);
-  const headers = new Headers({
-    "Set-Cookie": await sessionStorage.commitSession(session),
-  });
+
+  return session;
+};
+
+export const setUserSessionAndCommit = async (
+  request: Request,
+  id: User["id"]
+) => {
+  const session = await getSession(request);
+  await setUserSession(session, id);
+  const headers = await commitSession(session);
+
   return headers;
 };
 
