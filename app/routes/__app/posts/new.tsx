@@ -95,7 +95,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   // Log user in after creation
   if (!user) {
-    const session = await getSession(request);
     await setUserSession(session, post.user.id);
   } else {
     await updateUser({ id: user.id, displayName: createdBy });

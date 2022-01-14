@@ -20,8 +20,7 @@
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
     "prisma:generate": "dotenv -- prisma generate",
-    "prisma:migrate:dev": "dotenv -- prisma migrate dev",
-    "prisma:migrate:prod": "dotenv -- npx ts-node -T scripts/migrate-prod-db.ts",
+    "prisma:migrate": "dotenv -- prisma db push",
     "prisma:reset": "dotenv -- prisma migrate reset",
     "prisma:seed": "dotenv -- prisma db seed"
   },
