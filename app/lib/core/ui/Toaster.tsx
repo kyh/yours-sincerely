@@ -47,7 +47,8 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
         <AnimatePresence initial={false}>
           {toasts.map((t) => (
             <motion.li
-              className="min-w-[200px] py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-900 pointer-events-auto text-center"
+              onClick={() => removeToast(t.id)}
+              className="min-w-[200px] py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-50 dark:text-slate-900 pointer-events-auto text-center cursor-pointer"
               key={t.id}
               layout
               initial={{ opacity: 0, y: 30, scale: 0.3 }}

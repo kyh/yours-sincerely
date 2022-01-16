@@ -28,6 +28,7 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
       <g style={{ transform: "translateX(5.5%)" }}>
         {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
           <Tooltip
+            key={day}
             triggerRef="ellipse"
             triggerProps={{
               className: "block",
@@ -40,7 +41,7 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
               strokeWidth: 1,
               stroke: theme.stroke,
             }}
-            tooltipContent={`${data[day].count} posts ${
+            tooltipContent={`${data[day].count} posts written on ${
               FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
             }s`}
           />

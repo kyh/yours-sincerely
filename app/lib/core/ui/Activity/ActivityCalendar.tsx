@@ -245,6 +245,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
           return (
             <Tooltip
+              key={day.date}
               triggerRef="rect"
               triggerProps={{
                 ...getEventHandlers(day),
@@ -257,7 +258,6 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
                 ry: blockRadius,
                 strokeWidth: 1,
                 stroke: theme.stroke,
-                dataDate: day.date,
                 key: day.date,
                 style: style,
               }}
