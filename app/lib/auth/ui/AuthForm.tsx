@@ -6,7 +6,7 @@ import {
   useTransition,
   useSearchParams,
 } from "remix";
-import toast from "react-hot-toast";
+import { useToast } from "~/lib/core/ui/Toaster";
 import { TextField, Checkbox } from "~/lib/core/ui/FormField";
 import { Button } from "~/lib/core/ui/Button";
 
@@ -34,6 +34,7 @@ const actionMap: Record<Props["authType"], { button: string; url: string }> = {
 };
 
 export const AuthForm = ({ authType }: Props) => {
+  const { toast } = useToast();
   const transition = useTransition();
   const action = useActionData();
   const [searchParams] = useSearchParams();
@@ -44,7 +45,7 @@ export const AuthForm = ({ authType }: Props) => {
 
   useEffect(() => {
     if (action && action.message) {
-      toast.error(action.message);
+      toast(action.message);
     }
   }, [action]);
 

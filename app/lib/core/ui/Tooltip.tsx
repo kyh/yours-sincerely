@@ -1,39 +1,39 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useRef, useState, ElementType } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { usePopper } from "react-popper";
+import { Portal } from "react-portal";
 
 type Props = {
+  triggerRef?: ElementType<any>;
   offset?: [number, number];
-  buttonContent?: React.ReactNode;
-  buttonClassName?: string;
-  buttonProps?: { [key: string]: any };
-  panelContent?: React.ReactNode;
-  panelClassName?: string;
-  panelProps?: { [key: string]: any };
+  triggerContent?: React.ReactNode;
+  triggerClassName?: string;
+  triggerProps?: { [key: string]: any };
+  tooltipContent?: React.ReactNode;
+  tooltipClassName?: string;
+  tooltipProps?: { [key: string]: any };
 };
 
 const timeoutDuration = 200;
 
 export const Tooltip = ({
+  triggerRef,
   offset = [0, 0],
-  buttonContent = null,
-  buttonClassName = "",
-  buttonProps = {},
-  panelContent = null,
-  panelClassName = "py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-900",
-  panelProps = {},
+  triggerContent = null,
+  triggerClassName = "",
+  triggerProps = {},
+  tooltipContent = null,
+  tooltipClassName = "py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-900",
+  tooltipProps = {},
 }: Props) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const popperElRef = useRef(null);
+  const tooltipElementRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [referenceElement, setReferenceElement] =
-    useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
+  const [triggerElement, setTriggerElement] = useState(null);
+  const [tooltipElement, setTooltipElement] = useState(null);
 
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes } = usePopper(triggerElement, tooltipElement, {
     placement: "top",
     modifiers: [
       {
@@ -56,40 +56,47 @@ export const Tooltip = ({
   };
 
   return (
-    <Popover>
+    <Popover as={Fragment}>
       <Popover.Button
-        ref={setReferenceElement}
-        className={buttonClassName}
+        as={triggerRef ? triggerRef : "button"}
+        ref={setTriggerElement}
+        className={triggerClassName}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        {...buttonProps}
+        {...triggerProps}
       >
-        {buttonContent}
+        {triggerContent}
       </Popover.Button>
-      <div ref={popperElRef} style={styles.popper} {...attributes.popper}>
-        <Transition
-          show={isOpen}
-          as={Fragment}
-          enter="ease-out duration-150"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="ease-in duration-100"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
-          beforeEnter={() => setPopperElement(popperElRef.current)}
-          afterLeave={() => setPopperElement(null)}
+      <Portal>
+        <div
+          ref={tooltipElementRef}
+          style={styles.popper}
+          {...attributes.popper}
         >
-          <Popover.Panel
-            static
-            className={panelClassName}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            {...panelProps}
+          <Transition
+            show={isOpen}
+            as={Fragment}
+            enter="ease-out duration-150"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-100"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+            beforeEnter={() => setTooltipElement(tooltipElementRef.current)}
+            afterLeave={() => setTooltipElement(null)}
           >
-            {panelContent}
-          </Popover.Panel>
-        </Transition>
-      </div>
+            <Popover.Panel
+              static
+              className={tooltipClassName}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+              {...tooltipProps}
+            >
+              {tooltipContent}
+            </Popover.Panel>
+          </Transition>
+        </div>
+      </Portal>
     </Popover>
   );
 };

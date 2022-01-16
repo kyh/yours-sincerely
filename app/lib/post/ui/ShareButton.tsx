@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import toast from "react-hot-toast";
+import { useToast } from "~/lib/core/ui/Toaster";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Divider } from "~/lib/core/ui/Divider";
 import { Post } from "~/lib/post/data/postSchema";
@@ -12,6 +12,7 @@ const iconClassName =
   "bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg dark:bg-slate-600 dark:text-slate-200 dark:hover:text-primary-light";
 
 export const ShareButton = ({ post }: Props) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
   const postUrl = `https://yourssincerely.org/posts/${post.id}`;
@@ -21,9 +22,7 @@ export const ShareButton = ({ post }: Props) => {
     ref.current?.select();
     ref.current?.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(postUrl);
-    toast("Copied to Clipboard", {
-      icon: "📝",
-    });
+    toast("📝 Copied to Clipboard");
   };
 
   return (

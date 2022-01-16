@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFetcher } from "remix";
 import useInfiniteScrollHook from "react-infinite-scroll-hook";
-import ReactTooltip from "react-tooltip";
 
 type Props<T> = {
   initialData: T;
@@ -37,8 +36,6 @@ export const useInfiniteScroll = <T,>({
       if (dataArr.length < 5) {
         setHasNextPage(false);
       }
-
-      requestAnimationFrame(ReactTooltip.rebuild);
     }
   }, [fetcher.data]);
 

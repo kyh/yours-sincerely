@@ -6,10 +6,8 @@ import {
   json,
   redirect,
 } from "remix";
-import { ClientOnly } from "remix-utils";
-import ReactTooltip from "react-tooltip";
-import toast from "react-hot-toast";
 import { createMeta } from "~/lib/core/util/meta";
+import { useToast } from "~/lib/core/ui/Toaster";
 import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
@@ -67,6 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const Page = () => {
+  const { toast } = useToast();
   const { user, stats, showEdit, message } = useLoaderData<LoaderData>();
 
   useEffect(() => {
@@ -76,9 +75,6 @@ const Page = () => {
   return (
     <main className="w-full max-w-md pt-5 mx-auto">
       <Profile user={user} stats={stats} showEdit={showEdit} />
-      <ClientOnly>
-        <ReactTooltip effect="solid" className="tooltip" />
-      </ClientOnly>
     </main>
   );
 };

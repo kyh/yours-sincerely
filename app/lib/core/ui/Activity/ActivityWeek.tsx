@@ -1,3 +1,4 @@
+import { Tooltip } from "~/lib/core/ui/Tooltip";
 import { Theme } from "./calendarTypes";
 import {
   getTheme,
@@ -26,17 +27,20 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
       />
       <g style={{ transform: "translateX(5.5%)" }}>
         {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
-          <ellipse
-            className="block"
-            key={day}
-            cx={`${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`}
-            cy="50px"
-            rx={data[day] ? `${data[day].level * 4}` : "0"}
-            ry={data[day] ? `${data[day].level * 4}` : "0"}
-            fill={theme[`level${data[day].level}` as keyof typeof theme]}
-            strokeWidth={1}
-            stroke={theme.stroke}
-            data-tip={`${data[day].count} posts ${
+          <Tooltip
+            triggerRef="ellipse"
+            triggerProps={{
+              className: "block",
+              key: day,
+              cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
+              cy: "50px",
+              rx: data[day] ? `${data[day].level * 4}` : "0",
+              ry: data[day] ? `${data[day].level * 4}` : "0",
+              fill: theme[`level${data[day].level}` as keyof typeof theme],
+              strokeWidth: 1,
+              stroke: theme.stroke,
+            }}
+            tooltipContent={`${data[day].count} posts ${
               FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
             }s`}
           />
