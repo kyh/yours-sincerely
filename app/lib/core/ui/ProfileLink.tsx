@@ -11,13 +11,13 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
   return (
     <Tooltip
       offset={[0, 8]}
-      buttonContent={displayName}
-      buttonClassName={`inline-flex text-slate-900 underline underline-offset-2 decoration-dotted dark:text-slate-50 ${className}`}
-      buttonProps={{
+      triggerContent={displayName}
+      triggerClassName={`inline-flex text-slate-900 underline underline-offset-2 decoration-dotted dark:text-slate-50 ${className}`}
+      triggerProps={{
         as: Link,
         to: `/${userId}`,
       }}
-      panelContent={
+      tooltipContent={
         <div className="flow-root not-italic rounded-md">
           <h4 className="font-bold text-slate-900 dark:text-slate-50">
             {displayName}
@@ -27,7 +27,7 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
           </span>
         </div>
       }
-      panelClassName="max-w-[240px] p-4 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-slate-900"
+      tooltipClassName="max-w-[240px] p-4 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-slate-900"
     />
   );
 };

@@ -11,7 +11,6 @@ import {
   Form,
 } from "remix";
 import { badRequest } from "remix-utils";
-import toast from "react-hot-toast";
 import {
   getSession,
   commitSession,
@@ -39,6 +38,7 @@ import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
 import { usePlatform } from "~/lib/core/ui/Platform";
+import { useToast } from "~/lib/core/ui/Toaster";
 
 export let meta: MetaFunction = () => {
   return createMeta({
@@ -106,6 +106,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const Page = () => {
+  const { toast } = useToast();
   const { isIOS } = usePlatform();
   const action = useActionData();
   const { user, promptContent } = useLoaderData<LoaderData>();
@@ -121,7 +122,7 @@ const Page = () => {
 
   useEffect(() => {
     if (action && action.message) {
-      toast.error(action.message);
+      toast(action.message);
     }
   }, [action]);
 

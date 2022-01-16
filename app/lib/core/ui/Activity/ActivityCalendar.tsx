@@ -1,6 +1,6 @@
 import { FunctionComponent, CSSProperties } from "react";
-import { format, getDay, getYear, parseISO } from "date-fns";
-import type { Day as WeekDay } from "date-fns";
+import { format, getDay, getYear, parseISO, Day as WeekDay } from "date-fns";
+import { Tooltip } from "~/lib/core/ui/Tooltip";
 
 import {
   Day,
@@ -244,21 +244,24 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
             : undefined;
 
           return (
-            <rect
-              {...getEventHandlers(day)}
-              x={0}
-              y={textHeight + (blockSize + blockMargin) * dayIndex}
-              width={blockSize}
-              height={blockSize}
-              fill={theme[`level${day.level}` as keyof Theme]}
-              rx={blockRadius}
-              ry={blockRadius}
-              strokeWidth={1}
-              stroke={theme.stroke}
-              data-date={day.date}
-              data-tip={getTooltipMessage(day)}
-              key={day.date}
-              style={style}
+            <Tooltip
+              triggerRef="rect"
+              triggerProps={{
+                ...getEventHandlers(day),
+                x: 0,
+                y: textHeight + (blockSize + blockMargin) * dayIndex,
+                width: blockSize,
+                height: blockSize,
+                fill: theme[`level${day.level}` as keyof Theme],
+                rx: blockRadius,
+                ry: blockRadius,
+                strokeWidth: 1,
+                stroke: theme.stroke,
+                dataDate: day.date,
+                key: day.date,
+                style: style,
+              }}
+              tooltipContent={getTooltipMessage(day)}
             />
           );
         })
@@ -291,7 +294,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         )}
 
         {!loading && !hideColorLegend && (
-          <div className="ml-auto flex items-center gap-1">
+          <div className="flex items-center gap-1 ml-auto">
             <span style={{ marginRight: "0.4em" }}>
               {labels?.legend?.less ?? "Less"}
             </span>

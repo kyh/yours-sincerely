@@ -25,8 +25,8 @@ export const Timer = ({ post }: Props) => {
   const { percentage, now, end } = getPercentage(new Date(post.createdAt!));
   return (
     <Tooltip
-      buttonClassName="flex items-center p-2 rounded-lg"
-      buttonContent={
+      triggerClassName="flex items-center p-2 rounded-lg"
+      triggerContent={
         <div
           className="relative inline-block bg-slate-400 bg-blend-overlay w-4 h-4 rounded-full bg-center	bg-[length:150%]"
           style={{
@@ -38,7 +38,7 @@ export const Timer = ({ post }: Props) => {
           data-percentage={percentage}
         />
       }
-      panelContent={`Dissapears in ${formatDistance(now, end)}`}
+      tooltipContent={`Dissapears in ${formatDistance(now, end)}`}
     />
   );
 };

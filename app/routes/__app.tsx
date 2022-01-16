@@ -1,8 +1,8 @@
 import { Outlet, Link, useMatches } from "remix";
 import { ClientOnly } from "remix-utils";
-import { Toaster } from "react-hot-toast";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
+import { ToastProvider } from "~/lib/core/ui/Toaster";
 import { Logo } from "~/lib/core/ui/Logo";
 
 const Page = () => {
@@ -13,22 +13,15 @@ const Page = () => {
   return (
     <PlatformProvider>
       <ThemeProvider>
-        <section
-          className={`page ${isNewPage ? "bg-white dark:bg-slate-800" : ""}`}
-        >
-          <Toaster
-            position="bottom-center"
-            toastOptions={{
-              style: {
-                background: "rgb(15 23 42)",
-                color: "rgb(248 250 252)",
-              },
-            }}
-          />
-          <Nav isNewPage={isNewPage} />
-          <Outlet />
-          <Footer isNewPage={isNewPage} />
-        </section>
+        <ToastProvider>
+          <section
+            className={`page ${isNewPage ? "bg-white dark:bg-slate-800" : ""}`}
+          >
+            <Nav isNewPage={isNewPage} />
+            <Outlet />
+            <Footer isNewPage={isNewPage} />
+          </section>
+        </ToastProvider>
       </ThemeProvider>
     </PlatformProvider>
   );
