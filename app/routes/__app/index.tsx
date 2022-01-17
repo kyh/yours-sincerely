@@ -67,7 +67,7 @@ const Page = () => {
               hasNextPage={hasNextPage}
               onLoadMore={loadMore}
             >
-              {(post) => <PostContent displayFull post={post} />}
+              {(post) => <PostContent displayFull asLink={false} post={post} />}
             </CardStack>
           )}
           {view === "list" && (

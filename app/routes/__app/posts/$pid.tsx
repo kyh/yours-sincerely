@@ -91,8 +91,8 @@ const Page = () => {
         <>
           <PostContent
             post={post}
-            showLink={false}
-            showTimer={false}
+            asLink={false}
+            showComment={false}
             showMore
           />
           <div className="flex flex-col gap-3">
