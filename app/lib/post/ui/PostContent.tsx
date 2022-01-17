@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from "react";
 import { Link } from "remix";
 import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { Post } from "~/lib/post/data/postSchema";
@@ -40,17 +41,13 @@ export const PostContent = ({
           </p>
         </Link>
       ) : (
-        <p
-          className={`text-lg whitespace-pre-wrap overflow-auto ${
-            displayFull ? "pb-5" : ""
-          }`}
-        >
+        <p className="text-lg whitespace-pre-wrap overflow-auto">
           {post.content}
         </p>
       )}
       <footer
         className={`flex flex-col sm:flex-row sm:justify-between ${
-          displayFull ? "mt-auto" : "mt-4"
+          displayFull ? "mt-auto pt-3" : "mt-4"
         }`}
       >
         <div className="italic sm:flex sm:items-center">
