@@ -1,16 +1,51 @@
-import { useState } from "react";
-import { Outlet, Link, useMatches } from "remix";
+import { useState, useEffect } from "react";
+import {
+  Outlet,
+  Link,
+  useMatches,
+  useLoaderData,
+  LoaderFunction,
+  json,
+} from "remix";
 import { ClientOnly } from "remix-utils";
+import { getFlash } from "~/lib/core/server/session.server";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
-import { ToastProvider } from "~/lib/core/ui/Toaster";
+import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
 import { Logo } from "~/lib/core/ui/Logo";
 import { iconAttrs } from "~/lib/core/ui/Icon";
+
+const viewKey = "postsView";
+
+type LoaderData = {
+  message?: string;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const { message, headers } = await getFlash(request);
+
+  const data: LoaderData = {
+    message,
+  };
+
+  return json(data, { headers });
+};
 
 const Page = () => {
   const matches = useMatches();
   const [view, setView] = useState("stack");
   const { pathname: currentPath } = matches[matches.length - 1];
+
+  useEffect(() => {
+    // TODO: move this into session storage instead of local
+    const savedView = localStorage.getItem(viewKey);
+    if (savedView) setView(savedView);
+  }, []);
+
+  const handleSetView = (view: string) => {
+    localStorage.setItem(viewKey, view);
+    setView(view);
+  };
 
   return (
     <PlatformProvider>
@@ -21,7 +56,11 @@ const Page = () => {
               currentPath === "/posts/new" ? "bg-white dark:bg-slate-800" : ""
             }`}
           >
-            <Nav currentPath={currentPath} view={view} setView={setView} />
+            <Nav
+              currentPath={currentPath}
+              view={view}
+              setView={handleSetView}
+            />
             <Outlet context={{ view }} />
             {currentPath !== "/posts/new" && <Footer />}
           </section>
@@ -128,6 +167,12 @@ const Nav = ({
 
 const Footer = () => {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  const { message } = useLoaderData<LoaderData>();
+
+  useEffect(() => {
+    if (message) toast(message);
+  }, [message]);
 
   const onThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const updated =

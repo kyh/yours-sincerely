@@ -32,15 +32,15 @@ export const PostContent = ({
     <article className={`${displayFull ? "w-full h-full flex flex-col" : ""}`}>
       {asLink ? (
         <Link
-          className={`block text-slate-900 hover:no-underline dark:text-slate-50 ${
-            displayFull ? "pb-5 overflow-auto" : ""
-          }`}
+          className="block text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
           <p className="text-lg whitespace-pre-wrap">{post.content}</p>
         </Link>
       ) : (
-        <p className="text-lg whitespace-pre-wrap">{post.content}</p>
+        <p className="text-lg whitespace-pre-wrap overflow-auto">
+          {post.content}
+        </p>
       )}
       <footer
         className={`flex items-center justify-between ${
