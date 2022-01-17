@@ -43,7 +43,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ToastContext.Provider value={{ toast, removeToast }}>
-      <ul className="fixed left-0 right-0 z-20 flex flex-col items-center gap-3 pointer-events-none bottom-3">
+      <ul className="fixed left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none top-4">
         <AnimatePresence initial={false}>
           {toasts.map((t) => (
             <motion.li
@@ -51,7 +51,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
               className="min-w-[200px] py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-50 dark:text-slate-900 pointer-events-auto text-center cursor-pointer"
               key={t.id}
               layout
-              initial={{ opacity: 0, y: 30, scale: 0.3 }}
+              initial={{ opacity: 0, y: -30, scale: 0.3 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
             >

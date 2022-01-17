@@ -1,17 +1,8 @@
 import { useRef, useEffect } from "react";
-import {
-  MetaFunction,
-  LoaderFunction,
-  ActionFunction,
-  redirect,
-  useLoaderData,
-  useFetcher,
-} from "remix";
-import { badRequest, serverError } from "remix-utils";
-import { flashAndCommit } from "~/lib/core/server/session.server";
+import { MetaFunction, LoaderFunction, useLoaderData, useFetcher } from "remix";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
-import { getPost, deletePost } from "~/lib/post/server/postService.server";
+import { getPost } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { CommentContent } from "~/lib/post/ui/CommentContent";
@@ -50,28 +41,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   };
 
   return data;
-};
-
-export const action: ActionFunction = async ({ request, params }) => {
-  const user = await isAuthenticated(request);
-
-  const userId = user?.id;
-  const postId = params.pid;
-
-  if (!userId || !postId) return badRequest({ message: "Invalid post" });
-
-  try {
-    if (request.method === "DELETE") {
-      await deletePost({ id: postId });
-    }
-
-    const headers = await flashAndCommit(request, "Your post has been removed");
-
-    return redirect("/", { headers });
-  } catch (error) {
-    if (error instanceof Error) return badRequest({ message: error.message });
-    return serverError({ message: "Something went wrong" });
-  }
 };
 
 const Page = () => {
