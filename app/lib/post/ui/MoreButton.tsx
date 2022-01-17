@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useFetcher, useLoaderData } from "remix";
+import { Form, useLoaderData, useFormAction } from "remix";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";
@@ -19,31 +19,9 @@ const buttonClass =
 export const MoreButton = ({ post }: Props) => {
   const { user } = useLoaderData<LoaderData>();
   const [isOpen, setIsOpen] = useState(false);
-  const fetcher = useFetcher();
 
   const isLoggedIn = !!user;
   const isPostOwner = user && user.id === post.userId;
-
-  const handleDeletePost = async () => {
-    await fetcher.submit(null, {
-      method: "delete",
-      action: `/posts/${post.id}`,
-    });
-  };
-
-  const handleFlagPost = async () => {
-    await fetcher.submit(null, {
-      method: "post",
-      action: `/posts/${post.id}/flag`,
-    });
-  };
-
-  const handleBlockUser = async () => {
-    await fetcher.submit(null, {
-      method: "post",
-      action: `/${post.userId}/block`,
-    });
-  };
 
   return (
     <>
@@ -59,7 +37,10 @@ export const MoreButton = ({ post }: Props) => {
         </svg>
       </button>
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
-        <div className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
+        <Form
+          method="post"
+          className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500"
+        >
           <a
             className={buttonClass}
             href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
@@ -68,32 +49,32 @@ export const MoreButton = ({ post }: Props) => {
           </a>
           {isLoggedIn && isPostOwner && (
             <button
+              type="submit"
               className={buttonClass}
-              type="button"
-              onClick={handleDeletePost}
+              formAction={useFormAction(`/posts/${post.id}/delete`)}
             >
               Delete Post
             </button>
           )}
           {isLoggedIn && !isPostOwner && (
             <button
+              type="submit"
               className={buttonClass}
-              type="button"
-              onClick={handleFlagPost}
+              formAction={useFormAction(`/posts/${post.id}/flag`)}
             >
               Mark as inappropriate
             </button>
           )}
           {isLoggedIn && !isPostOwner && (
             <button
+              type="submit"
               className={buttonClass}
-              type="button"
-              onClick={handleBlockUser}
+              formAction={useFormAction(`/${post.userId}/block`)}
             >
               Stop seeing content from this user
             </button>
           )}
-        </div>
+        </Form>
       </Dialog>
     </>
   );
