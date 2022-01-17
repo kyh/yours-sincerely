@@ -1,25 +1,29 @@
+import { useState } from "react";
 import { Outlet, Link, useMatches } from "remix";
 import { ClientOnly } from "remix-utils";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { ToastProvider } from "~/lib/core/ui/Toaster";
 import { Logo } from "~/lib/core/ui/Logo";
+import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const Page = () => {
   const matches = useMatches();
-  const childRoute = matches[matches.length - 1];
-  const isNewPage = childRoute && childRoute.pathname === "/posts/new";
+  const [view, setView] = useState("stack");
+  const { pathname: currentPath } = matches[matches.length - 1];
 
   return (
     <PlatformProvider>
       <ThemeProvider>
         <ToastProvider>
           <section
-            className={`page ${isNewPage ? "bg-white dark:bg-slate-800" : ""}`}
+            className={`page ${
+              currentPath === "/posts/new" ? "bg-white dark:bg-slate-800" : ""
+            }`}
           >
-            <Nav isNewPage={isNewPage} />
-            <Outlet />
-            <Footer isNewPage={isNewPage} />
+            <Nav currentPath={currentPath} view={view} setView={setView} />
+            <Outlet context={{ view }} />
+            {currentPath !== "/posts/new" && <Footer />}
           </section>
         </ToastProvider>
       </ThemeProvider>
@@ -27,20 +31,85 @@ const Page = () => {
   );
 };
 
-const Nav = ({ isNewPage }: { isNewPage?: boolean }) => {
+const navLinkButtonClassName =
+  "relative inline-flex items-center px-2 py-2 border-2 border-slate-200 text-sm font-medium text-slate-500 bg-white transition cursor-pointer hover:z-10 hover:border-primary peer-checked:text-primary-dark peer-checked:bg-primary-bg hover:text-primary-dark hover:bg-primary-bg dark:text-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:peer-checked:bg-slate-700 dark:peer-checked:text-primary-light dark:hover:text-primary-light dark:hover:border-primary-light";
+
+const Nav = ({
+  currentPath,
+  view,
+  setView,
+}: {
+  currentPath: string;
+  view: string;
+  setView: (view: string) => void;
+}) => {
   return (
     <nav className="flex items-center justify-between py-5 text-sm leading-4 text-slate-500 dark:text-slate-300">
       <Link to="/">
-        <Logo className="w-[7.5rem]" />
+        <Logo className="w-[6rem]" />
       </Link>
-      {!isNewPage && (
+      {currentPath !== "/posts/new" && (
         <ul className="flex items-center gap-3">
+          {currentPath === "/" && (
+            <li className="relative z-0 inline-flex shadow-sm rounded-md">
+              <div>
+                <input
+                  className="sr-only peer"
+                  type="radio"
+                  value="stack"
+                  name="view"
+                  id="stackView"
+                  checked={view === "stack"}
+                  onChange={(e) => setView(e.target.value)}
+                />
+                <label
+                  className={`${navLinkButtonClassName} rounded-l-md`}
+                  htmlFor="stackView"
+                >
+                  <span className="sr-only">Stack View</span>
+                  <svg {...iconAttrs}>
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                  </svg>
+                </label>
+              </div>
+              <div>
+                <input
+                  className="sr-only peer"
+                  type="radio"
+                  value="list"
+                  name="view"
+                  id="listView"
+                  checked={view === "list"}
+                  onChange={(e) => setView(e.target.value)}
+                />
+                <label
+                  className={`${navLinkButtonClassName} -ml-px rounded-r-md`}
+                  htmlFor="listView"
+                >
+                  <span className="sr-only">List View</span>
+                  <svg {...iconAttrs} strokeWidth="3">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                </label>
+              </div>
+            </li>
+          )}
           <li>
             <Link
-              className="text-slate-500 dark:text-slate-300 hover:no-underline hover:text-slate-900 dark:hover:text-slate-100"
+              className={`${navLinkButtonClassName} rounded-md shadow-sm`}
               to="/profile"
             >
-              Profile
+              <svg {...iconAttrs} strokeWidth="3">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
             </Link>
           </li>
           <li>
@@ -57,10 +126,8 @@ const Nav = ({ isNewPage }: { isNewPage?: boolean }) => {
   );
 };
 
-const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
+const Footer = () => {
   const { theme, setTheme } = useTheme();
-
-  if (isNewPage) return null;
 
   const onThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const updated =
@@ -69,7 +136,7 @@ const Footer = ({ isNewPage }: { isNewPage?: boolean }) => {
   };
 
   return (
-    <footer className="flex items-center justify-between py-5 mt-5 text-sm leading-4 text-slate-500 dark:text-slate-100">
+    <footer className="flex items-center justify-between py-5 text-sm leading-4 text-slate-500 dark:text-slate-100">
       <span>©{new Date().getFullYear()}, Made with 💻</span>
       <ul className="flex items-center gap-3">
         <li>

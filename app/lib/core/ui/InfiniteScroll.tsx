@@ -15,13 +15,15 @@ export const useInfiniteScroll = <T,>({
   const [data, setData] = useState<any>(initialData);
   const [hasNextPage, setHasNextPage] = useState(true);
 
+  const loadMore = () => {
+    const cursor = data[data.length - 1].id;
+    fetcher.submit(new URLSearchParams(`c=${cursor}`));
+  };
+
   const [sentryRef] = useInfiniteScrollHook({
     loading: fetcher.state !== "idle",
     hasNextPage,
-    onLoadMore: () => {
-      const cursor = data[data.length - 1].id;
-      fetcher.submit(new URLSearchParams(`c=${cursor}`));
-    },
+    onLoadMore: loadMore,
     rootMargin: "0px 0px 100px 0px",
   });
 
@@ -41,6 +43,7 @@ export const useInfiniteScroll = <T,>({
 
   return {
     fetcher,
+    loadMore,
     hasNextPage,
     ref: sentryRef,
     data: data as T,
