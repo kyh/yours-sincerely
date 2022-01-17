@@ -3,6 +3,7 @@ import { useFetcher, useLoaderData } from "remix";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";
+import { iconAttrs } from "~/lib/core/ui/Icon";
 
 type Props = {
   post: Post;
@@ -51,17 +52,7 @@ export const MoreButton = ({ post }: Props) => {
         className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setIsOpen(true)}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+        <svg {...iconAttrs} width="20" height="20">
           <circle cx="12" cy="12" r="1"></circle>
           <circle cx="12" cy="5" r="1"></circle>
           <circle cx="12" cy="19" r="1"></circle>

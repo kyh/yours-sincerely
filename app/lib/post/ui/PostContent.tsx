@@ -8,6 +8,7 @@ import { MoreButton } from "~/lib/post/ui/MoreButton";
 
 type Props = {
   post: Post;
+  displayFull?: boolean;
   showLink?: boolean;
   showShare?: boolean;
   showLike?: boolean;
@@ -17,6 +18,7 @@ type Props = {
 
 export const PostContent = ({
   post,
+  displayFull = false,
   showLink = true,
   showShare = true,
   showLike = true,
@@ -24,7 +26,7 @@ export const PostContent = ({
   showMore = false,
 }: Props) => {
   return (
-    <article>
+    <article className={`${displayFull ? "w-full h-full flex flex-col" : ""}`}>
       {showLink ? (
         <Link
           className="block text-slate-900 hover:no-underline dark:text-slate-50"
@@ -35,7 +37,11 @@ export const PostContent = ({
       ) : (
         <p className="text-lg whitespace-pre-wrap">{post.content}</p>
       )}
-      <footer className="flex items-center justify-between mt-4">
+      <footer
+        className={`flex items-center justify-between ${
+          displayFull ? "mt-auto" : "mt-4"
+        }`}
+      >
         <div className="italic sm:flex sm:items-center">
           <span className="mr-1 align-[1px]">Yours Sincerely,</span>
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />

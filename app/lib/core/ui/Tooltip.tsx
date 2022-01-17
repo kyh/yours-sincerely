@@ -14,8 +14,6 @@ type Props = {
   tooltipProps?: { [key: string]: any };
 };
 
-const timeoutDuration = 200;
-
 export const Tooltip = ({
   triggerRef,
   offset = [0, 0],
@@ -26,7 +24,6 @@ export const Tooltip = ({
   tooltipClassName = "py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-900",
   tooltipProps = {},
 }: Props) => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const tooltipElementRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -46,13 +43,11 @@ export const Tooltip = ({
   });
 
   const onMouseEnter = () => {
-    clearTimeout(timeoutRef.current!);
-    timeoutRef.current = setTimeout(() => setIsOpen(true), timeoutDuration);
+    setIsOpen(true);
   };
 
   const onMouseLeave = () => {
-    clearTimeout(timeoutRef.current!);
-    timeoutRef.current = setTimeout(() => setIsOpen(false), timeoutDuration);
+    setIsOpen(false);
   };
 
   return (

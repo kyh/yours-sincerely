@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const States = {
   default: "default",
@@ -24,16 +25,10 @@ export const Spinner = ({ loading = false, ...rest }) => {
     <div {...rest}>
       <Svg isShown={state === States.loading} />
       <svg
+        {...iconAttrs}
         className="text-green-600"
-        xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
         style={{ opacity: state === States.done ? 1 : 0 }}
       >
         <polyline points="20 6 9 17 4 12"></polyline>

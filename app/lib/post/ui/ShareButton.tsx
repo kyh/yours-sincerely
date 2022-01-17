@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useToast } from "~/lib/core/ui/Toaster";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Divider } from "~/lib/core/ui/Divider";
+import { iconAttrs } from "~/lib/core/ui/Icon";
 import { Post } from "~/lib/post/data/postSchema";
 
 type Props = {
@@ -29,7 +30,7 @@ export const ShareButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
         onClick={() => {
           if (navigator.share) {
             navigator.share({
@@ -41,17 +42,7 @@ export const ShareButton = ({ post }: Props) => {
           }
         }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+        <svg {...iconAttrs} width="18" height="18">
           <circle cx="18" cy="5" r="3"></circle>
           <circle cx="6" cy="12" r="3"></circle>
           <circle cx="18" cy="19" r="3"></circle>
@@ -132,17 +123,7 @@ export const ShareButton = ({ post }: Props) => {
             className="absolute p-2 transition right-3 top-1 bg-slate-100 hover:text-primary-dark dark:bg-slate-600 dark:hover:text-primary-light"
             onClick={copyLink}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg {...iconAttrs}>
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
