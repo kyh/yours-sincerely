@@ -16,6 +16,7 @@ export const useInfiniteScroll = <T,>({
   const [hasNextPage, setHasNextPage] = useState(true);
 
   const loadMore = () => {
+    if (fetcher.state !== "idle") return;
     const cursor = data[data.length - 1].id;
     fetcher.submit(new URLSearchParams(`c=${cursor}`));
   };
