@@ -1,18 +1,9 @@
-import { useEffect } from "react";
-import {
-  Link,
-  LoaderFunction,
-  useLoaderData,
-  useOutletContext,
-  json,
-} from "remix";
-import { getFlash } from "~/lib/core/server/session.server";
+import { Link, LoaderFunction, useLoaderData, useOutletContext } from "remix";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
-import { useToast } from "~/lib/core/ui/Toaster";
 import { useInfiniteScroll } from "~/lib/core/ui/InfiniteScroll";
 import { CardStack } from "~/lib/core/ui/CardStack";
 
@@ -27,21 +18,18 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const cursor = url.searchParams.get("c");
   const postList = await getPostList(user, { cursor });
-  const { message, headers } = await getFlash(request);
 
   const data: LoaderData = {
     postList,
     user,
-    message,
   };
 
-  return json(data, { headers });
+  return data;
 };
 
 const Page = () => {
   const { view } = useOutletContext<{ view: "list" | "stack" }>();
-  const { toast } = useToast();
-  const { postList, message } = useLoaderData<LoaderData>();
+  const { postList } = useLoaderData<LoaderData>();
   const {
     fetcher,
     loadMore,
@@ -52,10 +40,6 @@ const Page = () => {
     initialData: postList,
     fetcherResultKey: "postList",
   });
-
-  useEffect(() => {
-    if (message) toast(message);
-  }, [message]);
 
   return (
     <>

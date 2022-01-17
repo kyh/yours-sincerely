@@ -1,17 +1,8 @@
-import { useEffect } from "react";
-import {
-  LoaderFunction,
-  MetaFunction,
-  useLoaderData,
-  json,
-  redirect,
-} from "remix";
+import { LoaderFunction, MetaFunction, useLoaderData, redirect } from "remix";
 import { createMeta } from "~/lib/core/util/meta";
-import { useToast } from "~/lib/core/ui/Toaster";
 import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
-import { getFlash } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUserWithPosts } from "~/lib/user/server/userService.server";
 import {
@@ -29,7 +20,6 @@ type LoaderData = {
       max: { max: number; day: string };
     };
   };
-  message?: string;
 };
 
 export const links = () => {
@@ -49,8 +39,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!user) throw redirect(`/profile`);
 
-  const { message, headers } = await getFlash(request);
-
   const data: LoaderData = {
     user,
     showEdit: currentUser && user ? currentUser.id === user.id : false,
@@ -58,19 +46,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       heatmap: createPostsHeatmap(user.posts, lastNDays),
       daily: createPostsDailyActivity(user.posts),
     },
-    message,
   };
 
-  return json(data, { headers });
+  return data;
 };
 
 const Page = () => {
-  const { toast } = useToast();
-  const { user, stats, showEdit, message } = useLoaderData<LoaderData>();
-
-  useEffect(() => {
-    if (message) toast(message);
-  }, [message]);
+  const { user, stats, showEdit } = useLoaderData<LoaderData>();
 
   return (
     <main className="w-full max-w-md pt-5 mx-auto">
