@@ -200,7 +200,13 @@ const Footer = () => {
           </a>
         </li>
         <li>
-          <ClientOnly>
+          <ClientOnly
+            fallback={
+              <div className="px-2 py-1 text-xs text-center rounded border border-slate-500 dark:border-slate-100">
+                Default
+              </div>
+            }
+          >
             <select
               className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
               value={theme || "default"}
