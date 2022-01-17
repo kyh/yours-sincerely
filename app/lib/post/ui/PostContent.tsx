@@ -35,15 +35,21 @@ export const PostContent = ({
           className="block text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
-          <p className="text-lg whitespace-pre-wrap">{post.content}</p>
+          <p className="text-lg whitespace-pre-wrap overflow-auto">
+            {post.content}
+          </p>
         </Link>
       ) : (
-        <p className="text-lg whitespace-pre-wrap overflow-auto">
+        <p
+          className={`text-lg whitespace-pre-wrap overflow-auto ${
+            displayFull ? "pb-5" : ""
+          }`}
+        >
           {post.content}
         </p>
       )}
       <footer
-        className={`flex items-center justify-between ${
+        className={`flex flex-col sm:flex-row sm:justify-between ${
           displayFull ? "mt-auto" : "mt-4"
         }`}
       >
@@ -51,7 +57,7 @@ export const PostContent = ({
           <span className="mr-1 align-[1px]">Yours Sincerely,</span>
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between mt-2 sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}
