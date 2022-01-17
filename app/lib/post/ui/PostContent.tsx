@@ -41,7 +41,7 @@ export const PostContent = ({
       ) : (
         <p
           className={`text-lg whitespace-pre-wrap ${
-            displayFull ? "min-h-[350px]" : ""
+            displayFull ? "min-h-[50vh]" : ""
           }`}
         >
           {post.content}

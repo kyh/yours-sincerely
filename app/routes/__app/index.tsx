@@ -44,7 +44,9 @@ const Page = () => {
   return (
     <>
       {!!posts.length && (
-        <main className="flex flex-col gap-8 py-5">
+        <main
+          className={`flex flex-col gap-8 ${view === "stack" ? "" : "py-5"}`}
+        >
           {view === "stack" && (
             <CardStack
               data={posts}
