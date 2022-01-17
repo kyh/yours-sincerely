@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Links,
   LiveReload,
@@ -6,8 +7,10 @@ import {
   Scripts,
   ScrollRestoration,
   MetaFunction,
+  useTransition,
 } from "remix";
-import { createMeta } from "./lib/core/util/meta";
+import Nprogress from "nprogress";
+import { createMeta } from "~/lib/core/util/meta";
 
 import styles from "./tailwind.css";
 
@@ -20,6 +23,16 @@ export const meta: MetaFunction = () => {
 };
 
 export default function App() {
+  const transition = useTransition();
+
+  useEffect(() => {
+    if (transition.state === "loading" || transition.state === "submitting") {
+      Nprogress.start();
+    } else {
+      Nprogress.done();
+    }
+  }, [transition.state]);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
