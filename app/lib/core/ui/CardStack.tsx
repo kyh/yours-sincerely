@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   MotionProps,
+  PanInfo,
   motion,
   useMotionValue,
   useTransform,
@@ -28,7 +29,8 @@ export const Card = (props: CardProps) => {
     clamp: false,
   });
 
-  const handleDragEnd = (_event: any, info: any) => {
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    if (!event.x) return;
     if (info.offset.x < -100) {
       props.setExit &&
         props.setExit({
@@ -37,7 +39,6 @@ export const Card = (props: CardProps) => {
         });
       props.onNext && props.onNext();
     }
-
     if (info.offset.x > 100) {
       props.setExit &&
         props.setExit({
@@ -153,7 +154,7 @@ export const CardStack = <T,>({
             }
             exit={exit}
             setExit={setExit}
-            drag
+            drag="x"
           >
             {children(data[currentIndex])}
           </Card>
