@@ -7,8 +7,6 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-const cardWidth = 600;
-
 type CardProps = {
   transition: MotionProps["transition"];
   animate: MotionProps["animate"];
@@ -52,10 +50,8 @@ export const Card = (props: CardProps) => {
 
   return (
     <motion.div
-      className="absolute top-0 left-[50%] h-full cursor-grab"
+      className="absolute top-0 h-full w-full cursor-grab sm:w-[600px] sm:left-[50%] sm:ml-[-300px]"
       style={{
-        width: cardWidth,
-        marginLeft: -(cardWidth / 2),
         x: x,
         rotate: rotate,
       }}
@@ -79,7 +75,7 @@ export const Card = (props: CardProps) => {
       }}
     >
       <motion.div
-        className="w-full h-full p-5 shadow-lg rounded-3xl bg-slate-100 dark:bg-slate-900"
+        className="w-full h-full p-5 shadow-lg rounded-2xl bg-slate-100 dark:bg-slate-900"
         style={{ scale: scale }}
       >
         {props.children}
@@ -130,7 +126,7 @@ export const CardStack = <T,>({
 
   return (
     <div className="h-full flex flex-col items-center gap-3">
-      <div className="h-full relative">
+      <div className="h-full w-full relative">
         <AnimatePresence initial={false}>
           <Card
             key={nextIndex}

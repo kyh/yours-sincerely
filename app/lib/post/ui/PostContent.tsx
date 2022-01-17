@@ -3,33 +3,38 @@ import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { Post } from "~/lib/post/data/postSchema";
 import { ShareButton } from "~/lib/post/ui/ShareButton";
 import { LikeButton } from "~/lib/post/ui/LikeButton";
+import { CommentButton } from "~/lib/post/ui/CommentButton";
 import { Timer } from "~/lib/post/ui/Timer";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
 
 type Props = {
   post: Post;
   displayFull?: boolean;
-  showLink?: boolean;
-  showShare?: boolean;
+  asLink?: boolean;
   showLike?: boolean;
+  showComment?: boolean;
   showTimer?: boolean;
+  showShare?: boolean;
   showMore?: boolean;
 };
 
 export const PostContent = ({
   post,
   displayFull = false,
-  showLink = true,
-  showShare = true,
+  asLink = true,
   showLike = true,
+  showComment = true,
   showTimer = true,
+  showShare = true,
   showMore = false,
 }: Props) => {
   return (
     <article className={`${displayFull ? "w-full h-full flex flex-col" : ""}`}>
-      {showLink ? (
+      {asLink ? (
         <Link
-          className="block text-slate-900 hover:no-underline dark:text-slate-50"
+          className={`block text-slate-900 hover:no-underline dark:text-slate-50 ${
+            displayFull ? "pb-5 overflow-auto" : ""
+          }`}
           to={`/posts/${post.id}`}
         >
           <p className="text-lg whitespace-pre-wrap">{post.content}</p>
@@ -47,6 +52,7 @@ export const PostContent = ({
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
         <div className="flex items-center gap-1">
+          {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}
           {showShare && <ShareButton post={post} />}
