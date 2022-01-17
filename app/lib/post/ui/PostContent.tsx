@@ -36,12 +36,14 @@ export const PostContent = ({
           className="block text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
-          <p className="text-lg whitespace-pre-wrap overflow-auto">
-            {post.content}
-          </p>
+          <p className="text-lg whitespace-pre-wrap">{post.content}</p>
         </Link>
       ) : (
-        <p className="text-lg whitespace-pre-wrap overflow-auto">
+        <p
+          className={`text-lg whitespace-pre-wrap ${
+            displayFull ? "min-h-[350px]" : ""
+          }`}
+        >
           {post.content}
         </p>
       )}

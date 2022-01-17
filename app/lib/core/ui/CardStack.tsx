@@ -51,7 +51,7 @@ export const Card = (props: CardProps) => {
 
   return (
     <motion.div
-      className="absolute top-0 h-full w-full cursor-grab sm:w-[600px] sm:left-[50%] sm:ml-[-300px]"
+      className="absolute top-0 h-full w-full cursor-grab sm:w-[600px] sm:left-[50%] sm:ml-[-300px] rounded-2xl overflow-auto"
       style={{
         x: x,
         rotate: rotate,
@@ -76,7 +76,7 @@ export const Card = (props: CardProps) => {
       }}
     >
       <motion.div
-        className="w-full h-full p-5 shadow-lg rounded-2xl bg-slate-100 dark:bg-slate-900"
+        className="w-full h-fit p-5 rounded-2xl shadow-lg bg-slate-100 dark:bg-slate-900"
         style={{ scale: scale }}
       >
         {props.children}
