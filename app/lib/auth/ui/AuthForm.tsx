@@ -77,7 +77,7 @@ export const AuthForm = ({ authType }: Props) => {
         <div className="flex items-center justify-between">
           <Checkbox id="rememberMe" name="rememberMe" label="Remember me" />
           <Link
-            className="text-sm text-slate-500"
+            className="text-sm text-slate-500 dark:text-slate-300"
             to="/auth/request-password-reset"
           >
             Forgot password

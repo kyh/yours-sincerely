@@ -3,16 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type ToastOptions = {
   type?: "success" | "error" | "info";
-  duration?: number;
+  duration?: number | false;
 };
 
 type Toast = {
   id: string;
-  message: string;
+  message: React.ReactNode;
 };
 
 export const ToastContext = createContext<{
-  toast: (message: string, params?: ToastOptions) => string | void;
+  toast: (message: React.ReactNode, params?: ToastOptions) => string | void;
   removeToast: (id: string) => void;
 }>({
   toast: () => {},
@@ -26,13 +26,15 @@ export const useToast = () => {
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = (message: string, params?: ToastOptions) => {
+  const toast = (message: React.ReactNode, params?: ToastOptions) => {
     const id = Math.random().toString();
     setToasts((prev) => [...prev, { id, message }]);
 
-    setTimeout(() => {
-      removeToast(id);
-    }, params?.duration ?? 10000);
+    if (params?.duration !== false) {
+      setTimeout(() => {
+        removeToast(id);
+      }, params?.duration ?? 10000);
+    }
 
     return id;
   };

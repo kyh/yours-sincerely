@@ -13,6 +13,7 @@ import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
 import { Logo } from "~/lib/core/ui/Logo";
+import { Banner } from "~/lib/core/ui/Banner";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const viewKey = "postsView";
@@ -63,6 +64,7 @@ const Page = () => {
             />
             <Outlet context={{ view }} />
             {currentPath !== "/posts/new" && <Footer />}
+            {/* <Banner /> */}
           </section>
         </ToastProvider>
       </ThemeProvider>
