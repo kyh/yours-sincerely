@@ -48,8 +48,8 @@ export function groupByWeeks(
       ? firstDate
       : subWeeks(nextDay(firstDate, weekStart), 1);
 
-  // In order to correctly group contributions by week it is necessary to left pad the list,
-  // because the first date might not be desired week day.
+  // In order to correctly group contributions by week it is necessary to
+  // left pad the list because the first date might not be desired week day.
   const paddedDays = [
     ...Array(differenceInCalendarDays(firstDate, firstCalendarDate)).fill(
       undefined

@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { setHours, setMinutes } from "date-fns";
 import { makeUrls } from "~/lib/core/util/calendar";
+import { Button } from "~/lib/core/ui/Button";
 
 type Props = {
   text?: string;
@@ -27,7 +28,7 @@ export const CalendarMenu = ({
 
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <Menu.Button className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 bg-white border rounded-md shadow-sm text-slate-700 border-slate-300 hover:bg-slate-50">
+      <Menu.Button as={Button} variant="outline">
         {text}
       </Menu.Button>
       <Transition
