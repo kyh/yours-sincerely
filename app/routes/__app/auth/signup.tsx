@@ -43,7 +43,10 @@ const Page = () => {
         <SocialLoginForm />
       </div>
       <div className="flex justify-between mt-2">
-        <Link className="text-sm text-slate-500" to="/auth/login">
+        <Link
+          className="text-sm text-slate-500 dark:text-slate-300"
+          to="/auth/login"
+        >
           Already have an account?
         </Link>
       </div>

@@ -39,7 +39,7 @@ export const NoProfile = () => {
       {isWeb && (
         <div>
           <Divider>Or continue with</Divider>
-          <SocialLoginForm />
+          <SocialLoginForm withEmail />
         </div>
       )}
     </>

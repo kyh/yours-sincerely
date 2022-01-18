@@ -45,12 +45,13 @@ model User {
   accounts     Account[]
   passwordHash String?
 
-  tokens    Token[]
-  posts     Post[]
-  likes     Like[]
-  flags     Flag[]
-  blockedBy Block[] @relation(name: "blocking")
-  blocking  Block[] @relation(name: "blocker")
+  tokens         Token[]
+  posts          Post[]
+  likes          Like[]
+  flags          Flag[]
+  blockedBy      Block[]         @relation(name: "blocking")
+  blocking       Block[]         @relation(name: "blocker")
+  enrolledEvents EnrolledEvent[]
 
   createdAt DateTime @default(now())
 }
@@ -155,4 +156,14 @@ model Block {
 model Prompt {
   id      String @id @default(cuid())
   content String @db.Text
+}
+
+model EnrolledEvent {
+  id     String   @id @default(cuid())
+  name   String
+  slug   String
+  start  DateTime
+  end    DateTime
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

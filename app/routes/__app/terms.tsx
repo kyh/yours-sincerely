@@ -8,7 +8,7 @@ export let meta: MetaFunction = () => {
 };
 
 const Page = () => (
-  <main className="mx-auto prose prose-slate">
+  <main className="mx-auto prose prose-slate dark:prose-invert">
     <h1 className="text-2xl font-bold text-center">Terms of Use</h1>
     <p>
       By downloading or using the app, these terms will automatically apply to
