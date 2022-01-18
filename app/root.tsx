@@ -10,6 +10,7 @@ import {
   useTransition,
 } from "remix";
 import Nprogress from "nprogress";
+import posthog from "posthog-js";
 import { createMeta } from "~/lib/core/util/meta";
 
 import styles from "./tailwind.css";
@@ -32,6 +33,14 @@ export default function App() {
       Nprogress.done();
     }
   }, [transition.state]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      posthog.init("phc_AAXE5aF8sVdX9ZWMyzyjyopNTZ7FldS28svhd1gtRBi", {
+        api_host: "https://app.posthog.com",
+      });
+    }
+  }, []);
 
   return (
     <html lang="en" suppressHydrationWarning>

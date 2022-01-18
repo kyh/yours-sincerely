@@ -87,7 +87,7 @@ export const createPostsDailyActivity = (posts: Post[]) => {
       if (acc.max < daysMap[day].count) return { max: daysMap[day].count, day };
       return acc;
     },
-    { max: 0, day: "Sun" }
+    { max: 0, day: "none" }
   );
 
   DEFAULT_WEEKDAY_LABELS.forEach((day) => {

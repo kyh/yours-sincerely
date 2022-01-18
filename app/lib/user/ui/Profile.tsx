@@ -70,15 +70,21 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
         />
         <div>
           <h2 className="text-sm font-bold">
-            Favorite day to write is on{" "}
-            <span className="text-primary">
-              {
-                FULL_DAY_LABELS[
-                  stats.daily.max.day as keyof typeof FULL_DAY_LABELS
-                ]
-              }
-              s
-            </span>
+            {stats.daily.max.day === "none" ? (
+              <>No daily stats yet</>
+            ) : (
+              <>
+                Favorite day to write is on{" "}
+                <span className="text-primary">
+                  {
+                    FULL_DAY_LABELS[
+                      stats.daily.max.day as keyof typeof FULL_DAY_LABELS
+                    ]
+                  }
+                  s
+                </span>
+              </>
+            )}
           </h2>
           <ActivityWeek
             data={stats.daily.stats}

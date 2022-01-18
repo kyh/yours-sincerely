@@ -153,7 +153,7 @@ const Nav = ({
           </li>
           <li>
             <Link
-              className="inline-flex items-center px-3 py-2 transition bg-white border-2 rounded-md border-primary shadow-primary-sm text-primary dark:bg-slate-800 hover:text-primary-dark hover:bg-primary-bg hover:no-underline dark:hover:text-primary-light dark:hover:border-primary-light"
+              className="inline-flex items-center px-3 py-2 transition bg-white border-2 rounded-md border-primary shadow-primary-sm text-primary hover:text-primary-dark hover:bg-primary-bg hover:no-underline dark:bg-slate-800 dark:hover:text-primary-light"
               to="/posts/new"
             >
               New Post
