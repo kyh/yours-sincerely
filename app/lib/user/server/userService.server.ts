@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 import { User } from "~/lib/user/data/userSchema";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
-import { addDays } from "date-fns";
 
 export const defaultSelect = {
   id: true,
@@ -30,26 +29,6 @@ export const getUser = async (input: Prisma.UserWhereUniqueInput) => {
   const user = await prisma.user.findUnique({
     where: input,
     select: defaultSelect,
-  });
-
-  return user;
-};
-
-export const getUserWithPosts = async (
-  input: Prisma.UserWhereUniqueInput,
-  lastNDays: number
-) => {
-  const user = await prisma.user.findUnique({
-    where: input,
-    include: {
-      posts: {
-        where: {
-          createdAt: {
-            gte: addDays(new Date(), -lastNDays),
-          },
-        },
-      },
-    },
   });
 
   return user;

@@ -9,8 +9,8 @@ import { defaultSelect } from "~/lib/user/server/userService.server";
 import { getBlockList } from "~/lib/user/server/blockService.server";
 
 type QueriedPost = Post & {
-  flags: Flag[];
-  likes: Like[];
+  flags?: Flag[];
+  likes?: Like[];
   _count: {
     comments?: number;
     likes?: number;
@@ -24,7 +24,7 @@ const formatPost = (post: QueriedPost): Post => {
     createdBy: post.createdBy || "Anonymous",
     commentCount: post._count.comments,
     likeCount: post._count.likes,
-    isLiked: !!post.likes.length,
+    isLiked: post.likes ? !!post.likes.length : false,
   };
 
   if (formatted.comments) {
@@ -114,6 +114,27 @@ export const getPostList = async (
       return true;
     })
     .map(formatPost) as Post[];
+};
+
+export const getAllPostsForUser = async (userId: string) => {
+  const list = await prisma.post.findMany({
+    where: {
+      userId,
+      parentId: null,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
+    },
+  });
+
+  return list.map(formatPost) as Post[];
 };
 
 export const getPost = async (input: Pick<Post, "id">, user: User | null) => {

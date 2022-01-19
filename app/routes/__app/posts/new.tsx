@@ -30,6 +30,7 @@ import { updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post, isPostContentValid } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
+import { TopNav } from "~/lib/core/ui/TopNav";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";
 import { Divider } from "~/lib/core/ui/Divider";
@@ -145,62 +146,65 @@ const Page = () => {
   };
 
   return (
-    <main>
-      <PostForm
-        postingAs={postingAs}
-        placeholder={promptContent}
-        isSubmitting={transition.state !== "idle"}
-        onSubmit={submitPost}
-        updatePostingAs={() => setIsOpen(true)}
-      />
-      <Dialog
-        className="pb-[110px]"
-        isOpen={isOpen}
-        handleClose={() => setIsOpen(false)}
-      >
-        <h1 className="mb-4 text-2xl font-bold">
-          Even ghostwriters have names
-        </h1>
-        <Form method="post" onSubmit={savePostingAs}>
-          <TextField
-            id="createdBy"
-            name="createdBy"
-            label="I'd like to publish as"
-            placeholder="Bojack the horse"
-            required
-          />
-          <Button
-            type="submit"
-            className="pl-8 pr-8 mt-4"
-            disabled={transition.state !== "idle" || !isChecked}
-          >
-            Save and continue
-          </Button>
-        </Form>
-        {isIOS ? (
-          <div className="mt-3 text-left">
-            <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
+    <>
+      <TopNav />
+      <main>
+        <PostForm
+          postingAs={postingAs}
+          placeholder={promptContent}
+          isSubmitting={transition.state !== "idle"}
+          onSubmit={submitPost}
+          updatePostingAs={() => setIsOpen(true)}
+        />
+        <Dialog
+          className="pb-[110px]"
+          isOpen={isOpen}
+          handleClose={() => setIsOpen(false)}
+        >
+          <h1 className="mb-4 text-2xl font-bold">
+            Even ghostwriters have names
+          </h1>
+          <Form method="post" onSubmit={savePostingAs}>
+            <TextField
+              id="createdBy"
+              name="createdBy"
+              label="I'd like to publish as"
+              placeholder="Bojack the horse"
+              required
+            />
+            <Button
+              type="submit"
+              className="pl-8 pr-8 mt-4"
+              disabled={transition.state !== "idle" || !isChecked}
+            >
+              Save and continue
+            </Button>
+          </Form>
+          {isIOS ? (
+            <div className="mt-3 text-left">
+              <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
+            </div>
+          ) : (
+            <>
+              <Divider bgColor="bg-white dark:bg-slate-900">
+                Or continue with
+              </Divider>
+              <SocialLoginForm />
+            </>
+          )}
+          <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full dark:opacity-90">
+            <div
+              style={{ backgroundPosition: "-50px -10px" }}
+              className="absolute bg-no-repeat bg-cover w-1/2 h-full left-0 bg-[url('/assets/bikini.svg')]"
+            />
+            <div
+              style={{ backgroundPosition: "-35px 40px" }}
+              className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 scale-x-[-1] bg-[url('/assets/zombieing.svg')]"
+            />
           </div>
-        ) : (
-          <>
-            <Divider bgColor="bg-white dark:bg-slate-900">
-              Or continue with
-            </Divider>
-            <SocialLoginForm />
-          </>
-        )}
-        <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full dark:opacity-90">
-          <div
-            style={{ backgroundPosition: "-50px -10px" }}
-            className="absolute bg-no-repeat bg-cover w-1/2 h-full left-0 bg-[url('/assets/bikini.svg')]"
-          />
-          <div
-            style={{ backgroundPosition: "-35px 40px" }}
-            className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 scale-x-[-1] bg-[url('/assets/zombieing.svg')]"
-          />
-        </div>
-      </Dialog>
-    </main>
+        </Dialog>
+      </main>
+    </>
   );
 };
 

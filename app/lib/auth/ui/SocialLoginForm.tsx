@@ -2,7 +2,7 @@ import { Link, Form, useFormAction } from "remix";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const buttonClassName =
-  "inline-flex justify-center items-center gap-2 w-52 py-2 border text-xs leading-4 font-medium rounded bg-white text-slate-500 transition hover:no-underline hover:bg-slate-50 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-900 dark:hover:bg-black";
+  "inline-flex justify-center items-center gap-2 w-52 py-2 border text-xs leading-4 font-medium rounded bg-white text-slate-500 shadow-sm transition hover:no-underline hover:bg-slate-50 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-900 dark:hover:bg-black";
 
 export const SocialLoginForm = ({ withEmail = false }) => (
   <Form
@@ -15,7 +15,7 @@ export const SocialLoginForm = ({ withEmail = false }) => (
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
           <polyline points="22,6 12,13 2,6"></polyline>
         </svg>
-        Sign up with an email
+        Sign up with Email
       </Link>
     )}
     <button

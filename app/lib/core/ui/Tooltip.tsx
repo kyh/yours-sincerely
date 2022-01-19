@@ -87,7 +87,7 @@ export const Tooltip = ({
               onMouseLeave={onMouseLeave}
               {...tooltipProps}
             >
-              {tooltipContent}
+              {tooltipElement && tooltipContent}
             </Popover.Panel>
           </Transition>
         </div>
