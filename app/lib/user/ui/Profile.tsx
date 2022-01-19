@@ -2,6 +2,7 @@ import { Link } from "remix";
 import { ClientOnly } from "remix-utils";
 import { useTheme } from "~/lib/core/ui/Theme";
 import {
+  ActivityStats,
   ActivityCalendar,
   ActivityWeek,
   Day,
@@ -18,6 +19,10 @@ type Props = {
       stats: Record<string, { count: number; level: number }>;
       max: { max: number; day: string };
     };
+    posts: number;
+    likes: number;
+    currentStreak: number;
+    longestStreak: number;
   };
 };
 
@@ -42,10 +47,11 @@ const darkTheme = {
 const Loading = () => {
   return (
     <div className="animate-pulse">
-      <div className="h-[120px] rounded bg-slate-200 dark:bg-slate-700"></div>
-      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-2"></div>
-      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-8"></div>
-      <div className="h-[90px] rounded  bg-slate-200 dark:bg-slate-700 mt-2"></div>
+      <div className="h-[84px] rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="h-[120px] rounded bg-slate-200 dark:bg-slate-700 mt-8" />
+      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-2" />
+      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-8" />
+      <div className="h-[90px] rounded  bg-slate-200 dark:bg-slate-700 mt-2" />
     </div>
   );
 };
@@ -55,15 +61,25 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
 
   return (
     <section className="flex flex-col gap-8">
-      <h1 className="text-3xl font-bold">
-        {user.displayName || "Anonymous"}{" "}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">
+          {user.displayName || "Anonymous"}{" "}
+        </h1>
         {showEdit && (
           <Link className="text-sm font-normal" to={`/${user.id}/edit`}>
             Edit
           </Link>
         )}
-      </h1>
+      </div>
       <ClientOnly fallback={<Loading />}>
+        <ActivityStats
+          data={{
+            posts: stats.posts,
+            likes: stats.likes,
+            currentStreak: stats.currentStreak,
+            longestStreak: stats.longestStreak,
+          }}
+        />
         <ActivityCalendar
           data={stats.heatmap.stats}
           theme={isDarkMode ? darkTheme : lightTheme}

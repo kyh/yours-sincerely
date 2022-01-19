@@ -1,10 +1,41 @@
-import { Link } from "remix";
+import { useEffect } from "react";
+import { Link, useFetcher } from "remix";
 import { Tooltip } from "~/lib/core/ui/Tooltip";
+import { ActivityStats } from "~/lib/core/ui/Activity";
 
 type Props = {
   userId: string;
   displayName: string;
   className?: string;
+};
+
+const ProfileTooltip = ({
+  userId,
+  displayName,
+}: {
+  userId: string;
+  displayName: string;
+}) => {
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    fetcher.load(`/${userId}`);
+  }, []);
+
+  return (
+    <div className="flow-root not-italic rounded-md">
+      <h4 className="font-bold text-slate-900 text-center mb-2 dark:text-slate-50">
+        {displayName}
+      </h4>
+      {fetcher.data ? (
+        <ActivityStats data={fetcher.data.stats} stack />
+      ) : (
+        <div className="animate-pulse">
+          <div className="h-[136px] w-[204px] rounded bg-slate-200 dark:bg-slate-700" />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
@@ -18,16 +49,9 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
         to: `/${userId}`,
       }}
       tooltipContent={
-        <div className="flow-root not-italic rounded-md">
-          <h4 className="font-bold text-slate-900 dark:text-slate-50">
-            {displayName}
-          </h4>
-          <span className="block text-sm text-gray-500 dark:text-slate-300">
-            Stats coming soon...
-          </span>
-        </div>
+        <ProfileTooltip userId={userId} displayName={displayName} />
       }
-      tooltipClassName="max-w-[240px] p-4 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-slate-900"
+      tooltipClassName="max-w-[240px] p-4 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-zinc-900"
     />
   );
 };

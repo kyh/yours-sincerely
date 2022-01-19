@@ -1,4 +1,4 @@
-import { format, addDays, eachDayOfInterval } from "date-fns";
+import { format, addDays, eachDayOfInterval, differenceInDays } from "date-fns";
 import { DEFAULT_WEEKDAY_LABELS } from "~/lib/core/ui/Activity/calendarUtil";
 import { Post } from "./postSchema";
 
@@ -95,4 +95,51 @@ export const createPostsDailyActivity = (posts: Post[]) => {
   });
 
   return { stats: daysMap, max };
+};
+
+export const getTotalPosts = (posts: Post[]) => {
+  return posts.length;
+};
+
+export const getTotalLikes = (posts: Post[]) => {
+  return posts.reduce((acc, p) => acc + (p.likeCount || 0), 0);
+};
+
+const getStreaks = (posts: Post[]) => {
+  return posts.reduce(
+    (res, currentPost, i) => {
+      const previousPost = posts[i - 1];
+
+      if (!previousPost) return res;
+
+      const currentDate = currentPost.createdAt!;
+      const previousDate = previousPost.createdAt!;
+
+      if (differenceInDays(previousDate, currentDate) < 1) {
+        res[res.length - 1]++;
+      } else {
+        res.push(1);
+      }
+
+      return res;
+    },
+    [1]
+  );
+};
+
+export const getCurrentStreak = (posts: Post[]) => {
+  const streaks = getStreaks(posts);
+  const latestPost = posts[0];
+
+  if (latestPost && differenceInDays(new Date(), latestPost.createdAt!) < 1) {
+    return streaks[0];
+  }
+
+  return 0;
+};
+
+export const getLongestStreak = (posts: Post[]) => {
+  const streaks = getStreaks(posts);
+
+  return Math.max(...streaks);
 };

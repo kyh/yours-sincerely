@@ -4,10 +4,15 @@ import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { getUserWithPosts } from "~/lib/user/server/userService.server";
+import { getUser } from "~/lib/user/server/userService.server";
+import { getAllPostsForUser } from "~/lib/post/server/postService.server";
 import {
   createPostsHeatmap,
   createPostsDailyActivity,
+  getTotalPosts,
+  getTotalLikes,
+  getCurrentStreak,
+  getLongestStreak,
 } from "~/lib/post/data/postStats";
 
 type LoaderData = {
@@ -19,6 +24,10 @@ type LoaderData = {
       stats: Record<string, { count: number; level: number }>;
       max: { max: number; day: string };
     };
+    posts: number;
+    likes: number;
+    currentStreak: number;
+    longestStreak: number;
   };
 };
 
@@ -35,7 +44,8 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const lastNDays = 200;
   const currentUser = await isAuthenticated(request);
-  const user = await getUserWithPosts({ id: params.uid }, lastNDays);
+  const user = await getUser({ id: params.uid });
+  const posts = await getAllPostsForUser(params.uid!);
 
   if (!user) throw redirect(`/profile`);
 
@@ -43,8 +53,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     user,
     showEdit: currentUser && user ? currentUser.id === user.id : false,
     stats: {
-      heatmap: createPostsHeatmap(user.posts, lastNDays),
-      daily: createPostsDailyActivity(user.posts),
+      heatmap: createPostsHeatmap(posts, lastNDays),
+      daily: createPostsDailyActivity(posts),
+      posts: getTotalPosts(posts),
+      likes: getTotalLikes(posts),
+      longestStreak: getLongestStreak(posts),
+      currentStreak: getCurrentStreak(posts),
     },
   };
 
@@ -55,7 +69,7 @@ const Page = () => {
   const { user, stats, showEdit } = useLoaderData<LoaderData>();
 
   return (
-    <main className="w-full max-w-md pt-5 mx-auto">
+    <main className="w-full max-w-md py-5 mx-auto">
       <Profile user={user} stats={stats} showEdit={showEdit} />
     </main>
   );

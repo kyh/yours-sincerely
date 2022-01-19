@@ -162,7 +162,7 @@ model EnrolledEvent {
   id     String   @id @default(cuid())
   name   String
   slug   String
-  start  DateTime
+  start  DateTime @default(now())
   end    DateTime
   userId String
   user   User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
