@@ -4,15 +4,15 @@
 
 # Yours Sincerely
 
-[App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely) | [Website](https://yourssincerely.org/)
+[Website](https://yourssincerely.org/) | [App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely)
 
-> Write as if your arms are wide open, and hold them far apart. An ephemeral anonymous blog to send each other tiny beautiful letters
+> An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart
 
 ## 👉 Get Started
 
-The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) application structure. You can find the entry point the web application in the `app` directory.
+The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory. I'll be moving the native app code in here soon(ish).
 
-You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory.
+You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[turborepo](https://turborepo.org/)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web, server, and react native apps.
 
 ```
 ├── /api                     # Remix server
@@ -37,10 +37,9 @@ npm install
 
 # Start a docker container containing your local database
 npm run docker:start
-# If you run into `invalid mount config for type "bind": bind source path does not exist: /db` error, you need to create a db folder - `mkdir db`
 
 # Run db migrations
-npm run db:migrate:dev
+npm run db:migrate
 
 # Seed your database
 npm run db:seed
@@ -59,9 +58,4 @@ This project uses the following libraries and services:
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [MySQL (PlanetScale)](https://planetscale.com/) + [Prisma](https://www.prisma.io/)
 - Payments - [Stripe](https://stripe.com)
-- Analytics - [Splitbee](https://splitbee.io/)
 - Hosting - [Vercel](https://vercel.com)
-
-## 📚 Documentation
-
-For further documentation you can refer to the [`/docs`](/docs) directory.
