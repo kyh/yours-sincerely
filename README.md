@@ -32,6 +32,9 @@ You'll notice that the Remix routes are just thin wrappers and most of the heavy
 ### Local Development
 
 ```sh
+# Rename .env.example to .env and update variables
+mv .env.example .env
+
 # Installing dependencies
 npm install
 
