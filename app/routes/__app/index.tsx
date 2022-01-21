@@ -1,4 +1,11 @@
-import { Link, LoaderFunction, useLoaderData, useOutletContext } from "remix";
+import {
+  Link,
+  LoaderFunction,
+  useLoaderData,
+  useOutletContext,
+  useNavigate,
+} from "remix";
+import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
@@ -28,6 +35,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 const Page = () => {
+  const navigate = useNavigate();
   const { view } = useOutletContext<{ view: "list" | "stack" }>();
   const { postList } = useLoaderData<LoaderData>();
   const {
@@ -40,6 +48,8 @@ const Page = () => {
     initialData: postList,
     fetcherResultKey: "postList",
   });
+
+  useRootHotkeys([["c", () => navigate("/posts/new")]]);
 
   return (
     <>

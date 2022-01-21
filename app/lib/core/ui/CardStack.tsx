@@ -7,6 +7,7 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
+import { useRootHotkeys } from "~/lib/core/util/hotkey";
 
 type CardProps = {
   transition: MotionProps["transition"];
@@ -124,6 +125,12 @@ export const CardStack = <T,>({
       setCurrentIndex(nextIndex);
     });
   };
+
+  useRootHotkeys([
+    ["spacebar", () => onNext(true)],
+    ["left", () => onNext(true)],
+    ["right", () => onNext(true)],
+  ]);
 
   return (
     <div className="h-full flex flex-col items-center gap-3">
