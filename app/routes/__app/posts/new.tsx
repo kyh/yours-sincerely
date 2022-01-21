@@ -27,6 +27,7 @@ import {
 import { createPost } from "~/lib/post/server/postService.server";
 import { getRandomPrompt } from "~/lib/post/server/promptService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
+import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post, isPostContentValid } from "~/lib/post/data/postSchema";
 import { User } from "~/lib/user/data/userSchema";
@@ -144,6 +145,19 @@ const Page = () => {
       method: "post",
     });
   };
+
+  useRootHotkeys([
+    [
+      ["cmd", "enter"],
+      () => {
+        const submitButton: HTMLButtonElement | null = document.querySelector(
+          'button[type="submit"]'
+        );
+        submitButton?.focus();
+        submitPost();
+      },
+    ],
+  ]);
 
   return (
     <>
