@@ -85,6 +85,11 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "8740427a7d694e29b8cbc2842904d89b"}'
+        />
       </body>
     </html>
   );
