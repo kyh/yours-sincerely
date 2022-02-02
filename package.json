@@ -17,8 +17,6 @@
     "dev:remix": "remix dev",
     "postinstall": "remix setup node",
     "start": "remix-serve build",
-    "docker:start": "docker-compose up -d",
-    "docker:stop": "docker-compose down",
     "prisma:generate": "dotenv -- prisma generate",
     "prisma:migrate": "dotenv -- prisma db push",
     "prisma:reset": "dotenv -- prisma migrate reset",
