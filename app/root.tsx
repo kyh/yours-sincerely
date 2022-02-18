@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
   MetaFunction,
   useTransition,
+  useLoaderData,
 } from "remix";
 import Nprogress from "nprogress";
 import posthog from "posthog-js";
@@ -23,7 +24,16 @@ export const meta: MetaFunction = () => {
   return createMeta();
 };
 
+export async function loader() {
+  return {
+    ENV: {
+      POSTHOG_API_TOKEN: process.env.POSTHOG_API_TOKEN,
+    },
+  };
+}
+
 export default function App() {
+  const data = useLoaderData();
   const transition = useTransition();
 
   useEffect(() => {
@@ -36,7 +46,7 @@ export default function App() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === "production") {
-      posthog.init("phc_AAXE5aF8sVdX9ZWMyzyjyopNTZ7FldS28svhd1gtRBi", {
+      posthog.init(data.ENV.POSTHOG_API_TOKEN, {
         api_host: "https://app.posthog.com",
       });
     }
@@ -85,6 +95,11 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <script
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
