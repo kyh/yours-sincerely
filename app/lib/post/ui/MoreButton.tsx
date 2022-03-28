@@ -38,6 +38,7 @@ export const MoreButton = ({ post }: Props) => {
       </button>
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
         <Form
+          action={`/posts/${post.id}`}
           method="post"
           className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500"
         >
