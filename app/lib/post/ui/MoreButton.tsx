@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, useLoaderData, useFormAction } from "remix";
+import { Form, useLoaderData } from "remix";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";
@@ -14,7 +14,7 @@ type LoaderData = {
 };
 
 const buttonClass =
-  "text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800";
+  "w-full text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800";
 
 export const MoreButton = ({ post }: Props) => {
   const { user } = useLoaderData<LoaderData>();
@@ -37,11 +37,7 @@ export const MoreButton = ({ post }: Props) => {
         </svg>
       </button>
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
-        <Form
-          action={`/posts/${post.id}`}
-          method="post"
-          className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500"
-        >
+        <div className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
           <a
             className={buttonClass}
             href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
@@ -49,33 +45,27 @@ export const MoreButton = ({ post }: Props) => {
             Report
           </a>
           {isLoggedIn && isPostOwner && (
-            <button
-              type="submit"
-              className={buttonClass}
-              formAction={useFormAction(`/posts/${post.id}/delete`)}
-            >
-              Delete Post
-            </button>
+            <Form method="post" action={`/posts/${post.id}/delete`}>
+              <button type="submit" className={buttonClass}>
+                Delete Post
+              </button>
+            </Form>
           )}
           {isLoggedIn && !isPostOwner && (
-            <button
-              type="submit"
-              className={buttonClass}
-              formAction={useFormAction(`/posts/${post.id}/flag`)}
-            >
-              Mark as inappropriate
-            </button>
+            <Form method="post" action={`/posts/${post.id}/flag`}>
+              <button type="submit" className={buttonClass}>
+                Mark as inappropriate
+              </button>
+            </Form>
           )}
           {isLoggedIn && !isPostOwner && (
-            <button
-              type="submit"
-              className={buttonClass}
-              formAction={useFormAction(`/${post.userId}/block`)}
-            >
-              Stop seeing content from this user
-            </button>
+            <Form method="post" action={`/${post.userId}/block`}>
+              <button type="submit" className={buttonClass}>
+                Stop seeing content from this user
+              </button>
+            </Form>
           )}
-        </Form>
+        </div>
       </Dialog>
     </>
   );

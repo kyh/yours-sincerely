@@ -204,15 +204,17 @@ const Footer = () => {
               </div>
             }
           >
-            <select
-              className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
-              value={theme || "default"}
-              onChange={onThemeChange}
-            >
-              <option value="default">Default</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
+            {() => (
+              <select
+                className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
+                value={theme || "default"}
+                onChange={onThemeChange}
+              >
+                <option value="default">Default</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            )}
           </ClientOnly>
         </li>
       </ul>
