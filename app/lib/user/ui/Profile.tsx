@@ -72,41 +72,45 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
         )}
       </div>
       <ClientOnly fallback={<Loading />}>
-        <ActivityStats
-          data={{
-            posts: stats.posts,
-            likes: stats.likes,
-            currentStreak: stats.currentStreak,
-            longestStreak: stats.longestStreak,
-          }}
-        />
-        <ActivityCalendar
-          data={stats.heatmap.stats}
-          theme={isDarkMode ? darkTheme : lightTheme}
-        />
-        <div>
-          <h2 className="text-sm font-bold">
-            {stats.daily.max.day === "none" ? (
-              <>No daily stats yet</>
-            ) : (
-              <>
-                Favorite day to write is on{" "}
-                <span className="text-primary">
-                  {
-                    FULL_DAY_LABELS[
-                      stats.daily.max.day as keyof typeof FULL_DAY_LABELS
-                    ]
-                  }
-                  s
-                </span>
-              </>
-            )}
-          </h2>
-          <ActivityWeek
-            data={stats.daily.stats}
-            theme={isDarkMode ? darkTheme : lightTheme}
-          />
-        </div>
+        {() => (
+          <>
+            <ActivityStats
+              data={{
+                posts: stats.posts,
+                likes: stats.likes,
+                currentStreak: stats.currentStreak,
+                longestStreak: stats.longestStreak,
+              }}
+            />
+            <ActivityCalendar
+              data={stats.heatmap.stats}
+              theme={isDarkMode ? darkTheme : lightTheme}
+            />
+            <div>
+              <h2 className="text-sm font-bold">
+                {stats.daily.max.day === "none" ? (
+                  <>No daily stats yet</>
+                ) : (
+                  <>
+                    Favorite day to write is on{" "}
+                    <span className="text-primary">
+                      {
+                        FULL_DAY_LABELS[
+                          stats.daily.max.day as keyof typeof FULL_DAY_LABELS
+                        ]
+                      }
+                      s
+                    </span>
+                  </>
+                )}
+              </h2>
+              <ActivityWeek
+                data={stats.daily.stats}
+                theme={isDarkMode ? darkTheme : lightTheme}
+              />
+            </div>
+          </>
+        )}
       </ClientOnly>
     </section>
   );

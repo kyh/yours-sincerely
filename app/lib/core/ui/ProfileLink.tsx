@@ -19,7 +19,9 @@ const ProfileTooltip = ({
   const fetcher = useFetcher();
 
   useEffect(() => {
-    fetcher.load(`/${userId}`);
+    if (fetcher.type === "init") {
+      fetcher.load(`/${userId}?index`);
+    }
   }, []);
 
   return (
