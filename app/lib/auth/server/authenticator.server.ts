@@ -1,4 +1,4 @@
-import { Session } from "remix";
+import { Session } from "@remix-run/node";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { User } from "~/lib/user/data/userSchema";
 import {

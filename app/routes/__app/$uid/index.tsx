@@ -1,4 +1,5 @@
-import { LoaderFunction, MetaFunction, useLoaderData, redirect } from "remix";
+import { LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { createMeta } from "~/lib/core/util/meta";
 import { links as activityCalendarLinks, Day } from "~/lib/core/ui/Activity";
 import { User } from "~/lib/user/data/userSchema";

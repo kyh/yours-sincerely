@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
-import { MetaFunction, LoaderFunction, useLoaderData, useFetcher } from "remix";
+import { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";
 import { getPost } from "~/lib/post/server/postService.server";

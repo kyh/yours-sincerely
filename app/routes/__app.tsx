@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  Outlet,
-  Link,
-  useMatches,
-  useLoaderData,
-  LoaderFunction,
-  json,
-} from "remix";
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
 import { getFlash } from "~/lib/core/server/session.server";
 import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";

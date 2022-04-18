@@ -1,4 +1,4 @@
-import { MetaFunction } from "remix";
+import { MetaFunction } from "@remix-run/node";
 import { createMeta } from "~/lib/core/util/meta";
 
 export let meta: MetaFunction = () => {

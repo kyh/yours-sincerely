@@ -1,10 +1,5 @@
-import {
-  Link,
-  LoaderFunction,
-  useLoaderData,
-  useOutletContext,
-  useNavigate,
-} from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData, useNavigate, useOutletContext } from "@remix-run/react";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { User } from "~/lib/user/data/userSchema";

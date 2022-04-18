@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { notFound } from "remix-utils";
 import { authenticator } from "~/lib/auth/server/authenticator.server";
 

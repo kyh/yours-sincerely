@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  MetaFunction,
-  LoaderFunction,
-  ActionFunction,
-  redirect,
-  useLoaderData,
-  useActionData,
-  useSubmit,
-  useTransition,
-  Form,
-} from "remix";
+import { ActionFunction, LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
+import { Form, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import { badRequest } from "remix-utils";
 import {
   getSession,

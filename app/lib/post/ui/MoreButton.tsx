@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, useLoaderData } from "remix";
+import { Form, useLoaderData } from "@remix-run/react";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";

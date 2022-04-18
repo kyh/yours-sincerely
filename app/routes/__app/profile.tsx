@@ -1,4 +1,4 @@
-import { LoaderFunction, MetaFunction, redirect } from "remix";
+import { LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
 import { createMeta } from "~/lib/core/util/meta";
 import { NoProfile } from "~/lib/user/ui/NoProfile";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Form, useTransition, useFormAction } from "remix";
+import { Form, Link, useFormAction, useTransition } from "@remix-run/react";
 import { Switch } from "@headlessui/react";
 import { Button, baseClass, variantClasses } from "~/lib/core/ui/Button";
 import { TextField } from "~/lib/core/ui/FormField";

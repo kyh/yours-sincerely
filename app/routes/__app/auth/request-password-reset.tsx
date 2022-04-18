@@ -1,4 +1,5 @@
-import { MetaFunction, ActionFunction, json, useActionData } from "remix";
+import { ActionFunction, json, MetaFunction } from "@remix-run/node";
+import { useActionData } from "@remix-run/react";
 import { createMeta } from "~/lib/core/util/meta";
 import { sendEmail } from "~/lib/core/server/email.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
