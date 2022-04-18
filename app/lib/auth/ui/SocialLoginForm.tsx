@@ -1,4 +1,4 @@
-import { Link, Form, useFormAction } from "remix";
+import { Form, Link, useFormAction } from "@remix-run/react";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const buttonClassName =

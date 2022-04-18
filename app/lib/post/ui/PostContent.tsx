@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { Post } from "~/lib/post/data/postSchema";
 import { ShareButton } from "~/lib/post/ui/ShareButton";

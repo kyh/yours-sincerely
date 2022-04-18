@@ -1,4 +1,4 @@
-import { MetaFunction, ActionFunction, redirect } from "remix";
+import { ActionFunction, MetaFunction, redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
 import { createMeta } from "~/lib/core/util/meta";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";

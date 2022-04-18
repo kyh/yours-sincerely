@@ -1,10 +1,5 @@
-import {
-  LoaderFunction,
-  ActionFunction,
-  redirect,
-  MetaFunction,
-  useLoaderData,
-} from "remix";
+import { ActionFunction, LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { unauthorized } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";

@@ -1,4 +1,4 @@
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
 import { useTheme } from "~/lib/core/ui/Theme";
 import {

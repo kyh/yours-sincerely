@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useFetcher } from "remix";
+import { useFetcher } from "@remix-run/react";
 import useInfiniteScrollHook from "react-infinite-scroll-hook";
 
 type Props<T> = {

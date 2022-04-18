@@ -1,4 +1,4 @@
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 import { Post } from "~/lib/post/data/postSchema";
 

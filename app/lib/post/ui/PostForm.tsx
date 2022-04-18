@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form } from "remix";
+import { Form } from "@remix-run/react";
 import { addDays, format } from "date-fns";
 import { Button } from "~/lib/core/ui/Button";
 import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";

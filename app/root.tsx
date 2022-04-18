@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { MetaFunction } from "@remix-run/node";
+
 import {
   Links,
   LiveReload,
@@ -6,10 +8,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  MetaFunction,
-  useTransition,
   useLoaderData,
-} from "remix";
+  useTransition,
+} from "@remix-run/react";
+
 import Nprogress from "nprogress";
 import posthog from "posthog-js";
 import { createMeta } from "~/lib/core/util/meta";

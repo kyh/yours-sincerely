@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLoaderData, useFetcher, FormMethod } from "remix";
+import { FormMethod, useFetcher, useLoaderData } from "@remix-run/react";
 import { User } from "~/lib/user/data/userSchema";
 import { Post } from "~/lib/post/data/postSchema";
 

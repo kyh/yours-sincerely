@@ -1,4 +1,4 @@
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 import { Divider } from "~/lib/core/ui/Divider";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { usePlatform } from "~/lib/core/ui/Platform";

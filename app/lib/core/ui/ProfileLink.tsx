@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useFetcher } from "remix";
+import { Link, useFetcher } from "@remix-run/react";
 import { Tooltip } from "~/lib/core/ui/Tooltip";
 import { ActivityStats } from "~/lib/core/ui/Activity";
 

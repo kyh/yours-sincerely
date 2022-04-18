@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction, json } from "remix";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { notFound, badRequest, serverError } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
