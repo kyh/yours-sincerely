@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_DATABASE=yours-sincerely
+    ports:
+      - '3306:3306'

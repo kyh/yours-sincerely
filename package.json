@@ -19,7 +19,10 @@
     "prisma:generate": "dotenv -- prisma generate",
     "prisma:migrate": "dotenv -- prisma db push",
     "prisma:reset": "dotenv -- prisma migrate reset",
-    "prisma:seed": "dotenv -- prisma db seed"
+    "prisma:seed": "dotenv -- prisma db seed",
+    "prisma:studio": "prisma studio",
+    "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose down"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",

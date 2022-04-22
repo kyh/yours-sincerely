@@ -60,7 +60,7 @@ export const EditProfile = ({ user }: Props) => {
         <dl className="divide-y divide-slate-200 dark:divide-slate-500">
           <div className="py-4 sm:py-5">
             <div className="flex justify-between items-top">
-              <dt className="text-sm font-medium text-slate-500 dark:text-slate-100">
+              <dt className="text-sm font-medium text-slate-500 dark:text-slate-100 flex items-center">
                 Set up writing reminders
               </dt>
               <dd>
@@ -94,7 +94,7 @@ export const EditProfile = ({ user }: Props) => {
           >
             <Switch.Label
               as="dt"
-              className="text-sm font-medium text-slate-500 dark:text-slate-100"
+              className="text-sm font-medium text-slate-500 dark:text-slate-100 flex items-center"
               passive
             >
               Weekly Digest
