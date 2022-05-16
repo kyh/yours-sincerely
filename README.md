@@ -8,7 +8,7 @@
 
 > An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart
 
-## 👉 Get Started
+## Get Started
 
 The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory. I'll be moving the native app code in here soon(ish).
 
@@ -53,7 +53,7 @@ npm run dev
 
 This will start the [Remix](https://remix.run) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
 
-## 🥞 Stack
+## Stack
 
 This project uses the following libraries and services:
 
