@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-import { MetaFunction } from "@remix-run/node";
-
+import { useEffect, useMemo } from "react";
+import { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -10,17 +9,41 @@ import {
   ScrollRestoration,
   useLoaderData,
   useTransition,
+  useFetchers,
 } from "@remix-run/react";
-
-import Nprogress from "nprogress";
+import NProgress from "nprogress";
 import posthog from "posthog-js";
 import { createMeta } from "~/lib/core/util/meta";
 
 import styles from "./tailwind.css";
 
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  {
+    rel: "apple-touch-icon",
+    sizes: "180x180",
+    href: "/favicon/apple-touch-icon.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "32x32",
+    href: "/favicon/favicon-32x32.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "16x16",
+    href: "/favicon/favicon-16x16.png",
+  },
+  { rel: "manifest", href: "/favicon/site.webmanifest" },
+  {
+    rel: "mask-icon",
+    href: "/favicon/safari-pinned-tab.svg",
+    color: "#111827",
+  },
+  { rel: "shortcut icon", href: "/favicon/favicon.ico" },
+];
 
 export const meta: MetaFunction = () => {
   return createMeta();
@@ -37,13 +60,20 @@ export async function loader() {
 export default function App() {
   const data = useLoaderData();
   const transition = useTransition();
+  const fetchers = useFetchers();
+
+  const state = useMemo<"idle" | "loading">(() => {
+    let states = [
+      transition.state,
+      ...fetchers.map((fetcher) => fetcher.state),
+    ];
+    if (states.every((state) => state === "idle")) return "idle";
+    return "loading";
+  }, [transition.state, fetchers]);
 
   useEffect(() => {
-    if (transition.state === "loading" || transition.state === "submitting") {
-      Nprogress.start();
-    } else {
-      Nprogress.done();
-    }
+    if (state === "loading") NProgress.start();
+    if (state === "idle") NProgress.done();
   }, [transition.state]);
 
   useEffect(() => {
@@ -57,38 +87,6 @@ export default function App() {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/favicon/apple-touch-icon.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/favicon/site.webmanifest" />
-        <link
-          rel="mask-icon"
-          href="/favicon/safari-pinned-tab.svg"
-          color="#111827"
-        />
-        <link rel="shortcut icon" href="/favicon/favicon.ico" />
-        <meta name="msapplication-TileColor" content="#111827" />
-        <meta
-          name="msapplication-config"
-          content="/favicon/browserconfig.xml"
-        />
-        <meta name="theme-color" content="#111827" />
         <Meta />
         <Links />
       </head>
