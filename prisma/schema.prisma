@@ -1,15 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
 
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
   referentialIntegrity = "prisma"
-}
-
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
 }
 
 model Account {
@@ -19,46 +16,32 @@ model Account {
   refreshToken      String?
   accessToken       String?
   expiresAt         Int?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
 model User {
-  id            String    @id @default(cuid())
-  username      String?
-  email         String?   @unique
-  emailVerified DateTime?
-
-  // Profile Details
-  displayName  String?
-  displayImage String?
-
-  // User Settings
-  weeklyDigestEmail Boolean @default(false)
-
-  // Account Settings
-  role         UserRole  @default(USER)
-  accounts     Account[]
-  passwordHash String?
-
-  tokens         Token[]
-  posts          Post[]
-  likes          Like[]
-  flags          Flag[]
-  blockedBy      Block[]         @relation(name: "blocking")
-  blocking       Block[]         @relation(name: "blocker")
-  enrolledEvents EnrolledEvent[]
-
-  createdAt DateTime @default(now())
-}
-
-enum UserRole {
-  USER
-  ADMIN
+  id                String          @id @default(cuid())
+  username          String?
+  email             String?         @unique
+  emailVerified     DateTime?
+  displayName       String?
+  displayImage      String?
+  weeklyDigestEmail Boolean         @default(false)
+  role              UserRole        @default(USER)
+  accounts          Account[]
+  passwordHash      String?
+  tokens            Token[]
+  posts             Post[]
+  likes             Like[]
+  flags             Flag[]
+  blockedBy         Block[]         @relation("blocking")
+  blocking          Block[]         @relation("blocker")
+  enrolledEvents    EnrolledEvent[]
+  createdAt         DateTime        @default(now())
 }
 
 model Token {
@@ -68,38 +51,26 @@ model Token {
   expiresAt DateTime?
   sentTo    String?
   usedAt    DateTime?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([token, type])
   @@index([userId])
 }
 
-enum TokenType {
-  REFRESH_TOKEN
-  VERIFY_EMAIL
-  RESET_PASSWORD
-}
-
 model Post {
-  id        String  @id @default(cuid())
-  content   String  @db.Text
+  id        String   @id @default(cuid())
+  content   String   @db.Text
   createdBy String?
-
-  likes Like[]
-  flags Flag[]
-
-  parentId String?
-  parent   Post?   @relation(name: "comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  comments Post[]  @relation(name: "comments")
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  likes     Like[]
+  flags     Flag[]
+  parentId  String?
+  parent    Post?    @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comments  Post[]   @relation("comments")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -108,12 +79,10 @@ model Post {
 }
 
 model Like {
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -124,15 +93,12 @@ model Like {
 }
 
 model Flag {
-  comment  String?
-  resolved Boolean @default(false)
-
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  comment   String?
+  resolved  Boolean  @default(false)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -142,11 +108,10 @@ model Flag {
 }
 
 model Block {
-  blockerId String
-  blocker   User   @relation(name: "blocker", fields: [blockerId], references: [id], onUpdate: NoAction)
-
+  blockerId  String
+  blocker    User   @relation("blocker", fields: [blockerId], references: [id], onUpdate: NoAction)
   blockingId String
-  blocking   User   @relation(name: "blocking", fields: [blockingId], references: [id], onUpdate: NoAction)
+  blocking   User   @relation("blocking", fields: [blockingId], references: [id], onUpdate: NoAction)
 
   @@id([blockerId, blockingId])
   @@index([blockerId])
@@ -166,4 +131,15 @@ model EnrolledEvent {
   end    DateTime
   userId String
   user   User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  REFRESH_TOKEN
+  VERIFY_EMAIL
+  RESET_PASSWORD
 }
