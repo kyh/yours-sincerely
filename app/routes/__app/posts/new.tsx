@@ -76,7 +76,7 @@ export const action: ActionFunction = async ({ request }) => {
   const post = await createPost({
     content,
     createdBy,
-    baseLikeCount,
+    baseLikeCount: Number(baseLikeCount),
     user: {
       connectOrCreate: {
         where: {
