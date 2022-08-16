@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
-import { ActionFunction, LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
+import {
+  json,
+  LoaderArgs,
+  ActionFunction,
+  MetaFunction,
+  redirect,
+} from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+  useTransition,
+} from "@remix-run/react";
 import { badRequest } from "remix-utils";
 import {
   getSession,
@@ -21,7 +33,6 @@ import { updateUser } from "~/lib/user/server/userService.server";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { createMeta } from "~/lib/core/util/meta";
 import { Post, isPostContentValid } from "~/lib/post/data/postSchema";
-import { User } from "~/lib/user/data/userSchema";
 import { TopNav } from "~/lib/core/ui/TopNav";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";
@@ -39,21 +50,14 @@ export let meta: MetaFunction = () => {
   });
 };
 
-type LoaderData = {
-  user: User | null;
-  promptContent: string;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await isAuthenticated(request);
   const [prompt] = await getRandomPrompt(1);
 
-  const data: LoaderData = {
+  return json({
     user,
     promptContent: prompt.content,
-  };
-
-  return data;
+  });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -102,7 +106,7 @@ const Page = () => {
   const { toast } = useToast();
   const { isIOS } = usePlatform();
   const action = useActionData();
-  const { user, promptContent } = useLoaderData<LoaderData>();
+  const { user, promptContent } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const transition = useTransition();
   const [isOpen, setIsOpen] = useState(false);

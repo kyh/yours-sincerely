@@ -1,4 +1,10 @@
-import { ActionFunction, LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
+import {
+  json,
+  LoaderArgs,
+  ActionFunction,
+  MetaFunction,
+  redirect,
+} from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { unauthorized } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";
@@ -8,30 +14,23 @@ import { createMeta } from "~/lib/core/util/meta";
 import { User } from "~/lib/user/data/userSchema";
 import { EditProfile } from "~/lib/user/ui/EditProfile";
 
-type LoaderData = {
-  user: User;
-  allowEdit: boolean;
-};
-
 export let meta: MetaFunction = () => {
   return createMeta({
     title: "Edit Profile",
   });
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const currentUser = await isAuthenticated(request);
   const user = await getUser({ id: params.uid });
   const allowEdit = currentUser && user ? currentUser.id === user.id : false;
 
   if (!user || !allowEdit) throw redirect(`/${user ? user.id : "/profile"}`);
 
-  const data: LoaderData = {
+  return json({
     user,
     allowEdit,
-  };
-
-  return data;
+  });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -53,7 +52,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const Page = () => {
-  const { user } = useLoaderData<LoaderData>();
+  const { user } = useLoaderData<typeof loader>();
   return (
     <main className="w-full max-w-md pt-5 mx-auto">
       <EditProfile user={user} />
