@@ -18,17 +18,12 @@ type QueriedPost = Post & {
   };
 };
 
-const letterSum = (s = "") => {
-  if (!s) return 0;
-  return s.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
-};
-
 const formatPost = (post: QueriedPost): Post => {
   const formatted = {
     ...post,
     createdBy: post.createdBy || "Anonymous",
     commentCount: post._count.comments,
-    likeCount: (letterSum(post.id) % 50) + (post._count.likes || 0),
+    likeCount: (post.baseLikeCount || 0) + (post._count.likes || 0),
     isLiked: post.likes ? !!post.likes.length : false,
   };
 

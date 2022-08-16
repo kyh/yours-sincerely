@@ -61,18 +61,19 @@ model Token {
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  createdBy String?
-  likes     Like[]
-  flags     Flag[]
-  parentId  String?
-  parent    Post?    @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  comments  Post[]   @relation("comments")
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  content       String   @db.Text
+  createdBy     String?
+  baseLikeCount Int?
+  likes         Like[]
+  flags         Flag[]
+  parentId      String?
+  parent        Post?    @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comments      Post[]   @relation("comments")
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([id, userId])
   @@index([userId])
