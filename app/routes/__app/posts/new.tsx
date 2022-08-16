@@ -63,7 +63,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 export const action: ActionFunction = async ({ request }) => {
   const user = await isAuthenticated(request);
   const formData = await request.formData();
-  const { content, createdBy } = Object.fromEntries(formData) as Post;
+  const { content, createdBy, baseLikeCount } = Object.fromEntries(
+    formData
+  ) as Post;
 
   if (!isPostContentValid(content)) {
     return badRequest({ message: "You'll need to write a bit more than that" });
@@ -74,6 +76,7 @@ export const action: ActionFunction = async ({ request }) => {
   const post = await createPost({
     content,
     createdBy,
+    baseLikeCount,
     user: {
       connectOrCreate: {
         where: {
