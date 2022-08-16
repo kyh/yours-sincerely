@@ -1,4 +1,4 @@
-import { LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
+import { json, LoaderArgs, MetaFunction, redirect } from "@remix-run/node";
 import { createMeta } from "~/lib/core/util/meta";
 import { NoProfile } from "~/lib/user/ui/NoProfile";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
@@ -9,10 +9,10 @@ export let meta: MetaFunction = () => {
   });
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await isAuthenticated(request);
   if (user) throw redirect(`/${user.id}`);
-  return { user: null };
+  return json({ user: null });
 };
 
 const Page = () => {

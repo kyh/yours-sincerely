@@ -36,7 +36,7 @@
     "bcrypt": "^5.0.1",
     "date-fns": "^2.28.0",
     "dotenv-cli": "^6.0.0",
-    "framer-motion": "^6.2.3",
+    "framer-motion": "^7.1.2",
     "nprogress": "^0.2.0",
     "posthog-js": "^1.17.1",
     "postmark": "^3.0.1",

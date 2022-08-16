@@ -1,38 +1,33 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData, useNavigate, useOutletContext } from "@remix-run/react";
+import { json, LoaderArgs } from "@remix-run/node";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useOutletContext,
+} from "@remix-run/react";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { User } from "~/lib/user/data/userSchema";
 import { getPostList } from "~/lib/post/server/postService.server";
-import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { useInfiniteScroll } from "~/lib/core/ui/InfiniteScroll";
 import { CardStack } from "~/lib/core/ui/CardStack";
 
-type LoaderData = {
-  postList: Post[];
-  user: User | null;
-  message?: string;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await isAuthenticated(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("c");
   const postList = await getPostList(user, { cursor });
 
-  const data: LoaderData = {
+  return json({
     postList,
     user,
-  };
-
-  return data;
+  });
 };
 
 const Page = () => {
   const navigate = useNavigate();
   const { view } = useOutletContext<{ view: "list" | "stack" }>();
-  const { postList } = useLoaderData<LoaderData>();
+  const { postList } = useLoaderData<typeof loader>();
   const {
     fetcher,
     loadMore,

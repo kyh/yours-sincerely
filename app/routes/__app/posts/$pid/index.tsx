@@ -1,8 +1,7 @@
 import { useRef, useEffect } from "react";
-import { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { User } from "~/lib/user/data/userSchema";
 import { getPost } from "~/lib/post/server/postService.server";
 import { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
@@ -10,11 +9,7 @@ import { CommentContent } from "~/lib/post/ui/CommentContent";
 import { TextArea } from "~/lib/core/ui/FormField";
 import { createMeta } from "~/lib/core/util/meta";
 
-export let meta: MetaFunction = ({
-  data,
-}: {
-  data: LoaderData | undefined;
-}) => {
+export let meta: MetaFunction = ({ data }: { data?: { post: Post } }) => {
   if (!data || !data.post) {
     return createMeta({
       title: "Invalid Post",
@@ -27,25 +22,18 @@ export let meta: MetaFunction = ({
   });
 };
 
-type LoaderData = {
-  post: Post | null;
-  user: User | null;
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await isAuthenticated(request);
   const post = await getPost({ id: params.pid }, user);
 
-  const data: LoaderData = {
+  return json({
     post,
     user,
-  };
-
-  return data;
+  });
 };
 
 const Page = () => {
-  const { post, user } = useLoaderData<LoaderData>();
+  const { post, user } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const ref = useRef<HTMLFormElement>(null);
 

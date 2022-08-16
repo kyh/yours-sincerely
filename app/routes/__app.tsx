@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { json, LoaderFunction } from "@remix-run/node";
+import { json, LoaderArgs } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
 import { getFlash } from "~/lib/core/server/session.server";
@@ -11,18 +11,15 @@ import { iconAttrs } from "~/lib/core/ui/Icon";
 
 const viewKey = "postsView";
 
-type LoaderData = {
-  message?: string;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const { message, headers } = await getFlash(request);
 
-  const data: LoaderData = {
-    message,
-  };
-
-  return json(data, { headers });
+  return json(
+    {
+      message,
+    },
+    { headers }
+  );
 };
 
 const Page = () => {
@@ -159,7 +156,7 @@ const Nav = ({
 const Footer = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const { message } = useLoaderData<LoaderData>();
+  const { message } = useLoaderData<typeof loader>();
 
   useEffect(() => {
     if (message) toast(message);
