@@ -14,12 +14,7 @@ const viewKey = "postsView";
 export const loader = async ({ request }: LoaderArgs) => {
   const { message, headers } = await getFlash(request);
 
-  return json(
-    {
-      message,
-    },
-    { headers }
-  );
+  return json({ message }, { headers });
 };
 
 const Page = () => {

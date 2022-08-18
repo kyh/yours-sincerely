@@ -3,7 +3,6 @@
   "name": "yours-sincerly",
   "description": "An ephemeral anonymous blog to send each other tiny beautiful letters",
   "license": "MIT",
-  "type": "commonjs",
   "prisma": {
     "seed": "npx ts-node -T prisma/seed.ts"
   },
@@ -20,9 +19,7 @@
     "prisma:migrate": "dotenv -- prisma db push",
     "prisma:reset": "dotenv -- prisma migrate reset",
     "prisma:seed": "dotenv -- prisma db seed",
-    "prisma:studio": "prisma studio",
-    "docker:start": "docker-compose up -d",
-    "docker:stop": "docker-compose down"
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
@@ -48,8 +45,7 @@
     "remix-auth": "^3.1.0",
     "remix-auth-form": "^1.1.1",
     "remix-auth-google": "^1.0.1",
-    "remix-utils": "^3.0.0",
-    "ts-custom-error": "^3.2.0"
+    "remix-utils": "^3.0.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.3.3",
