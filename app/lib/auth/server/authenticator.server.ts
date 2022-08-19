@@ -1,6 +1,6 @@
-import { Session } from "@remix-run/node";
+import type { Session } from "@remix-run/node";
 import { Authenticator, AuthorizationError } from "remix-auth";
-import { User } from "~/lib/user/data/userSchema";
+import type { User } from "~/lib/user/data/userSchema";
 import {
   sessionStorage,
   getSession,

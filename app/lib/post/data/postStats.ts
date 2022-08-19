@@ -1,6 +1,6 @@
 import { format, addDays, eachDayOfInterval, differenceInDays } from "date-fns";
 import { DEFAULT_WEEKDAY_LABELS } from "~/lib/core/ui/Activity/calendarUtil";
-import { Post } from "./postSchema";
+import type { Post } from "./postSchema";
 
 export const groupByDay = (posts: Post[], lastNDays: number) => {
   const days = eachDayOfInterval({

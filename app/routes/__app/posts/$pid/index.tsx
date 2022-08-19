@@ -1,9 +1,10 @@
 import { useRef, useEffect } from "react";
-import { json, LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getPost } from "~/lib/post/server/postService.server";
-import { Post } from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { CommentContent } from "~/lib/post/ui/CommentContent";
 import { TextArea } from "~/lib/core/ui/FormField";

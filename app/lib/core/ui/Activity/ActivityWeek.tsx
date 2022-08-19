@@ -1,5 +1,5 @@
 import { Tooltip } from "~/lib/core/ui/Tooltip";
-import { Theme } from "./calendarTypes";
+import type { Theme } from "./calendarTypes";
 import {
   getTheme,
   DEFAULT_WEEKDAY_LABELS,

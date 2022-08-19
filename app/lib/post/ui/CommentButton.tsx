@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import { iconAttrs } from "~/lib/core/ui/Icon";
-import { Post } from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 
 type Props = {
   post: Post;

@@ -3,7 +3,7 @@ import { useToast } from "~/lib/core/ui/Toaster";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Divider } from "~/lib/core/ui/Divider";
 import { iconAttrs } from "~/lib/core/ui/Icon";
-import { Post } from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 
 type Props = {
   post: Post;
@@ -56,7 +56,7 @@ export const ShareButton = ({ post }: Props) => {
             className={iconClassName}
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodedPostUrl}`}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +73,7 @@ export const ShareButton = ({ post }: Props) => {
             className={iconClassName}
             href={`http://twitter.com/share?url=${encodedPostUrl}`}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@ export const ShareButton = ({ post }: Props) => {
             className={iconClassName}
             href={`https://telegram.me/share/url?url=${encodedPostUrl}`}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,5 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { notFound, badRequest, serverError } from "remix-utils";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { createLike, deleteLike } from "~/lib/post/server/likeService.server";

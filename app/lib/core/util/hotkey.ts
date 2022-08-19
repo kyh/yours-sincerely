@@ -1,4 +1,5 @@
-import { useHotkeys, Hotkey, HotkeyCallback } from "@react-hook/hotkey";
+import type { Hotkey, HotkeyCallback } from "@react-hook/hotkey";
+import { useHotkeys } from "@react-hook/hotkey";
 
 export const useRootHotkeys = (
   hotkeys: [Hotkey | Hotkey[], HotkeyCallback][]

@@ -1,4 +1,4 @@
-import { ActionFunction, MetaFunction } from "@remix-run/node";
+import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { badRequest, serverError } from "remix-utils";
 import {

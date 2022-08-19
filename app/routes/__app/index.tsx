@@ -1,4 +1,5 @@
-import { json, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,

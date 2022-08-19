@@ -1,5 +1,6 @@
 import { addDays, formatDistance } from "date-fns";
-import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import type { Post} from "~/lib/post/data/postSchema";
+import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 import { Tooltip } from "~/lib/core/ui/Tooltip";
 
 const getPercentage = (createdAt: Date) => {

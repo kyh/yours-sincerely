@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,

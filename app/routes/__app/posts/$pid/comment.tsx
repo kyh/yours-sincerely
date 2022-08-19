@@ -1,8 +1,9 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { notFound, badRequest, serverError } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { Post } from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 import { createPost } from "~/lib/post/server/postService.server";
 
 export const loader: LoaderFunction = () => {

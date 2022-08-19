@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-  json,
+import type {
   LoaderArgs,
   ActionFunction,
-  MetaFunction,
+  MetaFunction} from "@remix-run/node";
+import {
+  json,
   redirect,
 } from "@remix-run/node";
 import {
@@ -32,7 +33,8 @@ import { getRandomPrompt } from "~/lib/post/server/promptService.server";
 import { updateUser } from "~/lib/user/server/userService.server";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { createMeta } from "~/lib/core/util/meta";
-import { Post, isPostContentValid } from "~/lib/post/data/postSchema";
+import type { Post} from "~/lib/post/data/postSchema";
+import { isPostContentValid } from "~/lib/post/data/postSchema";
 import { TopNav } from "~/lib/core/ui/TopNav";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Button } from "~/lib/core/ui/Button";

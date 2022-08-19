@@ -1,10 +1,11 @@
 import { addDays, isBefore } from "date-fns";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import { Post, POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
-import { Flag } from "~/lib/post/data/flagSchema";
-import { Like } from "~/lib/post/data/likeSchema";
-import { User } from "~/lib/user/data/userSchema";
+import type { Post} from "~/lib/post/data/postSchema";
+import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
+import type { Flag } from "~/lib/post/data/flagSchema";
+import type { Like } from "~/lib/post/data/likeSchema";
+import type { User } from "~/lib/user/data/userSchema";
 import { defaultSelect } from "~/lib/user/server/userService.server";
 import { getBlockList } from "~/lib/user/server/blockService.server";
 

@@ -1,4 +1,5 @@
-import { Fragment, useRef, useState, ElementType } from "react";
+import type { ElementType } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { usePopper } from "react-popper";
 import { Portal } from "react-portal";

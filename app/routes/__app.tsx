@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { json, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
 import { getFlash } from "~/lib/core/server/session.server";
-import { Theme, ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
+import type { Theme} from "~/lib/core/ui/Theme";
+import { ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
 import { TopNav } from "~/lib/core/ui/TopNav";

@@ -1,7 +1,7 @@
 import { hash, compare } from "bcrypt";
 import { randomBytes } from "crypto";
 import { addHours, addDays, isBefore } from "date-fns";
-import { Prisma, TokenType } from "@prisma/client";
+import type { Prisma, TokenType } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 
 const SALT_ROUNDS = 10;
