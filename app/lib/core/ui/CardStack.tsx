@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import {
+import type {
   MotionProps,
-  PanInfo,
+  PanInfo} from "framer-motion";
+import {
   motion,
   useMotionValue,
   useTransform,

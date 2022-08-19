@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import { User } from "~/lib/user/data/userSchema";
+import type { User } from "~/lib/user/data/userSchema";
 
 export const getBlockList = async (user: User | null) => {
   const list = await prisma.block.findMany({

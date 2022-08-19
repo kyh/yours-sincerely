@@ -1,4 +1,5 @@
-import { createCookieSessionStorage, Session } from "@remix-run/node";
+import type { Session } from "@remix-run/node";
+import { createCookieSessionStorage } from "@remix-run/node";
 
 export const COOKIE_SECRET = process.env.COOKIE_SECRET || "c-secret";
 

@@ -4,7 +4,7 @@ import { Switch } from "@headlessui/react";
 import { Button, baseClass, variantClasses } from "~/lib/core/ui/Button";
 import { TextField } from "~/lib/core/ui/FormField";
 import { CalendarMenu } from "~/lib/core/ui/CalendarMenu";
-import { User } from "~/lib/user/data/userSchema";
+import type { User } from "~/lib/user/data/userSchema";
 import {
   DEFAULT_WEEKDAY_LABELS,
   CALENDAR_LABELS,

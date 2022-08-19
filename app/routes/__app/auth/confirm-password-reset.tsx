@@ -1,8 +1,10 @@
-import { ActionFunction, MetaFunction, redirect } from "@remix-run/node";
+import type { ActionFunction, MetaFunction} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
 import { createMeta } from "~/lib/core/util/meta";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
-import { AuthInput, isPasswordValid } from "~/lib/auth/data/authSchema";
+import type { AuthInput} from "~/lib/auth/data/authSchema";
+import { isPasswordValid } from "~/lib/auth/data/authSchema";
 import { setUserSessionAndCommit } from "~/lib/auth/server/authenticator.server";
 import { validateToken } from "~/lib/auth/server/authService.server";
 import { updateUser } from "~/lib/user/server/userService.server";

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
 
 export const getAccount = async ({

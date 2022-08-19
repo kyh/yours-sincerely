@@ -10,7 +10,7 @@ import {
 } from "date-fns";
 import type { Day as WeekDay } from "date-fns";
 
-import { Day, Weeks, Theme } from "./calendarTypes";
+import type { Day, Weeks, Theme } from "./calendarTypes";
 
 export const MIN_DISTANCE_MONTH_LABELS = 2;
 

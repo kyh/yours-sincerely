@@ -1,9 +1,10 @@
-import { ActionFunction, json, MetaFunction } from "@remix-run/node";
+import type { ActionFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { createMeta } from "~/lib/core/util/meta";
 import { sendEmail } from "~/lib/core/server/email.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
-import { AuthInput } from "~/lib/auth/data/authSchema";
+import type { AuthInput } from "~/lib/auth/data/authSchema";
 import { createToken } from "~/lib/auth/server/authService.server";
 import { getUser } from "~/lib/user/server/userService.server";
 

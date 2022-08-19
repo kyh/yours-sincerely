@@ -1,4 +1,4 @@
-import { Post } from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
 

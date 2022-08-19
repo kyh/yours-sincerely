@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Form, useLoaderData } from "@remix-run/react";
 import { Dialog } from "~/lib/core/ui/Dialog";
-import { User } from "~/lib/user/data/userSchema";
-import { Post } from "~/lib/post/data/postSchema";
+import type { User } from "~/lib/user/data/userSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 
 type Props = {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { FormMethod, useFetcher, useLoaderData } from "@remix-run/react";
-import { User } from "~/lib/user/data/userSchema";
-import { Post } from "~/lib/post/data/postSchema";
+import type { FormMethod} from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import type { User } from "~/lib/user/data/userSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 
 let mojs: any;
 

@@ -1,8 +1,9 @@
-import {
-  json,
+import type {
   LoaderArgs,
   ActionFunction,
-  MetaFunction,
+  MetaFunction} from "@remix-run/node";
+import {
+  json,
   redirect,
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -11,7 +12,7 @@ import { flashAndCommit } from "~/lib/core/server/session.server";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getUser, updateUser } from "~/lib/user/server/userService.server";
 import { createMeta } from "~/lib/core/util/meta";
-import { User } from "~/lib/user/data/userSchema";
+import type { User } from "~/lib/user/data/userSchema";
 import { EditProfile } from "~/lib/user/ui/EditProfile";
 
 export let meta: MetaFunction = () => {

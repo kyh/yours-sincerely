@@ -1,8 +1,9 @@
-import { FunctionComponent, CSSProperties } from "react";
-import { format, getDay, getYear, parseISO, Day as WeekDay } from "date-fns";
+import type { FunctionComponent, CSSProperties } from "react";
+import type { Day as WeekDay } from "date-fns";
+import { format, getDay, getYear, parseISO } from "date-fns";
 import { Tooltip } from "~/lib/core/ui/Tooltip";
 
-import {
+import type {
   Day,
   EventHandlerMap,
   Labels,
