@@ -18,8 +18,8 @@
     "prisma:generate": "dotenv -- prisma generate",
     "prisma:reset": "dotenv -- prisma migrate reset",
     "prisma:seed": "dotenv -- prisma db seed",
-    "prisma:studio": "prisma studio",
-    "prisma:deploy": "dotenv -- prisma db push"
+    "prisma:push": "dotenv -- prisma db push",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
