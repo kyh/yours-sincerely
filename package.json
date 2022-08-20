@@ -15,10 +15,10 @@
     "dev:css": "tailwindcss -w -i ./styles/global.css -o ./app/tailwind.css",
     "dev:remix": "remix dev",
     "start": "remix-serve build",
-    "prisma:generate": "dotenv -- prisma generate",
-    "prisma:reset": "dotenv -- prisma migrate reset",
-    "prisma:seed": "dotenv -- prisma db seed",
-    "prisma:push": "dotenv -- prisma db push",
+    "prisma:generate": "prisma generate",
+    "prisma:reset": "prisma migrate reset",
+    "prisma:seed": "prisma db seed",
+    "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
