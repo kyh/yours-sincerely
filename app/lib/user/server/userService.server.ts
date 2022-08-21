@@ -1,6 +1,5 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import type { User } from "~/lib/user/data/userSchema";
 import { createPasswordHash } from "~/lib/auth/server/authService.server";
 
 export const defaultSelect = {
@@ -87,7 +86,8 @@ export const createUser = async (
 };
 
 export const updateUser = async (
-  input: Pick<User, "id"> & Prisma.UserUpdateInput & { password?: string }
+  input: Prisma.UserWhereUniqueInput &
+    Prisma.UserUpdateInput & { password?: string }
 ) => {
   const { id, password, ...data } = input;
 
@@ -104,7 +104,7 @@ export const updateUser = async (
   return updated;
 };
 
-export const deleteUser = async (input: Pick<User, "id">) => {
+export const deleteUser = async (input: Prisma.UserWhereUniqueInput) => {
   const deleted = await prisma.user.delete({
     where: { id: input.id },
     select: defaultSelect,
