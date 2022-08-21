@@ -1,7 +1,7 @@
 import { addDays, isBefore } from "date-fns";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
-import type { Post} from "~/lib/post/data/postSchema";
+import type { Post } from "~/lib/post/data/postSchema";
 import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 import type { Flag } from "~/lib/post/data/flagSchema";
 import type { Like } from "~/lib/post/data/likeSchema";
@@ -138,7 +138,10 @@ export const getAllPostsForUser = async (userId: string) => {
   return list.map(formatPost) as Post[];
 };
 
-export const getPost = async (input: Pick<Post, "id">, user: User | null) => {
+export const getPost = async (
+  input: Prisma.PostWhereUniqueInput,
+  user: User | null
+) => {
   const inclusions = {
     flags: {
       where: {
@@ -205,7 +208,7 @@ export const createPost = async (input: Prisma.PostCreateInput) => {
 };
 
 export const updatePost = async (
-  input: Pick<Post, "id"> & Prisma.PostUpdateInput
+  input: Prisma.PostWhereUniqueInput & Prisma.PostUpdateInput
 ) => {
   const { id, ...data } = input;
   const updated = await prisma.post.update({
@@ -216,7 +219,7 @@ export const updatePost = async (
   return updated;
 };
 
-export const deletePost = async (input: Pick<Post, "id">) => {
+export const deletePost = async (input: Prisma.PostWhereUniqueInput) => {
   const deleted = prisma.post.delete({
     where: { id: input.id },
   });
