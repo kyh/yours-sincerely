@@ -16,32 +16,36 @@ model Account {
   refreshToken      String?
   accessToken       String?
   expiresAt         Int?
-  userId            String
-  user              User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
 model User {
-  id                String          @id @default(cuid())
+  id                String    @id @default(cuid())
   username          String?
-  email             String?         @unique
+  email             String?   @unique
   emailVerified     DateTime?
+  passwordHash      String?
   displayName       String?
   displayImage      String?
-  weeklyDigestEmail Boolean         @default(false)
-  role              UserRole        @default(USER)
-  accounts          Account[]
-  passwordHash      String?
-  tokens            Token[]
-  posts             Post[]
-  likes             Like[]
-  flags             Flag[]
-  blockedBy         Block[]         @relation("blocking")
-  blocking          Block[]         @relation("blocker")
-  enrolledEvents    EnrolledEvent[]
-  createdAt         DateTime        @default(now())
+  weeklyDigestEmail Boolean   @default(false)
+
+  role UserRole @default(USER)
+
+  accounts       Account[]
+  tokens         Token[]
+  posts          Post[]
+  likes          Like[]
+  flags          Flag[]
+  blockedBy      Block[]         @relation("blocking")
+  blocking       Block[]         @relation("blocker")
+  enrolledEvents EnrolledEvent[]
+
+  createdAt DateTime @default(now())
 }
 
 model Token {
@@ -51,39 +55,46 @@ model Token {
   expiresAt DateTime?
   sentTo    String?
   usedAt    DateTime?
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([token, type])
   @@index([userId])
 }
 
 model Post {
-  id            String   @id @default(cuid())
-  content       String   @db.Text
+  id            String  @id @default(cuid())
+  content       String  @db.Text
   createdBy     String?
   baseLikeCount Int?
-  likes         Like[]
-  flags         Flag[]
-  parentId      String?
-  parent        Post?    @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  comments      Post[]   @relation("comments")
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+
+  likes    Like[]
+  flags    Flag[]
+  comments Post[] @relation("comments")
+
+  parentId String?
+  parent   Post?   @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([id, userId])
   @@index([userId])
 }
 
 model Like {
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -94,12 +105,14 @@ model Like {
 }
 
 model Flag {
-  comment   String?
-  resolved  Boolean  @default(false)
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment  String?
+  resolved Boolean @default(false)
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
