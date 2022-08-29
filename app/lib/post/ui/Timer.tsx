@@ -1,5 +1,5 @@
 import { addDays, formatDistance } from "date-fns";
-import type { Post} from "~/lib/post/data/postSchema";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 import { Tooltip } from "~/lib/core/ui/Tooltip";
 
@@ -19,7 +19,7 @@ const getPercentage = (createdAt: Date) => {
 };
 
 type Props = {
-  post: Post;
+  post: SerializedPost;
 };
 
 export const Timer = ({ post }: Props) => {

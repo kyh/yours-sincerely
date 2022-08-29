@@ -1,3 +1,4 @@
+import type { SerializeFrom } from "@remix-run/node";
 import type { Post as PrismaPost } from "@prisma/client";
 
 export type Post = Partial<PrismaPost> & {
@@ -7,6 +8,8 @@ export type Post = Partial<PrismaPost> & {
   commentCount?: number | null;
   comments?: Post[];
 };
+
+export type SerializedPost = SerializeFrom<Post>;
 
 export const POST_EXPIRY_DAYS_AGO = 21;
 

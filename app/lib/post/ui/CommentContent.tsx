@@ -1,9 +1,9 @@
-import type { Post } from "~/lib/post/data/postSchema";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { ProfileLink } from "~/lib/core/ui/ProfileLink";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
 
 type Props = {
-  post: Post;
+  post: SerializedPost;
 };
 
 export const CommentContent = ({ post }: Props) => {

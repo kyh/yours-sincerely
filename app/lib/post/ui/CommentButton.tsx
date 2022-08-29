@@ -1,9 +1,9 @@
 import { Link } from "@remix-run/react";
 import { iconAttrs } from "~/lib/core/ui/Icon";
-import type { Post } from "~/lib/post/data/postSchema";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 
 type Props = {
-  post: Post;
+  post: SerializedPost;
 };
 
 export const CommentButton = ({ post }: Props) => {
