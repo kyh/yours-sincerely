@@ -3,10 +3,10 @@ import { useToast } from "~/lib/core/ui/Toaster";
 import { Dialog } from "~/lib/core/ui/Dialog";
 import { Divider } from "~/lib/core/ui/Divider";
 import { iconAttrs } from "~/lib/core/ui/Icon";
-import type { Post } from "~/lib/post/data/postSchema";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 
 type Props = {
-  post: Post;
+  post: SerializedPost;
 };
 
 const iconClassName =

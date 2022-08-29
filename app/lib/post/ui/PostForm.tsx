@@ -2,19 +2,19 @@ import { useState, useEffect } from "react";
 import { Form } from "@remix-run/react";
 import { addDays, format } from "date-fns";
 import { Button } from "~/lib/core/ui/Button";
-import type { Post} from "~/lib/post/data/postSchema";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 
 const postKey = "ys-post";
 
-export const storePost = (post: Post) => {
+export const storePost = (post: SerializedPost) => {
   const postString = JSON.stringify(post);
   localStorage.setItem(postKey, postString);
 };
 
 export const getStoredPost = () => {
   const postString = localStorage.getItem(postKey) || "{}";
-  return JSON.parse(postString) as Post;
+  return JSON.parse(postString) as SerializedPost;
 };
 
 export const getStoredPostAndClear = () => {
@@ -26,7 +26,7 @@ export const getStoredPostAndClear = () => {
 type Props = {
   placeholder?: string;
   postingAs?: string | null;
-  post?: Post;
+  post?: SerializedPost;
   isSubmitting: boolean;
   onSubmit: () => void;
   updatePostingAs: () => void;
@@ -41,7 +41,7 @@ export const PostForm = ({
   updatePostingAs,
 }: Props) => {
   const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
-  const [localPost, setLocalPost] = useState<Post>(post || {});
+  const [localPost, setLocalPost] = useState<SerializedPost>(post || {});
 
   useEffect(() => {
     if (!post) setLocalPost(getStoredPost());

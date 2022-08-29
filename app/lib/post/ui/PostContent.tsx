@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { ProfileLink } from "~/lib/core/ui/ProfileLink";
-import type { Post } from "~/lib/post/data/postSchema";
 import { ShareButton } from "~/lib/post/ui/ShareButton";
 import { LikeButton } from "~/lib/post/ui/LikeButton";
 import { CommentButton } from "~/lib/post/ui/CommentButton";
@@ -8,7 +8,7 @@ import { Timer } from "~/lib/post/ui/Timer";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
 
 type Props = {
-  post: Post;
+  post: SerializedPost;
   displayFull?: boolean;
   asLink?: boolean;
   showLike?: boolean;
