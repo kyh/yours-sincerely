@@ -6,7 +6,7 @@
 
 [🚀 Website](https://yourssincerely.org/) | [App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely)
 
-> An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart
+> An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart.
 
 ## Get Started
 
@@ -26,8 +26,7 @@ You'll notice that the Remix routes are just thin wrappers and most of the heavy
 
 ### Install dependencies
 
-- [Node.js](https://nodejs.org/en/) - LTS version recommended
-- [Docker](https://www.docker.com/get-started) - [Compose](https://docs.docker.com/compose/) to run multi containers locally
+- [Node.js](https://nodejs.org/en) - LTS version recommended
 
 ### Local Development
 
@@ -38,16 +37,7 @@ mv .env.example .env
 # Installing dependencies
 npm install
 
-# Start a docker container containing your local database
-npm run docker:start
-
-# Run db migrations
-npm run db:migrate
-
-# Seed your database
-npm run db:seed
-
-# To start the apps
+# To start the app
 npm run dev
 ```
 
@@ -59,6 +49,6 @@ This project uses the following libraries and services:
 
 - Framework - [Remix](https://remix.run)
 - Styling - [Tailwind](https://tailwindcss.com)
-- Database - [MySQL (PlanetScale)](https://planetscale.com/) + [Prisma](https://www.prisma.io/)
+- Database - [MySQL (PlanetScale)](https://planetscale.com) + [Prisma](https://www.prisma.io)
 - Payments - [Stripe](https://stripe.com)
 - Hosting - [Vercel](https://vercel.com)
