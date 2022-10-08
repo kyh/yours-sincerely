@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction} from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { notFound, badRequest, serverError } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";

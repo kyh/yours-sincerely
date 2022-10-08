@@ -1,11 +1,5 @@
-import type {
-  LoaderArgs,
-  ActionFunction,
-  MetaFunction} from "@remix-run/node";
-import {
-  json,
-  redirect,
-} from "@remix-run/node";
+import type { LoaderArgs, ActionFunction, MetaFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { unauthorized } from "remix-utils";
 import { flashAndCommit } from "~/lib/core/server/session.server";

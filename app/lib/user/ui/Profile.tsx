@@ -1,8 +1,7 @@
 import { Link } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
 import { useTheme } from "~/lib/core/ui/Theme";
-import type {
-  Day} from "~/lib/core/ui/Activity";
+import type { Day } from "~/lib/core/ui/Activity";
 import {
   ActivityStats,
   ActivityCalendar,

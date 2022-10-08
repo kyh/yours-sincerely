@@ -45,13 +45,19 @@ export const CalendarMenu = ({
             <a
               href={links.google}
               target="_blank"
-              className={menuItemClassName} rel="noreferrer"
+              className={menuItemClassName}
+              rel="noreferrer"
             >
               Google Calendar
             </a>
           </Menu.Item>
           <Menu.Item>
-            <a href={links.ics} target="_blank" className={menuItemClassName} rel="noreferrer">
+            <a
+              href={links.ics}
+              target="_blank"
+              className={menuItemClassName}
+              rel="noreferrer"
+            >
               Apple Calendar
             </a>
           </Menu.Item>
@@ -59,13 +65,19 @@ export const CalendarMenu = ({
             <a
               href={links.outlook}
               target="_blank"
-              className={menuItemClassName} rel="noreferrer"
+              className={menuItemClassName}
+              rel="noreferrer"
             >
               Outlook Calendar
             </a>
           </Menu.Item>
           <Menu.Item>
-            <a href={links.yahoo} target="_blank" className={menuItemClassName} rel="noreferrer">
+            <a
+              href={links.yahoo}
+              target="_blank"
+              className={menuItemClassName}
+              rel="noreferrer"
+            >
               Yahoo Calendar
             </a>
           </Menu.Item>

@@ -1,4 +1,4 @@
-import type { LoaderArgs, MetaFunction} from "@remix-run/node";
+import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createMeta } from "~/lib/core/util/meta";
 import { NoProfile } from "~/lib/user/ui/NoProfile";
