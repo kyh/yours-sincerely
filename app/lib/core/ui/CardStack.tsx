@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import type {
-  MotionProps,
-  PanInfo} from "framer-motion";
+import type { MotionProps, PanInfo } from "framer-motion";
 import {
   motion,
   useMotionValue,
@@ -55,6 +53,7 @@ export const Card = (props: CardProps) => {
     <motion.div
       className="absolute top-0 h-full w-full cursor-grab sm:w-[600px] sm:left-[50%] sm:ml-[-300px] rounded-2xl overflow-auto"
       style={{ x, rotate }}
+      dragDirectionLock
       drag={props.drag}
       dragConstraints={{
         top: 0,
