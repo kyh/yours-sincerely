@@ -41,7 +41,6 @@
     "react-dom": "^18.2.0",
     "react-infinite-scroll-hook": "^4.0.1",
     "react-popper": "^2.2.5",
-    "react-portal": "^4.2.1",
     "remix-auth": "^3.1.0",
     "remix-auth-form": "^1.1.1",
     "remix-auth-google": "^1.0.1",
