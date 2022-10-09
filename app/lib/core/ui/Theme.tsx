@@ -70,7 +70,7 @@ export const ThemeProvider = ({
 
     persistThemeRef.current.submit(
       { theme },
-      { action: "action/theme", method: "post" }
+      { action: "actions/theme", method: "post" }
     );
   }, [theme]);
 

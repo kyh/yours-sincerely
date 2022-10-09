@@ -51,6 +51,27 @@ export const setThemeAndCommit = async (request: Request, theme: Theme) => {
   return headers;
 };
 
+// Post View
+const postViewKey = "postView";
+export type PostView = "list" | "stack";
+
+export const getPostView = async (request: Request) => {
+  const session = await getSession(request);
+  const postViewValue: PostView = session.get(postViewKey);
+  return postViewValue || "stack";
+};
+
+export const setPostViewAndCommit = async (
+  request: Request,
+  postView?: PostView
+) => {
+  const session = await getSession(request);
+  session.set(postViewKey, postView || "stack");
+  const headers = await commitSession(session);
+
+  return headers;
+};
+
 // Flash
 type Flash = {
   type?: "default" | "success" | "error";
