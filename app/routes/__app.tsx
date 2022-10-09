@@ -1,23 +1,13 @@
 import { useState, useEffect } from "react";
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
-import { ClientOnly } from "remix-utils";
-import { getFlash } from "~/lib/core/server/session.server";
-import type { Theme } from "~/lib/core/ui/Theme";
-import { ThemeProvider, useTheme } from "~/lib/core/ui/Theme";
-import { PlatformProvider } from "~/lib/core/ui/Platform";
+import { Link, Outlet, useMatches, useOutletContext } from "@remix-run/react";
+import { useTheme } from "~/lib/core/ui/Theme";
 import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
 import { TopNav } from "~/lib/core/ui/TopNav";
 import { iconAttrs } from "~/lib/core/ui/Icon";
+import type { Theme } from "~/lib/core/util/theme";
+import { themes } from "~/lib/core/util/theme";
 
 const viewKey = "postsView";
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const { message, headers } = await getFlash(request);
-
-  return json({ message }, { headers });
-};
 
 const Page = () => {
   const matches = useMatches();
@@ -36,27 +26,19 @@ const Page = () => {
   };
 
   return (
-    <PlatformProvider>
-      <ThemeProvider>
-        <ToastProvider>
-          <section
-            className={`page ${
-              currentPath === "/posts/new" ? "bg-white dark:bg-slate-800" : ""
-            }`}
-          >
-            {currentPath !== "/posts/new" && (
-              <Nav
-                currentPath={currentPath}
-                view={view}
-                setView={handleSetView}
-              />
-            )}
-            <Outlet context={{ view }} />
-            {currentPath !== "/posts/new" && <Footer />}
-          </section>
-        </ToastProvider>
-      </ThemeProvider>
-    </PlatformProvider>
+    <ToastProvider>
+      <section
+        className={`page ${
+          currentPath === "/posts/new" ? "bg-white dark:bg-slate-800" : ""
+        }`}
+      >
+        {currentPath !== "/posts/new" && (
+          <Nav currentPath={currentPath} view={view} setView={handleSetView} />
+        )}
+        <Outlet context={{ view }} />
+        {currentPath !== "/posts/new" && <Footer />}
+      </section>
+    </ToastProvider>
   );
 };
 
@@ -153,7 +135,7 @@ const Nav = ({
 const Footer = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const { message } = useLoaderData<typeof loader>();
+  const { message } = useOutletContext<{ message: string }>();
 
   useEffect(() => {
     if (message) toast(message);
@@ -185,25 +167,17 @@ const Footer = () => {
           </a>
         </li>
         <li>
-          <ClientOnly
-            fallback={
-              <div className="px-2 py-1 text-xs text-center rounded border border-slate-500 dark:border-slate-100">
-                Default
-              </div>
-            }
+          <select
+            className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none capitalize focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
+            value={theme || "default"}
+            onChange={onThemeChange}
           >
-            {() => (
-              <select
-                className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
-                value={theme || "default"}
-                onChange={onThemeChange}
-              >
-                <option value="default">Default</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            )}
-          </ClientOnly>
+            {themes.map((theme) => (
+              <option value={theme} key={theme}>
+                {theme}
+              </option>
+            ))}
+          </select>
         </li>
       </ul>
     </footer>

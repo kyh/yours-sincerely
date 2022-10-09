@@ -1,5 +1,7 @@
 import type { Session } from "@remix-run/node";
 import { createCookieSessionStorage } from "@remix-run/node";
+import type { Theme } from "~/lib/core/util/theme";
+import { isTheme } from "~/lib/core/util/theme";
 
 export const COOKIE_SECRET = process.env.COOKIE_SECRET || "c-secret";
 
@@ -32,6 +34,24 @@ export const commitSession = async (session: Session) => {
   return headers;
 };
 
+// Theme
+const themeKey = "theme";
+
+export const getTheme = async (request: Request) => {
+  const session = await getSession(request);
+  const themeValue = session.get(themeKey);
+  return isTheme(themeValue) ? themeValue : null;
+};
+
+export const setThemeAndCommit = async (request: Request, theme: Theme) => {
+  const session = await getSession(request);
+  session.set(themeKey, theme);
+  const headers = await commitSession(session);
+
+  return headers;
+};
+
+// Flash
 type Flash = {
   type?: "default" | "success" | "error";
   message?: string;

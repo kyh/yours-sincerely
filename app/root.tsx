@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -13,6 +14,9 @@ import {
 } from "@remix-run/react";
 import NProgress from "nprogress";
 import posthog from "posthog-js";
+import { getTheme, getFlash } from "~/lib/core/server/session.server";
+import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
+import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
 
 import styles from "./tailwind.css";
@@ -49,16 +53,24 @@ export const meta: MetaFunction = () => {
   return createMeta();
 };
 
-export async function loader() {
-  return {
-    ENV: {
-      POSTHOG_API_TOKEN: process.env.POSTHOG_API_TOKEN,
-    },
-  };
-}
+export const loader = async ({ request }: LoaderArgs) => {
+  const theme = await getTheme(request);
+  const { message, headers } = await getFlash(request);
 
-export default function App() {
-  const data = useLoaderData();
+  return json(
+    {
+      message,
+      theme,
+      ENV: {
+        POSTHOG_API_TOKEN: process.env.POSTHOG_API_TOKEN,
+      },
+    },
+    { headers }
+  );
+};
+
+const App = () => {
+  const { message, theme, ENV } = useLoaderData<typeof loader>();
   const transition = useTransition();
   const fetchers = useFetchers();
 
@@ -77,29 +89,31 @@ export default function App() {
   }, [transition.state]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      posthog.init(data.ENV.POSTHOG_API_TOKEN, {
+    if (process.env.NODE_ENV === "production" && ENV && ENV.POSTHOG_API_TOKEN) {
+      posthog.init(ENV.POSTHOG_API_TOKEN, {
         api_host: "https://app.posthog.com",
       });
     }
   }, []);
 
   return (
-    <html lang="en">
+    <html lang="en" className={theme ?? ""}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
+        <ThemeHead ssrTheme={Boolean(theme)} />
       </head>
       <body>
-        <Outlet />
+        <Outlet context={{ theme, message }} />
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
+        <ThemeBody ssrTheme={Boolean(theme)} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
           }}
         />
         <script
@@ -109,5 +123,16 @@ export default function App() {
         />
       </body>
     </html>
+  );
+};
+
+export default function AppWithProviders() {
+  const { theme } = useLoaderData<typeof loader>();
+  return (
+    <PlatformProvider>
+      <ThemeProvider specifiedTheme={theme}>
+        <App />
+      </ThemeProvider>
+    </PlatformProvider>
   );
 }
