@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link, Outlet, useMatches, useOutletContext } from "@remix-run/react";
+import {
+  Link,
+  Outlet,
+  useMatches,
+  useOutletContext,
+  useFetcher,
+} from "@remix-run/react";
 import { useTheme } from "~/lib/core/ui/Theme";
 import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
 import { TopNav } from "~/lib/core/ui/TopNav";
@@ -7,21 +13,19 @@ import { iconAttrs } from "~/lib/core/ui/Icon";
 import type { Theme } from "~/lib/core/util/theme";
 import { themes } from "~/lib/core/util/theme";
 
-const viewKey = "postsView";
-
 const Page = () => {
+  const { postView } = useOutletContext<{ postView: string }>();
   const matches = useMatches();
-  const [view, setView] = useState("stack");
+  const [view, setView] = useState(postView);
+  const persistView = useFetcher();
+
   const { pathname: currentPath } = matches[matches.length - 1];
 
-  useEffect(() => {
-    // TODO: move this into session storage instead of local
-    const savedView = localStorage.getItem(viewKey);
-    if (savedView) setView(savedView);
-  }, []);
-
   const handleSetView = (view: string) => {
-    localStorage.setItem(viewKey, view);
+    persistView.submit(
+      { view },
+      { action: "actions/post-view", method: "post" }
+    );
     setView(view);
   };
 

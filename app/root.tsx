@@ -14,7 +14,11 @@ import {
 } from "@remix-run/react";
 import NProgress from "nprogress";
 import posthog from "posthog-js";
-import { getTheme, getFlash } from "~/lib/core/server/session.server";
+import {
+  getTheme,
+  getFlash,
+  getPostView,
+} from "~/lib/core/server/session.server";
 import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
@@ -55,12 +59,14 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ request }: LoaderArgs) => {
   const theme = await getTheme(request);
+  const postView = await getPostView(request);
   const { message, headers } = await getFlash(request);
 
   return json(
     {
       message,
       theme,
+      postView,
       ENV: {
         POSTHOG_API_TOKEN: process.env.POSTHOG_API_TOKEN,
       },
@@ -70,7 +76,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 const App = () => {
-  const { message, theme, ENV } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
   const transition = useTransition();
   const fetchers = useFetchers();
 
@@ -89,31 +95,31 @@ const App = () => {
   }, [transition.state]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "production" && ENV && ENV.POSTHOG_API_TOKEN) {
-      posthog.init(ENV.POSTHOG_API_TOKEN, {
+    if (process.env.NODE_ENV === "production" && data.ENV.POSTHOG_API_TOKEN) {
+      posthog.init(data.ENV.POSTHOG_API_TOKEN, {
         api_host: "https://app.posthog.com",
       });
     }
   }, []);
 
   return (
-    <html lang="en" className={theme ?? ""}>
+    <html lang="en" className={data.theme ?? ""}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        <ThemeHead ssrTheme={Boolean(theme)} />
+        <ThemeHead ssrTheme={Boolean(data.theme)} />
       </head>
       <body>
-        <Outlet context={{ theme, message }} />
+        <Outlet context={data} />
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
-        <ThemeBody ssrTheme={Boolean(theme)} />
+        <ThemeBody ssrTheme={Boolean(data.theme)} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
           }}
         />
         <script
