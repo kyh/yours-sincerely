@@ -2,7 +2,7 @@ import type { ElementType } from "react";
 import { Fragment, useRef, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { usePopper } from "react-popper";
-import { Portal } from "react-portal";
+import { Portal } from "~/lib/core/ui/Portal";
 
 type Props = {
   triggerRef?: ElementType<any>;
