@@ -87,7 +87,7 @@ export const AuthForm = ({ authType }: Props) => {
       <Button
         className="w-full mt-2"
         type="submit"
-        disabled={transition.state !== "idle"}
+        loading={transition.state !== "idle"}
       >
         {button}
       </Button>

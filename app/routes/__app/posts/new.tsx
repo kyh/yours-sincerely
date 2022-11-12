@@ -183,7 +183,7 @@ const Page = () => {
             <Button
               type="submit"
               className="pl-8 pr-8 mt-4"
-              disabled={transition.state !== "idle" || !isChecked}
+              loading={transition.state !== "idle" || !isChecked}
             >
               Save and continue
             </Button>

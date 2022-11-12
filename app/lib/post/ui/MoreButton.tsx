@@ -31,9 +31,9 @@ export const MoreButton = ({ post }: Props) => {
         onClick={() => setIsOpen(true)}
       >
         <svg {...iconAttrs} width="20" height="20">
-          <circle cx="12" cy="12" r="1"></circle>
-          <circle cx="12" cy="5" r="1"></circle>
-          <circle cx="12" cy="19" r="1"></circle>
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
         </svg>
       </button>
       <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
