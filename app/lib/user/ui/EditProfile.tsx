@@ -139,7 +139,7 @@ export const EditProfile = ({ user }: Props) => {
           >
             Back
           </Link>
-          <Button type="submit" disabled={transition.state === "submitting"}>
+          <Button type="submit" loading={transition.state === "submitting"}>
             Save Changes
           </Button>
         </div>

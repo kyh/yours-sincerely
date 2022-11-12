@@ -96,7 +96,7 @@ export const PostForm = ({
             This post will expire on {format(expiry, "MMMM do")}
           </span>
         </div>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           Publish
         </Button>
       </footer>

@@ -23,7 +23,7 @@ export const Spinner = ({ loading = false, ...rest }) => {
 
   return (
     <div {...rest}>
-      <Svg isShown={state === States.loading} />
+      <SpinnerSvg color="#8389E1" isShown={state === States.loading} />
       <svg
         {...iconAttrs}
         className="text-green-600"
@@ -31,26 +31,37 @@ export const Spinner = ({ loading = false, ...rest }) => {
         height="24"
         style={{ opacity: state === States.done ? 1 : 0 }}
       >
-        <polyline points="20 6 9 17 4 12"></polyline>
+        <polyline points="20 6 9 17 4 12" />
       </svg>
     </div>
   );
 };
 
-const Svg = ({ isShown }: { isShown: boolean }) => (
+type SpinnerSvgProps = {
+  color: string;
+  isShown: boolean;
+} & React.SVGProps<SVGSVGElement>;
+
+export const SpinnerSvg = ({
+  color,
+  isShown,
+  className = "",
+  ...rest
+}: SpinnerSvgProps) => (
   <svg
     width="20"
     height="20"
     viewBox="0 0 38 38"
     xmlns="http://www.w3.org/2000/svg"
-    className="transition-opacity"
+    className={`transition-opacity ${className}`}
     style={{ opacity: isShown ? 1 : 0, position: "absolute" }}
+    {...rest}
   >
     <defs>
       <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
-        <stop stopColor="#8389E1" stopOpacity="0" offset="0%" />
-        <stop stopColor="#8389E1" stopOpacity=".631" offset="63.146%" />
-        <stop stopColor="#8389E1" offset="100%" />
+        <stop stopColor={color} stopOpacity="0" offset="0%" />
+        <stop stopColor={color} stopOpacity=".631" offset="63.146%" />
+        <stop stopColor={color} offset="100%" />
       </linearGradient>
     </defs>
     <g fill="none" fillRule="evenodd">
@@ -65,7 +76,7 @@ const Svg = ({ isShown }: { isShown: boolean }) => (
             repeatCount="indefinite"
           />
         </path>
-        <circle fill="#8389E1" cx="36" cy="18" r="1">
+        <circle fill={color} cx="36" cy="18" r="1">
           <animateTransform
             attributeName="transform"
             type="rotate"
