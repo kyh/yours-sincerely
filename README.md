@@ -12,7 +12,7 @@
 
 The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory. I'll be moving the native app code in here soon(ish).
 
-You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[turborepo](https://turborepo.org/)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web, server, and react native apps.
+You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web, server, and react native apps.
 
 ```
 ├── /api                     # Remix server
