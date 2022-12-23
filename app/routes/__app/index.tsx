@@ -61,7 +61,7 @@ const Page = () => {
             <>
               {posts.map((post) => (
                 <div
-                  className="p-5 rounded shadow w-10/12 mx-auto bg-slate-100 dark:bg-slate-900"
+                  className="p-5 rounded shadow w-full sm:w-10/12 mx-auto bg-slate-100 dark:bg-slate-900"
                   key={post.id}
                 >
                   <PostContent post={post} />

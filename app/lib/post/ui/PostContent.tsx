@@ -48,14 +48,14 @@ export const PostContent = ({
       )}
       <footer
         className={`flex flex-col sm:flex-row sm:justify-between ${
-          displayFull ? "mt-auto pt-3" : "mt-4"
+          displayFull ? "mt-auto pt-3" : "mt-5"
         }`}
       >
         <div className="italic sm:flex sm:items-center">
           <span className="mr-1 align-[1px]">Yours Sincerely,</span>
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
-        <div className="flex items-center justify-between mt-2 sm:mt-0 sm:gap-1">
+        <div className="flex items-center justify-between mt-3 sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}
