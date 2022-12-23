@@ -19,7 +19,15 @@ type CardProps = {
     duration: number;
   };
   setExit?: (exit: { x: number; duration: number }) => void;
+  onAnimationComplete?: () => void;
   children: React.ReactNode;
+};
+
+const cardDragConstraints = {
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
 };
 
 export const Card = (props: CardProps) => {
@@ -55,12 +63,7 @@ export const Card = (props: CardProps) => {
       style={{ x, rotate }}
       dragDirectionLock
       drag={props.drag}
-      dragConstraints={{
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-      }}
+      dragConstraints={cardDragConstraints}
       onDragEnd={handleDragEnd}
       initial={props.initial}
       animate={props.animate}
@@ -71,6 +74,7 @@ export const Card = (props: CardProps) => {
         scale: 0.5,
         transition: { duration: props.exit?.duration },
       }}
+      onAnimationComplete={props.onAnimationComplete}
     >
       <motion.div
         className="w-full h-fit p-5 rounded-2xl shadow-lg bg-slate-100 dark:bg-slate-900"
@@ -98,6 +102,7 @@ export const CardStack = <T,>({
   nextButton = "Next",
 }: Props<T>) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
   const [exit, setExit] = useState({
     x: -300,
     duration: 0.2,
@@ -111,15 +116,15 @@ export const CardStack = <T,>({
   }, [currentIndex]);
 
   const onNext = (auto?: boolean) => {
+    if (animating) return;
     if (auto) {
       setExit({
         x: Math.random() < 0.5 ? -300 : 300,
         duration: 0.5,
       });
     }
-    requestAnimationFrame(() => {
-      setCurrentIndex(nextIndex);
-    });
+    setAnimating(true);
+    setCurrentIndex(nextIndex);
   };
 
   useRootHotkeys([
@@ -158,6 +163,7 @@ export const CardStack = <T,>({
             exit={exit}
             setExit={setExit}
             drag="x"
+            onAnimationComplete={() => setAnimating(false)}
           >
             {children(data[currentIndex])}
           </Card>
@@ -167,6 +173,7 @@ export const CardStack = <T,>({
         <button
           className="mt-auto py-2 px-3 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
           onClick={() => onNext(true)}
+          disabled={animating}
         >
           {nextButton}
         </button>
