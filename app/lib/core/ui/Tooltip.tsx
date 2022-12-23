@@ -1,11 +1,9 @@
-import type { ElementType } from "react";
 import { Fragment, useRef, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { usePopper } from "react-popper";
 import { Portal } from "~/lib/core/ui/Portal";
 
 type Props = {
-  triggerRef?: ElementType<any>;
   offset?: [number, number];
   triggerContent?: React.ReactNode;
   triggerClassName?: string;
@@ -16,7 +14,6 @@ type Props = {
 };
 
 export const Tooltip = ({
-  triggerRef,
   offset = [0, 0],
   triggerContent = null,
   triggerClassName = "",
@@ -54,7 +51,7 @@ export const Tooltip = ({
   return (
     <Popover as={Fragment}>
       <Popover.Button
-        as={triggerRef ? triggerRef : "button"}
+        as={triggerProps.as || "button"}
         ref={setTriggerElement}
         className={triggerClassName}
         onMouseEnter={onMouseEnter}

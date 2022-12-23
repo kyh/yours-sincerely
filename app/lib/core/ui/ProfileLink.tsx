@@ -46,12 +46,10 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
       offset={[0, 8]}
       triggerContent={displayName}
       triggerClassName={`inline-flex text-slate-900 underline underline-offset-2 decoration-dotted dark:text-slate-50 ${className}`}
-      triggerProps={{
-        as: Link,
-        to: `/${userId}`,
-      }}
       tooltipContent={
-        <ProfileTooltip userId={userId} displayName={displayName} />
+        <Link to={`/${userId}`} className="hover:no-underline">
+          <ProfileTooltip userId={userId} displayName={displayName} />
+        </Link>
       }
       tooltipClassName="max-w-[240px] p-4 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-zinc-900"
     />
