@@ -67,7 +67,7 @@ export const EditProfile = ({ user }: Props) => {
                 <CalendarMenu text="Add Reminder" recurring={recurring} />
               </dd>
             </div>
-            <div className="flex w-full mt-3 justify-evenly">
+            <div className="flex w-full mt-3 gap-2 flex-wrap justify-center sm:gap-0 sm:justify-evenly">
               {DEFAULT_WEEKDAY_LABELS.map((day) => (
                 <label key={day} className="text-center cursor-pointer">
                   <input
@@ -90,7 +90,7 @@ export const EditProfile = ({ user }: Props) => {
           </div>
           <Switch.Group
             as="div"
-            className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-b sm:border-slate-200"
+            className="py-5 grid grid-cols-3 gap-4 border-b border-slate-200"
           >
             <Switch.Label
               as="dt"
@@ -99,7 +99,7 @@ export const EditProfile = ({ user }: Props) => {
             >
               Weekly Digest
             </Switch.Label>
-            <dd className="flex mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
+            <dd className="flex text-sm text-slate-900 col-span-2">
               <input
                 type="hidden"
                 name="weeklyDigestEmail"
@@ -108,7 +108,7 @@ export const EditProfile = ({ user }: Props) => {
               <Switch
                 checked={weeklyDigest}
                 onChange={setWeeklyDigest}
-                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark sm:ml-auto ${
+                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark ml-auto ${
                   weeklyDigest ? "bg-primary" : "bg-slate-200 dark:bg-slate-600"
                 }`}
               >

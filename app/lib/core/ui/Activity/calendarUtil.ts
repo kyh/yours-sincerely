@@ -163,13 +163,13 @@ export const DEFAULT_MONTH_LABELS = [
 ];
 
 export const DEFAULT_WEEKDAY_LABELS = [
-  "Sun",
   "Mon",
   "Tue",
   "Wed",
   "Thu",
   "Fri",
   "Sat",
+  "Sun",
 ];
 
 export const FULL_DAY_LABELS = {
