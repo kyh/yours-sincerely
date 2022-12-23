@@ -57,7 +57,8 @@ const Loading = () => {
 };
 
 export const Profile = ({ user, stats, showEdit }: Props) => {
-  const { isDarkMode } = useTheme();
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   return (
     <section className="flex flex-col gap-8">

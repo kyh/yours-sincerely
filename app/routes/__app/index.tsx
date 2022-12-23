@@ -46,7 +46,7 @@ const Page = () => {
     <>
       {!!posts.length && (
         <main
-          className={`flex flex-col gap-8 ${view === "stack" ? "" : "py-5"}`}
+          className={`flex flex-col gap-5 ${view === "stack" ? "" : "py-5"}`}
         >
           {view === "stack" && (
             <CardStack
@@ -60,7 +60,12 @@ const Page = () => {
           {view === "list" && (
             <>
               {posts.map((post) => (
-                <PostContent key={post.id} post={post} />
+                <div
+                  className="p-5 rounded shadow w-10/12 mx-auto bg-slate-100 dark:bg-slate-900"
+                  key={post.id}
+                >
+                  <PostContent post={post} />
+                </div>
               ))}
               {fetcher.state === "idle" && hasNextPage && (
                 <div className="text-center" ref={ref}>
