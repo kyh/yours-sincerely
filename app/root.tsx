@@ -13,7 +13,6 @@ import {
   useFetchers,
 } from "@remix-run/react";
 import NProgress from "nprogress";
-import posthog from "posthog-js";
 import {
   getTheme,
   getFlash,
@@ -67,9 +66,6 @@ export const loader = async ({ request }: LoaderArgs) => {
       message,
       theme,
       postView,
-      ENV: {
-        POSTHOG_API_TOKEN: process.env.POSTHOG_API_TOKEN,
-      },
     },
     { headers }
   );
@@ -94,14 +90,6 @@ const App = () => {
     if (state === "idle") NProgress.done();
   }, [transition.state]);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV === "production" && data.ENV.POSTHOG_API_TOKEN) {
-      posthog.init(data.ENV.POSTHOG_API_TOKEN, {
-        api_host: "https://app.posthog.com",
-      });
-    }
-  }, []);
-
   return (
     <html lang="en" className={data.theme ?? ""}>
       <head>
@@ -117,11 +105,6 @@ const App = () => {
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
         <ThemeBody ssrTheme={Boolean(data.theme)} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-          }}
-        />
         <script
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
