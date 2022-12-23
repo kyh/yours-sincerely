@@ -29,8 +29,8 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
         {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
           <Tooltip
             key={day}
-            triggerRef="ellipse"
             triggerProps={{
+              as: "ellipse",
               className: "block",
               key: day,
               cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
