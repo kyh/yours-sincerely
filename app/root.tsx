@@ -1,3 +1,4 @@
+import { useLocation, useMatches } from "@remix-run/react";
 import { useEffect, useMemo } from "react";
 import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -21,8 +22,9 @@ import {
 import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
-
 import styles from "./tailwind.css";
+
+let isMount = true;
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -61,21 +63,13 @@ export const loader = async ({ request }: LoaderArgs) => {
   const postView = await getPostView(request);
   const { message, headers } = await getFlash(request);
 
-  return json(
-    {
-      message,
-      theme,
-      postView,
-    },
-    { headers }
-  );
+  return json({ message, theme, postView }, { headers });
 };
 
 const App = () => {
   const data = useLoaderData<typeof loader>();
   const transition = useTransition();
   const fetchers = useFetchers();
-
   const state = useMemo<"idle" | "loading">(() => {
     let states = [
       transition.state,
@@ -90,11 +84,49 @@ const App = () => {
     if (state === "idle") NProgress.done();
   }, [transition.state]);
 
+  const location = useLocation();
+  const matches = useMatches();
+
+  useEffect(() => {
+    const mounted = isMount;
+    isMount = false;
+    if ("serviceWorker" in navigator) {
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller?.postMessage({
+          type: "REMIX_NAVIGATION",
+          isMount: mounted,
+          location,
+          matches,
+          manifest: window.__remixManifest,
+        });
+      } else {
+        const listener = async () => {
+          await navigator.serviceWorker.ready;
+          navigator.serviceWorker.controller?.postMessage({
+            type: "REMIX_NAVIGATION",
+            isMount: mounted,
+            location,
+            matches,
+            manifest: window.__remixManifest,
+          });
+        };
+        navigator.serviceWorker.addEventListener("controllerchange", listener);
+        return () => {
+          navigator.serviceWorker.removeEventListener(
+            "controllerchange",
+            listener
+          );
+        };
+      }
+    }
+  }, [location]);
+
   return (
     <html lang="en" className={data.theme ?? ""}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Meta />
         <Links />
         <ThemeHead ssrTheme={Boolean(data.theme)} />
