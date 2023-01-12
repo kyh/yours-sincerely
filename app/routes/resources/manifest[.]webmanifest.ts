@@ -14,20 +14,7 @@ export let loader: LoaderFunction = () => {
         "An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart.",
       dir: "ltr",
       lang: "en",
-      shortcuts: [
-        {
-          name: "Homepage",
-          url: "/",
-          icons: [
-            {
-              src: "/favicon/android-icon-96x96.png",
-              sizes: "96x96",
-              type: "image/png",
-              purpose: "any monochrome",
-            },
-          ],
-        },
-      ],
+      shortcuts: [],
       icons: [
         {
           src: "/favicon/android-chrome-192x192.png",
