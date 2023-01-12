@@ -14,7 +14,6 @@ export let loader: LoaderFunction = () => {
         "An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart.",
       dir: "ltr",
       lang: "en",
-      shortcuts: [],
       icons: [
         {
           src: "/favicon/android-chrome-192x192.png",
