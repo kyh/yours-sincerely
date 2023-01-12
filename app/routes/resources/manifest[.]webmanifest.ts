@@ -10,6 +10,10 @@ export let loader: LoaderFunction = () => {
       display: "standalone",
       theme_color: "#4d4f6a",
       background_color: "#4d4f6a",
+      description:
+        "An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart.",
+      dir: "ltr",
+      lang: "en",
       shortcuts: [
         {
           name: "Homepage",
@@ -29,11 +33,13 @@ export let loader: LoaderFunction = () => {
           src: "/favicon/android-chrome-192x192.png",
           sizes: "192x192",
           type: "image/png",
+          purpose: "monochrome",
         },
         {
-          src: "/favicon/android-chrome-384x384.png",
-          sizes: "384x384",
+          src: "/favicon/android-chrome-512x512.png",
+          sizes: "512x512",
           type: "image/png",
+          purpose: "any",
         },
       ],
     },
