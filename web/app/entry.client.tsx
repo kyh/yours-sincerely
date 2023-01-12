@@ -55,7 +55,7 @@ if ("serviceWorker" in navigator) {
 //       return sub.subscription;
 //     }
 
-//     const subInfo = await fetch("/resources/subscribe");
+//     const subInfo = await fetch("/actions/subscribe");
 //     const returnedSubscription = await subInfo.text();
 
 //     const convertedVapidKey = urlBase64ToUint8Array(returnedSubscription);
@@ -65,7 +65,7 @@ if ("serviceWorker" in navigator) {
 //     });
 //   })
 //   .then(async (subscription) => {
-//     await fetch("/resources/subscribe", {
+//     await fetch("/actions/subscribe", {
 //       method: "POST",
 //       body: JSON.stringify({
 //         subscription: subscription,
