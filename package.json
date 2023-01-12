@@ -7,21 +7,21 @@
     "seed": "npx ts-node -T prisma/seed.ts"
   },
   "scripts": {
-    "build": "npm-run-all -p build:*",
+    "build": "run-s build:prisma build:css build:worker build:remix",
     "build:prisma": "npm run prisma:generate",
     "build:css": "tailwindcss -m -i ./styles/global.css -o ./app/tailwind.css",
     "build:remix": "cross-env NODE_ENV=production remix build",
-    "dev": "npm-run-all -p dev:*",
+    "build:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
+    "dev": "run-p dev:*",
     "dev:css": "tailwindcss -w -i ./styles/global.css -o ./app/tailwind.css",
     "dev:remix": "cross-env NODE_ENV=development remix dev",
+    "dev:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --bundle --format=esm --define:process.env.NODE_ENV='\"development\"' --watch",
     "start": "remix-serve build",
     "prisma:generate": "prisma generate",
     "prisma:reset": "prisma migrate reset",
     "prisma:seed": "prisma db seed",
     "prisma:push": "prisma db push",
-    "prisma:studio": "prisma studio",
-    "build:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
-    "dev:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --bundle --format=esm --define:process.env.NODE_ENV='\"development\"' --watch"
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.7",
