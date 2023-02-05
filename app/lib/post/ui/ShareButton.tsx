@@ -42,6 +42,7 @@ export const ShareButton = ({ post }: Props) => {
           }
         }}
       >
+        <span className="sr-only">Share post</span>
         <svg {...iconAttrs} width="18" height="18">
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />

@@ -30,6 +30,7 @@ export const MoreButton = ({ post }: Props) => {
         className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setIsOpen(true)}
       >
+        <span className="sr-only">See post options</span>
         <svg {...iconAttrs} width="20" height="20">
           <circle cx="12" cy="12" r="1" />
           <circle cx="12" cy="5" r="1" />
