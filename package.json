@@ -7,8 +7,8 @@
     "seed": "npx ts-node -T prisma/seed.ts"
   },
   "scripts": {
-    "build-android": "cross-env NODE_ENV=production npm run build-web && npx cap copy",
-    "build-ios": "cross-env NODE_ENV=production npm run build-web && npx cap copy",
+    "build-android": "cross-env NODE_ENV=production npm run build && npx cap copy",
+    "build-ios": "cross-env NODE_ENV=production npm run build && npx cap copy",
     "build": "run-s build:prisma build:css build:remix",
     "build:prisma": "npm run prisma-generate",
     "build:css": "tailwindcss -m -i ./styles/global.css -o ./app/tailwind.css",
@@ -25,7 +25,6 @@
     "sync": "npx cap sync"
   },
   "dependencies": {
-    "capacitor-plugin-safe-area": "^1.0.1",
     "@capacitor/android": "^4.6.1",
     "@capacitor/core": "^4.6.1",
     "@capacitor/ios": "^4.6.1",
@@ -38,6 +37,7 @@
     "@remix-run/vercel": "^1.12.0",
     "@vercel/node": "^2.6.2",
     "bcryptjs": "^2.4.3",
+    "capacitor-plugin-safe-area": "^1.0.1",
     "date-fns": "^2.29.3",
     "dotenv-cli": "^6.0.0",
     "framer-motion": "^9.0.1",
@@ -53,7 +53,6 @@
     "remix-utils": "^6.0.0"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "@capacitor/cli": "^4.6.1",
     "@remix-run/dev": "^1.12.0",
     "@remix-run/eslint-config": "^1.12.0",
@@ -64,6 +63,7 @@
     "@types/nprogress": "^0.2.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "cross-env": "^7.0.3",
     "eslint": "^8.33.0",
     "npm-run-all": "^4.1.5",
     "prisma": "^4.9.0",
