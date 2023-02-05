@@ -1,4 +1,4 @@
-import { hash, compare } from "bcrypt";
+import { hash, compare } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { addHours, addDays, isBefore } from "date-fns";
 import type { Prisma, TokenType } from "@prisma/client";

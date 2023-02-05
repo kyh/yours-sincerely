@@ -19,7 +19,7 @@ import {
   getPostView,
 } from "~/lib/core/server/session.server";
 import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
-import { PlatformProvider } from "~/lib/core/ui/Platform";
+import { PlatformProvider, usePlatform } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
 import { SafeArea } from "capacitor-plugin-safe-area";
 import styles from "./tailwind.css";
@@ -72,6 +72,7 @@ const App = () => {
     right: 0,
   });
   const data = useLoaderData<typeof loader>();
+  const platform = usePlatform();
   const transition = useTransition();
   const fetchers = useFetchers();
 
@@ -90,8 +91,10 @@ const App = () => {
   }, [transition.state]);
 
   useEffect(() => {
-    SafeArea.getSafeAreaInsets().then(({ insets }) => setInset(insets));
-  }, []);
+    if (platform.isIOS) {
+      SafeArea.getSafeAreaInsets().then(({ insets }) => setInset(insets));
+    }
+  }, [platform]);
 
   return (
     <html lang="en" className={data.theme ?? ""}>
