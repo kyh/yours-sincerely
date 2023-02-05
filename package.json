@@ -3,6 +3,9 @@
   "name": "yours-sincerly",
   "description": "An ephemeral anonymous blog to send each other tiny beautiful letters",
   "license": "MIT",
+  "workspaces": [
+    "web"
+  ],
   "scripts": {
     "sync": "npx cap sync",
     "dev-android": "npx cap run android",

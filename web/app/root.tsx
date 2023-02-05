@@ -1,4 +1,3 @@
-import { useLocation, useMatches } from "@remix-run/react";
 import { useEffect, useMemo, useState } from "react";
 import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -25,8 +24,6 @@ import { createMeta } from "~/lib/core/util/meta";
 import { SafeArea } from "capacitor-plugin-safe-area";
 import styles from "./tailwind.css";
 
-let isMount = true;
-
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   {
@@ -46,7 +43,7 @@ export const links: LinksFunction = () => [
     sizes: "16x16",
     href: "/favicon/favicon-16x16.png",
   },
-  { rel: "manifest", href: "/favicon/site.webmanifest" },
+  { rel: "manifest", href: "/site.webmanifest" },
   {
     rel: "mask-icon",
     href: "/favicon/safari-pinned-tab.svg",
@@ -92,53 +89,15 @@ const App = () => {
     if (state === "idle") NProgress.done();
   }, [transition.state]);
 
-  const location = useLocation();
-  const matches = useMatches();
-
   useEffect(() => {
-    const mounted = isMount;
-    isMount = false;
-    if ("serviceWorker" in navigator) {
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: "REMIX_NAVIGATION",
-          isMount: mounted,
-          location,
-          matches,
-          manifest: window.__remixManifest,
-        });
-      } else {
-        const listener = async () => {
-          await navigator.serviceWorker.ready;
-          navigator.serviceWorker.controller?.postMessage({
-            type: "REMIX_NAVIGATION",
-            isMount: mounted,
-            location,
-            matches,
-            manifest: window.__remixManifest,
-          });
-        };
-
-        navigator.serviceWorker.addEventListener("controllerchange", listener);
-
-        return () => {
-          navigator.serviceWorker.removeEventListener(
-            "controllerchange",
-            listener
-          );
-        };
-      }
-    }
-
     SafeArea.getSafeAreaInsets().then(({ insets }) => setInset(insets));
-  }, [location]);
+  }, []);
 
   return (
     <html lang="en" className={data.theme ?? ""}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="manifest" href="/site.webmanifest" />
         <Meta />
         <Links />
         <ThemeHead ssrTheme={Boolean(data.theme)} />
