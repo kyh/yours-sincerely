@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "name": "yours-sincerly",
+  "description": "An ephemeral anonymous blog to send each other tiny beautiful letters",
+  "license": "MIT",
+  "scripts": {
+    "sync": "npx cap sync",
+    "dev-android": "npx cap run android",
+    "dev-ios": "npx cap run ios",
+    "dev-web": "npm run dev --prefix=web",
+    "build-android": "NODE_ENV=production npm run build-web && npx cap copy",
+    "build-ios": "NODE_ENV=production npm run build-web && npx cap copy",
+    "build-web": "npm run build --prefix=web"
+  },
+  "dependencies": {
+    "capacitor-plugin-safe-area": "^1.0.1",
+    "@capacitor/android": "^4.6.1",
+    "@capacitor/core": "^4.6.1",
+    "@capacitor/ios": "^4.6.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^4.6.1"
+  }
+}

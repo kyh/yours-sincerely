@@ -1,5 +1,5 @@
 import { useLocation, useMatches } from "@remix-run/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -22,6 +22,7 @@ import {
 import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
 import { PlatformProvider } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
+import { SafeArea } from "capacitor-plugin-safe-area";
 import styles from "./tailwind.css";
 
 let isMount = true;
@@ -67,9 +68,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 const App = () => {
+  const [inset, setInset] = useState({
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  });
   const data = useLoaderData<typeof loader>();
   const transition = useTransition();
   const fetchers = useFetchers();
+
   const state = useMemo<"idle" | "loading">(() => {
     let states = [
       transition.state,
@@ -92,7 +100,7 @@ const App = () => {
     isMount = false;
     if ("serviceWorker" in navigator) {
       if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller?.postMessage({
+        navigator.serviceWorker.controller.postMessage({
           type: "REMIX_NAVIGATION",
           isMount: mounted,
           location,
@@ -110,7 +118,9 @@ const App = () => {
             manifest: window.__remixManifest,
           });
         };
+
         navigator.serviceWorker.addEventListener("controllerchange", listener);
+
         return () => {
           navigator.serviceWorker.removeEventListener(
             "controllerchange",
@@ -119,6 +129,8 @@ const App = () => {
         };
       }
     }
+
+    SafeArea.getSafeAreaInsets().then(({ insets }) => setInset(insets));
   }, [location]);
 
   return (
@@ -131,7 +143,14 @@ const App = () => {
         <Links />
         <ThemeHead ssrTheme={Boolean(data.theme)} />
       </head>
-      <body>
+      <body
+        style={{
+          paddingTop: inset.top,
+          paddingBottom: inset.bottom,
+          paddingLeft: inset.left,
+          paddingRight: inset.right,
+        }}
+      >
         <Outlet context={data} />
         <ScrollRestoration />
         <Scripts />
