@@ -18,7 +18,12 @@ import {
   getFlash,
   getPostView,
 } from "~/lib/core/server/session.server";
-import { ThemeBody, ThemeHead, ThemeProvider } from "~/lib/core/ui/Theme";
+import {
+  FontStyles,
+  ThemeBody,
+  ThemeHead,
+  ThemeProvider,
+} from "~/lib/core/ui/Theme";
 import { PlatformProvider, usePlatform } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
 import { SafeArea } from "capacitor-plugin-safe-area";
@@ -104,6 +109,7 @@ const App = () => {
         <Meta />
         <Links />
         <ThemeHead ssrTheme={Boolean(data.theme)} />
+        <FontStyles />
       </head>
       <body
         style={{
