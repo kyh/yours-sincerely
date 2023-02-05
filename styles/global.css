@@ -53,6 +53,10 @@
     @apply h-full text-slate-900 bg-slate-50 dark:text-slate-50 dark:bg-slate-800;
   }
 
+  .toast-container {
+    @apply fixed left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none top-4;
+  }
+
   [type="text"]:focus,
   [type="email"]:focus,
   [type="url"]:focus,
@@ -70,6 +74,20 @@
   select:focus {
     box-shadow: none;
   }
+
+  /* iOS */
+  .ios body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .ios .toast-container {
+    margin-top: env(safe-area-inset-top);
+  }
+
+  /* Android */
 }
 
 @layer components {

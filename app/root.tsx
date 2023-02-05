@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -26,7 +26,6 @@ import {
 } from "~/lib/core/ui/Theme";
 import { PlatformProvider, usePlatform } from "~/lib/core/ui/Platform";
 import { createMeta } from "~/lib/core/util/meta";
-import { SafeArea } from "capacitor-plugin-safe-area";
 import styles from "./tailwind.css";
 
 export const links: LinksFunction = () => [
@@ -70,14 +69,8 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 const App = () => {
-  const [inset, setInset] = useState({
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  });
+  const { platform } = usePlatform();
   const data = useLoaderData<typeof loader>();
-  const platform = usePlatform();
   const transition = useTransition();
   const fetchers = useFetchers();
 
@@ -95,30 +88,20 @@ const App = () => {
     if (state === "idle") NProgress.done();
   }, [transition.state]);
 
-  useEffect(() => {
-    if (platform.isIOS) {
-      SafeArea.getSafeAreaInsets().then(({ insets }) => setInset(insets));
-    }
-  }, [platform]);
-
   return (
-    <html lang="en" className={data.theme ?? ""}>
+    <html lang="en" className={`${data.theme ?? ""} ${platform}`}>
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
         <Meta />
         <Links />
         <ThemeHead ssrTheme={Boolean(data.theme)} />
         <FontStyles />
       </head>
-      <body
-        style={{
-          paddingTop: inset.top,
-          paddingBottom: inset.bottom,
-          paddingLeft: inset.left,
-          paddingRight: inset.right,
-        }}
-      >
+      <body>
         <Outlet context={data} />
         <ScrollRestoration />
         <Scripts />

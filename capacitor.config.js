@@ -4,11 +4,12 @@ const config = {
   webDir: "web/public/build",
   bundledWebRuntime: false,
   server: {
-    url:
-      process.env.NODE_ENV === "production"
-        ? "https://yourssincerely.org"
-        : "http://localhost:3000",
+    // url: "http://localhost:3000",
+    url: "https://yourssincerely.org",
     cleartext: true,
+  },
+  ios: {
+    allowsLinkPreview: false,
   },
 };
 

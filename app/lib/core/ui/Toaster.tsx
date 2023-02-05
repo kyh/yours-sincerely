@@ -49,7 +49,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ToastContext.Provider value={{ toast, removeToast }}>
-      <ul className="fixed left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none top-4">
+      <ul className="toast-container">
         <AnimatePresence initial={false}>
           {toasts.map((t) => (
             <motion.li
