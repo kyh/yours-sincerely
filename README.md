@@ -10,15 +10,19 @@
 
 ## Get Started
 
-The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory. I'll be moving the native app code in here soon(ish).
+The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory.
 
-You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web, server, and react native apps.
+You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web and server.
+
+The native code is a [capacitor](https://capacitorjs.com/) wrapper which can be found in the `ios` and `android` directories.
 
 ```
 ├── /api                     # Remix server
-├── /app                     # Web client
+├── /app                     # Frontend client
 |   ├── /lib                 # Feature source code (most of the logic lives here)
 |   └── /routes              # Remix file sytem routes
+├── /ios                     # iOS webview wrapper
+├── /android                 # Android webview wrapper
 ├── /prisma                  # Prisma schema and database associated files
 ├── /public                  # Static assets
 └── /styles                  # Global styles
@@ -39,6 +43,10 @@ npm install
 
 # To start the app
 npm run dev
+
+# To run native apps (make sure web server is running with the command above)
+npm run native-dev-ios
+npm run native-dev-android
 ```
 
 This will start the [Remix](https://remix.run) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
@@ -50,5 +58,4 @@ This project uses the following libraries and services:
 - Framework - [Remix](https://remix.run)
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [MySQL (PlanetScale)](https://planetscale.com) + [Prisma](https://www.prisma.io)
-- Payments - [Stripe](https://stripe.com)
 - Hosting - [Vercel](https://vercel.com)

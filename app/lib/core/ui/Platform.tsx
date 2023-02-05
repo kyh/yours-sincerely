@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 
 declare global {
   var config: { platform: string } | undefined;
@@ -36,7 +37,11 @@ export const PlatformProvider = ({
   const [platform, setPlatform] = useState<Platform>("web");
 
   useEffect(() => {
-    setPlatform(window.config?.platform as Platform);
+    if (Capacitor.isNativePlatform()) {
+      setPlatform(Capacitor.getPlatform() as Platform);
+    } else {
+      setPlatform(window.config?.platform as Platform);
+    }
   }, []);
 
   return (
