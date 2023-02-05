@@ -24,6 +24,7 @@ type Props = {
 
 export const Timer = ({ post }: Props) => {
   const { percentage, now, end } = getPercentage(new Date(post.createdAt!));
+  const formattedTime = formatDistance(now, end);
   return (
     <Tooltip
       triggerClassName="flex items-center p-2 rounded-lg"
@@ -37,9 +38,11 @@ export const Timer = ({ post }: Props) => {
         )`,
           }}
           data-percentage={percentage}
-        />
+        >
+          <span className="sr-only">Content dissapears in {formattedTime}</span>
+        </div>
       }
-      tooltipContent={`Dissapears in ${formatDistance(now, end)}`}
+      tooltipContent={`Dissapears in ${formattedTime}`}
     />
   );
 };
