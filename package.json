@@ -7,13 +7,14 @@
     "seed": "npx ts-node -T prisma/seed.ts"
   },
   "scripts": {
-    "build-android": "cross-env NODE_ENV=production npm run build && npx cap copy",
-    "build-ios": "cross-env NODE_ENV=production npm run build && npx cap copy",
+    "open-android": "npx cap open android",
+    "open-ios": "npx cap open ios",
+    "build-native": "npx cap sync",
     "build": "run-s build:prisma build:css build:remix",
     "build:prisma": "npm run prisma-generate",
     "build:css": "tailwindcss -m -i ./styles/global.css -o ./app/tailwind.css",
     "build:remix": "cross-env NODE_ENV=production remix build",
-    "dev-android": "npx cap run android",
+    "dev-android": "npx cap run android && adb reverse tcp:3000 tcp:3000",
     "dev-ios": "npx cap run ios",
     "dev": "run-p dev:*",
     "dev:css": "tailwindcss -w -i ./styles/global.css -o ./app/tailwind.css",
@@ -21,8 +22,7 @@
     "prisma-generate": "prisma generate",
     "prisma-seed": "prisma db seed",
     "prisma-push": "prisma db push",
-    "prisma-studio": "prisma studio",
-    "sync": "npx cap sync"
+    "prisma-studio": "prisma studio"
   },
   "dependencies": {
     "@capacitor/android": "^4.6.1",
@@ -37,7 +37,6 @@
     "@remix-run/vercel": "^1.12.0",
     "@vercel/node": "^2.6.2",
     "bcryptjs": "^2.4.3",
-    "capacitor-plugin-safe-area": "^1.0.1",
     "date-fns": "^2.29.3",
     "dotenv-cli": "^6.0.0",
     "framer-motion": "^9.0.1",

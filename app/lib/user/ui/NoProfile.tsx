@@ -17,12 +17,12 @@ export const NoProfile = () => {
         />
         <div className="sm:w-1/2">
           {!isWeb ? (
-            <>
-              <h1 className="my-5 text-3xl font-bold">No account required</h1>
-              <p>
+            <div className="text-center">
+              <h1 className="mt-5 text-3xl font-bold">No account required</h1>
+              <p className="mt-2">
                 Just <Link to="/posts/new">make a post</Link> to get started
               </p>
-            </>
+            </div>
           ) : (
             <>
               <h1 className="my-5 text-3xl font-bold">
