@@ -126,31 +126,23 @@ const clientThemeCode = `
 
 const themeStylesCode = `
   /* default light, but app-preference is "dark" */
-  html.dark {
-    light-mode {
-      display: none;
-    }
+  html.dark light-mode {
+    display: none;
   }
   /* default light, and no app-preference */
-  html:not(.dark) {
-    dark-mode {
-      display: none;
-    }
+  html:not(.dark) dark-mode {
+    display: none;
   }
   @media (prefers-color-scheme: dark) {
     /* prefers dark, but app-preference is "light" */
-    html.light {
-      dark-mode {
-        display: none;
-      }
+    html.light dark-mode {
+      display: none;
     }
     /* prefers dark, and app-preference is "dark" */
-    html.dark,
+    html.dark light-mode,
     /* prefers dark and no app-preference */
-    html:not(.light) {
-      light-mode {
-        display: none;
-      }
+    html:not(.light) light-mode {
+      display: none;
     }
   }
 `;
