@@ -29,7 +29,13 @@ export const PostContent = ({
   showMore = false,
 }: Props) => {
   return (
-    <article className={`${displayFull ? "w-full h-full flex flex-col" : ""}`}>
+    <article
+      className={`${
+        displayFull
+          ? "article w-full h-full flex flex-col word-break"
+          : "article"
+      }`}
+    >
       {asLink ? (
         <Link
           className="block text-slate-900 hover:no-underline dark:text-slate-50"
