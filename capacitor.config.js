@@ -10,6 +10,7 @@ const config = {
   },
   ios: {
     allowsLinkPreview: false,
+    scheme: "Yours Sincerely",
   },
 };
 
