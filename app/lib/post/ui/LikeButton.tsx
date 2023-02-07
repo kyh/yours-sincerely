@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { FormMethod } from "@remix-run/react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { User } from "~/lib/user/data/userSchema";
+import { useFetcher } from "@remix-run/react";
 import type { SerializedPost } from "~/lib/post/data/postSchema";
 
 let mojs: any;
@@ -79,25 +78,19 @@ type MojsRef = HTMLElement & {
   play: (_step: number) => {};
 };
 
-const useHeartAnimation = (
-  enabled: boolean,
-  iconRef: any,
-  iconButtonRef: any
-) => {
+const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
   const [initialized, setInitialized] = useState(false);
   const heart = useRef<null | MojsRef>(null);
   const circle = useRef<null | MojsRef>(null);
   const burst = useRef<null | MojsRef>(null);
 
   const playAnimation = () => {
-    if (!enabled) return;
     heart?.current?.replay();
     burst?.current?.replay();
     circle?.current?.replay();
   };
 
   useEffect(() => {
-    if (!enabled) return;
     if (!initialized && iconRef.current && iconButtonRef.current) {
       getMojs();
       // weird bug where .play initialization sometimes fails
@@ -122,18 +115,13 @@ type Props = {
   post: SerializedPost;
 };
 
-type LoaderData = {
-  user: User | null;
-};
-
 export const LikeButton = ({ post }: Props) => {
-  const { user } = useLoaderData<LoaderData>();
   const fetcher = useFetcher();
   const [likeCount, setLikeCount] = useState(post.likeCount || 0);
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
-  const playAnimation = useHeartAnimation(!!user, iconRef, iconButtonRef);
+  const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
 
   const toggleLike = async () => {
     let method: FormMethod = "delete";
@@ -156,7 +144,6 @@ export const LikeButton = ({ post }: Props) => {
       type="button"
       className="relative flex items-center gap-2 p-2 transition rounded-lg hover:bg-slate-100 disabled:hover:bg-transparent dark:hover:bg-slate-700"
       onClick={toggleLike}
-      disabled={!user}
     >
       <svg
         className={`${isLiked ? "text-red-500" : "text-slate-400"}`}

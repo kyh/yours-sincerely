@@ -30,6 +30,13 @@ export const getPostLike = async (
 export const createLike = async (input: Prisma.LikeCreateInput) => {
   const created = await prisma.like.create({
     data: input,
+    include: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
   });
 
   return created;
