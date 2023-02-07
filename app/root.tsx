@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { SplashScreen } from "@capacitor/splash-screen";
 import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -88,6 +89,10 @@ const App = () => {
     if (state === "idle") NProgress.done();
   }, [transition.state]);
 
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
   return (
     <html lang="en" className={`${data.theme ?? ""} ${platform}`}>
       <head>
@@ -118,10 +123,10 @@ const App = () => {
 };
 
 export default function AppWithProviders() {
-  const { theme } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
   return (
     <PlatformProvider>
-      <ThemeProvider specifiedTheme={theme}>
+      <ThemeProvider specifiedTheme={data.theme}>
         <App />
       </ThemeProvider>
     </PlatformProvider>

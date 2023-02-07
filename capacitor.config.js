@@ -12,6 +12,11 @@ const config = {
     allowsLinkPreview: false,
     scheme: "Yours Sincerely",
   },
+  plugins: {
+    SplashScreen: {
+      launchAutoHide: false,
+    },
+  },
 };
 
 module.exports = config;
