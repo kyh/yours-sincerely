@@ -103,7 +103,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Page = () => {
   const { toast } = useToast();
-  const { isIOS } = usePlatform();
+  const { isIOS, isWeb } = usePlatform();
   const action = useActionData();
   const { user, promptContent } = useLoaderData<typeof loader>();
   const submit = useSubmit();
@@ -189,11 +189,12 @@ const Page = () => {
               Save and continue
             </Button>
           </Form>
-          {isIOS ? (
+          {isIOS && (
             <div className="mt-3 text-left">
               <PrivacyTerms withCheckbox onChecked={(c) => setIsChecked(c)} />
             </div>
-          ) : (
+          )}
+          {isWeb && (
             <>
               <Divider bgColor="bg-white dark:bg-slate-900">
                 Or continue with
