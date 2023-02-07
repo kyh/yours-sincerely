@@ -25,14 +25,11 @@ const Page = () => {
   const { pathname: currentPath } = matches[matches.length - 1];
 
   const handleSetView = (view: string) => {
-    if (platform.isWeb) {
-      persistView.submit(
-        { view },
-        { action: "actions/post-view", method: "post" }
-      );
-    } else {
-      Preferences.set({ key: "postView", value: view });
-    }
+    if (!platform.isWeb) Preferences.set({ key: "postView", value: view });
+    persistView.submit(
+      { view },
+      { action: "actions/post-view", method: "post" }
+    );
     setView(view);
   };
 

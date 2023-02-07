@@ -68,18 +68,13 @@ export const ThemeProvider = ({
       mountRun.current = true;
       return;
     }
-    if (!theme) {
-      return;
-    }
+    if (!theme) return;
+    if (!platform.isWeb) Preferences.set({ key: "theme", value: theme });
 
-    if (platform.isWeb) {
-      persistThemeRef.current.submit(
-        { theme },
-        { action: "actions/theme", method: "post" }
-      );
-    } else {
-      Preferences.set({ key: "theme", value: theme });
-    }
+    persistThemeRef.current.submit(
+      { theme },
+      { action: "actions/theme", method: "post" }
+    );
   }, [theme]);
 
   useEffect(() => {
