@@ -1,3 +1,4 @@
+import { Preferences } from "@capacitor/preferences";
 import { useState, useEffect } from "react";
 import {
   Link,
@@ -12,9 +13,11 @@ import { TopNav } from "~/lib/core/ui/TopNav";
 import { iconAttrs } from "~/lib/core/ui/Icon";
 import type { Theme } from "~/lib/core/util/theme";
 import { themes } from "~/lib/core/util/theme";
+import { usePlatform } from "~/lib/core/ui/Platform";
 
 const Page = () => {
   const { postView } = useOutletContext<{ postView: string }>();
+  const platform = usePlatform();
   const matches = useMatches();
   const [view, setView] = useState(postView);
   const persistView = useFetcher();
@@ -22,12 +25,25 @@ const Page = () => {
   const { pathname: currentPath } = matches[matches.length - 1];
 
   const handleSetView = (view: string) => {
-    persistView.submit(
-      { view },
-      { action: "actions/post-view", method: "post" }
-    );
+    if (platform.isWeb) {
+      persistView.submit(
+        { view },
+        { action: "actions/post-view", method: "post" }
+      );
+    } else {
+      Preferences.set({ key: "postView", value: view });
+    }
     setView(view);
   };
+
+  useEffect(() => {
+    const setViewFromStorage = async () => {
+      const view = await Preferences.get({ key: "postView" });
+      if (view.value) setView(view.value);
+    };
+
+    if (!platform.isWeb) setViewFromStorage();
+  }, []);
 
   return (
     <ToastProvider>

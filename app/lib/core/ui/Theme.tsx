@@ -1,3 +1,4 @@
+import { Preferences } from "@capacitor/preferences";
 import { useFetcher } from "@remix-run/react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   useState,
 } from "react";
 import { Theme, themes } from "~/lib/core/util/theme";
+import { usePlatform } from "~/lib/core/ui/Platform";
 
 type ThemeContextType = {
   theme: Theme | null;
@@ -18,8 +20,9 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const prefersDarkMQ = "(prefers-color-scheme: dark)";
-const getPreferredTheme = () =>
-  window.matchMedia(prefersDarkMQ).matches ? Theme.DARK : Theme.LIGHT;
+const getPreferredTheme = () => {
+  return window.matchMedia(prefersDarkMQ).matches ? Theme.DARK : Theme.LIGHT;
+};
 
 export const ThemeProvider = ({
   children,
@@ -28,6 +31,7 @@ export const ThemeProvider = ({
   children: ReactNode;
   specifiedTheme: Theme | null;
 }) => {
+  const platform = usePlatform();
   const [theme, setTheme] = useState<Theme | null>(() => {
     // On the server, if we don't have a specified theme then we should
     // return null and the clientThemeCode will set the theme for us
@@ -68,18 +72,31 @@ export const ThemeProvider = ({
       return;
     }
 
-    persistThemeRef.current.submit(
-      { theme },
-      { action: "actions/theme", method: "post" }
-    );
+    if (platform.isWeb) {
+      persistThemeRef.current.submit(
+        { theme },
+        { action: "actions/theme", method: "post" }
+      );
+    } else {
+      Preferences.set({ key: "theme", value: theme });
+    }
   }, [theme]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(prefersDarkMQ);
+
+    const setThemeFromStorage = async () => {
+      const savedTheme = await Preferences.get({ key: "theme" });
+      if (savedTheme.value) setTheme(savedTheme.value as Theme);
+    };
+
     const handleChange = () => {
       setTheme(mediaQuery.matches ? Theme.DARK : Theme.LIGHT);
     };
+
     mediaQuery.addEventListener("change", handleChange);
+    if (!platform.isWeb) setThemeFromStorage();
+
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
@@ -91,22 +108,13 @@ export const ThemeProvider = ({
 };
 
 const clientThemeCode = `
-// hi there dear reader 👋
-// this is how I make certain we avoid a flash of the wrong theme. If you select
-// a theme, then I'll know what you want in the future and you'll not see this
-// script anymore.
 ;(() => {
   const theme = window.matchMedia(${JSON.stringify(prefersDarkMQ)}).matches
     ? 'dark'
     : 'light';
   const cl = document.documentElement.classList;
   const themeAlreadyApplied = cl.contains('light') || cl.contains('dark');
-  if (themeAlreadyApplied) {
-    // this script shouldn't exist if the theme is already applied!
-    console.warn(
-      "Hi there, could you let me know you're seeing this message? Thanks!",
-    );
-  } else {
+  if (!themeAlreadyApplied) {
     cl.add(theme);
   }
   const meta = document.querySelector('meta[name=color-scheme]');
@@ -116,10 +124,6 @@ const clientThemeCode = `
     } else if (theme === 'light') {
       meta.content = 'light dark';
     }
-  } else {
-    console.warn(
-      "Hey, could you let me know you're seeing this message? Thanks!",
-    );
   }
 })();
 `;
