@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 
 declare global {
@@ -44,15 +44,18 @@ export const PlatformProvider = ({
     }
   }, []);
 
+  const value = useMemo(
+    () => ({
+      platform,
+      isIOS: platform === "ios",
+      isAndroid: platform === "android",
+      isWeb: platform === "web",
+    }),
+    [platform]
+  );
+
   return (
-    <PlatformContext.Provider
-      value={{
-        platform,
-        isIOS: platform === "ios",
-        isAndroid: platform === "android",
-        isWeb: platform === "web",
-      }}
-    >
+    <PlatformContext.Provider value={value}>
       {children}
     </PlatformContext.Provider>
   );
