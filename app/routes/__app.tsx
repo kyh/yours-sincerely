@@ -38,9 +38,8 @@ const Page = () => {
       const view = await Preferences.get({ key: "postView" });
       if (view.value) setView(view.value);
     };
-
     if (!platform.isWeb) setViewFromStorage();
-  }, []);
+  }, [platform]);
 
   return (
     <ToastProvider>

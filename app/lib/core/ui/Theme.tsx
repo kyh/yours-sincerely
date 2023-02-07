@@ -8,6 +8,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from "react";
 import { Theme, themes } from "~/lib/core/util/theme";
 import { usePlatform } from "~/lib/core/ui/Platform";
@@ -93,12 +94,12 @@ export const ThemeProvider = ({
     if (!platform.isWeb) setThemeFromStorage();
 
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, [platform]);
+
+  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 
