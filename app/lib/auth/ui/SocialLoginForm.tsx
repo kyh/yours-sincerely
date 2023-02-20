@@ -6,12 +6,12 @@ const buttonClassName =
 
 export const SocialLoginForm = ({ withEmail = false }) => (
   <Form
-    className="flex flex-col gap-3 items-center justify-center"
+    className="flex flex-col items-center justify-center gap-3"
     method="post"
   >
     {withEmail && (
       <Link className={buttonClassName} to="/auth/signup">
-        <svg {...iconAttrs} className="w-5 h-5">
+        <svg {...iconAttrs} className="h-5 w-5">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
           <polyline points="22,6 12,13 2,6" />
         </svg>

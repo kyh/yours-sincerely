@@ -8,8 +8,8 @@ export let meta: MetaFunction = () => {
 };
 
 const Page = () => (
-  <main className="mx-auto prose prose-slate dark:prose-invert">
-    <h1 className="text-2xl font-bold text-center">Privacy Policy</h1>
+  <main className="prose prose-slate mx-auto dark:prose-invert">
+    <h1 className="text-center text-2xl font-bold">Privacy Policy</h1>
     <p>
       Kaiyu Hsu built the Yours Sincerely app as an Open Source app. This
       SERVICE is provided by Kaiyu Hsu at no cost and is intended for use as is.

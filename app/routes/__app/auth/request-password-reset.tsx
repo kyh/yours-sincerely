@@ -49,14 +49,14 @@ const Page = () => {
   const action = useActionData();
 
   return (
-    <main className="w-full max-w-md mx-auto mt-5">
+    <main className="mx-auto mt-5 w-full max-w-md">
       <hgroup className="text-center">
         <h1 className="text-2xl font-bold">Request Password Reset</h1>
         <h2 className="mt-1 mb-5 text-slate-500 dark:text-slate-300">
           Want to change your password?
         </h2>
       </hgroup>
-      <div className="p-8 bg-white rounded-lg shadow-md dark:bg-slate-900">
+      <div className="rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
         {action && action.success ? (
           <p className="text-center">
             We've sent a password reset link to your email.

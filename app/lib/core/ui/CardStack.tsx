@@ -59,7 +59,7 @@ export const Card = (props: CardProps) => {
 
   return (
     <motion.div
-      className="absolute top-0 h-full w-full cursor-grab sm:w-[600px] sm:left-[50%] sm:ml-[-300px] rounded-2xl overflow-auto"
+      className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl sm:left-[50%] sm:ml-[-300px] sm:w-[600px]"
       style={{ x, rotate }}
       dragDirectionLock
       drag={props.drag}
@@ -77,7 +77,7 @@ export const Card = (props: CardProps) => {
       onAnimationComplete={props.onAnimationComplete}
     >
       <motion.div
-        className="w-full h-fit p-5 rounded-2xl shadow-lg bg-slate-100 dark:bg-slate-900"
+        className="h-fit w-full rounded-2xl bg-slate-100 p-5 shadow-lg dark:bg-slate-900"
         style={{ scale }}
       >
         {props.children}
@@ -134,8 +134,8 @@ export const CardStack = <T,>({
   ]);
 
   return (
-    <div className="h-full flex flex-col items-center gap-3">
-      <div className="h-full w-full relative">
+    <div className="flex h-full flex-col items-center gap-3">
+      <div className="relative h-full w-full">
         <AnimatePresence initial={false}>
           <Card
             key={nextIndex}
@@ -171,7 +171,7 @@ export const CardStack = <T,>({
       </div>
       {nextButton && (
         <button
-          className="mt-auto py-2 px-3 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="mt-auto rounded-lg py-2 px-3 text-slate-500 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
           onClick={() => onNext(true)}
           disabled={animating}
         >

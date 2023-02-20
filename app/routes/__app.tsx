@@ -1,3 +1,4 @@
+import { App } from "@capacitor/app";
 import { Preferences } from "@capacitor/preferences";
 import { useState, useEffect } from "react";
 import {
@@ -41,6 +42,16 @@ const Page = () => {
     if (!platform.isWeb) setViewFromStorage();
   }, [platform]);
 
+  useEffect(() => {
+    App.addListener("backButton", ({ canGoBack }) => {
+      if (!canGoBack) {
+        App.exitApp();
+      } else {
+        window.history.back();
+      }
+    });
+  }, []);
+
   return (
     <ToastProvider>
       <section
@@ -74,10 +85,10 @@ const Nav = ({
     <TopNav>
       <ul className="flex items-center gap-3">
         {currentPath === "/" && (
-          <li className="relative z-0 inline-flex shadow-sm rounded-md">
+          <li className="relative z-0 inline-flex rounded-md shadow-sm">
             <div>
               <input
-                className="sr-only peer"
+                className="peer sr-only"
                 type="radio"
                 value="stack"
                 name="view"
@@ -99,7 +110,7 @@ const Nav = ({
             </div>
             <div>
               <input
-                className="sr-only peer"
+                className="peer sr-only"
                 type="radio"
                 value="list"
                 name="view"
@@ -138,7 +149,7 @@ const Nav = ({
         </li>
         <li>
           <Link
-            className="inline-flex items-center px-3 py-2 transition bg-white border-2 rounded-md border-primary shadow-primary-sm text-primary hover:text-primary-dark hover:bg-primary-bg hover:no-underline dark:bg-slate-800 dark:hover:text-primary-light"
+            className="inline-flex items-center rounded-md border-2 border-primary bg-white px-3 py-2 text-primary shadow-primary-sm transition hover:bg-primary-bg hover:text-primary-dark hover:no-underline dark:bg-slate-800 dark:hover:text-primary-light"
             to="/posts/new"
           >
             New Post
@@ -185,7 +196,7 @@ const Footer = () => {
         </li>
         <li>
           <select
-            className="px-2 py-1 text-xs text-center bg-transparent rounded border-slate-500 bg-none capitalize focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
+            className="rounded border-slate-500 bg-transparent bg-none px-2 py-1 text-center text-xs capitalize focus:border-primary-dark dark:border-slate-100 dark:focus:border-primary-light"
             value={theme || "default"}
             onChange={onThemeChange}
           >

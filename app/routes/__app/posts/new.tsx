@@ -182,7 +182,7 @@ const Page = () => {
             />
             <Button
               type="submit"
-              className="pl-8 pr-8 mt-4"
+              className="mt-4 pl-8 pr-8"
               loading={transition.state !== "idle"}
               disabled={!isChecked}
             >
@@ -202,14 +202,14 @@ const Page = () => {
               <SocialLoginForm />
             </>
           )}
-          <div className="absolute h-[160px] bottom-0 pointer-events-none opacity-10 left-0 right-0 w-full dark:opacity-90">
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[160px] w-full opacity-10 dark:opacity-90">
             <div
               style={{ backgroundPosition: "-50px -10px" }}
-              className="absolute bg-no-repeat bg-cover w-1/2 h-full left-0 bg-[url('/assets/bikini.svg')]"
+              className="absolute left-0 h-full w-1/2 bg-[url('/assets/bikini.svg')] bg-cover bg-no-repeat"
             />
             <div
               style={{ backgroundPosition: "-35px 40px" }}
-              className="absolute bg-no-repeat bg-cover w-1/2 h-full right-0 scale-x-[-1] bg-[url('/assets/zombieing.svg')]"
+              className="absolute right-0 h-full w-1/2 scale-x-[-1] bg-[url('/assets/zombieing.svg')] bg-cover bg-no-repeat"
             />
           </div>
         </Dialog>

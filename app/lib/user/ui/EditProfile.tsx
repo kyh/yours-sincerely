@@ -59,19 +59,19 @@ export const EditProfile = ({ user }: Props) => {
         <h1 className="text-xl font-bold">Notifications</h1>
         <dl className="divide-y divide-slate-200 dark:divide-slate-500">
           <div className="py-4 sm:py-5">
-            <div className="flex justify-between items-top">
-              <dt className="text-sm font-medium text-slate-500 dark:text-slate-100 flex items-center">
+            <div className="items-top flex justify-between">
+              <dt className="flex items-center text-sm font-medium text-slate-500 dark:text-slate-100">
                 Set up writing reminders
               </dt>
               <dd>
                 <CalendarMenu text="Add Reminder" recurring={recurring} />
               </dd>
             </div>
-            <div className="flex w-full mt-3 gap-2 flex-wrap justify-center sm:gap-0 sm:justify-evenly">
+            <div className="mt-3 flex w-full flex-wrap justify-center gap-2 sm:justify-evenly sm:gap-0">
               {DEFAULT_WEEKDAY_LABELS.map((day) => (
-                <label key={day} className="text-center cursor-pointer">
+                <label key={day} className="cursor-pointer text-center">
                   <input
-                    className="hidden peer"
+                    className="peer hidden"
                     type="checkbox"
                     name={`reminder-${day}`}
                     id={`reminder-${day}`}
@@ -81,7 +81,7 @@ export const EditProfile = ({ user }: Props) => {
                     )}
                     onChange={handleRecurringDayChange}
                   />
-                  <div className="px-3 pt-10 pb-3 transition rounded-full w-14 bg-slate-200 peer-checked:bg-primary peer-checked:text-slate-50 dark:bg-slate-600">
+                  <div className="w-14 rounded-full bg-slate-200 px-3 pt-10 pb-3 transition peer-checked:bg-primary peer-checked:text-slate-50 dark:bg-slate-600">
                     {day}
                   </div>
                 </label>
@@ -90,16 +90,16 @@ export const EditProfile = ({ user }: Props) => {
           </div>
           <Switch.Group
             as="div"
-            className="py-5 grid grid-cols-3 gap-4 border-b border-slate-200"
+            className="grid grid-cols-3 gap-4 border-b border-slate-200 py-5"
           >
             <Switch.Label
               as="dt"
-              className="text-sm font-medium text-slate-500 dark:text-slate-100 flex items-center"
+              className="flex items-center text-sm font-medium text-slate-500 dark:text-slate-100"
               passive
             >
               Weekly Digest
             </Switch.Label>
-            <dd className="flex text-sm text-slate-900 col-span-2">
+            <dd className="col-span-2 flex text-sm text-slate-900">
               <input
                 type="hidden"
                 name="weeklyDigestEmail"
@@ -108,13 +108,13 @@ export const EditProfile = ({ user }: Props) => {
               <Switch
                 checked={weeklyDigest}
                 onChange={setWeeklyDigest}
-                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark ml-auto ${
+                className={`relative ml-auto inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-offset-2 ${
                   weeklyDigest ? "bg-primary" : "bg-slate-200 dark:bg-slate-600"
                 }`}
               >
                 <span
                   aria-hidden="true"
-                  className={`inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 dark:bg-slate-100 ${
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-slate-100 ${
                     weeklyDigest ? "translate-x-5" : "translate-x-0"
                   }`}
                 />
@@ -125,7 +125,7 @@ export const EditProfile = ({ user }: Props) => {
       </fieldset>
       <div className="flex items-center justify-between gap-2">
         <button
-          className="inline-flex items-center justify-center px-3 py-2 text-sm leading-4 text-red-700 transition border border-transparent rounded-md hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-700"
+          className="inline-flex items-center justify-center rounded-md border border-transparent px-3 py-2 text-sm leading-4 text-red-700 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-700"
           type="submit"
           formAction={useFormAction("/auth/logout")}
           disabled={transition.state === "submitting"}

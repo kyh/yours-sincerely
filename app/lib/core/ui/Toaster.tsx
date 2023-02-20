@@ -54,7 +54,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
           {toasts.map((t) => (
             <motion.li
               onClick={() => removeToast(t.id)}
-              className="min-w-[200px] py-2 px-3 shadow-md text-slate-50 text-xs rounded-md bg-slate-800 dark:bg-slate-50 dark:text-slate-900 pointer-events-auto text-center cursor-pointer"
+              className="pointer-events-auto min-w-[200px] cursor-pointer rounded-md bg-slate-800 py-2 px-3 text-center text-xs text-slate-50 shadow-md dark:bg-slate-50 dark:text-slate-900"
               key={t.id}
               layout
               initial={{ opacity: 0, y: -30, scale: 0.3 }}

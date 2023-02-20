@@ -8,8 +8,8 @@ export let meta: MetaFunction = () => {
 };
 
 const Page = () => (
-  <main className="mx-auto prose prose-slate dark:prose-invert">
-    <h1 className="text-2xl font-bold text-center">Terms of Use</h1>
+  <main className="prose prose-slate mx-auto dark:prose-invert">
+    <h1 className="text-center text-2xl font-bold">Terms of Use</h1>
     <p>
       By downloading or using the app, these terms will automatically apply to
       you – you should make sure therefore that you read them carefully before

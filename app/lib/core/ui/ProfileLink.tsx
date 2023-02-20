@@ -25,8 +25,8 @@ const ProfileTooltip = ({
   }, []);
 
   return (
-    <div className="flow-root not-italic rounded-md">
-      <h4 className="font-bold text-slate-900 text-center mb-2 dark:text-slate-50">
+    <div className="flow-root rounded-md not-italic">
+      <h4 className="mb-2 text-center font-bold text-slate-900 dark:text-slate-50">
         {displayName}
       </h4>
       {fetcher.data ? (

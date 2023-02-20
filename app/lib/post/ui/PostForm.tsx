@@ -57,7 +57,7 @@ export const PostForm = ({
   return (
     <Form className="relative h-full" method="post" onSubmit={handleSubmit}>
       <textarea
-        className="w-full h-full pt-6 pb-20 text-lg border-none outline-none resize-none dark:bg-slate-800"
+        className="h-full w-full resize-none border-none pt-6 pb-20 text-lg outline-none dark:bg-slate-800"
         name="content"
         defaultValue={localPost.content || ""}
         placeholder={placeholder}
@@ -65,9 +65,9 @@ export const PostForm = ({
         autoFocus
         required
       />
-      <footer className="absolute left-0 right-0 flex items-center justify-between bottom-5">
+      <footer className="absolute left-0 right-0 bottom-5 flex items-center justify-between">
         <div className="text-xs">
-          <span className="block mb-1">
+          <span className="mb-1 block">
             {postingAs ? (
               <>
                 Publishing as:{" "}

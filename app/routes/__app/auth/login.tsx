@@ -31,19 +31,19 @@ export const action: ActionFunction = async ({ request }) => {
 
 const Page = () => {
   return (
-    <main className="w-full max-w-md mx-auto">
+    <main className="mx-auto w-full max-w-md">
       <hgroup className="text-center">
         <h1 className="text-2xl font-bold">Log back in</h1>
         <h2 className="mt-1 mb-5 text-slate-500 dark:text-slate-300">
           Welcome back
         </h2>
       </hgroup>
-      <div className="p-8 bg-white rounded-lg shadow-md dark:bg-slate-900">
+      <div className="rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
         <AuthForm authType="login" />
         <Divider bgColor="bg-white dark:bg-slate-900">Or continue with</Divider>
         <SocialLoginForm />
       </div>
-      <div className="flex justify-between mt-2">
+      <div className="mt-2 flex justify-between">
         <Link
           className="text-sm text-slate-500 dark:text-slate-300"
           to="/auth/signup"

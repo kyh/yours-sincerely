@@ -23,7 +23,7 @@ export const PrivacyTerms = ({
   };
 
   return (
-    <section className="text-sm italic flex items-center text-slate-500 dark:text-slate-300">
+    <section className="flex items-center text-sm italic text-slate-500 dark:text-slate-300">
       {withCheckbox && (
         <Checkbox id="terms" onChange={onCheck} checked={isChecked} />
       )}
