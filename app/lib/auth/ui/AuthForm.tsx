@@ -85,7 +85,7 @@ export const AuthForm = ({ authType }: Props) => {
         </div>
       )}
       <Button
-        className="w-full mt-2"
+        className="mt-2 w-full"
         type="submit"
         loading={transition.state !== "idle"}
       >

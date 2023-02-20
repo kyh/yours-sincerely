@@ -61,7 +61,7 @@ const Page = () => {
             <>
               {posts.map((post) => (
                 <div
-                  className="p-5 rounded shadow w-full sm:w-10/12 mx-auto bg-slate-100 dark:bg-slate-900"
+                  className="mx-auto w-full rounded-lg bg-slate-100 p-5 shadow dark:bg-slate-900 sm:w-10/12"
                   key={post.id}
                 >
                   <PostContent post={post} />
@@ -82,7 +82,7 @@ const Page = () => {
 };
 
 const EmptyPost = () => (
-  <main className="max-w-sm m-auto text-center">
+  <main className="m-auto max-w-sm text-center">
     <h1 className="text-2xl font-bold">
       It's kind of lonely here... could you help{" "}
       <Link to="/posts/new">start something?</Link>

@@ -27,7 +27,7 @@ export const MoreButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="p-2 transition rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setIsOpen(true)}
       >
         <span className="sr-only">See post options</span>

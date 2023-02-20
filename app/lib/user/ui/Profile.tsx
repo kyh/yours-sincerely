@@ -48,10 +48,10 @@ const Loading = () => {
   return (
     <div className="animate-pulse">
       <div className="h-[84px] rounded bg-slate-200 dark:bg-slate-700" />
-      <div className="h-[120px] rounded bg-slate-200 dark:bg-slate-700 mt-8" />
-      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-2" />
-      <div className="h-[20px] rounded  bg-slate-200 dark:bg-slate-700 mt-8" />
-      <div className="h-[90px] rounded  bg-slate-200 dark:bg-slate-700 mt-2" />
+      <div className="mt-8 h-[120px] rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-2 h-[20px]  rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-8 h-[20px]  rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-2 h-[90px]  rounded bg-slate-200 dark:bg-slate-700" />
     </div>
   );
 };
@@ -62,7 +62,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
 
   return (
     <section className="flex flex-col gap-8">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">
           {user.displayName || "Anonymous"}{" "}
         </h1>

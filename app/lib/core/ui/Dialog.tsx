@@ -40,7 +40,7 @@ export const Dialog = ({
             leaveTo="opacity-0 scale-95"
           >
             <HeadlessDialog.Panel
-              className={`inline-block w-full max-w-md p-6 my-10 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:bg-slate-900 ${className}`}
+              className={`my-10 inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-center align-middle shadow-xl transition-all dark:bg-slate-900 ${className}`}
             >
               {children}
             </HeadlessDialog.Panel>

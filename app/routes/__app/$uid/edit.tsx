@@ -49,7 +49,7 @@ export const action: ActionFunction = async ({ request }) => {
 const Page = () => {
   const { user } = useLoaderData<typeof loader>();
   return (
-    <main className="w-full max-w-md pt-5 mx-auto">
+    <main className="mx-auto w-full max-w-md pt-5">
       <EditProfile user={user} />
     </main>
   );

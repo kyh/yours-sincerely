@@ -32,7 +32,7 @@ export const PostContent = ({
     <article
       className={`${
         displayFull
-          ? "article w-full h-full flex flex-col word-break"
+          ? "article word-break flex h-full w-full flex-col"
           : "article"
       }`}
     >
@@ -41,11 +41,11 @@ export const PostContent = ({
           className="block text-slate-900 hover:no-underline dark:text-slate-50"
           to={`/posts/${post.id}`}
         >
-          <p className="text-lg whitespace-pre-wrap">{post.content}</p>
+          <p className="whitespace-pre-wrap text-lg">{post.content}</p>
         </Link>
       ) : (
         <p
-          className={`text-lg whitespace-pre-wrap ${
+          className={`whitespace-pre-wrap text-lg ${
             displayFull ? "min-h-[50vh]" : ""
           }`}
         >
@@ -61,7 +61,7 @@ export const PostContent = ({
           <span className="mr-1 align-[1px]">Yours Sincerely,</span>
           <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         </div>
-        <div className="flex items-center justify-between mt-3 sm:mt-0 sm:gap-1">
+        <div className="mt-3 flex items-center justify-between sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}

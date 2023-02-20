@@ -12,7 +12,7 @@ const quoteClass =
   "relative before:absolute before:block before:-left-3 before:-top-1 before:w-6 before:h-4 before:-z-10 before:opacity-25 before:content-['_'] before:bg-[url('/assets/quote.svg')] before:bg-no-repeat";
 
 const Page = () => (
-  <main className="max-w-[25rem] mx-auto flex flex-col gap-6">
+  <main className="mx-auto flex max-w-[25rem] flex-col gap-6">
     <hgroup className="text-center">
       <h1 className="text-2xl font-bold">About YS</h1>
       <h2 className="mt-1 text-sm text-slate-500 dark:text-slate-300">

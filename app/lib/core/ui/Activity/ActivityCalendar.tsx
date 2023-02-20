@@ -295,7 +295,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         )}
 
         {!loading && !hideColorLegend && (
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="ml-auto flex items-center gap-1">
             <span style={{ marginRight: "0.4em" }}>
               {labels?.legend?.less ?? "Less"}
             </span>

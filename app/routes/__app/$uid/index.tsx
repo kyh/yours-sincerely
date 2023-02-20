@@ -53,7 +53,7 @@ const Page = () => {
   const { user, stats, showEdit } = useLoaderData<typeof loader>();
 
   return (
-    <main className="w-full max-w-md py-5 mx-auto">
+    <main className="mx-auto w-full max-w-md py-5">
       <Profile user={user} stats={stats} showEdit={showEdit} />
     </main>
   );

@@ -30,7 +30,7 @@ export const Timer = ({ post }: Props) => {
       triggerClassName="flex items-center p-2 rounded-lg"
       triggerContent={
         <div
-          className="relative inline-block bg-slate-400 bg-blend-overlay w-4 h-4 rounded-full bg-center	bg-[length:150%]"
+          className="relative inline-block h-4 w-4 rounded-full bg-slate-400 bg-[length:150%] bg-center	bg-blend-overlay"
           style={{
             backgroundImage: `conic-gradient(
           rgba(255, 255, 255, 0.6) calc(3.6deg * ${percentage}),

@@ -8,7 +8,7 @@ export const TextField = ({ id, label, className = "", ...rest }: Props) => (
   <div className="text-left">
     {label && (
       <label
-        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer dark:text-slate-100"
+        className="mb-1 block cursor-pointer text-sm font-medium text-slate-500 dark:text-slate-100"
         htmlFor={id}
       >
         {label}
@@ -17,7 +17,7 @@ export const TextField = ({ id, label, className = "", ...rest }: Props) => (
     <input
       id={id}
       type="text"
-      className={`w-full bg-transparent border-t-0 border-x-0 border-b-2 border-slate-500 border-dotted rounded transition focus:bg-slate-100 focus:border-slate-500 dark:focus:bg-slate-600 dark:focus:border-slate-200 ${className}`}
+      className={`w-full rounded border-x-0 border-t-0 border-b-2 border-dotted border-slate-500 bg-transparent transition focus:border-slate-500 focus:bg-slate-100 dark:focus:border-slate-200 dark:focus:bg-slate-600 ${className}`}
       {...rest}
     />
   </div>
@@ -29,12 +29,12 @@ export const Checkbox = ({ id, label, className, ...rest }: Props) => (
       id={id}
       name="remember-me"
       type="checkbox"
-      className="w-4 h-4 transition rounded text-primary focus:ring-primary border-slate-500"
+      className="h-4 w-4 rounded border-slate-500 text-primary transition focus:ring-primary"
       {...rest}
     />
     <label
       htmlFor={id}
-      className={`ml-2 block text-sm text-slate-500 cursor-pointer ${
+      className={`ml-2 block cursor-pointer text-sm text-slate-500 ${
         className || ""
       }`}
     >
@@ -58,7 +58,7 @@ export const TextArea = ({
   <div className="text-left">
     {label && (
       <label
-        className="block mb-1 text-sm font-medium text-gray-500 cursor-pointer dark:text-slate-100"
+        className="mb-1 block cursor-pointer text-sm font-medium text-slate-500 dark:text-slate-100"
         htmlFor={id}
       >
         {label}
@@ -66,7 +66,7 @@ export const TextArea = ({
     )}
     <textarea
       id={id}
-      className={`w-full bg-transparent border-t-0 border-x-0 border-b-2 border-slate-500 border-dotted rounded transition focus:bg-slate-100 focus:border-slate-500 dark:focus:bg-slate-600 dark:focus:border-slate-200 min-h-[100px] ${className}`}
+      className={`min-h-[100px] w-full rounded border-x-0 border-t-0 border-b-2 border-dotted border-slate-500 bg-transparent transition focus:border-slate-500 focus:bg-slate-100 dark:focus:border-slate-200 dark:focus:bg-slate-600 ${className}`}
       {...rest}
     />
   </div>

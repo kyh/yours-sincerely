@@ -9,7 +9,7 @@ type Props = {
 export const CommentButton = ({ post }: Props) => {
   return (
     <Link
-      className="relative flex items-center gap-2 p-2 transition rounded-lg text-inherit hover:no-underline hover:bg-slate-100 dark:hover:bg-slate-700"
+      className="relative flex items-center gap-2 rounded-lg p-2 text-inherit transition hover:bg-slate-100 hover:no-underline dark:hover:bg-slate-700"
       to={`/posts/${post.id}`}
     >
       <svg {...iconAttrs} strokeWidth="3" className="text-slate-400">

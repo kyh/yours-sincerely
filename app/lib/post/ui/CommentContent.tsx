@@ -9,7 +9,7 @@ type Props = {
 export const CommentContent = ({ post }: Props) => {
   return (
     <article>
-      <header className="flex text-sm items-center justify-between">
+      <header className="flex items-center justify-between text-sm">
         <ProfileLink userId={post.userId!} displayName={post.createdBy!} />
         <MoreButton post={post} />
       </header>

@@ -7,8 +7,11 @@ import { getPost } from "~/lib/post/server/postService.server";
 import type { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { CommentContent } from "~/lib/post/ui/CommentContent";
+import { BackButton } from "~/lib/post/ui/BackButton";
 import { TextArea } from "~/lib/core/ui/FormField";
 import { createMeta } from "~/lib/core/util/meta";
+
+const readingTime = require("reading-time/lib/reading-time");
 
 export let meta: MetaFunction = ({ data }: { data?: { post: Post } }) => {
   if (!data || !data.post) {
@@ -44,16 +47,26 @@ const Page = () => {
     }
   }, [fetcher]);
 
+  const stats = readingTime(post?.content || "");
+  console.log("stats", stats);
   return (
-    <main className="flex flex-col gap-8 py-5">
+    <main className="flex flex-col gap-5 py-5">
+      <header className="flex items-center justify-between">
+        <BackButton />
+        <p className="text-xs text-slate-500 dark:text-slate-300">
+          {stats.text}
+        </p>
+      </header>
       {post && (
         <>
-          <PostContent
-            post={post}
-            asLink={false}
-            showComment={false}
-            showMore
-          />
+          <div className="w-full rounded-lg bg-slate-100 p-5 shadow dark:bg-slate-900">
+            <PostContent
+              post={post}
+              asLink={false}
+              showComment={false}
+              showMore
+            />
+          </div>
           <div className="flex flex-col gap-3">
             {user && (
               <fetcher.Form
@@ -71,7 +84,7 @@ const Page = () => {
                 />
                 <button
                   type="submit"
-                  className="absolute px-3 py-2 text-xs text-center transition rounded bg-slate-200 bottom-5 right-5 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
+                  className="absolute bottom-5 right-5 rounded bg-slate-200 px-3 py-2 text-center text-xs transition hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
                   disabled={fetcher.state !== "idle"}
                 >
                   Reply
