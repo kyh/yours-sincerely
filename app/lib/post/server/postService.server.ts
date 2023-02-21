@@ -227,13 +227,11 @@ export const createPost = async (input: Prisma.PostCreateInput) => {
         },
         actor: {
           id: actor.id,
-          username: actor.username,
           displayName: actor.displayName,
         },
         recipients: [
           {
             id: recipient.id,
-            username: recipient.username,
             displayName: recipient.displayName,
           },
         ],

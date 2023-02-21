@@ -4,7 +4,6 @@ import { prisma } from "~/lib/core/server/prisma.server";
 
 export const defaultSelect = {
   id: true,
-  username: true,
   email: true,
   emailVerified: true,
   displayName: true,

@@ -1,12 +1,11 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Account {
@@ -26,7 +25,6 @@ model Account {
 
 model User {
   id                String    @id @default(cuid())
-  username          String?
   email             String?   @unique
   emailVerified     DateTime?
   passwordHash      String?
@@ -87,6 +85,7 @@ model Post {
 
   @@index([id, userId])
   @@index([userId])
+  @@index([parentId])
 }
 
 model Like {
@@ -119,6 +118,7 @@ model Flag {
   @@id([postId, userId])
   @@index([postId, userId])
   @@index([postId])
+  @@index([userId])
 }
 
 model Block {
@@ -145,6 +145,8 @@ model EnrolledEvent {
   end    DateTime
   userId String
   user   User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId])
 }
 
 enum UserRole {
