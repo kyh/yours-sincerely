@@ -8,13 +8,13 @@ import {
   useOutletContext,
   useFetcher,
 } from "@remix-run/react";
-import { useTheme } from "~/lib/core/ui/Theme";
-import { ToastProvider, useToast } from "~/lib/core/ui/Toaster";
-import { TopNav } from "~/lib/core/ui/TopNav";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { useTheme } from "~/components/Theme";
+import { ToastProvider, useToast } from "~/components/Toaster";
+import { TopNav } from "~/components/TopNav";
+import { iconAttrs } from "~/components/Icon";
 import type { Theme } from "~/lib/core/util/theme";
 import { themes } from "~/lib/core/util/theme";
-import { usePlatform } from "~/lib/core/ui/Platform";
+import { usePlatform } from "~/components/Platform";
 
 const Page = () => {
   const { postView } = useOutletContext<{ postView: string }>();
@@ -83,7 +83,7 @@ const Nav = ({
 }) => {
   return (
     <TopNav>
-      <ul className="flex items-center gap-3">
+      <ul className="flex items-center gap-2">
         {currentPath === "/" && (
           <li className="relative z-0 inline-flex rounded-md shadow-sm">
             <div>
@@ -135,6 +135,21 @@ const Nav = ({
             </div>
           </li>
         )}
+        {/* <li>
+          <Link
+            className={`${navLinkButtonClassName} rounded-md shadow-sm`}
+            to="/profile"
+          >
+            <span className="sr-only">Go to profile</span>
+            <svg {...iconAttrs}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+              />
+            </svg>
+          </Link>
+        </li> */}
         <li>
           <Link
             className={`${navLinkButtonClassName} rounded-md shadow-sm`}

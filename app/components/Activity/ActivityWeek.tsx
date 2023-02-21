@@ -1,4 +1,4 @@
-import { Tooltip } from "~/lib/core/ui/Tooltip";
+import { Tooltip } from "~/components/Tooltip";
 import type { Theme } from "./calendarTypes";
 import {
   getTheme,

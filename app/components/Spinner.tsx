@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { iconAttrs } from "~/components/Icon";
 
 const States = {
   default: "default",

@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import type { SerializedPost } from "~/lib/post/data/postSchema";
-import { ProfileLink } from "~/lib/core/ui/ProfileLink";
+import { ProfileLink } from "~/components/ProfileLink";
 import { ShareButton } from "~/lib/post/ui/ShareButton";
 import { LikeButton } from "~/lib/post/ui/LikeButton";
 import { CommentButton } from "~/lib/post/ui/CommentButton";

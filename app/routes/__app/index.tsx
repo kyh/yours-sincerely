@@ -10,8 +10,8 @@ import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { PostContent } from "~/lib/post/ui/PostContent";
-import { useInfiniteScroll } from "~/lib/core/ui/InfiniteScroll";
-import { CardStack } from "~/lib/core/ui/CardStack";
+import { useInfiniteScroll } from "~/components/InfiniteScroll";
+import { CardStack } from "~/components/CardStack";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await isAuthenticated(request);

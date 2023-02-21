@@ -1,13 +1,13 @@
 import { Link } from "@remix-run/react";
 import { ClientOnly } from "remix-utils";
-import { useTheme } from "~/lib/core/ui/Theme";
-import type { Day } from "~/lib/core/ui/Activity";
+import { useTheme } from "~/components/Theme";
+import type { Day } from "~/components/Activity";
 import {
   ActivityStats,
   ActivityCalendar,
   ActivityWeek,
   FULL_DAY_LABELS,
-} from "~/lib/core/ui/Activity";
+} from "~/components/Activity";
 import type { User } from "~/lib/user/data/userSchema";
 
 type Props = {

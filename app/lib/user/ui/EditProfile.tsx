@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { Form, Link, useFormAction, useTransition } from "@remix-run/react";
 import { Switch } from "@headlessui/react";
-import { Button, baseClass, variantClasses } from "~/lib/core/ui/Button";
-import { TextField } from "~/lib/core/ui/FormField";
-import { CalendarMenu } from "~/lib/core/ui/CalendarMenu";
+import { Button, baseClass, variantClasses } from "~/components/Button";
+import { TextField } from "~/components/FormField";
+import { CalendarMenu } from "~/components/CalendarMenu";
 import type { User } from "~/lib/user/data/userSchema";
-import {
-  DEFAULT_WEEKDAY_LABELS,
-  CALENDAR_LABELS,
-} from "~/lib/core/ui/Activity";
+import { DEFAULT_WEEKDAY_LABELS, CALENDAR_LABELS } from "~/components/Activity";
 
 type Props = {
   user: User;

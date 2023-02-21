@@ -1,6 +1,7 @@
 import { addDays, isBefore } from "date-fns";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "~/lib/core/server/prisma.server";
+// import { knock } from "~/lib/core/server/knock.server";
 import type { Post } from "~/lib/post/data/postSchema";
 import { POST_EXPIRY_DAYS_AGO } from "~/lib/post/data/postSchema";
 import type { Flag } from "~/lib/post/data/flagSchema";
@@ -195,6 +196,7 @@ export const getPost = async (
 
 export const createPost = async (input: Prisma.PostCreateInput) => {
   const { id, ...data } = input;
+
   const created = await prisma.post.create({
     data,
     include: {
@@ -203,6 +205,41 @@ export const createPost = async (input: Prisma.PostCreateInput) => {
       },
     },
   });
+
+  // if (created.parentId) {
+  //   const parentPost = await prisma.post.findUnique({
+  //     where: { id: created.parentId },
+  //     include: {
+  //       user: {
+  //         select: defaultSelect,
+  //       },
+  //     },
+  //   });
+
+  //   const actor = created.user;
+  //   const recipient = parentPost?.user;
+
+  //   if (actor && recipient) {
+  //     await knock.workflows.trigger("new-comment", {
+  //       data: {
+  //         parentPostId: parentPost.id,
+  //         commentPostId: created.id,
+  //       },
+  //       actor: {
+  //         id: actor.id,
+  //         username: actor.username,
+  //         displayName: actor.displayName,
+  //       },
+  //       recipients: [
+  //         {
+  //           id: recipient.id,
+  //           username: recipient.username,
+  //           displayName: recipient.displayName,
+  //         },
+  //       ],
+  //     });
+  //   }
+  // }
 
   return created;
 };

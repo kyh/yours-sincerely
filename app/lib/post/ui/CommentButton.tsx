@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { iconAttrs } from "~/components/Icon";
 import type { SerializedPost } from "~/lib/post/data/postSchema";
 
 type Props = {

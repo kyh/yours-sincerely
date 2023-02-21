@@ -1,4 +1,4 @@
-import { SpinnerSvg } from "~/lib/core/ui/Spinner";
+import { SpinnerSvg } from "~/components/Spinner";
 
 export const baseClass =
   "inline-flex justify-center items-center px-4 py-2 border text-sm leading-4 font-medium rounded-md transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed";

@@ -29,16 +29,16 @@ import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { createMeta } from "~/lib/core/util/meta";
 import type { Post } from "~/lib/post/data/postSchema";
 import { isPostContentValid } from "~/lib/post/data/postSchema";
-import { TopNav } from "~/lib/core/ui/TopNav";
-import { Dialog } from "~/lib/core/ui/Dialog";
-import { Button } from "~/lib/core/ui/Button";
-import { Divider } from "~/lib/core/ui/Divider";
-import { TextField } from "~/lib/core/ui/FormField";
+import { TopNav } from "~/components/TopNav";
+import { Dialog } from "~/components/Dialog";
+import { Button } from "~/components/Button";
+import { Divider } from "~/components/Divider";
+import { TextField } from "~/components/FormField";
 import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
-import { usePlatform } from "~/lib/core/ui/Platform";
-import { useToast } from "~/lib/core/ui/Toaster";
+import { usePlatform } from "~/components/Platform";
+import { useToast } from "~/components/Toaster";
 
 export let meta: MetaFunction = () => {
   return createMeta({

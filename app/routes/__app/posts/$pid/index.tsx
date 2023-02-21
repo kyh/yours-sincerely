@@ -8,7 +8,7 @@ import type { Post } from "~/lib/post/data/postSchema";
 import { PostContent } from "~/lib/post/ui/PostContent";
 import { CommentContent } from "~/lib/post/ui/CommentContent";
 import { BackButton } from "~/lib/post/ui/BackButton";
-import { TextArea } from "~/lib/core/ui/FormField";
+import { TextArea } from "~/components/FormField";
 import { createMeta } from "~/lib/core/util/meta";
 
 const readingTime = require("reading-time/lib/reading-time");

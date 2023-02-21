@@ -11,7 +11,7 @@ import {
   useMemo,
 } from "react";
 import { Theme, themes } from "~/lib/core/util/theme";
-import { usePlatform } from "~/lib/core/ui/Platform";
+import { usePlatform } from "~/components/Platform";
 
 type ThemeContextType = {
   theme: Theme | null;

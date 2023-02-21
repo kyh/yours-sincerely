@@ -1,7 +1,7 @@
 import { Fragment, useRef, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { usePopper } from "react-popper";
-import { Portal } from "~/lib/core/ui/Portal";
+import { Portal } from "~/components/Portal";
 
 type Props = {
   offset?: [number, number];

@@ -1,5 +1,5 @@
 import { format, addDays, eachDayOfInterval, differenceInDays } from "date-fns";
-import { DEFAULT_WEEKDAY_LABELS } from "~/lib/core/ui/Activity/calendarUtil";
+import { DEFAULT_WEEKDAY_LABELS } from "~/components/Activity/calendarUtil";
 import type { Post } from "./postSchema";
 
 export const groupByDay = (posts: Post[], lastNDays: number) => {
