@@ -59,3 +59,4 @@ This project uses the following libraries and services:
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [MySQL (PlanetScale)](https://planetscale.com) + [Prisma](https://www.prisma.io)
 - Hosting - [Vercel](https://vercel.com)
+- Notifications - [Knock](https://knock.app)
