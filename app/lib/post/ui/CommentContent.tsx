@@ -1,5 +1,5 @@
-import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { ProfileLink } from "~/components/ProfileLink";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
 
 type Props = {

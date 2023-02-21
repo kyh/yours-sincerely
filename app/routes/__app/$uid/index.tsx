@@ -1,21 +1,21 @@
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { createMeta } from "~/lib/core/util/meta";
 import { links as activityCalendarLinks } from "~/components/Activity";
-import type { User } from "~/lib/user/data/userSchema";
-import { Profile } from "~/lib/user/ui/Profile";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { getUser } from "~/lib/user/server/userService.server";
-import { getAllPostsForUser } from "~/lib/post/server/postService.server";
+import { createMeta } from "~/lib/core/util/meta";
 import {
-  createPostsHeatmap,
   createPostsDailyActivity,
-  getTotalPosts,
-  getTotalLikes,
+  createPostsHeatmap,
   getCurrentStreak,
   getLongestStreak,
+  getTotalLikes,
+  getTotalPosts,
 } from "~/lib/post/data/postStats";
+import { getAllPostsForUser } from "~/lib/post/server/postService.server";
+import type { User } from "~/lib/user/data/userSchema";
+import { getUser } from "~/lib/user/server/userService.server";
+import { Profile } from "~/lib/user/ui/Profile";
 
 export const links = () => {
   return [...activityCalendarLinks()];

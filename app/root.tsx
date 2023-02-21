@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
 import { SplashScreen } from "@capacitor/splash-screen";
-import type { LinksFunction, MetaFunction, LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -9,27 +9,32 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useFetchers,
   useLoaderData,
   useTransition,
-  useFetchers,
 } from "@remix-run/react";
 import NProgress from "nprogress";
-import {
-  getTheme,
-  getFlash,
-  getPostView,
-} from "~/lib/core/server/session.server";
+import { useEffect, useMemo } from "react";
+import { PlatformProvider, usePlatform } from "~/components/Platform";
 import {
   FontStyles,
   ThemeBody,
   ThemeHead,
   ThemeProvider,
 } from "~/components/Theme";
-import { PlatformProvider, usePlatform } from "~/components/Platform";
+import { getUserId } from "~/lib/auth/server/authenticator.server";
+import {
+  getFlash,
+  getPostView,
+  getTheme,
+} from "~/lib/core/server/session.server";
 import { createMeta } from "~/lib/core/util/meta";
+
+import knockStyles from "@knocklabs/react-notification-feed/dist/index.css";
 import styles from "./tailwind.css";
 
 export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: knockStyles },
   { rel: "stylesheet", href: styles },
   {
     rel: "apple-touch-icon",
@@ -62,11 +67,24 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
+  const userId = await getUserId(request);
   const theme = await getTheme(request);
   const postView = await getPostView(request);
   const { message, headers } = await getFlash(request);
 
-  return json({ message, theme, postView }, { headers });
+  return json(
+    {
+      userId,
+      theme,
+      postView,
+      message,
+      ENV: {
+        KNOCK_PUBLIC_API_KEY: process.env.KNOCK_PUBLIC_API_KEY,
+        KNOCK_FEED_CHANNEL_ID: process.env.KNOCK_FEED_CHANNEL_ID,
+      },
+    },
+    { headers }
+  );
 };
 
 const App = () => {
@@ -87,10 +105,18 @@ const App = () => {
   useEffect(() => {
     if (state === "loading") NProgress.start();
     if (state === "idle") NProgress.done();
-  }, [transition.state]);
+  }, [state]);
 
   useEffect(() => {
     SplashScreen.hide();
+
+    CapacitorApp.addListener("backButton", ({ canGoBack }) => {
+      if (!canGoBack) {
+        CapacitorApp.exitApp();
+      } else {
+        window.history.back();
+      }
+    });
   }, []);
 
   return (
@@ -131,4 +157,10 @@ export default function AppWithProviders() {
       </ThemeProvider>
     </PlatformProvider>
   );
+}
+
+declare global {
+  interface Window {
+    ENV: Record<string, string>;
+  }
 }

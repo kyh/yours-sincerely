@@ -1,16 +1,16 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { notFound, badRequest, serverError } from "remix-utils";
+import { badRequest, notFound, serverError } from "remix-utils";
 import {
   isAuthenticated,
   setUserSession,
 } from "~/lib/auth/server/authenticator.server";
-import { createLike, deleteLike } from "~/lib/post/server/likeService.server";
 import {
-  generateToken,
   createPasswordHash,
+  generateToken,
 } from "~/lib/auth/server/authService.server";
 import { commitSession, getSession } from "~/lib/core/server/session.server";
+import { createLike, deleteLike } from "~/lib/post/server/likeService.server";
 
 export const loader: LoaderFunction = () => {
   throw notFound({ message: "This page doesn't exists." });

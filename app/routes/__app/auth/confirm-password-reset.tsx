@@ -1,12 +1,12 @@
 import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
-import { createMeta } from "~/lib/core/util/meta";
-import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import type { AuthInput } from "~/lib/auth/data/authSchema";
 import { isPasswordValid } from "~/lib/auth/data/authSchema";
 import { setUserSessionAndCommit } from "~/lib/auth/server/authenticator.server";
 import { validateToken } from "~/lib/auth/server/authService.server";
+import { AuthForm } from "~/lib/auth/ui/AuthForm";
+import { createMeta } from "~/lib/core/util/meta";
 import { updateUser } from "~/lib/user/server/userService.server";
 
 export let meta: MetaFunction = () => {

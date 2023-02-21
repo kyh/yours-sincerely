@@ -6,12 +6,12 @@ import {
   createElement,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  useMemo,
 } from "react";
-import { Theme, themes } from "~/lib/core/util/theme";
 import { usePlatform } from "~/components/Platform";
+import { Theme, themes } from "~/lib/core/util/theme";
 
 type ThemeContextType = {
   theme: Theme | null;

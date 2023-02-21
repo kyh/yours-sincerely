@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Divider } from "~/components/Divider";
-import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 import { usePlatform } from "~/components/Platform";
+import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
 
 export const NoProfile = () => {
   const { isWeb } = usePlatform();

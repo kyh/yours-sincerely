@@ -1,5 +1,5 @@
-import { useState, createContext, useContext } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { createContext, useContext, useState } from "react";
 
 type ToastOptions = {
   type?: "success" | "error" | "info";

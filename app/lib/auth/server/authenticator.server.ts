@@ -1,17 +1,17 @@
 import type { Session } from "@remix-run/node";
 import { Authenticator, AuthorizationError } from "remix-auth";
-import type { User } from "~/lib/user/data/userSchema";
 import {
-  sessionStorage,
-  getSession,
-  commitSession,
-} from "~/lib/core/server/session.server";
-import { getUser } from "~/lib/user/server/userService.server";
-import {
-  signupStrategy,
   loginStrategy,
+  signupStrategy,
 } from "~/lib/auth/server/strategy/form.server";
 import { googleStrategy } from "~/lib/auth/server/strategy/google.server";
+import {
+  commitSession,
+  getSession,
+  sessionStorage,
+} from "~/lib/core/server/session.server";
+import type { User } from "~/lib/user/data/userSchema";
+import { getUser } from "~/lib/user/server/userService.server";
 
 export const authenticator = new Authenticator<User["id"]>(sessionStorage, {
   throwOnError: true,
@@ -20,6 +20,10 @@ export const authenticator = new Authenticator<User["id"]>(sessionStorage, {
 authenticator.use(signupStrategy, "signup");
 authenticator.use(loginStrategy, "login");
 authenticator.use(googleStrategy, "google");
+
+export const getUserId = (request: Request) => {
+  return authenticator.isAuthenticated(request);
+};
 
 export const isAuthenticated = async (request: Request) => {
   const userId = await authenticator.isAuthenticated(request);
