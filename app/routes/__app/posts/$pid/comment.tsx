@@ -24,7 +24,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (request.method === "POST") {
       await createPost({
         content: content || "",
-        createdBy: user.username || "Anonymous",
+        createdBy: user.displayName || "Anonymous",
         parent: {
           connect: {
             id: postId,
