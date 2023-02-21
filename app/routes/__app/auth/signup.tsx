@@ -1,13 +1,13 @@
 import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { badRequest, serverError } from "remix-utils";
+import { Divider } from "~/components/Divider";
 import {
   authenticator,
   AuthorizationError,
 } from "~/lib/auth/server/authenticator.server";
 import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
-import { Divider } from "~/components/Divider";
 import { createMeta } from "~/lib/core/util/meta";
 
 export let meta: MetaFunction = () => {

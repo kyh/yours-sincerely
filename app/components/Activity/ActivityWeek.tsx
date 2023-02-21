@@ -1,9 +1,9 @@
 import { Tooltip } from "~/components/Tooltip";
 import type { Theme } from "./calendarTypes";
 import {
-  getTheme,
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
+  getTheme,
 } from "./calendarUtil";
 
 type Props = {

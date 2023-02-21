@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
 import type { MotionProps, PanInfo } from "framer-motion";
 import {
+  AnimatePresence,
   motion,
   useMotionValue,
   useTransform,
-  AnimatePresence,
 } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 
 type CardProps = {

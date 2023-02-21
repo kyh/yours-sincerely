@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import type { LoaderArgs, ActionFunction, MetaFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -8,37 +7,38 @@ import {
   useSubmit,
   useTransition,
 } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { badRequest } from "remix-utils";
-import {
-  getSession,
-  commitSession,
-  flash,
-} from "~/lib/core/server/session.server";
+import { Button } from "~/components/Button";
+import { Dialog } from "~/components/Dialog";
+import { Divider } from "~/components/Divider";
+import { TextField } from "~/components/FormField";
+import { usePlatform } from "~/components/Platform";
+import { useToast } from "~/components/Toaster";
+import { TopNav } from "~/components/TopNav";
+import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
 import {
   isAuthenticated,
   setUserSession,
 } from "~/lib/auth/server/authenticator.server";
 import {
-  generateToken,
   createPasswordHash,
+  generateToken,
 } from "~/lib/auth/server/authService.server";
-import { createPost } from "~/lib/post/server/postService.server";
-import { getRandomPrompt } from "~/lib/post/server/promptService.server";
-import { updateUser } from "~/lib/user/server/userService.server";
+import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
+import {
+  commitSession,
+  flash,
+  getSession,
+} from "~/lib/core/server/session.server";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { createMeta } from "~/lib/core/util/meta";
 import type { Post } from "~/lib/post/data/postSchema";
 import { isPostContentValid } from "~/lib/post/data/postSchema";
-import { TopNav } from "~/components/TopNav";
-import { Dialog } from "~/components/Dialog";
-import { Button } from "~/components/Button";
-import { Divider } from "~/components/Divider";
-import { TextField } from "~/components/FormField";
-import { PostForm, getStoredPostAndClear } from "~/lib/post/ui/PostForm";
-import { SocialLoginForm } from "~/lib/auth/ui/SocialLoginForm";
-import { PrivacyTerms } from "~/lib/about/ui/PrivacyTerms";
-import { usePlatform } from "~/components/Platform";
-import { useToast } from "~/components/Toaster";
+import { createPost } from "~/lib/post/server/postService.server";
+import { getRandomPrompt } from "~/lib/post/server/promptService.server";
+import { getStoredPostAndClear, PostForm } from "~/lib/post/ui/PostForm";
+import { updateUser } from "~/lib/user/server/userService.server";
 
 export let meta: MetaFunction = () => {
   return createMeta({

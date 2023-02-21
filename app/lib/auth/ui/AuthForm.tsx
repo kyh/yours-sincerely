@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Form,
   Link,
@@ -6,9 +5,10 @@ import {
   useSearchParams,
   useTransition,
 } from "@remix-run/react";
-import { useToast } from "~/components/Toaster";
-import { TextField, Checkbox } from "~/components/FormField";
+import { useEffect } from "react";
 import { Button } from "~/components/Button";
+import { Checkbox, TextField } from "~/components/FormField";
+import { useToast } from "~/components/Toaster";
 
 type Props = {
   authType: "signup" | "login" | "request" | "confirm";

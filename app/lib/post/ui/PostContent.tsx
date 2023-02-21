@@ -1,11 +1,11 @@
 import { Link } from "@remix-run/react";
-import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { ProfileLink } from "~/components/ProfileLink";
-import { ShareButton } from "~/lib/post/ui/ShareButton";
-import { LikeButton } from "~/lib/post/ui/LikeButton";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { CommentButton } from "~/lib/post/ui/CommentButton";
-import { Timer } from "~/lib/post/ui/Timer";
+import { LikeButton } from "~/lib/post/ui/LikeButton";
 import { MoreButton } from "~/lib/post/ui/MoreButton";
+import { ShareButton } from "~/lib/post/ui/ShareButton";
+import { Timer } from "~/lib/post/ui/Timer";
 
 type Props = {
   post: SerializedPost;

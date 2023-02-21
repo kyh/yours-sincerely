@@ -1,11 +1,10 @@
 import type { ActionFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
-import { createMeta } from "~/lib/core/util/meta";
-import { sendEmail } from "~/lib/core/server/email.server";
-import { AuthForm } from "~/lib/auth/ui/AuthForm";
 import type { AuthInput } from "~/lib/auth/data/authSchema";
 import { createToken } from "~/lib/auth/server/authService.server";
+import { AuthForm } from "~/lib/auth/ui/AuthForm";
+import { createMeta } from "~/lib/core/util/meta";
 import { getUser } from "~/lib/user/server/userService.server";
 
 export let meta: MetaFunction = () => {
@@ -34,13 +33,13 @@ export const action: ActionFunction = async ({ request }) => {
     },
   });
 
-  await sendEmail({
-    to: email,
-    templateAlias: "reset-password",
-    templateModel: {
-      action_url: `${process.env.APP_URL}/auth/confirm-password-reset?token=${token.token}`,
-    },
-  });
+  // await sendEmail({
+  //   to: email,
+  //   templateAlias: "reset-password",
+  //   templateModel: {
+  //     action_url: `${process.env.APP_URL}/auth/confirm-password-reset?token=${token.token}`,
+  //   },
+  // });
 
   return json({ success: true });
 };

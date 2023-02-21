@@ -1,3 +1,4 @@
+import type { Day as WeekDay } from "date-fns";
 import {
   differenceInCalendarDays,
   eachDayOfInterval,
@@ -8,9 +9,8 @@ import {
   parseISO,
   subWeeks,
 } from "date-fns";
-import type { Day as WeekDay } from "date-fns";
 
-import type { Day, Weeks, Theme } from "./calendarTypes";
+import type { Day, Theme, Weeks } from "./calendarTypes";
 
 export const MIN_DISTANCE_MONTH_LABELS = 2;
 

@@ -100,3 +100,21 @@
     word-break: break-word;
   }
 }
+
+.rnf-notification-feed-popover {
+  --rnf-notification-cell-unread-dot-size: 8px;
+  --rnf-notification-cell-unread-dot-bg-color: theme("colors.red.500");
+  --rnf-notification-cell-unread-dot-border-color: theme("colors.red.500");
+}
+
+.rnf-notification-cell--dark {
+  --rnf-notification-cell-active-bg-color: theme("colors.slate.800");
+}
+
+.rnf-notification-feed--dark {
+  background-color: theme("colors.slate.900");
+}
+
+.rnf-notification-feed__knock-branding {
+  display: none;
+}

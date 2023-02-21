@@ -6,12 +6,12 @@ import {
   useNavigate,
   useOutletContext,
 } from "@remix-run/react";
-import { useRootHotkeys } from "~/lib/core/util/hotkey";
+import { CardStack } from "~/components/CardStack";
+import { useInfiniteScroll } from "~/components/InfiniteScroll";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
+import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { getPostList } from "~/lib/post/server/postService.server";
 import { PostContent } from "~/lib/post/ui/PostContent";
-import { useInfiniteScroll } from "~/components/InfiniteScroll";
-import { CardStack } from "~/components/CardStack";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await isAuthenticated(request);

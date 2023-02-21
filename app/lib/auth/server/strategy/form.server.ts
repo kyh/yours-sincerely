@@ -1,11 +1,11 @@
 import { FormStrategy } from "remix-auth-form";
+import { isEmailValid, isPasswordValid } from "~/lib/auth/data/authSchema";
+import { validatePassword } from "~/lib/auth/server/authService.server";
 import {
-  getUser,
   createUser,
+  getUser,
   getUserPasswordHash,
 } from "~/lib/user/server/userService.server";
-import { validatePassword } from "~/lib/auth/server/authService.server";
-import { isPasswordValid, isEmailValid } from "~/lib/auth/data/authSchema";
 
 export const signupStrategy = new FormStrategy(async ({ form }) => {
   const email = form.get("email") as string;

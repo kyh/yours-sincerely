@@ -1,26 +1,36 @@
-import { App } from "@capacitor/app";
 import { Preferences } from "@capacitor/preferences";
-import { useState, useEffect } from "react";
+import {
+  KnockFeedProvider,
+  NotificationFeedPopover,
+  useKnockFeed,
+} from "@knocklabs/react-notification-feed";
 import {
   Link,
   Outlet,
+  useFetcher,
   useMatches,
   useOutletContext,
-  useFetcher,
 } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
+import { ClientOnly } from "remix-utils";
+import { iconAttrs } from "~/components/Icon";
+import { usePlatform } from "~/components/Platform";
 import { useTheme } from "~/components/Theme";
 import { ToastProvider, useToast } from "~/components/Toaster";
 import { TopNav } from "~/components/TopNav";
-import { iconAttrs } from "~/components/Icon";
-import type { Theme } from "~/lib/core/util/theme";
-import { themes } from "~/lib/core/util/theme";
-import { usePlatform } from "~/components/Platform";
+import { Theme, themes } from "~/lib/core/util/theme";
+
+type OutletContext = {
+  userId?: string;
+  postView: string;
+  ENV: Record<string, string>;
+};
 
 const Page = () => {
-  const { postView } = useOutletContext<{ postView: string }>();
+  const data = useOutletContext<OutletContext>();
   const platform = usePlatform();
   const matches = useMatches();
-  const [view, setView] = useState(postView);
+  const [view, setView] = useState(data.postView);
   const persistView = useFetcher();
 
   const { pathname: currentPath } = matches[matches.length - 1];
@@ -42,16 +52,6 @@ const Page = () => {
     if (!platform.isWeb) setViewFromStorage();
   }, [platform]);
 
-  useEffect(() => {
-    App.addListener("backButton", ({ canGoBack }) => {
-      if (!canGoBack) {
-        App.exitApp();
-      } else {
-        window.history.back();
-      }
-    });
-  }, []);
-
   return (
     <ToastProvider>
       <section
@@ -60,7 +60,12 @@ const Page = () => {
         }`}
       >
         {currentPath !== "/posts/new" && (
-          <Nav currentPath={currentPath} view={view} setView={handleSetView} />
+          <Nav
+            currentPath={currentPath}
+            view={view}
+            setView={handleSetView}
+            {...data}
+          />
         )}
         <Outlet context={{ view }} />
         {currentPath !== "/posts/new" && <Footer />}
@@ -72,15 +77,17 @@ const Page = () => {
 const navLinkButtonClassName =
   "relative inline-flex items-center px-2 py-2 border-2 border-slate-200 text-sm font-medium text-slate-500 bg-white transition cursor-pointer outline-offset-[-2px] peer-checked:text-primary-dark peer-checked:bg-primary-bg peer-focus:outline peer-focus:z-10 hover:z-10 hover:border-primary hover:text-primary-dark hover:bg-primary-bg dark:text-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:peer-checked:bg-slate-700 dark:peer-checked:text-primary-light dark:hover:text-primary-light dark:hover:border-primary-light";
 
-const Nav = ({
-  currentPath,
-  view,
-  setView,
-}: {
+type NavProps = OutletContext & {
   currentPath: string;
   view: string;
   setView: (view: string) => void;
-}) => {
+};
+
+const Nav = ({ userId, ENV, currentPath, view, setView }: NavProps) => {
+  const { theme } = useTheme();
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef(null);
+
   return (
     <TopNav>
       <ul className="flex items-center gap-2">
@@ -135,28 +142,40 @@ const Nav = ({
             </div>
           </li>
         )}
-        {/* <li>
-          <Link
-            className={`${navLinkButtonClassName} rounded-md shadow-sm`}
-            to="/profile"
-          >
-            <span className="sr-only">Go to profile</span>
-            <svg {...iconAttrs}>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-              />
-            </svg>
-          </Link>
-        </li> */}
+        <ClientOnly>
+          {() =>
+            userId && (
+              <li>
+                <KnockFeedProvider
+                  apiKey={ENV.KNOCK_PUBLIC_API_KEY}
+                  feedId={ENV.KNOCK_FEED_CHANNEL_ID}
+                  userId={userId}
+                  colorMode={theme === Theme.LIGHT ? "light" : "dark"}
+                >
+                  <>
+                    <NotificationButton
+                      notifButtonRef={notifButtonRef}
+                      setIsVisible={setIsVisible}
+                      isVisible={isVisible}
+                    />
+                    <NotificationFeedPopover
+                      buttonRef={notifButtonRef}
+                      isVisible={isVisible}
+                      onClose={() => setIsVisible(false)}
+                    />
+                  </>
+                </KnockFeedProvider>
+              </li>
+            )
+          }
+        </ClientOnly>
         <li>
           <Link
             className={`${navLinkButtonClassName} rounded-md shadow-sm`}
             to="/profile"
           >
             <span className="sr-only">Go to profile</span>
-            <svg {...iconAttrs} strokeWidth="3">
+            <svg {...iconAttrs} strokeWidth="2.5">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
@@ -172,6 +191,43 @@ const Nav = ({
         </li>
       </ul>
     </TopNav>
+  );
+};
+
+type NotificationButtonProps = {
+  notifButtonRef: React.RefObject<HTMLButtonElement>;
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  isVisible: boolean;
+};
+
+const NotificationButton = ({
+  notifButtonRef,
+  setIsVisible,
+  isVisible,
+}: NotificationButtonProps) => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  const hasUnread = items.some((item) => !item.read_at);
+  console.log("hasUnread", hasUnread);
+  return (
+    <button
+      className={`${navLinkButtonClassName} rounded-md shadow-sm`}
+      ref={notifButtonRef}
+      onClick={() => setIsVisible(!isVisible)}
+    >
+      {hasUnread && (
+        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500" />
+      )}
+      <span className="sr-only">Open notifications</span>
+      <svg {...iconAttrs} strokeWidth="2.5">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+        />
+      </svg>
+    </button>
   );
 };
 

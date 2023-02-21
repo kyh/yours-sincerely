@@ -1,5 +1,5 @@
-import { json, redirect } from "@remix-run/node";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 
 import type { PostView } from "~/lib/core/server/session.server";
 import { setPostViewAndCommit } from "~/lib/core/server/session.server";

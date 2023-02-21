@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { Link, useFetcher } from "@remix-run/react";
-import { Tooltip } from "~/components/Tooltip";
+import { useEffect } from "react";
 import { ActivityStats } from "~/components/Activity";
+import { Tooltip } from "~/components/Tooltip";
 
 type Props = {
   userId: string;

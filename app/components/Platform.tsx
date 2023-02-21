@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 declare global {
   var config: { platform: string } | undefined;

@@ -1,15 +1,15 @@
-import { useRef, useEffect } from "react";
 import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
-import { getPost } from "~/lib/post/server/postService.server";
-import type { Post } from "~/lib/post/data/postSchema";
-import { PostContent } from "~/lib/post/ui/PostContent";
-import { CommentContent } from "~/lib/post/ui/CommentContent";
-import { BackButton } from "~/lib/post/ui/BackButton";
+import { useEffect, useRef } from "react";
 import { TextArea } from "~/components/FormField";
+import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { createMeta } from "~/lib/core/util/meta";
+import type { Post } from "~/lib/post/data/postSchema";
+import { getPost } from "~/lib/post/server/postService.server";
+import { BackButton } from "~/lib/post/ui/BackButton";
+import { CommentContent } from "~/lib/post/ui/CommentContent";
+import { PostContent } from "~/lib/post/ui/PostContent";
 
 const readingTime = require("reading-time/lib/reading-time");
 
@@ -48,7 +48,7 @@ const Page = () => {
   }, [fetcher]);
 
   const stats = readingTime(post?.content || "");
-  console.log("stats", stats);
+
   return (
     <main className="flex flex-col gap-5 py-5">
       <header className="flex items-center justify-between">

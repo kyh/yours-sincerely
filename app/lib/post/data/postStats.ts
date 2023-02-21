@@ -1,4 +1,4 @@
-import { format, addDays, eachDayOfInterval, differenceInDays } from "date-fns";
+import { addDays, differenceInDays, eachDayOfInterval, format } from "date-fns";
 import { DEFAULT_WEEKDAY_LABELS } from "~/components/Activity/calendarUtil";
 import type { Post } from "./postSchema";
 

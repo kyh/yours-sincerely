@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import { Dialog } from "~/components/Dialog";
-import type { User } from "~/lib/user/data/userSchema";
-import type { SerializedPost } from "~/lib/post/data/postSchema";
 import { iconAttrs } from "~/components/Icon";
+import type { SerializedPost } from "~/lib/post/data/postSchema";
+import type { User } from "~/lib/user/data/userSchema";
 
 type Props = {
   post: SerializedPost;

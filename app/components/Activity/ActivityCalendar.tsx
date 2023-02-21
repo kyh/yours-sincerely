@@ -1,6 +1,6 @@
-import type { FunctionComponent, CSSProperties } from "react";
 import type { Day as WeekDay } from "date-fns";
 import { format, getDay, getYear, parseISO } from "date-fns";
+import type { CSSProperties, FunctionComponent } from "react";
 import { Tooltip } from "~/components/Tooltip";
 
 import type {
@@ -12,13 +12,13 @@ import type {
   Theme,
 } from "./calendarTypes";
 import {
+  DEFAULT_LABELS,
+  DEFAULT_WEEKDAY_LABELS,
   generateEmptyData,
   getMonthLabels,
   getTheme,
   groupByWeeks,
   MIN_DISTANCE_MONTH_LABELS,
-  DEFAULT_WEEKDAY_LABELS,
-  DEFAULT_LABELS,
 } from "./calendarUtil";
 
 type CalendarData = Array<Day>;

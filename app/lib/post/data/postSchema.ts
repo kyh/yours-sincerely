@@ -1,5 +1,5 @@
-import type { SerializeFrom } from "@remix-run/node";
 import type { Post as PrismaPost } from "@prisma/client";
+import type { SerializeFrom } from "@remix-run/node";
 
 export type Post = Partial<PrismaPost> & {
   createdBy?: string | null;
