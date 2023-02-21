@@ -1,5 +1,5 @@
 import { useNavigate } from "@remix-run/react";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { iconAttrs } from "~/components/Icon";
 
 export const BackButton = () => {
   const navigate = useNavigate();

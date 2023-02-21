@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { Logo } from "~/lib/core/ui/Logo";
+import { Logo } from "~/components/Logo";
 
 export const TopNav = ({ children }: { children?: React.ReactNode }) => {
   return (

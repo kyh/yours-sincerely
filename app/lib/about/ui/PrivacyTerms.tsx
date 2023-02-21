@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Checkbox } from "~/lib/core/ui/FormField";
+import { Checkbox } from "~/components/FormField";
 
 export const PrivacyTerms = ({
   withCheckbox = false,

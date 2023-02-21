@@ -6,9 +6,9 @@ import {
   useSearchParams,
   useTransition,
 } from "@remix-run/react";
-import { useToast } from "~/lib/core/ui/Toaster";
-import { TextField, Checkbox } from "~/lib/core/ui/FormField";
-import { Button } from "~/lib/core/ui/Button";
+import { useToast } from "~/components/Toaster";
+import { TextField, Checkbox } from "~/components/FormField";
+import { Button } from "~/components/Button";
 
 type Props = {
   authType: "signup" | "login" | "request" | "confirm";

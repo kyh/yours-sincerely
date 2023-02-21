@@ -2,7 +2,7 @@ import type { LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createMeta } from "~/lib/core/util/meta";
-import { links as activityCalendarLinks } from "~/lib/core/ui/Activity";
+import { links as activityCalendarLinks } from "~/components/Activity";
 import type { User } from "~/lib/user/data/userSchema";
 import { Profile } from "~/lib/user/ui/Profile";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";

@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import { useToast } from "~/lib/core/ui/Toaster";
-import { Dialog } from "~/lib/core/ui/Dialog";
-import { Divider } from "~/lib/core/ui/Divider";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { useToast } from "~/components/Toaster";
+import { Dialog } from "~/components/Dialog";
+import { Divider } from "~/components/Divider";
+import { iconAttrs } from "~/components/Icon";
 import type { SerializedPost } from "~/lib/post/data/postSchema";
 
 type Props = {

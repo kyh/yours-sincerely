@@ -24,8 +24,8 @@ import {
   ThemeBody,
   ThemeHead,
   ThemeProvider,
-} from "~/lib/core/ui/Theme";
-import { PlatformProvider, usePlatform } from "~/lib/core/ui/Platform";
+} from "~/components/Theme";
+import { PlatformProvider, usePlatform } from "~/components/Platform";
 import { createMeta } from "~/lib/core/util/meta";
 import styles from "./tailwind.css";
 

@@ -1,5 +1,5 @@
 import { Form, Link, useFormAction } from "@remix-run/react";
-import { iconAttrs } from "~/lib/core/ui/Icon";
+import { iconAttrs } from "~/components/Icon";
 
 const buttonClassName =
   "inline-flex justify-center items-center gap-2 w-52 py-2 border text-xs leading-4 font-medium rounded bg-white text-slate-500 shadow-sm transition hover:no-underline hover:bg-slate-50 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-900 dark:hover:bg-black";

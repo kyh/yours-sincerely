@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { setHours, setMinutes } from "date-fns";
 import { makeUrls } from "~/lib/core/util/calendar";
-import { Button } from "~/lib/core/ui/Button";
+import { Button } from "~/components/Button";
 
 type Props = {
   text?: string;
