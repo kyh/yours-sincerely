@@ -8,6 +8,7 @@ import {
 } from "@remix-run/react";
 import { CardStack } from "~/components/CardStack";
 import { useInfiniteScroll } from "~/components/InfiniteScroll";
+import { Spinner } from "~/components/Spinner";
 import { isAuthenticated } from "~/lib/auth/server/authenticator.server";
 import { useRootHotkeys } from "~/lib/core/util/hotkey";
 import { getPostList } from "~/lib/post/server/postService.server";
@@ -67,9 +68,9 @@ const Page = () => {
                   <PostContent post={post} />
                 </div>
               ))}
-              {fetcher.state === "idle" && hasNextPage && (
-                <div className="text-center" ref={ref}>
-                  Loading...
+              {hasNextPage && (
+                <div className="flex items-center justify-center" ref={ref}>
+                  <Spinner loading />
                 </div>
               )}
             </>
