@@ -1,0 +1,52 @@
+PODS:
+  - Capacitor (5.0.1):
+    - CapacitorCordova
+  - CapacitorApp (5.0.1):
+    - Capacitor
+  - CapacitorCordova (5.0.1)
+  - CapacitorPreferences (5.0.1):
+    - Capacitor
+  - CapacitorPushNotifications (5.0.1):
+    - Capacitor
+  - CapacitorShare (5.0.1):
+    - Capacitor
+  - CapacitorSplashScreen (5.0.1):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
+  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorApp:
+    :path: "../../node_modules/@capacitor/app"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorPreferences:
+    :path: "../../node_modules/@capacitor/preferences"
+  CapacitorPushNotifications:
+    :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
+  CapacitorSplashScreen:
+    :path: "../../node_modules/@capacitor/splash-screen"
+
+SPEC CHECKSUMS:
+  Capacitor: c550a8485d00d5d92b4f91a245f43555a2230eb6
+  CapacitorApp: 23d62678d1092403c9c32d8b53c0cdd0da29fb2c
+  CapacitorCordova: 4f8cf089c691f0e21032d22b1014808308cbc467
+  CapacitorPreferences: 3c5b15a8501f0e3297bd8636f1e573bbf47942de
+  CapacitorPushNotifications: 468c24564df28070c71a0138621572eb52ec9589
+  CapacitorShare: e43f5a93cab2948b8d05d4f6ff3c96d203831334
+  CapacitorSplashScreen: b3aa7304627a561e98d894d6fb301eced671e599
+
+PODFILE CHECKSUM: 64f40397b7cd89665b7e12a0ec7f3fb846e80545
+
+COCOAPODS: 1.11.3

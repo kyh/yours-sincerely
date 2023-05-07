@@ -26,14 +26,14 @@
     "format": "prettier --write app"
   },
   "dependencies": {
-    "@capacitor/android": "^4.6.1",
-    "@capacitor/app": "^4.1.1",
-    "@capacitor/core": "^4.6.1",
-    "@capacitor/ios": "^4.6.1",
-    "@capacitor/preferences": "^4.0.2",
-    "@capacitor/push-notifications": "^4.1.2",
-    "@capacitor/share": "^4.1.1",
-    "@capacitor/splash-screen": "^4.1.4",
+    "@capacitor/android": "^5.0.0",
+    "@capacitor/app": "^5.0.0",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/ios": "^5.0.0",
+    "@capacitor/preferences": "^5.0.0",
+    "@capacitor/push-notifications": "^5.0.0",
+    "@capacitor/share": "^5.0.0",
+    "@capacitor/splash-screen": "^5.0.0",
     "@headlessui/react": "^1.7.9",
     "@knocklabs/node": "^0.4.16",
     "@knocklabs/react-notification-feed": "^0.8.3",
@@ -46,8 +46,7 @@
     "@vercel/node": "^2.6.2",
     "bcryptjs": "^2.4.3",
     "date-fns": "^2.29.3",
-    "dotenv-cli": "^6.0.0",
-    "framer-motion": "^9.0.1",
+    "framer-motion": "^10.12.8",
     "nprogress": "^0.2.0",
     "postmark": "^3.0.15",
     "react": "^18.2.0",
@@ -61,7 +60,7 @@
     "remix-utils": "^6.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^4.6.1",
+    "@capacitor/cli": "^5.0.0",
     "@remix-run/dev": "^1.12.0",
     "@remix-run/eslint-config": "^1.12.0",
     "@remix-run/serve": "^1.12.0",
@@ -78,7 +77,7 @@
     "prettier-plugin-tailwindcss": "^0.2.3",
     "prisma": "^4.9.0",
     "tailwindcss": "^3.2.4",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">=16"
