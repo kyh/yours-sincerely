@@ -207,9 +207,8 @@ const NotificationButton = ({
 }: NotificationButtonProps) => {
   const { useFeedStore } = useKnockFeed();
   const items = useFeedStore((state) => state.items);
-
   const hasUnread = items.some((item) => !item.read_at);
-  console.log("hasUnread", hasUnread);
+
   return (
     <button
       className={`${navLinkButtonClassName} rounded-md shadow-sm`}
