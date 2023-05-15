@@ -10,6 +10,7 @@ export const defaultSelect = {
   displayImage: true,
   role: true,
   weeklyDigestEmail: true,
+  disabled: true,
   createdAt: false,
   passwordHash: false,
 };
