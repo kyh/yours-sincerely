@@ -67,6 +67,10 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest({ message: "You'll need to write a bit more than that" });
   }
 
+  if (user && user.disabled) {
+    return badRequest({ message: "Your account has been disabled" });
+  }
+
   const tempPassword = generateToken();
 
   const post = await createPost({
