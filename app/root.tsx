@@ -11,7 +11,7 @@ import {
   ScrollRestoration,
   useFetchers,
   useLoaderData,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import NProgress from "nprogress";
 import { useEffect, useMemo } from "react";
@@ -90,17 +90,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 const App = () => {
   const { platform } = usePlatform();
   const data = useLoaderData<typeof loader>();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const fetchers = useFetchers();
 
   const state = useMemo<"idle" | "loading">(() => {
     let states = [
-      transition.state,
+      navigation.state,
       ...fetchers.map((fetcher) => fetcher.state),
     ];
     if (states.every((state) => state === "idle")) return "idle";
     return "loading";
-  }, [transition.state, fetchers]);
+  }, [navigation.state, fetchers]);
 
   useEffect(() => {
     if (state === "loading") NProgress.start();

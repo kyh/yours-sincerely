@@ -34,10 +34,13 @@ export const action: ActionFunction = async ({ request }) => {
 
   const input = Object.fromEntries(await request.formData()) as Partial<User>;
 
+  console.log({ input });
+
   await updateUser({
     ...input,
-    // @ts-expect-error
-    weeklyDigestEmail: input.weeklyDigestEmail === "true",
+    email: input.email ?? undefined,
+    weeklyDigestEmail:
+      (input.weeklyDigestEmail as unknown as string) === "true",
     id: user.id,
   });
 
@@ -50,7 +53,7 @@ const Page = () => {
   const { user } = useLoaderData<typeof loader>();
   return (
     <main className="mx-auto w-full max-w-md pt-5">
-      <EditProfile user={user} />
+      <EditProfile user={user as User} />
     </main>
   );
 };

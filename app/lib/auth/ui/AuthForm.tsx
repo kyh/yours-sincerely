@@ -2,8 +2,8 @@ import {
   Form,
   Link,
   useActionData,
+  useNavigation,
   useSearchParams,
-  useTransition,
 } from "@remix-run/react";
 import { useEffect } from "react";
 import { Button } from "~/components/Button";
@@ -35,7 +35,7 @@ const actionMap: Record<Props["authType"], { button: string; url: string }> = {
 
 export const AuthForm = ({ authType }: Props) => {
   const { toast } = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const action = useActionData();
   const [searchParams] = useSearchParams();
   const { button, url } = actionMap[authType];
@@ -47,7 +47,7 @@ export const AuthForm = ({ authType }: Props) => {
     if (action && action.message) {
       toast(action.message);
     }
-  }, [action]);
+  }, [toast, action]);
 
   return (
     <Form className="flex flex-col gap-5" method="post" action={url}>
@@ -87,7 +87,7 @@ export const AuthForm = ({ authType }: Props) => {
       <Button
         className="mt-2 w-full"
         type="submit"
-        loading={transition.state !== "idle"}
+        loading={navigation.state !== "idle"}
       >
         {button}
       </Button>
