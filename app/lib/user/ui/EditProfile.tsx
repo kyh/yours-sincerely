@@ -1,8 +1,8 @@
 import { Switch } from "@headlessui/react";
-import { Form, Link, useFormAction, useTransition } from "@remix-run/react";
+import { Form, Link, useFormAction, useNavigation } from "@remix-run/react";
 import React, { useState } from "react";
 import { CALENDAR_LABELS, DEFAULT_WEEKDAY_LABELS } from "~/components/Activity";
-import { baseClass, Button, variantClasses } from "~/components/Button";
+import { Button, baseClass, variantClasses } from "~/components/Button";
 import { CalendarMenu } from "~/components/CalendarMenu";
 import { TextField } from "~/components/FormField";
 import type { User } from "~/lib/user/data/userSchema";
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const EditProfile = ({ user }: Props) => {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const [recurring, setRecurring] = useState([] as string[]);
   const [weeklyDigest, setWeeklyDigest] = useState(user.weeklyDigestEmail);
 
@@ -78,7 +78,7 @@ export const EditProfile = ({ user }: Props) => {
                     )}
                     onChange={handleRecurringDayChange}
                   />
-                  <div className="w-14 rounded-full bg-slate-200 px-3 pt-10 pb-3 transition peer-checked:bg-primary peer-checked:text-slate-50 dark:bg-slate-600">
+                  <div className="w-14 rounded-full bg-slate-200 px-3 pb-3 pt-10 transition peer-checked:bg-primary peer-checked:text-slate-50 dark:bg-slate-600">
                     {day}
                   </div>
                 </label>
@@ -125,7 +125,7 @@ export const EditProfile = ({ user }: Props) => {
           className="inline-flex items-center justify-center rounded-md border border-transparent px-3 py-2 text-sm leading-4 text-red-700 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-700"
           type="submit"
           formAction={useFormAction("/auth/logout")}
-          disabled={transition.state === "submitting"}
+          disabled={navigation.state === "submitting"}
         >
           Logout
         </button>
@@ -136,7 +136,7 @@ export const EditProfile = ({ user }: Props) => {
           >
             Back
           </Link>
-          <Button type="submit" loading={transition.state === "submitting"}>
+          <Button type="submit" loading={navigation.state === "submitting"}>
             Save Changes
           </Button>
         </div>

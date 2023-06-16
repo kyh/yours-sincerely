@@ -4,8 +4,8 @@ import {
   Form,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSubmit,
-  useTransition,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { badRequest } from "remix-utils";
@@ -111,7 +111,7 @@ const Page = () => {
   const action = useActionData();
   const { user, promptContent } = useLoaderData<typeof loader>();
   const submit = useSubmit();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
   const [postingAs, setPostingAs] = useState(user?.displayName || "");
@@ -164,7 +164,7 @@ const Page = () => {
         <PostForm
           postingAs={postingAs}
           placeholder={promptContent}
-          isSubmitting={transition.state !== "idle"}
+          isSubmitting={navigation.state !== "idle"}
           onSubmit={submitPost}
           updatePostingAs={() => setIsOpen(true)}
         />
@@ -187,7 +187,7 @@ const Page = () => {
             <Button
               type="submit"
               className="mt-4 pl-8 pr-8"
-              loading={transition.state !== "idle"}
+              loading={navigation.state !== "idle"}
               disabled={!isChecked}
             >
               Save and continue
