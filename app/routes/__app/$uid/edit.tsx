@@ -34,8 +34,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   const input = Object.fromEntries(await request.formData()) as Partial<User>;
 
-  console.log({ input });
-
   await updateUser({
     ...input,
     email: input.email ?? undefined,
