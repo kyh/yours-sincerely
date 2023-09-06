@@ -29,9 +29,8 @@ import {
   getTheme,
 } from "~/lib/core/server/session.server";
 import { createMeta } from "~/lib/core/util/meta";
-
 import knockStyles from "@knocklabs/react-notification-feed/dist/index.css";
-import styles from "./tailwind.css";
+import styles from "./global.css";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: knockStyles },
@@ -136,7 +135,7 @@ const App = () => {
         <Outlet context={data} />
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === "development" && <LiveReload />}
+        <LiveReload />
         <ThemeBody ssrTheme={Boolean(data.theme)} />
         <script
           defer

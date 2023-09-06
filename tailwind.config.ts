@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'tailwindcss'
+
+export default {
   darkMode: "class",
   content: ["./app/**/*.{ts,tsx}"],
   theme: {
@@ -32,4 +34,5 @@ module.exports = {
   },
   variants: {},
   plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms")],
-};
+} satisfies Config
+
