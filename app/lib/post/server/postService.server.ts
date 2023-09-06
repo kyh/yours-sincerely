@@ -48,9 +48,6 @@ export const getPostList = async (
   user: User | null,
   filters: PostFilters = {}
 ) => {
-  // https://github.com/planetscale/beam/issues/58
-  await prisma.$executeRaw`set sort_buffer_size=2097152`;
-
   const blocks = await getBlockList(user);
 
   const blockingMap = blocks.reduce((acc, block) => {
