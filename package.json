@@ -1,0 +1,37 @@
+{
+  "name": "init",
+  "private": true,
+  "engines": {
+    "node": ">=20.11.1"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "scripts": {
+    "build": "turbo build",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo clean",
+    "db:start": "pnpm -F db start",
+    "db:push": "pnpm -F db push",
+    "db:seed": "pnpm -F db seed",
+    "db:studio": "pnpm -F db studio",
+    "dev": "turbo dev --parallel",
+    "dev:nextjs": "turbo dev --filter=nextjs",
+    "dev:expo": "turbo dev --filter=expo",
+    "format": "turbo format --continue -- --cache --cache-location node_modules/.cache/.prettiercache",
+    "format:fix": "turbo format --continue -- --write --cache --cache-location node_modules/.cache/.prettiercache",
+    "lint": "turbo lint --continue -- --cache --cache-location node_modules/.cache/.eslintcache",
+    "lint:fix": "turbo lint --continue -- --fix --cache --cache-location node_modules/.cache/.eslintcache",
+    "typecheck": "turbo typecheck",
+    "gen:package": "turbo gen package",
+    "ui:add": "pnpm -F ui ui:add"
+  },
+  "devDependencies": {
+    "@kyh/prettier-config": "^0.1.7",
+    "@turbo/gen": "^1.13.2",
+    "dotenv-cli": "^7.4.1",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.2",
+    "turbo": "^1.13.2",
+    "typescript": "^5.4.5"
+  },
+  "prettier": "@kyh/prettier-config"
+}
