@@ -22,7 +22,7 @@ export const todoRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.db.todo.create({
         data: {
-          userId: ctx.user.id,
+          userId: ctx.session.user.id,
           content: input.content,
         },
       });
