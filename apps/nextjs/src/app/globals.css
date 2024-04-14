@@ -58,3 +58,55 @@
     --ring: 240 4.9% 83.9%;
   }
 }
+
+.page-layout {
+  --header-height: 80px;
+  --left-column-width: 200px;
+  --right-column-width: 300px;
+
+  display: grid;
+  grid-template-areas:
+    "nav-header content-header aside-header"
+    "nav content aside";
+  grid-template-columns: var(--left-column-width) auto var(--right-column-width);
+  grid-template-rows: var(--header-height) auto;
+  column-gap: 4rem;
+}
+
+.area-nav-header {
+  grid-area: nav-header;
+  position: sticky;
+  top: 0;
+}
+
+.area-nav {
+  grid-area: nav;
+  position: sticky;
+  top: var(--header-height);
+  align-self: start;
+  height: calc(100dvh - var(--header-height));
+}
+
+.area-content-header {
+  grid-area: content-header;
+  position: sticky;
+  top: 0;
+}
+
+.area-content {
+  grid-area: content;
+}
+
+.area-aside-header {
+  grid-area: aside-header;
+  position: sticky;
+  top: 0;
+}
+
+.area-aside {
+  grid-area: aside;
+  position: sticky;
+  top: var(--header-height);
+  align-self: start;
+  height: calc(100dvh - var(--header-height));
+}

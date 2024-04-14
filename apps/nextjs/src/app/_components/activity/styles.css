@@ -1,0 +1,22 @@
+.calendar {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.calendar text {
+  fill: currentColor;
+}
+
+@keyframes loadingAnimation {
+  0% {
+    fill: var(--activity-calendar-loading);
+  }
+  50% {
+    fill: var(--activity-calendar-loading-active);
+  }
+  100% {
+    fill: var(--activity-calendar-loading);
+  }
+}

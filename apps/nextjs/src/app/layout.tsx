@@ -5,8 +5,11 @@ import { Toaster } from "@init/ui/toast";
 import { cn } from "@init/ui/utils";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { Footer } from "./_components/layout/footer";
+import { ToastProvider } from "./_components/toaster";
 
-import "./globals.css";
+import "@/app/globals.css";
+import "@knocklabs/react-notification-feed/dist/index.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -56,7 +59,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <ToastProvider>
+              <section className="page bg-white dark:bg-slate-800">
+                {children}
+                <Footer />
+              </section>
+            </ToastProvider>
+          </TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
       </body>

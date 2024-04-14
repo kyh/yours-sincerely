@@ -32,7 +32,15 @@
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.5.0",
     "superjson": "^2.2.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@headlessui/react": "^1.7.17",
+    "@knocklabs/node": "^0.4.23",
+    "@knocklabs/react-notification-feed": "^0.8.13",
+    "@mojs/core": "^1.7.1",
+    "@react-hook/hotkey": "^3.1.0",
+    "framer-motion": "^10.16.16",
+    "react-infinite-scroll-hook": "^4.1.1",
+    "reading-time": "^1.5.0"
   },
   "devDependencies": {
     "@init/tailwind-config": "workspace:latest",
@@ -45,8 +53,7 @@
     "@types/react-dom": "^18.2.25",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
-    "tailwindcss": "^3.4.3",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.3"
   },
   "eslintConfig": {
     "root": true,
