@@ -20,19 +20,18 @@
     "@init/ui": "workspace:latest",
     "@mdx-js/loader": "^3.0.1",
     "@mdx-js/react": "^3.0.1",
-    "@next/mdx": "^14.2.0",
+    "@next/mdx": "^14.2.1",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/supabase-js": "^2.42.2",
+    "@supabase/supabase-js": "^2.42.3",
     "@tanstack/react-query": "^5.29.2",
     "@trpc/client": "11.0.0-next-beta.294",
     "@trpc/react-query": "11.0.0-next-beta.294",
     "@trpc/server": "11.0.0-next-beta.294",
-    "next": "^14.2.0",
+    "next": "^14.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.5.0",
     "superjson": "^2.2.1",
-    "zod": "^3.22.4",
     "@headlessui/react": "^1.7.17",
     "@knocklabs/node": "^0.4.23",
     "@knocklabs/react-notification-feed": "^0.8.13",
@@ -40,7 +39,8 @@
     "@react-hook/hotkey": "^3.1.0",
     "framer-motion": "^10.16.16",
     "react-infinite-scroll-hook": "^4.1.1",
-    "reading-time": "^1.5.0"
+    "reading-time": "^1.5.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@init/tailwind-config": "workspace:latest",
@@ -49,11 +49,12 @@
     "@kyh/tsconfig": "^0.1.7",
     "@types/mdx": "^2.0.13",
     "@types/node": "^20.12.7",
-    "@types/react": "^18.2.77",
+    "@types/react": "^18.2.78",
     "@types/react-dom": "^18.2.25",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
-    "typescript": "^5.4.3"
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5"
   },
   "eslintConfig": {
     "root": true,

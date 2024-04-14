@@ -8,7 +8,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { Footer } from "./_components/layout/footer";
 import { ToastProvider } from "./_components/toaster";
 
-import "@/app/globals.css";
+import "./globals.css";
 import "@knocklabs/react-notification-feed/dist/index.css";
 
 export const metadata: Metadata = {
