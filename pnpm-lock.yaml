@@ -127,7 +127,7 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/react':
-        specifier: ^18.2.77
+        specifier: ^18.2.78
         version: 18.2.78
       eslint:
         specifier: ^8.57.0
@@ -175,7 +175,7 @@ importers:
         specifier: ^1.7.1
         version: 1.7.1
       '@next/mdx':
-        specifier: ^14.2.0
+        specifier: ^14.2.1
         version: 14.2.1(@mdx-js/loader@3.0.1)(@mdx-js/react@3.0.1)
       '@react-hook/hotkey':
         specifier: ^3.1.0
@@ -184,7 +184,7 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(@supabase/supabase-js@2.42.3)
       '@supabase/supabase-js':
-        specifier: ^2.42.2
+        specifier: ^2.42.3
         version: 2.42.3
       '@tanstack/react-query':
         specifier: ^5.29.2
@@ -202,7 +202,7 @@ importers:
         specifier: ^10.16.16
         version: 10.18.0(react-dom@18.2.0)(react@18.2.0)
       next:
-        specifier: ^14.2.0
+        specifier: ^14.2.1
         version: 14.2.1(@babel/core@7.24.4)(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18.2.0
@@ -245,7 +245,7 @@ importers:
         specifier: ^20.12.7
         version: 20.12.7
       '@types/react':
-        specifier: ^18.2.77
+        specifier: ^18.2.78
         version: 18.2.78
       '@types/react-dom':
         specifier: ^18.2.25
@@ -256,8 +256,11 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
+      tailwindcss:
+        specifier: ^3.4.3
+        version: 3.4.3
       typescript:
-        specifier: ^5.4.3
+        specifier: ^5.4.5
         version: 5.4.5
 
   packages/api:
@@ -303,7 +306,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(@prisma/client@5.12.1)
       '@supabase/supabase-js':
-        specifier: ^2.42.2
+        specifier: ^2.42.3
         version: 2.42.3
     devDependencies:
       '@kyh/eslint-config':
@@ -502,7 +505,7 @@ importers:
         specifier: ^0.1.7
         version: 0.1.7
       '@types/react':
-        specifier: ^18.2.77
+        specifier: ^18.2.78
         version: 18.2.78
       eslint:
         specifier: ^8.57.0
