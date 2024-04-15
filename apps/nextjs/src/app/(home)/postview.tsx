@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import type { Post } from "@/lib/post/data/postschema";
 import { useRootHotkeys } from "@/lib/core/util/hotkey";
 import { PostContent } from "@/lib/post/ui/postcontent";
-import { CardStack } from "./_components/cardstack";
-import { useInfiniteScroll } from "./_components/infinitescroll";
-import { Spinner } from "./_components/spinner";
-import { useEffect, useState } from "react";
-import Navbar from "./_components/layout/navbar";
-import type { Post } from "@/lib/post/data/postschema";
+import { CardStack } from "../_components/cardstack";
+import { useInfiniteScroll } from "../_components/infinitescroll";
+import { Spinner } from "../_components/spinner";
 
 type Props = {
   postList: Post[];
-}
+};
 
 const PostView = ({ postList }: Props) => {
   const router = useRouter();
@@ -22,8 +22,8 @@ const PostView = ({ postList }: Props) => {
   const [view, setView] = useState("STACK");
 
   useEffect(() => {
-    setView(localStorage.getItem('view') ?? "STACK");
-  }, [])
+    setView(localStorage.getItem("view") ?? "STACK");
+  }, []);
 
   const {
     loadMore,
@@ -38,10 +38,9 @@ const PostView = ({ postList }: Props) => {
 
   return (
     <>
-      <Navbar view={view} setView={setView} />
       {!!posts.length && (
         <main
-          className={`flex flex-col gap-5 ${view === "STACK" ? "" : "py-5"}`}
+          className={`area-content flex flex-col gap-5 ${view === "STACK" ? "" : "py-5"}`}
         >
           {view === "STACK" && (
             <CardStack
@@ -77,10 +76,12 @@ const PostView = ({ postList }: Props) => {
 };
 
 const EmptyPost = () => (
-  <main className="m-auto max-w-sm text-center">
+  <main className="area-content m-auto max-w-sm text-center">
     <h1 className="text-2xl font-bold">
       {"It's kind of lonely here... could you help "}
-      <Link href="/posts/new" className="text-[#8389E1]">start something?</Link>
+      <Link href="/posts/new" className="text-[#8389E1]">
+        start something?
+      </Link>
     </h1>
     <Image src="/assets/reading.svg" alt="No posts" width={400} height={300} />
   </main>

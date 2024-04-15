@@ -1,21 +1,16 @@
 // export const runtime = "edge";
 
 import { PageHeader } from "@/components/page-header";
+import { api } from "@/trpc/server";
+import PostView from "./postview";
 
 const Page = async () => {
+  const postList = await api.posts.list({});
+
   return (
     <>
       <PageHeader title="Home" />
-      <main className="area-content space-y-5">
-        {[...Array(30).keys()].map((_, index) => (
-          <p key={index}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint
-            repellendus reiciendis voluptatum dignissimos natus quae ipsum nobis
-            voluptatibus eligendi consequuntur est aliquid facilis tenetur et
-            nulla, repudiandae illum earum! Quaerat.
-          </p>
-        ))}
-      </main>
+      <PostView postList={postList} />
       <Aside />
     </>
   );
