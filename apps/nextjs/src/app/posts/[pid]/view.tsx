@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { redirect } from "next/navigation";
 import { Button } from "@init/ui/button";
+import { toast } from "@init/ui/toast";
 
 import type { Post } from "@/lib/post/data/postschema";
 import type { User } from "@/lib/user/data/userSchema";
-import { useToast } from "@/app/_components/toaster";
+import { TextArea } from "@/app/_components/formfield";
 import { BackButton } from "@/lib/post/ui/backbutton";
 import { CommentContent } from "@/lib/post/ui/commentcontent";
 import { PostContent } from "@/lib/post/ui/postcontent";
 import { api } from "@/trpc/react";
-import { TextArea } from "../../_components/formfield";
 
 const readingTime = require("reading-time/lib/reading-time");
 
@@ -23,7 +23,6 @@ type Props = {
 
 const View = ({ post, user, pid }: Props) => {
   const utils = api.useUtils();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { mutate } = api.posts.create.useMutation({
     onSuccess: async () => {
@@ -103,7 +102,7 @@ const View = ({ post, user, pid }: Props) => {
                 </form>
               )}
               <h1 className="text-sm">Comments ({post.commentCount ?? 0})</h1>
-              {post?.comments && (
+              {post.comments && (
                 <div className="flex flex-col gap-6">
                   {post.comments.map((comment) => (
                     <CommentContent key={comment.id} post={comment} />

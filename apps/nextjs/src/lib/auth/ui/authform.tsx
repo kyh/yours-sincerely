@@ -9,7 +9,6 @@ import { toast } from "@init/ui/toast";
 
 import { Button } from "@/app/_components/button";
 import { Checkbox, TextField } from "@/app/_components/formfield";
-import { useToast } from "@/app/_components/toaster";
 import { api } from "@/trpc/server";
 import { isEmailValid, isPasswordValid } from "../data/authschema";
 import { signInWithGithub, signInWithPassword, signUp } from "./actions";
@@ -40,7 +39,6 @@ const actionMap: Record<Props["authType"], { button: string; action: string }> =
 
 export const AuthForm = ({ authType }: Props) => {
   const { button, action } = actionMap[authType];
-  // const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 

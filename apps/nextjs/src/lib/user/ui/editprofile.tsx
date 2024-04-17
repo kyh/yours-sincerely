@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
 import { Switch } from "@headlessui/react";
-import { CALENDAR_LABELS, DEFAULT_WEEKDAY_LABELS } from "@/app/_components/activity";
-import { Button, baseClass, variantClasses } from "@/app/_components/button";
+import { toast } from "@init/ui/toast";
+
+import type { User } from "../data/userSchema";
+import {
+  CALENDAR_LABELS,
+  DEFAULT_WEEKDAY_LABELS,
+} from "@/app/_components/activity";
+import { baseClass, Button, variantClasses } from "@/app/_components/button";
 import { CalendarMenu } from "@/app/_components/calendarmenu";
 import { TextField } from "@/app/_components/formfield";
-import type { User } from "../data/userSchema";
 import Navbar from "@/app/_components/layout/navbar";
 import { api } from "@/trpc/react";
-import { useToast } from "@/app/_components/toaster";
 import { action } from "./logoutaction";
 
 type Props = {
@@ -20,7 +24,6 @@ type Props = {
 
 export const EditProfile = ({ user }: Props) => {
   const router = useRouter();
-  const { toast } = useToast();
 
   const [recurring, setRecurring] = useState([] as string[]);
   const [weeklyDigest, setWeeklyDigest] = useState(user.weeklyDigestEmail);
@@ -28,13 +31,13 @@ export const EditProfile = ({ user }: Props) => {
   const mutation = api.user.update.useMutation();
 
   const handleRecurringDayChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const includes = recurring.includes(event.target.value);
     setRecurring(
       includes
         ? recurring.filter((day) => day !== event.target.value)
-        : [...recurring, event.target.value]
+        : [...recurring, event.target.value],
     );
   };
 
@@ -52,19 +55,16 @@ export const EditProfile = ({ user }: Props) => {
       weeklyDigestEmail:
         (input.weeklyDigestEmail as unknown as string) === "true",
       id: user.id,
-    })
+    });
 
     toast("User profile updated");
     router.push(`/${user.id}`);
-  }
+  };
 
   return (
     <>
       <Navbar />
-      <form
-        className="flex flex-col gap-10"
-        onSubmit={handleSubmit}
-      >
+      <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
         <fieldset className="flex flex-col gap-5">
           <h1 className="text-xl font-bold">Profile Details</h1>
           <TextField
@@ -104,9 +104,11 @@ export const EditProfile = ({ user }: Props) => {
                       type="checkbox"
                       name={`reminder-${day}`}
                       id={`reminder-${day}`}
-                      value={CALENDAR_LABELS[day as keyof typeof CALENDAR_LABELS]}
-                      checked={recurring.includes(
+                      value={
                         CALENDAR_LABELS[day as keyof typeof CALENDAR_LABELS]
+                      }
+                      checked={recurring.includes(
+                        CALENDAR_LABELS[day as keyof typeof CALENDAR_LABELS],
                       )}
                       onChange={handleRecurringDayChange}
                     />
@@ -137,13 +139,17 @@ export const EditProfile = ({ user }: Props) => {
                 <Switch
                   checked={weeklyDigest}
                   onChange={setWeeklyDigest}
-                  className={`relative ml-auto inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-offset-2 ${weeklyDigest ? "bg-primary" : "bg-slate-200 dark:bg-slate-600"
-                    }`}
+                  className={`focus:ring-primary-dark relative ml-auto inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    weeklyDigest
+                      ? "bg-primary"
+                      : "bg-slate-200 dark:bg-slate-600"
+                  }`}
                 >
                   <span
                     aria-hidden="true"
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-slate-100 ${weeklyDigest ? "translate-x-5" : "translate-x-0"
-                      }`}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-slate-100 ${
+                      weeklyDigest ? "translate-x-5" : "translate-x-0"
+                    }`}
                   />
                 </Switch>
               </dd>
@@ -167,9 +173,7 @@ export const EditProfile = ({ user }: Props) => {
             >
               Back
             </Link>
-            <Button>
-              Save Changes
-            </Button>
+            <Button>Save Changes</Button>
           </div>
         </div>
       </form>

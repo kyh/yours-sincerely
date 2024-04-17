@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const blockRouter = createTRPCRouter({
   all: protectedProcedure
@@ -9,7 +9,7 @@ export const blockRouter = createTRPCRouter({
       return ctx.db.block.findMany({
         where: {
           blockerId: input?.id,
-        }
+        },
       });
     }),
 
@@ -17,8 +17,8 @@ export const blockRouter = createTRPCRouter({
     .input(
       z.object({
         blockerId: z.string(),
-        blockingId: z.string()
-      })
+        blockingId: z.string(),
+      }),
     )
     .query(({ ctx, input }) => {
       return ctx.db.block.findUnique({
@@ -33,15 +33,15 @@ export const blockRouter = createTRPCRouter({
       z.object({
         blocker: z.object({
           connect: z.object({
-            id: z.string()
-          })
+            id: z.string(),
+          }),
         }),
         blocking: z.object({
           connect: z.object({
-            id: z.string()
-          })
+            id: z.string(),
+          }),
         }),
-      })
+      }),
     )
     .mutation(({ ctx, input }) => {
       return ctx.db.block.create({
@@ -53,8 +53,8 @@ export const blockRouter = createTRPCRouter({
     .input(
       z.object({
         blockerId: z.string(),
-        blockingId: z.string()
-      })
+        blockingId: z.string(),
+      }),
     )
     .query(({ ctx, input }) => {
       return ctx.db.block.delete({

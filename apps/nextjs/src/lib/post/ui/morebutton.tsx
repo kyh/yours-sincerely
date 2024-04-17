@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "@init/ui/toast";
 
 import type { Post } from "../data/postschema";
 import { Dialog } from "@/app/_components/dialog";
 import { iconAttrs } from "@/app/_components/icon";
-import { useToast } from "@/app/_components/toaster";
 import { api } from "@/trpc/react";
 
 type Props = {
@@ -17,7 +17,6 @@ const buttonClass =
   "w-full text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800";
 
 export const MoreButton = ({ post }: Props) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   const deleteMutation = api.posts.delete.useMutation({

@@ -1,11 +1,7 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../../trpc";
-import { defaultSelect } from "../user/user";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { defaultSelect } from "./user";
 
 export const likeRouter = createTRPCRouter({
   all: publicProcedure
