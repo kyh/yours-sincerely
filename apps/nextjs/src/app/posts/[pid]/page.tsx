@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 import { api } from "@/trpc/server";
 import View from "./view";
 
@@ -16,7 +16,9 @@ const Page = async ({ params: { pid } }: Props) => {
   return (
     <>
       <PageHeader title="Post" />
-      <View post={post} user={user} pid={pid} />
+      <PageContent>
+        <View post={post} user={user} pid={pid} />
+      </PageContent>
     </>
   );
 };

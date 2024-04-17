@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 
 // export let meta: MetaFunction = () => {
 //   return createMeta({
@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/page-header";
 const Page = () => (
   <>
     <PageHeader title="Terms of Use" />
-    <main className="prose prose-slate mx-auto dark:prose-invert">
+    <PageContent className="prose prose-slate mx-auto dark:prose-invert">
       <p>
         By downloading or using the app, these terms will automatically apply to
         you – you should make sure therefore that you read them carefully before
@@ -190,7 +190,7 @@ const Page = () => (
         If you have any questions or suggestions about my Terms and Conditions,
         do not hesitate to contact me at kai@kyh.io.
       </p>
-    </main>
+    </PageContent>
   </>
 );
 

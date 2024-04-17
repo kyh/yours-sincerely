@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { auth } from "@init/auth";
 
 import { EditProfile } from "@/lib/user/ui/editprofile";
 import { api } from "@/trpc/server";

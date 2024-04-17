@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 import { PrivacyTerms } from "@/lib/about/ui/privacyterms";
 
 // import { createMeta } from "~/lib/core/util/meta";
@@ -15,13 +15,7 @@ const quoteClass =
 const Page = () => (
   <>
     <PageHeader title="About" />
-    <main className="mx-auto flex max-w-[25rem] flex-col gap-6">
-      <hgroup className="text-center">
-        <h1 className="text-2xl font-bold">About YS</h1>
-        <h2 className="mt-1 text-sm text-slate-500 dark:text-slate-300">
-          As described by our users
-        </h2>
-      </hgroup>
+    <PageContent className="flex flex-col gap-6">
       <p className={quoteClass}>
         An ephemeral anonymous blog to send each other tiny beautiful letters
       </p>
@@ -40,7 +34,7 @@ const Page = () => (
       <div className="mb-4 mt-auto">
         <PrivacyTerms />
       </div>
-    </main>
+    </PageContent>
   </>
 );
 

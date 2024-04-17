@@ -60,7 +60,7 @@ const View = ({ post, user, pid }: Props) => {
 
   return (
     <>
-      <main className="flex flex-col gap-5 py-5">
+      <section className="flex flex-col gap-5">
         <header className="flex items-center justify-between">
           <BackButton />
           <p className="text-xs text-slate-500 dark:text-slate-300">
@@ -117,7 +117,7 @@ const View = ({ post, user, pid }: Props) => {
             This post no longer exist or is under review
           </p>
         )}
-      </main>
+      </section>
     </>
   );
 };
