@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
+import { toast } from "@init/ui/toast";
+
+import type { Post } from "../data/postschema";
 import { Dialog } from "@/app/_components/dialog";
 import { Divider } from "@/app/_components/divider";
 import { iconAttrs } from "@/app/_components/icon";
-import { useToast } from "@/app/_components/toaster";
-import type { Post } from "../data/postschema";
 
 type Props = {
   post: Post;
@@ -13,7 +14,6 @@ const iconClassName =
   "bg-slate-100 rounded-full p-3 text-slate-500 transition hover:text-primary-dark hover:bg-primary-bg dark:bg-slate-600 dark:text-slate-200 dark:hover:text-primary-light";
 
 export const ShareButton = ({ post }: Props) => {
-  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
   const postUrl = `https://yourssincerely.org/posts/${post.id}`;
@@ -121,7 +121,7 @@ export const ShareButton = ({ post }: Props) => {
           />
           <button
             type="button"
-            className="absolute right-3 top-1 bg-slate-100 p-2 transition hover:text-primary-dark dark:bg-slate-600 dark:hover:text-primary-light"
+            className="hover:text-primary-dark dark:hover:text-primary-light absolute right-3 top-1 bg-slate-100 p-2 transition dark:bg-slate-600"
             onClick={copyLink}
           >
             <svg {...iconAttrs}>

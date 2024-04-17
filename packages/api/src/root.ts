@@ -1,15 +1,13 @@
-import { authRouter } from "./routers/auth";
-import { flagRouter } from "./routers/posts/flag";
-import { likeRouter } from "./routers/posts/like";
-import { postsRouter } from "./routers/posts/posts";
-import { promptRouter } from "./routers/posts/prompt";
-import { accountRouter } from "./routers/user/account";
-import { blockRouter } from "./routers/user/block";
-import { userRouter } from "./routers/user/user";
+import { accountRouter } from "./routers/account";
+import { blockRouter } from "./routers/block";
+import { flagRouter } from "./routers/flag";
+import { likeRouter } from "./routers/like";
+import { postsRouter } from "./routers/post";
+import { promptRouter } from "./routers/prompt";
+import { userRouter } from "./routers/user";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
-  auth: authRouter,
   user: userRouter,
   block: blockRouter,
   account: accountRouter,

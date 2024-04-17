@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "@init/ui/toast";
 
 import type { Post } from "@/lib/post/data/postschema";
 import type { User } from "@/lib/user/data/userSchema";
+import { Button } from "@/app/_components/button";
+import { Dialog } from "@/app/_components/dialog";
+import { Divider } from "@/app/_components/divider";
+import { TextField } from "@/app/_components/formfield";
 import { SocialLoginForm } from "@/lib/auth/ui/socialloginform";
 import { isPostContentValid } from "@/lib/post/data/postschema";
 import { getStoredPostAndClear, PostForm } from "@/lib/post/ui/postform";
 import { api } from "@/trpc/react";
-import { Button } from "../../_components/button";
-import { Dialog } from "../../_components/dialog";
-import { Divider } from "../../_components/divider";
-import { TextField } from "../../_components/formfield";
-import { useToast } from "../../_components/toaster";
 import { action } from "./action";
 
 type Props = {
@@ -21,7 +21,6 @@ type Props = {
 };
 
 const View = ({ user }: Props) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);

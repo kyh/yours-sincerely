@@ -7,12 +7,8 @@ import type {
   Like as PrismaLike,
   Post as PrismaPost,
 } from "@prisma/client";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../../trpc";
-import { defaultSelect } from "../user/user";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { defaultSelect } from "./user";
 
 const knockClient = new Knock(process.env.KNOCK_SECRET_API_KEY);
 
@@ -80,7 +76,7 @@ export const postsRouter = createTRPCRouter({
       const blocks = await ctx.db.block.findMany({
         where: {
           // blockerId: input.user?.id,
-          blockerId: ctx?.user?.id,
+          blockerId: ctx.user?.id,
         },
       });
 
@@ -95,12 +91,12 @@ export const postsRouter = createTRPCRouter({
       const cursorOption: CursorOption = input.filters?.cursor
         ? {
             skip: 1,
-            cursor: { id: input.filters?.cursor },
+            cursor: { id: input.filters.cursor },
           }
         : {};
 
       const whereOption = input.filters?.parentId
-        ? { parentId: input.filters?.parentId }
+        ? { parentId: input.filters.parentId }
         : {
             createdAt: {
               gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
@@ -122,13 +118,13 @@ export const postsRouter = createTRPCRouter({
             flags: {
               where: {
                 // userId: input.user?.id ?? "",
-                userId: ctx?.user?.id ?? "",
+                userId: ctx.user?.id ?? "",
               },
             },
             likes: {
               where: {
                 // userId: input.user?.id ?? "",
-                userId: ctx?.user?.id ?? "",
+                userId: ctx.user?.id ?? "",
               },
             },
             _count: {

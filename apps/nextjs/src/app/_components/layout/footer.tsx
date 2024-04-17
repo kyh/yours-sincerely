@@ -4,24 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@init/ui/theme";
 
-import type { Theme } from "@/lib/core/util/theme";
-import { themes } from "@/lib/core/util/theme";
-import { useToast } from "../toaster";
-
 export const Footer = () => {
   const currentPath = usePathname();
   const { theme, setTheme } = useTheme();
-  // const { toast } = useToast();
-  // const { message } = useOutletContext<{ message: string }>();
-
-  // useEffect(() => {
-  //   if (message) toast(message);
-  // }, [message]);
 
   const onThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const updated =
-      event.target.value === "default" ? null : event.target.value;
-    setTheme(updated as Theme);
+    setTheme(event.target.value);
   };
 
   return (
@@ -47,14 +35,12 @@ export const Footer = () => {
           <li>
             <select
               className="focus:border-primary-dark dark:focus:border-primary-light rounded border-slate-500 bg-transparent bg-none px-2 py-1 text-center text-xs capitalize dark:border-slate-100"
-              value={theme ? theme : "default"}
+              value={theme ?? "system"}
               onChange={onThemeChange}
             >
-              {themes.map((theme) => (
-                <option value={theme} key={theme}>
-                  {theme}
-                </option>
-              ))}
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
             </select>
           </li>
         </ul>

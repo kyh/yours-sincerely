@@ -1,9 +1,6 @@
-import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { Button, buttonVariants } from "@init/ui/button";
 import { Logo } from "@init/ui/logo";
-import { cn } from "@init/ui/utils";
 import {
   BellIcon,
   BookmarkIcon,
@@ -11,35 +8,8 @@ import {
   HomeIcon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import type { User } from "@supabase/auth-helpers-nextjs";
-
-export const metadata: Metadata = {
-  title: "Init",
-  description: "Unauthenticated pages",
-};
-
-const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const supabase = createServerComponentClient({
-    cookies,
-  });
-
-  const { data } = await supabase.auth.getUser();
-
-  return (
-    <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
-      <NavHeader />
-      <NavSidebar />
-      {children}
-      <AsideHeader />
-    </section>
-  );
-};
-
-export default Layout;
-
-const NavHeader = () => (
+export const NavHeader = () => (
   <div className="area-nav-header hidden items-center border-b border-b-gray-400 lg:flex">
     <Logo />
   </div>
@@ -57,7 +27,7 @@ const footerNavigation = [
   { name: "Terms", href: "/terms" },
 ];
 
-const NavSidebar = () => {
+export const NavSidebar = () => {
   return (
     <section className="area-nav hidden flex-col lg:flex">
       <nav className="flex flex-col py-6">
@@ -103,7 +73,7 @@ const NavSidebar = () => {
   );
 };
 
-const AsideHeader = () => (
+export const AsideHeader = () => (
   <div className="area-aside-header hidden items-center justify-end space-x-4 border-b border-b-gray-400 xl:flex">
     <Button variant="ghost">
       <span className="sr-only">Search</span>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const flagRouter = createTRPCRouter({
   all: publicProcedure
@@ -8,11 +8,11 @@ export const flagRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.db.flag.findMany({
         where: {
-          userId: input.id
+          userId: input.id,
         },
         orderBy: {
-          createdAt: "desc"
-        }
+          createdAt: "desc",
+        },
       });
     }),
 
@@ -21,9 +21,9 @@ export const flagRouter = createTRPCRouter({
       z.object({
         postId_userId: z.object({
           postId: z.string(),
-          userId: z.string()
-        })
-      })
+          userId: z.string(),
+        }),
+      }),
     )
     .query(({ ctx, input }) => {
       return ctx.db.flag.findUnique({
@@ -39,8 +39,8 @@ export const flagRouter = createTRPCRouter({
         comment: z.string().optional(),
         resolved: z.boolean().optional(),
         postId: z.string(),
-        userId: z.string()
-      })
+        userId: z.string(),
+      }),
     )
     .mutation(({ ctx, input }) => {
       return ctx.db.flag.create({
@@ -53,7 +53,7 @@ export const flagRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return ctx.db.flag.delete({
         where: {
-          postId_userId: input
+          postId_userId: input,
         },
       });
     }),

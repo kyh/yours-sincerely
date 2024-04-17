@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 // import { createPasswordHash, validatePassword } from "../auth";
 
