@@ -1,7 +1,7 @@
 // import { createMeta } from "~/lib/core/util/meta";
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 import { NoProfile } from "@/lib/user/ui/noprofile";
 import { api } from "@/trpc/server";
 
@@ -12,9 +12,9 @@ const Page = async () => {
   return (
     <>
       <PageHeader title="Profile" />
-      <main className="pt-5">
+      <PageContent>
         <NoProfile />
-      </main>
+      </PageContent>
     </>
   );
 };

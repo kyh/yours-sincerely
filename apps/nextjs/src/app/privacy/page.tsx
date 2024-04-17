@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 
 // export let meta: MetaFunction = () => {
 //   return createMeta({
@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/page-header";
 const Page = () => (
   <>
     <PageHeader title="Privacy Policy" />
-    <main className="prose prose-slate mx-auto dark:prose-invert">
+    <PageContent className="prose prose-slate mx-auto dark:prose-invert">
       <p>
         Kaiyu Hsu built the Yours Sincerely app as an Open Source app. This
         SERVICE is provided by Kaiyu Hsu at no cost and is intended for use as
@@ -157,7 +157,7 @@ const Page = () => (
         If you have any questions or suggestions about my Privacy Policy, do not
         hesitate to contact me at kai@kyh.io.
       </p>
-    </main>
+    </PageContent>
   </>
 );
 

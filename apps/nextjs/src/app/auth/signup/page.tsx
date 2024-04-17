@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Divider } from "@/app/_components/divider";
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 import { AuthForm } from "@/lib/auth/ui/authform";
 import { SocialLoginForm } from "@/lib/auth/ui/socialloginform";
 
@@ -11,7 +11,7 @@ const Page = () => {
   return (
     <>
       <PageHeader title="Sign up" />
-      <main className="mx-auto w-full max-w-md">
+      <PageContent>
         <div className="rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           <AuthForm authType="signup" />
           <Divider bgColor="bg-white dark:bg-slate-900">
@@ -27,7 +27,7 @@ const Page = () => {
             Already have an account?
           </Link>
         </div>
-      </main>
+      </PageContent>
     </>
   );
 };

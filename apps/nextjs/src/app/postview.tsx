@@ -39,9 +39,7 @@ const PostView = ({ postList }: Props) => {
   return (
     <>
       {!!posts.length && (
-        <main
-          className={`area-content flex flex-col gap-5 ${view === "STACK" ? "" : "py-5"}`}
-        >
+        <section className="flex flex-col gap-5">
           {view === "STACK" && (
             <CardStack
               data={posts}
@@ -68,7 +66,7 @@ const PostView = ({ postList }: Props) => {
               )}
             </>
           )}
-        </main>
+        </section>
       )}
       {!posts.length && <EmptyPost />}
     </>

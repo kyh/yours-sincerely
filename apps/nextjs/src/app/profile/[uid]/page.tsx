@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 // supabase auth
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { PageHeader } from "@/components/page-header";
+import { PageContent, PageHeader } from "@/components/page-layout";
 import {
   createPostsDailyActivity,
   createPostsHeatmap,
@@ -43,9 +43,9 @@ const Page = async ({ params: { uid } }: Props) => {
   return (
     <>
       <PageHeader title="Profile" />
-      <main className="mx-auto w-full max-w-md py-5">
+      <PageContent>
         <Profile user={user} stats={stats} showEdit={showEdit} />
-      </main>
+      </PageContent>
     </>
   );
 };
