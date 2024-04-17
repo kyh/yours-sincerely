@@ -1,4 +1,4 @@
-import Navbar from "@/app/_components/layout/navbar";
+import { PageHeader } from "@/components/page-header";
 import { api } from "@/trpc/server";
 import View from "./view";
 
@@ -15,7 +15,7 @@ const Page = async ({ params: { pid } }: Props) => {
 
   return (
     <>
-      <Navbar />
+      <PageHeader title="Post" />
       <View post={post} user={user} pid={pid} />
     </>
   );

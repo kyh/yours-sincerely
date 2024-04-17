@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 // supabase auth
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
+import { PageHeader } from "@/components/page-header";
 import {
   createPostsDailyActivity,
   createPostsHeatmap,
@@ -13,7 +14,6 @@ import {
 } from "@/lib/post/data/poststats";
 import { Profile } from "@/lib/user/ui/profile";
 import { api } from "@/trpc/server";
-import Navbar from "../_components/layout/navbar";
 
 type Props = {
   params: {
@@ -42,7 +42,7 @@ const Page = async ({ params: { uid } }: Props) => {
 
   return (
     <>
-      <Navbar />
+      <PageHeader title="Profile" />
       <main className="mx-auto w-full max-w-md py-5">
         <Profile user={user} stats={stats} showEdit={showEdit} />
       </main>

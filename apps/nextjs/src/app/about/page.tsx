@@ -1,5 +1,6 @@
+import { PageHeader } from "@/components/page-header";
 import { PrivacyTerms } from "@/lib/about/ui/privacyterms";
-import Navbar from "../_components/layout/navbar";
+
 // import { createMeta } from "~/lib/core/util/meta";
 
 // export let meta: MetaFunction = () => {
@@ -13,7 +14,7 @@ const quoteClass =
 
 const Page = () => (
   <>
-    <Navbar />
+    <PageHeader title="About" />
     <main className="mx-auto flex max-w-[25rem] flex-col gap-6">
       <hgroup className="text-center">
         <h1 className="text-2xl font-bold">About YS</h1>
@@ -33,10 +34,10 @@ const Page = () => (
       </p>
       <p className={quoteClass}>
         YS is a public art project with optional anonymity. It is also a direct
-        channel to the inner lives of other humans who, in other contexts, rarely
-        reveal such vulnerability
+        channel to the inner lives of other humans who, in other contexts,
+        rarely reveal such vulnerability
       </p>
-      <div className="mt-auto mb-4">
+      <div className="mb-4 mt-auto">
         <PrivacyTerms />
       </div>
     </main>
