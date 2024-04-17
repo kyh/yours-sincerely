@@ -1,4 +1,4 @@
-import Navbar from "../_components/layout/navbar";
+import { PageHeader } from "@/components/page-header";
 
 // export let meta: MetaFunction = () => {
 //   return createMeta({
@@ -8,24 +8,24 @@ import Navbar from "../_components/layout/navbar";
 
 const Page = () => (
   <>
-    <Navbar />
+    <PageHeader title="Privacy Policy" />
     <main className="prose prose-slate mx-auto dark:prose-invert">
-      <h1 className="text-center text-2xl font-bold">Privacy Policy</h1>
       <p>
         Kaiyu Hsu built the Yours Sincerely app as an Open Source app. This
-        SERVICE is provided by Kaiyu Hsu at no cost and is intended for use as is.
+        SERVICE is provided by Kaiyu Hsu at no cost and is intended for use as
+        is.
       </p>
       <p>
         This page is used to inform visitors regarding my policies with the
-        collection, use, and disclosure of Personal Information if anyone decided
-        to use my Service.
+        collection, use, and disclosure of Personal Information if anyone
+        decided to use my Service.
       </p>
       <p>
-        If you choose to use my Service, then you agree to the collection and use
-        of information in relation to this policy. The Personal Information that I
-        collect is used for providing and improving the Service. I will not use or
-        share your information with anyone except as described in this Privacy
-        Policy.
+        If you choose to use my Service, then you agree to the collection and
+        use of information in relation to this policy. The Personal Information
+        that I collect is used for providing and improving the Service. I will
+        not use or share your information with anyone except as described in
+        this Privacy Policy.
       </p>
       <p>
         The terms used in this Privacy Policy have the same meanings as in our
@@ -37,13 +37,13 @@ const Page = () => (
 
       <p>
         For a better experience, while using our Service, I may require you to
-        provide us with certain personally identifiable information, including but
-        not limited to None. The information that I request will be retained on
-        your device and is not collected by me in any way.
+        provide us with certain personally identifiable information, including
+        but not limited to None. The information that I request will be retained
+        on your device and is not collected by me in any way.
       </p>
       <p>
-        The app does use third party services that may collect information used to
-        identify you.
+        The app does use third party services that may collect information used
+        to identify you.
       </p>
 
       <p>
@@ -91,8 +91,8 @@ const Page = () => (
       </p>
 
       <p>
-        This Service does not use these “cookies” explicitly. However, the app may
-        use third party code and libraries that use “cookies” to collect
+        This Service does not use these “cookies” explicitly. However, the app
+        may use third party code and libraries that use “cookies” to collect
         information and improve their services. You have the option to either
         accept or refuse these cookies and know when a cookie is being sent to
         your device. If you choose to refuse our cookies, you may not be able to
@@ -123,11 +123,11 @@ const Page = () => (
       <h4>Security</h4>
 
       <p>
-        I value your trust in providing us your Personal Information, thus we are
-        striving to use commercially acceptable means of protecting it. But
+        I value your trust in providing us your Personal Information, thus we
+        are striving to use commercially acceptable means of protecting it. But
         remember that no method of transmission over the internet, or method of
-        electronic storage is 100% secure and reliable, and I cannot guarantee its
-        absolute security.
+        electronic storage is 100% secure and reliable, and I cannot guarantee
+        its absolute security.
       </p>
 
       <h4>Links to Other Sites</h4>
@@ -135,18 +135,18 @@ const Page = () => (
       <p>
         This Service may contain links to other sites. If you click on a
         third-party link, you will be directed to that site. Note that these
-        external sites are not operated by me. Therefore, I strongly advise you to
-        review the Privacy Policy of these websites. I have no control over and
-        assume no responsibility for the content, privacy policies, or practices
-        of any third-party sites or services.
+        external sites are not operated by me. Therefore, I strongly advise you
+        to review the Privacy Policy of these websites. I have no control over
+        and assume no responsibility for the content, privacy policies, or
+        practices of any third-party sites or services.
       </p>
 
       <h4>Changes to This Privacy Policy</h4>
 
       <p>
         I may update our Privacy Policy from time to time. Thus, you are advised
-        to review this page periodically for any changes. I will notify you of any
-        changes by posting the new Privacy Policy on this page.
+        to review this page periodically for any changes. I will notify you of
+        any changes by posting the new Privacy Policy on this page.
       </p>
 
       <p>This policy is effective as of 2020-04-28</p>

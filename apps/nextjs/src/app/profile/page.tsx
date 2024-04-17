@@ -1,17 +1,17 @@
 // import { createMeta } from "~/lib/core/util/meta";
 import { redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/page-header";
 import { NoProfile } from "@/lib/user/ui/noprofile";
 import { api } from "@/trpc/server";
-import Navbar from "../_components/layout/navbar";
 
 const Page = async () => {
   const user = await api.auth.me();
-  if (user) redirect(`/${user?.id}`);
+  if (user) redirect(`/${user.id}`);
 
   return (
     <>
-      <Navbar />
+      <PageHeader title="Profile" />
       <main className="pt-5">
         <NoProfile />
       </main>

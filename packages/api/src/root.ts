@@ -1,4 +1,5 @@
 import { accountRouter } from "./routers/account";
+import { authRouter } from "./routers/auth";
 import { blockRouter } from "./routers/block";
 import { flagRouter } from "./routers/flag";
 import { likeRouter } from "./routers/like";
@@ -8,6 +9,7 @@ import { userRouter } from "./routers/user";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
+  auth: authRouter,
   user: userRouter,
   block: blockRouter,
   account: accountRouter,

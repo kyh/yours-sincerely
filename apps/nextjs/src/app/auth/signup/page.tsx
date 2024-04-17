@@ -2,22 +2,16 @@
 
 import Link from "next/link";
 
-import { Divider } from "@/app/_components/Divider";
-import Navbar from "@/app/_components/layout/Navbar";
-import { AuthForm } from "@/lib/auth/ui/AuthForm";
-import { SocialLoginForm } from "@/lib/auth/ui/SocialLoginForm";
+import { Divider } from "@/app/_components/divider";
+import { PageHeader } from "@/components/page-header";
+import { AuthForm } from "@/lib/auth/ui/authform";
+import { SocialLoginForm } from "@/lib/auth/ui/socialloginform";
 
 const Page = () => {
   return (
     <>
-      <Navbar />
+      <PageHeader title="Sign up" />
       <main className="mx-auto w-full max-w-md">
-        <hgroup className="text-center">
-          <h1 className="text-2xl font-bold">Sign Up</h1>
-          <h2 className="mb-5 mt-1 text-slate-500 dark:text-slate-300">
-            Start writing something, anything
-          </h2>
-        </hgroup>
         <div className="rounded-lg bg-white p-8 shadow-md dark:bg-slate-900">
           <AuthForm authType="signup" />
           <Divider bgColor="bg-white dark:bg-slate-900">
