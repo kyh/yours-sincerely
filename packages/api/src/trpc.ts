@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { SupabaseClient } from "@init/db";
+import { defaultSelect } from "./lib/user-utils";
 
 /**
  * 1. CONTEXT
@@ -28,7 +29,7 @@ import type { SupabaseClient } from "@init/db";
 export const createTRPCContext = async (opts: {
   headers: Headers;
   supabase: SupabaseClient;
-  // adminSupabase: SupabaseClient;
+  userId?: string | null;
 }) => {
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
@@ -38,20 +39,48 @@ export const createTRPCContext = async (opts: {
     ? await opts.supabase.auth.getUser(token)
     : await opts.supabase.auth.getUser();
 
-  // const supabase = data.user?.user_metadata.admin
-  //   ? opts.adminSupabase
-  //   : opts.supabase;
   const supabase = opts.supabase;
+  let user = data.user;
+
+  if (!user && opts.userId) {
+    user = await findDbUserAndConvertToSupabaseUser(opts.userId);
+  }
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
-  console.log(">>> tRPC Request from", source, "by", data.user?.email);
+  console.log(">>> tRPC Request from", source, "by", user?.email ?? "unknown");
 
   return {
     headers: opts.headers,
-    user: data.user,
+    user,
     supabase,
     db,
+  };
+};
+
+const findDbUserAndConvertToSupabaseUser = async (userId: string) => {
+  const dbUser = await db.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: defaultSelect,
+  });
+
+  if (!dbUser) return null;
+
+  return {
+    id: dbUser.id,
+    app_metadata: {},
+    user_metadata: {
+      displayName: dbUser.displayName,
+      displayImage: dbUser.displayImage,
+      role: dbUser.role,
+      weeklyDigestEmail: dbUser.weeklyDigestEmail,
+      disabled: dbUser.disabled,
+    },
+    aud: "",
+    created_at: "",
+    email: dbUser.email ?? "",
   };
 };
 

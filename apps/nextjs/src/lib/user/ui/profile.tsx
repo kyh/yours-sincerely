@@ -69,7 +69,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
           {user.displayName ?? "Anonymous"}{" "}
         </h1>
         {showEdit && (
-          <Link className="text-sm font-normal" href={`/edit/${user.uid}`}>
+          <Link className="text-sm font-normal" href={`/edit/${user.id}`}>
             Edit
           </Link>
         )}

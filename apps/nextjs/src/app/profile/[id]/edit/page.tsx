@@ -11,15 +11,15 @@ import { api } from "@/trpc/server";
 
 type Props = {
   params: {
-    uid: string;
+    id: string;
   };
 };
 
-const Page = async ({ params: { uid } }: Props) => {
+const Page = async ({ params: { id } }: Props) => {
   const currentUser = await api.auth.me();
-  const user = await api.user.byId({ uid: uid });
+  const user = await api.user.byId({ id: id });
 
-  const allowEdit = currentUser && user ? currentUser.id === uid : false;
+  const allowEdit = currentUser && user ? currentUser.id === id : false;
 
   // if (!user || !allowEdit) redirect(`/${user ? user.id : "/profile"}`);
   if (!user || !allowEdit) redirect(`${"/profile"}`);

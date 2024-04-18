@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { defaultSelect } from "../lib/user-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { defaultSelect } from "./user";
 
 export const likeRouter = createTRPCRouter({
   all: publicProcedure
@@ -38,13 +38,14 @@ export const likeRouter = createTRPCRouter({
     .input(z.object({ postId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       let user = await ctx.db.user.findUnique({
-        where: { uid: ctx.user.id },
+        where: { id: ctx.user.id },
         select: defaultSelect,
       });
 
       if (!user) {
         user = await ctx.db.user.create({
-          data: { displayName: "Anonymous", uid: ctx.user.id },
+          data: { displayName: "Anonymous", id: ctx.user.id },
+          select: defaultSelect,
         });
       }
 

@@ -17,19 +17,19 @@ import { api } from "@/trpc/server";
 
 type Props = {
   params: {
-    uid: string;
+    id: string;
   };
 };
 
-const Page = async ({ params: { uid } }: Props) => {
+const Page = async ({ params: { id } }: Props) => {
   const lastNDays = 200;
   const currentUser = await api.auth.me();
-  const user = await api.user.byId({ uid: uid });
-  const posts = await api.posts.all({ userId: uid });
+  const user = await api.user.byId({ id: id });
+  const posts = await api.posts.all({ userId: id });
 
   if (!user) redirect("/profile");
 
-  const showEdit = currentUser ? currentUser.id === uid : false;
+  const showEdit = currentUser ? currentUser.id === id : false;
 
   const stats = {
     heatmap: createPostsHeatmap(posts, lastNDays),

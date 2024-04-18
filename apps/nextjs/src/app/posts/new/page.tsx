@@ -5,7 +5,7 @@ import View from "./view";
 
 const Page = async () => {
   const currentUser = await api.auth.me();
-  const user = await api.user.byId({ uid: currentUser?.id ?? "" });
+  const user = await api.user.byId({ id: currentUser?.id ?? "" });
 
   return (
     <>
