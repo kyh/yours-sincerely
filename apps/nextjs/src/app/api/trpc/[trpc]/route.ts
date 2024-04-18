@@ -4,6 +4,8 @@ import { appRouter, createTRPCContext } from "@init/api";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
+import { getSessionUserId } from "@/lib/auth/utils/get-session-user-id";
+
 // export const runtime = "edge";
 
 /**
@@ -29,12 +31,18 @@ export const OPTIONS = () => {
 
 const handler = async (req: NextRequest) => {
   const supabase = createRouteHandlerClient({ cookies });
+  const userId = getSessionUserId();
 
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
     req,
-    createContext: () => createTRPCContext({ headers: req.headers, supabase }),
+    createContext: () =>
+      createTRPCContext({
+        headers: req.headers,
+        supabase,
+        userId,
+      }),
     onError: ({ error, path }) => {
       console.error(`>>> tRPC Error on '${path}'`, error);
     },

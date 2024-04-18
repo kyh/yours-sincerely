@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["relationJoins", "nativeDistinct"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -9,23 +8,34 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  provider          String
+  providerAccountId String
+  refreshToken      String?
+  accessToken       String?
+  expiresAt         Int?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
 model User {
   id                String    @id @default(cuid())
-  uid               String    @unique
-  name              String?
   email             String?   @unique
   emailVerified     DateTime?
-  image             String?
   passwordHash      String?
   displayName       String?
   displayImage      String?
   disabled          Boolean?
   weeklyDigestEmail Boolean   @default(false)
 
-  role String @default("USER")
+  role UserRole @default(USER)
 
   accounts       Account[]
-  sessions       Session[]
   tokens         Token[]
   posts          Post[]
   likes          Like[]
@@ -37,40 +47,10 @@ model User {
   createdAt DateTime @default(now())
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  expires      DateTime
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
 model Token {
   id        String    @id @default(cuid())
   token     String
-  type      String
+  type      TokenType
   expiresAt DateTime?
   sentTo    String?
   usedAt    DateTime?
@@ -87,7 +67,7 @@ model Token {
 
 model Post {
   id            String  @id @default(cuid())
-  content       String
+  content       String  @db.Text
   createdBy     String?
   baseLikeCount Int?
 
@@ -99,7 +79,7 @@ model Post {
   parent   Post?   @relation("comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   userId String
-  user   User   @relation(fields: [userId], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,7 +135,7 @@ model Block {
 
 model Prompt {
   id      String @id @default(cuid())
-  content String
+  content String @db.Text
 }
 
 model EnrolledEvent {
@@ -168,4 +148,15 @@ model EnrolledEvent {
   user   User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([userId])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  REFRESH_TOKEN
+  VERIFY_EMAIL
+  RESET_PASSWORD
 }

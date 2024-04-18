@@ -7,8 +7,8 @@ import type {
   Like as PrismaLike,
   Post as PrismaPost,
 } from "@prisma/client";
+import { defaultSelect } from "../lib/user-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { defaultSelect } from "./user";
 
 const knockClient = new Knock(process.env.KNOCK_SECRET_API_KEY);
 
@@ -252,18 +252,19 @@ export const postsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       let user = await ctx.db.user.findUnique({
-        where: { uid: ctx.user.id },
+        where: { id: ctx.user.id },
         select: defaultSelect,
       });
 
       if (!user) {
         user = await ctx.db.user.create({
-          data: { uid: ctx.user.id, displayName: input.createdBy },
+          data: { id: ctx.user.id, displayName: input.createdBy },
+          select: defaultSelect,
         });
       }
 
       const created = await ctx.db.post.create({
-        data: { ...input, userId: user.uid },
+        data: { ...input, userId: user.id },
         include: {
           user: {
             select: defaultSelect,
@@ -284,7 +285,7 @@ export const postsRouter = createTRPCRouter({
         const actor = created.user;
         const recipient = parentPost?.user;
 
-        if (actor && recipient) {
+        if (recipient) {
           await knockClient.workflows.trigger("new-comment", {
             data: {
               parentPostId: parentPost.id,

@@ -14,13 +14,13 @@ export const GET = async (request: NextRequest) => {
     const supabase = createRouteHandlerClient({ cookies });
     await supabase.auth.exchangeCodeForSession(code);
 
-    const auth = (await supabase.auth.getUser())?.data?.user;
+    const auth = (await supabase.auth.getUser()).data.user;
     user = await api.user.byEmail({ email: auth?.email ?? "" });
 
     if (!user) {
       user = await api.user.create({
         email: auth?.email ?? "",
-        uid: auth?.id ?? "",
+        id: auth?.id ?? "",
       });
     }
   }

@@ -1,24 +1,9 @@
 import { z } from "zod";
 
+import { defaultSelect } from "../lib/user-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 // import { createPasswordHash, validatePassword } from "../auth";
-
-export const defaultSelect = {
-  id: true,
-  uid: true,
-  email: true,
-  emailVerified: true,
-  displayName: true,
-  displayImage: true,
-  role: true,
-  weeklyDigestEmail: true,
-  disabled: true,
-  createdAt: false,
-  passwordHash: false,
-  name: true,
-  image: true,
-};
 
 export const userRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
@@ -30,7 +15,7 @@ export const userRouter = createTRPCRouter({
   byId: publicProcedure
     .input(
       z.object({
-        uid: z.string(),
+        id: z.string(),
       }),
     )
     .query(({ ctx, input }) => {
@@ -52,12 +37,6 @@ export const userRouter = createTRPCRouter({
         where: { email: input.email },
       });
 
-      const validateCredential = true;
-
-      // if (user?.passwordHash && input.password) {
-      //   validateCredential = await validatePassword(input.password, user.passwordHash);
-      // }
-
       return user;
     }),
 
@@ -65,7 +44,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         email: z.string().optional(),
-        uid: z.string().optional(),
+        id: z.string().optional(),
         displayName: z.string().optional(),
         displayImage: z.string().optional(),
         password: z.string().optional(),
@@ -81,12 +60,12 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const data = {
-        uid: input.uid,
+        id: input.id,
         email: input.email,
         displayName: input.displayName ?? "Anonymous",
         displayImage: input.displayImage,
         passwordHash: "",
-        role: "USER",
+        role: "USER" as const,
         weeklyDigestEmail: true,
         disabled: false,
         accounts: {},

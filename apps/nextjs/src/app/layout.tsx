@@ -20,6 +20,8 @@ import {
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
 
+import { api } from "@/trpc/server";
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.VERCEL_ENV === "production"
@@ -58,7 +60,9 @@ const fontSans = Inter({
   variable: "--font-sans",
 });
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = async ({ children }: { children: React.ReactNode }) => {
+  const user = await api.auth.me();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
