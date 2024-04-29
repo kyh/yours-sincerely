@@ -87,6 +87,7 @@ model Post {
   @@index([id, userId])
   @@index([userId])
   @@index([parentId])
+  @@index([createdAt])
 }
 
 model Like {

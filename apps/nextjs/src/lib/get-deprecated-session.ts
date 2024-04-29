@@ -3,7 +3,11 @@ import cookieSignature from "cookie-signature";
 
 const COOKIE_SECRET = process.env.COOKIE_SECRET ?? "c-secret";
 
-export const getSessionUserId = () => {
+/**
+ * Get the user ID from the deprecated session cookie
+ * @deprecated
+ */
+export const getDeprecatedSession = () => {
   const cookieStore = cookies();
   const sessionValue = cookieStore.get("__session")?.value;
 

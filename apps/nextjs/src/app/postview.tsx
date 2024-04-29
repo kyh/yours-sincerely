@@ -39,7 +39,7 @@ const PostView = ({ postList }: Props) => {
   return (
     <>
       {!!posts.length && (
-        <section className="flex flex-col gap-5">
+        <section className="divide-y divide-border">
           {view === "STACK" && (
             <CardStack
               data={posts}
@@ -52,10 +52,7 @@ const PostView = ({ postList }: Props) => {
           {view === "LIST" && (
             <>
               {posts.map((post) => (
-                <div
-                  className="mx-auto w-full rounded-lg bg-slate-100 p-5 shadow dark:bg-slate-900 sm:w-10/12"
-                  key={post.id}
-                >
+                <div key={post.id} className="py-5">
                   <PostContent post={post} />
                 </div>
               ))}

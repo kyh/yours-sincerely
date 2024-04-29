@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 
 import type { Post } from "../data/postschema";
 import { api } from "@/trpc/react";
-import { action } from "./likebuttonaction";
 
 let mojs: any;
 
@@ -86,9 +85,9 @@ const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
   const burst = useRef<null | MojsRef>(null);
 
   const playAnimation = () => {
-    heart?.current?.replay();
-    burst?.current?.replay();
-    circle?.current?.replay();
+    heart.current?.replay();
+    burst.current?.replay();
+    circle.current?.replay();
   };
 
   useEffect(() => {

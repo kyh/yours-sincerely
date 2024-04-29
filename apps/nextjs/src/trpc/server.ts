@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { createCaller, createTRPCContext } from "@init/api";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { getSessionUserId } from "@/lib/auth/utils/get-session-user-id";
+import { getDeprecatedSession } from "@/lib/get-deprecated-session";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -12,7 +12,7 @@ import { getSessionUserId } from "@/lib/auth/utils/get-session-user-id";
 const createContext = cache(async () => {
   const head = new Headers(headers());
   const supabase = createServerComponentClient({ cookies });
-  const userId = getSessionUserId();
+  const userId = getDeprecatedSession();
 
   head.set("x-trpc-source", "rsc");
 
