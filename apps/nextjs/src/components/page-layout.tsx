@@ -1,4 +1,4 @@
-import { clx } from "@/lib/clx";
+import { cn } from "@init/ui/utils";
 
 type PageLayoutProps = {
   children?: React.ReactNode;
@@ -10,7 +10,7 @@ export const PageHeader = ({
   className,
 }: PageLayoutProps & { title: React.ReactNode }) => (
   <header
-    className={clx(
+    className={cn(
       "area-content-header flex items-center border-b border-b-border",
       className,
     )}
@@ -20,11 +20,9 @@ export const PageHeader = ({
 );
 
 export const PageContent = ({ children, className }: PageLayoutProps) => (
-  <main className={clx("area-content py-5", className)}>{children}</main>
+  <main className={cn("area-content py-5", className)}>{children}</main>
 );
 
 export const PageAside = ({ children, className }: PageLayoutProps) => (
-  <aside className={clx("area-aside hidden xl:block", className)}>
-    {children}
-  </aside>
+  <aside className={cn("area-aside", className)}>{children}</aside>
 );

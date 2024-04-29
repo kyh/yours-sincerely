@@ -4,7 +4,7 @@ import { appRouter, createTRPCContext } from "@init/api";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-import { getSessionUserId } from "@/lib/auth/utils/get-session-user-id";
+import { getDeprecatedSession } from "@/lib/get-deprecated-session";
 
 // export const runtime = "edge";
 
@@ -31,7 +31,7 @@ export const OPTIONS = () => {
 
 const handler = async (req: NextRequest) => {
   const supabase = createRouteHandlerClient({ cookies });
-  const userId = getSessionUserId();
+  const userId = getDeprecatedSession();
 
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
