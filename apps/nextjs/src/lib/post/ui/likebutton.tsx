@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+"use client";
+
 import { useEffect, useRef, useState } from "react";
+import mojs from "@mojs/core";
 
 import type { Post } from "../data/postschema";
 import { api } from "@/trpc/react";
-
-let mojs: any;
-
-const getMojs = () => {
-  if (!mojs) mojs = require("@mojs/core");
-  return mojs;
-};
 
 const createHeartAnimation = (el: HTMLElement) => {
   return new mojs.Html({
@@ -92,7 +93,6 @@ const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
 
   useEffect(() => {
     if (!initialized && iconRef.current && iconButtonRef.current) {
-      getMojs();
       // weird bug where .play initialization sometimes fails
       heart.current = heart.current
         ? heart.current.play(1000)
@@ -141,7 +141,6 @@ export const LikeButton = ({ post }: Props) => {
   });
 
   const toggleLike = async () => {
-    // await action();
     if (isLiked) {
       deleteMutate.mutate({ id: post.id! });
     } else {
