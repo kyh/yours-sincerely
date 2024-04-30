@@ -40,7 +40,7 @@
     "react-infinite-scroll-hook": "^4.1.1",
     "reading-time": "^1.5.0",
     "superjson": "^2.2.1",
-    "zod": "^3.23.4"
+    "zod": "^3.23.5"
   },
   "devDependencies": {
     "@init/tailwind-config": "workspace:latest",
