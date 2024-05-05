@@ -2,8 +2,8 @@ import styles from "./styles.css";
 
 export const links = () => [{ rel: "stylesheet", href: styles }];
 
-export * from "./activitycalendar";
-export * from "./activitystats";
-export * from "./activityweek";
-export * from "./calendartypes";
-export * from "./calendarutil";
+export * from "./activity-calendar";
+export * from "./activity-stats";
+export * from "./activity-week";
+export * from "./calendar-types";
+export * from "./calendar-util";

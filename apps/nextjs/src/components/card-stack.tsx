@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
 import type { MotionProps, PanInfo } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   AnimatePresence,
   motion,
   useMotionValue,
   useTransform,
 } from "framer-motion";
-import { useEffect, useState } from "react";
-import { useRootHotkeys } from "../../lib/core/util/hotkey";
+
+import { useRootHotkeys } from "@/lib/hotkey";
 
 type CardProps = {
   transition: MotionProps["transition"];
@@ -173,7 +174,7 @@ export const CardStack = <T,>({
       </div>
       {nextButton && (
         <button
-          className="mt-auto rounded-lg py-2 px-3 text-slate-500 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="mt-auto rounded-lg px-3 py-2 text-slate-500 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
           onClick={() => onNext(true)}
           disabled={animating}
         >

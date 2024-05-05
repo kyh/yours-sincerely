@@ -10,7 +10,7 @@ import {
   subWeeks,
 } from "date-fns";
 
-import type { Day, Theme, Weeks } from "./calendartypes";
+import type { Day, Theme, Weeks } from "./calendar-types";
 
 export const MIN_DISTANCE_MONTH_LABELS = 2;
 
@@ -27,11 +27,11 @@ type Label = {
   x: number;
   y: number;
   text: string;
-}
+};
 
 export const groupByWeeks = (
   days: Day[],
-  weekStart: WeekDay = 0 // 0 = Sunday
+  weekStart: WeekDay = 0, // 0 = Sunday
 ): Weeks => {
   if (days.length === 0) {
     return [];
@@ -42,7 +42,7 @@ export const groupByWeeks = (
 
   // Determine the first date of the calendar. If the first contribution date is not
   // specified week day the desired day one week earlier will be selected.
-  const firstDate = parseISO(normalizedDays[0].date);
+  const firstDate = parseISO(normalizedDays[0]?.date ?? "");
   const firstCalendarDate =
     getDay(firstDate) === weekStart
       ? firstDate
@@ -52,7 +52,7 @@ export const groupByWeeks = (
   // left pad the list because the first date might not be desired week day.
   const paddedDays = [
     ...Array(differenceInCalendarDays(firstDate, firstCalendarDate)).fill(
-      undefined
+      undefined,
     ),
     ...normalizedDays,
   ];
@@ -60,9 +60,9 @@ export const groupByWeeks = (
   return Array(Math.ceil(paddedDays.length / 7))
     .fill(undefined)
     .map((_, calendarWeek) =>
-      paddedDays.slice(calendarWeek * 7, calendarWeek * 7 + 7)
+      paddedDays.slice(calendarWeek * 7, calendarWeek * 7 + 7),
     );
-}
+};
 
 const normalizeCalendarDays = (days: Day[]): Day[] => {
   const daysMap = days.reduce((map, day) => {
@@ -71,8 +71,8 @@ const normalizeCalendarDays = (days: Day[]): Day[] => {
   }, new Map<string, Day>());
 
   return eachDayOfInterval({
-    start: parseISO(days[0].date),
-    end: parseISO(days[days.length - 1].date),
+    start: parseISO(days[0]?.date ?? ""),
+    end: parseISO(days[days.length - 1]?.date ?? ""),
   }).map((day) => {
     const date = formatISO(day, { representation: "date" });
 
@@ -86,12 +86,12 @@ const normalizeCalendarDays = (days: Day[]): Day[] => {
       level: 0,
     };
   });
-}
+};
 
 export const getMonthLabels = (
   weeks: Weeks,
-  monthNames: string[] = DEFAULT_MONTH_LABELS
-): Label[] => {
+  monthNames: string[] = DEFAULT_MONTH_LABELS,
+) => {
   return weeks
     .reduce<Label[]>((labels, week, index) => {
       const firstWeekDay = week.find((day) => day !== undefined);
@@ -100,10 +100,10 @@ export const getMonthLabels = (
         throw new Error(`Unexpected error: Week is empty: [${week}]`);
       }
 
-      const month = monthNames[getMonth(parseISO(firstWeekDay.date))];
+      const month = monthNames[getMonth(parseISO(firstWeekDay.date))]!;
       const prev = labels[labels.length - 1];
 
-      if (index === 0 || prev.text !== month) {
+      if (index === 0 || prev?.text !== month) {
         return [
           ...labels,
           {
@@ -123,7 +123,7 @@ export const getMonthLabels = (
 
       return true;
     });
-}
+};
 
 export const getTheme = (theme?: Theme): Theme => {
   if (theme) {
@@ -131,7 +131,7 @@ export const getTheme = (theme?: Theme): Theme => {
   }
 
   return DEFAULT_THEME;
-}
+};
 
 export const generateEmptyData = (): Day[] => {
   const year = new Date().getFullYear();
@@ -145,7 +145,7 @@ export const generateEmptyData = (): Day[] => {
     count: 0,
     level: 0,
   }));
-}
+};
 
 export const DEFAULT_MONTH_LABELS = [
   "Jan",

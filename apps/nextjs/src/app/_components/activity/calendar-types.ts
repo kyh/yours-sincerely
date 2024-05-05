@@ -7,10 +7,10 @@ export type Day = {
   date: string;
   count: number;
   level: Level;
-}
+};
 
 type Week = (Day | undefined)[];
-export type Weeks = Week[]
+export type Weeks = Week[];
 export type Labels = Partial<{
   readonly months: string[];
   readonly weekdays: string[];
@@ -28,7 +28,7 @@ export type Theme = {
   readonly level1: string;
   readonly level0: string;
   readonly stroke: string;
-}
+};
 
 export type SVGRectEventHandler = Omit<
   DOMAttributes<SVGRectElement>,

@@ -1,6 +1,7 @@
 import { addDays, differenceInDays, eachDayOfInterval, format } from "date-fns";
-import { DEFAULT_WEEKDAY_LABELS } from "@/app/_components/activity/calendarutil";
+
 import type { Post } from "./postschema";
+import { DEFAULT_WEEKDAY_LABELS } from "@/app/_components/activity/calendar-util";
 
 export const groupByDay = (posts: Post[], lastNDays: number) => {
   const days = eachDayOfInterval({
@@ -8,11 +9,14 @@ export const groupByDay = (posts: Post[], lastNDays: number) => {
     end: new Date(),
   });
 
-  const daysMap = days.reduce((acc, day) => {
-    const date = format(day, "yyyy-MM-dd");
-    acc[date] = [];
-    return acc;
-  }, {} as Record<string, Post[]>);
+  const daysMap = days.reduce(
+    (acc, day) => {
+      const date = format(day, "yyyy-MM-dd");
+      acc[date] = [];
+      return acc;
+    },
+    {} as Record<string, Post[]>,
+  );
 
   posts.forEach((post) => {
     const date = new Date(post.createdAt!);
@@ -63,13 +67,16 @@ export const createPostsHeatmap = (posts: Post[], lastNDays: number) => {
 };
 
 export const createPostsDailyActivity = (posts: Post[]) => {
-  const daysMap = DEFAULT_WEEKDAY_LABELS.reduce((acc, day) => {
-    acc[day] = {
-      count: 0,
-      level: 0,
-    };
-    return acc;
-  }, {} as Record<string, { count: number; level: number }>);
+  const daysMap = DEFAULT_WEEKDAY_LABELS.reduce(
+    (acc, day) => {
+      acc[day] = {
+        count: 0,
+        level: 0,
+      };
+      return acc;
+    },
+    {} as Record<string, { count: number; level: number }>,
+  );
 
   posts.forEach((post) => {
     const date = new Date(post.createdAt!);
@@ -87,7 +94,7 @@ export const createPostsDailyActivity = (posts: Post[]) => {
       if (acc.max < daysMap[day].count) return { max: daysMap[day].count, day };
       return acc;
     },
-    { max: 0, day: "none" }
+    { max: 0, day: "none" },
   );
 
   DEFAULT_WEEKDAY_LABELS.forEach((day) => {
@@ -123,7 +130,7 @@ const getStreaks = (posts: Post[]) => {
 
       return res;
     },
-    [1]
+    [1],
   );
 };
 

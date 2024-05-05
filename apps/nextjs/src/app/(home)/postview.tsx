@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { Post } from "@/lib/post/data/postschema";
-import { useRootHotkeys } from "@/lib/core/util/hotkey";
+import { CardStack } from "@/components/card-stack";
+import { useRootHotkeys } from "@/lib/hotkey";
 import { PostContent } from "@/lib/post/ui/postcontent";
-import { CardStack } from "./_components/cardstack";
-import { useInfiniteScroll } from "./_components/infinitescroll";
-import { Spinner } from "./_components/spinner";
+import { useInfiniteScroll } from "../_components/infinitescroll";
+import { Spinner } from "../_components/spinner";
 
 type Props = {
   postList: Post[];
