@@ -1,5 +1,4 @@
 import { PageContent, PageHeader } from "@/components/page-layout";
-import { PrivacyTerms } from "@/lib/about/ui/privacyterms";
 
 // import { createMeta } from "~/lib/core/util/meta";
 
@@ -31,9 +30,6 @@ const Page = () => (
         channel to the inner lives of other humans who, in other contexts,
         rarely reveal such vulnerability
       </p>
-      <div className="mb-4 mt-auto">
-        <PrivacyTerms />
-      </div>
     </PageContent>
   </>
 );

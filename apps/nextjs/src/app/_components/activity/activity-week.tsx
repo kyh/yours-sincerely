@@ -1,10 +1,10 @@
+import type { Theme } from "./calendar-types";
 import { Tooltip } from "@/app/_components/tooltip";
-import type { Theme } from "./calendartypes";
 import {
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
   getTheme,
-} from "./calendarutil";
+} from "./calendar-util";
 
 type Props = {
   data: Record<string, { count: number; level: number }>;
@@ -35,14 +35,15 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
               key: day,
               cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
               cy: "50px",
-              rx: data[day] ? `${data[day].level * 4}` : "0",
-              ry: data[day] ? `${data[day].level * 4}` : "0",
-              fill: theme[`level${data[day].level}` as keyof typeof theme],
+              rx: data[day] ? `${(data[day]?.level ?? 0) * 4}` : "0",
+              ry: data[day] ? `${(data[day]?.level ?? 0) * 4}` : "0",
+              fill: theme[`level${data[day]?.level}` as keyof typeof theme],
               strokeWidth: 1,
               stroke: theme.stroke,
             }}
-            tooltipContent={`${data[day].count} posts written on ${FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
-              }s`}
+            tooltipContent={`${data[day]?.count} posts written on ${
+              FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
+            }s`}
           />
         ))}
       </g>

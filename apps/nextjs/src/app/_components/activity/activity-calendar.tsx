@@ -1,7 +1,6 @@
 import type { Day as WeekDay } from "date-fns";
-import { format, getDay, getYear, parseISO } from "date-fns";
 import type { CSSProperties, FunctionComponent } from "react";
-import { Tooltip } from "../tooltip";
+import { format, getDay, getYear, parseISO } from "date-fns";
 
 import type {
   Day,
@@ -10,7 +9,8 @@ import type {
   ReactEvent,
   SVGRectEventHandler,
   Theme,
-} from "./calendartypes";
+} from "./calendar-types";
+import { Tooltip } from "../tooltip";
 import {
   DEFAULT_LABELS,
   DEFAULT_WEEKDAY_LABELS,
@@ -19,7 +19,7 @@ import {
   getTheme,
   groupByWeeks,
   MIN_DISTANCE_MONTH_LABELS,
-} from "./calendarutil";
+} from "./calendar-util";
 
 type CalendarData = Day[];
 
@@ -101,7 +101,7 @@ export type Props = {
    * Index of day to be used as start of week. 0 represents Sunday.
    */
   weekStart?: WeekDay;
-}
+};
 
 export const ActivityCalendar: FunctionComponent<Props> = ({
   data,
@@ -126,7 +126,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
   const weeks = groupByWeeks(data, weekStart);
   const totalCount = data.reduce((sum, day) => sum + day.count, 0);
-  const year = getYear(parseISO(data[0]?.date));
+  const year = getYear(parseISO(data[0]?.date ?? ""));
 
   const theme = getTheme(themeProp);
   const labels = Object.assign({}, DEFAULT_LABELS, labelsProp);
@@ -137,14 +137,15 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
       width: weeks.length * (blockSize + blockMargin) - blockMargin,
       height: textHeight + (blockSize + blockMargin) * 7 - blockMargin,
     };
-  }
+  };
 
   const getTooltipMessage = (contribution: Day) => {
     const date = format(parseISO(contribution.date), dateFormat);
     if (!contribution.count) return `No posts on ${date}`;
-    return `${contribution.count} post${contribution.count > 1 ? "s" : ""
-      } on ${date}`;
-  }
+    return `${contribution.count} post${
+      contribution.count > 1 ? "s" : ""
+    } on ${date}`;
+  };
 
   const getEventHandlers = (data: Day): SVGRectEventHandler => {
     return (
@@ -155,9 +156,9 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         [key]: (event: ReactEvent<SVGRectElement>) =>
           eventHandlers[key]?.(event)(data),
       }),
-      {}
+      {},
     );
-  }
+  };
 
   const renderLabels = () => {
     const style = {
@@ -172,7 +173,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
       <>
         {showWeekdayLabels && (
           <g className="legend-weekday" style={style}>
-            {weeks[1].map((day, y) => {
+            {weeks[1]?.map((day, y) => {
               if (!day || y % 2 === 0) {
                 return null;
               }
@@ -220,13 +221,13 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
                     {text}
                   </text>
                 );
-              }
+              },
             )}
           </g>
         )}
       </>
     );
-  }
+  };
 
   const renderBlocks = () => {
     return weeks
@@ -238,9 +239,9 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
           const style = loading
             ? {
-              animation: `loadingAnimation 1.5s ease-in-out infinite`,
-              animationDelay: `${weekIndex * 20 + dayIndex * 20}ms`,
-            }
+                animation: `loadingAnimation 1.5s ease-in-out infinite`,
+                animationDelay: `${weekIndex * 20 + dayIndex * 20}ms`,
+              }
             : undefined;
 
           return (
@@ -264,14 +265,14 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
               tooltipContent={getTooltipMessage(day)}
             />
           );
-        })
+        }),
       )
       .map((week, x) => (
         <g key={x} transform={`translate(${(blockSize + blockMargin) * x}, 0)`}>
           {week}
         </g>
       ));
-  }
+  };
 
   const renderFooter = () => {
     if (hideTotalCount && hideColorLegend) {
@@ -287,8 +288,8 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
           <div className="count">
             {labels.totalCount
               ? labels.totalCount
-                .replace("{{count}}", String(totalCount))
-                .replace("{{year}}", String(year))
+                  .replace("{{count}}", String(totalCount))
+                  .replace("{{year}}", String(year))
               : `${totalCount} posts in ${year}`}
           </div>
         )}
@@ -296,7 +297,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         {!loading && !hideColorLegend && (
           <div className="ml-auto flex items-center gap-1">
             <span style={{ marginRight: "0.4em" }}>
-              {labels?.legend?.less ?? "Less"}
+              {labels.legend.less ?? "Less"}
             </span>
             {Array(5)
               .fill(undefined)
@@ -312,13 +313,13 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
                 </svg>
               ))}
             <span style={{ marginLeft: "0.4em" }}>
-              {labels?.legend?.more ?? "More"}
+              {labels.legend.more ?? "More"}
             </span>
           </div>
         )}
       </footer>
     );
-  }
+  };
 
   const { width, height } = getDimensions();
   const additionalStyles = {
