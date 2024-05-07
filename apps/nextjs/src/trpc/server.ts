@@ -18,8 +18,8 @@ const createContext = cache(async () => {
 
   return createTRPCContext({
     headers: head,
-    userId,
     supabase,
+    userId,
   });
 });
 

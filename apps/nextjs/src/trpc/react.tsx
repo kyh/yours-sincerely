@@ -9,8 +9,6 @@ import SuperJSON from "superjson";
 import type { AppRouter } from "@init/api";
 import { getBaseUrl } from "@/lib/url";
 
-export type { TRPCError } from "@trpc/server";
-
 const createQueryClient = () =>
   new QueryClient({
     defaultOptions: {
