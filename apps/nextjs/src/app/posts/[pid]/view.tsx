@@ -7,7 +7,6 @@ import { toast } from "@init/ui/toast";
 
 import type { Post } from "@init/api/lib/post-schema";
 import type { User } from "@init/api/lib/user-schema";
-import { TextArea } from "@/app/_components/formfield";
 import { BackButton } from "@/components/post/back-button";
 import { CommentContent } from "@/components/post/comment-content";
 import { PostContent } from "@/components/post/post-content";
@@ -85,7 +84,7 @@ const View = ({ post, user, pid }: Props) => {
                   // method="post"
                   onSubmit={handleSubmit}
                 >
-                  <TextArea
+                  <textarea
                     id="comment"
                     name="content"
                     placeholder={`Reply to ${post.createdBy}`}

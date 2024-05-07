@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Checkbox } from "@/app/_components/formfield";
+import { Checkbox } from "@init/ui/checkbox";
 
 export const PrivacyTerms = ({
   withCheckbox = false,
-  onChecked = (_checked: boolean) => { },
+  onChecked = (_checked: boolean) => {},
 }) => {
   const [isChecked, setIsChecked] = useState(false);
   const [viewedPrivacy, setViewedPrivacy] = useState(false);

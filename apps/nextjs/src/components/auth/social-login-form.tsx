@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import { iconAttrs } from "@/app/_components/icon";
-import { signInWithGoogle } from "../../lib/auth/ui/actions";
-
 const buttonClassName =
   "inline-flex justify-center items-center gap-2 w-52 py-2 border text-xs leading-4 font-medium rounded bg-white text-slate-500 shadow-sm transition hover:no-underline hover:bg-slate-50 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-900 dark:hover:bg-black";
 
@@ -27,7 +24,18 @@ export const SocialLoginForm = ({ withEmail = false }) => {
     <form className="flex flex-col items-center justify-center gap-3">
       {withEmail && (
         <Link className={buttonClassName} href="/auth/signup">
-          <svg {...iconAttrs} className="h-5 w-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
@@ -38,7 +46,6 @@ export const SocialLoginForm = ({ withEmail = false }) => {
         type="submit"
         // loading={isLoading}
         className={buttonClassName}
-        onClick={() => signInWithGoogle()}
       >
         <svg
           version="1.1"

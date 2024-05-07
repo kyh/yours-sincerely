@@ -115,7 +115,7 @@ type Props = {
   post: Post;
 };
 
-export const LikeButton = ({ post }: Props) => {
+const LikeButton = ({ post }: Props) => {
   const utils = api.useUtils();
 
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);

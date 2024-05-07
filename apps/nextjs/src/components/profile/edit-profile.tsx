@@ -8,14 +8,12 @@ import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
 import type { User } from "@init/api/lib/user-schema";
-import { TextField } from "@/app/_components/formfield";
 import { CalendarMenu } from "@/components/profile/calendar-menu";
 import {
   CALENDAR_LABELS,
   DEFAULT_WEEKDAY_LABELS,
 } from "@/components/profile/calendar-util";
 import { api } from "@/trpc/react";
-import { action } from "./logoutaction";
 
 type Props = {
   user: User;
@@ -64,16 +62,14 @@ export const EditProfile = ({ user }: Props) => {
     <form className="flex flex-col gap-10" onSubmit={handleSubmit}>
       <fieldset className="flex flex-col gap-5">
         <h1 className="text-xl font-bold">Profile Details</h1>
-        <TextField
-          label="Your default signature"
+        <input
           id="displayName"
           name="displayName"
           className="text-2xl font-bold"
           defaultValue={user.displayName ?? ""}
           placeholder="Anonymous"
         />
-        <TextField
-          label="Email"
+        <input
           id="email"
           name="email"
           className="text-2xl font-bold"
@@ -154,7 +150,6 @@ export const EditProfile = ({ user }: Props) => {
           className="inline-flex items-center justify-center rounded-md border border-transparent px-3 py-2 text-sm leading-4 text-red-700 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-transparent dark:hover:text-red-700"
           onClick={async (e) => {
             e.preventDefault();
-            await action();
           }}
         >
           Logout

@@ -1,4 +1,4 @@
-import { PostForm } from "@/components/posts/post-form";
+import { PostForm } from "@/components/post/post-form";
 import { api } from "@/trpc/server";
 
 const Page = async () => {

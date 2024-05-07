@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent } from "@init/ui/dialog";
 import { toast } from "@init/ui/toast";
 
 import type { Post } from "@init/api/lib/post-schema";
-import { Dialog } from "@/app/_components/dialog";
-import { iconAttrs } from "@/app/_components/icon";
 import { api } from "@/trpc/react";
 
 type Props = {
@@ -84,14 +83,24 @@ export const MoreButton = ({ post }: Props) => {
         onClick={() => setIsOpen(true)}
       >
         <span className="sr-only">See post options</span>
-        <svg {...iconAttrs} width="20" height="20">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          width="20"
+          height="20"
+        >
           <circle cx="12" cy="12" r="1" />
           <circle cx="12" cy="5" r="1" />
           <circle cx="12" cy="19" r="1" />
         </svg>
       </button>
-      <Dialog isOpen={isOpen} handleClose={() => setIsOpen(false)}>
-        <div className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
           <a
             className={buttonClass}
             href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
@@ -119,7 +128,7 @@ export const MoreButton = ({ post }: Props) => {
               </button>
             </form>
           )}
-        </div>
+        </DialogContent>
       </Dialog>
     </>
   );
