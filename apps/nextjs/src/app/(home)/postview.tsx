@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@init/ui/spinner";
 
-import type { Post } from "@/lib/post/data/postschema";
-import { CardStack } from "@/components/card-stack";
+import type { Post } from "@init/api/lib/post-schema";
+import { useInfiniteScroll } from "@/components/layout/infinite-scroll";
+import { CardStack } from "@/components/post/card-stack";
+import { PostContent } from "@/components/post/post-content";
 import { useRootHotkeys } from "@/lib/hotkey";
-import { PostContent } from "@/lib/post/ui/postcontent";
-import { useInfiniteScroll } from "../_components/infinitescroll";
-import { Spinner } from "../_components/spinner";
 
 type Props = {
   postList: Post[];
@@ -58,7 +58,7 @@ const PostView = ({ postList }: Props) => {
               ))}
               {hasNextPage && (
                 <div className="flex items-center justify-center" ref={ref}>
-                  <Spinner loading />
+                  <Spinner />
                 </div>
               )}
             </>

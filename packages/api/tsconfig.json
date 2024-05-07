@@ -3,6 +3,6 @@
   "compilerOptions": {
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
   },
-  "include": ["src"],
+  "include": ["src", "../../apps/nextjs/src/lib/stats.ts"],
   "exclude": ["node_modules"]
 }

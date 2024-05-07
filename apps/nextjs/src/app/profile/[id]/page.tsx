@@ -1,9 +1,4 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-// supabase auth
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-
-import { PageContent, PageHeader } from "@/components/page-layout";
 import {
   createPostsDailyActivity,
   createPostsHeatmap,
@@ -11,7 +6,9 @@ import {
   getLongestStreak,
   getTotalLikes,
   getTotalPosts,
-} from "@/lib/post/data/poststats";
+} from "@init/api/lib/poststats";
+
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { Profile } from "@/lib/user/ui/profile";
 import { api } from "@/trpc/server";
 
