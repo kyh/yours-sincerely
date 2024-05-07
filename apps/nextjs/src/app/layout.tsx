@@ -13,6 +13,7 @@ import "@knocklabs/react-notification-feed/dist/index.css";
 import Link from "next/link";
 import { Button } from "@init/ui/button";
 import { Logo } from "@init/ui/logo";
+import { TooltipProvider } from "@init/ui/tooltip";
 
 import type { User } from "@supabase/auth-helpers-nextjs";
 import { HomeIcon } from "@/components/icons/home-icon";
@@ -105,12 +106,14 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider>
-            <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
-              <MainHeader />
-              <Sidebar user={currentUser} />
-              {children}
-              <AsideHeader />
-            </section>
+            <TooltipProvider>
+              <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
+                <MainHeader />
+                <Sidebar user={currentUser} />
+                {children}
+                <AsideHeader />
+              </section>
+            </TooltipProvider>
           </TRPCReactProvider>
           <Toaster />
         </ThemeProvider>

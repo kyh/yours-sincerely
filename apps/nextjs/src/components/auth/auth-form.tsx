@@ -3,19 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { isEmailValid, isPasswordValid } from "@init/api/lib/authschema";
+// import { isEmailValid, isPasswordValid } from "@init/api/lib/authschema";
 // import { signIn } from "@init/auth";
 
 import { Button } from "@init/ui/button";
+import { Checkbox } from "@init/ui/checkbox";
 import { toast } from "@init/ui/toast";
 
-import { Checkbox, TextField } from "@/app/_components/formfield";
-import { api } from "@/trpc/server";
-import {
-  signInWithGithub,
-  signInWithPassword,
-  signUp,
-} from "../../lib/auth/ui/actions";
+// import { api } from "@/trpc/server";
 
 type Props = {
   authType: "signup" | "login" | "request" | "confirm";
@@ -56,9 +51,9 @@ export const AuthForm = ({ authType }: Props) => {
 
     try {
       if (authType === "signup") {
-        await signUp(email, password);
+        // await signUp(email, password);
       } else if (authType === "login") {
-        await signInWithPassword(email, password);
+        // await signInWithPassword(email, password);
       }
       router.push("/");
     } catch (error) {
@@ -72,28 +67,29 @@ export const AuthForm = ({ authType }: Props) => {
       <input type="hidden" name="redirectTo" value={"/"} />
       <input type="hidden" name="token" value={""} />
       {authType !== "confirm" && (
-        <TextField
+        <input
           id="email"
           name="email"
           type="email"
           placeholder="your@mail.com"
-          label="Email"
           required
         />
       )}
       {authType !== "request" && (
-        <TextField
+        <input
           id="password"
           name="password"
           type="password"
           placeholder="********"
-          label="Password"
           required
         />
       )}
       {authType === "login" && (
         <div className="flex items-center justify-between">
-          <Checkbox id="rememberMe" name="rememberMe" label="Remember me" />
+          <label>
+            <Checkbox id="rememberMe" name="rememberMe" />
+            Remember me
+          </label>
           <Link
             className="text-sm text-slate-500 dark:text-slate-300"
             href="/auth/request-password-reset"

@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { useTheme } from "@init/ui/theme";
 
-import type { Day } from "@/app/_components/activity";
+import type { Day } from "@/components/profile/calendar-types";
 import type { User } from "@init/api/lib/user-schema";
-import {
-  ActivityCalendar,
-  ActivityStats,
-  ActivityWeek,
-  FULL_DAY_LABELS,
-} from "@/app/_components/activity";
+import { ActivityCalendar } from "@/components/profile/activity-calendar";
+import { ActivityStats } from "@/components/profile/activity-stats";
+import { ActivityWeek } from "@/components/profile/activity-week";
+import { FULL_DAY_LABELS } from "@/components/profile/calendar-util";
 
 type Props = {
   user: User;

@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+
 import {
   getCurrentStreak,
   getLongestStreak,
   getTotalLikes,
   getTotalPosts,
-} from "@init/api/lib/poststats";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
-
+} from "@/lib/stats";
 import { api } from "@/trpc/react";
 import { ActivityStats } from "./activity-stats";
 

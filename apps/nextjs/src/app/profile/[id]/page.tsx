@@ -1,4 +1,7 @@
 import { redirect } from "next/navigation";
+
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { Profile } from "@/components/profile/profile";
 import {
   createPostsDailyActivity,
   createPostsHeatmap,
@@ -6,10 +9,7 @@ import {
   getLongestStreak,
   getTotalLikes,
   getTotalPosts,
-} from "@init/api/lib/poststats";
-
-import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { Profile } from "@/lib/user/ui/profile";
+} from "@/lib/stats";
 import { api } from "@/trpc/server";
 
 type Props = {

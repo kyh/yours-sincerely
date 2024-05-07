@@ -1,8 +1,8 @@
 import { POST_EXPIRY_DAYS_AGO } from "@init/api/lib/post-schema";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
 
 import type { Post } from "@init/api/lib/post-schema";
-import { Tooltip } from "@/app/_components/tooltip";
 
 const getPercentage = (createdAt: Date) => {
   const now = new Date();
@@ -27,9 +27,8 @@ export const Timer = ({ post }: Props) => {
   const { percentage, now, end } = getPercentage(new Date(post.createdAt!));
   const formattedTime = formatDistance(now, end);
   return (
-    <Tooltip
-      triggerClassName="flex items-center p-2 rounded-lg"
-      triggerContent={
+    <Tooltip>
+      <TooltipTrigger className="flex items-center rounded-lg p-2" asChild>
         <div
           className="relative inline-block h-4 w-4 rounded-full bg-slate-400 bg-[length:150%] bg-center	bg-blend-overlay"
           style={{
@@ -42,8 +41,8 @@ export const Timer = ({ post }: Props) => {
         >
           <span className="sr-only">Content dissapears in {formattedTime}</span>
         </div>
-      }
-      tooltipContent={`Dissapears in ${formattedTime}`}
-    />
+      </TooltipTrigger>
+      <TooltipContent>Dissapears in {formattedTime}</TooltipContent>
+    </Tooltip>
   );
 };
