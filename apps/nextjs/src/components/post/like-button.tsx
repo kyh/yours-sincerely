@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import mojs from "@mojs/core";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
 
 const createHeartAnimation = (el: HTMLElement) => {
@@ -112,14 +112,14 @@ const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
 };
 
 type Props = {
-  post: Post;
+  post: RouterOutputs["posts"]["byId"];
 };
 
 const LikeButton = ({ post }: Props) => {
   const utils = api.useUtils();
 
-  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
-  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [likeCount, setLikeCount] = useState(post?.likeCount ?? 0);
+  const [isLiked, setIsLiked] = useState(post?.isLiked ?? false);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
@@ -141,10 +141,11 @@ const LikeButton = ({ post }: Props) => {
   });
 
   const toggleLike = async () => {
+    if (!post?.id) return;
     if (isLiked) {
-      deleteMutate.mutate({ id: post.id! });
+      deleteMutate.mutate({ id: post.id });
     } else {
-      createMutate.mutate({ postId: post.id! });
+      createMutate.mutate({ postId: post.id });
     }
   };
 

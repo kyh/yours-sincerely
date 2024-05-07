@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   isPostContentValid,
   POST_EXPIRY_DAYS_AGO,
-} from "@init/api/lib/post-schema";
+} from "@init/api/lib/post-utils";
 import { Button } from "@init/ui/button";
 import {
   Dialog,
@@ -16,20 +16,19 @@ import {
 import { toast } from "@init/ui/toast";
 import { addDays, format } from "date-fns";
 
-import type { Post } from "@init/api/lib/post-schema";
 import type { User } from "@supabase/auth-helpers-nextjs";
 import { api } from "@/trpc/react";
 
 const postKey = "ys-post";
 
-export const storePost = (post: Post) => {
+export const storePost = (post: { content: string }) => {
   const postString = JSON.stringify(post);
   localStorage.setItem(postKey, postString);
 };
 
 export const getStoredPost = () => {
   const postString = localStorage.getItem(postKey) ?? "{}";
-  return JSON.parse(postString) as Post;
+  return JSON.parse(postString) as { content: string };
 };
 
 export const clearStoredPost = () => {

@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Dialog, DialogContent } from "@init/ui/dialog";
 import { toast } from "@init/ui/toast";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
 
 type Props = {
-  post: Post;
+  post: RouterOutputs["posts"]["byId"];
 };
 
 const buttonClass =
@@ -36,11 +36,12 @@ export const MoreButton = ({ post }: Props) => {
       router.push("/");
     },
   });
+
   const currentUser = api.auth.me.useQuery().data?.id;
-  const isPostOwner = post.userId === currentUser;
+  const isPostOwner = post?.userId === currentUser;
   const [isOpen, setIsOpen] = useState(false);
 
-  const blockingId = post.userId;
+  const blockingId = post?.userId;
   const blockerId = currentUser;
 
   const handleSubmit = (
@@ -48,15 +49,19 @@ export const MoreButton = ({ post }: Props) => {
     action: string,
   ) => {
     e.preventDefault();
+    if (!post?.id) return;
     switch (action) {
       case "delete":
         return deleteMutation.mutate({
-          id: post.id!,
+          id: post.id,
         });
       case "flag":
+        if (!currentUser) {
+          return toast("You must be logged in to flag a post");
+        }
         return createMutation.mutate({
-          postId: post.id!,
-          userId: currentUser!,
+          postId: post.id,
+          userId: currentUser,
         });
       case "block":
         if (!blockerId || !blockingId) return toast("Invalid block");
@@ -103,7 +108,7 @@ export const MoreButton = ({ post }: Props) => {
         <DialogContent className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
           <a
             className={buttonClass}
-            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
+            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post?.id}`}
           >
             Report
           </a>

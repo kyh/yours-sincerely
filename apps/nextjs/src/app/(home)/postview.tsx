@@ -6,14 +6,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@init/ui/spinner";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 import { useInfiniteScroll } from "@/components/layout/infinite-scroll";
 import { CardStack } from "@/components/post/card-stack";
 import { PostContent } from "@/components/post/post-content";
 import { useRootHotkeys } from "@/lib/hotkey";
 
 type Props = {
-  postList: Post[];
+  postList: RouterOutputs["posts"]["list"];
 };
 
 const PostView = ({ postList }: Props) => {

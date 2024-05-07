@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import { Dialog, DialogContent } from "@init/ui/dialog";
 import { toast } from "@init/ui/toast";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 
 type Props = {
-  post: Post;
+  post: RouterOutputs["posts"]["byId"];
 };
 
 const iconClassName =
@@ -14,7 +14,7 @@ const iconClassName =
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
-  const postUrl = `https://yourssincerely.org/posts/${post.id}`;
+  const postUrl = `https://yourssincerely.org/posts/${post?.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
 
   const copyLink = async () => {

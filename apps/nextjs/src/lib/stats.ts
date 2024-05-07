@@ -1,9 +1,12 @@
 import { addDays, differenceInDays, eachDayOfInterval, format } from "date-fns";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 import { DEFAULT_WEEKDAY_LABELS } from "@/components/profile/calendar-util";
 
-export const groupByDay = (posts: Post[], lastNDays: number) => {
+export const groupByDay = (
+  posts: RouterOutputs["posts"]["list"],
+  lastNDays: number,
+) => {
   const days = eachDayOfInterval({
     start: addDays(new Date(), -lastNDays),
     end: new Date(),
@@ -15,25 +18,28 @@ export const groupByDay = (posts: Post[], lastNDays: number) => {
       acc[date] = [];
       return acc;
     },
-    {} as Record<string, Post[]>,
+    {} as Record<string, RouterOutputs["posts"]["list"]>,
   );
 
   posts.forEach((post) => {
     const date = new Date(post.createdAt!);
     const day = format(date, "yyyy-MM-dd");
     if (daysMap[day]) {
-      daysMap[day].push(post);
+      daysMap[day]?.push(post);
     }
   });
 
   return daysMap;
 };
 
-export const maxPostsPerDay = (groupedByDay: Record<string, Post[]>) => {
+export const maxPostsPerDay = (
+  groupedByDay: Record<string, RouterOutputs["posts"]["list"]>,
+) => {
   const days = Object.keys(groupedByDay);
 
   const max = days.reduce((acc, day) => {
     const posts = groupedByDay[day];
+    if (!posts?.length) return acc;
     if (acc < posts.length) return posts.length;
     return acc;
   }, 0);
@@ -49,13 +55,17 @@ export const getPostLevel = (count: number, max: number): 0 | 1 | 2 | 3 | 4 => {
   return 4;
 };
 
-export const createPostsHeatmap = (posts: Post[], lastNDays: number) => {
+export const createPostsHeatmap = (
+  posts: RouterOutputs["posts"]["list"],
+  lastNDays: number,
+) => {
   const groupedByDay = groupByDay(posts, lastNDays);
   const max = maxPostsPerDay(groupedByDay);
   const days = Object.keys(groupedByDay);
 
   const stats = days.map((day) => {
     const posts = groupedByDay[day];
+    if (!posts?.length) return { date: day, count: 0, level: 0 };
     return {
       date: day,
       count: posts.length,
@@ -66,7 +76,9 @@ export const createPostsHeatmap = (posts: Post[], lastNDays: number) => {
   return { stats, max };
 };
 
-export const createPostsDailyActivity = (posts: Post[]) => {
+export const createPostsDailyActivity = (
+  posts: RouterOutputs["posts"]["list"],
+) => {
   const daysMap = DEFAULT_WEEKDAY_LABELS.reduce(
     (acc, day) => {
       acc[day] = {
@@ -82,8 +94,9 @@ export const createPostsDailyActivity = (posts: Post[]) => {
     const date = new Date(post.createdAt!);
     const day = format(date, "eee");
     if (daysMap[day]) {
+      const count = daysMap[day]?.count ?? 0;
       daysMap[day] = {
-        count: daysMap[day].count + 1,
+        count: count + 1,
         level: 0,
       };
     }
@@ -91,36 +104,41 @@ export const createPostsDailyActivity = (posts: Post[]) => {
 
   const max = DEFAULT_WEEKDAY_LABELS.reduce(
     (acc, day) => {
-      if (acc.max < daysMap[day].count) return { max: daysMap[day].count, day };
+      const count = daysMap[day]?.count ?? 0;
+      if (acc.max < count) return { max: count, day };
       return acc;
     },
     { max: 0, day: "none" },
   );
 
   DEFAULT_WEEKDAY_LABELS.forEach((day) => {
-    daysMap[day].level = getPostLevel(daysMap[day].count, max.max);
+    const d = daysMap[day];
+    if (!d) return;
+    d.level = getPostLevel(d.count, max.max);
   });
 
   return { stats: daysMap, max };
 };
 
-export const getTotalPosts = (posts: Post[]) => {
+export const getTotalPosts = (posts: RouterOutputs["posts"]["list"]) => {
   return posts.length;
 };
 
-export const getTotalLikes = (posts: Post[]) => {
+export const getTotalLikes = (posts: RouterOutputs["posts"]["list"]) => {
   return posts.reduce((acc, p) => acc + (p.likeCount ?? 0), 0);
 };
 
-const getStreaks = (posts: Post[]) => {
+const getStreaks = (posts: RouterOutputs["posts"]["list"]) => {
   return posts.reduce(
     (res, currentPost, i) => {
       const previousPost = posts[i - 1];
 
       if (!previousPost) return res;
 
-      const currentDate = currentPost.createdAt!;
-      const previousDate = previousPost.createdAt!;
+      const currentDate = currentPost.createdAt;
+      const previousDate = previousPost.createdAt;
+
+      if (!currentDate || !previousDate) return res;
 
       if (differenceInDays(previousDate, currentDate) < 1) {
         res[res.length - 1]++;
@@ -134,18 +152,20 @@ const getStreaks = (posts: Post[]) => {
   );
 };
 
-export const getCurrentStreak = (posts: Post[]) => {
+export const getCurrentStreak = (posts: RouterOutputs["posts"]["list"]) => {
   const streaks = getStreaks(posts);
   const latestPost = posts[0];
 
-  if (latestPost && differenceInDays(new Date(), latestPost.createdAt!) < 1) {
-    return streaks[0]!;
+  if (!latestPost?.createdAt) return 0;
+
+  if (differenceInDays(new Date(), latestPost.createdAt) < 1) {
+    return streaks[0];
   }
 
   return 0;
 };
 
-export const getLongestStreak = (posts: Post[]) => {
+export const getLongestStreak = (posts: RouterOutputs["posts"]["list"]) => {
   const streaks = getStreaks(posts);
 
   return Math.max(...streaks);

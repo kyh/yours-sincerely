@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import type { Post } from "@init/api/lib/post-schema";
+import type { RouterOutputs } from "@init/api";
 import { ProfileLink } from "@/components/profile/profile-link";
 import { CommentButton } from "./comment-button";
 import { MoreButton } from "./more-button";
@@ -27,7 +27,7 @@ const LikeButton = dynamic(() => import("./like-button"), {
 });
 
 type Props = {
-  post: Post;
+  post: RouterOutputs["posts"]["byId"];
   displayFull?: boolean;
   asLink?: boolean;
   showLike?: boolean;
@@ -47,6 +47,7 @@ export const PostContent = ({
   showShare = true,
   showMore = false,
 }: Props) => {
+  if (!post) return null;
   return (
     <article
       className={`${

@@ -5,8 +5,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import type { Post } from "@init/api/lib/post-schema";
-import type { User } from "@init/api/lib/user-schema";
+import type { RouterOutputs } from "@init/api";
 import { BackButton } from "@/components/post/back-button";
 import { CommentContent } from "@/components/post/comment-content";
 import { PostContent } from "@/components/post/post-content";
@@ -15,8 +14,8 @@ import { api } from "@/trpc/react";
 const readingTime = require("reading-time/lib/reading-time");
 
 type Props = {
-  post: Post | null;
-  user: User | null;
+  post: RouterOutputs["posts"]["byId"];
+  user: RouterOutputs["user"]["byId"];
   pid: string;
 };
 
@@ -48,10 +47,12 @@ const View = ({ post, user, pid }: Props) => {
     if (!form) return;
 
     const formData = new FormData(form);
-    const { content } = Object.fromEntries(formData) as Post;
+    const { content } = Object.fromEntries(formData) as {
+      content: string;
+    };
 
     mutate({
-      content: content ?? "",
+      content: content,
       createdBy: user?.displayName ?? "Anonymous",
       parentId: pid,
     });
