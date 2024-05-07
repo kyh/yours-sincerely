@@ -93,9 +93,7 @@ const fontSans = Inter({
 });
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const user = await api.auth.me();
-
-  console.log("user", user);
+  const currentUser = await api.auth.me();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -109,7 +107,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <TRPCReactProvider>
             <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
               <MainHeader />
-              <Sidebar user={user} />
+              <Sidebar user={currentUser} />
               {children}
               <AsideHeader />
             </section>
@@ -134,24 +132,25 @@ const MainHeader = () => (
 const Sidebar = ({ user }: { user: User | null }) => {
   return (
     <section className="area-nav flex flex-col">
-      <nav className="flex flex-col py-6">
+      <nav className="-ml-4 flex flex-col items-start gap-1 py-5">
         <Button variant="ghost" asChild>
-          <Link className="flex items-center gap-2" href="/">
+          <Link href="/">
             <HomeIcon aria-hidden="true" className="h-5 w-5" />
             <span className="truncate">Home</span>
           </Link>
         </Button>
-        <Link className="flex items-center gap-2" href="/notifications">
-          <NotificationIcon aria-hidden="true" className="h-5 w-5" />
-          <span className="truncate">Notifications</span>
-        </Link>
-        <Link
-          className="flex items-center gap-2"
-          href={user ? `/profile/${user.id}` : `/auth/login`}
-        >
-          <ProfileIcon aria-hidden="true" className="h-5 w-5" />
-          <span className="truncate">Profile</span>
-        </Link>
+        <Button variant="ghost" asChild>
+          <Link href="/notifications">
+            <NotificationIcon aria-hidden="true" className="h-5 w-5" />
+            <span className="truncate">Notifications</span>
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href={user ? `/profile/${user.id}` : `/auth/login`}>
+            <ProfileIcon aria-hidden="true" className="h-5 w-5" />
+            <span className="truncate">Profile</span>
+          </Link>
+        </Button>
       </nav>
       <footer className="mt-auto flex flex-col gap-2 border-t border-t-border py-4 text-xs">
         <div>

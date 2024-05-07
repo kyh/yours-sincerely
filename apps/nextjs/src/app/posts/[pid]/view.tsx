@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import type { Post } from "@/lib/post/data/postschema";
-import type { User } from "@/lib/user/data/userSchema";
+import type { Post } from "@init/api/lib/post-schema";
+import type { User } from "@init/api/lib/user-schema";
 import { TextArea } from "@/app/_components/formfield";
-import { BackButton } from "@/lib/post/ui/backbutton";
-import { CommentContent } from "@/lib/post/ui/commentcontent";
-import { PostContent } from "@/lib/post/ui/postcontent";
+import { BackButton } from "@/components/post/back-button";
+import { CommentContent } from "@/components/post/comment-content";
+import { PostContent } from "@/components/post/post-content";
 import { api } from "@/trpc/react";
 
 const readingTime = require("reading-time/lib/reading-time");

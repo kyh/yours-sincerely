@@ -8,6 +8,13 @@
     "plugins": [{ "name": "next" }],
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
   },
-  "include": [".", ".next/types/**/*.ts"],
+  "include": [
+    ".",
+    ".next/types/**/*.ts",
+    "../../packages/api/src/lib/user-schema.ts",
+    "../../packages/api/src/lib/post-schema.ts",
+    "src/lib/stats.ts",
+    "../../packages/api/src/lib/auth-schema.ts"
+  ],
   "exclude": ["node_modules"]
 }

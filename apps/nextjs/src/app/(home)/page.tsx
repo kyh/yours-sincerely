@@ -1,6 +1,10 @@
 // export const runtime = "edge";
 
-import { PageAside, PageContent, PageHeader } from "@/components/page-layout";
+import {
+  PageAside,
+  PageContent,
+  PageHeader,
+} from "@/components/layout/page-layout";
 import { api } from "@/trpc/server";
 import PostView from "./postview";
 
@@ -11,6 +15,12 @@ const Page = async () => {
     <>
       <PageHeader title="Home" />
       <PageContent>
+        <form className="flex flex-col gap-2">
+          <textarea placeholder="What's on your mind?" />
+          <footer>
+            <button type="submit">Post</button>
+          </footer>
+        </form>
         <PostView postList={postList} />
       </PageContent>
       <PageAside>

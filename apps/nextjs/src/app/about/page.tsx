@@ -1,12 +1,4 @@
-import { PageContent, PageHeader } from "@/components/page-layout";
-
-// import { createMeta } from "~/lib/core/util/meta";
-
-// export let meta: MetaFunction = () => {
-//   return createMeta({
-//     title: "About",
-//   });
-// };
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
 
 const quoteClass =
   "relative before:absolute before:block before:-left-3 before:-top-1 before:w-6 before:h-4 before:-z-10 before:opacity-25 before:content-['_'] before:bg-[url('/assets/quote.svg')] before:bg-no-repeat";

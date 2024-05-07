@@ -1,4 +1,4 @@
-import { PageContent, PageHeader } from "@/components/page-layout";
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
 
 // export let meta: MetaFunction = () => {
 //   return createMeta({
