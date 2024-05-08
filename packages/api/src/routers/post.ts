@@ -59,44 +59,28 @@ export const postsRouter = createTRPCRouter({
   list: publicProcedure
     .input(
       z.object({
-        user: z
-          .object({
-            id: z.string(),
-          })
-          .optional(),
-        filters: z
-          .object({
-            parentId: z.string().optional(),
-            cursor: z.string().optional(),
-          })
-          .optional(),
+        userId: z.string().optional(),
+        parentId: z.string().optional(),
+        cursor: z.string().optional(),
+        limit: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const blocks = await ctx.db.block.findMany({
         where: {
-          // blockerId: input.user?.id,
           blockerId: ctx.user?.id,
         },
       });
 
-      const blockingMap = blocks.reduce(
-        (acc, block) => {
-          acc[block.blockingId] = true;
-          return acc;
-        },
-        {} as Record<string, boolean>,
-      );
-
-      const cursorOption: CursorOption = input.filters?.cursor
+      const cursorOption: CursorOption = input.cursor
         ? {
             skip: 1,
-            cursor: { id: input.filters.cursor },
+            cursor: { id: input.cursor },
           }
         : {};
 
-      const whereOption = input.filters?.parentId
-        ? { parentId: input.filters.parentId }
+      const whereOption = input.parentId
+        ? { parentId: input.parentId }
         : {
             createdAt: {
               gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
@@ -104,55 +88,48 @@ export const postsRouter = createTRPCRouter({
             parentId: null,
           };
 
-      return ctx.db.post
-        .findMany({
-          take: 5,
-          ...cursorOption,
-          where: {
-            ...whereOption,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-          include: {
-            flags: {
-              where: {
-                // userId: input.user?.id ?? "",
-                userId: ctx.user?.id ?? "",
-              },
-            },
-            likes: {
-              where: {
-                // userId: input.user?.id ?? "",
-                userId: ctx.user?.id ?? "",
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-                comments: true,
-                flags: true,
-              },
+      const limit = input.limit ?? 5;
+
+      const posts = await ctx.db.post.findMany({
+        take: limit + 1,
+        ...cursorOption,
+        where: {
+          ...whereOption,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          flags: {
+            where: {
+              userId: ctx.user?.id ?? "",
             },
           },
-        })
-        .then((posts) =>
-          posts
-            .filter((post) => {
-              if (
-                // if post has been flagged by user
-                post.flags.length ||
-                // if post has been flagged many times (by anyone)
-                post._count.flags > 2 ||
-                // if post is created a someone the user has blocked
-                blockingMap[post.userId]
-              ) {
-                return false;
-              }
-              return true;
-            })
-            .map(formatPost),
-        );
+          likes: {
+            where: {
+              userId: ctx.user?.id ?? "",
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+              flags: true,
+            },
+          },
+        },
+      });
+
+      let nextCursor: string | undefined = undefined;
+      if (posts.length > limit) {
+        nextCursor = posts[posts.length - 1]?.id;
+      }
+
+      return {
+        nextCursor,
+        blocks,
+        posts: posts.map(formatPost),
+      };
     }),
 
   all: publicProcedure
