@@ -5,12 +5,9 @@ import {
   PageContent,
   PageHeader,
 } from "@/components/layout/page-layout";
-import { api } from "@/trpc/server";
-import PostView from "./postview";
+import { PostsFeed } from "@/components/post/posts-feed";
 
 const Page = async () => {
-  const postList = await api.posts.list({});
-
   return (
     <>
       <PageHeader title="Home" />
@@ -21,7 +18,7 @@ const Page = async () => {
             <button type="submit">Post</button>
           </footer>
         </form>
-        <PostView postList={postList} />
+        <PostsFeed />
       </PageContent>
       <PageAside>
         <section
