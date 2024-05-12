@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Switch } from "@headlessui/react";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import type { User } from "@init/api/lib/user-schema";
+import type { User } from "@supabase/auth-helpers-nextjs";
 import { CalendarMenu } from "@/components/profile/calendar-menu";
 import {
   CALENDAR_LABELS,
@@ -23,7 +22,9 @@ export const EditProfile = ({ user }: Props) => {
   const router = useRouter();
 
   const [recurring, setRecurring] = useState([] as string[]);
-  const [weeklyDigest, setWeeklyDigest] = useState(user.weeklyDigestEmail);
+  const [weeklyDigest, setWeeklyDigest] = useState(
+    user.user_metadata.weeklyDigestEmail,
+  );
 
   const mutation = api.user.update.useMutation();
 
@@ -42,7 +43,12 @@ export const EditProfile = ({ user }: Props) => {
     e.preventDefault();
     const data = new FormData(e.target as HTMLFormElement);
 
-    const input = Object.fromEntries(data) as Partial<User>;
+    const input = Object.fromEntries(data) as {
+      displayName: string;
+      displayImage: string;
+      email: string;
+      weeklyDigestEmail: string;
+    };
 
     mutation.mutate({
       ...input,
@@ -66,7 +72,7 @@ export const EditProfile = ({ user }: Props) => {
           id="displayName"
           name="displayName"
           className="text-2xl font-bold"
-          defaultValue={user.displayName ?? ""}
+          defaultValue={user.user_metadata.displayName ?? ""}
           placeholder="Anonymous"
         />
         <input
@@ -110,7 +116,7 @@ export const EditProfile = ({ user }: Props) => {
               ))}
             </div>
           </div>
-          <Switch.Group
+          {/* <Switch.Group
             as="div"
             className="grid grid-cols-3 gap-4 border-b border-slate-200 py-5"
           >
@@ -142,7 +148,7 @@ export const EditProfile = ({ user }: Props) => {
                 />
               </Switch>
             </dd>
-          </Switch.Group>
+          </Switch.Group> */}
         </dl>
       </fieldset>
       <div className="flex items-center justify-between gap-2">
