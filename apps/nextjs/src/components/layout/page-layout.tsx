@@ -11,7 +11,7 @@ export const PageHeader = ({
 }: PageLayoutProps & { title: React.ReactNode }) => (
   <header
     className={cn(
-      "area-content-header flex items-center border-b border-b-border",
+      "area-content-header z-10 flex items-center border-b border-b-border",
       className,
     )}
   >

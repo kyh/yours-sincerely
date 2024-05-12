@@ -7,7 +7,7 @@ import { cva } from "class-variance-authority";
 import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-sm font-medium transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
