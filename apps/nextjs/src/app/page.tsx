@@ -5,19 +5,19 @@ import {
   PageContent,
   PageHeader,
 } from "@/components/layout/page-layout";
+import { PostForm } from "@/components/post/post-form";
 import { PostsFeed } from "@/components/post/posts-feed";
+import { api } from "@/trpc/server";
 
 const Page = async () => {
+  const currentUser = await api.auth.me();
+  const placeholder = await api.prompt.random();
+
   return (
     <>
       <PageHeader title="Home" />
       <PageContent>
-        <form className="flex flex-col gap-2">
-          <textarea placeholder="What's on your mind?" />
-          <footer>
-            <button type="submit">Post</button>
-          </footer>
-        </form>
+        <PostForm user={currentUser} placeholder={placeholder} />
         <PostsFeed />
       </PageContent>
       <PageAside>
