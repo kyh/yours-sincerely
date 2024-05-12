@@ -28,7 +28,7 @@ export const storePost = (post: { content: string }) => {
 
 export const getStoredPost = () => {
   const postString = localStorage.getItem(postKey) ?? "{}";
-  return JSON.parse(postString) as { content: string };
+  return JSON.parse(postString) as { content?: string };
 };
 
 export const clearStoredPost = () => {
@@ -43,7 +43,7 @@ type PostFormProps = {
 export const PostForm = ({ user, placeholder }: PostFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [createdBy, setCreatedBy] = useState(
-    user?.user_metadata.displayName ?? "",
+    (user?.user_metadata.displayName as string | undefined) ?? "",
   );
   const [postContent, setPostContent] = useState("");
 
@@ -60,6 +60,7 @@ export const PostForm = ({ user, placeholder }: PostFormProps) => {
       clearStoredPost();
     },
     onError: (err) => {
+      console.error(err);
       toast.error("You got some errors");
     },
   });
@@ -101,9 +102,12 @@ export const PostForm = ({ user, placeholder }: PostFormProps) => {
 
   return (
     <>
-      <form className="relative h-full" onSubmit={submitPost}>
+      <form
+        className="flex flex-col gap-2 border-b border-border pb-5"
+        onSubmit={submitPost}
+      >
         <textarea
-          className="h-full w-full resize-none border-none pb-20 pt-6 text-lg outline-none"
+          className="resize-none bg-transparent text-lg outline-none"
           id="postContent"
           name="postContent"
           defaultValue={postContent}
