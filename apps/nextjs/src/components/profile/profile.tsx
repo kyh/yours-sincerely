@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useTheme } from "@init/ui/theme";
 
 import type { Day } from "@/components/profile/calendar-types";
-import type { User } from "@init/api/lib/user-schema";
+import type { RouterOutputs } from "@init/api";
 import { ActivityCalendar } from "@/components/profile/activity-calendar";
 import { ActivityStats } from "@/components/profile/activity-stats";
 import { ActivityWeek } from "@/components/profile/activity-week";
 import { FULL_DAY_LABELS } from "@/components/profile/calendar-util";
 
 type Props = {
-  user: User;
+  user: RouterOutputs["user"]["byId"];
   showEdit: boolean;
   stats: {
     heatmap: { stats: Day[]; max: number };
@@ -60,6 +60,10 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <section className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -72,45 +76,41 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
           </Link>
         )}
       </div>
-      <>
-        <ActivityStats
-          data={{
-            posts: stats.posts,
-            likes: stats.likes,
-            currentStreak: stats.currentStreak,
-            longestStreak: stats.longestStreak,
-          }}
-        />
-        <ActivityCalendar
-          data={stats.heatmap.stats}
+      <ActivityStats
+        data={{
+          posts: stats.posts,
+          likes: stats.likes,
+          currentStreak: stats.currentStreak,
+          longestStreak: stats.longestStreak,
+        }}
+      />
+      <ActivityCalendar
+        data={stats.heatmap.stats}
+        theme={isDarkMode ? darkTheme : lightTheme}
+      />
+      <div>
+        <h2 className="text-sm font-bold">
+          {stats.daily.max.day === "none" ? (
+            <>No daily stats yet</>
+          ) : (
+            <>
+              Favorite day to write is on{" "}
+              <span className="text-primary">
+                {
+                  FULL_DAY_LABELS[
+                    stats.daily.max.day as keyof typeof FULL_DAY_LABELS
+                  ]
+                }
+                s
+              </span>
+            </>
+          )}
+        </h2>
+        <ActivityWeek
+          data={stats.daily.stats}
           theme={isDarkMode ? darkTheme : lightTheme}
         />
-        <div>
-          <h2 className="text-sm font-bold">
-            {stats.daily.max.day === "none" ? (
-              <>No daily stats yet</>
-            ) : (
-              <>
-                Favorite day to write is on{" "}
-                <span className="text-primary">
-                  {
-                    FULL_DAY_LABELS[
-                      stats.daily.max.day as keyof typeof FULL_DAY_LABELS
-                    ]
-                  }
-                  s
-                </span>
-              </>
-            )}
-          </h2>
-          <ActivityWeek
-            data={stats.daily.stats}
-            theme={isDarkMode ? darkTheme : lightTheme}
-          />
-        </div>
-      </>
-      {/* )}
-      </ClientOnly> */}
+      </div>
     </section>
   );
 };

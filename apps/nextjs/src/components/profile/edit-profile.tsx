@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import type { User } from "@supabase/auth-helpers-nextjs";
+import type { RouterOutputs } from "@init/api";
 import { CalendarMenu } from "@/components/profile/calendar-menu";
 import {
   CALENDAR_LABELS,
@@ -15,18 +15,18 @@ import {
 import { api } from "@/trpc/react";
 
 type Props = {
-  user: User;
+  user: RouterOutputs["auth"]["me"];
 };
 
 export const EditProfile = ({ user }: Props) => {
   const router = useRouter();
-
-  const [recurring, setRecurring] = useState([] as string[]);
-  const [weeklyDigest, setWeeklyDigest] = useState(
-    user.user_metadata.weeklyDigestEmail,
-  );
-
   const mutation = api.user.update.useMutation();
+  const [recurring, setRecurring] = useState<string[]>([]);
+  const [weeklyDigest, setWeeklyDigest] = useState(user?.weeklyDigestEmail);
+
+  if (!user) {
+    return null;
+  }
 
   const handleRecurringDayChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -72,7 +72,7 @@ export const EditProfile = ({ user }: Props) => {
           id="displayName"
           name="displayName"
           className="text-2xl font-bold"
-          defaultValue={user.user_metadata.displayName ?? ""}
+          defaultValue={user.displayName ?? ""}
           placeholder="Anonymous"
         />
         <input

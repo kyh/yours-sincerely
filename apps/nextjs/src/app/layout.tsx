@@ -1,13 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@init/ui/dropdown-menu";
 import { ThemeProvider } from "@init/ui/theme";
 import { Toaster } from "@init/ui/toast";
 import { cn } from "@init/ui/utils";
@@ -19,17 +11,11 @@ import "./globals.css";
 import "@knocklabs/react-notification-feed/dist/index.css";
 
 import Link from "next/link";
-import { Button } from "@init/ui/button";
 import { Logo } from "@init/ui/logo";
 import { TooltipProvider } from "@init/ui/tooltip";
 
-import type { User } from "@supabase/auth-helpers-nextjs";
-import { HelpIcon } from "@/components/icons/help-icon";
-import { HomeIcon } from "@/components/icons/home-icon";
-import { LogoutIcon } from "@/components/icons/logout-icon";
-import { NotificationIcon } from "@/components/icons/notification-icon";
-import { ProfileIcon } from "@/components/icons/profile-icon";
-import { SettingsIcon } from "@/components/icons/settings-icon";
+import { AsideHeader } from "@/components/layout/aside-header";
+import { Sidebar } from "@/components/layout/sidebar";
 import { api } from "@/trpc/server";
 
 export const metadata: Metadata = {
@@ -118,10 +104,14 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <TRPCReactProvider>
             <TooltipProvider delayDuration={0}>
               <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
-                <MainHeader />
+                <div className="area-nav-header flex items-center border-b border-b-border">
+                  <Link href="/">
+                    <Logo />
+                  </Link>
+                </div>
                 <Sidebar user={currentUser} />
                 {children}
-                <AsideHeader />
+                <AsideHeader user={currentUser} />
               </section>
             </TooltipProvider>
           </TRPCReactProvider>
@@ -133,101 +123,3 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 };
 
 export default Layout;
-
-const MainHeader = () => (
-  <div className="area-nav-header flex items-center border-b border-b-border">
-    <Link href="/">
-      <Logo />
-    </Link>
-  </div>
-);
-
-const Sidebar = ({ user }: { user: User | null }) => {
-  return (
-    <section className="area-nav flex flex-col">
-      <nav className="-ml-4 flex flex-col items-start gap-1 py-5">
-        <Button variant="ghost" asChild>
-          <Link href="/">
-            <HomeIcon aria-hidden="true" className="h-5 w-5" />
-            <span className="truncate">Home</span>
-          </Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href="/notifications">
-            <NotificationIcon aria-hidden="true" className="h-5 w-5" />
-            <span className="truncate">Notifications</span>
-          </Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href={user ? `/profile/${user.id}` : `/auth/login`}>
-            <ProfileIcon aria-hidden="true" className="h-5 w-5" />
-            <span className="truncate">Profile</span>
-          </Link>
-        </Button>
-      </nav>
-      <footer className="mt-auto flex flex-col gap-2 border-t border-t-border py-4 text-xs">
-        <div>
-          ©{new Date().getFullYear()}, Made with{" "}
-          <a
-            className="hover:underline"
-            href="https://github.com/kyh/yours-sincerely"
-            target="_blank"
-            rel="noreferrer"
-          >
-            💻
-          </a>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/about" className="inline-block hover:underline">
-            About
-          </Link>
-          <Link href="/privacy" className="inline-block hover:underline">
-            Privacy
-          </Link>
-          <Link href="/terms" className="inline-block hover:underline">
-            Terms
-          </Link>
-        </div>
-      </footer>
-    </section>
-  );
-};
-
-const AsideHeader = () => (
-  <div className="area-aside-header flex items-center justify-end space-x-4 border-b border-b-border">
-    <Button variant="ghost" size="icon">
-      <NotificationIcon className="h-5 w-5" aria-hidden="true" />
-      <span className="sr-only">Notifications</span>
-    </Button>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40" align="end">
-        <DropdownMenuItem>
-          <ProfileIcon aria-hidden="true" className="mr-1 h-4 w-4" />
-          Profile
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <SettingsIcon aria-hidden="true" className="mr-1 h-4 w-4" />
-          Settings
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <HelpIcon aria-hidden="true" className="mr-1 h-4 w-4" />
-          Support
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogoutIcon aria-hidden="true" className="mr-1 h-4 w-4" />
-          Log out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
-);

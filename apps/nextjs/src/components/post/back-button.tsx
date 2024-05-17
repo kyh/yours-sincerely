@@ -1,14 +1,14 @@
+"use client";
+
 import { useRouter } from "next/navigation";
+import { Button } from "@init/ui/button";
 
 export const BackButton = () => {
   const router = useRouter();
   const goBack = () => router.back();
 
   return (
-    <button
-      className="inline-flex items-center gap-1 rounded-lg p-2 text-xs text-slate-500 transition hover:bg-slate-100 hover:no-underline dark:text-slate-300 dark:hover:bg-slate-700"
-      onClick={goBack}
-    >
+    <Button variant="ghost" size="sm" onClick={goBack}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -28,7 +28,7 @@ export const BackButton = () => {
         />
       </svg>
       Back
-    </button>
+    </Button>
   );
 };
 
