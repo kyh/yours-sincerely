@@ -1,6 +1,6 @@
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { CommentFeed } from "@/components/post/comment-feed";
 import { api } from "@/trpc/server";
-import View from "./view";
 
 type Props = {
   params: {
@@ -11,13 +11,12 @@ type Props = {
 const Page = async ({ params: { pid } }: Props) => {
   const post = await api.posts.byId({ id: pid });
   const currentUser = await api.auth.me();
-  const user = await api.user.byEmail({ email: currentUser?.email ?? "" });
 
   return (
     <>
       <PageHeader title="Post" />
       <PageContent>
-        <View post={post} user={user} pid={pid} />
+        <CommentFeed post={post} user={currentUser} />
       </PageContent>
     </>
   );

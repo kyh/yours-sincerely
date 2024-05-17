@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { Spinner } from "@init/ui/spinner";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 

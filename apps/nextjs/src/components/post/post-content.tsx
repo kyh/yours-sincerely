@@ -57,10 +57,7 @@ export const PostContent = ({
       }`}
     >
       {asLink ? (
-        <Link
-          className="block text-slate-900 hover:no-underline dark:text-slate-50"
-          href={`/posts/${post.id}`}
-        >
+        <Link href={`/posts/${post.id}`}>
           <p className="whitespace-pre-wrap text-lg">{post.content}</p>
         </Link>
       ) : (

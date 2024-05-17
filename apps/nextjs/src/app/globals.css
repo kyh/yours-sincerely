@@ -101,3 +101,29 @@
   align-self: start;
   height: calc(100dvh - var(--header-height));
 }
+
+.textarea-grow {
+  display: grid;
+}
+
+.textarea-grow::after {
+  content: attr(data-textarea-value) " ";
+  white-space: pre-wrap;
+  visibility: hidden;
+}
+
+.textarea-grow > textarea {
+  resize: none;
+  overflow: hidden;
+}
+
+.textarea-grow > textarea,
+.textarea-grow::after {
+  grid-area: 1 / 1 / 2 / 2;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  background: transparent;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  min-height: 120px;
+}
