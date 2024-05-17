@@ -45,10 +45,6 @@ export const AsideHeader = ({ user }: Props) => (
           <SettingsIcon aria-hidden="true" className="mr-1 h-4 w-4" />
           Settings
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <SettingsIcon aria-hidden="true" className="mr-1 h-4 w-4" />
-          Settings
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <HelpIcon aria-hidden="true" className="mr-1 h-4 w-4" />
