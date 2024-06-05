@@ -1,7 +1,7 @@
 import { cache } from "react";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { createCaller, createTRPCContext } from "@init/api";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 
 import { getDeprecatedSession } from "@/lib/get-deprecated-session";
 
@@ -11,7 +11,7 @@ import { getDeprecatedSession } from "@/lib/get-deprecated-session";
  */
 const createContext = cache(async () => {
   const head = new Headers(headers());
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = getSupabaseServerClient();
   const userId = getDeprecatedSession();
 
   head.set("x-trpc-source", "rsc");
