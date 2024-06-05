@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
-import { cookies } from "next/headers";
 import { appRouter, createTRPCContext } from "@init/api";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { getDeprecatedSession } from "@/lib/get-deprecated-session";
@@ -30,7 +29,7 @@ export const OPTIONS = () => {
 };
 
 const handler = async (req: NextRequest) => {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = getSupabaseServerClient();
   const userId = getDeprecatedSession();
 
   const response = await fetchRequestHandler({
