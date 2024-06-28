@@ -6,13 +6,13 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import type { Database } from "@init/db/database.types";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { defaultSelect } from "./account/account-utils";
+import { getDeprecatedSession } from "./auth/get-deprecated-session";
 
 /**
  * 1. CONTEXT
@@ -26,24 +26,21 @@ import { defaultSelect } from "./account/account-utils";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: {
-  headers: Headers;
-  supabase: SupabaseClient<Database>;
-  userId?: string | null;
-}) => {
+export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const supabase = getSupabaseServerClient();
+  const adminSupabase = getSupabaseServerClient({ admin: true });
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
+  const deprecatedSessionUserId = getDeprecatedSession();
 
   const { data } = token
-    ? await opts.supabase.auth.getUser(token)
-    : await opts.supabase.auth.getUser();
+    ? await supabase.auth.getUser(token)
+    : await supabase.auth.getUser();
 
-  const supabase = opts.supabase;
   let user = data.user;
-
-  if (!user && opts.userId) {
-    user = await findDbUserAndConvertToSupabaseUser(opts.userId);
+  if (!user && deprecatedSessionUserId) {
+    user = await findDbUserAndConvertToSupabaseUser(deprecatedSessionUserId);
   }
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
@@ -54,6 +51,7 @@ export const createTRPCContext = async (opts: {
     headers: opts.headers,
     user,
     supabase,
+    adminSupabase,
   };
 };
 
@@ -158,6 +156,10 @@ export const superAdminProcedure = t.procedure.use(({ ctx, next }) => {
   const role = ctx.user?.app_metadata.role;
 
   if (!role || role !== "super-admin") {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
