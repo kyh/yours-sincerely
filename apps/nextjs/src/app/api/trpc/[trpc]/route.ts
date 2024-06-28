@@ -1,9 +1,6 @@
 import type { NextRequest } from "next/server";
 import { appRouter, createTRPCContext } from "@init/api";
-import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-
-import { getDeprecatedSession } from "@/lib/get-deprecated-session";
 
 // export const runtime = "edge";
 
@@ -29,19 +26,11 @@ export const OPTIONS = () => {
 };
 
 const handler = async (req: NextRequest) => {
-  const supabase = getSupabaseServerClient();
-  const userId = getDeprecatedSession();
-
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
     req,
-    createContext: () =>
-      createTRPCContext({
-        headers: req.headers,
-        supabase,
-        userId,
-      }),
+    createContext: () => createTRPCContext({ headers: req.headers }),
     onError: ({ error, path }) => {
       console.error(`>>> tRPC Error on '${path}'`, error);
     },

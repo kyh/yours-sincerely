@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { cn } from "@init/ui/utils";
-import { CheckIcon } from "@radix-ui/react-icons";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
+import { CheckIcon } from "lucide-react";
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
@@ -40,4 +40,29 @@ const RadioGroupItem = React.forwardRef<
 });
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
-export { RadioGroup, RadioGroupItem };
+const RadioGroupItemLabel = (
+  props: React.PropsWithChildren<{
+    className?: string;
+    selected?: boolean;
+  }>,
+) => {
+  return (
+    <label
+      className={cn(
+        props.className,
+        "flex cursor-pointer rounded-md" +
+          " items-center space-x-4 border border-input" +
+          " transition-duration-500 p-4 text-sm transition-all focus-within:border-primary",
+        {
+          [`border-primary`]: props.selected,
+          [`hover:border-primary`]: !props.selected,
+        },
+      )}
+    >
+      {props.children}
+    </label>
+  );
+};
+RadioGroupItemLabel.displayName = "RadioGroupItemLabel";
+
+export { RadioGroup, RadioGroupItem, RadioGroupItemLabel };
