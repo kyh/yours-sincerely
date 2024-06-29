@@ -1,7 +1,8 @@
-import type { RouterOutputs } from "@init/api";
-import { POST_EXPIRY_DAYS_AGO } from "@init/api/lib/post-utils";
+import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
+
+import type { RouterOutputs } from "@init/api";
 
 const getPercentage = (createdAt: Date) => {
   const now = new Date();
@@ -19,7 +20,7 @@ const getPercentage = (createdAt: Date) => {
 };
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 export const Timer = ({ post }: Props) => {
@@ -27,7 +28,7 @@ export const Timer = ({ post }: Props) => {
 
   const { percentage, now, end } = getPercentage(new Date(post.createdAt));
   const formattedTime = formatDistance(now, end);
-  
+
   return (
     <Tooltip>
       <TooltipTrigger className="flex items-center rounded-lg p-2" asChild>

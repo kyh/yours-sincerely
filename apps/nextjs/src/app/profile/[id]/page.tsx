@@ -20,9 +20,9 @@ type Props = {
 
 const Page = async ({ params: { id } }: Props) => {
   const lastNDays = 200;
-  const currentUser = await api.auth.me();
+  const currentUser = await api.account.me();
   const user = await api.user.byId({ id: id });
-  const posts = await api.posts.all({ userId: id });
+  const posts = await api.post.all({ userId: id });
 
   if (!user) redirect("/profile");
 

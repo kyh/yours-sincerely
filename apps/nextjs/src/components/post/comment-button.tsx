@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { RouterOutputs } from "@init/api";
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 export const CommentButton = ({ post }: Props) => {

@@ -27,7 +27,7 @@ const LikeButton = dynamic(() => import("./like-button"), {
 });
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
   displayFull?: boolean;
   asLink?: boolean;
   showLike?: boolean;

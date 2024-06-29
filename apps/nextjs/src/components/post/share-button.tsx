@@ -5,7 +5,7 @@ import { toast } from "@init/ui/toast";
 import type { RouterOutputs } from "@init/api";
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 const iconClassName =

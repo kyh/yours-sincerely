@@ -7,7 +7,7 @@ import { NotificationIcon } from "@/components/icons/notification-icon";
 import { ProfileIcon } from "@/components/icons/profile-icon";
 
 type Props = {
-  user: RouterOutputs["auth"]["me"];
+  user: RouterOutputs["account"]["me"];
 };
 
 export const Sidebar = ({ user }: Props) => {

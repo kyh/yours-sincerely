@@ -16,7 +16,7 @@ type Props = {
 };
 
 const Page = async ({ params: { id } }: Props) => {
-  const currentUser = await api.auth.me();
+  const currentUser = await api.account.me();
   const user = await api.user.byId({ id: id });
 
   const allowEdit = currentUser && user ? currentUser.id === id : false;

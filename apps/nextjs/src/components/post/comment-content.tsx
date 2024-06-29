@@ -3,7 +3,7 @@ import { ProfileLink } from "@/components/profile/profile-link";
 import { MoreButton } from "./more-button";
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 export const CommentContent = ({ post }: Props) => {

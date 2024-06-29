@@ -10,7 +10,7 @@ import { PostsFeed } from "@/components/post/posts-feed";
 import { api } from "@/trpc/server";
 
 const Page = async () => {
-  const currentUser = await api.auth.me();
+  const currentUser = await api.account.me();
   const placeholder = await api.prompt.random();
 
   return (

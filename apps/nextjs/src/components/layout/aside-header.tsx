@@ -18,7 +18,7 @@ import { ProfileIcon } from "@/components/icons/profile-icon";
 import { SettingsIcon } from "@/components/icons/settings-icon";
 
 type Props = {
-  user: RouterOutputs["auth"]["me"];
+  user: RouterOutputs["account"]["me"];
 };
 
 export const AsideHeader = ({ user }: Props) => (

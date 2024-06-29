@@ -15,14 +15,14 @@ import {
 import { api } from "@/trpc/react";
 
 type Props = {
-  user: RouterOutputs["auth"]["me"];
+  user: RouterOutputs["account"]["me"];
 };
 
 export const EditProfile = ({ user }: Props) => {
   const router = useRouter();
-  const mutation = api.user.update.useMutation();
+  // const mutation = api.account.update.useMutation();
   const [recurring, setRecurring] = useState<string[]>([]);
-  const [weeklyDigest, setWeeklyDigest] = useState(user?.weeklyDigestEmail);
+  // const [weeklyDigest, setWeeklyDigest] = useState(user?.weeklyDigestEmail);
 
   if (!user) {
     return null;
@@ -50,15 +50,15 @@ export const EditProfile = ({ user }: Props) => {
       weeklyDigestEmail: string;
     };
 
-    mutation.mutate({
-      ...input,
-      email: input.email ?? undefined,
-      displayName: input.displayName ?? "",
-      displayImage: input.displayImage ?? "",
-      weeklyDigestEmail:
-        (input.weeklyDigestEmail as unknown as string) === "true",
-      id: user.id,
-    });
+    // mutation.mutate({
+    //   ...input,
+    //   email: input.email ?? undefined,
+    //   displayName: input.displayName ?? "",
+    //   displayImage: input.displayImage ?? "",
+    //   weeklyDigestEmail:
+    //     (input.weeklyDigestEmail as unknown as string) === "true",
+    //   id: user.id,
+    // });
 
     toast("User profile updated");
     router.push(`/${user.id}`);
@@ -72,7 +72,7 @@ export const EditProfile = ({ user }: Props) => {
           id="displayName"
           name="displayName"
           className="text-2xl font-bold"
-          defaultValue={user.displayName ?? ""}
+          defaultValue={user.user_metadata.displayName ?? ""}
           placeholder="Anonymous"
         />
         <input

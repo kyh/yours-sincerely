@@ -11,16 +11,16 @@ import { PostContent } from "@/components/post/post-content";
 import { api } from "@/trpc/react";
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
-  user: RouterOutputs["auth"]["me"];
+  post: RouterOutputs["post"]["byId"];
+  user: RouterOutputs["account"]["me"];
 };
 
 export const CommentFeed = ({ post, user }: Props) => {
   const utils = api.useUtils();
-  const { mutate, isPending } = api.posts.create.useMutation({
+  const { mutate, isPending } = api.post.create.useMutation({
     onSuccess: async () => {
       toast("Your comment has been added");
-      await utils.posts.byId.invalidate();
+      await utils.post.byId.invalidate();
     },
     onError: async (err) => {
       toast("You got some errors");
@@ -40,7 +40,7 @@ export const CommentFeed = ({ post, user }: Props) => {
 
     mutate({
       content: content,
-      createdBy: user?.displayName ?? "Anonymous",
+      createdBy: user?.user_metadata.displayName ?? "Anonymous",
       parentId: post?.id,
     });
   };

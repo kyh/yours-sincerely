@@ -6,6 +6,7 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { db } from "@init/db/prisma";
 import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
@@ -52,6 +53,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     user,
     supabase,
     adminSupabase,
+    db,
   };
 };
 
