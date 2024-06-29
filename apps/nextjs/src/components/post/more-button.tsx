@@ -9,7 +9,7 @@ import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 const buttonClass =
@@ -18,7 +18,7 @@ const buttonClass =
 export const MoreButton = ({ post }: Props) => {
   const router = useRouter();
 
-  const deleteMutation = api.posts.delete.useMutation({
+  const deleteMutation = api.post.delete.useMutation({
     onSuccess: () => {
       toast("You have flagged this post, we will be reviewing it shortly");
       router.push("/");
@@ -37,7 +37,7 @@ export const MoreButton = ({ post }: Props) => {
     },
   });
 
-  const currentUser = api.auth.me.useQuery().data?.id;
+  const currentUser = api.account.me.useQuery().data?.id;
   const isPostOwner = post?.userId === currentUser;
   const [isOpen, setIsOpen] = useState(false);
 

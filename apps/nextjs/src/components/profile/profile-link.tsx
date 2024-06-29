@@ -25,13 +25,11 @@ const ProfileTooltip = ({
   userId: string;
   displayName: string;
 }) => {
-  const { data, isLoading } = api.posts.all.useQuery({ userId: userId });
+  const { data, isLoading } = api.post.all.useQuery({ userId: userId });
 
   return (
-    <div className="flow-root rounded-md not-italic">
-      <h4 className="mb-2 text-center font-bold text-slate-900 dark:text-slate-50">
-        {displayName}
-      </h4>
+    <div className="flow-root">
+      <h4 className="mb-2 text-center font-bold">{displayName}</h4>
       {!isLoading && data ? (
         <ActivityStats
           data={{
@@ -44,7 +42,7 @@ const ProfileTooltip = ({
         />
       ) : (
         <div className="animate-pulse">
-          <div className="h-[136px] w-[204px] rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-[136px] w-[204px] rounded" />
         </div>
       )}
     </div>
@@ -55,15 +53,12 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
   return (
     <Tooltip>
       <TooltipTrigger
-        className={`inline-flex text-slate-900 underline decoration-dotted underline-offset-2 dark:text-slate-50 ${className}`}
+        className={`inline-flex underline decoration-dotted underline-offset-2 ${className}`}
       >
         {displayName}
       </TooltipTrigger>
-      <TooltipContent asChild>
-        <Link
-          href={`/${userId}`}
-          className="max-w-[240px] overflow-hidden rounded-lg bg-white p-4 shadow-lg hover:no-underline dark:bg-zinc-900"
-        >
+      <TooltipContent>
+        <Link href={`/${userId}`}>
           <ProfileTooltip userId={userId} displayName={displayName} />
         </Link>
       </TooltipContent>

@@ -8,6 +8,7 @@ type PageLayoutProps = {
 export const PageHeader = ({
   title,
   className,
+  children,
 }: PageLayoutProps & { title: React.ReactNode }) => (
   <header
     className={cn(
@@ -16,6 +17,7 @@ export const PageHeader = ({
     )}
   >
     <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+    {children}
   </header>
 );
 

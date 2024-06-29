@@ -90,7 +90,7 @@ const fontSans = Inter({
 });
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const currentUser = await api.auth.me();
+  const currentUser = await api.account.me();
 
   return (
     <html lang="en" suppressHydrationWarning>

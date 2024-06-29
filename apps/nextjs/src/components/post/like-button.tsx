@@ -112,7 +112,7 @@ const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
 };
 
 type Props = {
-  post: RouterOutputs["posts"]["byId"];
+  post: RouterOutputs["post"]["byId"];
 };
 
 const LikeButton = ({ post }: Props) => {
