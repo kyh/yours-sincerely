@@ -92,6 +92,8 @@ const fontSans = Inter({
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const currentUser = await api.account.me();
 
+  console.log("currentUser", currentUser);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
