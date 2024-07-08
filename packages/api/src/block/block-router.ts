@@ -1,66 +1,61 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { allInput, byIdInput, createInput, deleteInput } from "./block-schema";
 
 export const blockRouter = createTRPCRouter({
-  all: protectedProcedure
-    .input(z.object({ id: z.string() }).optional())
-    .query(({ ctx, input }) => {
-      return ctx.db.block.findMany({
-        where: {
-          blockerId: input?.id,
-        },
-      });
-    }),
+  all: protectedProcedure.input(allInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("blocks")
+      .select("*")
+      .match({ blocker_id: input?.id });
 
-  byId: publicProcedure
-    .input(
-      z.object({
-        blockerId: z.string(),
-        blockingId: z.string(),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.block.findUnique({
-        where: {
-          blockerId_blockingId: input,
-        },
-      });
-    }),
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
+
+  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("blocks")
+      .select("*")
+      .match({ blocker_id: input.blockerId, blocking_id: input.blockingId })
+      .single();
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
 
   create: publicProcedure
-    .input(
-      z.object({
-        blocker: z.object({
-          connect: z.object({
-            id: z.string(),
-          }),
-        }),
-        blocking: z.object({
-          connect: z.object({
-            id: z.string(),
-          }),
-        }),
-      }),
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.block.create({
-        data: input,
+    .input(createInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase.from("blocks").insert({
+        blocker_id: input.blockerId,
+        blocking_id: input.blockingId,
       });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 
   delete: protectedProcedure
-    .input(
-      z.object({
-        blockerId: z.string(),
-        blockingId: z.string(),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.block.delete({
-        where: {
-          blockerId_blockingId: input,
-        },
-      });
+    .input(deleteInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("blocks")
+        .delete()
+        .match({ blocker_id: input.blockerId, blocking_id: input.blockingId });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 });

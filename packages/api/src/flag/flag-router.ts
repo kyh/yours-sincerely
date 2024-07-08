@@ -1,60 +1,66 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { allInput, byIdInput, createInput, deleteInput } from "./flag-schema";
 
 export const flagRouter = createTRPCRouter({
-  all: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.flag.findMany({
-        where: {
-          userId: input.id,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    }),
+  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("flags")
+      .select("*")
+      .eq("account_id", input.id)
+      .order("created_at", { ascending: false });
 
-  byId: publicProcedure
-    .input(
-      z.object({
-        postId_userId: z.object({
-          postId: z.string(),
-          userId: z.string(),
-        }),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.flag.findUnique({
-        where: {
-          postId_userId: input.postId_userId,
-        },
-      });
-    }),
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
+
+  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("flags")
+      .select("*")
+      .match({ post_id: input.postId, account_id: input.userId })
+      .single();
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
 
   create: publicProcedure
-    .input(
-      z.object({
-        comment: z.string().optional(),
-        resolved: z.boolean().optional(),
-        postId: z.string(),
-        userId: z.string(),
-      }),
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.flag.create({
-        data: input,
+    .input(createInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase.from("flags").insert({
+        comment: input.comment,
+        resolved: input.resolved,
+        post_id: input.postId,
+        account_id: input.userId,
       });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 
   delete: publicProcedure
-    .input(z.object({ postId: z.string(), userId: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.flag.delete({
-        where: {
-          postId_userId: input,
-        },
-      });
+    .input(deleteInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("flags")
+        .delete()
+        .match({ post_id: input.postId, account_id: input.userId });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 });

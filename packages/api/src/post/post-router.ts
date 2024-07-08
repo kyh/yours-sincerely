@@ -9,6 +9,14 @@ import type {
 } from "@prisma/client";
 import { defaultSelect } from "../account/account-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  allInput,
+  byIdInput,
+  createInput,
+  deleteInput,
+  listInput,
+  updateInput,
+} from "./post-schema";
 
 const knockClient = new Knock(process.env.KNOCK_SECRET_API_KEY);
 
@@ -132,101 +140,81 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  all: publicProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.post
-        .findMany({
-          where: {
-            userId: input.userId,
-            parentId: null,
+  all: publicProcedure.input(allInput).query(({ ctx, input }) => {
+    return ctx.db.post
+      .findMany({
+        where: {
+          userId: input.userId,
+          parentId: null,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          _count: {
+            select: {
+              likes: true,
+            },
           },
+        },
+      })
+      .then((posts) => posts.map(formatPost));
+  }),
+
+  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+    const inclusions = {
+      flags: {
+        where: {
+          userId: input.user?.id ?? "",
+        },
+      },
+      likes: {
+        where: {
+          userId: input.user?.id ?? "",
+        },
+      },
+      _count: {
+        select: {
+          comments: true,
+          likes: true,
+          flags: true,
+        },
+      },
+    };
+
+    const post = await ctx.db.post.findUnique({
+      where: {
+        id: input.id,
+      },
+      include: {
+        comments: {
           orderBy: {
             createdAt: "desc",
           },
-          include: {
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-        })
-        .then((posts) => posts.map(formatPost));
-    }),
+          include: inclusions,
+        },
+        ...inclusions,
+      },
+    });
 
-  byId: publicProcedure
-    .input(
-      z.object({
-        user: z
-          .object({
-            id: z.string(),
-          })
-          .optional(),
-        id: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const inclusions = {
-        flags: {
-          where: {
-            userId: input.user?.id ?? "",
-          },
-        },
-        likes: {
-          where: {
-            userId: input.user?.id ?? "",
-          },
-        },
-        _count: {
-          select: {
-            comments: true,
-            likes: true,
-            flags: true,
-          },
-        },
-      };
+    if (
+      // if post doesnt exist
+      !post ||
+      // if user has flagged the post
+      post.flags.length ||
+      // if post has been flagged many times (by anyone)
+      post._count.flags > 2 ||
+      // if post has timed out
+      isBefore(post.createdAt, addDays(new Date(), -POST_EXPIRY_DAYS_AGO))
+    ) {
+      return null;
+    }
 
-      const post = await ctx.db.post.findUnique({
-        where: {
-          id: input.id,
-        },
-        include: {
-          comments: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            include: inclusions,
-          },
-          ...inclusions,
-        },
-      });
-
-      if (
-        // if post doesnt exist
-        !post ||
-        // if user has flagged the post
-        post.flags.length ||
-        // if post has been flagged many times (by anyone)
-        post._count.flags > 2 ||
-        // if post has timed out
-        isBefore(post.createdAt, addDays(new Date(), -POST_EXPIRY_DAYS_AGO))
-      ) {
-        return null;
-      }
-
-      return formatPost(post);
-    }),
+    return formatPost(post);
+  }),
 
   create: protectedProcedure
-    .input(
-      z.object({
-        parentId: z.string().optional(),
-        content: z.string(),
-        createdBy: z.string().optional(),
-        baseLikeCount: z.number().optional(),
-      }),
-    )
+    .input(createInput)
     .mutation(async ({ ctx, input }) => {
       let user = await ctx.db.user.findUnique({
         where: { id: ctx.user.id },
@@ -286,30 +274,36 @@ export const postRouter = createTRPCRouter({
     }),
 
   update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        parentId: z.string().optional(),
-        content: z.string(),
-        userId: z.string(),
-      }),
-    )
-    .mutation(({ ctx, input }) => {
-      const { id, ...data } = input;
+    .input(updateInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("posts")
+        .update({
+          parent_id: input.parentId,
+          content: input.content,
+          account_id: input.userId,
+        })
+        .eq("id", input.id);
 
-      return ctx.db.post.update({
-        where: {
-          id: id,
-        },
-        data: data,
-      });
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.post.delete({
-        where: input,
-      });
+    .input(deleteInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("posts")
+        .delete()
+        .eq("id", input.id);
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 });
