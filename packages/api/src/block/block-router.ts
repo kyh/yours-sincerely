@@ -6,7 +6,7 @@ export const blockRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("blocks")
       .select("*")
-      .match({ blocker_id: input?.id });
+      .match({ blockerId: input?.id });
 
     if (response.error) {
       throw response.error;
@@ -19,7 +19,7 @@ export const blockRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("blocks")
       .select("*")
-      .match({ blocker_id: input.blockerId, blocking_id: input.blockingId })
+      .match({ blockerId: input.blockerId, blockingId: input.blockingId })
       .single();
 
     if (response.error) {
@@ -33,8 +33,8 @@ export const blockRouter = createTRPCRouter({
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase.from("blocks").insert({
-        blocker_id: input.blockerId,
-        blocking_id: input.blockingId,
+        blockerId: input.blockerId,
+        blockingId: input.blockingId,
       });
 
       if (response.error) {
@@ -50,7 +50,7 @@ export const blockRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("blocks")
         .delete()
-        .match({ blocker_id: input.blockerId, blocking_id: input.blockingId });
+        .match({ blockerId: input.blockerId, blockingId: input.blockingId });
 
       if (response.error) {
         throw response.error;

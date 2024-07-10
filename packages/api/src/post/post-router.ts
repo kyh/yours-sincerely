@@ -279,9 +279,9 @@ export const postRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("posts")
         .update({
-          parent_id: input.parentId,
+          parentId: input.parentId,
           content: input.content,
-          account_id: input.userId,
+          userId: input.userId,
         })
         .eq("id", input.id);
 

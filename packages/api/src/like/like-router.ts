@@ -7,8 +7,8 @@ export const likeRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("likes")
       .select("*")
-      .eq("account_id", input.id)
-      .order("created_at", { ascending: false });
+      .eq("userId", input.id)
+      .order("createdAt", { ascending: false });
 
     if (response.error) {
       throw response.error;
@@ -21,7 +21,7 @@ export const likeRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("likes")
       .select("*")
-      .match({ post_id: input.postId, account_id: input.userId })
+      .match({ postId: input.postId, userId: input.userId })
       .single();
 
     if (response.error) {
@@ -48,8 +48,8 @@ export const likeRouter = createTRPCRouter({
       const likeResponse = await ctx.supabase
         .from("likes")
         .insert({
-          post_id: input.postId,
-          account_id: user.id,
+          postId: input.postId,
+          userId: user.id,
         })
         .select("*, account (id)");
 
@@ -66,7 +66,7 @@ export const likeRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("likes")
         .delete()
-        .match({ post_id: input.id, account_id: ctx.user.id });
+        .match({ postId: input.id, userId: ctx.user.id });
 
       if (response.error) {
         throw response.error;

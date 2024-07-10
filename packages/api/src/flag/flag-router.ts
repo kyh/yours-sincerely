@@ -8,8 +8,8 @@ export const flagRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("flags")
       .select("*")
-      .eq("account_id", input.id)
-      .order("created_at", { ascending: false });
+      .eq("userId", input.id)
+      .order("createdAt", { ascending: false });
 
     if (response.error) {
       throw response.error;
@@ -22,7 +22,7 @@ export const flagRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("flags")
       .select("*")
-      .match({ post_id: input.postId, account_id: input.userId })
+      .match({ postId: input.postId, userId: input.userId })
       .single();
 
     if (response.error) {
@@ -38,8 +38,8 @@ export const flagRouter = createTRPCRouter({
       const response = await ctx.supabase.from("flags").insert({
         comment: input.comment,
         resolved: input.resolved,
-        post_id: input.postId,
-        account_id: input.userId,
+        postId: input.postId,
+        userId: input.userId,
       });
 
       if (response.error) {
@@ -55,7 +55,7 @@ export const flagRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("flags")
         .delete()
-        .match({ post_id: input.postId, account_id: input.userId });
+        .match({ postId: input.postId, userId: input.userId });
 
       if (response.error) {
         throw response.error;
