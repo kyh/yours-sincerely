@@ -1,47 +1,43 @@
-import { z } from "zod";
-
 import { defaultSelect } from "../account/account-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { allInput, byIdInput, createInput, deleteInput } from "./like-schema";
 
 export const likeRouter = createTRPCRouter({
-  all: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.like.findMany({
-        where: {
-          userId: input.id,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    }),
+  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("likes")
+      .select("*")
+      .eq("userId", input.id)
+      .order("createdAt", { ascending: false });
 
-  byId: publicProcedure
-    .input(
-      z.object({
-        postId_userId: z.object({
-          postId: z.string(),
-          userId: z.string(),
-        }),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.like.findUnique({
-        where: {
-          postId_userId: input.postId_userId,
-        },
-      });
-    }),
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
+
+  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("likes")
+      .select("*")
+      .match({ postId: input.postId, userId: input.userId })
+      .single();
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
 
   create: protectedProcedure
-    .input(z.object({ postId: z.string() }))
+    .input(createInput)
     .mutation(async ({ ctx, input }) => {
       let user = await ctx.db.user.findUnique({
         where: { id: ctx.user.id },
         select: defaultSelect,
       });
-
       if (!user) {
         user = await ctx.db.user.create({
           data: { displayName: "Anonymous", id: ctx.user.id },
@@ -49,36 +45,33 @@ export const likeRouter = createTRPCRouter({
         });
       }
 
-      return ctx.db.like.create({
-        data: {
-          post: {
-            connect: {
-              id: input.postId,
-            },
-          },
-          user: {
-            connect: {
-              id: user.id,
-            },
-          },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
+      const likeResponse = await ctx.supabase
+        .from("likes")
+        .insert({
+          postId: input.postId,
+          userId: user.id,
+        })
+        .select("*, account (id)");
+
+      if (likeResponse.error) {
+        throw likeResponse.error;
+      }
+
+      return likeResponse.data;
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.like.delete({
-        where: {
-          postId_userId: { postId: input.id, userId: ctx.user.id },
-        },
-      });
+    .input(deleteInput)
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("likes")
+        .delete()
+        .match({ postId: input.id, userId: ctx.user.id });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
     }),
 });
