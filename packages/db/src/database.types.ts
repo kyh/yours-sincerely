@@ -227,6 +227,70 @@ export type Database = {
           },
         ]
       }
+      blocks: {
+        Row: {
+          blocker_id: string
+          blocking_id: string
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          blocker_id: string
+          blocking_id: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          blocker_id?: string
+          blocking_id?: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "user_account_workspace"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "user_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocking_id_fkey"
+            columns: ["blocking_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocking_id_fkey"
+            columns: ["blocking_id"]
+            isOneToOne: false
+            referencedRelation: "user_account_workspace"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocking_id_fkey"
+            columns: ["blocking_id"]
+            isOneToOne: false
+            referencedRelation: "user_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       config: {
         Row: {
           billing_provider: Database["public"]["Enums"]["billing_provider"]
@@ -247,6 +311,62 @@ export type Database = {
           enable_team_accounts?: boolean
         }
         Relationships: []
+      }
+      flags: {
+        Row: {
+          account_id: string
+          comment: string | null
+          created_at: string
+          post_id: string
+          resolved: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          comment?: string | null
+          created_at?: string
+          post_id: string
+          resolved?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          comment?: string | null
+          created_at?: string
+          post_id?: string
+          resolved?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flags_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flags_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_account_workspace"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flags_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invitations: {
         Row: {
@@ -317,6 +437,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "roles"
             referencedColumns: ["name"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          account_id: string
+          created_at: string
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_account_workspace"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -483,6 +653,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      posts: {
+        Row: {
+          account_id: string
+          base_like_count: number | null
+          content: string
+          created_at: string
+          id: string
+          parent_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          base_like_count?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          parent_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          base_like_count?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          parent_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_comment_parent_id"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_account_workspace"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "user_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompts: {
+        Row: {
+          content: string | null
+          id: string
+        }
+        Insert: {
+          content?: string | null
+          id?: string
+        }
+        Update: {
+          content?: string | null
+          id?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {

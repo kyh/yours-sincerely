@@ -1,21 +1,27 @@
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-const randomPick = (array: string[]) =>
-  array[Math.floor(Math.random() * array.length)];
-
 export const promptRouter = createTRPCRouter({
   random: publicProcedure.query(async ({ ctx }) => {
-    const itemCount = await ctx.db.prompt.count();
-    const skip = Math.max(0, Math.floor(Math.random() * itemCount) - 1);
-    const orderBy = randomPick(["id", "content"]);
-    const orderDir = randomPick(["asc", "desc"]);
+    const countResponse = await ctx.adminSupabase
+      .from("prompts")
+      .select("*", { count: "exact", head: true });
 
-    const prompts = await ctx.db.prompt.findMany({
-      take: 1,
-      skip: skip,
-      orderBy: { [orderBy ?? "id"]: orderDir ?? "asc" },
-    });
+    if (countResponse.error) {
+      throw countResponse.error;
+    }
 
-    return prompts[0]?.content ?? "What's on your mind?";
+    const randomIndex = Math.floor(Math.random() * (countResponse.count ?? 0));
+
+    const dataResponse = await ctx.adminSupabase
+      .from("prompts")
+      .select("*")
+      .limit(1)
+      .range(randomIndex, randomIndex + 1);
+
+    if (dataResponse.error) {
+      throw dataResponse.error;
+    }
+
+    return dataResponse.data[0]?.content ?? "What's on your mind?";
   }),
 });
