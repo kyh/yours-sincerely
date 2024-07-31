@@ -18,8 +18,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   const userId = user?.id;
   const postId = params.pid;
 
-  if (!userId || !postId) return badRequest({ message: "Invalid post" });
+  if (!userId || !postId) {
+    return badRequest({ message: "Invalid post" });
+  }
 
+  if (user && user.disabled) {
+    return badRequest({ message: "Your account has been disabled" });
+  }
+  
   try {
     if (request.method === "POST") {
       await createPost({
