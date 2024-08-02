@@ -28,7 +28,32 @@ const buttonVariants = cva(
         lg: "h-10 px-8",
         icon: "size-9",
       },
+      loading: {
+        true: "[&>:first-child]:opacity-100",
+      },
     },
+    compoundVariants: [
+      {
+        variant: "primary",
+        loading: true,
+        className: "[&>:first-child]:bg-primary",
+      },
+      {
+        variant: "destructive",
+        loading: true,
+        className: "[&>:first-child]:bg-destructive",
+      },
+      {
+        variant: "outline",
+        loading: true,
+        className: "[&>:first-child]:bg-background",
+      },
+      {
+        variant: "secondary",
+        loading: true,
+        className: "[&>:first-child]:bg-secondary",
+      },
+    ],
     defaultVariants: {
       variant: "primary",
       size: "md",
@@ -59,19 +84,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, loading, className }))}
         ref={ref}
         disabled={disabled ?? loading}
         {...props}
       >
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-0 grid place-items-center opacity-0 transition",
-            loading && "opacity-1",
-          )}
-        >
-          <Spinner />
-        </div>
+        <span className="pointer-events-none absolute inset-0 grid place-items-center opacity-0 transition">
+          <Spinner className="size-4" />
+        </span>
         <Slottable>{children}</Slottable>
       </Comp>
     );
