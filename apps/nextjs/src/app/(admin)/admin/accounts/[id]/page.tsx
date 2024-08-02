@@ -15,16 +15,14 @@ import {
 import { BadgeX, Ban, ShieldPlus, VenetianMask } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
+import { AdminBanUserDialog } from "@/app/(admin)/_components/admin-ban-user-dialog";
+import { AdminDeleteAccountDialog } from "@/app/(admin)/_components/admin-delete-account-dialog";
+import { AdminDeleteUserDialog } from "@/app/(admin)/_components/admin-delete-user-dialog";
+import { AdminImpersonateUserDialog } from "@/app/(admin)/_components/admin-impersonate-user-dialog";
+import { AdminMembersTable } from "@/app/(admin)/_components/admin-members-table";
+import { AdminMembershipsTable } from "@/app/(admin)/_components/admin-memberships-table";
+import { AdminReactivateUserDialog } from "@/app/(admin)/_components/admin-reactivate-user-dialog";
 import { api } from "@/trpc/server";
-import { AdminBanUserDialog } from "./admin-ban-user-dialog";
-import { AdminDeleteAccountDialog } from "./admin-delete-account-dialog";
-import { AdminDeleteUserDialog } from "./admin-delete-user-dialog";
-import { AdminImpersonateUserDialog } from "./admin-impersonate-user-dialog";
-import { AdminMembersTable } from "./admin-members-table";
-import { AdminMembershipsTable } from "./admin-memberships-table";
-import { AdminReactivateUserDialog } from "./admin-reactivate-user-dialog";
-
-type Account = RouterOutputs["admin"]["getAccount"];
 
 type Params = {
   params: {
@@ -43,24 +41,26 @@ export const generateMetadata = async ({ params }: Params) => {
 const Page = async ({ params }: Params) => {
   const account = await api.admin.getAccount({ accountId: params.id });
 
-  const isPersonalAccount = account.is_personal_account;
-
-  if (isPersonalAccount) {
-    return (
-      <main className="flex flex-1 flex-col px-5">
-        <PersonalAccountPage account={account} />
-      </main>
-    );
-  }
-
   return (
     <main className="flex flex-1 flex-col px-5">
-      <TeamAccountPage account={account} />
+      <AdminAccountPage account={account} />
     </main>
   );
 };
 
 export default Page;
+
+type Account = RouterOutputs["admin"]["getAccount"];
+
+const AdminAccountPage = (props: { account: Account }) => {
+  const isPersonalAccount = props.account.isPersonalAccount;
+
+  if (isPersonalAccount) {
+    return <PersonalAccountPage account={props.account} />;
+  }
+
+  return <TeamAccountPage account={props.account} />;
+};
 
 const PersonalAccountPage = async (props: { account: Account }) => {
   const memberships = await api.admin.getMemberships({
@@ -69,10 +69,6 @@ const PersonalAccountPage = async (props: { account: Account }) => {
   const data = await api.admin.getUserById({
     accountId: props.account.id,
   });
-
-  if (!data.user) {
-    throw new Error(`User not found`);
-  }
 
   const isBanned =
     "banned_until" in data.user && data.user.banned_until !== "none";
@@ -84,7 +80,7 @@ const PersonalAccountPage = async (props: { account: Account }) => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2.5">
               <ProfileAvatar
-                pictureUrl={props.account.picture_url}
+                pictureUrl={props.account.pictureUrl}
                 displayName={props.account.name}
               />
 
@@ -143,7 +139,7 @@ const PersonalAccountPage = async (props: { account: Account }) => {
           </Heading>
 
           <div>
-            <AdminMembershipsTable memberships={memberships ?? []} />
+            <AdminMembershipsTable memberships={memberships} />
           </div>
         </div>
       </div>
@@ -163,7 +159,7 @@ const TeamAccountPage = async (props: { account: Account }) => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2.5">
               <ProfileAvatar
-                pictureUrl={props.account.picture_url}
+                pictureUrl={props.account.pictureUrl}
                 displayName={props.account.name}
               />
 
@@ -191,7 +187,7 @@ const TeamAccountPage = async (props: { account: Account }) => {
               Team Members
             </Heading>
 
-            <AdminMembersTable members={members ?? []} />
+            <AdminMembersTable members={members} />
           </div>
         </div>
       </div>
@@ -249,11 +245,11 @@ const SubscriptionsTable = async (props: { accountId: string }) => {
                     </TableCell>
 
                     <TableCell>
-                      <span>{subscription.billing_provider}</span>
+                      <span>{subscription.billingProvider}</span>
                     </TableCell>
 
                     <TableCell>
-                      <span>{subscription.billing_customer_id}</span>
+                      <span>{subscription.billingCustomerId}</span>
                     </TableCell>
 
                     <TableCell>
@@ -261,15 +257,15 @@ const SubscriptionsTable = async (props: { accountId: string }) => {
                     </TableCell>
 
                     <TableCell>
-                      <span>{subscription.created_at}</span>
+                      <span>{subscription.createdAt}</span>
                     </TableCell>
 
                     <TableCell>
-                      <span>{subscription.period_starts_at}</span>
+                      <span>{subscription.periodStartsAt}</span>
                     </TableCell>
 
                     <TableCell>
-                      <span>{subscription.period_ends_at}</span>
+                      <span>{subscription.periodEndsAt}</span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -291,15 +287,15 @@ const SubscriptionsTable = async (props: { accountId: string }) => {
                 </TableHeader>
 
                 <TableBody>
-                  {subscription.subscription_items.map((item) => {
+                  {subscription.subscriptionItems.map((item) => {
                     return (
-                      <TableRow key={item.variant_id}>
+                      <TableRow key={item.variantId}>
                         <TableCell>
-                          <span>{item.product_id}</span>
+                          <span>{item.productId}</span>
                         </TableCell>
 
                         <TableCell>
-                          <span>{item.variant_id}</span>
+                          <span>{item.variantId}</span>
                         </TableCell>
 
                         <TableCell>
@@ -307,7 +303,7 @@ const SubscriptionsTable = async (props: { accountId: string }) => {
                         </TableCell>
 
                         <TableCell>
-                          <span>{item.price_amount}</span>
+                          <span>{item.priceAmount}</span>
                         </TableCell>
 
                         <TableCell>

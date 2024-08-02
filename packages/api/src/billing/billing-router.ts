@@ -5,11 +5,11 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createBillingPortalSessionInput,
   createCheckoutSessionInput,
+  getCheckoutSessionInput,
   getCustomerIdInput,
   getOrderInput,
   getSubscriptionInput,
   handleWebhookEventInput,
-  retrieveCheckoutSessionInput,
 } from "./billing-schema";
 import { createStripeClient } from "./stripe/stripe-sdk";
 import { StripeWebhookHandlerService } from "./stripe/stripe-webhook-handler";
@@ -19,9 +19,9 @@ export const billingRouter = createTRPCRouter({
     .input(getSubscriptionInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("subscriptions")
-        .select("*, items: subscription_items !inner (*)")
-        .eq("account_id", input.accountId)
+        .from("Subscriptions")
+        .select("*, items: SubscriptionItems !inner (*)")
+        .eq("accountId", input.accountId)
         .maybeSingle();
 
       if (response.error) {
@@ -34,9 +34,9 @@ export const billingRouter = createTRPCRouter({
     .input(getOrderInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("orders")
-        .select("*, items: order_items !inner (*)")
-        .eq("account_id", input.accountId)
+        .from("Orders")
+        .select("*, items: OrderItems !inner (*)")
+        .eq("accountId", input.accountId)
         .maybeSingle();
 
       if (response.error) {
@@ -49,16 +49,16 @@ export const billingRouter = createTRPCRouter({
     .input(getCustomerIdInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("billing_customers")
-        .select("customer_id")
-        .eq("account_id", input.accountId)
+        .from("BillingCustomers")
+        .select("customerId")
+        .eq("accountId", input.accountId)
         .maybeSingle();
 
       if (response.error) {
         throw response.error;
       }
 
-      return response.data?.customer_id;
+      return response.data?.customerId;
     }),
   createCheckoutSession: protectedProcedure
     .input(createCheckoutSessionInput)
@@ -150,8 +150,8 @@ export const billingRouter = createTRPCRouter({
 
       return { checkoutToken: client_secret };
     }),
-  retrieveCheckoutSession: protectedProcedure
-    .input(retrieveCheckoutSessionInput)
+  getCheckoutSession: protectedProcedure
+    .input(getCheckoutSessionInput)
     .query(async ({ ctx, input }) => {
       const stripe = await createStripeClient();
       const session = await stripe.checkout.sessions.retrieve(input.sessionId);
@@ -201,7 +201,7 @@ export const billingRouter = createTRPCRouter({
           // here we delete the subscription from the database
 
           const { error } = await adminSupabase
-            .from("subscriptions")
+            .from("Subscriptions")
             .delete()
             .match({ id: subscriptionId });
 
@@ -213,7 +213,7 @@ export const billingRouter = createTRPCRouter({
           // Handle the subscription updated event
           // here we update the subscription in the database
           const { error } = await adminSupabase.rpc(
-            "upsert_subscription",
+            "upsertSubscription",
             subscription,
           );
 
@@ -228,15 +228,15 @@ export const billingRouter = createTRPCRouter({
           // Check if the payload contains an order_id
           // if it does, we add an order, otherwise we add a subscription
 
-          if ("target_order_id" in payload) {
-            const { error } = await adminSupabase.rpc("upsert_order", payload);
+          if ("targetOrderId" in payload) {
+            const { error } = await adminSupabase.rpc("upsertOrder", payload);
 
             if (error) {
               throw new Error("Failed to add order");
             }
           } else {
             const { error } = await adminSupabase.rpc(
-              "upsert_subscription",
+              "upsertSubscription",
               payload,
             );
 
@@ -251,9 +251,9 @@ export const billingRouter = createTRPCRouter({
           // here we update the payment status in the database
 
           const { error } = await adminSupabase
-            .from("orders")
+            .from("Orders")
             .update({ status: "succeeded" })
-            .match({ session_id: sessionId });
+            .match({ sessionId: sessionId });
 
           // handle the error
           if (error) {
@@ -265,9 +265,9 @@ export const billingRouter = createTRPCRouter({
           // here we update the payment status in the database
 
           const { error } = await adminSupabase
-            .from("orders")
+            .from("Orders")
             .update({ status: "failed" })
-            .match({ session_id: sessionId });
+            .match({ sessionId: sessionId });
 
           if (error) {
             throw new Error("Failed to update payment status");
