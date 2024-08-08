@@ -34,1302 +34,392 @@ export type Database = {
   }
   public: {
     Tables: {
-      accounts: {
+      Account: {
         Row: {
-          created_at: string | null
-          created_by: string | null
-          email: string | null
+          accessToken: string | null
+          expiresAt: number | null
           id: string
-          is_personal_account: boolean
-          name: string
-          picture_url: string | null
-          primary_owner_user_id: string
-          public_data: Json
-          slug: string | null
-          updated_at: string | null
-          updated_by: string | null
+          provider: string
+          providerAccountId: string
+          refreshToken: string | null
+          userId: string
         }
         Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          is_personal_account?: boolean
-          name: string
-          picture_url?: string | null
-          primary_owner_user_id?: string
-          public_data?: Json
-          slug?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
+          accessToken?: string | null
+          expiresAt?: number | null
+          id: string
+          provider: string
+          providerAccountId: string
+          refreshToken?: string | null
+          userId: string
         }
         Update: {
-          created_at?: string | null
-          created_by?: string | null
-          email?: string | null
+          accessToken?: string | null
+          expiresAt?: number | null
           id?: string
-          is_personal_account?: boolean
+          provider?: string
+          providerAccountId?: string
+          refreshToken?: string | null
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Account_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Block: {
+        Row: {
+          blockerId: string
+          blockingId: string
+        }
+        Insert: {
+          blockerId: string
+          blockingId: string
+        }
+        Update: {
+          blockerId?: string
+          blockingId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Block_blockerId_fkey"
+            columns: ["blockerId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Block_blockingId_fkey"
+            columns: ["blockingId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      EnrolledEvent: {
+        Row: {
+          end: string
+          id: string
+          name: string
+          slug: string
+          start: string
+          userId: string
+        }
+        Insert: {
+          end: string
+          id: string
+          name: string
+          slug: string
+          start?: string
+          userId: string
+        }
+        Update: {
+          end?: string
+          id?: string
           name?: string
-          picture_url?: string | null
-          primary_owner_user_id?: string
-          public_data?: Json
-          slug?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
+          slug?: string
+          start?: string
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "accounts_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "EnrolledEvent_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_primary_owner_user_id_fkey"
-            columns: ["primary_owner_user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      accounts_memberships: {
+      Flag: {
         Row: {
-          account_id: string
-          account_role: string
-          created_at: string
-          created_by: string | null
-          updated_at: string
-          updated_by: string | null
-          user_id: string
-        }
-        Insert: {
-          account_id: string
-          account_role: string
-          created_at?: string
-          created_by?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          user_id: string
-        }
-        Update: {
-          account_id?: string
-          account_role?: string
-          created_at?: string
-          created_by?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accounts_memberships_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_account_role_fkey"
-            columns: ["account_role"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["name"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounts_memberships_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      billing_customers: {
-        Row: {
-          account_id: string
-          customer_id: string
-          email: string | null
-          id: number
-          provider: Database["public"]["Enums"]["billing_provider"]
-        }
-        Insert: {
-          account_id: string
-          customer_id: string
-          email?: string | null
-          id?: number
-          provider: Database["public"]["Enums"]["billing_provider"]
-        }
-        Update: {
-          account_id?: string
-          customer_id?: string
-          email?: string | null
-          id?: number
-          provider?: Database["public"]["Enums"]["billing_provider"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "billing_customers_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "billing_customers_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "billing_customers_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      blocks: {
-        Row: {
-          blocker_id: string
-          blocking_id: string
-          created_at: string
-          updated_at: string | null
-        }
-        Insert: {
-          blocker_id: string
-          blocking_id: string
-          created_at?: string
-          updated_at?: string | null
-        }
-        Update: {
-          blocker_id?: string
-          blocking_id?: string
-          created_at?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocking_id_fkey"
-            columns: ["blocking_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocking_id_fkey"
-            columns: ["blocking_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocking_id_fkey"
-            columns: ["blocking_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      config: {
-        Row: {
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          enable_account_billing: boolean
-          enable_team_account_billing: boolean
-          enable_team_accounts: boolean
-        }
-        Insert: {
-          billing_provider?: Database["public"]["Enums"]["billing_provider"]
-          enable_account_billing?: boolean
-          enable_team_account_billing?: boolean
-          enable_team_accounts?: boolean
-        }
-        Update: {
-          billing_provider?: Database["public"]["Enums"]["billing_provider"]
-          enable_account_billing?: boolean
-          enable_team_account_billing?: boolean
-          enable_team_accounts?: boolean
-        }
-        Relationships: []
-      }
-      flags: {
-        Row: {
-          account_id: string
           comment: string | null
-          created_at: string
-          post_id: string
-          resolved: boolean | null
-          updated_at: string | null
+          createdAt: string
+          postId: string
+          resolved: boolean
+          updatedAt: string
+          userId: string
         }
         Insert: {
-          account_id: string
           comment?: string | null
-          created_at?: string
-          post_id: string
-          resolved?: boolean | null
-          updated_at?: string | null
+          createdAt?: string
+          postId: string
+          resolved?: boolean
+          updatedAt: string
+          userId: string
         }
         Update: {
-          account_id?: string
           comment?: string | null
-          created_at?: string
-          post_id?: string
-          resolved?: boolean | null
-          updated_at?: string | null
+          createdAt?: string
+          postId?: string
+          resolved?: boolean
+          updatedAt?: string
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "flags_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Flag_postId_fkey"
+            columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "accounts"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "flags_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Flag_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "flags_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "flags_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      invitations: {
+      Like: {
         Row: {
-          account_id: string
-          created_at: string
-          email: string
-          expires_at: string
-          id: number
-          invite_token: string
-          invited_by: string
-          role: string
-          updated_at: string
+          createdAt: string
+          postId: string
+          updatedAt: string
+          userId: string
         }
         Insert: {
-          account_id: string
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: number
-          invite_token: string
-          invited_by: string
-          role: string
-          updated_at?: string
+          createdAt?: string
+          postId: string
+          updatedAt: string
+          userId: string
         }
         Update: {
-          account_id?: string
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: number
-          invite_token?: string
-          invited_by?: string
-          role?: string
-          updated_at?: string
+          createdAt?: string
+          postId?: string
+          updatedAt?: string
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "invitations_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Like_postId_fkey"
+            columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "accounts"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "invitations_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Like_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_role_fkey"
-            columns: ["role"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["name"]
-          },
-        ]
-      }
-      likes: {
-        Row: {
-          account_id: string
-          created_at: string
-          post_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          account_id: string
-          created_at?: string
-          post_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          account_id?: string
-          created_at?: string
-          post_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "likes_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "likes_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "likes_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "likes_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      notifications: {
+      Notification: {
         Row: {
-          account_id: string
           body: string
-          channel: Database["public"]["Enums"]["notification_channel"]
-          created_at: string
+          channel: Database["public"]["Enums"]["NotificationChannel"]
+          createdAt: string
           dismissed: boolean
-          expires_at: string | null
+          expiresAt: string | null
           id: number
           link: string | null
-          type: Database["public"]["Enums"]["notification_type"]
+          type: Database["public"]["Enums"]["NotificationType"]
+          userId: string
         }
         Insert: {
-          account_id: string
           body: string
-          channel?: Database["public"]["Enums"]["notification_channel"]
-          created_at?: string
+          channel?: Database["public"]["Enums"]["NotificationChannel"]
+          createdAt?: string
           dismissed?: boolean
-          expires_at?: string | null
+          expiresAt?: string | null
           id?: never
           link?: string | null
-          type?: Database["public"]["Enums"]["notification_type"]
+          type?: Database["public"]["Enums"]["NotificationType"]
+          userId: string
         }
         Update: {
-          account_id?: string
           body?: string
-          channel?: Database["public"]["Enums"]["notification_channel"]
-          created_at?: string
+          channel?: Database["public"]["Enums"]["NotificationChannel"]
+          createdAt?: string
           dismissed?: boolean
-          expires_at?: string | null
+          expiresAt?: string | null
           id?: never
           link?: string | null
-          type?: Database["public"]["Enums"]["notification_type"]
+          type?: Database["public"]["Enums"]["NotificationType"]
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "notifications_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Notification_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notifications_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notifications_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      order_items: {
+      Post: {
         Row: {
-          created_at: string
-          id: string
-          order_id: string
-          price_amount: number | null
-          product_id: string
-          quantity: number
-          updated_at: string
-          variant_id: string
-        }
-        Insert: {
-          created_at?: string
-          id: string
-          order_id: string
-          price_amount?: number | null
-          product_id: string
-          quantity?: number
-          updated_at?: string
-          variant_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          order_id?: string
-          price_amount?: number | null
-          product_id?: string
-          quantity?: number
-          updated_at?: string
-          variant_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          account_id: string
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          created_at: string
-          currency: string
-          id: string
-          status: Database["public"]["Enums"]["payment_status"]
-          total_amount: number
-          updated_at: string
-        }
-        Insert: {
-          account_id: string
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          created_at?: string
-          currency: string
-          id: string
-          status: Database["public"]["Enums"]["payment_status"]
-          total_amount: number
-          updated_at?: string
-        }
-        Update: {
-          account_id?: string
-          billing_customer_id?: number
-          billing_provider?: Database["public"]["Enums"]["billing_provider"]
-          created_at?: string
-          currency?: string
-          id?: string
-          status?: Database["public"]["Enums"]["payment_status"]
-          total_amount?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_billing_customer_id_fkey"
-            columns: ["billing_customer_id"]
-            isOneToOne: false
-            referencedRelation: "billing_customers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      posts: {
-        Row: {
-          account_id: string
-          base_like_count: number | null
+          baseLikeCount: number | null
           content: string
-          created_at: string
+          createdAt: string
+          createdBy: string | null
           id: string
-          parent_id: string
-          updated_at: string | null
+          parentId: string | null
+          updatedAt: string
+          userId: string
         }
         Insert: {
-          account_id: string
-          base_like_count?: number | null
+          baseLikeCount?: number | null
           content: string
-          created_at?: string
-          id?: string
-          parent_id: string
-          updated_at?: string | null
+          createdAt?: string
+          createdBy?: string | null
+          id: string
+          parentId?: string | null
+          updatedAt: string
+          userId: string
         }
         Update: {
-          account_id?: string
-          base_like_count?: number | null
+          baseLikeCount?: number | null
           content?: string
-          created_at?: string
+          createdAt?: string
+          createdBy?: string | null
           id?: string
-          parent_id?: string
-          updated_at?: string | null
+          parentId?: string | null
+          updatedAt?: string
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_comment_parent_id"
-            columns: ["parent_id"]
+            foreignKeyName: "Post_parentId_fkey"
+            columns: ["parentId"]
             isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "posts_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "Post_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "posts_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "posts_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "posts_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      prompts: {
+      Prompt: {
         Row: {
-          content: string | null
+          content: string
           id: string
         }
         Insert: {
-          content?: string | null
-          id?: string
+          content: string
+          id: string
         }
         Update: {
-          content?: string | null
+          content?: string
           id?: string
         }
         Relationships: []
       }
-      role_permissions: {
+      Token: {
         Row: {
-          id: number
-          permission: Database["public"]["Enums"]["app_permissions"]
-          role: string
-        }
-        Insert: {
-          id?: number
-          permission: Database["public"]["Enums"]["app_permissions"]
-          role: string
-        }
-        Update: {
-          id?: number
-          permission?: Database["public"]["Enums"]["app_permissions"]
-          role?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_permissions_role_fkey"
-            columns: ["role"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["name"]
-          },
-        ]
-      }
-      roles: {
-        Row: {
-          hierarchy_level: number
-          name: string
-        }
-        Insert: {
-          hierarchy_level: number
-          name: string
-        }
-        Update: {
-          hierarchy_level?: number
-          name?: string
-        }
-        Relationships: []
-      }
-      subscription_items: {
-        Row: {
-          created_at: string
+          createdAt: string
+          expiresAt: string | null
           id: string
-          interval: string
-          interval_count: number
-          price_amount: number | null
-          product_id: string
-          quantity: number
-          subscription_id: string
-          type: Database["public"]["Enums"]["subscription_item_type"]
-          updated_at: string
-          variant_id: string
+          sentTo: string | null
+          token: string
+          type: Database["public"]["Enums"]["TokenType"]
+          updatedAt: string
+          usedAt: string | null
+          userId: string
         }
         Insert: {
-          created_at?: string
+          createdAt?: string
+          expiresAt?: string | null
           id: string
-          interval: string
-          interval_count: number
-          price_amount?: number | null
-          product_id: string
-          quantity?: number
-          subscription_id: string
-          type: Database["public"]["Enums"]["subscription_item_type"]
-          updated_at?: string
-          variant_id: string
+          sentTo?: string | null
+          token: string
+          type: Database["public"]["Enums"]["TokenType"]
+          updatedAt: string
+          usedAt?: string | null
+          userId: string
         }
         Update: {
-          created_at?: string
+          createdAt?: string
+          expiresAt?: string | null
           id?: string
-          interval?: string
-          interval_count?: number
-          price_amount?: number | null
-          product_id?: string
-          quantity?: number
-          subscription_id?: string
-          type?: Database["public"]["Enums"]["subscription_item_type"]
-          updated_at?: string
-          variant_id?: string
+          sentTo?: string | null
+          token?: string
+          type?: Database["public"]["Enums"]["TokenType"]
+          updatedAt?: string
+          usedAt?: string | null
+          userId?: string
         }
         Relationships: [
           {
-            foreignKeyName: "subscription_items_subscription_id_fkey"
-            columns: ["subscription_id"]
+            foreignKeyName: "Token_userId_fkey"
+            columns: ["userId"]
             isOneToOne: false
-            referencedRelation: "subscriptions"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
       }
-      subscriptions: {
+      User: {
         Row: {
-          account_id: string
-          active: boolean
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          cancel_at_period_end: boolean
-          created_at: string
-          currency: string
-          id: string
-          period_ends_at: string
-          period_starts_at: string
-          status: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at: string | null
-          trial_starts_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          account_id: string
-          active: boolean
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          cancel_at_period_end: boolean
-          created_at?: string
-          currency: string
-          id: string
-          period_ends_at: string
-          period_starts_at: string
-          status: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at?: string | null
-          trial_starts_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          account_id?: string
-          active?: boolean
-          billing_customer_id?: number
-          billing_provider?: Database["public"]["Enums"]["billing_provider"]
-          cancel_at_period_end?: boolean
-          created_at?: string
-          currency?: string
-          id?: string
-          period_ends_at?: string
-          period_starts_at?: string
-          status?: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at?: string | null
-          trial_starts_at?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_billing_customer_id_fkey"
-            columns: ["billing_customer_id"]
-            isOneToOne: false
-            referencedRelation: "billing_customers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      tasks: {
-        Row: {
-          account_id: string
-          created_at: string
-          created_by: string | null
-          id: string
-          label: Database["public"]["Enums"]["task_label"]
-          priority: Database["public"]["Enums"]["task_priority"]
-          slug: string | null
-          status: Database["public"]["Enums"]["task_status"]
-          title: string | null
-          updated_at: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          account_id: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          label?: Database["public"]["Enums"]["task_label"]
-          priority?: Database["public"]["Enums"]["task_priority"]
-          slug?: string | null
-          status?: Database["public"]["Enums"]["task_status"]
-          title?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          account_id?: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          label?: Database["public"]["Enums"]["task_label"]
-          priority?: Database["public"]["Enums"]["task_priority"]
-          slug?: string | null
-          status?: Database["public"]["Enums"]["task_status"]
-          title?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tasks_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      waitlist: {
-        Row: {
-          account_id: string | null
+          createdAt: string
+          disabled: boolean | null
+          displayImage: string | null
+          displayName: string | null
           email: string | null
+          emailVerified: string | null
           id: string
+          passwordHash: string | null
+          role: Database["public"]["Enums"]["UserRole"]
+          weeklyDigestEmail: boolean
         }
         Insert: {
-          account_id?: string | null
+          createdAt?: string
+          disabled?: boolean | null
+          displayImage?: string | null
+          displayName?: string | null
           email?: string | null
-          id?: string
+          emailVerified?: string | null
+          id: string
+          passwordHash?: string | null
+          role?: Database["public"]["Enums"]["UserRole"]
+          weeklyDigestEmail?: boolean
         }
         Update: {
-          account_id?: string | null
+          createdAt?: string
+          disabled?: boolean | null
+          displayImage?: string | null
+          displayName?: string | null
           email?: string | null
+          emailVerified?: string | null
           id?: string
+          passwordHash?: string | null
+          role?: Database["public"]["Enums"]["UserRole"]
+          weeklyDigestEmail?: boolean
         }
-        Relationships: [
-          {
-            foreignKeyName: "waitlist_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_account_workspace"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "user_accounts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
-      user_account_workspace: {
-        Row: {
-          id: string | null
-          name: string | null
-          picture_url: string | null
-          subscription_status:
-            | Database["public"]["Enums"]["subscription_status"]
-            | null
-        }
-        Relationships: []
-      }
-      user_accounts: {
-        Row: {
-          id: string | null
-          name: string | null
-          picture_url: string | null
-          role: string | null
-          slug: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accounts_memberships_account_role_fkey"
-            columns: ["role"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["name"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      accept_invitation: {
-        Args: {
-          token: string
-          user_id: string
-        }
-        Returns: string
-      }
-      add_invitations_to_account: {
-        Args: {
-          account_slug: string
-          invitations: Database["public"]["CompositeTypes"]["invitation"][]
-        }
-        Returns: Database["public"]["Tables"]["invitations"]["Row"][]
-      }
-      can_action_account_member: {
-        Args: {
-          target_team_account_id: string
-          target_user_id: string
-        }
-        Returns: boolean
-      }
-      create_invitation: {
-        Args: {
-          account_id: string
-          email: string
-          role: string
-        }
-        Returns: {
-          account_id: string
-          created_at: string
-          email: string
-          expires_at: string
-          id: number
-          invite_token: string
-          invited_by: string
-          role: string
-          updated_at: string
-        }
-      }
-      create_team_account: {
-        Args: {
-          account_name: string
-        }
-        Returns: {
-          created_at: string | null
-          created_by: string | null
-          email: string | null
-          id: string
-          is_personal_account: boolean
-          name: string
-          picture_url: string | null
-          primary_owner_user_id: string
-          public_data: Json
-          slug: string | null
-          updated_at: string | null
-          updated_by: string | null
-        }
-      }
-      get_account_invitations: {
-        Args: {
-          account_slug: string
-        }
-        Returns: {
-          id: number
-          email: string
-          account_id: string
-          invited_by: string
-          role: string
-          created_at: string
-          updated_at: string
-          expires_at: string
-          inviter_name: string
-          inviter_email: string
-        }[]
-      }
-      get_account_members: {
-        Args: {
-          account_slug: string
-        }
-        Returns: {
-          id: string
-          user_id: string
-          account_id: string
-          role: string
-          role_hierarchy_level: number
-          primary_owner_user_id: string
-          name: string
-          email: string
-          picture_url: string
-          created_at: string
-          updated_at: string
-        }[]
-      }
-      get_config: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_upper_system_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      has_active_subscription: {
-        Args: {
-          target_account_id: string
-        }
-        Returns: boolean
-      }
-      has_more_elevated_role: {
-        Args: {
-          target_user_id: string
-          target_account_id: string
-          role_name: string
-        }
-        Returns: boolean
-      }
-      has_permission: {
-        Args: {
-          user_id: string
-          account_id: string
-          permission_name: Database["public"]["Enums"]["app_permissions"]
-        }
-        Returns: boolean
-      }
-      has_role_on_account: {
-        Args: {
-          account_id: string
-          account_role?: string
-        }
-        Returns: boolean
-      }
-      has_same_role_hierarchy_level: {
-        Args: {
-          target_user_id: string
-          target_account_id: string
-          role_name: string
-        }
-        Returns: boolean
-      }
-      is_account_owner: {
-        Args: {
-          account_id: string
-        }
-        Returns: boolean
-      }
-      is_account_team_member: {
-        Args: {
-          target_account_id: string
-        }
-        Returns: boolean
-      }
-      is_set: {
-        Args: {
-          field_name: string
-        }
-        Returns: boolean
-      }
-      is_team_member: {
-        Args: {
-          account_id: string
-          user_id: string
-        }
-        Returns: boolean
-      }
-      team_account_workspace: {
-        Args: {
-          account_slug: string
-        }
-        Returns: {
-          id: string
-          name: string
-          picture_url: string
-          slug: string
-          role: string
-          role_hierarchy_level: number
-          primary_owner_user_id: string
-          subscription_status: Database["public"]["Enums"]["subscription_status"]
-          permissions: Database["public"]["Enums"]["app_permissions"][]
-        }[]
-      }
-      transfer_team_account_ownership: {
-        Args: {
-          target_account_id: string
-          new_owner_id: string
-        }
-        Returns: undefined
-      }
-      upsert_order: {
-        Args: {
-          target_account_id: string
-          target_customer_id: string
-          target_order_id: string
-          status: Database["public"]["Enums"]["payment_status"]
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          total_amount: number
-          currency: string
-          line_items: Json
-        }
-        Returns: {
-          account_id: string
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          created_at: string
-          currency: string
-          id: string
-          status: Database["public"]["Enums"]["payment_status"]
-          total_amount: number
-          updated_at: string
-        }
-      }
-      upsert_subscription: {
-        Args: {
-          target_account_id: string
-          target_customer_id: string
-          target_subscription_id: string
-          active: boolean
-          status: Database["public"]["Enums"]["subscription_status"]
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          cancel_at_period_end: boolean
-          currency: string
-          period_starts_at: string
-          period_ends_at: string
-          line_items: Json
-          trial_starts_at?: string
-          trial_ends_at?: string
-        }
-        Returns: {
-          account_id: string
-          active: boolean
-          billing_customer_id: number
-          billing_provider: Database["public"]["Enums"]["billing_provider"]
-          cancel_at_period_end: boolean
-          created_at: string
-          currency: string
-          id: string
-          period_ends_at: string
-          period_starts_at: string
-          status: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at: string | null
-          trial_starts_at: string | null
-          updated_at: string
-        }
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_permissions:
-        | "roles.manage"
-        | "billing.manage"
-        | "settings.manage"
-        | "members.manage"
-        | "invites.manage"
-      billing_provider: "stripe" | "lemon-squeezy" | "paddle"
-      notification_channel: "in_app" | "email"
-      notification_type: "info" | "warning" | "error"
-      payment_status: "pending" | "succeeded" | "failed"
-      subscription_item_type: "flat" | "per_seat" | "metered"
-      subscription_status:
-        | "active"
-        | "trialing"
-        | "past_due"
-        | "canceled"
-        | "unpaid"
-        | "incomplete"
-        | "incomplete_expired"
-        | "paused"
-      task_label: "bug" | "feature" | "enhancement" | "documentation"
-      task_priority: "low" | "medium" | "high"
-      task_status: "todo" | "in-progress" | "done" | "canceled"
+      NotificationChannel: "in_app" | "email" | "push"
+      NotificationType: "info" | "warning" | "error"
+      TokenType: "REFRESH_TOKEN" | "VERIFY_EMAIL" | "RESET_PASSWORD"
+      UserRole: "USER" | "ADMIN"
     }
     CompositeTypes: {
-      invitation: {
-        email: string | null
-        role: string | null
-      }
+      [_ in never]: never
     }
   }
   storage: {
@@ -1608,6 +698,10 @@ export type Database = {
           metadata: Json
           updated_at: string
         }[]
+      }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       search: {
         Args: {
