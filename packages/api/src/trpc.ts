@@ -6,13 +6,11 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { db } from "@init/db/prisma";
 import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { defaultSelect } from "./account/account-utils";
 import { getDeprecatedSession } from "./auth/get-deprecated-session";
 
 /**
@@ -41,7 +39,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   let user = data.user;
   if (!user && deprecatedSessionUserId) {
-    user = await findDbUserAndConvertToSupabaseUser(deprecatedSessionUserId);
+    user = await findDbUser(deprecatedSessionUserId);
   }
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
@@ -53,34 +51,22 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     user,
     supabase,
     adminSupabase,
-    db,
   };
 };
 
-const findDbUserAndConvertToSupabaseUser = async (userId: string) => {
-  const dbUser = await db.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: defaultSelect,
-  });
+const findDbUser = async (
+  supabaseClient: ReturnType<typeof getSupabaseServerClient>,
+  userId: string,
+) => {
+  const response = await supabaseClient
+    .from("User")
+    .select("*")
+    .eq("id", userId)
+    .single();
 
-  if (!dbUser) return null;
+  if (!response.data) return null;
 
-  return {
-    id: dbUser.id,
-    app_metadata: {},
-    user_metadata: {
-      displayName: dbUser.displayName,
-      displayImage: dbUser.displayImage,
-      role: dbUser.role,
-      weeklyDigestEmail: dbUser.weeklyDigestEmail,
-      disabled: dbUser.disabled,
-    },
-    aud: "",
-    created_at: "",
-    email: dbUser.email ?? "",
-  };
+  return response.data;
 };
 
 /**
