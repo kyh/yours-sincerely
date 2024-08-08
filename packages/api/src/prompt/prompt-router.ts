@@ -16,12 +16,13 @@ export const promptRouter = createTRPCRouter({
       .from("Prompt")
       .select("*")
       .limit(1)
-      .range(randomIndex, randomIndex + 1);
+      .range(randomIndex, randomIndex + 1)
+      .single();
 
     if (dataResponse.error) {
       throw dataResponse.error;
     }
 
-    return dataResponse.data[0]?.content ?? "What's on your mind?";
+    return dataResponse.data.content ?? "What's on your mind?";
   }),
 });

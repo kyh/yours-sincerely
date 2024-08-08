@@ -4,7 +4,7 @@ import { allInput, byIdInput, createInput, deleteInput } from "./block-schema";
 export const blockRouter = createTRPCRouter({
   all: protectedProcedure.input(allInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("blocks")
+      .from("Block")
       .select("*")
       .match({ blockerId: input?.id });
 
@@ -17,7 +17,7 @@ export const blockRouter = createTRPCRouter({
 
   byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("blocks")
+      .from("Block")
       .select("*")
       .match({ blockerId: input.blockerId, blockingId: input.blockingId })
       .single();
@@ -32,7 +32,7 @@ export const blockRouter = createTRPCRouter({
   create: publicProcedure
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.from("blocks").insert({
+      const response = await ctx.supabase.from("Block").insert({
         blockerId: input.blockerId,
         blockingId: input.blockingId,
       });
@@ -48,7 +48,7 @@ export const blockRouter = createTRPCRouter({
     .input(deleteInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("blocks")
+        .from("Block")
         .delete()
         .match({ blockerId: input.blockerId, blockingId: input.blockingId });
 
