@@ -2,12 +2,6 @@ import { Knock } from "@knocklabs/node";
 import { addDays, isBefore } from "date-fns";
 import { z } from "zod";
 
-import type {
-  Flag as PrismaFlag,
-  Like as PrismaLike,
-  Post as PrismaPost,
-} from "@prisma/client";
-import { defaultSelect } from "../account/account-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   allInput,
@@ -277,7 +271,7 @@ export const postRouter = createTRPCRouter({
     .input(updateInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("posts")
+        .from("Post")
         .update({
           parentId: input.parentId,
           content: input.content,
@@ -296,7 +290,7 @@ export const postRouter = createTRPCRouter({
     .input(deleteInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("posts")
+        .from("Post")
         .delete()
         .eq("id", input.id);
 

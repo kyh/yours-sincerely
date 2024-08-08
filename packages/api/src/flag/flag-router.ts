@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { getCreateColumnValues } from "@init/db/column-values";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./flag-schema";
@@ -6,7 +6,7 @@ import { allInput, byIdInput, createInput, deleteInput } from "./flag-schema";
 export const flagRouter = createTRPCRouter({
   all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("flags")
+      .from("Flag")
       .select("*")
       .eq("userId", input.id)
       .order("createdAt", { ascending: false });
@@ -20,7 +20,7 @@ export const flagRouter = createTRPCRouter({
 
   byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("flags")
+      .from("Flag")
       .select("*")
       .match({ postId: input.postId, userId: input.userId })
       .single();
@@ -35,11 +35,9 @@ export const flagRouter = createTRPCRouter({
   create: publicProcedure
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.from("flags").insert({
-        comment: input.comment,
-        resolved: input.resolved,
-        postId: input.postId,
-        userId: input.userId,
+      const response = await ctx.supabase.from("Flag").insert({
+        ...getCreateColumnValues(),
+        ...input,
       });
 
       if (response.error) {
@@ -53,7 +51,7 @@ export const flagRouter = createTRPCRouter({
     .input(deleteInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("flags")
+        .from("Flag")
         .delete()
         .match({ postId: input.postId, userId: input.userId });
 
