@@ -9,9 +9,9 @@ export const notificationsRouter = createTRPCRouter({
   createNotification: protectedProcedure
     .input(createNotificationInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase
-        .from("Notification")
-        .insert(input);
+      const response = await ctx.adminSupabase.from("Notification").insert({
+        ...input,
+      });
 
       if (response.error) {
         throw response.error;

@@ -1,3 +1,5 @@
+import { getCreateColumnValues } from "@init/db/column-values";
+
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./like-schema";
 
@@ -33,22 +35,12 @@ export const likeRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
-      let user = await ctx.db.user.findUnique({
-        where: { id: ctx.user.id },
-        select: defaultSelect,
-      });
-      if (!user) {
-        user = await ctx.db.user.create({
-          data: { displayName: "Anonymous", id: ctx.user.id },
-          select: defaultSelect,
-        });
-      }
-
       const likeResponse = await ctx.supabase
         .from("Like")
         .insert({
+          ...getCreateColumnValues(),
           postId: input.postId,
-          userId: user.id,
+          userId: ctx.user.id,
         })
         .select("*, account (id)");
 

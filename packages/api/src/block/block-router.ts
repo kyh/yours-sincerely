@@ -1,3 +1,5 @@
+import { getCreateColumnValues } from "@init/db/column-values";
+
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./block-schema";
 
@@ -33,8 +35,8 @@ export const blockRouter = createTRPCRouter({
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase.from("Block").insert({
-        blockerId: input.blockerId,
-        blockingId: input.blockingId,
+        ...getCreateColumnValues(),
+        ...input,
       });
 
       if (response.error) {

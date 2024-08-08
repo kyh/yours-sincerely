@@ -4,7 +4,7 @@ create type public."NotificationType" as enum('info', 'warning', 'error');
 
 create table if not exists
   public."Notification" (
-    id bigint generated always as identity primary key,
+    id uuid default uuid_generate_v4(),
     "userId" text not null references public."User" (id) on delete cascade,
     type public."NotificationType" not null default 'info',
     body varchar(5000) not null,

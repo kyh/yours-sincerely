@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createNotificationInput = z.object({
-  account_id: z.string(),
+  userId: z.string(),
   body: z.string(),
   channel: z.enum(["in_app", "email"]).optional(),
   createdAt: z.string().optional(),
