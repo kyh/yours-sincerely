@@ -38,6 +38,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     ? await supabase.auth.getUser(token)
     : await supabase.auth.getUser();
 
+  // For users who were logged in via the deprecated session method we grab the
+  // user from the database and assign them to a supabase user object
   let user = data.user;
   if (!user && deprecatedSessionUserId) {
     user = await findDbUser(adminSupabase, deprecatedSessionUserId);
