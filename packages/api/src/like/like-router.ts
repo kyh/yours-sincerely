@@ -1,11 +1,10 @@
-import { defaultSelect } from "../account/account-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./like-schema";
 
 export const likeRouter = createTRPCRouter({
   all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("likes")
+      .from("Like")
       .select("*")
       .eq("userId", input.id)
       .order("createdAt", { ascending: false });
@@ -19,7 +18,7 @@ export const likeRouter = createTRPCRouter({
 
   byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("likes")
+      .from("Like")
       .select("*")
       .match({ postId: input.postId, userId: input.userId })
       .single();
@@ -46,7 +45,7 @@ export const likeRouter = createTRPCRouter({
       }
 
       const likeResponse = await ctx.supabase
-        .from("likes")
+        .from("Like")
         .insert({
           postId: input.postId,
           userId: user.id,
@@ -64,7 +63,7 @@ export const likeRouter = createTRPCRouter({
     .input(deleteInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("likes")
+        .from("Like")
         .delete()
         .match({ postId: input.id, userId: ctx.user.id });
 

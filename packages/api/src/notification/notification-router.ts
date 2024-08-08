@@ -3,14 +3,14 @@ import {
   createNotificationInput,
   dismissNotificationInput,
   fetchNotificationsInput,
-} from "./notifications-schema";
+} from "./notification-schema";
 
 export const notificationsRouter = createTRPCRouter({
   createNotification: protectedProcedure
     .input(createNotificationInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.adminSupabase
-        .from("Notifications")
+        .from("Notification")
         .insert(input);
 
       if (response.error) {
@@ -23,7 +23,7 @@ export const notificationsRouter = createTRPCRouter({
     .input(dismissNotificationInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
-        .from("Notifications")
+        .from("Notification")
         .update({ dismissed: true })
         .eq("id", input.notification);
 
@@ -39,7 +39,7 @@ export const notificationsRouter = createTRPCRouter({
       const now = new Date().toISOString();
 
       const response = await ctx.supabase
-        .from("Notifications")
+        .from("Notification")
         .select(
           `id, 
            body, 
