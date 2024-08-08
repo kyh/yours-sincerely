@@ -11,6 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import type { SupabaseClient } from "@init/db/supabase-server-client";
 import { getDeprecatedSession } from "./auth/get-deprecated-session";
 
 /**
@@ -39,7 +40,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   let user = data.user;
   if (!user && deprecatedSessionUserId) {
-    user = await findDbUser(deprecatedSessionUserId);
+    user = await findDbUser(adminSupabase, deprecatedSessionUserId);
   }
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
@@ -54,19 +55,31 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-const findDbUser = async (
-  supabaseClient: ReturnType<typeof getSupabaseServerClient>,
-  userId: string,
-) => {
+const findDbUser = async (supabaseClient: SupabaseClient, userId: string) => {
   const response = await supabaseClient
     .from("User")
     .select("*")
     .eq("id", userId)
     .single();
 
-  if (!response.data) return null;
+  if (!response.data) {
+    return null;
+  }
 
-  return response.data;
+  return {
+    id: response.data.id,
+    app_metadata: {},
+    user_metadata: {
+      displayName: response.data.displayName,
+      displayImage: response.data.displayImage,
+      role: response.data.role,
+      weeklyDigestEmail: response.data.weeklyDigestEmail,
+      disabled: response.data.disabled,
+    },
+    aud: "",
+    created_at: "",
+    email: response.data.email ?? "",
+  };
 };
 
 /**

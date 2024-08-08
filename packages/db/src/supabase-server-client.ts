@@ -6,6 +6,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "./database.types";
+import type { SupabaseClient as Client } from "@supabase/supabase-js";
 import { getServiceRoleKey } from "./get-service-role-key";
 import { getSupabaseClientKeys } from "./get-supabase-client-keys";
 
@@ -53,3 +54,5 @@ export const getSupabaseServerClient = <GenericSchema = Database>(
     },
   });
 };
+
+export type SupabaseClient = Client<Database>;
