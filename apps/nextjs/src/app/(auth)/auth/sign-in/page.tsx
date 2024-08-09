@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AuthForm } from "@/components/auth/auth-form";
+import { AuthForm } from "@/app/(auth)/_components/auth-form";
 
 export const generateMetadata = async () => {
   return {
@@ -20,7 +20,7 @@ const SignInPage = ({ searchParams }: SignInPageProps) => (
     <div className="flex flex-col text-center">
       <h1 className="text-lg font-light">Welcome back</h1>
     </div>
-    <AuthForm type="login" nextPath={searchParams.nextPath} />
+    <AuthForm type="signin" nextPath={searchParams.nextPath} />
     <p className="px-8 text-center text-sm text-muted-foreground">
       Don't have an account?{" "}
       <Link href="/auth/sign-up" className="underline">

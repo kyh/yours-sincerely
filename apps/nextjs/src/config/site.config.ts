@@ -1,11 +1,11 @@
 export const siteConfig = {
-  name: "Init",
-  shortName: "Init",
+  name: "Yours Sincerely",
+  shortName: "Yours Sincerely",
   description:
-    "A comprehensive boilerplate to build, launch, and scale your next project",
+    "An ephemeral anonymous blog to send each other tiny beautiful letters",
   url:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : "https://init.kyh.io",
+      : "https://yourssincerely.org",
   twitter: "@kaiyuhsu",
 };

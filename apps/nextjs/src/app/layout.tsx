@@ -2,21 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@init/ui/theme";
 import { Toaster } from "@init/ui/toast";
+import { TooltipProvider } from "@init/ui/tooltip";
 import { cn } from "@init/ui/utils";
 
 import { siteConfig } from "@/config/site.config";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import "./globals.css";
-import "@knocklabs/react-notification-feed/dist/index.css";
-
-import Link from "next/link";
-import { Logo } from "@init/ui/logo";
-import { TooltipProvider } from "@init/ui/tooltip";
-
-import { AsideHeader } from "@/components/layout/aside-header";
-import { Sidebar } from "@/components/layout/sidebar";
-import { api } from "@/trpc/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -89,11 +81,7 @@ const fontSans = Inter({
   variable: "--font-sans",
 });
 
-const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const currentUser = await api.account.me();
-
-  console.log("currentUser", currentUser);
-
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -103,21 +91,10 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TRPCReactProvider>
-            <TooltipProvider delayDuration={0}>
-              <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
-                <div className="area-nav-header flex items-center border-b border-b-border">
-                  <Link href="/">
-                    <Logo />
-                  </Link>
-                </div>
-                <Sidebar user={currentUser} />
-                {children}
-                <AsideHeader user={currentUser} />
-              </section>
-            </TooltipProvider>
-          </TRPCReactProvider>
-          <Toaster />
+          <TooltipProvider>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <Toaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
