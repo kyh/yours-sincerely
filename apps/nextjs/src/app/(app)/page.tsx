@@ -5,9 +5,9 @@ import {
   PageContent,
   PageHeader,
 } from "@/components/layout/page-layout";
-import { PostForm } from "@/components/post/post-form";
-import { PostsFeed } from "@/components/post/posts-feed";
 import { api } from "@/trpc/server";
+import { PostFeed } from "./posts/_components/post-feed.jsx";
+import { PostForm } from "./posts/_components/post-form.jsx";
 
 const Page = async () => {
   const currentUser = await api.account.me();
@@ -18,7 +18,7 @@ const Page = async () => {
       <PageHeader title="Home" />
       <PageContent>
         <PostForm user={currentUser} placeholder={placeholder} />
-        {/* <PostsFeed /> */}
+        {/* <PostFeed /> */}
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto"></section>

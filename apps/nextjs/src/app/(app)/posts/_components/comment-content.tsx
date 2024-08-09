@@ -1,5 +1,5 @@
 import type { RouterOutputs } from "@init/api";
-import { ProfileLink } from "@/components/profile/profile-link";
+import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { MoreButton } from "./more-button";
 
 type Props = {
