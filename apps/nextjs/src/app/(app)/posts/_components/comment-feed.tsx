@@ -5,10 +5,10 @@ import { toast } from "@init/ui/toast";
 import readingTime from "reading-time";
 
 import type { RouterOutputs } from "@init/api";
-import { BackButton } from "@/components/post/back-button";
-import { CommentContent } from "@/components/post/comment-content";
-import { PostContent } from "@/components/post/post-content";
 import { api } from "@/trpc/react";
+import { BackButton } from "./back-button";
+import { CommentContent } from "./comment-content";
+import { PostContent } from "./post-content";
 
 type Props = {
   post: RouterOutputs["post"]["byId"];
@@ -40,7 +40,7 @@ export const CommentFeed = ({ post, user }: Props) => {
 
     mutate({
       content: content,
-      createdBy: user?.user_metadata.displayName ?? "Anonymous",
+      createdBy: user?.displayName ?? "Anonymous",
       parentId: post?.id,
     });
   };

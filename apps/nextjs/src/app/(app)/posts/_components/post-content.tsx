@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import type { RouterOutputs } from "@init/api";
-import { ProfileLink } from "@/components/profile/profile-link";
+import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { MoreButton } from "./more-button";
 import { ShareButton } from "./share-button";

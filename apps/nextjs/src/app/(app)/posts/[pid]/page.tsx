@@ -1,6 +1,6 @@
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { CommentFeed } from "@/components/post/comment-feed";
 import { api } from "@/trpc/server";
+import { CommentFeed } from "../_components/comment-feed";
 
 type Props = {
   params: {

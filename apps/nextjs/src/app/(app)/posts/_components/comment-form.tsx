@@ -42,9 +42,7 @@ type PostFormProps = {
 
 export const PostForm = ({ user, placeholder }: PostFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [createdBy, setCreatedBy] = useState(
-    user?.user_metadata.displayName ?? "",
-  );
+  const [createdBy, setCreatedBy] = useState(user?.displayName ?? "");
   const [postContent, setPostContent] = useState("");
 
   const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);

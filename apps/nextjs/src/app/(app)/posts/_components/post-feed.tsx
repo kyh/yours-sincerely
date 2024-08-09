@@ -3,9 +3,9 @@
 import { Spinner } from "@init/ui/spinner";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
-import { CardStack } from "@/components/post/card-stack";
-import { PostContent } from "@/components/post/post-content";
 import { api } from "@/trpc/react";
+import { CardStack } from "./card-stack";
+import { PostContent } from "./post-content";
 
 type Props = {
   view?: "STACK" | "LIST";
@@ -17,7 +17,7 @@ type Props = {
   };
 };
 
-export const PostsFeed = ({ view = "LIST", filters = {} }: Props) => {
+export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage } =
     api.post.list.useInfiniteQuery(filters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
