@@ -6,8 +6,8 @@ import {
   PageHeader,
 } from "@/components/layout/page-layout";
 import { api } from "@/trpc/server";
-import { PostFeed } from "./posts/_components/post-feed.jsx";
-import { PostForm } from "./posts/_components/post-form.jsx";
+import { PostFeed } from "./posts/_components/post-feed";
+import { PostForm } from "./posts/_components/post-form";
 
 const Page = async () => {
   const currentUser = await api.account.me();
