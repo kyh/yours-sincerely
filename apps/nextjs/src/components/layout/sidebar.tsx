@@ -27,7 +27,7 @@ export const Sidebar = ({ user }: Props) => {
           </Link>
         </Button>
         <Button variant="ghost" asChild>
-          <Link href={user ? `/profile/${user.id}` : `/auth/login`}>
+          <Link href={user ? `/profile/${user.id}` : `/auth/sign-up`}>
             <ProfileIcon aria-hidden="true" className="h-5 w-5" />
             <span className="truncate">Profile</span>
           </Link>
