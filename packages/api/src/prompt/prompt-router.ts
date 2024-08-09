@@ -2,27 +2,17 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const promptRouter = createTRPCRouter({
   random: publicProcedure.query(async ({ ctx }) => {
-    const countResponse = await ctx.adminSupabase
-      .from("Prompt")
-      .select("*", { count: "exact", head: true });
+    // const dataResponse = await ctx.adminSupabase
+    //   .from("Prompt")
+    //   .select("*")
+    //   .order("random()")
+    //   .single();
 
-    if (countResponse.error) {
-      throw countResponse.error;
-    }
+    // if (dataResponse.error) {
+    //   throw dataResponse.error;
+    // }
 
-    const randomIndex = Math.floor(Math.random() * (countResponse.count ?? 0));
-
-    const dataResponse = await ctx.adminSupabase
-      .from("Prompt")
-      .select("*")
-      .limit(1)
-      .range(randomIndex, randomIndex + 1)
-      .single();
-
-    if (dataResponse.error) {
-      throw dataResponse.error;
-    }
-
-    return dataResponse.data.content ?? "What's on your mind?";
+    // return dataResponse.data.content ?? "What's on your mind?";
+    return "What's on your mind?";
   }),
 });

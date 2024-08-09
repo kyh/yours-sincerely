@@ -18,7 +18,7 @@ const Page = async () => {
       <PageHeader title="Home" />
       <PageContent>
         <PostForm user={currentUser} placeholder={placeholder} />
-        <PostsFeed />
+        {/* <PostsFeed /> */}
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto"></section>

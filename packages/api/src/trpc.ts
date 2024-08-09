@@ -40,10 +40,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
-  let user = data.user;
-  if (!user && deprecatedSessionUserId) {
-    user = await findDbUser(adminSupabase, deprecatedSessionUserId);
-  }
+  const user = await findDbUser(
+    adminSupabase,
+    deprecatedSessionUserId ?? data.user?.id,
+  );
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -57,7 +57,11 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-const findDbUser = async (supabaseClient: SupabaseClient, userId: string) => {
+const findDbUser = async (supabaseClient: SupabaseClient, userId?: string) => {
+  if (!userId) {
+    return null;
+  }
+
   const response = await supabaseClient
     .from("User")
     .select("*")
@@ -68,20 +72,7 @@ const findDbUser = async (supabaseClient: SupabaseClient, userId: string) => {
     return null;
   }
 
-  return {
-    id: response.data.id,
-    app_metadata: {},
-    user_metadata: {
-      displayName: response.data.displayName,
-      displayImage: response.data.displayImage,
-      role: response.data.role,
-      weeklyDigestEmail: response.data.weeklyDigestEmail,
-      disabled: response.data.disabled,
-    },
-    aud: "",
-    created_at: "",
-    email: response.data.email ?? "",
-  };
+  return response.data;
 };
 
 /**
@@ -156,9 +147,9 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
  * If you want a query or mutation to ONLY be accessible to super admins.
  */
 export const superAdminProcedure = t.procedure.use(({ ctx, next }) => {
-  const role = ctx.user?.app_metadata.role;
+  const role = ctx.user?.role;
 
-  if (!role || role !== "super-admin") {
+  if (!role || role !== "ADMIN") {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
