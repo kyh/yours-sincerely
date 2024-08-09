@@ -222,7 +222,7 @@ export type Database = {
           createdAt: string
           dismissed: boolean
           expiresAt: string | null
-          id: number
+          id: string
           link: string | null
           type: Database["public"]["Enums"]["NotificationType"]
           userId: string
@@ -233,7 +233,7 @@ export type Database = {
           createdAt?: string
           dismissed?: boolean
           expiresAt?: string | null
-          id?: never
+          id?: string
           link?: string | null
           type?: Database["public"]["Enums"]["NotificationType"]
           userId: string
@@ -244,7 +244,7 @@ export type Database = {
           createdAt?: string
           dismissed?: boolean
           expiresAt?: string | null
-          id?: never
+          id?: string
           link?: string | null
           type?: Database["public"]["Enums"]["NotificationType"]
           userId?: string
