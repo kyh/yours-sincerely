@@ -1,6 +1,3 @@
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { byIdInput, updateInput } from "./personal-account-schema";
 
