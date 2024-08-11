@@ -3,28 +3,19 @@
 import Link from "next/link";
 import { useTheme } from "@init/ui/theme";
 
-import type { Day } from "@/components/profile/calendar-types";
-import type { RouterOutputs } from "@init/api";
-import { ActivityCalendar } from "@/components/profile/activity-calendar";
-import { ActivityStats } from "@/components/profile/activity-stats";
-import { ActivityWeek } from "@/components/profile/activity-week";
-import { FULL_DAY_LABELS } from "@/components/profile/calendar-util";
-
-type Props = {
-  user: RouterOutputs["user"]["byId"];
-  showEdit: boolean;
-  stats: {
-    heatmap: { stats: Day[]; max: number };
-    daily: {
-      stats: Record<string, { count: number; level: number }>;
-      max: { max: number; day: string };
-    };
-    posts: number;
-    likes: number;
-    currentStreak: number;
-    longestStreak: number;
-  };
-};
+import {
+  createPostsDailyActivity,
+  createPostsHeatmap,
+  getCurrentStreak,
+  getLongestStreak,
+  getTotalLikes,
+  getTotalPosts,
+} from "@/lib/stats";
+import { api } from "@/trpc/react";
+import { ActivityCalendar } from "./activity-calendar";
+import { ActivityStats } from "./activity-stats";
+import { ActivityWeek } from "./activity-week";
+import { FULL_DAY_LABELS } from "./calendar-util";
 
 const lightTheme = {
   level4: "#312e81",
@@ -44,25 +35,26 @@ const darkTheme = {
   stroke: "#312e81",
 };
 
-// const Loading = () => {
-//   return (
-//     <div className="animate-pulse">
-//       <div className="h-[84px] rounded bg-slate-200 dark:bg-slate-700" />
-//       <div className="mt-8 h-[120px] rounded bg-slate-200 dark:bg-slate-700" />
-//       <div className="mt-2 h-[20px]  rounded bg-slate-200 dark:bg-slate-700" />
-//       <div className="mt-8 h-[20px]  rounded bg-slate-200 dark:bg-slate-700" />
-//       <div className="mt-2 h-[90px]  rounded bg-slate-200 dark:bg-slate-700" />
-//     </div>
-//   );
-// };
+export const Profile = ({ id }: { id: string }) => {
+  const [user] = api.account.byId.useSuspenseQuery({ id });
+  const [currentUser] = api.account.me.useSuspenseQuery();
+  const [posts] = api.post.all.useSuspenseQuery({ userId: id });
 
-export const Profile = ({ user, stats, showEdit }: Props) => {
+  const showEdit = currentUser ? currentUser.id === id : false;
+
+  const lastNDays = 200;
+
+  const stats = {
+    heatmap: createPostsHeatmap(posts, lastNDays),
+    daily: createPostsDailyActivity(posts),
+    posts: getTotalPosts(posts),
+    likes: getTotalLikes(posts),
+    longestStreak: getLongestStreak(posts),
+    currentStreak: getCurrentStreak(posts),
+  };
+
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <section className="flex flex-col gap-8">
@@ -71,7 +63,7 @@ export const Profile = ({ user, stats, showEdit }: Props) => {
           {user.displayName ?? "Anonymous"}{" "}
         </h1>
         {showEdit && (
-          <Link className="text-sm font-normal" href={`/edit/${user.id}`}>
+          <Link className="text-sm font-normal" href={`${user.id}/edit`}>
             Edit
           </Link>
         )}

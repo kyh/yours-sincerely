@@ -27,7 +27,7 @@ type AuthFormProps = {
 export const AuthForm = ({
   className,
   type,
-  nextPath = "/dashboard",
+  nextPath = "/",
   ...props
 }: AuthFormProps) => {
   const router = useRouter();

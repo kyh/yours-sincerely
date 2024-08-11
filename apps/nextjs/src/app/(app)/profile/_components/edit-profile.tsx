@@ -6,27 +6,17 @@ import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 
-import type { RouterOutputs } from "@init/api";
-import { CalendarMenu } from "@/components/profile/calendar-menu";
-import {
-  CALENDAR_LABELS,
-  DEFAULT_WEEKDAY_LABELS,
-} from "@/components/profile/calendar-util";
 import { api } from "@/trpc/react";
+import { CalendarMenu } from "./calendar-menu";
+import { CALENDAR_LABELS, DEFAULT_WEEKDAY_LABELS } from "./calendar-util";
 
-type Props = {
-  user: RouterOutputs["account"]["me"];
-};
+export const EditProfile = ({ id }: { id: string }) => {
+  const utils = api.useUtils();
+  const [user] = api.account.byId.useSuspenseQuery({ id: id });
 
-export const EditProfile = ({ user }: Props) => {
   const router = useRouter();
-  // const mutation = api.account.update.useMutation();
+  const mutation = api.account.update.useMutation();
   const [recurring, setRecurring] = useState<string[]>([]);
-  // const [weeklyDigest, setWeeklyDigest] = useState(user?.weeklyDigestEmail);
-
-  if (!user) {
-    return null;
-  }
 
   const handleRecurringDayChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -39,7 +29,7 @@ export const EditProfile = ({ user }: Props) => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.target as HTMLFormElement);
 
@@ -50,18 +40,22 @@ export const EditProfile = ({ user }: Props) => {
       weeklyDigestEmail: string;
     };
 
-    // mutation.mutate({
-    //   ...input,
-    //   email: input.email ?? undefined,
-    //   displayName: input.displayName ?? "",
-    //   displayImage: input.displayImage ?? "",
-    //   weeklyDigestEmail:
-    //     (input.weeklyDigestEmail as unknown as string) === "true",
-    //   id: user.id,
-    // });
+    mutation.mutate({
+      ...input,
+      email: input.email,
+      displayName: input.displayName,
+      displayImage: input.displayImage,
+      weeklyDigestEmail:
+        (input.weeklyDigestEmail as unknown as string) === "true",
+      id: user.id,
+    });
 
     toast("User profile updated");
-    router.push(`/${user.id}`);
+
+    await utils.account.byId.invalidate({ id });
+    await utils.account.me.invalidate();
+
+    router.push(`/profile/${user.id}`);
   };
 
   return (
@@ -72,7 +66,7 @@ export const EditProfile = ({ user }: Props) => {
           id="displayName"
           name="displayName"
           className="text-2xl font-bold"
-          defaultValue={user.user_metadata.displayName ?? ""}
+          defaultValue={user.displayName ?? ""}
           placeholder="Anonymous"
         />
         <input
@@ -116,39 +110,6 @@ export const EditProfile = ({ user }: Props) => {
               ))}
             </div>
           </div>
-          {/* <Switch.Group
-            as="div"
-            className="grid grid-cols-3 gap-4 border-b border-slate-200 py-5"
-          >
-            <Switch.Label
-              as="dt"
-              className="flex items-center text-sm font-medium text-slate-500 dark:text-slate-100"
-              passive
-            >
-              Weekly Digest
-            </Switch.Label>
-            <dd className="col-span-2 flex text-sm text-slate-900">
-              <input
-                type="hidden"
-                name="weeklyDigestEmail"
-                value={weeklyDigest.toString()}
-              />
-              <Switch
-                checked={weeklyDigest}
-                onChange={setWeeklyDigest}
-                className={`focus:ring-primary-dark relative ml-auto inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  weeklyDigest ? "bg-primary" : "bg-slate-200 dark:bg-slate-600"
-                }`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-slate-100 ${
-                    weeklyDigest ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </Switch>
-            </dd>
-          </Switch.Group> */}
         </dl>
       </fieldset>
       <div className="flex items-center justify-between gap-2">
@@ -162,7 +123,7 @@ export const EditProfile = ({ user }: Props) => {
         </button>
         <div className="flex gap-2">
           <Button variant="link" asChild>
-            <Link href={`/${user.id}`}>Back</Link>
+            <Link href={`/profile/${user.id}`}>Back</Link>
           </Button>
           <Button>Save Changes</Button>
         </div>

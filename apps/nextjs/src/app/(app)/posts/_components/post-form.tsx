@@ -41,6 +41,7 @@ type PostFormProps = {
 };
 
 export const PostForm = ({ user, placeholder }: PostFormProps) => {
+  const utils = api.useUtils();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [createdBy, setCreatedBy] = useState(user?.displayName ?? "");
   const [postContent, setPostContent] = useState("");
@@ -53,9 +54,12 @@ export const PostForm = ({ user, placeholder }: PostFormProps) => {
   }, []);
 
   const { mutate, isPending } = api.post.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.message("Your love letter has been published");
       clearStoredPost();
+      if (!user) {
+        await utils.account.me.invalidate();
+      }
     },
     onError: (err) => {
       console.error(err);

@@ -24,7 +24,7 @@ type Props = {
 };
 
 export const Timer = ({ post }: Props) => {
-  if (!post?.createdAt) return null;
+  if (!post.createdAt) return null;
 
   const { percentage, now, end } = getPercentage(new Date(post.createdAt));
   const formattedTime = formatDistance(now, end);
@@ -33,7 +33,7 @@ export const Timer = ({ post }: Props) => {
     <Tooltip>
       <TooltipTrigger className="flex items-center rounded-lg p-2" asChild>
         <div
-          className="relative inline-block h-4 w-4 rounded-full bg-slate-400 bg-[length:150%] bg-center	bg-blend-overlay"
+          className="relative inline-block h-4 w-4 rounded-full bg-slate-400 bg-[length:150%] bg-center bg-blend-overlay"
           style={{
             backgroundImage: `conic-gradient(
           rgba(255, 255, 255, 0.6) calc(3.6deg * ${percentage}),

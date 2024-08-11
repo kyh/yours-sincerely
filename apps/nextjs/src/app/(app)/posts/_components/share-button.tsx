@@ -14,7 +14,7 @@ const iconClassName =
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLInputElement | null>(null);
-  const postUrl = `https://yourssincerely.org/posts/${post?.id}`;
+  const postUrl = `https://yourssincerely.org/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
 
   const copyLink = async () => {

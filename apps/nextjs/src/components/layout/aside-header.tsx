@@ -11,18 +11,15 @@ import {
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
 
-import type { RouterOutputs } from "@init/api";
 import { HelpIcon } from "@/components/icons/help-icon";
 import { LogoutIcon } from "@/components/icons/logout-icon";
 import { NotificationIcon } from "@/components/icons/notification-icon";
 import { ProfileIcon } from "@/components/icons/profile-icon";
 import { SettingsIcon } from "@/components/icons/settings-icon";
+import { api } from "@/trpc/react";
 
-type Props = {
-  user: RouterOutputs["account"]["me"];
-};
-
-export const AsideHeader = ({ user }: Props) => {
+export const AsideHeader = () => {
+  const [user] = api.account.me.useSuspenseQuery();
   return (
     <div className="area-aside-header flex items-center justify-end space-x-4 border-b border-b-border">
       <Button variant="ghost" size="icon">
@@ -52,12 +49,12 @@ export const AsideHeader = ({ user }: Props) => {
             </DropdownMenuItem>
           )}
           {!user && (
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/auth/sign-in">Login</Link>
             </DropdownMenuItem>
           )}
           {!user && (
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/auth/sign-up">Sign up</Link>
             </DropdownMenuItem>
           )}
