@@ -1,5 +1,3 @@
-import { getCreateColumnValues } from "@init/db/column-values";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./like-schema";
 
@@ -38,11 +36,10 @@ export const likeRouter = createTRPCRouter({
       const likeResponse = await ctx.supabase
         .from("Like")
         .insert({
-          ...getCreateColumnValues(),
           postId: input.postId,
           userId: ctx.user.id,
         })
-        .select("*, account (id)");
+        .select("*");
 
       if (likeResponse.error) {
         throw likeResponse.error;

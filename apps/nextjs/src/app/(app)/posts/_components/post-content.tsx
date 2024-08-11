@@ -47,7 +47,6 @@ export const PostContent = ({
   showShare = true,
   showMore = false,
 }: Props) => {
-  if (!post) return null;
   return (
     <article
       className={`${

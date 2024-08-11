@@ -13,6 +13,7 @@ export const authRouter = createTRPCRouter({
   signUp: publicProcedure
     .input(signUpInput)
     .mutation(async ({ ctx, input }) => {
+      console.log("hey.........");
       const response = await ctx.supabase.auth.signUp({
         ...input,
       });

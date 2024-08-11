@@ -38,10 +38,10 @@ export const MoreButton = ({ post }: Props) => {
   });
 
   const currentUser = api.account.me.useQuery().data?.id;
-  const isPostOwner = post?.userId === currentUser;
+  const isPostOwner = post.userId === currentUser;
   const [isOpen, setIsOpen] = useState(false);
 
-  const blockingId = post?.userId;
+  const blockingId = post.userId;
   const blockerId = currentUser;
 
   const handleSubmit = (
@@ -49,7 +49,7 @@ export const MoreButton = ({ post }: Props) => {
     action: string,
   ) => {
     e.preventDefault();
-    if (!post?.id) return;
+    if (!post.id) return;
     switch (action) {
       case "delete":
         return deleteMutation.mutate({
@@ -66,16 +66,8 @@ export const MoreButton = ({ post }: Props) => {
       case "block":
         if (!blockerId || !blockingId) return toast("Invalid block");
         return blockMutation.mutate({
-          blocker: {
-            connect: {
-              id: blockerId,
-            },
-          },
-          blocking: {
-            connect: {
-              id: blockingId,
-            },
-          },
+          blockerId,
+          blockingId,
         });
     }
   };
@@ -108,7 +100,7 @@ export const MoreButton = ({ post }: Props) => {
         <DialogContent className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
           <a
             className={buttonClass}
-            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post?.id}`}
+            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
           >
             Report
           </a>
