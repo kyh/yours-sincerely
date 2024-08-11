@@ -36,8 +36,8 @@ const darkTheme = {
 };
 
 export const Profile = ({ id }: { id: string }) => {
-  const [user] = api.account.byId.useSuspenseQuery({ id });
-  const [currentUser] = api.account.me.useSuspenseQuery();
+  const [user] = api.user.byId.useSuspenseQuery({ id });
+  const [currentUser] = api.user.me.useSuspenseQuery();
   const [posts] = api.post.all.useSuspenseQuery({ userId: id });
 
   const showEdit = currentUser ? currentUser.id === id : false;

@@ -37,7 +37,7 @@ export const MoreButton = ({ post }: Props) => {
     },
   });
 
-  const currentUser = api.account.me.useQuery().data?.id;
+  const currentUser = api.user.me.useQuery().data?.id;
   const isPostOwner = post.userId === currentUser;
   const [isOpen, setIsOpen] = useState(false);
 
