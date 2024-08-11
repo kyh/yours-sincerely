@@ -27,3 +27,21 @@ export const getDeprecatedSession = () => {
     return null;
   }
 };
+
+/**
+ * Set the user ID from the deprecated session cookie
+ * @deprecated
+ */
+export const setDeprecatedSession = (value: string) => {
+  const cookieStore = cookies();
+
+  if (!value) {
+    return null;
+  }
+
+  const sessionString = JSON.stringify({ user: value });
+  const base64Session = Buffer.from(sessionString).toString("base64");
+  const signedCookie = cookieSignature.sign(base64Session, COOKIE_SECRET);
+
+  cookieStore.set("__session", signedCookie);
+};

@@ -1,5 +1,3 @@
-import { getCreateColumnValues } from "@init/db/column-values";
-
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { allInput, byIdInput, createInput, deleteInput } from "./flag-schema";
 
@@ -36,7 +34,6 @@ export const flagRouter = createTRPCRouter({
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase.from("Flag").insert({
-        ...getCreateColumnValues(),
         ...input,
       });
 

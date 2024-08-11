@@ -34,44 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      Account: {
-        Row: {
-          accessToken: string | null
-          expiresAt: number | null
-          id: string
-          provider: string
-          providerAccountId: string
-          refreshToken: string | null
-          userId: string
-        }
-        Insert: {
-          accessToken?: string | null
-          expiresAt?: number | null
-          id: string
-          provider: string
-          providerAccountId: string
-          refreshToken?: string | null
-          userId: string
-        }
-        Update: {
-          accessToken?: string | null
-          expiresAt?: number | null
-          id?: string
-          provider?: string
-          providerAccountId?: string
-          refreshToken?: string | null
-          userId?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Account_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       Block: {
         Row: {
           blockerId: string
@@ -151,7 +113,7 @@ export type Database = {
           createdAt?: string
           postId: string
           resolved?: boolean
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -189,7 +151,7 @@ export type Database = {
         Insert: {
           createdAt?: string
           postId: string
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -277,7 +239,7 @@ export type Database = {
           createdBy?: string | null
           id: string
           parentId?: string | null
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -341,7 +303,7 @@ export type Database = {
           sentTo?: string | null
           token: string
           type: Database["public"]["Enums"]["TokenType"]
-          updatedAt: string
+          updatedAt?: string
           usedAt?: string | null
           userId: string
         }
@@ -376,6 +338,7 @@ export type Database = {
           emailVerified: string | null
           id: string
           passwordHash: string | null
+          primaryOwnerUserId: string | null
           role: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail: boolean
         }
@@ -388,6 +351,7 @@ export type Database = {
           emailVerified?: string | null
           id: string
           passwordHash?: string | null
+          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -400,6 +364,7 @@ export type Database = {
           emailVerified?: string | null
           id?: string
           passwordHash?: string | null
+          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -410,7 +375,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      getRandomPrompt: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       NotificationChannel: "in_app" | "email" | "push"

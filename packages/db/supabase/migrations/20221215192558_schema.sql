@@ -51,18 +51,6 @@ SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
 
-CREATE TABLE IF NOT EXISTS "public"."Account" (
-    "id" "text" NOT NULL,
-    "provider" "text" NOT NULL,
-    "providerAccountId" "text" NOT NULL,
-    "refreshToken" "text",
-    "accessToken" "text",
-    "expiresAt" integer,
-    "userId" "text" NOT NULL
-);
-
-ALTER TABLE "public"."Account" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."Block" (
     "blockerId" "text" NOT NULL,
     "blockingId" "text" NOT NULL
@@ -87,7 +75,7 @@ CREATE TABLE IF NOT EXISTS "public"."Flag" (
     "postId" "text" NOT NULL,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Flag" OWNER TO "postgres";
@@ -96,7 +84,7 @@ CREATE TABLE IF NOT EXISTS "public"."Like" (
     "postId" "text" NOT NULL,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Like" OWNER TO "postgres";
@@ -109,7 +97,7 @@ CREATE TABLE IF NOT EXISTS "public"."Post" (
     "parentId" "text",
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL 
 );
 
 ALTER TABLE "public"."Post" OWNER TO "postgres";
@@ -130,13 +118,14 @@ CREATE TABLE IF NOT EXISTS "public"."Token" (
     "usedAt" timestamp(3) without time zone,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Token" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
+    "primaryOwnerUserId" UUID,
     "email" "text",
     "emailVerified" timestamp(3) without time zone,
     "passwordHash" "text",
@@ -148,10 +137,55 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-ALTER TABLE "public"."User" OWNER TO "postgres";
+CREATE OR REPLACE FUNCTION "public"."getRandomPrompt"() RETURNS TEXT
+SET
+    search_path = '' AS $$
+BEGIN
+    RETURN (
+        SELECT "content"
+        FROM "public"."Post"
+        ORDER BY RANDOM()
+        LIMIT 1
+    );
+END
+$$ LANGUAGE plpgsql;
 
-ALTER TABLE ONLY "public"."Account"
-    ADD CONSTRAINT "Account_pkey" PRIMARY KEY ("id");
+CREATE OR REPLACE FUNCTION "public"."triggerSetTimestamps"() RETURNS TRIGGER
+SET
+    search_path = '' AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        NEW."createdAt" = NOW();
+        NEW."updatedAt" = NOW();
+    ELSE
+        NEW."updatedAt" = NOW();
+        NEW."createdAt" = OLD."createdAt";
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER setTimestampsOnPost
+    BEFORE INSERT OR UPDATE ON "public"."Post"
+FOR EACH ROW
+    EXECUTE FUNCTION "public"."triggerSetTimestamps"();
+
+CREATE TRIGGER setTimestampsOnLike
+    BEFORE INSERT OR UPDATE ON "public"."Like"
+FOR EACH ROW
+    EXECUTE FUNCTION "public"."triggerSetTimestamps"();
+
+CREATE TRIGGER setTimestampsOnFlag
+    BEFORE INSERT OR UPDATE ON "public"."Flag"
+FOR EACH ROW
+    EXECUTE FUNCTION "public"."triggerSetTimestamps"();
+
+CREATE TRIGGER setTimestampsOnToken
+    BEFORE INSERT OR UPDATE ON "public"."Token"
+FOR EACH ROW
+    EXECUTE FUNCTION "public"."triggerSetTimestamps"();
+
+ALTER TABLE "public"."User" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."Block"
     ADD CONSTRAINT "Block_pkey" PRIMARY KEY ("blockerId", "blockingId");
@@ -176,10 +210,6 @@ ALTER TABLE ONLY "public"."Token"
 
 ALTER TABLE ONLY "public"."User"
     ADD CONSTRAINT "User_pkey" PRIMARY KEY ("id");
-
-CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "public"."Account" USING "btree" ("provider", "providerAccountId");
-
-CREATE INDEX "Account_userId_idx" ON "public"."Account" USING "btree" ("userId");
 
 CREATE INDEX "Block_blockerId_idx" ON "public"."Block" USING "btree" ("blockerId");
 
@@ -213,8 +243,6 @@ CREATE INDEX "Token_userId_idx" ON "public"."Token" USING "btree" ("userId");
 
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User" USING "btree" ("email");
 
-ALTER TABLE ONLY "public"."Account"
-    ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Block"
     ADD CONSTRAINT "Block_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "public"."User"("id") ON DELETE RESTRICT;
@@ -226,19 +254,19 @@ ALTER TABLE ONLY "public"."EnrolledEvent"
     ADD CONSTRAINT "EnrolledEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Flag"
-    ADD CONSTRAINT "Flag_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Flag_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Flag"
     ADD CONSTRAINT "Flag_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Like"
-    ADD CONSTRAINT "Like_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Like_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Like"
     ADD CONSTRAINT "Like_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Post"
-    ADD CONSTRAINT "Post_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Post_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Post"
     ADD CONSTRAINT "Post_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");

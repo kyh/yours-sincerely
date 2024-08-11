@@ -1,7 +1,7 @@
-import { Knock } from "@knocklabs/node";
-import { addDays, isBefore } from "date-fns";
-import { z } from "zod";
+import cuid from "cuid";
+import { addDays, formatISO } from "date-fns";
 
+import { setDeprecatedSession } from "../auth/deprecated-session";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   allInput,
@@ -11,263 +11,123 @@ import {
   listInput,
   updateInput,
 } from "./post-schema";
-
-const knockClient = new Knock(process.env.KNOCK_SECRET_API_KEY);
-
-const POST_EXPIRY_DAYS_AGO = 21;
-
-type Post = Partial<PrismaPost> & {
-  createdBy?: string | null;
-  likeCount?: number | null;
-  isLiked?: boolean | null;
-  commentCount?: number | null;
-  comments?: Post[];
-};
-type Flag = Partial<PrismaFlag>;
-type Like = Partial<PrismaLike>;
-
-type QueriedPost = Post & {
-  flags?: Flag[];
-  likes?: Like[];
-  _count: {
-    comments?: number;
-    likes?: number;
-    flags?: number;
-  };
-};
-
-type CursorOption =
-  | { skip: number; cursor: { id: string } }
-  | Record<string, never>;
-
-const formatPost = (post: QueriedPost): Post => {
-  const formatted = {
-    ...post,
-    createdBy: post.createdBy ?? "Anonymous",
-    commentCount: post._count.comments,
-    likeCount: (post.baseLikeCount ?? 0) + (post._count.likes ?? 0),
-    isLiked: post.likes ? !!post.likes.length : false,
-  };
-
-  if (formatted.comments) {
-    const comments = formatted.comments as QueriedPost[];
-    formatted.comments = comments.map((c: QueriedPost) => formatPost(c));
-  }
-
-  return formatted;
-};
+import { formatPost, POST_EXPIRY_DAYS_AGO } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
-  list: publicProcedure
-    .input(
-      z.object({
-        userId: z.string().optional(),
-        parentId: z.string().optional(),
-        cursor: z.string().optional(),
-        limit: z.number().optional(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const blocks = await ctx.db.block.findMany({
-        where: {
-          blockerId: ctx.user?.id,
-        },
-      });
-
-      const cursorOption: CursorOption = input.cursor
-        ? {
-            skip: 1,
-            cursor: { id: input.cursor },
-          }
-        : {};
-
-      const whereOption = input.parentId
-        ? { parentId: input.parentId }
-        : {
-            createdAt: {
-              gte: addDays(new Date(), -POST_EXPIRY_DAYS_AGO),
-            },
-            parentId: null,
-          };
-
-      const limit = input.limit ?? 5;
-
-      const posts = await ctx.db.post.findMany({
-        take: limit + 1,
-        ...cursorOption,
-        where: {
-          ...whereOption,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        include: {
-          flags: {
-            where: {
-              userId: ctx.user?.id ?? "",
-            },
-          },
-          likes: {
-            where: {
-              userId: ctx.user?.id ?? "",
-            },
-          },
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-              flags: true,
-            },
-          },
-        },
-      });
-
-      let nextCursor: string | undefined = undefined;
-      if (posts.length > limit) {
-        nextCursor = posts[posts.length - 1]?.id;
-      }
-
-      return {
-        nextCursor,
-        blocks,
-        posts: posts.map(formatPost),
-      };
-    }),
-
-  all: publicProcedure.input(allInput).query(({ ctx, input }) => {
-    return ctx.db.post
-      .findMany({
-        where: {
-          userId: input.userId,
-          parentId: null,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        include: {
-          _count: {
-            select: {
-              likes: true,
-            },
-          },
-        },
-      })
-      .then((posts) => posts.map(formatPost));
-  }),
-
   byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
-    const inclusions = {
-      flags: {
-        where: {
-          userId: input.user?.id ?? "",
-        },
-      },
-      likes: {
-        where: {
-          userId: input.user?.id ?? "",
-        },
-      },
-      _count: {
-        select: {
-          comments: true,
-          likes: true,
-          flags: true,
-        },
-      },
-    };
+    const response = await ctx.supabase
+      .from("Post")
+      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
+      .eq("id", input.id)
+      .single();
 
-    const post = await ctx.db.post.findUnique({
-      where: {
-        id: input.id,
-      },
-      include: {
-        comments: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          include: inclusions,
-        },
-        ...inclusions,
-      },
-    });
-
-    if (
-      // if post doesnt exist
-      !post ||
-      // if user has flagged the post
-      post.flags.length ||
-      // if post has been flagged many times (by anyone)
-      post._count.flags > 2 ||
-      // if post has timed out
-      isBefore(post.createdAt, addDays(new Date(), -POST_EXPIRY_DAYS_AGO))
-    ) {
-      return null;
+    if (response.error) {
+      throw response.error;
     }
 
-    return formatPost(post);
+    return formatPost(response.data);
   }),
 
-  create: protectedProcedure
+  list: publicProcedure.input(listInput).query(async ({ ctx, input }) => {
+    const limit = input.limit ?? 5;
+
+    let blocks: string[] = [];
+    if (ctx.user) {
+      const blocksResponse = await ctx.supabase
+        .from("Block")
+        .select("blockingId")
+        .eq("blockerId", ctx.user.id);
+      if (blocksResponse.error) {
+        throw blocksResponse.error;
+      }
+      blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
+    }
+
+    let query = ctx.adminSupabase
+      .from("Post")
+      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
+
+    if (input.cursor) {
+      query = query.lt("id", input.cursor);
+    }
+    if (input.parentId) {
+      query = query.eq("parentId", input.parentId);
+    } else {
+      query = query
+        .is("parentId", null)
+        .gte(
+          "createdAt",
+          formatISO(addDays(new Date(), -POST_EXPIRY_DAYS_AGO)),
+        );
+    }
+    if (blocks.length) {
+      query = query.not("userId", "in", `(${blocks.join(",")})`);
+    }
+
+    const postResponse = await query
+      .limit(limit + 1)
+      .order("createdAt", { ascending: false });
+
+    if (postResponse.error) {
+      throw postResponse.error;
+    }
+
+    const posts = postResponse.data;
+
+    let nextCursor: string | undefined = undefined;
+    if (posts.length > limit) {
+      nextCursor = posts[posts.length - 1]?.id;
+    }
+
+    return {
+      nextCursor,
+      posts: posts.map(formatPost),
+    };
+  }),
+
+  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
+    const response = await ctx.adminSupabase
+      .from("Post")
+      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
+      .eq("userId", input.userId)
+      .is("parentId", null);
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data.map(formatPost);
+  }),
+
+  create: publicProcedure
     .input(createInput)
     .mutation(async ({ ctx, input }) => {
-      let user = await ctx.db.user.findUnique({
-        where: { id: ctx.user.id },
-        select: defaultSelect,
-      });
+      let userId = ctx.user?.id;
 
-      if (!user) {
-        user = await ctx.db.user.create({
-          data: { id: ctx.user.id, displayName: input.createdBy },
-          select: defaultSelect,
+      if (!userId) {
+        userId = cuid();
+        await ctx.adminSupabase.from("User").insert({
+          id: userId,
         });
+        setDeprecatedSession(userId);
       }
 
-      const created = await ctx.db.post.create({
-        data: { ...input, userId: user.id },
-        include: {
-          user: {
-            select: defaultSelect,
-          },
-        },
+      const response = await ctx.adminSupabase.from("Post").insert({
+        id: cuid(),
+        userId,
+        content: input.content,
+        createdBy: input.createdBy,
+        parentId: input.parentId,
       });
 
-      if (created.parentId) {
-        const parentPost = await ctx.db.post.findUnique({
-          where: { id: created.parentId },
-          include: {
-            user: {
-              select: defaultSelect,
-            },
-          },
-        });
-
-        const actor = created.user;
-        const recipient = parentPost?.user;
-
-        if (recipient) {
-          await knockClient.workflows.trigger("new-comment", {
-            data: {
-              parentPostId: parentPost.id,
-              commentPostId: created.id,
-            },
-            actor: {
-              id: actor.id,
-              displayName: actor.displayName,
-            },
-            recipients: [
-              {
-                id: recipient.id,
-                displayName: recipient.displayName,
-              },
-            ],
-          });
-        }
+      if (response.error) {
+        throw response.error;
       }
 
-      return created;
+      return response.data;
     }),
 
-  update: protectedProcedure
+  update: publicProcedure
     .input(updateInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase

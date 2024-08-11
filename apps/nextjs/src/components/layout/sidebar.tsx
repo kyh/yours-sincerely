@@ -1,16 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@init/ui/button";
 
-import type { RouterOutputs } from "@init/api";
 import { HomeIcon } from "@/components/icons/home-icon";
 import { NotificationIcon } from "@/components/icons/notification-icon";
 import { ProfileIcon } from "@/components/icons/profile-icon";
+import { api } from "@/trpc/react";
 
-type Props = {
-  user: RouterOutputs["account"]["me"];
-};
-
-export const Sidebar = ({ user }: Props) => {
+export const Sidebar = () => {
+  const [user] = api.account.me.useSuspenseQuery();
   return (
     <section className="area-nav flex flex-col">
       <nav className="-ml-4 flex flex-col items-start gap-1 py-5">

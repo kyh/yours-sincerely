@@ -1,7 +1,7 @@
 import { addDays, differenceInDays, eachDayOfInterval, format } from "date-fns";
 
 import type { RouterOutputs } from "@init/api";
-import { DEFAULT_WEEKDAY_LABELS } from "@/components/profile/calendar-util";
+import { DEFAULT_WEEKDAY_LABELS } from "@/app/(app)/profile/_components/calendar-util";
 
 export const groupByDay = (
   posts: RouterOutputs["post"]["all"],
@@ -22,7 +22,7 @@ export const groupByDay = (
   );
 
   posts.forEach((post) => {
-    const date = new Date(post.createdAt!);
+    const date = new Date(post.createdAt);
     const day = format(date, "yyyy-MM-dd");
     if (daysMap[day]) {
       daysMap[day].push(post);
@@ -91,7 +91,7 @@ export const createPostsDailyActivity = (
   );
 
   posts.forEach((post) => {
-    const date = new Date(post.createdAt!);
+    const date = new Date(post.createdAt);
     const day = format(date, "eee");
     if (daysMap[day]) {
       const count = daysMap[day].count ?? 0;
