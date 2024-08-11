@@ -1,7 +1,6 @@
 import cuid from "cuid";
 import { addDays, formatISO } from "date-fns";
 
-import { setDeprecatedSession } from "../auth/deprecated-session";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   allInput,
@@ -105,14 +104,19 @@ export const postRouter = createTRPCRouter({
       let userId = ctx.user?.id;
 
       if (!userId) {
+        const authResponse = await ctx.supabase.auth.signInAnonymously();
+        if (authResponse.error ?? !authResponse.data.user) {
+          throw authResponse.error;
+        }
+
         userId = cuid();
-        await ctx.adminSupabase.from("User").insert({
+        await ctx.supabase.from("User").insert({
           id: userId,
+          primaryOwnerUserId: authResponse.data.user.id,
         });
-        setDeprecatedSession(userId);
       }
 
-      const response = await ctx.adminSupabase.from("Post").insert({
+      const response = await ctx.supabase.from("Post").insert({
         id: cuid(),
         userId,
         content: input.content,

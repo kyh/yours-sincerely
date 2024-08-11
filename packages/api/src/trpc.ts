@@ -14,7 +14,6 @@ import { ZodError } from "zod";
 
 import type { SupabaseClient } from "@init/db/supabase-server-client";
 import type { User } from "@supabase/supabase-js";
-import { getDeprecatedSession } from "./auth/deprecated-session";
 
 /**
  * 1. CONTEXT
@@ -34,7 +33,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
-  const deprecatedSessionUserId = getDeprecatedSession();
 
   const { data } = token
     ? await supabase.auth.getUser(token)
@@ -45,11 +43,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
-  const user = await findDbUser(
-    adminSupabase,
-    deprecatedSessionUserId,
-    data.user?.id,
-  );
+  const user = await findDbUser(adminSupabase, data.user?.id);
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -90,22 +84,17 @@ const createDbUser = async (
 
 const findDbUser = async (
   supabaseClient: SupabaseClient,
-  userId?: string | null,
   ownerId?: string | null,
 ) => {
-  if (!userId && !ownerId) {
+  if (!ownerId) {
     return null;
   }
 
-  let query = supabaseClient.from("User").select("*");
-  if (userId) {
-    query = query.eq("id", userId);
-  }
-  if (ownerId) {
-    query = query.eq("primaryOwnerUserId", ownerId);
-  }
-
-  const response = await query.single();
+  const response = await supabaseClient
+    .from("User")
+    .select("*")
+    .eq("primaryOwnerUserId", ownerId)
+    .single();
 
   if (!response.data) {
     return null;
