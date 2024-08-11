@@ -51,6 +51,18 @@ SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
 
+CREATE TABLE IF NOT EXISTS "public"."Account" (
+    "id" "text" NOT NULL,
+    "provider" "text" NOT NULL,
+    "providerAccountId" "text" NOT NULL,
+    "refreshToken" "text",
+    "accessToken" "text",
+    "expiresAt" integer,
+    "userId" "text" NOT NULL
+);
+
+ALTER TABLE "public"."Account" OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."Block" (
     "blockerId" "text" NOT NULL,
     "blockingId" "text" NOT NULL
@@ -139,6 +151,9 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
 
 ALTER TABLE "public"."User" OWNER TO "postgres";
 
+ALTER TABLE ONLY "public"."Account"
+    ADD CONSTRAINT "Account_pkey" PRIMARY KEY ("id");
+
 ALTER TABLE ONLY "public"."Block"
     ADD CONSTRAINT "Block_pkey" PRIMARY KEY ("blockerId", "blockingId");
 
@@ -162,6 +177,10 @@ ALTER TABLE ONLY "public"."Token"
 
 ALTER TABLE ONLY "public"."User"
     ADD CONSTRAINT "User_pkey" PRIMARY KEY ("id");
+
+CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "public"."Account" USING "btree" ("provider", "providerAccountId");
+
+CREATE INDEX "Account_userId_idx" ON "public"."Account" USING "btree" ("userId");
 
 CREATE INDEX "Block_blockerId_idx" ON "public"."Block" USING "btree" ("blockerId");
 
@@ -195,6 +214,8 @@ CREATE INDEX "Token_userId_idx" ON "public"."Token" USING "btree" ("userId");
 
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User" USING "btree" ("email");
 
+ALTER TABLE ONLY "public"."Account"
+    ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Block"
     ADD CONSTRAINT "Block_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "public"."User"("id") ON DELETE RESTRICT;
