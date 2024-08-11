@@ -8,11 +8,12 @@
  */
 import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
+import cuid from "cuid";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { SupabaseClient } from "@init/db/supabase-server-client";
-import { getDeprecatedSession } from "./auth/get-deprecated-session";
+import type { User } from "@supabase/supabase-js";
 
 /**
  * 1. CONTEXT
@@ -32,18 +33,17 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
-  const deprecatedSessionUserId = getDeprecatedSession();
 
   const { data } = token
     ? await supabase.auth.getUser(token)
     : await supabase.auth.getUser();
 
+  // TODO
+  await createDbUser(adminSupabase, data.user);
+
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
-  const user = await findDbUser(
-    adminSupabase,
-    deprecatedSessionUserId ?? data.user?.id,
-  );
+  const user = await findDbUser(adminSupabase, data.user?.id);
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -57,15 +57,43 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-const findDbUser = async (supabaseClient: SupabaseClient, userId?: string) => {
-  if (!userId) {
+const createDbUser = async (
+  supabaseClient: SupabaseClient,
+  user: User | null,
+) => {
+  if (!user?.id) {
     return null;
   }
 
   const response = await supabaseClient
     .from("User")
     .select("*")
-    .eq("id", userId)
+    .eq("primaryOwnerUserId", user.id)
+    .single();
+
+  if (response.data) {
+    return;
+  }
+
+  await supabaseClient.from("User").insert({
+    id: cuid(),
+    primaryOwnerUserId: user.id,
+    email: user.email,
+  });
+};
+
+const findDbUser = async (
+  supabaseClient: SupabaseClient,
+  ownerId?: string | null,
+) => {
+  if (!ownerId) {
+    return null;
+  }
+
+  const response = await supabaseClient
+    .from("User")
+    .select("*")
+    .eq("primaryOwnerUserId", ownerId)
     .single();
 
   if (!response.data) {

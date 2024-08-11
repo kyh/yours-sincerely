@@ -1,14 +1,5 @@
 import { z } from "zod";
 
-export const listInput = z.object({
-  userId: z.string().optional(),
-  parentId: z.string().optional(),
-  cursor: z.string().optional(),
-  limit: z.number().optional(),
-});
-
-export const allInput = z.object({ userId: z.string() });
-
 export const byIdInput = z.object({
   user: z
     .object({
@@ -18,11 +9,19 @@ export const byIdInput = z.object({
   id: z.string(),
 });
 
+export const listInput = z.object({
+  userId: z.string().optional(),
+  parentId: z.string().optional(),
+  cursor: z.string().optional(),
+  limit: z.number().optional(),
+});
+
+export const allInput = z.object({ userId: z.string() });
+
 export const createInput = z.object({
   parentId: z.string().optional(),
   content: z.string(),
   createdBy: z.string().optional(),
-  baseLikeCount: z.number().optional(),
 });
 
 export const updateInput = z.object({

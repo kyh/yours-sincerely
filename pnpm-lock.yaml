@@ -325,6 +325,9 @@ importers:
       cookie-signature:
         specifier: ^1.2.1
         version: 1.2.1
+      cuid:
+        specifier: ^3.0.0
+        version: 3.0.0
       stripe:
         specifier: ^16.6.0
         version: 16.6.0

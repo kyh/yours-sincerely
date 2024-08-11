@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS "public"."Flag" (
     "postId" "text" NOT NULL,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Flag" OWNER TO "postgres";
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS "public"."Like" (
     "postId" "text" NOT NULL,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Like" OWNER TO "postgres";
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS "public"."Post" (
     "parentId" "text",
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL 
 );
 
 ALTER TABLE "public"."Post" OWNER TO "postgres";
@@ -130,13 +130,14 @@ CREATE TABLE IF NOT EXISTS "public"."Token" (
     "usedAt" timestamp(3) without time zone,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 ALTER TABLE "public"."Token" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
+    "primaryOwnerUserId" UUID,
     "email" "text",
     "emailVerified" timestamp(3) without time zone,
     "passwordHash" "text",
@@ -226,19 +227,19 @@ ALTER TABLE ONLY "public"."EnrolledEvent"
     ADD CONSTRAINT "EnrolledEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Flag"
-    ADD CONSTRAINT "Flag_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Flag_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Flag"
     ADD CONSTRAINT "Flag_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Like"
-    ADD CONSTRAINT "Like_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Like_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Like"
     ADD CONSTRAINT "Like_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Post"
-    ADD CONSTRAINT "Post_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "public"."Post"("id");
+    ADD CONSTRAINT "Post_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Post"
     ADD CONSTRAINT "Post_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
