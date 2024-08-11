@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { byIdInput, updateInput } from "./personal-account-schema";
+import { byIdInput, updateInput } from "./user-schema";
 
-export const accountRouter = createTRPCRouter({
+export const userRouter = createTRPCRouter({
   me: publicProcedure.query(({ ctx }) => {
     return ctx.user;
   }),

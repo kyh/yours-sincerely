@@ -19,7 +19,7 @@ import { SettingsIcon } from "@/components/icons/settings-icon";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
-  const [user] = api.account.me.useSuspenseQuery();
+  const [user] = api.user.me.useSuspenseQuery();
   return (
     <div className="area-aside-header flex items-center justify-end space-x-4 border-b border-b-border">
       <Button variant="ghost" size="icon">
