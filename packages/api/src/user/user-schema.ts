@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-export const byIdInput = z.object({
+export const getUserInput = z.object({
   id: z.string(),
 });
 
-export const updateInput = z.object({
+export const updateUserInput = z.object({
   id: z.string(),
   email: z.string().optional(),
   displayName: z.string().optional(),

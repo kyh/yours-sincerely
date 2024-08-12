@@ -17,12 +17,12 @@ type Props = {
 };
 
 export const CommentFeed = ({ pid, user }: Props) => {
-  const [post] = api.post.byId.useSuspenseQuery({ id: pid });
+  const [post] = api.post.getPost.useSuspenseQuery({ id: pid });
   const utils = api.useUtils();
-  const { mutate, isPending } = api.post.create.useMutation({
+  const { mutate, isPending } = api.post.createPost.useMutation({
     onSuccess: async () => {
       toast("Your comment has been added");
-      await utils.post.byId.invalidate();
+      await utils.post.getPost.invalidate();
     },
     onError: async (err) => {
       toast("You got some errors");

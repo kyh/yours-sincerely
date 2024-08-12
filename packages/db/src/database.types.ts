@@ -34,6 +34,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      Account: {
+        Row: {
+          accessToken: string | null
+          expiresAt: number | null
+          id: string
+          provider: string
+          providerAccountId: string
+          refreshToken: string | null
+          userId: string
+        }
+        Insert: {
+          accessToken?: string | null
+          expiresAt?: number | null
+          id: string
+          provider: string
+          providerAccountId: string
+          refreshToken?: string | null
+          userId: string
+        }
+        Update: {
+          accessToken?: string | null
+          expiresAt?: number | null
+          id?: string
+          provider?: string
+          providerAccountId?: string
+          refreshToken?: string | null
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Account_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Block: {
         Row: {
           blockerId: string
