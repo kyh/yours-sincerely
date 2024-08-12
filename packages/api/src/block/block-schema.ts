@@ -1,22 +1,22 @@
 import { z } from "zod";
 
-export const allInput = z
+export const getBlockInput = z.object({
+  blockerId: z.string(),
+  blockingId: z.string(),
+});
+
+export const getBlockAllInput = z
   .object({
     id: z.string(),
   })
   .optional();
 
-export const byIdInput = z.object({
+export const createBlockInput = z.object({
   blockerId: z.string(),
   blockingId: z.string(),
 });
 
-export const createInput = z.object({
-  blockerId: z.string(),
-  blockingId: z.string(),
-});
-
-export const deleteInput = z.object({
+export const deleteBlockInput = z.object({
   blockerId: z.string(),
   blockingId: z.string(),
 });

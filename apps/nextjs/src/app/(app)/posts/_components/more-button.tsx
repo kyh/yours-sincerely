@@ -18,26 +18,26 @@ const buttonClass =
 export const MoreButton = ({ post }: Props) => {
   const router = useRouter();
 
-  const deleteMutation = api.post.delete.useMutation({
+  const deleteMutation = api.post.deletePost.useMutation({
     onSuccess: () => {
       toast("You have flagged this post, we will be reviewing it shortly");
       router.push("/");
     },
   });
-  const createMutation = api.flag.create.useMutation({
+  const createMutation = api.flag.createFlag.useMutation({
     onSuccess: () => {
       toast("You have flagged this post, we will be reviewing it shortly");
       router.push("/");
     },
   });
-  const blockMutation = api.block.create.useMutation({
+  const blockMutation = api.block.createBlock.useMutation({
     onSuccess: () => {
       toast("You have blocked this user");
       router.push("/");
     },
   });
 
-  const currentUser = api.account.me.useQuery().data?.id;
+  const currentUser = api.user.me.useQuery().data?.id;
   const isPostOwner = post.userId === currentUser;
   const [isOpen, setIsOpen] = useState(false);
 

@@ -9,8 +9,8 @@ type Props = {
 };
 
 const Page = async ({ params: { pid } }: Props) => {
-  const currentUser = await api.account.me();
-  await api.post.byId.prefetch({ id: pid });
+  const currentUser = await api.user.me();
+  await api.post.getPost.prefetch({ id: pid });
 
   return (
     <>

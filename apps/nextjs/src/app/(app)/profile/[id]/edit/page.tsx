@@ -10,7 +10,7 @@ type Props = {
 };
 
 const Page = async ({ params: { id } }: Props) => {
-  const currentUser = await api.account.me();
+  const currentUser = await api.user.me();
 
   const allowEdit = currentUser ? currentUser.id === id : false;
 

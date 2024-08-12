@@ -122,8 +122,8 @@ const LikeButton = ({ post }: Props) => {
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
 
-  const createMutate = api.like.create.useMutation();
-  const deleteMutate = api.like.delete.useMutation();
+  const createMutate = api.like.createLike.useMutation();
+  const deleteMutate = api.like.deleteLike.useMutation();
 
   const toggleLike = async () => {
     if (!post.id) return;

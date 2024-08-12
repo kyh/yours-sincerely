@@ -25,7 +25,7 @@ const ProfileTooltip = ({
   userId: string;
   displayName: string;
 }) => {
-  const { data, isLoading } = api.post.all.useQuery({ userId: userId });
+  const { data, isLoading } = api.post.getPostAll.useQuery({ userId: userId });
 
   return (
     <div className="flow-root">
