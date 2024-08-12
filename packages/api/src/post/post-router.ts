@@ -3,17 +3,17 @@ import { addDays, formatISO } from "date-fns";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
-  allInput,
-  byIdInput,
-  createInput,
-  deleteInput,
-  listInput,
-  updateInput,
+  createPostInput,
+  deletePostInput,
+  getPostAllInput,
+  getPostInput,
+  getPostListInput,
+  updatePostInput,
 } from "./post-schema";
 import { formatPost, POST_EXPIRY_DAYS_AGO } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
-  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
       .from("Post")
       .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
@@ -27,79 +27,83 @@ export const postRouter = createTRPCRouter({
     return formatPost(response.data);
   }),
 
-  list: publicProcedure.input(listInput).query(async ({ ctx, input }) => {
-    const limit = input.limit ?? 5;
+  getPostList: publicProcedure
+    .input(getPostListInput)
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 5;
 
-    let blocks: string[] = [];
-    if (ctx.user) {
-      const blocksResponse = await ctx.supabase
-        .from("Block")
-        .select("blockingId")
-        .eq("blockerId", ctx.user.id);
-      if (blocksResponse.error) {
-        throw blocksResponse.error;
+      let blocks: string[] = [];
+      if (ctx.user) {
+        const blocksResponse = await ctx.supabase
+          .from("Block")
+          .select("blockingId")
+          .eq("blockerId", ctx.user.id);
+        if (blocksResponse.error) {
+          throw blocksResponse.error;
+        }
+        blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
       }
-      blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
-    }
 
-    let query = ctx.adminSupabase
-      .from("Post")
-      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
+      let query = ctx.adminSupabase
+        .from("Post")
+        .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
 
-    if (input.cursor) {
-      query = query.lt("id", input.cursor);
-    }
-    if (input.parentId) {
-      query = query.eq("parentId", input.parentId);
-    } else {
-      query = query
-        .is("parentId", null)
-        .gte(
-          "createdAt",
-          formatISO(addDays(new Date(), -POST_EXPIRY_DAYS_AGO)),
-        );
-    }
-    if (blocks.length) {
-      query = query.not("userId", "in", `(${blocks.join(",")})`);
-    }
+      if (input.cursor) {
+        query = query.lt("id", input.cursor);
+      }
+      if (input.parentId) {
+        query = query.eq("parentId", input.parentId);
+      } else {
+        query = query
+          .is("parentId", null)
+          .gte(
+            "createdAt",
+            formatISO(addDays(new Date(), -POST_EXPIRY_DAYS_AGO)),
+          );
+      }
+      if (blocks.length) {
+        query = query.not("userId", "in", `(${blocks.join(",")})`);
+      }
 
-    const postResponse = await query
-      .limit(limit + 1)
-      .order("createdAt", { ascending: false });
+      const postResponse = await query
+        .limit(limit + 1)
+        .order("createdAt", { ascending: false });
 
-    if (postResponse.error) {
-      throw postResponse.error;
-    }
+      if (postResponse.error) {
+        throw postResponse.error;
+      }
 
-    const posts = postResponse.data;
+      const posts = postResponse.data;
 
-    let nextCursor: string | undefined = undefined;
-    if (posts.length > limit) {
-      nextCursor = posts[posts.length - 1]?.id;
-    }
+      let nextCursor: string | undefined = undefined;
+      if (posts.length > limit) {
+        nextCursor = posts[posts.length - 1]?.id;
+      }
 
-    return {
-      nextCursor,
-      posts: posts.map(formatPost),
-    };
-  }),
+      return {
+        nextCursor,
+        posts: posts.map(formatPost),
+      };
+    }),
 
-  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
-    const response = await ctx.adminSupabase
-      .from("Post")
-      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
-      .eq("userId", input.userId)
-      .is("parentId", null);
+  getPostAll: publicProcedure
+    .input(getPostAllInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.adminSupabase
+        .from("Post")
+        .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
+        .eq("userId", input.userId)
+        .is("parentId", null);
 
-    if (response.error) {
-      throw response.error;
-    }
+      if (response.error) {
+        throw response.error;
+      }
 
-    return response.data.map(formatPost);
-  }),
+      return response.data.map(formatPost);
+    }),
 
-  create: publicProcedure
-    .input(createInput)
+  createPost: publicProcedure
+    .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
       let userId = ctx.user?.id;
 
@@ -131,8 +135,8 @@ export const postRouter = createTRPCRouter({
       return response.data;
     }),
 
-  update: publicProcedure
-    .input(updateInput)
+  updatePost: publicProcedure
+    .input(updatePostInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Post")
@@ -150,8 +154,8 @@ export const postRouter = createTRPCRouter({
       return response.data;
     }),
 
-  delete: protectedProcedure
-    .input(deleteInput)
+  deletePost: protectedProcedure
+    .input(deletePostInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Post")

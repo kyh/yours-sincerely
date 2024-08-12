@@ -10,8 +10,8 @@ import { PostFeed } from "./posts/_components/post-feed";
 import { PostForm } from "./posts/_components/post-form";
 
 const Page = async () => {
-  const currentUser = await api.account.me();
-  const placeholder = await api.prompt.random();
+  const currentUser = await api.user.me();
+  const placeholder = await api.prompt.getRandomPrompt();
 
   return (
     <>

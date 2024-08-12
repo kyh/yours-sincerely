@@ -1,27 +1,29 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { byIdInput, updateInput } from "./personal-account-schema";
+import { getUserInput, updateUserInput } from "./user-schema";
 
-export const accountRouter = createTRPCRouter({
+export const userRouter = createTRPCRouter({
   me: publicProcedure.query(({ ctx }) => {
     return ctx.user;
   }),
 
-  byId: protectedProcedure.input(byIdInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("User")
-      .select("*")
-      .eq("id", input.id)
-      .single();
+  getUser: protectedProcedure
+    .input(getUserInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("User")
+        .select("*")
+        .eq("id", input.id)
+        .single();
 
-    if (response.error) {
-      throw response.error;
-    }
+      if (response.error) {
+        throw response.error;
+      }
 
-    return response.data;
-  }),
+      return response.data;
+    }),
 
-  update: protectedProcedure
-    .input(updateInput)
+  updateUser: protectedProcedure
+    .input(updateUserInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("User")

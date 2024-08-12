@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { api, HydrateClient } from "@/trpc/server";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  await api.account.me.prefetch();
+  await api.user.me.prefetch();
 
   return (
     <HydrateClient>
