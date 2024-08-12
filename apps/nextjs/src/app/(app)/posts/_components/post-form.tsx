@@ -53,7 +53,7 @@ export const PostForm = ({ user, placeholder }: PostFormProps) => {
     setPostContent(storedPost.content ?? "");
   }, []);
 
-  const { mutate, isPending } = api.post.create.useMutation({
+  const { mutate, isPending } = api.post.createPost.useMutation({
     onSuccess: async () => {
       toast.message("Your love letter has been published");
       clearStoredPost();

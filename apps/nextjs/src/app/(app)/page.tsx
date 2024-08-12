@@ -11,7 +11,7 @@ import { PostForm } from "./posts/_components/post-form";
 
 const Page = async () => {
   const currentUser = await api.user.me();
-  const placeholder = await api.prompt.random();
+  const placeholder = await api.prompt.getRandomPrompt();
 
   return (
     <>

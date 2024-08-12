@@ -12,10 +12,10 @@ import { CALENDAR_LABELS, DEFAULT_WEEKDAY_LABELS } from "./calendar-util";
 
 export const EditProfile = ({ id }: { id: string }) => {
   const utils = api.useUtils();
-  const [user] = api.user.byId.useSuspenseQuery({ id: id });
+  const [user] = api.user.getUser.useSuspenseQuery({ id: id });
 
   const router = useRouter();
-  const mutation = api.user.update.useMutation();
+  const mutation = api.user.updateUser.useMutation();
   const [recurring, setRecurring] = useState<string[]>([]);
 
   const handleRecurringDayChange = (

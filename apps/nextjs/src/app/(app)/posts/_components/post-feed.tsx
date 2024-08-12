@@ -19,7 +19,7 @@ type Props = {
 
 export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    api.post.list.useInfiniteQuery(filters, {
+    api.post.getPostList.useInfiniteQuery(filters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     });
 
