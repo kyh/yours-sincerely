@@ -1,41 +1,47 @@
-import { getCreateColumnValues } from "@init/db/column-values";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { allInput, byIdInput, createInput, deleteInput } from "./block-schema";
+import {
+  createBlockInput,
+  deleteBlockInput,
+  getBlockAllInput,
+  getBlockInput,
+} from "./block-schema";
 
 export const blockRouter = createTRPCRouter({
-  all: protectedProcedure.input(allInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Block")
-      .select("*")
-      .match({ blockerId: input?.id });
+  getBlock: publicProcedure
+    .input(getBlockInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("Block")
+        .select("*")
+        .match({ blockerId: input.blockerId, blockingId: input.blockingId })
+        .single();
 
-    if (response.error) {
-      throw response.error;
-    }
+      if (response.error) {
+        throw response.error;
+      }
 
-    return response.data;
-  }),
+      return response.data;
+    }),
 
-  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Block")
-      .select("*")
-      .match({ blockerId: input.blockerId, blockingId: input.blockingId })
-      .single();
+  getBlockAll: protectedProcedure
+    .input(getBlockAllInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("Block")
+        .select("*")
+        .match({ blockerId: input?.id });
 
-    if (response.error) {
-      throw response.error;
-    }
+      if (response.error) {
+        throw response.error;
+      }
 
-    return response.data;
-  }),
+      return response.data;
+    }),
 
-  create: publicProcedure
-    .input(createInput)
+  createBlock: publicProcedure
+    .input(createBlockInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase.from("Block").insert({
-        ...getCreateColumnValues(),
         ...input,
       });
 
@@ -46,8 +52,8 @@ export const blockRouter = createTRPCRouter({
       return response.data;
     }),
 
-  delete: protectedProcedure
-    .input(deleteInput)
+  deleteBlock: protectedProcedure
+    .input(deleteBlockInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Block")

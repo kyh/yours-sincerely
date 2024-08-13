@@ -10,15 +10,15 @@ import { PostFeed } from "./posts/_components/post-feed";
 import { PostForm } from "./posts/_components/post-form";
 
 const Page = async () => {
-  const currentUser = await api.account.me();
-  const placeholder = await api.prompt.random();
+  const currentUser = await api.user.me();
+  const placeholder = await api.prompt.getRandomPrompt();
 
   return (
     <>
       <PageHeader title="Home" />
       <PageContent>
         <PostForm user={currentUser} placeholder={placeholder} />
-        {/* <PostFeed /> */}
+        <PostFeed />
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto"></section>

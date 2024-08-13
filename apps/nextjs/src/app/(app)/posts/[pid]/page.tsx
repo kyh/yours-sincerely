@@ -9,14 +9,14 @@ type Props = {
 };
 
 const Page = async ({ params: { pid } }: Props) => {
-  const post = await api.post.byId({ id: pid });
-  const currentUser = await api.account.me();
+  const currentUser = await api.user.me();
+  await api.post.getPost.prefetch({ id: pid });
 
   return (
     <>
       <PageHeader title="Post" />
       <PageContent>
-        <CommentFeed post={post} user={currentUser} />
+        <CommentFeed pid={pid} user={currentUser} />
       </PageContent>
     </>
   );

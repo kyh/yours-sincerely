@@ -1,13 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { EditProfile } from "@/lib/user/ui/editprofile";
 import { api } from "@/trpc/server";
-
-// export let meta: MetaFunction = () => {
-//   return createMeta({
-//     title: "Edit Profile",
-//   });
-// };
+import { EditProfile } from "../../_components/edit-profile";
 
 type Props = {
   params: {
@@ -16,17 +10,15 @@ type Props = {
 };
 
 const Page = async ({ params: { id } }: Props) => {
-  const currentUser = await api.account.me();
-  const user = await api.user.byId({ id: id });
+  const currentUser = await api.user.me();
 
-  const allowEdit = currentUser && user ? currentUser.id === id : false;
+  const allowEdit = currentUser ? currentUser.id === id : false;
 
-  // if (!user || !allowEdit) redirect(`/${user ? user.id : "/profile"}`);
-  if (!user || !allowEdit) redirect(`${"/profile"}`);
+  if (!allowEdit) redirect(`/`);
 
   return (
     <main className="mx-auto w-full max-w-md pt-5">
-      <EditProfile user={user} />
+      <EditProfile id={id} />
     </main>
   );
 };

@@ -1,24 +1,13 @@
-import { getCreateColumnValues } from "@init/db/column-values";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { allInput, byIdInput, createInput, deleteInput } from "./like-schema";
+import {
+  createLikeInput,
+  deleteLikeInput,
+  getLikeAllInput,
+  getLikeInput,
+} from "./like-schema";
 
 export const likeRouter = createTRPCRouter({
-  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Like")
-      .select("*")
-      .eq("userId", input.id)
-      .order("createdAt", { ascending: false });
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-
-  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+  getLike: publicProcedure.input(getLikeInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
       .from("Like")
       .select("*")
@@ -32,17 +21,30 @@ export const likeRouter = createTRPCRouter({
     return response.data;
   }),
 
-  create: protectedProcedure
-    .input(createInput)
+  all: publicProcedure.input(getLikeAllInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("Like")
+      .select("*")
+      .eq("userId", input.id)
+      .order("createdAt", { ascending: false });
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
+
+  createLike: protectedProcedure
+    .input(createLikeInput)
     .mutation(async ({ ctx, input }) => {
       const likeResponse = await ctx.supabase
         .from("Like")
         .insert({
-          ...getCreateColumnValues(),
           postId: input.postId,
           userId: ctx.user.id,
         })
-        .select("*, account (id)");
+        .select("*");
 
       if (likeResponse.error) {
         throw likeResponse.error;
@@ -51,8 +53,8 @@ export const likeRouter = createTRPCRouter({
       return likeResponse.data;
     }),
 
-  delete: protectedProcedure
-    .input(deleteInput)
+  deleteLike: protectedProcedure
+    .input(deleteLikeInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Like")
