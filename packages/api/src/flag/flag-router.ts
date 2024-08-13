@@ -1,24 +1,13 @@
-import { getCreateColumnValues } from "@init/db/column-values";
-
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { allInput, byIdInput, createInput, deleteInput } from "./flag-schema";
+import {
+  createFlagInput,
+  deleteFlagInput,
+  getFlagAllInput,
+  getFlagInput,
+} from "./flag-schema";
 
 export const flagRouter = createTRPCRouter({
-  all: publicProcedure.input(allInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Flag")
-      .select("*")
-      .eq("userId", input.id)
-      .order("createdAt", { ascending: false });
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-
-  byId: publicProcedure.input(byIdInput).query(async ({ ctx, input }) => {
+  getFlag: publicProcedure.input(getFlagInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
       .from("Flag")
       .select("*")
@@ -32,11 +21,26 @@ export const flagRouter = createTRPCRouter({
     return response.data;
   }),
 
-  create: publicProcedure
-    .input(createInput)
+  getFlagAll: publicProcedure
+    .input(getFlagAllInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("Flag")
+        .select("*")
+        .eq("userId", input.id)
+        .order("createdAt", { ascending: false });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
+    }),
+
+  createFlag: publicProcedure
+    .input(createFlagInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase.from("Flag").insert({
-        ...getCreateColumnValues(),
         ...input,
       });
 
@@ -47,8 +51,8 @@ export const flagRouter = createTRPCRouter({
       return response.data;
     }),
 
-  delete: publicProcedure
-    .input(deleteInput)
+  deleteFlag: publicProcedure
+    .input(deleteFlagInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Flag")

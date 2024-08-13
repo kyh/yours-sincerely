@@ -7,7 +7,6 @@ type Props = {
 };
 
 export const CommentContent = ({ post }: Props) => {
-  if (!post) return null;
   return (
     <article>
       <header className="flex items-center justify-between text-sm">

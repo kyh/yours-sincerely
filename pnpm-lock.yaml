@@ -328,6 +328,9 @@ importers:
       cookie-signature:
         specifier: ^1.2.1
         version: 1.2.1
+      cuid:
+        specifier: ^3.0.0
+        version: 3.0.0
       stripe:
         specifier: ^16.7.0
         version: 16.7.0
@@ -371,9 +374,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.45.1
         version: 2.45.1
-      cuid:
-        specifier: ^3.0.0
-        version: 3.0.0
       next:
         specifier: ^14.2.5
         version: 14.2.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -23,7 +23,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "cuid": "^3.0.0",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.45.1",
     "next": "^14.2.5",

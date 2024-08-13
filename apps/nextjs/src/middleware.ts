@@ -147,9 +147,7 @@ const getPatterns = () => [
       // If user is logged in and does not need to verify MFA,
       // redirect to home page.
       if (!isVerifyMfa) {
-        return NextResponse.redirect(
-          new URL("/dashboard", req.nextUrl.origin).href,
-        );
+        return NextResponse.redirect(new URL("/", req.nextUrl.origin).href);
       }
     },
   },

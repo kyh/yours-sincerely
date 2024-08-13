@@ -151,7 +151,7 @@ export type Database = {
           createdAt?: string
           postId: string
           resolved?: boolean
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -189,7 +189,7 @@ export type Database = {
         Insert: {
           createdAt?: string
           postId: string
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -277,7 +277,7 @@ export type Database = {
           createdBy?: string | null
           id: string
           parentId?: string | null
-          updatedAt: string
+          updatedAt?: string
           userId: string
         }
         Update: {
@@ -341,7 +341,7 @@ export type Database = {
           sentTo?: string | null
           token: string
           type: Database["public"]["Enums"]["TokenType"]
-          updatedAt: string
+          updatedAt?: string
           usedAt?: string | null
           userId: string
         }
@@ -376,6 +376,7 @@ export type Database = {
           emailVerified: string | null
           id: string
           passwordHash: string | null
+          primaryOwnerUserId: string | null
           role: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail: boolean
         }
@@ -388,6 +389,7 @@ export type Database = {
           emailVerified?: string | null
           id: string
           passwordHash?: string | null
+          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -400,6 +402,7 @@ export type Database = {
           emailVerified?: string | null
           id?: string
           passwordHash?: string | null
+          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -410,7 +413,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      getRandomPrompt: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       NotificationChannel: "in_app" | "email" | "push"

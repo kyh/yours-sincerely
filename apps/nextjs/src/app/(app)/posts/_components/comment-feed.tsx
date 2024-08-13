@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPost } from "@init/api/post/post-utils";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
 import readingTime from "reading-time";
@@ -11,16 +12,17 @@ import { CommentContent } from "./comment-content";
 import { PostContent } from "./post-content";
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  pid: string;
   user: RouterOutputs["account"]["me"];
 };
 
-export const CommentFeed = ({ post, user }: Props) => {
+export const CommentFeed = ({ pid, user }: Props) => {
+  const [post] = api.post.getPost.useSuspenseQuery({ id: pid });
   const utils = api.useUtils();
-  const { mutate, isPending } = api.post.create.useMutation({
+  const { mutate, isPending } = api.post.createPost.useMutation({
     onSuccess: async () => {
       toast("Your comment has been added");
-      await utils.post.byId.invalidate();
+      await utils.post.getPost.invalidate();
     },
     onError: async (err) => {
       toast("You got some errors");
@@ -41,11 +43,11 @@ export const CommentFeed = ({ post, user }: Props) => {
     mutate({
       content: content,
       createdBy: user?.displayName ?? "Anonymous",
-      parentId: post?.id,
+      parentId: post.id,
     });
   };
 
-  const stats = readingTime(post?.content ?? "");
+  const stats = readingTime(post.content ?? "");
 
   return (
     <section className="flex flex-col gap-5">

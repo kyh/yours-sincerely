@@ -116,17 +116,17 @@ type Props = {
 };
 
 const LikeButton = ({ post }: Props) => {
-  const [likeCount, setLikeCount] = useState(post?.likeCount ?? 0);
-  const [isLiked, setIsLiked] = useState(post?.isLiked ?? false);
+  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
+  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
 
-  const createMutate = api.like.create.useMutation();
-  const deleteMutate = api.like.delete.useMutation();
+  const createMutate = api.like.createLike.useMutation();
+  const deleteMutate = api.like.deleteLike.useMutation();
 
   const toggleLike = async () => {
-    if (!post?.id) return;
+    if (!post.id) return;
     if (isLiked) {
       setLikeCount(likeCount - 1);
       setIsLiked(false);
