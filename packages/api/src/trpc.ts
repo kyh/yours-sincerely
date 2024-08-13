@@ -39,7 +39,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     : await supabase.auth.getUser();
 
   // TODO
-  await createDbUser(adminSupabase, data.user);
+  // await createDbUser(adminSupabase, data.user);
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
