@@ -13,7 +13,6 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { SupabaseClient } from "@init/db/supabase-server-client";
-import type { User } from "@supabase/supabase-js";
 
 /**
  * 1. CONTEXT
@@ -38,9 +37,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     ? await supabase.auth.getUser(token)
     : await supabase.auth.getUser();
 
-  // TODO
-  // await createDbUser(adminSupabase, data.user);
-
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
   const user = await findDbUser(adminSupabase, data.user?.id);
@@ -55,31 +51,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     supabase,
     adminSupabase,
   };
-};
-
-const createDbUser = async (
-  supabaseClient: SupabaseClient,
-  user: User | null,
-) => {
-  if (!user?.id) {
-    return null;
-  }
-
-  const response = await supabaseClient
-    .from("User")
-    .select("*")
-    .eq("primaryOwnerUserId", user.id)
-    .single();
-
-  if (response.data) {
-    return;
-  }
-
-  await supabaseClient.from("User").insert({
-    id: cuid(),
-    primaryOwnerUserId: user.id,
-    email: user.email,
-  });
 };
 
 const findDbUser = async (
