@@ -368,6 +368,7 @@ export type Database = {
       }
       User: {
         Row: {
+          bannedUntil: string | null
           createdAt: string
           disabled: boolean | null
           displayImage: string | null
@@ -381,6 +382,7 @@ export type Database = {
           weeklyDigestEmail: boolean
         }
         Insert: {
+          bannedUntil?: string | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null
@@ -394,6 +396,7 @@ export type Database = {
           weeklyDigestEmail?: boolean
         }
         Update: {
+          bannedUntil?: string | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null
@@ -413,9 +416,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      banUser: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
+      getOverFlaggedPosts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          postId: string
+        }[]
+      }
       getRandomPrompt: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      reactivateUser: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

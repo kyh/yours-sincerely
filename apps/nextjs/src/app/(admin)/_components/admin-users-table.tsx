@@ -5,33 +5,23 @@ import { usePathname, useRouter } from "next/navigation";
 import { DataTable } from "@init/ui/data-table/data-table";
 import { Form, FormControl, FormField, FormItem, useForm } from "@init/ui/form";
 import { Input } from "@init/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@init/ui/select";
 import { z } from "zod";
 
-import type { GetAccountsInput } from "@init/api/admin/admin-schema";
+import type { GetUsersInput } from "@init/api/admin/admin-schema";
 import { useDataTable } from "@/lib/use-data-table";
 import { api } from "@/trpc/react";
-import { getColumns } from "./admin-accounts-table-columns";
+import { getColumns } from "./admin-users-table-columns";
 
 const FiltersSchema = z.object({
-  type: z.enum(["all", "team", "personal"]),
   query: z.string().optional(),
 });
 
-export const AdminAccountsTable = (
+export const AdminUsersTable = (
   props: React.PropsWithChildren<{
-    searchParams: GetAccountsInput;
+    searchParams: GetUsersInput;
   }>,
 ) => {
-  const [data] = api.admin.getAccounts.useSuspenseQuery(props.searchParams);
+  const [data] = api.admin.getUsers.useSuspenseQuery(props.searchParams);
 
   const columns = useMemo(() => getColumns(), []);
 
@@ -39,28 +29,22 @@ export const AdminAccountsTable = (
     data: data.data,
     columns,
     pageCount: data.pageCount,
-    // optional props
     defaultSort: "createdAt.desc",
   });
 
   return (
     <div className="flex flex-col space-y-4">
-      <AccountsTableFilters
-        filters={{ type: props.searchParams.account_type ?? "all" }}
-      />
+      <UsersTableFilters />
 
       <DataTable table={table} />
     </div>
   );
 };
 
-const AccountsTableFilters = (props: {
-  filters: z.infer<typeof FiltersSchema>;
-}) => {
+const UsersTableFilters = () => {
   const form = useForm({
     schema: FiltersSchema,
     defaultValues: {
-      type: props.filters.type,
       query: "",
     },
     mode: "onChange",
@@ -70,9 +54,8 @@ const AccountsTableFilters = (props: {
   const router = useRouter();
   const pathName = usePathname();
 
-  const onSubmit = ({ type, query }: z.infer<typeof FiltersSchema>) => {
+  const onSubmit = ({ query }: z.infer<typeof FiltersSchema>) => {
     const params = new URLSearchParams({
-      account_type: type,
       query: query ?? "",
     });
 
@@ -89,37 +72,6 @@ const AccountsTableFilters = (props: {
             className="flex space-x-4"
             onSubmit={form.handleSubmit((data) => onSubmit(data))}
           >
-            <Select
-              value={form.watch("type")}
-              onValueChange={(value) => {
-                form.setValue(
-                  "type",
-                  value as z.infer<typeof FiltersSchema>["type"],
-                  {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                    shouldTouch: true,
-                  },
-                );
-
-                return onSubmit(form.getValues());
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Account Type" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Account Type</SelectLabel>
-
-                  <SelectItem value="all">All accounts</SelectItem>
-                  <SelectItem value="team">Team</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
             <FormField
               name="query"
               render={({ field }) => (
@@ -127,7 +79,7 @@ const AccountsTableFilters = (props: {
                   <FormControl className="w-full min-w-36 md:min-w-72">
                     <Input
                       className="w-full"
-                      placeholder="Search account..."
+                      placeholder="Search user..."
                       {...field}
                     />
                   </FormControl>

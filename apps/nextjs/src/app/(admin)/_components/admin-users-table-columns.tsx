@@ -8,18 +8,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
-import { If } from "@init/ui/if";
 import { MoreHorizontalIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AdminDeleteAccountDialog } from "./admin-delete-account-dialog";
 import { AdminDeleteUserDialog } from "./admin-delete-user-dialog";
 import { AdminImpersonateUserDialog } from "./admin-impersonate-user-dialog";
 
-type Account = RouterOutputs["admin"]["getAccounts"]["data"][0];
+type User = RouterOutputs["admin"]["getUser"];
 
-export const getColumns = (): ColumnDef<Account>[] => [
+export const getColumns = (): ColumnDef<User>[] => [
   {
     id: "name",
     header: "Name",
@@ -27,9 +25,9 @@ export const getColumns = (): ColumnDef<Account>[] => [
       return (
         <Link
           className="hover:underline"
-          href={`/admin/accounts/${row.original.id}`}
+          href={`/admin/users/${row.original.id}`}
         >
-          {row.original.name}
+          {row.original.displayName}
         </Link>
       );
     },
@@ -40,19 +38,12 @@ export const getColumns = (): ColumnDef<Account>[] => [
     accessorKey: "email",
   },
   {
-    id: "type",
-    header: "Type",
-    cell: ({ row }) => {
-      return row.original.isPersonalAccount ? "Personal" : "Team";
-    },
-  },
-  {
     id: "createdAt",
     header: "Created At",
     accessorKey: "createdAt",
   },
   {
-    id: "updated_at",
+    id: "updatedAt",
     header: "Updated At",
     accessorKey: "updatedAt",
   },
@@ -60,7 +51,6 @@ export const getColumns = (): ColumnDef<Account>[] => [
     id: "actions",
     header: "",
     cell: ({ row }) => {
-      const isPersonalAccount = row.original.isPersonalAccount;
       const userId = row.original.id;
 
       return (
@@ -74,32 +64,20 @@ export const getColumns = (): ColumnDef<Account>[] => [
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
-                <Link
-                  className="h-full w-full"
-                  href={`/admin/accounts/${userId}`}
-                >
+                <Link className="h-full w-full" href={`/admin/users/${userId}`}>
                   View
                 </Link>
               </DropdownMenuItem>
-              <If condition={isPersonalAccount}>
-                <AdminImpersonateUserDialog userId={userId}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    Impersonate User
-                  </DropdownMenuItem>
-                </AdminImpersonateUserDialog>
-                <AdminDeleteUserDialog userId={userId}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    Delete Personal Account
-                  </DropdownMenuItem>
-                </AdminDeleteUserDialog>
-              </If>
-              <If condition={!isPersonalAccount}>
-                <AdminDeleteAccountDialog accountId={row.original.id}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    Delete Team Account
-                  </DropdownMenuItem>
-                </AdminDeleteAccountDialog>
-              </If>
+              <AdminImpersonateUserDialog userId={userId}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Impersonate User
+                </DropdownMenuItem>
+              </AdminImpersonateUserDialog>
+              <AdminDeleteUserDialog userId={userId}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Delete Personal Account
+                </DropdownMenuItem>
+              </AdminDeleteUserDialog>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

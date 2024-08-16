@@ -8,11 +8,11 @@
  */
 import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
-import cuid from "cuid";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { SupabaseClient } from "@init/db/supabase-server-client";
+import { getDeprecatedSession } from "./auth/deprecated-session";
 
 /**
  * 1. CONTEXT
@@ -33,13 +33,18 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
 
-  const { data } = token
+  let { data } = token
     ? await supabase.auth.getUser(token)
     : await supabase.auth.getUser();
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
-  const user = await findDbUser(adminSupabase, data.user?.id);
+  const deprecatedSessionUserId = getDeprecatedSession();
+  const user = await findDbUser(
+    adminSupabase,
+    data.user?.id,
+    deprecatedSessionUserId,
+  );
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -56,6 +61,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 const findDbUser = async (
   supabaseClient: SupabaseClient,
   ownerId?: string | null,
+  deprecatedSessionUserId?: string | null,
 ) => {
   if (!ownerId) {
     return null;
@@ -64,14 +70,13 @@ const findDbUser = async (
   const response = await supabaseClient
     .from("User")
     .select("*")
-    .eq("primaryOwnerUserId", ownerId)
-    .single();
+    .or(`primaryOwnerUserId.eq.${ownerId},id.eq.${deprecatedSessionUserId}`);
 
-  if (!response.data) {
-    return null;
+  if (response.data?.length) {
+    return response.data[0];
   }
 
-  return response.data;
+  return null;
 };
 
 /**
