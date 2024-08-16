@@ -1,26 +1,22 @@
+import { setDeprecatedSession } from "../auth/deprecated-session";
 import { createTRPCRouter, superAdminProcedure } from "../trpc";
 import {
   banUserInput,
-  deleteAccountInput,
   deleteUserInput,
-  getAccountInput,
-  getAccountsInput,
-  getMembershipsInput,
-  getMembersInput,
-  getSubscriptionInput,
-  getUserByIdInput,
+  getUserInput,
+  getUsersInput,
   impersonateUserInput,
   reactivateUserInput,
 } from "./admin-schema";
 
 export const adminRouter = createTRPCRouter({
-  getAccount: superAdminProcedure
-    .input(getAccountInput)
+  getUser: superAdminProcedure
+    .input(getUserInput)
     .query(async ({ ctx, input }) => {
       const response = await ctx.adminSupabase
-        .from("Accounts")
-        .select("*, memberships: AccountsMemberships (*)")
-        .eq("id", input.accountId)
+        .from("User")
+        .select("*")
+        .eq("id", input.userId)
         .single();
 
       if (response.error) {
@@ -29,30 +25,22 @@ export const adminRouter = createTRPCRouter({
 
       return response.data;
     }),
-  getAccounts: superAdminProcedure
-    .input(getAccountsInput)
+
+  getUsers: superAdminProcedure
+    .input(getUsersInput)
     .query(async ({ ctx, input }) => {
       const page = parseInt(input.page);
       const perPage = parseInt(input.per_page);
       const offset = (page - 1) * perPage;
 
       let query = ctx.adminSupabase
-        .from("Accounts")
+        .from("User")
         .select("*", { count: "exact" })
         .limit(perPage)
         .range(offset, offset + perPage - 1);
-
-      if (input.account_type && input.account_type !== "all") {
-        query = query.eq(
-          "isPersonalAccount",
-          input.account_type === "personal",
-        );
-      }
-
       if (input.query) {
         query = query.like("name", `%${input.query}%`);
       }
-
       const response = await query;
 
       if (response.error) {
@@ -60,107 +48,9 @@ export const adminRouter = createTRPCRouter({
       }
 
       const pageCount = Math.ceil((response.count ?? 0) / perPage);
-
       return { data: response.data, pageCount };
     }),
-  getUserById: superAdminProcedure
-    .input(getUserByIdInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase.auth.admin.getUserById(
-        input.accountId,
-      );
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-  getDashboardData: superAdminProcedure.mutation(async ({ ctx }) => {
-    const selectParams: {
-      head?: boolean;
-      count?: "exact" | "estimated" | "planned";
-    } = {
-      count: "estimated",
-      head: true,
-    };
-
-    const subscriptionsPromise = ctx.adminSupabase
-      .from("Subscriptions")
-      .select("*", selectParams)
-      .eq("status", "active")
-      .then((response) => {
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-
-        return response.count;
-      });
-
-    const trialsPromise = ctx.adminSupabase
-      .from("Subscriptions")
-      .select("*", selectParams)
-      .eq("status", "trialing")
-      .then((response) => {
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-
-        return response.count;
-      });
-
-    const accountsPromise = ctx.adminSupabase
-      .from("Accounts")
-      .select("*", selectParams)
-      .eq("isPersonalAccount", true)
-      .then((response) => {
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-
-        return response.count;
-      });
-
-    const teamAccountsPromise = ctx.adminSupabase
-      .from("Accounts")
-      .select("*", selectParams)
-      .eq("isPersonalAccount", false)
-      .then((response) => {
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-
-        return response.count;
-      });
-
-    const [subscriptions, trials, accounts, teamAccounts] = await Promise.all([
-      subscriptionsPromise,
-      trialsPromise,
-      accountsPromise,
-      teamAccountsPromise,
-    ]);
-
-    return {
-      subscriptions,
-      trials,
-      accounts,
-      teamAccounts,
-    };
-  }),
-  deleteAccount: superAdminProcedure
-    .input(deleteAccountInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase
-        .from("Accounts")
-        .delete()
-        .eq("id", input.accountId);
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
   deleteUser: superAdminProcedure
     .input(deleteUserInput)
     .mutation(async ({ ctx, input }) => {
@@ -169,14 +59,17 @@ export const adminRouter = createTRPCRouter({
           `You cannot perform a destructive action on your own account as a Super Admin`,
         );
       }
-      const response = await ctx.adminSupabase.auth.admin.deleteUser(
-        input.userId,
-      );
+
+      const response = await ctx.adminSupabase
+        .from("User")
+        .delete()
+        .eq("id", input.userId);
 
       if (response.error) {
         throw response.error;
       }
     }),
+
   impersonateUser: superAdminProcedure
     .input(impersonateUserInput)
     .mutation(async ({ ctx, input }) => {
@@ -186,10 +79,28 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
+      const userResponse = await ctx.adminSupabase
+        .from("User")
+        .select("*")
+        .eq("id", input.userId)
+        .single();
+
+      if (userResponse.error || !userResponse.data) {
+        throw new Error(`Error fetching user`);
+      }
+
+      const primaryOwnerUserId = userResponse.data.primaryOwnerUserId;
+
+      if (!primaryOwnerUserId) {
+        setDeprecatedSession(input.userId);
+        await ctx.adminSupabase.auth.signOut();
+        return null;
+      }
+
       const {
         data: { user },
         error,
-      } = await ctx.adminSupabase.auth.admin.getUserById(input.userId);
+      } = await ctx.adminSupabase.auth.admin.getUserById(primaryOwnerUserId);
 
       if (error ?? !user) {
         throw new Error(`Error fetching user`);
@@ -243,48 +154,7 @@ export const adminRouter = createTRPCRouter({
         refreshToken,
       };
     }),
-  getMembers: superAdminProcedure
-    .input(getMembersInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase.rpc("getAccountMembers", {
-        account_slug: input.accountSlug,
-      });
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-  getMemberships: superAdminProcedure
-    .input(getMembershipsInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase
-        .from("AccountsMemberships")
-        .select("*, account: Accounts !inner (id, name)")
-        .eq("userId", input.userId);
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-  getSubscription: superAdminProcedure
-    .input(getSubscriptionInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase
-        .from("Subscriptions")
-        .select("*, subscriptionItems: SubscriptionItems !inner (*)")
-        .eq("accountId", input.accountId)
-        .maybeSingle();
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
   banUser: superAdminProcedure
     .input(banUserInput)
     .mutation(async ({ ctx, input }) => {
@@ -293,10 +163,16 @@ export const adminRouter = createTRPCRouter({
           `You cannot perform a destructive action on your own account as a Super Admin`,
         );
       }
-      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
-        ban_duration: "876600h",
+
+      const response = await ctx.adminSupabase.rpc("banUser", {
+        user_id: input.userId,
       });
+
+      if (response.error) {
+        throw response.error;
+      }
     }),
+
   reactivateUser: superAdminProcedure
     .input(reactivateUserInput)
     .mutation(async ({ ctx, input }) => {
@@ -305,8 +181,13 @@ export const adminRouter = createTRPCRouter({
           `You cannot perform a destructive action on your own account as a Super Admin`,
         );
       }
-      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
-        ban_duration: "none",
+
+      const response = await ctx.adminSupabase.rpc("reactivateUser", {
+        user_id: input.userId,
       });
+
+      if (response.error) {
+        throw response.error;
+      }
     }),
 });

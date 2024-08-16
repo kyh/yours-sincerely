@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { deleteUserInput } from "@init/api/admin/admin-schema";
 import {
   AlertDialog,
@@ -32,8 +34,15 @@ export const AdminDeleteUserDialog = (
     userId: string;
   }>,
 ) => {
+  const router = useRouter();
+
+  const [open, setOpen] = useState(false);
   const deleteUserAction = api.admin.deleteUser.useMutation({
-    onSuccess: () => toast.success("User deleted successfully"),
+    onSuccess: () => {
+      toast.success("User deleted successfully");
+      setOpen(false);
+      router.push("/admin");
+    },
     onError: () => toast.error("Error deleting user record or auth record."),
   });
   const form = useForm({
@@ -44,7 +53,7 @@ export const AdminDeleteUserDialog = (
   });
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>{props.children}</AlertDialogTrigger>
 
       <AlertDialogContent>

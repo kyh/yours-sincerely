@@ -44,7 +44,27 @@ export const postRouter = createTRPCRouter({
         blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
       }
 
-      let query = ctx.adminSupabase
+      let flags: string[] = [];
+      if (ctx.user) {
+        const flagsResponse = await ctx.supabase
+          .from("Flag")
+          .select("postId")
+          .eq("userId", ctx.user.id);
+        if (flagsResponse.error) {
+          throw flagsResponse.error;
+        }
+        flags = flagsResponse.data.map(({ postId }) => postId);
+      }
+
+      const overFlagsResponse = await ctx.supabase.rpc("getOverFlaggedPosts");
+      if (overFlagsResponse.data) {
+        flags = [
+          ...flags,
+          ...overFlagsResponse.data.map(({ postId }) => postId),
+        ];
+      }
+
+      let query = ctx.supabase
         .from("Post")
         .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
 
@@ -63,6 +83,9 @@ export const postRouter = createTRPCRouter({
       }
       if (blocks.length) {
         query = query.not("userId", "in", `(${blocks.join(",")})`);
+      }
+      if (flags.length) {
+        query = query.not("id", "in", `(${flags.join(",")})`);
       }
 
       const postResponse = await query
@@ -112,12 +135,7 @@ export const postRouter = createTRPCRouter({
         if (authResponse.error ?? !authResponse.data.user) {
           throw authResponse.error;
         }
-
-        userId = cuid();
-        await ctx.supabase.from("User").insert({
-          id: userId,
-          primaryOwnerUserId: authResponse.data.user.id,
-        });
+        userId = authResponse.data.user.id;
       }
 
       const response = await ctx.supabase.from("Post").insert({
