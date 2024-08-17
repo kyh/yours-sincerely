@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { banUserInput } from "@init/api/admin/admin-schema";
 import {
   AlertDialog,
@@ -33,11 +32,11 @@ export const AdminBanUserDialog = (
     userId: string;
   }>,
 ) => {
-  const router = useRouter();
+  const utils = api.useUtils();
   const banUserAction = api.admin.banUser.useMutation({
     onSuccess: () => {
       toast.success("User banned successfully");
-      router.refresh();
+      utils.admin.getUser.invalidate({ userId: props.userId });
     },
     onError: () => {
       toast.error("There was an error. Please try again later.");

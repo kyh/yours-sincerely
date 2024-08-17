@@ -413,12 +413,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      getOverFlaggedPosts: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          postId: string
-        }[]
-      }
       getRandomPrompt: {
         Args: Record<PropertyKey, never>
         Returns: string

@@ -86,16 +86,3 @@ $$;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users FOR EACH ROW
 EXECUTE PROCEDURE public."setupNewUser" ();
-
-
-CREATE OR REPLACE FUNCTION "public"."getOverFlaggedPosts"() RETURNS TABLE ("postId" text)
-SET
-    search_path = '' AS $$
-BEGIN
-    RETURN QUERY
-    SELECT "postId"
-        FROM "Flag"
-    GROUP BY "postId"
-        HAVING COUNT(*) >= 3;
-END
-$$ LANGUAGE plpgsql;
