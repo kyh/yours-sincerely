@@ -70,7 +70,7 @@ const findDbUser = async (
   const response = await supabaseClient
     .from("User")
     .select("*")
-    .or(`primaryOwnerUserId.eq.${ownerId},id.eq.${deprecatedSessionUserId}`);
+    .or(`id.eq.${ownerId},id.eq.${deprecatedSessionUserId}`);
 
   if (response.data?.length) {
     return response.data[0];
