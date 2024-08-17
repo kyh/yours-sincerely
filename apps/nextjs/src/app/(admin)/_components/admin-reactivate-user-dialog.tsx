@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { reactivateUserInput } from "@init/api/admin/admin-schema";
 import {
   AlertDialog,
@@ -33,11 +32,11 @@ export const AdminReactivateUserDialog = (
     userId: string;
   }>,
 ) => {
-  const router = useRouter();
+  const utils = api.useUtils();
   const reactivateUserAction = api.admin.reactivateUser.useMutation({
     onSuccess: () => {
       toast.success("User reactivated successfully");
-      router.refresh();
+      utils.admin.getUser.invalidate({ userId: props.userId });
     },
     onError: () => {
       toast.error("There was an error. Please try again later.");

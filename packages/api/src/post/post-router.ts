@@ -56,13 +56,29 @@ export const postRouter = createTRPCRouter({
         flags = flagsResponse.data.map(({ postId }) => postId);
       }
 
-      const overFlagsResponse = await ctx.supabase.rpc("getOverFlaggedPosts");
-      if (overFlagsResponse.data) {
-        flags = [
-          ...flags,
-          ...overFlagsResponse.data.map(({ postId }) => postId),
-        ];
+      let flaggedPostsResponse = await ctx.supabase
+        .from("Flag")
+        .select("Post(id)");
+
+      if (flaggedPostsResponse.error) {
+        throw flaggedPostsResponse.error;
       }
+
+      const postCounts = flaggedPostsResponse.data
+        .filter((res) => res.Post?.id)
+        .reduce<Record<string, number>>((acc, item) => {
+          const postId = item.Post?.id;
+          if (postId) {
+            acc[postId] = (acc[postId] || 0) + 1;
+          }
+          return acc;
+        }, {});
+
+      const flaggedPosts = Object.keys(postCounts)
+        .filter((key) => postCounts[key] && postCounts[key] >= 3)
+        .map((key) => key);
+
+      flags = [...flags, ...flaggedPosts];
 
       let query = ctx.supabase
         .from("Post")

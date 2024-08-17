@@ -4164,8 +4164,8 @@ packages:
     peerDependencies:
       eslint: '>=5.0.0'
 
-  eslint-plugin-react-hooks@5.1.0-rc-d48603a5-20240813:
-    resolution: {integrity: sha512-T5iENFr+/a1pZ9qog/tKWfPi0cME190dYbDC7MJUjKx7BZ/AxiLdbRAuOAQ60BHz2/rvLC9SYGIhXSCeK6EKoA==}
+  eslint-plugin-react-hooks@5.1.0-rc-1eaccd82-20240816:
+    resolution: {integrity: sha512-hEgkysGdyuEW0uL6ZUVzipHSoV5433VoxL9WRgRo5uUUaB7Niz++w4WFk0V44oXjLPu7ZlG8M1mprCBSfKtcYg==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -9661,7 +9661,7 @@ snapshots:
       eslint-plugin-jsx-a11y: 6.9.0(eslint@9.9.0(jiti@1.21.6))
       eslint-plugin-prefer-arrow-functions: 3.3.2(eslint@9.9.0(jiti@1.21.6))
       eslint-plugin-react: 7.35.0(eslint@9.9.0(jiti@1.21.6))
-      eslint-plugin-react-hooks: 5.1.0-rc-d48603a5-20240813(eslint@9.9.0(jiti@1.21.6))
+      eslint-plugin-react-hooks: 5.1.0-rc-1eaccd82-20240816(eslint@9.9.0(jiti@1.21.6))
       eslint-plugin-turbo: 2.0.12(eslint@9.9.0(jiti@1.21.6))
       typescript-eslint: 8.1.0(eslint@9.9.0(jiti@1.21.6))(typescript@5.5.4)
     transitivePeerDependencies:
@@ -12575,7 +12575,7 @@ snapshots:
     dependencies:
       eslint: 9.9.0(jiti@1.21.6)
 
-  eslint-plugin-react-hooks@5.1.0-rc-d48603a5-20240813(eslint@9.9.0(jiti@1.21.6)):
+  eslint-plugin-react-hooks@5.1.0-rc-1eaccd82-20240816(eslint@9.9.0(jiti@1.21.6)):
     dependencies:
       eslint: 9.9.0(jiti@1.21.6)
 
