@@ -51,25 +51,6 @@ export const adminRouter = createTRPCRouter({
       return { data: response.data, pageCount };
     }),
 
-  deleteUser: superAdminProcedure
-    .input(deleteUserInput)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.user.id === input.userId) {
-        throw new Error(
-          `You cannot perform a destructive action on your own account as a Super Admin`,
-        );
-      }
-
-      const response = await ctx.adminSupabase
-        .from("User")
-        .delete()
-        .eq("id", input.userId);
-
-      if (response.error) {
-        throw response.error;
-      }
-    }),
-
   impersonateUser: superAdminProcedure
     .input(impersonateUserInput)
     .mutation(async ({ ctx, input }) => {
@@ -79,30 +60,18 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      const userResponse = await ctx.adminSupabase
-        .from("User")
-        .select("*")
-        .eq("id", input.userId)
-        .single();
+      const {
+        data: { user },
+        error,
+      } = await ctx.adminSupabase.auth.admin.getUserById(input.userId);
 
-      if (userResponse.error || !userResponse.data) {
-        throw new Error(`Error fetching user`);
-      }
-
-      const primaryOwnerUserId = userResponse.data.primaryOwnerUserId;
-
-      if (!primaryOwnerUserId) {
+      if (!user) {
         setDeprecatedSession(input.userId);
         await ctx.adminSupabase.auth.signOut();
         return null;
       }
 
-      const {
-        data: { user },
-        error,
-      } = await ctx.adminSupabase.auth.admin.getUserById(primaryOwnerUserId);
-
-      if (error ?? !user) {
+      if (error) {
         throw new Error(`Error fetching user`);
       }
 
@@ -164,13 +133,14 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      const response = await ctx.adminSupabase.rpc("banUser", {
-        user_id: input.userId,
+      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
+        ban_duration: "876600h",
       });
 
-      if (response.error) {
-        throw response.error;
-      }
+      await ctx.adminSupabase
+        .from("User")
+        .update({ banned: true })
+        .eq("id", input.userId);
     }),
 
   reactivateUser: superAdminProcedure
@@ -182,12 +152,13 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      const response = await ctx.adminSupabase.rpc("reactivateUser", {
-        user_id: input.userId,
+      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
+        ban_duration: "none",
       });
 
-      if (response.error) {
-        throw response.error;
-      }
+      await ctx.adminSupabase
+        .from("User")
+        .update({ banned: false })
+        .eq("id", input.userId);
     }),
 });

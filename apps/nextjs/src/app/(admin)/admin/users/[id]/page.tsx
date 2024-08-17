@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@init/ui/card";
 import { If } from "@init/ui/if";
 import { ProfileAvatar } from "@init/ui/profile-avatar";
 import { Table, TableBody, TableCell, TableRow } from "@init/ui/table";
-import { BadgeX, Ban, ShieldPlus, VenetianMask } from "lucide-react";
+import { Ban, ShieldPlus, VenetianMask } from "lucide-react";
 
 import { AdminBanUserDialog } from "@/app/(admin)/_components/admin-ban-user-dialog";
-import { AdminDeleteUserDialog } from "@/app/(admin)/_components/admin-delete-user-dialog";
 import { AdminImpersonateUserDialog } from "@/app/(admin)/_components/admin-impersonate-user-dialog";
 import { AdminReactivateUserDialog } from "@/app/(admin)/_components/admin-reactivate-user-dialog";
 import { api } from "@/trpc/server";
@@ -29,7 +28,7 @@ export const generateMetadata = async ({ params }: Params) => {
 const Page = async ({ params }: Params) => {
   const user = await api.admin.getUser({ userId: params.id });
 
-  const isBanned = Boolean(user.bannedUntil);
+  const isBanned = user.banned;
 
   return (
     <main className="flex flex-col gap-4 p-5">
@@ -97,13 +96,6 @@ const Page = async ({ params }: Params) => {
                 </Button>
               </AdminImpersonateUserDialog>
             </If>
-
-            <AdminDeleteUserDialog userId={user.id}>
-              <Button size="sm" variant="destructive">
-                <BadgeX className="mr-1 h-4" />
-                Delete
-              </Button>
-            </AdminDeleteUserDialog>
           </div>
         </CardContent>
       </Card>

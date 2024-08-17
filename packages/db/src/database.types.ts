@@ -368,7 +368,7 @@ export type Database = {
       }
       User: {
         Row: {
-          bannedUntil: string | null
+          banned: boolean | null
           createdAt: string
           disabled: boolean | null
           displayImage: string | null
@@ -377,12 +377,11 @@ export type Database = {
           emailVerified: string | null
           id: string
           passwordHash: string | null
-          primaryOwnerUserId: string | null
           role: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail: boolean
         }
         Insert: {
-          bannedUntil?: string | null
+          banned?: boolean | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null
@@ -391,12 +390,11 @@ export type Database = {
           emailVerified?: string | null
           id: string
           passwordHash?: string | null
-          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
         Update: {
-          bannedUntil?: string | null
+          banned?: boolean | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null
@@ -405,7 +403,6 @@ export type Database = {
           emailVerified?: string | null
           id?: string
           passwordHash?: string | null
-          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -416,12 +413,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      banUser: {
-        Args: {
-          user_id: string
-        }
-        Returns: undefined
-      }
       getOverFlaggedPosts: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -431,12 +422,6 @@ export type Database = {
       getRandomPrompt: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      reactivateUser: {
-        Args: {
-          user_id: string
-        }
-        Returns: undefined
       }
     }
     Enums: {

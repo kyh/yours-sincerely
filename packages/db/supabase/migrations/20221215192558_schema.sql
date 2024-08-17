@@ -137,7 +137,6 @@ ALTER TABLE "public"."Token" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
-    "primaryOwnerUserId" UUID,
     "email" "text",
     "emailVerified" timestamp(3) without time zone,
     "passwordHash" "text",
@@ -146,7 +145,7 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
     "disabled" boolean,
     "weeklyDigestEmail" boolean DEFAULT false NOT NULL,
     "role" "public"."UserRole" DEFAULT 'USER'::"public"."UserRole" NOT NULL,
-    "bannedUntil" timestamp(3) without time zone,
+    "banned" boolean DEFAULT false,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -216,7 +215,7 @@ CREATE INDEX "Token_userId_idx" ON "public"."Token" USING "btree" ("userId");
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User" USING "btree" ("email");
 
 ALTER TABLE ONLY "public"."Account"
-    ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Block"
     ADD CONSTRAINT "Block_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "public"."User"("id") ON DELETE CASCADE;

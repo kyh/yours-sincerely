@@ -12,7 +12,6 @@ import { MoreHorizontalIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AdminDeleteUserDialog } from "./admin-delete-user-dialog";
 import { AdminImpersonateUserDialog } from "./admin-impersonate-user-dialog";
 
 type User = RouterOutputs["admin"]["getUser"];
@@ -73,11 +72,6 @@ export const getColumns = (): ColumnDef<User>[] => [
                   Impersonate User
                 </DropdownMenuItem>
               </AdminImpersonateUserDialog>
-              <AdminDeleteUserDialog userId={userId}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  Delete Personal Account
-                </DropdownMenuItem>
-              </AdminDeleteUserDialog>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

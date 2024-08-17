@@ -70,11 +70,9 @@ BEGIN
 
     INSERT INTO public."User" (
         id,
-        "primaryOwnerUserId",
         "displayName",
         email)
     VALUES (
-        new.id,
         new.id,
         "user_name",
         new.email);
@@ -89,86 +87,6 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users FOR EACH ROW
 EXECUTE PROCEDURE public."setupNewUser" ();
 
--- Function "public.removeAuthUser"
--- Remove an auth user account after user deleted
-CREATE OR REPLACE FUNCTION public."removeAuthUser"() 
-RETURNS TRIGGER SECURITY DEFINER AS $$
-BEGIN
-    IF OLD."primaryOwnerUserId" IS NOT NULL THEN
-        DELETE FROM auth.users
-        WHERE id = OLD."primaryOwnerUserId";
-    END IF;
-
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER removeAuthUser
-    AFTER DELETE ON public."User"
-FOR EACH ROW
-    EXECUTE FUNCTION public."removeAuthUser"();
-
--- Function "public.banUser"
-CREATE OR REPLACE FUNCTION public."banUser"(user_id text) RETURNS void SECURITY DEFINER
-SET
-    search_path = '' AS $$
-DECLARE
-    primary_owner_user_id UUID;
-BEGIN
-    UPDATE
-        public."User"
-    SET
-        "bannedUntil" = NOW() + INTERVAL '876600 hours'
-    WHERE
-        id = user_id;
-
-    SELECT "primaryOwnerUserId"
-        INTO primary_owner_user_id
-    FROM public."User"
-        WHERE id = user_id;
-
-    IF primary_owner_user_id IS NOT NULL THEN          
-        UPDATE
-            auth.users
-        SET
-            banned_until = NOW() + INTERVAL '876600 hours'
-        WHERE
-            id = primary_owner_user_id;
-    END IF;
-
-END
-$$ LANGUAGE plpgsql;
-
--- Function "public.reactivateUser"
-CREATE OR REPLACE FUNCTION public."reactivateUser"(user_id text) RETURNS void SECURITY DEFINER
-SET
-    search_path = '' AS $$
-DECLARE
-    primary_owner_user_id UUID;
-BEGIN
-    UPDATE
-        public."User"
-    SET
-        "bannedUntil" = NULL
-    WHERE
-        id = user_id;
-
-    SELECT "primaryOwnerUserId"
-        INTO primary_owner_user_id
-    FROM public."User"
-        WHERE id = user_id;
-
-    IF primary_owner_user_id IS NOT NULL THEN          
-        UPDATE
-            auth.users
-        SET
-            banned_until = NULL
-        WHERE
-            id = primary_owner_user_id;
-    END IF;
-
-END
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION "public"."getOverFlaggedPosts"() RETURNS TABLE ("postId" text)
 SET
