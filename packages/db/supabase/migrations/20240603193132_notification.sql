@@ -18,6 +18,4 @@ create table if not exists
 alter publication supabase_realtime
 add table public."Notification";
 
-alter table public."Notification" REPLICA IDENTITY FULL;
-
 create index "Notification_userId_dismissed_idx" on "Notification" ("userId", dismissed, "expiresAt");

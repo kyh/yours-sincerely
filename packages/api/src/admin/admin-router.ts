@@ -139,7 +139,7 @@ export const adminRouter = createTRPCRouter({
 
       await ctx.adminSupabase
         .from("User")
-        .update({ banned: true })
+        .update({ disabled: true })
         .eq("id", input.userId);
     }),
 
@@ -158,7 +158,7 @@ export const adminRouter = createTRPCRouter({
 
       await ctx.adminSupabase
         .from("User")
-        .update({ banned: false })
+        .update({ disabled: false })
         .eq("id", input.userId);
     }),
 });

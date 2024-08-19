@@ -368,7 +368,6 @@ export type Database = {
       }
       User: {
         Row: {
-          banned: boolean | null
           createdAt: string
           disabled: boolean | null
           displayImage: string | null
@@ -381,7 +380,6 @@ export type Database = {
           weeklyDigestEmail: boolean
         }
         Insert: {
-          banned?: boolean | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null
@@ -394,7 +392,6 @@ export type Database = {
           weeklyDigestEmail?: boolean
         }
         Update: {
-          banned?: boolean | null
           createdAt?: string
           disabled?: boolean | null
           displayImage?: string | null

@@ -145,7 +145,6 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
     "disabled" boolean,
     "weeklyDigestEmail" boolean DEFAULT false NOT NULL,
     "role" "public"."UserRole" DEFAULT 'USER'::"public"."UserRole" NOT NULL,
-    "banned" boolean DEFAULT false,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
