@@ -13,13 +13,9 @@ import { AdminImpersonateUserDialog } from "@/app/(admin)/_components/admin-impe
 import { AdminReactivateUserDialog } from "@/app/(admin)/_components/admin-reactivate-user-dialog";
 import { api } from "@/trpc/react";
 
-export const AdminUserPage = (
-  props: React.PropsWithChildren<{
-    userId: string;
-  }>,
-) => {
+export const AdminUserPage = (props: { userId: string }) => {
   const [user] = api.admin.getUser.useSuspenseQuery({ userId: props.userId });
-  const isBanned = user.banned;
+  const isBanned = user.disabled;
 
   return (
     <main className="flex flex-col gap-4 p-5">
