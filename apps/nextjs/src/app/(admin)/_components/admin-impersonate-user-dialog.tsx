@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { impersonateUserInput } from "@init/api/admin/admin-schema";
+import { setDeprecatedSession } from "@init/api/auth/deprecated-session";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -32,6 +34,7 @@ export const AdminImpersonateUserDialog = (
     userId: string;
   }>,
 ) => {
+  const router = useRouter();
   const impersonateUserAction = api.admin.impersonateUser.useMutation();
   const form = useForm({
     schema: impersonateUserInput,
@@ -65,6 +68,10 @@ export const AdminImpersonateUserDialog = (
             className="flex flex-col space-y-8"
             onSubmit={form.handleSubmit(async (data) => {
               await impersonateUserAction.mutateAsync(data).then((tokens) => {
+                if (!tokens) {
+                  router.push("/");
+                  return;
+                }
                 setTokens(tokens);
               });
             })}
@@ -124,7 +131,7 @@ const ImpersonateUserAuthSetter = ({
       .mutateAsync(tokens)
       .then(() => {
         // use a hard refresh to avoid hitting cached pages
-        window.location.replace("/dashboard");
+        window.location.replace("");
       })
       .catch((error) => {
         console.error(error);

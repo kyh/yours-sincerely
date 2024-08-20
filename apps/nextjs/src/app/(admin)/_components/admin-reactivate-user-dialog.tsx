@@ -27,11 +27,7 @@ import { toast } from "@init/ui/toast";
 
 import { api } from "@/trpc/react";
 
-export const AdminReactivateUserDialog = (
-  props: React.PropsWithChildren<{
-    userId: string;
-  }>,
-) => {
+export const AdminReactivateUserDialog = (props: React.PropsWithChildren) => {
   const reactivateUserAction = api.admin.reactivateUser.useMutation({
     onSuccess: () => {
       toast.success("User reactivated successfully");
