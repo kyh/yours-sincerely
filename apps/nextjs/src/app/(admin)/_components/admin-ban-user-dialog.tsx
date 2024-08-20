@@ -27,16 +27,10 @@ import { toast } from "@init/ui/toast";
 
 import { api } from "@/trpc/react";
 
-export const AdminBanUserDialog = (
-  props: React.PropsWithChildren<{
-    userId: string;
-  }>,
-) => {
-  const utils = api.useUtils();
+export const AdminBanUserDialog = (props: React.PropsWithChildren) => {
   const banUserAction = api.admin.banUser.useMutation({
     onSuccess: () => {
       toast.success("User banned successfully");
-      utils.admin.getUser.invalidate({ userId: props.userId });
     },
     onError: () => {
       toast.error("There was an error. Please try again later.");
