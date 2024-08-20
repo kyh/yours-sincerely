@@ -171,6 +171,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "Flag_postId_fkey"
+            columns: ["postId"]
+            isOneToOne: false
+            referencedRelation: "publicFeed"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "Flag_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
@@ -204,6 +211,13 @@ export type Database = {
             columns: ["postId"]
             isOneToOne: false
             referencedRelation: "Post"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Like_postId_fkey"
+            columns: ["postId"]
+            isOneToOne: false
+            referencedRelation: "publicFeed"
             referencedColumns: ["id"]
           },
           {
@@ -299,6 +313,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "Post_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "publicFeed"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "Post_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
@@ -376,7 +397,6 @@ export type Database = {
           emailVerified: string | null
           id: string
           passwordHash: string | null
-          primaryOwnerUserId: string | null
           role: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail: boolean
         }
@@ -389,7 +409,6 @@ export type Database = {
           emailVerified?: string | null
           id: string
           passwordHash?: string | null
-          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -402,7 +421,6 @@ export type Database = {
           emailVerified?: string | null
           id?: string
           passwordHash?: string | null
-          primaryOwnerUserId?: string | null
           role?: Database["public"]["Enums"]["UserRole"]
           weeklyDigestEmail?: boolean
         }
@@ -410,7 +428,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      publicFeed: {
+        Row: {
+          author_id: string | null
+          commentCount: number | null
+          content: string | null
+          createdAt: string | null
+          id: string | null
+          isLiked: boolean | null
+          likeCount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Post_userId_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       getRandomPrompt: {

@@ -1,13 +1,12 @@
 import cuid from "cuid";
-import { addDays, formatISO } from "date-fns";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createPostInput,
   deletePostInput,
+  getFeedInput,
   getPostAllInput,
   getPostInput,
-  getPostListInput,
   updatePostInput,
 } from "./post-schema";
 import { formatPost, POST_EXPIRY_DAYS_AGO } from "./post-utils";
@@ -27,64 +26,34 @@ export const postRouter = createTRPCRouter({
     return formatPost(response.data);
   }),
 
-  getPostList: publicProcedure
-    .input(getPostListInput)
-    .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 5;
+  getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
+    const limit = input.limit ?? 5;
 
-      let blocks: string[] = [];
-      if (ctx.user) {
-        const blocksResponse = await ctx.supabase
-          .from("Block")
-          .select("blockingId")
-          .eq("blockerId", ctx.user.id);
-        if (blocksResponse.error) {
-          throw blocksResponse.error;
-        }
-        blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
-      }
+    const blockResponse = await ctx.supabase
+      .from("Block")
+      .select("blockingId")
+      .eq("blockerId", input.userId ?? "");
 
-      let query = ctx.adminSupabase
-        .from("Post")
-        .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
+    if (blockResponse.error) {
+      throw blockResponse.error;
+    }
 
-      if (input.cursor) {
-        query = query.lt("id", input.cursor);
-      }
-      if (input.parentId) {
-        query = query.eq("parentId", input.parentId);
-      } else {
-        query = query
-          .is("parentId", null)
-          .gte(
-            "createdAt",
-            formatISO(addDays(new Date(), -POST_EXPIRY_DAYS_AGO)),
-          );
-      }
-      if (blocks.length) {
-        query = query.not("userId", "in", `(${blocks.join(",")})`);
-      }
+    const { data: posts, error } = await ctx.supabase
+      .from("publicFeed")
+      .select("*")
+      .filter("author_id", "not.in", `(${blockResponse.data.join(",")})`)
+      .limit(limit + 1)
+      .lt("id", input.cursor ?? "zzz");
 
-      const postResponse = await query
-        .limit(limit + 1)
-        .order("createdAt", { ascending: false });
+    if (error) {
+      throw error;
+    }
 
-      if (postResponse.error) {
-        throw postResponse.error;
-      }
-
-      const posts = postResponse.data;
-
-      let nextCursor: string | undefined = undefined;
-      if (posts.length > limit) {
-        nextCursor = posts[posts.length - 1]?.id;
-      }
-
-      return {
-        nextCursor,
-        posts: posts.map(formatPost),
-      };
-    }),
+    return {
+      nextCursor: posts[posts.length - 1]?.id,
+      posts,
+    };
+  }),
 
   getPostAll: publicProcedure
     .input(getPostAllInput)
@@ -112,12 +81,7 @@ export const postRouter = createTRPCRouter({
         if (authResponse.error ?? !authResponse.data.user) {
           throw authResponse.error;
         }
-
-        userId = cuid();
-        await ctx.supabase.from("User").insert({
-          id: userId,
-          primaryOwnerUserId: authResponse.data.user.id,
-        });
+        userId = authResponse.data.user.id;
       }
 
       const response = await ctx.supabase.from("Post").insert({
