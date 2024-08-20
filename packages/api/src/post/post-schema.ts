@@ -9,7 +9,7 @@ export const getPostInput = z.object({
   id: z.string(),
 });
 
-export const getPostListInput = z.object({
+export const getFeedInput = z.object({
   userId: z.string().optional(),
   parentId: z.string().optional(),
   cursor: z.string().optional(),

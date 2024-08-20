@@ -1,13 +1,12 @@
 import cuid from "cuid";
-import { addDays, formatISO } from "date-fns";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createPostInput,
   deletePostInput,
+  getFeedInput,
   getPostAllInput,
   getPostInput,
-  getPostListInput,
   updatePostInput,
 } from "./post-schema";
 import { formatPost, POST_EXPIRY_DAYS_AGO } from "./post-utils";
@@ -27,103 +26,35 @@ export const postRouter = createTRPCRouter({
     return formatPost(response.data);
   }),
 
-  getPostList: publicProcedure
-    .input(getPostListInput)
-    .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 5;
+  getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
+    const limit = input.limit ?? 5;
 
-      let blocks: string[] = [];
-      if (ctx.user) {
-        const blocksResponse = await ctx.supabase
-          .from("Block")
-          .select("blockingId")
-          .eq("blockerId", ctx.user.id);
-        if (blocksResponse.error) {
-          throw blocksResponse.error;
-        }
-        blocks = blocksResponse.data.map(({ blockingId }) => blockingId);
-      }
+    const blockResponse = await ctx.supabase
+      .from("Block")
+      .select("blockingId")
+      .eq("blockerId", input.userId ?? "");
 
-      let flags: string[] = [];
-      if (ctx.user) {
-        const flagsResponse = await ctx.supabase
-          .from("Flag")
-          .select("postId")
-          .eq("userId", ctx.user.id);
-        if (flagsResponse.error) {
-          throw flagsResponse.error;
-        }
-        flags = flagsResponse.data.map(({ postId }) => postId);
-      }
+    if (blockResponse.error) {
+      throw blockResponse.error;
+    }
 
-      let flaggedPostsResponse = await ctx.supabase
-        .from("Flag")
-        .select("Post(id)");
+    const { data: posts, error } = await ctx.supabase
+      .from("publicFeed")
+      .select("*")
+      .filter("author_id", "not.in", `(${blockResponse.data.join(",")})`)
+      .limit(limit + 1)
+      .order("createdAt", { ascending: false })
+      .lt("id", input.cursor ?? "zzz");
 
-      if (flaggedPostsResponse.error) {
-        throw flaggedPostsResponse.error;
-      }
+    if (error) {
+      throw error;
+    }
 
-      const postCounts = flaggedPostsResponse.data
-        .filter((res) => res.Post?.id)
-        .reduce<Record<string, number>>((acc, item) => {
-          const postId = item.Post?.id;
-          if (postId) {
-            acc[postId] = (acc[postId] || 0) + 1;
-          }
-          return acc;
-        }, {});
-
-      const flaggedPosts = Object.keys(postCounts)
-        .filter((key) => postCounts[key] && postCounts[key] >= 3)
-        .map((key) => key);
-
-      flags = [...flags, ...flaggedPosts];
-
-      let query = ctx.supabase
-        .from("Post")
-        .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)");
-
-      if (input.cursor) {
-        query = query.lt("id", input.cursor);
-      }
-      if (input.parentId) {
-        query = query.eq("parentId", input.parentId);
-      } else {
-        query = query
-          .is("parentId", null)
-          .gte(
-            "createdAt",
-            formatISO(addDays(new Date(), -POST_EXPIRY_DAYS_AGO)),
-          );
-      }
-      if (blocks.length) {
-        query = query.not("userId", "in", `(${blocks.join(",")})`);
-      }
-      if (flags.length) {
-        query = query.not("id", "in", `(${flags.join(",")})`);
-      }
-
-      const postResponse = await query
-        .limit(limit + 1)
-        .order("createdAt", { ascending: false });
-
-      if (postResponse.error) {
-        throw postResponse.error;
-      }
-
-      const posts = postResponse.data;
-
-      let nextCursor: string | undefined = undefined;
-      if (posts.length > limit) {
-        nextCursor = posts[posts.length - 1]?.id;
-      }
-
-      return {
-        nextCursor,
-        posts: posts.map(formatPost),
-      };
-    }),
+    return {
+      nextCursor: posts[posts.length - 1]?.id,
+      posts,
+    };
+  }),
 
   getPostAll: publicProcedure
     .input(getPostAllInput)
