@@ -43,7 +43,6 @@ export const postRouter = createTRPCRouter({
       .select("*")
       .filter("author_id", "not.in", `(${blockResponse.data.join(",")})`)
       .limit(limit + 1)
-      .order("createdAt", { ascending: false })
       .lt("id", input.cursor ?? "zzz");
 
     if (error) {
