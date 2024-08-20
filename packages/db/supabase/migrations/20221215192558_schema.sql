@@ -137,6 +137,7 @@ ALTER TABLE "public"."Token" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
+    "primaryOwnerUserId" UUID,
     "email" "text",
     "emailVerified" timestamp(3) without time zone,
     "passwordHash" "text",
@@ -217,34 +218,34 @@ ALTER TABLE ONLY "public"."Account"
     ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Block"
-    ADD CONSTRAINT "Block_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Block_blockerId_fkey" FOREIGN KEY ("blockerId") REFERENCES "public"."User"("id") ON DELETE RESTRICT;
 
 ALTER TABLE ONLY "public"."Block"
-    ADD CONSTRAINT "Block_blockingId_fkey" FOREIGN KEY ("blockingId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Block_blockingId_fkey" FOREIGN KEY ("blockingId") REFERENCES "public"."User"("id") ON DELETE RESTRICT;
 
 ALTER TABLE ONLY "public"."EnrolledEvent"
-    ADD CONSTRAINT "EnrolledEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "EnrolledEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Flag"
     ADD CONSTRAINT "Flag_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Flag"
-    ADD CONSTRAINT "Flag_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Flag_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Like"
     ADD CONSTRAINT "Like_postId_fkey" FOREIGN KEY ("postId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Like"
-    ADD CONSTRAINT "Like_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Like_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Post"
     ADD CONSTRAINT "Post_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "public"."Post"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."Post"
-    ADD CONSTRAINT "Post_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Post_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER TABLE ONLY "public"."Token"
-    ADD CONSTRAINT "Token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "Token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
