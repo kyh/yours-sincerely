@@ -9,15 +9,16 @@ import { api } from "@/trpc/server";
 import { PostFeed } from "./posts/_components/post-feed";
 import { PostForm } from "./posts/_components/post-form";
 
-const Page = async () => {
-  const currentUser = await api.user.me();
-  const placeholder = await api.prompt.getRandomPrompt();
+const Page = () => {
+  void api.user.me.prefetch();
+  void api.prompt.getRandomPrompt.prefetch();
+  void api.post.getFeed.prefetchInfinite({});
 
   return (
     <>
       <PageHeader title="Home" />
       <PageContent>
-        <PostForm user={currentUser} placeholder={placeholder} />
+        <PostForm />
         <PostFeed />
       </PageContent>
       <PageAside>
