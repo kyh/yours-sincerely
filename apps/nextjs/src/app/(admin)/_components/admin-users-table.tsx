@@ -21,21 +21,21 @@ export const AdminUsersTable = (
     searchParams: GetUsersInput;
   }>,
 ) => {
-  const [data] = api.admin.getUsers.useSuspenseQuery(props.searchParams);
+  const [{ data, pageCount }] = api.admin.getUsers.useSuspenseQuery(props.searchParams);
 
   const columns = useMemo(() => getColumns(), []);
 
   const { table } = useDataTable({
-    data: data.data,
+    data,
     columns,
-    pageCount: data.pageCount,
+    pageCount: pageCount,
+    // optional props
     defaultSort: "createdAt.desc",
   });
 
   return (
     <div className="flex flex-col space-y-4">
       <UsersTableFilters />
-
       <DataTable table={table} />
     </div>
   );

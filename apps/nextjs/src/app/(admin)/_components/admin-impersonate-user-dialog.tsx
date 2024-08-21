@@ -12,7 +12,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@init/ui/alert-dialog";
 import { Button } from "@init/ui/button";
 import {
@@ -29,17 +28,19 @@ import { Input } from "@init/ui/input";
 
 import { api } from "@/trpc/react";
 
-export const AdminImpersonateUserDialog = (
-  props: React.PropsWithChildren<{
-    userId: string;
-  }>,
-) => {
-  const router = useRouter();
+type AdminImpersonateUserDialogProps = {
+  userId: string;
+} & React.ComponentPropsWithoutRef<typeof AlertDialog>;
+
+export const AdminImpersonateUserDialog = ({
+  userId,
+  ...props
+}: AdminImpersonateUserDialogProps) => {
   const impersonateUserAction = api.admin.impersonateUser.useMutation();
   const form = useForm({
     schema: impersonateUserInput,
     defaultValues: {
-      userId: props.userId,
+      userId,
     },
   });
 
@@ -53,8 +54,7 @@ export const AdminImpersonateUserDialog = (
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{props.children}</AlertDialogTrigger>
+    <AlertDialog {...props}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Impersonate User</AlertDialogTitle>
@@ -69,7 +69,7 @@ export const AdminImpersonateUserDialog = (
             onSubmit={form.handleSubmit(async (data) => {
               await impersonateUserAction.mutateAsync(data).then((tokens) => {
                 if (!tokens) {
-                  router.push("/");
+                  // router.push("/");
                   return;
                 }
                 setTokens(tokens);
@@ -83,7 +83,6 @@ export const AdminImpersonateUserDialog = (
                   <FormLabel>
                     Type <b>CONFIRM</b> to confirm
                   </FormLabel>
-
                   <FormControl>
                     <Input
                       required
@@ -92,19 +91,15 @@ export const AdminImpersonateUserDialog = (
                       {...field}
                     />
                   </FormControl>
-
                   <FormDescription>
                     Are you sure you want to impersonate this user?
                   </FormDescription>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-
               <Button type="submit" loading={impersonateUserAction.isPending}>
                 Impersonate User
               </Button>
