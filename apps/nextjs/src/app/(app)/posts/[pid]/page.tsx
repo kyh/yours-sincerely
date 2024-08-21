@@ -1,5 +1,5 @@
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { api } from "@/trpc/server";
+import { api, HydrateClient } from "@/trpc/server";
 import { CommentFeed } from "../_components/comment-feed";
 
 type Props = {
@@ -9,16 +9,15 @@ type Props = {
 };
 
 const Page = async ({ params: { pid } }: Props) => {
-  const currentUser = await api.user.me();
   await api.post.getPost.prefetch({ id: pid });
 
   return (
-    <>
+    <HydrateClient>
       <PageHeader title="Post" />
       <PageContent>
-        <CommentFeed pid={pid} user={currentUser} />
+        <CommentFeed pid={pid} />
       </PageContent>
-    </>
+    </HydrateClient>
   );
 };
 
