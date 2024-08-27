@@ -18,8 +18,6 @@
     "@init/api": "workspace:latest",
     "@init/db": "workspace:latest",
     "@init/ui": "workspace:latest",
-    "@knocklabs/node": "^0.6.8",
-    "@knocklabs/react-notification-feed": "^0.8.15",
     "@mdx-js/loader": "^3.0.1",
     "@mdx-js/react": "^3.0.1",
     "@mojs/core": "^1.7.1",
