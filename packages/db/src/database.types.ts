@@ -430,18 +430,33 @@ export type Database = {
     Views: {
       Feed: {
         Row: {
-          author_id: string | null
           commentCount: number | null
           content: string | null
           createdAt: string | null
+          createdBy: string | null
           id: string | null
-          isLiked: boolean | null
           likeCount: number | null
+          parentId: string | null
+          userId: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "Post_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "Post"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Post_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "Feed"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "Post_userId_fkey"
-            columns: ["author_id"]
+            columns: ["userId"]
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
@@ -539,6 +554,7 @@ export type Database = {
           owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -552,6 +568,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -565,6 +582,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
@@ -586,6 +604,7 @@ export type Database = {
           key: string
           owner_id: string | null
           upload_signature: string
+          user_metadata: Json | null
           version: string
         }
         Insert: {
@@ -596,6 +615,7 @@ export type Database = {
           key: string
           owner_id?: string | null
           upload_signature: string
+          user_metadata?: Json | null
           version: string
         }
         Update: {
@@ -606,6 +626,7 @@ export type Database = {
           key?: string
           owner_id?: string | null
           upload_signature?: string
+          user_metadata?: Json | null
           version?: string
         }
         Relationships: [

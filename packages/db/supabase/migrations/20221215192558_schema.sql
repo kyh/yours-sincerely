@@ -1,18 +1,13 @@
-
 CREATE TYPE "public"."TokenType" AS ENUM (
     'REFRESH_TOKEN',
     'VERIFY_EMAIL',
     'RESET_PASSWORD'
 );
 
-ALTER TYPE "public"."TokenType" OWNER TO "postgres";
-
 CREATE TYPE "public"."UserRole" AS ENUM (
     'USER',
     'ADMIN'
 );
-
-ALTER TYPE "public"."UserRole" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."Account" (
     "id" "text" NOT NULL,
@@ -24,14 +19,10 @@ CREATE TABLE IF NOT EXISTS "public"."Account" (
     "userId" "text" NOT NULL
 );
 
-ALTER TABLE "public"."Account" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."Block" (
     "blockerId" "text" NOT NULL,
     "blockingId" "text" NOT NULL
 );
-
-ALTER TABLE "public"."Block" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."EnrolledEvent" (
     "id" "text" NOT NULL,
@@ -42,8 +33,6 @@ CREATE TABLE IF NOT EXISTS "public"."EnrolledEvent" (
     "userId" "text" NOT NULL
 );
 
-ALTER TABLE "public"."EnrolledEvent" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."Flag" (
     "comment" "text",
     "resolved" boolean DEFAULT false NOT NULL,
@@ -53,16 +42,12 @@ CREATE TABLE IF NOT EXISTS "public"."Flag" (
     "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-ALTER TABLE "public"."Flag" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."Like" (
     "postId" "text" NOT NULL,
     "userId" "text" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
-ALTER TABLE "public"."Like" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."Post" (
     "id" "text" NOT NULL,
@@ -75,14 +60,10 @@ CREATE TABLE IF NOT EXISTS "public"."Post" (
     "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL 
 );
 
-ALTER TABLE "public"."Post" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."Prompt" (
     "id" "text" NOT NULL,
     "content" "text" NOT NULL
 );
-
-ALTER TABLE "public"."Prompt" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."Token" (
     "id" "text" NOT NULL,
@@ -96,8 +77,6 @@ CREATE TABLE IF NOT EXISTS "public"."Token" (
     "updatedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-ALTER TABLE "public"."Token" OWNER TO "postgres";
-
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
     "email" "text",
@@ -110,8 +89,6 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
     "role" "public"."UserRole" DEFAULT 'USER'::"public"."UserRole" NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
-ALTER TABLE "public"."User" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."Account"
     ADD CONSTRAINT "Account_pkey" PRIMARY KEY ("id");

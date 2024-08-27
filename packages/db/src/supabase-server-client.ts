@@ -53,4 +53,4 @@ export const getSupabaseAdminClient = <GenericSchema = Database>() => {
   });
 };
 
-export type SupabaseClient = Client;
+export type SupabaseClient = Client<Database>;

@@ -8,7 +8,6 @@ import {
   signUpInput,
   updatePasswordInput,
 } from "./auth-schema";
-import { removeDeprecatedSession } from "./deprecated-session";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure
@@ -32,11 +31,18 @@ export const authRouter = createTRPCRouter({
 
       return response.data;
     }),
+  signInAnonomously: publicProcedure.mutation(async ({ ctx }) => {
+    const response = await ctx.supabase.auth.signInAnonymously();
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    return response.data;
+  }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
-      removeDeprecatedSession();
-
       const response = await ctx.supabase.auth.signInWithPassword(input);
 
       if (response.error) {
@@ -69,8 +75,6 @@ export const authRouter = createTRPCRouter({
     }),
   signOut: publicProcedure.mutation(async ({ ctx }) => {
     const user = await ctx.supabase.auth.getUser();
-
-    removeDeprecatedSession();
 
     if (user) {
       const response = await ctx.supabase.auth.signOut();

@@ -45,13 +45,3 @@ export const setDeprecatedSession = (value: string) => {
 
   cookieStore.set("__session", signedCookie);
 };
-
-/**
- * Remove the user ID from the deprecated session cookie
- * @deprecated
- */
-export const removeDeprecatedSession = () => {
-  const cookieStore = cookies();
-
-  cookieStore.delete("__session");
-};
