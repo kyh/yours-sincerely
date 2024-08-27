@@ -450,7 +450,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      getRandomPrompt: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       NotificationChannel: "in_app" | "email" | "push"
