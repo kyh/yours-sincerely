@@ -137,7 +137,6 @@ ALTER TABLE "public"."Token" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."User" (
     "id" "text" NOT NULL,
-    "primaryOwnerUserId" UUID,
     "email" "text",
     "emailVerified" timestamp(3) without time zone,
     "passwordHash" "text",
