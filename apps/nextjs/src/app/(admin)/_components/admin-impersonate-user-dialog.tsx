@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { impersonateUserInput } from "@init/api/admin/admin-schema";
-import { setDeprecatedSession } from "@init/api/auth/deprecated-session";
 import {
   AlertDialog,
   AlertDialogCancel,

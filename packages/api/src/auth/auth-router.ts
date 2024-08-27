@@ -70,6 +70,8 @@ export const authRouter = createTRPCRouter({
   signOut: publicProcedure.mutation(async ({ ctx }) => {
     const user = await ctx.supabase.auth.getUser();
 
+    removeDeprecatedSession();
+
     if (user) {
       const response = await ctx.supabase.auth.signOut();
 
@@ -77,8 +79,6 @@ export const authRouter = createTRPCRouter({
         throw response.error;
       }
     }
-
-    removeDeprecatedSession();
 
     return { success: true };
   }),

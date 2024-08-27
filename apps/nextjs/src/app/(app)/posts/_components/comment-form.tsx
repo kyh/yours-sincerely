@@ -36,7 +36,7 @@ export const clearStoredPost = () => {
 };
 
 type PostFormProps = {
-  user: RouterOutputs["account"]["me"];
+  user: RouterOutputs["user"]["me"];
   placeholder?: string;
 };
 

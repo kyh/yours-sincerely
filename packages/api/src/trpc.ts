@@ -30,23 +30,20 @@ import { getDeprecatedSession } from "./auth/deprecated-session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const supabase = getSupabaseServerClient();
-  const adminSupabase = getSupabaseAdminClient();
+  const { auth } = getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
 
-  let { data } = token
-    ? await supabase.auth.getUser(token)
-    : await supabase.auth.getUser();
+  const { data } = token ? await auth.getUser(token) : await auth.getUser();
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
   const deprecatedSessionUserId = getDeprecatedSession();
   const user = await findDbUser(
-    adminSupabase,
-    data.user?.id,
-    deprecatedSessionUserId,
+    supabase,
+    deprecatedSessionUserId ?? data.user?.id,
   );
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
@@ -57,26 +54,22 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     headers: opts.headers,
     user,
     supabase,
-    adminSupabase,
   };
 };
 
-const findDbUser = async (
-  supabaseClient: SupabaseClient,
-  ownerId?: string | null,
-  deprecatedSessionUserId?: string | null,
-) => {
-  if (!ownerId) {
+const findDbUser = async (supabaseClient: SupabaseClient, userId?: string) => {
+  if (!userId) {
     return null;
   }
 
   const response = await supabaseClient
     .from("User")
     .select("*")
-    .or(`id.eq.${ownerId},id.eq.${deprecatedSessionUserId}`);
+    .eq("id", userId)
+    .single();
 
-  if (response.data?.length) {
-    return response.data[0];
+  if (response.data) {
+    return response.data;
   }
 
   return null;

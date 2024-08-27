@@ -3,9 +3,9 @@
 import { Spinner } from "@init/ui/spinner";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
+import { CardStack } from "@/app/(app)/posts/_components/card-stack";
+import { PostContent } from "@/app/(app)/posts/_components/post-content";
 import { api } from "@/trpc/react";
-import { CardStack } from "./card-stack";
-import { PostContent } from "./post-content";
 
 type Props = {
   view?: "STACK" | "LIST";
