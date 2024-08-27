@@ -2,7 +2,6 @@ import { setDeprecatedSession } from "../auth/deprecated-session";
 import { createTRPCRouter, superAdminProcedure } from "../trpc";
 import {
   banUserInput,
-  deleteUserInput,
   getUserInput,
   getUsersInput,
   impersonateUserInput,
@@ -13,7 +12,7 @@ export const adminRouter = createTRPCRouter({
   getUser: superAdminProcedure
     .input(getUserInput)
     .query(async ({ ctx, input }) => {
-      const response = await ctx.adminSupabase
+      const response = await ctx.supabase
         .from("User")
         .select("*")
         .eq("id", input.userId)
@@ -33,7 +32,7 @@ export const adminRouter = createTRPCRouter({
       const perPage = parseInt(input.per_page);
       const offset = (page - 1) * perPage;
 
-      let query = ctx.adminSupabase
+      let query = ctx.supabase
         .from("User")
         .select("*", { count: "exact" })
         .limit(perPage)
@@ -63,11 +62,11 @@ export const adminRouter = createTRPCRouter({
       const {
         data: { user },
         error,
-      } = await ctx.adminSupabase.auth.admin.getUserById(input.userId);
+      } = await ctx.supabase.auth.admin.getUserById(input.userId);
 
       if (!user) {
         setDeprecatedSession(input.userId);
-        await ctx.adminSupabase.auth.signOut();
+        await ctx.supabase.auth.signOut();
         return null;
       }
 
@@ -82,7 +81,7 @@ export const adminRouter = createTRPCRouter({
       }
 
       const { error: linkError, data } =
-        await ctx.adminSupabase.auth.admin.generateLink({
+        await ctx.supabase.auth.admin.generateLink({
           type: "magiclink",
           email,
           options: {
@@ -133,11 +132,11 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
+      await ctx.supabase.auth.admin.updateUserById(input.userId, {
         ban_duration: "876600h",
       });
 
-      await ctx.adminSupabase
+      await ctx.supabase
         .from("User")
         .update({ disabled: true })
         .eq("id", input.userId);
@@ -152,11 +151,11 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      await ctx.adminSupabase.auth.admin.updateUserById(input.userId, {
+      await ctx.supabase.auth.admin.updateUserById(input.userId, {
         ban_duration: "none",
       });
 
-      await ctx.adminSupabase
+      await ctx.supabase
         .from("User")
         .update({ disabled: false })
         .eq("id", input.userId);

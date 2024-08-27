@@ -167,14 +167,14 @@ export type Database = {
             foreignKeyName: "Flag_postId_fkey"
             columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "Post"
+            referencedRelation: "Feed"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "Flag_postId_fkey"
             columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "publicFeed"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
@@ -210,14 +210,14 @@ export type Database = {
             foreignKeyName: "Like_postId_fkey"
             columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "Post"
+            referencedRelation: "Feed"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "Like_postId_fkey"
             columns: ["postId"]
             isOneToOne: false
-            referencedRelation: "publicFeed"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
@@ -309,14 +309,14 @@ export type Database = {
             foreignKeyName: "Post_parentId_fkey"
             columns: ["parentId"]
             isOneToOne: false
-            referencedRelation: "Post"
+            referencedRelation: "Feed"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "Post_parentId_fkey"
             columns: ["parentId"]
             isOneToOne: false
-            referencedRelation: "publicFeed"
+            referencedRelation: "Post"
             referencedColumns: ["id"]
           },
           {
@@ -428,7 +428,7 @@ export type Database = {
       }
     }
     Views: {
-      publicFeed: {
+      Feed: {
         Row: {
           author_id: string | null
           commentCount: number | null
@@ -450,10 +450,7 @@ export type Database = {
       }
     }
     Functions: {
-      getRandomPrompt: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       NotificationChannel: "in_app" | "email" | "push"
