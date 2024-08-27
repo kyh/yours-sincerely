@@ -112,12 +112,15 @@ const useHeartAnimation = (iconRef: any, iconButtonRef: any) => {
 };
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
 const LikeButton = ({ post }: Props) => {
+  const [user] = api.user.me.useSuspenseQuery();
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
-  const [isLiked, setIsLiked] = useState(post.isLiked ?? false);
+  const [isLiked, setIsLiked] = useState(
+    post.likes.some((l) => l.userId === user?.id),
+  );
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
@@ -125,7 +128,7 @@ const LikeButton = ({ post }: Props) => {
   const createMutate = api.like.createLike.useMutation();
   const deleteMutate = api.like.deleteLike.useMutation();
 
-  const toggleLike = async () => {
+  const toggleLike = () => {
     if (!post.id) return;
     if (isLiked) {
       setLikeCount(likeCount - 1);

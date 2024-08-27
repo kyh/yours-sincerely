@@ -5,27 +5,12 @@ import {
   createPostInput,
   deletePostInput,
   getFeedInput,
-  getPostAllInput,
   getPostInput,
   updatePostInput,
 } from "./post-schema";
 import { POST_EXPIRY_DAYS_AGO } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
-  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Post")
-      .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
-      .eq("id", input.id)
-      .single();
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-
   getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
     const limit = input.limit ?? 5;
 
@@ -40,9 +25,28 @@ export const postRouter = createTRPCRouter({
 
     const query = ctx.supabase
       .from("Feed")
-      .select("*")
-      .filter("author_id", "not.in", `(${blockResponse.data.join(",")})`)
+      .select(
+        `
+        *,
+        likes:Like(userId)
+      `,
+      )
+      .filter("userId", "not.in", `(${blockResponse.data.join(",")})`)
+      .gte(
+        "createdAt",
+        new Date(
+          Date.now() - POST_EXPIRY_DAYS_AGO * 24 * 60 * 60 * 1000,
+        ).toISOString(),
+      )
       .limit(limit + 1);
+
+    if (input.userId) {
+      query.eq("createdBy", input.userId);
+    }
+
+    if (input.parentId) {
+      query.eq("parentId", input.parentId);
+    }
 
     if (input.cursor) {
       query.lt("id", input.cursor);
@@ -60,38 +64,31 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  getPostAll: publicProcedure
-    .input(getPostAllInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Post")
-        .select("*, comments:Post(*), flags:Flag(*), likes:Like(*)")
-        .eq("userId", input.userId)
-        .is("parentId", null);
+  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("Feed")
+      .select(
+        `
+        *,
+        likes:Like(userId)
+      `,
+      )
+      .eq("id", input.id)
+      .single();
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (response.error) {
+      throw response.error;
+    }
 
-      return response.data;
-    }),
+    return response.data;
+  }),
 
-  createPost: publicProcedure
+  createPost: protectedProcedure
     .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
-      let userId = ctx.user?.id;
-
-      if (!userId) {
-        const authResponse = await ctx.supabase.auth.signInAnonymously();
-        if (authResponse.error ?? !authResponse.data.user) {
-          throw authResponse.error;
-        }
-        userId = authResponse.data.user.id;
-      }
-
       const response = await ctx.supabase.from("Post").insert({
         id: cuid(),
-        userId,
+        userId: ctx.user.id,
         content: input.content,
         createdBy: input.createdBy,
         parentId: input.parentId,
@@ -104,16 +101,12 @@ export const postRouter = createTRPCRouter({
       return response.data;
     }),
 
-  updatePost: publicProcedure
+  updatePost: protectedProcedure
     .input(updatePostInput)
     .mutation(async ({ ctx, input }) => {
       const response = await ctx.supabase
         .from("Post")
-        .update({
-          parentId: input.parentId,
-          content: input.content,
-          userId: input.userId,
-        })
+        .update({ content: input.content })
         .eq("id", input.id);
 
       if (response.error) {

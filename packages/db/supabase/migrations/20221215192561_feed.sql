@@ -8,14 +8,12 @@ WITH flagged_posts AS (
 SELECT 
     p."id",
     p."content",
-    p."userId" AS author_id,
+    p."userId",
     p."createdAt",
+    p."parentId",
+    p."createdBy",
     COALESCE(p."baseLikeCount", 0) + COALESCE(l.like_count, 0) AS "likeCount",
-    COALESCE(c.comment_count, 0) AS "commentCount",
-    CASE 
-        WHEN COALESCE(l.like_count, 0) > 0 THEN true
-        ELSE false
-    END AS "isLiked"
+    COALESCE(c.comment_count, 0) AS "commentCount"
 FROM "public"."Post" p
 LEFT JOIN (
     SELECT "postId", COUNT(*) AS like_count
@@ -29,7 +27,6 @@ LEFT JOIN (
 ) c ON p."id" = c."parentId"
 WHERE 
     p."id" NOT IN (SELECT "postId" FROM flagged_posts)
-    AND p."createdAt" >= CURRENT_DATE - INTERVAL '21 days'
 ORDER BY p."createdAt" DESC;
 
 CREATE OR REPLACE FUNCTION "public"."getRandomPrompt"() RETURNS TEXT

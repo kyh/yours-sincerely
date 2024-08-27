@@ -18,8 +18,8 @@ type Props = {
 };
 
 export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
-  const { data, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    api.post.getFeed.useInfiniteQuery(filters, {
+  const [data, { isFetchingNextPage, hasNextPage, fetchNextPage }] =
+    api.post.getFeed.useSuspenseInfiniteQuery(filters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     });
 
@@ -29,11 +29,12 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
     onLoadMore: fetchNextPage,
   });
 
-  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+  const posts = data.pages.flatMap((page) => page.posts);
 
   return (
     <section className="divide-y divide-border">
-      {view === "STACK" && (
+      {!posts.length && <div className="py-5">No posts available</div>}
+      {posts.length > 0 && view === "STACK" && (
         <CardStack
           data={posts}
           hasNextPage={hasNextPage}
@@ -42,7 +43,7 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
           {(post) => <PostContent displayFull asLink={false} post={post} />}
         </CardStack>
       )}
-      {view === "LIST" && (
+      {posts.length > 0 && view === "LIST" && (
         <>
           {posts.map((post) => (
             <div key={post.id} className="py-5">
@@ -50,7 +51,7 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
             </div>
           ))}
           {hasNextPage && (
-            <div className="flex items-center justify-center" ref={ref}>
+            <div className="flex items-center justify-center py-5" ref={ref}>
               <Spinner />
             </div>
           )}

@@ -13,21 +13,24 @@ import { Timer } from "./timer";
 const LikeButton = dynamic(() => import("./like-button"), {
   ssr: false,
   loading: () => (
-    <svg
-      className="text-slate-400"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      fill="currentColor"
-    >
-      <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
-    </svg>
+    <span className="relative flex items-center gap-2 rounded-lg p-2">
+      <svg
+        className="text-slate-400"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        fill="currentColor"
+      >
+        <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
+      </svg>
+      <span className="min-w-[0.75rem]" />
+    </span>
   ),
 });
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  post: RouterOutputs["post"]["getFeed"]["posts"][0];
   displayFull?: boolean;
   asLink?: boolean;
   showLike?: boolean;
