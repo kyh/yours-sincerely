@@ -9,6 +9,7 @@ import {
   getPostInput,
   updatePostInput,
 } from "./post-schema";
+import { POST_EXPIRY_DAYS_AGO } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
   getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
@@ -37,20 +38,25 @@ export const postRouter = createTRPCRouter({
       throw blockResponse.error;
     }
 
-    const { data: posts, error } = await ctx.supabase
+    const query = ctx.supabase
       .from("Feed")
       .select("*")
       .filter("author_id", "not.in", `(${blockResponse.data.join(",")})`)
-      .limit(limit + 1)
-      .lt("id", input.cursor ?? "zzz");
+      .limit(limit + 1);
 
-    if (error) {
-      throw error;
+    if (input.cursor) {
+      query.lt("id", input.cursor);
+    }
+
+    const feedResponse = await query;
+
+    if (feedResponse.error) {
+      throw feedResponse.error;
     }
 
     return {
-      nextCursor: posts[posts.length - 1]?.id,
-      posts,
+      nextCursor: feedResponse.data[feedResponse.data.length - 1]?.id,
+      posts: feedResponse.data,
     };
   }),
 

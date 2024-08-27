@@ -1,37 +1,4 @@
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
-
-ALTER SCHEMA "public" OWNER TO "postgres";
-
-COMMENT ON SCHEMA "public" IS 'standard public schema';
-
-CREATE EXTENSION IF NOT EXISTS "hypopg" WITH SCHEMA "extensions";
-
-CREATE EXTENSION IF NOT EXISTS "index_advisor" WITH SCHEMA "extensions";
-
-CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
-
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
-
-CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-
-CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
-
-CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
-
 CREATE TYPE "public"."TokenType" AS ENUM (
     'REFRESH_TOKEN',
     'VERIFY_EMAIL',
@@ -46,10 +13,6 @@ CREATE TYPE "public"."UserRole" AS ENUM (
 );
 
 ALTER TYPE "public"."UserRole" OWNER TO "postgres";
-
-SET default_tablespace = '';
-
-SET default_table_access_method = "heap";
 
 CREATE TABLE IF NOT EXISTS "public"."Account" (
     "id" "text" NOT NULL,
@@ -245,9 +208,3 @@ ALTER TABLE ONLY "public"."Post"
 
 ALTER TABLE ONLY "public"."Token"
     ADD CONSTRAINT "Token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id");
-
-ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
-
-REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
-
-RESET ALL;

@@ -101,7 +101,7 @@ export const PostForm = () => {
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
             onBlur={(e) => storePost({ content: e.target.value })}
-            placeholder={placeholder.content}
+            placeholder={placeholder}
             required
           />
         </div>
