@@ -56,11 +56,22 @@
 
   display: grid;
   grid-template-areas:
-    "nav-header content-header aside-header"
-    "nav content aside";
-  grid-template-columns: var(--left-column-width) auto var(--right-column-width);
+    "nav-header content-header"
+    "nav content";
+  grid-template-columns: var(--left-column-width) auto;
   grid-template-rows: var(--header-height) auto;
   column-gap: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .page-layout {
+    grid-template-areas:
+      "nav-header content-header aside-header"
+      "nav content aside";
+    grid-template-columns: var(--left-column-width) auto var(
+        --right-column-width
+      );
+  }
 }
 
 .area-nav-header {

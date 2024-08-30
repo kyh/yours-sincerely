@@ -14,7 +14,7 @@ const Page = async ({ params: { pid } }: Props) => {
   return (
     <HydrateClient>
       <PageHeader title="Post" />
-      <PageContent>
+      <PageContent className="flex flex-col gap-5">
         <CommentFeed pid={pid} />
       </PageContent>
     </HydrateClient>

@@ -41,8 +41,8 @@ export const AdminBanUserDialog = ({
     onSuccess: () => {
       toast.success("User banned successfully");
     },
-    onError: () => {
-      toast.error("There was an error. Please try again later.");
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 

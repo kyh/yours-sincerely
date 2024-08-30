@@ -62,11 +62,11 @@ export const adminRouter = createTRPCRouter({
       const {
         data: { user },
         error,
-      } = await ctx.supabase.auth.admin.getUserById(input.userId);
+      } = await ctx.auth.admin.getUserById(input.userId);
 
       if (!user) {
         setDeprecatedSession(input.userId);
-        await ctx.supabase.auth.signOut();
+        await ctx.auth.signOut();
         return null;
       }
 
@@ -80,14 +80,13 @@ export const adminRouter = createTRPCRouter({
         throw new Error(`User has no email. Cannot impersonate`);
       }
 
-      const { error: linkError, data } =
-        await ctx.supabase.auth.admin.generateLink({
-          type: "magiclink",
-          email,
-          options: {
-            redirectTo: `/`,
-          },
-        });
+      const { error: linkError, data } = await ctx.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options: {
+          redirectTo: `/`,
+        },
+      });
 
       if (linkError ?? !data) {
         throw new Error(`Error generating magic link`);
@@ -132,7 +131,7 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      await ctx.supabase.auth.admin.updateUserById(input.userId, {
+      await ctx.auth.admin.updateUserById(input.userId, {
         ban_duration: "876600h",
       });
 
@@ -151,7 +150,7 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
-      await ctx.supabase.auth.admin.updateUserById(input.userId, {
+      await ctx.auth.admin.updateUserById(input.userId, {
         ban_duration: "none",
       });
 
