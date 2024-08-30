@@ -33,7 +33,9 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
 
   return (
     <section className="divide-y divide-border">
-      {!posts.length && <div className="py-5">No posts available</div>}
+      {!posts.length && (
+        <div className="py-5 text-center">No posts available</div>
+      )}
       {posts.length > 0 && view === "STACK" && (
         <CardStack
           data={posts}

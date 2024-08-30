@@ -5,18 +5,18 @@ OR REPLACE FUNCTION public."setupNewUser" () RETURNS TRIGGER LANGUAGE plpgsql SE
 SET
   search_path = '' AS $$
 DECLARE
-    "user_name" TEXT;
+    "displayName" TEXT;
 BEGIN
-    IF new."raw_user_meta_data" ->> 'display_name' IS NOT NULL THEN
-        "user_name" := new."raw_user_meta_data" ->> 'display_name';
+    IF new."raw_user_meta_data" ->> 'displayName' IS NOT NULL THEN
+        "displayName" := new."raw_user_meta_data" ->> 'displayName';
     END IF;
 
-    IF "user_name" IS NULL AND new.email IS NOT NULL THEN
-        "user_name" := SPLIT_PART(new.email, '@', 1);
+    IF "displayName" IS NULL AND new.email IS NOT NULL THEN
+        "displayName" := SPLIT_PART(new.email, '@', 1);
     END IF;
 
-    IF "user_name" IS NULL THEN
-        "user_name" := '';
+    IF "displayName" IS NULL THEN
+        "displayName" := '';
     END IF;
 
     INSERT INTO public."User" (
@@ -25,7 +25,7 @@ BEGIN
         email)
     VALUES (
         new.id,
-        "user_name",
+        "displayName",
         new.email);
 
     RETURN new;
@@ -37,3 +37,20 @@ $$;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users FOR EACH ROW
 EXECUTE PROCEDURE public."setupNewUser" ();
+
+-- Updated user display name when a post is created
+CREATE OR REPLACE FUNCTION update_user_display_name()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE "public"."User"
+    SET "displayName" = NEW."createdBy"
+    WHERE "id" = NEW."userId"
+    AND ("displayName" IS DISTINCT FROM NEW."createdBy");
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_display_name_on_post_insert
+    AFTER INSERT ON "public"."Post" FOR EACH ROW
+EXECUTE FUNCTION update_user_display_name();

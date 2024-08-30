@@ -22,8 +22,7 @@ export const CommentFeed = ({ pid }: Props) => {
       toast("Your comment has been added");
     },
     onError: (err) => {
-      toast("You got some errors");
-      console.error(err);
+      toast(err.message);
     },
   });
 
@@ -52,46 +51,34 @@ export const CommentFeed = ({ pid }: Props) => {
         <BackButton />
         <p className="text-xs">{stats.text}</p>
       </header>
-      {post && (
-        <>
-          <PostContent
-            post={post}
-            asLink={false}
-            showComment={false}
-            showMore
-          />
-          <div className="flex flex-col gap-3">
-            {user && (
-              <form className="relative" onSubmit={handleSubmit}>
-                <textarea
-                  id="comment"
-                  name="content"
-                  placeholder={`Reply to ${post.createdBy}`}
-                  required
-                />
-                <Button
-                  type="submit"
-                  className="absolute bottom-5 right-5 rounded bg-slate-200 px-3 py-2 text-center text-xs transition hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
-                  loading={isPending}
-                >
-                  Reply
-                </Button>
-              </form>
-            )}
-            <h1 className="text-sm">Comments ({post.commentCount ?? 0})</h1>
-            {post.comments && (
-              <div className="flex flex-col gap-6">
-                {post.comments.map((comment) => (
-                  <CommentContent key={comment.id} post={comment} />
-                ))}
-              </div>
-            )}
+      <PostContent post={post} asLink={false} showComment={false} showMore />
+      <div className="flex flex-col gap-3">
+        {user && (
+          <form className="relative" onSubmit={handleSubmit}>
+            <textarea
+              id="comment"
+              name="content"
+              placeholder={`Reply to ${post.createdBy}`}
+              required
+            />
+            <Button
+              type="submit"
+              className="absolute bottom-5 right-5 rounded bg-slate-200 px-3 py-2 text-center text-xs transition hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
+              loading={isPending}
+            >
+              Reply
+            </Button>
+          </form>
+        )}
+        <h1 className="text-sm">Comments ({post.commentCount ?? 0})</h1>
+        {post.comments && (
+          <div className="flex flex-col gap-6">
+            {post.comments.map((comment) => (
+              <CommentContent key={comment.id} post={comment} />
+            ))}
           </div>
-        </>
-      )}
-      {!post && (
-        <p className="text-lg">This post no longer exist or is under review</p>
-      )}
+        )}
+      </div>
     </section>
   );
 };

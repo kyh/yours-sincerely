@@ -8,7 +8,6 @@ import {
   getPostInput,
   updatePostInput,
 } from "./post-schema";
-import { POST_EXPIRY_DAYS_AGO } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
   getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
@@ -17,7 +16,7 @@ export const postRouter = createTRPCRouter({
     const blockResponse = await ctx.supabase
       .from("Block")
       .select("blockingId")
-      .eq("blockerId", input.userId ?? "");
+      .eq("blockerId", ctx.user?.id ?? "");
 
     if (blockResponse.error) {
       throw blockResponse.error;
@@ -25,19 +24,8 @@ export const postRouter = createTRPCRouter({
 
     const query = ctx.supabase
       .from("Feed")
-      .select(
-        `
-        *,
-        likes:Like(userId)
-      `,
-      )
+      .select("*, likes:Like(userId)")
       .filter("userId", "not.in", `(${blockResponse.data.join(",")})`)
-      .gte(
-        "createdAt",
-        new Date(
-          Date.now() - POST_EXPIRY_DAYS_AGO * 24 * 60 * 60 * 1000,
-        ).toISOString(),
-      )
       .limit(limit + 1);
 
     if (input.userId) {
@@ -66,13 +54,8 @@ export const postRouter = createTRPCRouter({
 
   getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
     const response = await ctx.supabase
-      .from("Feed")
-      .select(
-        `
-        *,
-        likes:Like(userId)
-      `,
-      )
+      .from("Post")
+      .select("*, likes:Like(userId)")
       .eq("id", input.id)
       .single();
 
@@ -83,12 +66,31 @@ export const postRouter = createTRPCRouter({
     return response.data;
   }),
 
-  createPost: protectedProcedure
+  createPost: publicProcedure
     .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
+      let userId = ctx.user?.id;
+
+      // If the user is not logged in, create an anonymous user
+      if (!userId) {
+        const authResponse = await ctx.auth.signInAnonymously({
+          options: {
+            data: {
+              displayName: input.createdBy,
+            },
+          },
+        });
+
+        if (authResponse.error || !authResponse.data.user) {
+          throw authResponse.error;
+        }
+
+        userId = authResponse.data.user.id;
+      }
+
       const response = await ctx.supabase.from("Post").insert({
         id: cuid(),
-        userId: ctx.user.id,
+        userId: userId,
         content: input.content,
         createdBy: input.createdBy,
         parentId: input.parentId,

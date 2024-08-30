@@ -41,8 +41,8 @@ export const AdminReactivateUserDialog = ({
     onSuccess: () => {
       toast.success("User reactivated successfully");
     },
-    onError: () => {
-      toast.error("There was an error. Please try again later.");
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 

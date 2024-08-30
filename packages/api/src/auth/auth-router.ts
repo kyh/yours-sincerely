@@ -13,7 +13,7 @@ export const authRouter = createTRPCRouter({
   signUp: publicProcedure
     .input(signUpInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signUp({
+      const response = await ctx.auth.signUp({
         ...input,
       });
 
@@ -32,7 +32,7 @@ export const authRouter = createTRPCRouter({
       return response.data;
     }),
   signInAnonomously: publicProcedure.mutation(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.signInAnonymously();
+    const response = await ctx.auth.signInAnonymously();
 
     if (response.error) {
       throw response.error;
@@ -43,7 +43,7 @@ export const authRouter = createTRPCRouter({
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithPassword(input);
+      const response = await ctx.auth.signInWithPassword(input);
 
       if (response.error) {
         throw response.error;
@@ -54,7 +54,7 @@ export const authRouter = createTRPCRouter({
   signInWithOtp: publicProcedure
     .input(signInWithOtpInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOtp(input);
+      const response = await ctx.auth.signInWithOtp(input);
 
       if (response.error) {
         throw response.error;
@@ -65,7 +65,7 @@ export const authRouter = createTRPCRouter({
   signInWithOAuth: publicProcedure
     .input(signInWithOAuthInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOAuth(input);
+      const response = await ctx.auth.signInWithOAuth(input);
 
       if (response.error) {
         throw response.error;
@@ -74,10 +74,10 @@ export const authRouter = createTRPCRouter({
       return response.data;
     }),
   signOut: publicProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.supabase.auth.getUser();
+    const user = await ctx.auth.getUser();
 
     if (user) {
-      const response = await ctx.supabase.auth.signOut();
+      const response = await ctx.auth.signOut();
 
       if (response.error) {
         throw response.error;
@@ -89,9 +89,7 @@ export const authRouter = createTRPCRouter({
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.resetPasswordForEmail(
-        input.email,
-      );
+      const response = await ctx.auth.resetPasswordForEmail(input.email);
 
       if (response.error) {
         throw response.error;
@@ -102,7 +100,7 @@ export const authRouter = createTRPCRouter({
   updatePassword: protectedProcedure
     .input(updatePasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.updateUser(input);
+      const response = await ctx.auth.updateUser(input);
 
       if (response.error) {
         throw response.error;
@@ -111,7 +109,7 @@ export const authRouter = createTRPCRouter({
       return response.data;
     }),
   mfaFactors: protectedProcedure.query(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.mfa.listFactors();
+    const response = await ctx.auth.mfa.listFactors();
 
     if (response.error) {
       throw response.error;
@@ -122,13 +120,13 @@ export const authRouter = createTRPCRouter({
   setSession: protectedProcedure
     .input(setSessionInput)
     .mutation(async ({ ctx, input }) => {
-      const signOutResponse = await ctx.supabase.auth.signOut();
+      const signOutResponse = await ctx.auth.signOut();
 
       if (signOutResponse.error) {
         throw signOutResponse.error;
       }
 
-      const setSessionResponse = await ctx.supabase.auth.setSession({
+      const setSessionResponse = await ctx.auth.setSession({
         refresh_token: input.refreshToken,
         access_token: input.accessToken,
       });
