@@ -32,8 +32,8 @@ export const postRouter = createTRPCRouter({
       query.eq("createdBy", input.userId);
     }
 
-    if (input.parentId) {
-      query.eq("parentId", input.parentId);
+    if (input.parentPostId) {
+      query.eq("parentId", input.parentPostId);
     }
 
     if (input.cursor) {
@@ -56,7 +56,7 @@ export const postRouter = createTRPCRouter({
     const response = await ctx.supabase
       .from("Post")
       .select("*, likes:Like(userId)")
-      .eq("id", input.id)
+      .eq("id", input.postId)
       .single();
 
     if (response.error) {
@@ -93,7 +93,7 @@ export const postRouter = createTRPCRouter({
         userId: userId,
         content: input.content,
         createdBy: input.createdBy,
-        parentId: input.parentId,
+        parentId: input.parentPostId,
       });
 
       if (response.error) {
@@ -109,7 +109,7 @@ export const postRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("Post")
         .update({ content: input.content })
-        .eq("id", input.id);
+        .eq("id", input.postId);
 
       if (response.error) {
         throw response.error;
@@ -124,7 +124,7 @@ export const postRouter = createTRPCRouter({
       const response = await ctx.supabase
         .from("Post")
         .delete()
-        .eq("id", input.id);
+        .eq("id", input.postId);
 
       if (response.error) {
         throw response.error;

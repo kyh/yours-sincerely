@@ -1,13 +1,17 @@
 import { z } from "zod";
 
 export const getUserInput = z.object({
-  id: z.string(),
+  userId: z.string(),
 });
 
 export const updateUserInput = z.object({
-  id: z.string(),
+  userId: z.string(),
   email: z.string().optional(),
   displayName: z.string().optional(),
   displayImage: z.string().optional(),
   weeklyDigestEmail: z.boolean().optional(),
+});
+
+export const getUserStatsInput = z.object({
+  userId: z.string(),
 });

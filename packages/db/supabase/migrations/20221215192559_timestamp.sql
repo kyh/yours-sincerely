@@ -28,8 +28,3 @@ CREATE TRIGGER setTimestampsOnFlag
 FOR EACH ROW
     EXECUTE FUNCTION "public"."triggerSetTimestamps"();
 
-CREATE TRIGGER setTimestampsOnToken
-    BEFORE INSERT OR UPDATE ON "public"."Token"
-FOR EACH ROW
-    EXECUTE FUNCTION "public"."triggerSetTimestamps"();
-

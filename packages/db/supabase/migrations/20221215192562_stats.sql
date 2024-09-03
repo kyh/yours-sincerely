@@ -2,8 +2,7 @@ CREATE OR REPLACE VIEW public."UserStats" WITH (security_invoker) AS
 WITH daily_posts AS (
   SELECT 
     "userId",
-    DATE("createdAt") AS post_date,
-    COUNT(*) AS posts_per_day
+    DATE("createdAt") AS post_date
   FROM "Post"
   GROUP BY "userId", DATE("createdAt")
 ),
@@ -33,18 +32,28 @@ post_likes AS (
   GROUP BY p."id", p."userId", p."baseLikeCount"
 )
 SELECT 
-  p."userId",
-  COUNT(DISTINCT p."id") AS "totalPostCount",
-  COALESCE(SUM(pl.total_likes), 0) AS "totalLikeCount",
+  u."id" AS "userId",
+  u."displayName",
+  COALESCE(post_count.total_posts, 0) AS "totalPostCount",
+  COALESCE(like_count.total_likes, 0) AS "totalLikeCount",
   COALESCE(MAX(sl.streak_length), 0) AS "longestPostStreak",
   COALESCE(
     (SELECT streak_length 
      FROM streak_lengths sl2 
-     WHERE sl2."userId" = p."userId" 
-     AND sl2.streak_end = (SELECT MAX(streak_end) FROM streak_lengths sl3 WHERE sl3."userId" = p."userId")
+     WHERE sl2."userId" = u."id" 
+     AND sl2.streak_end = (SELECT MAX(streak_end) FROM streak_lengths sl3 WHERE sl3."userId" = u."id")
     ), 0
   ) AS "currentPostStreak"
-FROM "Post" p
-LEFT JOIN streak_lengths sl ON p."userId" = sl."userId"
-LEFT JOIN post_likes pl ON p."id" = pl."postId"
-GROUP BY p."userId";
+FROM "User" u
+LEFT JOIN (
+  SELECT "userId", COUNT(*) AS total_posts
+  FROM "Post"
+  GROUP BY "userId"
+) post_count ON u."id" = post_count."userId"
+LEFT JOIN (
+  SELECT "userId", SUM(total_likes) AS total_likes
+  FROM post_likes
+  GROUP BY "userId"
+) like_count ON u."id" = like_count."userId"
+LEFT JOIN streak_lengths sl ON u."id" = sl."userId"
+GROUP BY u."id", u."displayName", post_count.total_posts, like_count.total_likes;

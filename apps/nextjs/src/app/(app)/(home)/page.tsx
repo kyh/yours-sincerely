@@ -9,15 +9,16 @@ import { api, HydrateClient } from "@/trpc/server";
 import { PostFeed } from "./_components/post-feed";
 import { PostForm } from "./_components/post-form";
 
-const Page = () => {
-  void api.prompt.getRandomPrompt.prefetch();
+const Page = async () => {
+  const placeholder = await api.prompt.getRandomPrompt();
+
   void api.post.getFeed.prefetchInfinite({});
 
   return (
     <HydrateClient>
       <PageHeader title="Home" />
-      <PageContent>
-        <PostForm />
+      <PageContent className="flex flex-col gap-5">
+        <PostForm placeholder={placeholder} />
         <PostFeed />
       </PageContent>
       <PageAside>

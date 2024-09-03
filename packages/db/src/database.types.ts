@@ -70,6 +70,13 @@ export type Database = {
             referencedRelation: "User"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "Account_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       Block: {
@@ -94,11 +101,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "Block_blockerId_fkey"
+            columns: ["blockerId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
+          },
+          {
             foreignKeyName: "Block_blockingId_fkey"
             columns: ["blockingId"]
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Block_blockingId_fkey"
+            columns: ["blockingId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -134,6 +155,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "EnrolledEvent_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -184,6 +212,13 @@ export type Database = {
             referencedRelation: "User"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "Flag_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       Like: {
@@ -226,6 +261,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Like_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -270,6 +312,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -325,6 +374,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Post_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -384,6 +440,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "User"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Token_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -461,14 +524,29 @@ export type Database = {
             referencedRelation: "User"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "Post_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "UserStats"
+            referencedColumns: ["userId"]
+          },
         ]
+      }
+      UserStats: {
+        Row: {
+          currentPostStreak: number | null
+          displayName: string | null
+          longestPostStreak: number | null
+          totalLikeCount: number | null
+          totalPostCount: number | null
+          userId: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
-      getRandomPrompt: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       NotificationChannel: "in_app" | "email" | "push"

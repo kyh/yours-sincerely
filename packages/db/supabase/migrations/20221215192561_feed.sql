@@ -29,16 +29,3 @@ WHERE
     p."id" NOT IN (SELECT "postId" FROM flagged_posts)
     AND p."createdAt" >= CURRENT_DATE - INTERVAL '21 days'
 ORDER BY p."createdAt" DESC;
-
-CREATE OR REPLACE FUNCTION "public"."getRandomPrompt"() RETURNS TEXT
-SET
-    search_path = '' AS $$
-BEGIN
-    RETURN (
-        SELECT "content"
-        FROM "public"."Prompt"
-        ORDER BY RANDOM()
-        LIMIT 1
-    );
-END
-$$ LANGUAGE plpgsql;

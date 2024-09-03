@@ -9,7 +9,7 @@ type Props = {
 };
 
 const Page = ({ params: { id } }: Props) => {
-  void api.user.getUser.prefetch({ id });
+  void api.user.getUser.prefetch({ userId: id });
   void api.post.getFeed.prefetch({ userId: id });
 
   return (

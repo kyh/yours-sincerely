@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
 import { Button } from "@init/ui/button";
 import {
@@ -20,15 +19,11 @@ import { SettingsIcon } from "@/components/icons/settings-icon";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
-  const router = useRouter();
   const [user] = api.user.me.useSuspenseQuery();
-  const mutation = api.auth.signOut.useMutation({
-    onSuccess: () => {
-      router.push("/");
-    },
-  });
+  const signOut = api.auth.signOut.useMutation();
+
   return (
-    <div className="area-aside-header hidden items-center justify-end space-x-4 border-b border-b-border lg:flex">
+    <div className="area-aside-header items-center justify-end space-x-4 border-b border-b-border">
       <Button variant="ghost" size="icon">
         <NotificationIcon className="h-5 w-5" aria-hidden="true" />
         <span className="sr-only">Notifications</span>
@@ -73,7 +68,7 @@ export const AsideHeader = () => {
           {user && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => mutation.mutate()}>
+              <DropdownMenuItem onClick={() => signOut.mutate()}>
                 <LogoutIcon aria-hidden="true" className="mr-1 h-4 w-4" />
                 Log out
               </DropdownMenuItem>

@@ -32,9 +32,9 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
   const posts = data.pages.flatMap((page) => page.posts);
 
   return (
-    <section className="divide-y divide-border">
+    <section className="flex-1 divide-y divide-border">
       {!posts.length && (
-        <div className="py-5 text-center">No posts available</div>
+        <div className="h-full py-5 text-center">No posts available</div>
       )}
       {posts.length > 0 && view === "STACK" && (
         <CardStack

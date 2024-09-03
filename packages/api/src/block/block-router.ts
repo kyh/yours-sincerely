@@ -2,7 +2,6 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createBlockInput,
   deleteBlockInput,
-  getBlockAllInput,
   getBlockInput,
 } from "./block-schema";
 
@@ -15,21 +14,6 @@ export const blockRouter = createTRPCRouter({
         .select("*")
         .match({ blockerId: input.blockerId, blockingId: input.blockingId })
         .single();
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-
-  getBlockAll: protectedProcedure
-    .input(getBlockAllInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Block")
-        .select("*")
-        .match({ blockerId: input?.id });
 
       if (response.error) {
         throw response.error;
