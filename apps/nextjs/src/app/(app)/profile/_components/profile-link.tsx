@@ -3,12 +3,6 @@
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 
-import {
-  getCurrentStreak,
-  getLongestStreak,
-  getTotalLikes,
-  getTotalPosts,
-} from "@/lib/stats";
 import { api } from "@/trpc/react";
 import { ActivityStats } from "./activity-stats";
 
@@ -25,7 +19,9 @@ const ProfileTooltip = ({
   userId: string;
   displayName: string;
 }) => {
-  const { data, isLoading } = api.post.getPostAll.useQuery({ userId: userId });
+  const { data, isLoading } = api.user.getUserStats.useQuery({
+    userId: userId,
+  });
 
   return (
     <div className="flow-root">
@@ -33,10 +29,10 @@ const ProfileTooltip = ({
       {!isLoading && data ? (
         <ActivityStats
           data={{
-            posts: getTotalPosts(data),
-            likes: getTotalLikes(data),
-            longestStreak: getLongestStreak(data),
-            currentStreak: getCurrentStreak(data),
+            posts: data.totalPostCount ?? 0,
+            likes: data.totalLikeCount ?? 0,
+            longestStreak: data.longestPostStreak ?? 0,
+            currentStreak: data.currentPostStreak ?? 0,
           }}
           stack
         />

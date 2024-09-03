@@ -1,26 +1,28 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { getUserInput, updateUserInput } from "./user-schema";
+import {
+  getUserInput,
+  getUserStatsInput,
+  updateUserInput,
+} from "./user-schema";
 
 export const userRouter = createTRPCRouter({
   me: publicProcedure.query(({ ctx }) => {
     return ctx.user;
   }),
 
-  getUser: protectedProcedure
-    .input(getUserInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("User")
-        .select("*")
-        .eq("id", input.id)
-        .single();
+  getUser: publicProcedure.input(getUserInput).query(async ({ ctx, input }) => {
+    const response = await ctx.supabase
+      .from("User")
+      .select("*")
+      .eq("id", input.userId)
+      .single();
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (response.error) {
+      throw response.error;
+    }
 
-      return response.data;
-    }),
+    return response.data;
+  }),
 
   updateUser: protectedProcedure
     .input(updateUserInput)
@@ -33,7 +35,23 @@ export const userRouter = createTRPCRouter({
           displayName: input.displayName,
           weeklyDigestEmail: input.weeklyDigestEmail,
         })
-        .eq("id", input.id);
+        .eq("id", input.userId);
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
+    }),
+
+  getUserStats: publicProcedure
+    .input(getUserStatsInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("UserStats")
+        .select("*")
+        .eq("userId", input.userId)
+        .single();
 
       if (response.error) {
         throw response.error;

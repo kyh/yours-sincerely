@@ -26,7 +26,5 @@ export const PageContent = ({ children, className }: PageLayoutProps) => (
 );
 
 export const PageAside = ({ children, className }: PageLayoutProps) => (
-  <aside className={cn("area-aside hidden lg:flex", className)}>
-    {children}
-  </aside>
+  <aside className={cn("area-aside", className)}>{children}</aside>
 );

@@ -5,12 +5,6 @@ export const getBlockInput = z.object({
   blockingId: z.string(),
 });
 
-export const getBlockAllInput = z
-  .object({
-    id: z.string(),
-  })
-  .optional();
-
 export const createBlockInput = z.object({
   blockerId: z.string(),
   blockingId: z.string(),

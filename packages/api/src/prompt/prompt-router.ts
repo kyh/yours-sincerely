@@ -1,13 +1,9 @@
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { getTodaysPrompt } from "./prompt-data";
 
 export const promptRouter = createTRPCRouter({
-  getRandomPrompt: publicProcedure.query(async ({ ctx }) => {
-    const dataResponse = await ctx.supabase.rpc("getRandomPrompt");
-
-    if (dataResponse.error) {
-      throw dataResponse.error;
-    }
-
-    return dataResponse.data;
+  getRandomPrompt: publicProcedure.query(() => {
+    const todaysPrompt = getTodaysPrompt();
+    return todaysPrompt?.content ?? "Write a love letter to your future self";
   }),
 });

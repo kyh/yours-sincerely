@@ -18,9 +18,12 @@ import { addDays, format } from "date-fns";
 import type { CreatePostInput } from "@init/api/post/post-schema";
 import { api } from "@/trpc/react";
 
-export const PostForm = () => {
+type PostFormProps = {
+  placeholder?: string;
+};
+
+export const PostForm = ({ placeholder }: PostFormProps) => {
   const [user] = api.user.me.useSuspenseQuery();
-  const [placeholder] = api.prompt.getRandomPrompt.useSuspenseQuery();
 
   const form = useForm({
     schema: createPostInput,
@@ -44,11 +47,7 @@ export const PostForm = () => {
   });
 
   const handlePostForm = (formData: CreatePostInput) => {
-    if (user?.disabled) {
-      toast.error("Your account has been disabled");
-      return;
-    }
-
+    if (user?.disabled) return toast.error("Your account has been disabled");
     createPost.mutate(formData);
   };
 
@@ -86,7 +85,7 @@ export const PostForm = () => {
                 render={({ field }) => (
                   <FormControl>
                     <input
-                      className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-none"
+                      className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-none hover:cursor-pointer focus-visible:cursor-text"
                       {...field}
                     />
                   </FormControl>
