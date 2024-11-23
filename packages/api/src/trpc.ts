@@ -6,10 +6,8 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import {
-  getSupabaseAdminClient,
-  getSupabaseServerClient,
-} from "@init/db/supabase-server-client";
+import { db } from "@init/db/client";
+import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -30,13 +28,15 @@ import { getDeprecatedSession } from "./auth/deprecated-session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const { auth } = getSupabaseServerClient();
-  const supabase = getSupabaseAdminClient();
+  const supabase = getSupabaseServerClient();
+
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
   const token = opts.headers.get("authorization");
 
-  const { data } = token ? await auth.getUser(token) : await auth.getUser();
+  const { data } = token
+    ? await supabase.auth.getUser(token)
+    : await supabase.auth.getUser();
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
@@ -53,8 +53,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     headers: opts.headers,
     user,
-    auth,
     supabase,
+    db,
   };
 };
 

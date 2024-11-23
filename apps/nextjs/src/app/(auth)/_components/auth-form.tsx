@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { signInWithPasswordInput } from "@init/api/auth/auth-schema";
 import { Button } from "@init/ui/button";
 import {
@@ -21,26 +21,29 @@ import { api } from "@/trpc/react";
 
 type AuthFormProps = {
   type: "signin" | "signup";
-  nextPath?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const AuthForm = ({
-  className,
-  type,
-  nextPath = "/",
-  ...props
-}: AuthFormProps) => {
+export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
   const router = useRouter();
+  const params = useParams<{ nextPath?: string }>();
 
   const signInWithOAuth = api.auth.signInWithOAuth.useMutation({
     onError: (error) => toast.error(error.message),
   });
   const signInWithPassword = api.auth.signInWithPassword.useMutation({
-    onSuccess: () => router.replace(nextPath),
+    onSuccess: ({ user }) => {
+      router.replace(
+        params.nextPath ?? `/dashboard/${user.user_metadata.defaultTeamSlug}`,
+      );
+    },
     onError: (error) => toast.error(error.message),
   });
   const signUp = api.auth.signUp.useMutation({
-    onSuccess: () => router.replace(nextPath),
+    onSuccess: ({ user }) => {
+      router.replace(
+        params.nextPath ?? `/dashboard/${user.user_metadata.defaultTeamSlug}`,
+      );
+    },
     onError: (error) => toast.error(error.message),
   });
 
@@ -82,7 +85,7 @@ export const AuthForm = ({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or</span>
+          <span className="bg-background text-muted-foreground px-2">Or</span>
         </div>
       </div>
       <Form {...form}>

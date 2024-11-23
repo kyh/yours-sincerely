@@ -1,4 +1,4 @@
-import { Alert, Button, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Button, Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 
@@ -11,17 +11,20 @@ type AuthFormProps = {
 
 export const AuthForm = ({ type }: AuthFormProps) => {
   const router = useRouter();
-  const nextPath = "/dashboard";
 
   const signInWithOAuth = api.auth.signInWithOAuth.useMutation({
     onError: (error) => Alert.alert(error.message),
   });
   const signInWithPassword = api.auth.signInWithPassword.useMutation({
-    onSuccess: () => router.push(nextPath),
+    onSuccess: ({ user }) => {
+      router.push(`/dashboard/${user.user_metadata.defaultTeamSlug}`);
+    },
     onError: (error) => Alert.alert(error.message),
   });
   const signUp = api.auth.signUp.useMutation({
-    onSuccess: () => router.push(nextPath),
+    onSuccess: ({ user }) => {
+      router.push(`/dashboard/${user.user_metadata.defaultTeamSlug}`);
+    },
     onError: (error) => Alert.alert(error.message),
   });
 
