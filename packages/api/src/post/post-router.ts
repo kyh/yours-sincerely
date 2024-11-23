@@ -1,4 +1,4 @@
-import cuid from "cuid";
+import { post } from "@init/db/schema";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
@@ -73,7 +73,7 @@ export const postRouter = createTRPCRouter({
 
       // If the user is not logged in, create an anonymous user
       if (!userId) {
-        const authResponse = await ctx.auth.signInAnonymously({
+        const authResponse = await ctx.supabase.auth.signInAnonymously({
           options: {
             data: {
               displayName: input.createdBy,
@@ -88,19 +88,17 @@ export const postRouter = createTRPCRouter({
         userId = authResponse.data.user.id;
       }
 
-      const response = await ctx.supabase.from("Post").insert({
-        id: cuid(),
-        userId: userId,
-        content: input.content,
-        createdBy: input.createdBy,
-        parentId: input.parentPostId,
-      });
+      const [created] = await ctx.db
+        .insert(post)
+        .values({
+          userId: userId,
+          content: input.content,
+          createdBy: input.createdBy,
+          parentId: input.parentPostId,
+        })
+        .returning();
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return created;
     }),
 
   updatePost: protectedProcedure

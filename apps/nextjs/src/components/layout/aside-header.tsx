@@ -23,7 +23,7 @@ export const AsideHeader = () => {
   const signOut = api.auth.signOut.useMutation();
 
   return (
-    <div className="area-aside-header items-center justify-end space-x-4 border-b border-b-border">
+    <div className="area-aside-header flex items-center justify-end space-x-4 border-b border-b-border">
       <Button variant="ghost" size="icon">
         <NotificationIcon className="h-5 w-5" aria-hidden="true" />
         <span className="sr-only">Notifications</span>

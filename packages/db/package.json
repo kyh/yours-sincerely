@@ -22,9 +22,9 @@
     "status": "supabase status",
     "test": "supabase db test",
     "typegen": "supabase gen types typescript --local > src/types/database.types.ts",
-    "push": "pnpm with-env drizzle-kit push && pnpm typegen",
-    "generate": "pnpm with-env drizzle-kit generate",
-    "migrate": "pnpm with-env drizzle-kit migrate && pnpm typegen",
+    "push": "pnpm with-env drizzle-kit push",
+    "generate": "pnpm with-env drizzle-kit generate && pnpm typegen",
+    "migrate": "pnpm with-env drizzle-kit migrate",
     "studio": "pnpm with-env drizzle-kit studio",
     "prod-push": "supabase link --project-ref $SUPABASE_PROJECT_REF && supabase db push",
     "with-env": "dotenv -e ../../.env --"
