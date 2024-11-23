@@ -11,6 +11,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
@@ -25,7 +26,7 @@ export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
 export const account = pgTable(
   "Account",
   {
-    id: text().primaryKey().notNull(),
+    id: uuid().notNull().primaryKey().defaultRandom(),
     provider: text().notNull(),
     providerAccountId: text().notNull(),
     refreshToken: text(),
@@ -58,16 +59,20 @@ export const account = pgTable(
 export const post = pgTable(
   "Post",
   {
-    id: text().primaryKey().notNull(),
+    id: uuid().notNull().primaryKey().defaultRandom(),
     content: text().notNull(),
     createdBy: text(),
     baseLikeCount: integer(),
     parentId: text(),
     userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
+
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
+      .notNull()
+      .$onUpdateFn(() => new Date().toISOString()),
   },
   (table) => {
     return {
@@ -105,7 +110,7 @@ export const post = pgTable(
 export const enrolledEvent = pgTable(
   "EnrolledEvent",
   {
-    id: text().primaryKey().notNull(),
+    id: uuid().notNull().primaryKey().defaultRandom(),
     name: text().notNull(),
     slug: text().notNull(),
     start: timestamp({ precision: 3, mode: "string" })
@@ -130,24 +135,28 @@ export const enrolledEvent = pgTable(
 );
 
 export const prompt = pgTable("Prompt", {
-  id: text().primaryKey().notNull(),
+  id: uuid().notNull().primaryKey().defaultRandom(),
   content: text().notNull(),
 });
 
 export const token = pgTable(
   "Token",
   {
-    id: text().primaryKey().notNull(),
+    id: uuid().notNull().primaryKey().defaultRandom(),
     token: text().notNull(),
     type: tokenType().notNull(),
     expiresAt: timestamp({ precision: 3, mode: "string" }),
     sentTo: text(),
     usedAt: timestamp({ precision: 3, mode: "string" }),
     userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
+
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
+      .notNull()
+      .$onUpdateFn(() => new Date().toISOString()),
   },
   (table) => {
     return {
@@ -172,7 +181,7 @@ export const token = pgTable(
 export const user = pgTable(
   "User",
   {
-    id: text().primaryKey().notNull(),
+    id: uuid().notNull().primaryKey().defaultRandom(),
     email: text(),
     emailVerified: timestamp({ precision: 3, mode: "string" }),
     passwordHash: text(),
@@ -181,8 +190,9 @@ export const user = pgTable(
     disabled: boolean(),
     weeklyDigestEmail: boolean().default(false).notNull(),
     role: userRole().default("USER").notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
+
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
       .notNull(),
   },
   (table) => {
@@ -234,10 +244,14 @@ export const like = pgTable(
   {
     postId: text().notNull(),
     userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
+
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
+      .notNull()
+      .$onUpdateFn(() => new Date().toISOString()),
   },
   (table) => {
     return {
@@ -279,10 +293,13 @@ export const flag = pgTable(
     resolved: boolean().default(false).notNull(),
     postId: text().notNull(),
     userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .defaultNow()
+      .notNull()
+      .$onUpdateFn(() => new Date().toISOString()),
   },
   (table) => {
     return {
@@ -408,7 +425,7 @@ export const flagRelations = relations(flag, ({ one }) => ({
 const auth = pgSchema("auth");
 
 export const authUsers = auth.table("users", (t) => ({
-  id: t.uuid().primaryKey().notNull(),
+  id: uuid().primaryKey().notNull(),
   email: t.varchar({ length: 255 }),
   rawUserMetaData: t.jsonb(),
 }));

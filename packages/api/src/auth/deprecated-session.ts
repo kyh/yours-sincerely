@@ -7,8 +7,8 @@ const COOKIE_SECRET = process.env.COOKIE_SECRET ?? "c-secret";
  * Get the user ID from the deprecated session cookie
  * @deprecated
  */
-export const getDeprecatedSession = () => {
-  const cookieStore = cookies();
+export const getDeprecatedSession = async () => {
+  const cookieStore = await cookies();
   const sessionValue = cookieStore.get("__session")?.value;
 
   if (!sessionValue) {
@@ -32,8 +32,8 @@ export const getDeprecatedSession = () => {
  * Set the user ID from the deprecated session cookie
  * @deprecated
  */
-export const setDeprecatedSession = (value: string) => {
-  const cookieStore = cookies();
+export const setDeprecatedSession = async (value: string) => {
+  const cookieStore = await cookies();
 
   if (!value) {
     return null;
