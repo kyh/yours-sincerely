@@ -19,7 +19,7 @@ import { SettingsIcon } from "@/components/icons/settings-icon";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
-  const [user] = api.user.me.useSuspenseQuery();
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const signOut = api.auth.signOut.useMutation();
 
   return (

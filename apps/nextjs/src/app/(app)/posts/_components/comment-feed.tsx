@@ -14,7 +14,7 @@ type Props = {
 };
 
 export const CommentFeed = ({ pid }: Props) => {
-  const [user] = api.user.me.useSuspenseQuery();
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [post] = api.post.getPost.useSuspenseQuery({ id: pid });
 
   const { mutate, isPending } = api.post.createPost.useMutation({

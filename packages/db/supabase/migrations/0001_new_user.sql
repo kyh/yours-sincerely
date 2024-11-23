@@ -1,7 +1,7 @@
--- Function "public.setupNewUser"
+-- Function "public.handleNewUser"
 -- Setup a new user account after user creation
 CREATE
-OR REPLACE FUNCTION public."setupNewUser" () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+OR REPLACE FUNCTION public."handleNewUser" () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
 SET
   search_path = '' AS $$
 DECLARE
@@ -36,7 +36,7 @@ $$;
 -- Trigger the function every time a user is created
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users FOR EACH ROW
-EXECUTE PROCEDURE public."setupNewUser" ();
+EXECUTE PROCEDURE public."handleNewUser" ();
 
 -- Updated user display name when a post is created
 CREATE OR REPLACE FUNCTION update_user_display_name()

@@ -9,7 +9,8 @@ import { ProfileIcon } from "@/components/icons/profile-icon";
 import { api } from "@/trpc/react";
 
 export const Sidebar = () => {
-  const [user] = api.user.me.useSuspenseQuery();
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
+
   return (
     <section className="area-nav flex flex-col">
       <nav className="-ml-4 flex flex-col items-start gap-1 py-5">

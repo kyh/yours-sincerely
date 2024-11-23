@@ -3,7 +3,6 @@ import { z } from "zod";
 export const userMetadata = z.object({
   avatarUrl: z.string().optional(),
   displayName: z.string().optional(),
-  defaultTeamSlug: z.string().optional(),
 });
 export type UserMetadata = z.infer<typeof userMetadata>;
 

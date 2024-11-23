@@ -23,7 +23,7 @@ type PostFormProps = {
 };
 
 export const PostForm = ({ placeholder }: PostFormProps) => {
-  const [user] = api.user.me.useSuspenseQuery();
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
   const form = useForm({
     schema: createPostInput,

@@ -21,7 +21,7 @@ type CommentFormProps = {
 };
 
 export const CommentForm = ({ postId, postCreatedBy }: CommentFormProps) => {
-  const [user] = api.user.me.useSuspenseQuery();
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: () => {
