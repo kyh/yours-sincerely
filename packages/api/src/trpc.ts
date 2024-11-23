@@ -12,7 +12,6 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import type { SupabaseClient } from "@init/db/supabase-server-client";
 import { getDeprecatedSession } from "./auth/deprecated-session";
 
 /**
@@ -41,10 +40,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
   const deprecatedSessionUserId = getDeprecatedSession();
-  const user = await findDbUser(
-    supabase,
-    deprecatedSessionUserId ?? data.user?.id,
-  );
+  const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -58,22 +54,14 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-const findDbUser = async (supabaseClient: SupabaseClient, userId?: string) => {
-  if (!userId) {
-    return null;
-  }
+const findDbUser = async (userId?: string) => {
+  if (!userId) return null;
 
-  const response = await supabaseClient
-    .from("User")
-    .select("*")
-    .eq("id", userId)
-    .single();
-
-  if (response.data) {
-    return response.data;
-  }
-
-  return null;
+  return (
+    (await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.id, userId),
+    })) ?? null
+  );
 };
 
 /**

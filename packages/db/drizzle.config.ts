@@ -14,5 +14,4 @@ export default {
     url: nonPoolingUrl,
   },
   schemaFilter: ["public"],
-  casing: "snake_case",
 } satisfies Config;
