@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { GlobalAlertDialog } from "@init/ui/alert-dialog";
 import { ThemeProvider } from "@init/ui/theme";
-import { Toaster } from "@init/ui/toast";
+import { GlobalToaster } from "@init/ui/toast";
 import { TooltipProvider } from "@init/ui/tooltip";
 import { cn } from "@init/ui/utils";
 
-import { siteConfig } from "@/config/site.config";
+import { siteConfig } from "@/lib/site-config";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import "./globals.css";
@@ -81,7 +82,11 @@ const fontSans = Inter({
   variable: "--font-sans",
 });
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+type LayoutProps = {
+  children: React.ReactNode;
+};
+
+const RootLayout = (props: LayoutProps) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -92,8 +97,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <TRPCReactProvider>{children}</TRPCReactProvider>
-            <Toaster />
+            <TRPCReactProvider>{props.children}</TRPCReactProvider>
+            <GlobalToaster />
+            <GlobalAlertDialog />
           </TooltipProvider>
         </ThemeProvider>
       </body>
@@ -101,4 +107,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default Layout;
+export default RootLayout;
