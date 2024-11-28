@@ -37,7 +37,7 @@ export const CommentForm = ({ postId, postCreatedBy }: CommentFormProps) => {
     defaultValues: {
       parentId: postId,
       content: "",
-      createdBy: user?.displayName ?? "Anonymous",
+      createdBy: user?.displayName || "Anonymous",
     },
   });
 

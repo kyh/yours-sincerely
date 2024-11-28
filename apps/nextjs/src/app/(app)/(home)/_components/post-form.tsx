@@ -29,7 +29,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
     schema: createPostInput,
     defaultValues: {
       content: "",
-      createdBy: user?.displayName ?? "Anonymous",
+      createdBy: user?.displayName || "Anonymous",
     },
   });
 
@@ -38,7 +38,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
       toast.message("Your love letter has been published");
       form.reset({
         content: "",
-        createdBy: variables.createdBy ?? "Anonymous",
+        createdBy: variables.createdBy,
       });
     },
     onError: (err) => {

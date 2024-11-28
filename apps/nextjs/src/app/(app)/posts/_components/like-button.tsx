@@ -119,7 +119,8 @@ const LikeButton = ({ post }: Props) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
   const [isLiked, setIsLiked] = useState(
-    post.likes.some((l) => l.userId === user?.id),
+    false,
+    // post.likes.some((l) => l.userId === user?.id),
   );
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);

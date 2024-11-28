@@ -15,7 +15,7 @@ type Props = {
 
 export const CommentFeed = ({ pid }: Props) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const [post] = api.post.getPost.useSuspenseQuery({ id: pid });
+  const [post] = api.post.getPost.useSuspenseQuery({ postId: pid });
 
   const { mutate, isPending } = api.post.createPost.useMutation({
     onSuccess: () => {
@@ -38,7 +38,7 @@ export const CommentFeed = ({ pid }: Props) => {
 
     mutate({
       content: content,
-      createdBy: user?.displayName ?? "Anonymous",
+      createdBy: user?.displayName || "Anonymous",
       parentId: post.id,
     });
   };
@@ -71,13 +71,13 @@ export const CommentFeed = ({ pid }: Props) => {
           </form>
         )}
         <h1 className="text-sm">Comments ({post.commentCount ?? 0})</h1>
-        {post.comments && (
+        {/* {post.comments && (
           <div className="flex flex-col gap-6">
             {post.comments.map((comment) => (
               <CommentContent key={comment.id} post={comment} />
             ))}
           </div>
-        )}
+        )} */}
       </div>
     </section>
   );

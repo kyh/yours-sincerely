@@ -6,13 +6,18 @@ export const getPostInput = z.object({
 
 export const getFeedInput = z.object({
   userId: z.string().optional(),
-  parentPostId: z.string().optional(),
-  cursor: z.string().optional(),
+  parentId: z.string().optional(),
+  cursor: z
+    .object({
+      createdAt: z.string(),
+      id: z.string(),
+    })
+    .optional(),
   limit: z.number().optional(),
 });
 
 export const createPostInput = z.object({
-  parentPostId: z.string().optional(),
+  parentId: z.string().optional(),
   content: z.string().min(10, "You'll need to write a bit more than that"),
   createdBy: z.string().optional(),
 });

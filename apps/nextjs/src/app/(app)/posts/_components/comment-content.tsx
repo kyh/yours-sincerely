@@ -3,14 +3,14 @@ import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { MoreButton } from "./more-button";
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
 export const CommentContent = ({ post }: Props) => {
   return (
     <article>
       <header className="flex items-center justify-between text-sm">
-        {post.userId && post.createdBy && (
+        {post.userId && (
           <ProfileLink userId={post.userId} displayName={post.createdBy} />
         )}
         <MoreButton post={post} />

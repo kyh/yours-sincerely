@@ -3,11 +3,13 @@ import { getSupabaseAdminClient } from "@init/db/supabase-admin-client";
 import {
   createTRPCRouter,
   protectedProcedure,
+  publicProcedure,
   superAdminProcedure,
 } from "../trpc";
 import {
   createUserInput,
   deleteUserInput,
+  getUserStatsInput,
   impersonateUserInput,
   updateUserInput,
 } from "./user-schema";
@@ -20,6 +22,22 @@ export const userRouter = createTRPCRouter({
       const response = await ctx.supabase.auth.updateUser({
         data: metadata,
       });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
+    }),
+
+  getUserStats: publicProcedure
+    .input(getUserStatsInput)
+    .query(async ({ ctx, input }) => {
+      const response = await ctx.supabase
+        .from("UserStats")
+        .select("*")
+        .eq("userId", input.userId)
+        .single();
 
       if (response.error) {
         throw response.error;

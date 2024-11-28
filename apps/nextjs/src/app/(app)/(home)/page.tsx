@@ -11,15 +11,18 @@ import { PostForm } from "./_components/post-form";
 
 const Page = async () => {
   const placeholder = await api.prompt.getRandomPrompt();
+  const filters = {
+    limit: 5,
+  };
 
-  void api.post.getFeed.prefetchInfinite({});
+  void api.post.getFeed.prefetchInfinite(filters);
 
   return (
     <HydrateClient>
       <PageHeader title="Home" />
       <PageContent className="flex flex-col gap-5">
         <PostForm placeholder={placeholder} />
-        <PostFeed />
+        <PostFeed filters={filters} />
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto"></section>
