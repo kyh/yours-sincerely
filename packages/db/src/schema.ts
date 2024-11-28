@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   foreignKey,
   index,
@@ -7,6 +8,7 @@ import {
   pgEnum,
   pgSchema,
   pgTable,
+  pgView,
   primaryKey,
   text,
   timestamp,
@@ -15,7 +17,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
-// OLD SCHEMA
 export const tokenType = pgEnum("TokenType", [
   "REFRESH_TOKEN",
   "VERIFY_EMAIL",
@@ -23,10 +24,41 @@ export const tokenType = pgEnum("TokenType", [
 ]);
 export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
 
+export const prompt = pgTable("Prompt", {
+  id: text().primaryKey().notNull(),
+  content: text().notNull(),
+});
+
+export const user = pgTable(
+  "User",
+  {
+    id: text().primaryKey().notNull(),
+    email: text(),
+    emailVerified: timestamp({ precision: 3, mode: "string" }),
+    passwordHash: text(),
+    displayName: text(),
+    displayImage: text(),
+    disabled: boolean(),
+    weeklyDigestEmail: boolean().default(false).notNull(),
+    role: userRole().default("USER").notNull(),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      emailKey: uniqueIndex("User_email_key").using(
+        "btree",
+        table.email.asc().nullsLast().op("text_ops"),
+      ),
+    };
+  },
+);
+
 export const account = pgTable(
   "Account",
   {
-    id: uuid().notNull().primaryKey().defaultRandom(),
+    id: text().primaryKey().notNull(),
     provider: text().notNull(),
     providerAccountId: text().notNull(),
     refreshToken: text(),
@@ -56,23 +88,46 @@ export const account = pgTable(
   },
 );
 
+export const enrolledEvent = pgTable(
+  "EnrolledEvent",
+  {
+    id: text().primaryKey().notNull(),
+    name: text().notNull(),
+    slug: text().notNull(),
+    start: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    end: timestamp({ precision: 3, mode: "string" }).notNull(),
+    userId: text().notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index("EnrolledEvent_userId_idx").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+      ),
+      enrolledEventUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "EnrolledEvent_userId_fkey",
+      }),
+    };
+  },
+);
+
 export const post = pgTable(
   "Post",
   {
-    id: uuid().notNull().primaryKey().defaultRandom(),
+    id: text().primaryKey().notNull(),
     content: text().notNull(),
     createdBy: text(),
     baseLikeCount: integer(),
     parentId: text(),
     userId: text().notNull(),
-
-    createdAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
-      .notNull()
-      .$onUpdateFn(() => new Date().toISOString()),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
   },
   (table) => {
     return {
@@ -107,56 +162,20 @@ export const post = pgTable(
   },
 );
 
-export const enrolledEvent = pgTable(
-  "EnrolledEvent",
-  {
-    id: uuid().notNull().primaryKey().defaultRandom(),
-    name: text().notNull(),
-    slug: text().notNull(),
-    start: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    end: timestamp({ precision: 3, mode: "string" }).notNull(),
-    userId: text().notNull(),
-  },
-  (table) => {
-    return {
-      userIdIdx: index("EnrolledEvent_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      enrolledEventUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "EnrolledEvent_userId_fkey",
-      }),
-    };
-  },
-);
-
-export const prompt = pgTable("Prompt", {
-  id: uuid().notNull().primaryKey().defaultRandom(),
-  content: text().notNull(),
-});
-
 export const token = pgTable(
   "Token",
   {
-    id: uuid().notNull().primaryKey().defaultRandom(),
+    id: text().primaryKey().notNull(),
     token: text().notNull(),
     type: tokenType().notNull(),
     expiresAt: timestamp({ precision: 3, mode: "string" }),
     sentTo: text(),
     usedAt: timestamp({ precision: 3, mode: "string" }),
     userId: text().notNull(),
-
-    createdAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
-      .notNull()
-      .$onUpdateFn(() => new Date().toISOString()),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
   },
   (table) => {
     return {
@@ -174,33 +193,6 @@ export const token = pgTable(
         foreignColumns: [user.id],
         name: "Token_userId_fkey",
       }),
-    };
-  },
-);
-
-export const user = pgTable(
-  "User",
-  {
-    id: uuid().notNull().primaryKey().defaultRandom(),
-    email: text(),
-    emailVerified: timestamp({ precision: 3, mode: "string" }),
-    passwordHash: text(),
-    displayName: text(),
-    displayImage: text(),
-    disabled: boolean(),
-    weeklyDigestEmail: boolean().default(false).notNull(),
-    role: userRole().default("USER").notNull(),
-
-    createdAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => {
-    return {
-      emailKey: uniqueIndex("User_email_key").using(
-        "btree",
-        table.email.asc().nullsLast().op("text_ops"),
-      ),
     };
   },
 );
@@ -244,14 +236,10 @@ export const like = pgTable(
   {
     postId: text().notNull(),
     userId: text().notNull(),
-
-    createdAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
-      .notNull()
-      .$onUpdateFn(() => new Date().toISOString()),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
   },
   (table) => {
     return {
@@ -293,13 +281,10 @@ export const flag = pgTable(
     resolved: boolean().default(false).notNull(),
     postId: text().notNull(),
     userId: text().notNull(),
-    createdAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 })
-      .defaultNow()
-      .notNull()
-      .$onUpdateFn(() => new Date().toISOString()),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
   },
   (table) => {
     return {
@@ -343,8 +328,8 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
-  posts: many(post),
   enrolledEvents: many(enrolledEvent),
+  posts: many(post),
   tokens: many(token),
   blocks_blockerId: many(block, {
     relationName: "block_blockerId_user_id",
@@ -354,6 +339,13 @@ export const userRelations = relations(user, ({ many }) => ({
   }),
   likes: many(like),
   flags: many(flag),
+}));
+
+export const enrolledEventRelations = relations(enrolledEvent, ({ one }) => ({
+  user: one(user, {
+    fields: [enrolledEvent.userId],
+    references: [user.id],
+  }),
 }));
 
 export const postRelations = relations(post, ({ one, many }) => ({
@@ -371,13 +363,6 @@ export const postRelations = relations(post, ({ one, many }) => ({
   }),
   likes: many(like),
   flags: many(flag),
-}));
-
-export const enrolledEventRelations = relations(enrolledEvent, ({ one }) => ({
-  user: one(user, {
-    fields: [enrolledEvent.userId],
-    references: [user.id],
-  }),
 }));
 
 export const tokenRelations = relations(token, ({ one }) => ({
@@ -422,6 +407,7 @@ export const flagRelations = relations(flag, ({ one }) => ({
   }),
 }));
 
+// ----- NEW SCHEMA -----
 const auth = pgSchema("auth");
 
 export const authUsers = auth.table("users", (t) => ({
@@ -429,3 +415,31 @@ export const authUsers = auth.table("users", (t) => ({
   email: t.varchar({ length: 255 }),
   rawUserMetaData: t.jsonb(),
 }));
+
+export const feed = pgView("Feed", {
+  id: text(),
+  content: text(),
+  userId: text(),
+  createdAt: timestamp({ precision: 3, mode: "string" }),
+  parentId: text(),
+  createdBy: text(),
+  likeCount: bigint({ mode: "number" }),
+  commentCount: bigint({ mode: "number" }),
+})
+  .with({ securityInvoker: true })
+  .as(
+    sql`WITH flagged_posts AS ( SELECT "Flag"."postId" FROM "Flag" GROUP BY "Flag"."postId" HAVING count(*) > 3 ) SELECT p.id, p.content, p."userId", p."createdAt", p."parentId", p."createdBy", COALESCE(p."baseLikeCount", 0) + COALESCE(l.like_count, 0::bigint) AS "likeCount", COALESCE(c.comment_count, 0::bigint) AS "commentCount" FROM "Post" p LEFT JOIN ( SELECT "Like"."postId", count(*) AS like_count FROM "Like" GROUP BY "Like"."postId") l ON p.id = l."postId" LEFT JOIN ( SELECT "Post"."parentId", count(*) AS comment_count FROM "Post" GROUP BY "Post"."parentId") c ON p.id = c."parentId" WHERE NOT (p.id IN ( SELECT flagged_posts."postId" FROM flagged_posts)) AND p."createdAt" >= (CURRENT_DATE - '21 days'::interval) ORDER BY p."createdAt" DESC`,
+  );
+
+export const userStats = pgView("UserStats", {
+  userId: text(),
+  displayName: text(),
+  totalPostCount: bigint({ mode: "number" }),
+  totalLikeCount: bigint({ mode: "number" }),
+  longestPostStreak: bigint({ mode: "number" }),
+  currentPostStreak: bigint({ mode: "number" }),
+})
+  .with({ securityInvoker: true })
+  .as(
+    sql`WITH daily_posts AS ( SELECT "Post"."userId", date("Post"."createdAt") AS post_date FROM "Post" GROUP BY "Post"."userId", (date("Post"."createdAt")) ), streaks AS ( SELECT daily_posts."userId", daily_posts.post_date, daily_posts.post_date - row_number() OVER (PARTITION BY daily_posts."userId" ORDER BY daily_posts.post_date)::integer AS streak_group FROM daily_posts ), streak_lengths AS ( SELECT streaks."userId", streaks.streak_group, count(*) AS streak_length, max(streaks.post_date) AS streak_end FROM streaks GROUP BY streaks."userId", streaks.streak_group ), post_likes AS ( SELECT p.id AS "postId", p."userId", COALESCE(p."baseLikeCount", 0) + count(l."userId") AS total_likes FROM "Post" p LEFT JOIN "Like" l ON p.id = l."postId" GROUP BY p.id, p."userId", p."baseLikeCount" ) SELECT u.id AS "userId", u."displayName", COALESCE(post_count.total_posts, 0::bigint) AS "totalPostCount", COALESCE(like_count.total_likes, 0::numeric) AS "totalLikeCount", COALESCE(max(sl.streak_length), 0::bigint) AS "longestPostStreak", COALESCE(( SELECT sl2.streak_length FROM streak_lengths sl2 WHERE sl2."userId" = u.id AND sl2.streak_end = (( SELECT max(sl3.streak_end) AS max FROM streak_lengths sl3 WHERE sl3."userId" = u.id))), 0::bigint) AS "currentPostStreak" FROM "User" u LEFT JOIN ( SELECT "Post"."userId", count(*) AS total_posts FROM "Post" GROUP BY "Post"."userId") post_count ON u.id = post_count."userId" LEFT JOIN ( SELECT post_likes."userId", sum(post_likes.total_likes) AS total_likes FROM post_likes GROUP BY post_likes."userId") like_count ON u.id = like_count."userId" LEFT JOIN streak_lengths sl ON u.id = sl."userId" GROUP BY u.id, u."displayName", post_count.total_posts, like_count.total_likes`,
+  );

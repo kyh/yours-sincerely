@@ -78,7 +78,7 @@ export const PostContent = ({
       >
         <div className="italic sm:flex sm:items-center">
           <span className="mr-1 align-[1px]">Yours Sincerely,</span>
-          {post.userId && post.createdBy && (
+          {post.userId && (
             <ProfileLink userId={post.userId} displayName={post.createdBy} />
           )}
         </div>

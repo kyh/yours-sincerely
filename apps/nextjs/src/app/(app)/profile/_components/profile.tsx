@@ -60,7 +60,7 @@ export const Profile = ({ id }: { id: string }) => {
     <section className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">
-          {user.displayName ?? "Anonymous"}{" "}
+          {user.displayName || "Anonymous"}{" "}
         </h1>
         {showEdit && (
           <Link className="text-sm font-normal" href={`${user.id}/edit`}>

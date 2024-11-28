@@ -8,17 +8,11 @@ import { ActivityStats } from "./activity-stats";
 
 type Props = {
   userId: string;
-  displayName: string;
+  displayName?: string | null;
   className?: string;
 };
 
-const ProfileTooltip = ({
-  userId,
-  displayName,
-}: {
-  userId: string;
-  displayName: string;
-}) => {
+const ProfileTooltip = ({ userId, displayName }: Props) => {
   const { data, isLoading } = api.user.getUserStats.useQuery({
     userId: userId,
   });
@@ -51,7 +45,7 @@ export const ProfileLink = ({ userId, displayName, className = "" }: Props) => {
       <TooltipTrigger
         className={`inline-flex underline decoration-dotted underline-offset-2 ${className}`}
       >
-        {displayName}
+        {displayName || "Anonymous"}
       </TooltipTrigger>
       <TooltipContent>
         <Link href={`/${userId}`}>
