@@ -1,5 +1,6 @@
-
-
+-- Current sql file was generated after introspecting the database
+-- If you want to run this migration please uncomment this code before executing migrations
+/*
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -664,3 +665,4 @@ REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
 
 
 RESET ALL;
+*/
