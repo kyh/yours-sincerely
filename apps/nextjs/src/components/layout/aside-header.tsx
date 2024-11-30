@@ -16,6 +16,7 @@ import { LogoutIcon } from "@/components/icons/logout-icon";
 import { NotificationIcon } from "@/components/icons/notification-icon";
 import { ProfileIcon } from "@/components/icons/profile-icon";
 import { SettingsIcon } from "@/components/icons/settings-icon";
+import { getAvatarUrl } from "@/lib/avatars";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
@@ -32,7 +33,11 @@ export const AsideHeader = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarImage
+                className="dark:invert"
+                src={getAvatarUrl(user ? (user.displayImage ?? user.id) : "")}
+                alt="Profile image"
+              />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </Button>
