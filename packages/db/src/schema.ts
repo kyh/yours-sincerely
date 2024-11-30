@@ -417,14 +417,14 @@ export const authUsers = auth.table("users", (t) => ({
 }));
 
 export const feed = pgView("Feed", {
-  id: text(),
-  content: text(),
-  userId: text(),
-  createdAt: timestamp({ precision: 3, mode: "string" }),
-  parentId: text(),
-  createdBy: text(),
-  likeCount: bigint({ mode: "number" }),
-  commentCount: bigint({ mode: "number" }),
+  id: text().notNull(),
+  content: text().notNull(),
+  userId: text().notNull(),
+  createdAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+  parentId: text().notNull(),
+  createdBy: text().notNull(),
+  likeCount: bigint({ mode: "number" }).notNull(),
+  commentCount: bigint({ mode: "number" }).notNull(),
 })
   .with({ securityInvoker: true })
   .as(
@@ -432,12 +432,12 @@ export const feed = pgView("Feed", {
   );
 
 export const userStats = pgView("UserStats", {
-  userId: text(),
+  userId: text().notNull(),
   displayName: text(),
-  totalPostCount: bigint({ mode: "number" }),
-  totalLikeCount: bigint({ mode: "number" }),
-  longestPostStreak: bigint({ mode: "number" }),
-  currentPostStreak: bigint({ mode: "number" }),
+  totalPostCount: bigint({ mode: "number" }).notNull(),
+  totalLikeCount: bigint({ mode: "number" }).notNull(),
+  longestPostStreak: bigint({ mode: "number" }).notNull(),
+  currentPostStreak: bigint({ mode: "number" }).notNull(),
 })
   .with({ securityInvoker: true })
   .as(

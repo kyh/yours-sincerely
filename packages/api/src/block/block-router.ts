@@ -1,53 +1,44 @@
+import { and, eq } from "@init/db";
+import { block } from "@init/db/schema";
+
+import { getUserId } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import {
-  createBlockInput,
-  deleteBlockInput,
-  getBlockInput,
-} from "./block-schema";
+import { createBlockInput, deleteBlockInput } from "./block-schema";
 
 export const blockRouter = createTRPCRouter({
-  getBlock: publicProcedure
-    .input(getBlockInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Block")
-        .select("*")
-        .match({ blockerId: input.blockerId, blockingId: input.blockingId })
-        .single();
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-
   createBlock: publicProcedure
     .input(createBlockInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.from("Block").insert({
-        ...input,
-      });
+      const userId = await getUserId(ctx);
 
-      if (response.error) {
-        throw response.error;
-      }
+      const [created] = await ctx.db
+        .insert(block)
+        .values({
+          blockerId: userId,
+          blockingId: input.blockingId,
+        })
+        .returning();
 
-      return response.data;
+      return {
+        block: created,
+      };
     }),
 
   deleteBlock: protectedProcedure
     .input(deleteBlockInput)
     .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Block")
-        .delete()
-        .match({ blockerId: input.blockerId, blockingId: input.blockingId });
+      const [deleted] = await ctx.db
+        .delete(block)
+        .where(
+          and(
+            eq(block.blockerId, ctx.user.id),
+            eq(block.blockingId, input.blockingId),
+          ),
+        )
+        .returning();
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return {
+        block: deleted,
+      };
     }),
 });

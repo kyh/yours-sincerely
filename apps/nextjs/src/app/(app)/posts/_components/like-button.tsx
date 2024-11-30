@@ -116,12 +116,8 @@ type Props = {
 };
 
 const LikeButton = ({ post }: Props) => {
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
-  const [isLiked, setIsLiked] = useState(
-    false,
-    // post.likes.some((l) => l.userId === user?.id),
-  );
+  const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [isLiked, setIsLiked] = useState(post.isLiked);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
@@ -134,7 +130,7 @@ const LikeButton = ({ post }: Props) => {
     if (isLiked) {
       setLikeCount(likeCount - 1);
       setIsLiked(false);
-      deleteMutate.mutate({ id: post.id });
+      deleteMutate.mutate({ postId: post.id });
     } else {
       setLikeCount(likeCount + 1);
       playAnimation();
