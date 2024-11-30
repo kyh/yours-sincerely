@@ -7,48 +7,48 @@ export type CalendarEvent = {
   location?: string;
 };
 
-const makeDuration = (event: CalendarEvent) => {
+const getDuration = (event: CalendarEvent) => {
   const minutes = Math.floor(
-    (+new Date(event.endsAt) - +new Date(event.startsAt)) / 60 / 1000
+    (+new Date(event.endsAt) - +new Date(event.startsAt)) / 60 / 1000,
   );
   return `${Math.floor(minutes / 60)}:${`0${minutes % 60}`.slice(-2)}`;
 };
 
-const makeTime = (time: string) =>
+const getTime = (time: string) =>
   new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, "");
 
-const makeRRule = (recurring: string[]) =>
+const getRRule = (recurring: string[]) =>
   `RRULE:FREQ=WEEKLY;BYDAY=${recurring.map((d) => d.toUpperCase()).join(",")}`;
 
 type Query = Record<string, null | boolean | number | string>;
 
-const makeUrl = (base: string, query: Query) =>
+const getUrl = (base: string, query: Query) =>
   Object.keys(query).reduce((accum, key, index) => {
     const value = query[key];
 
     if (value !== null) {
       return `${accum}${index === 0 ? "?" : "&"}${key}=${encodeURIComponent(
-        value!
+        value!,
       )}`;
     }
     return accum;
   }, base);
 
-const makeGoogleCalendarUrl = (event: CalendarEvent) =>
-  makeUrl("https://calendar.google.com/calendar/render", {
+const getGoogleCalendarUrl = (event: CalendarEvent) =>
+  getUrl("https://calendar.google.com/calendar/render", {
     action: "TEMPLATE",
-    dates: `${makeTime(event.startsAt)}/${makeTime(event.endsAt)}`,
+    dates: `${getTime(event.startsAt)}/${getTime(event.endsAt)}`,
     text: event.name,
     location: event.location ?? null,
     details: event.details ?? null,
-    recur: makeRRule(event.recurring),
+    recur: getRRule(event.recurring),
   });
 
-const makeOutlookCalendarUrl = (event: CalendarEvent) =>
-  makeUrl("https://outlook.live.com/owa", {
+const getOutlookCalendarUrl = (event: CalendarEvent) =>
+  getUrl("https://outlook.live.com/owa", {
     rru: "addevent",
-    startdt: makeTime(event.startsAt),
-    enddt: makeTime(event.endsAt),
+    startdt: getTime(event.startsAt),
+    enddt: getTime(event.endsAt),
     subject: event.name,
     location: event.location ?? null,
     body: event.details ?? null,
@@ -57,41 +57,41 @@ const makeOutlookCalendarUrl = (event: CalendarEvent) =>
     path: "/calendar/view/Month",
   });
 
-const makeYahooCalendarUrl = (event: CalendarEvent) =>
-  makeUrl("https://calendar.yahoo.com", {
+const getYahooCalendarUrl = (event: CalendarEvent) =>
+  getUrl("https://calendar.yahoo.com", {
     v: 60,
     view: "d",
     type: 20,
     title: event.name,
-    st: makeTime(event.startsAt),
-    dur: makeDuration(event),
+    st: getTime(event.startsAt),
+    dur: getDuration(event),
     desc: event.details ?? null,
     in_loc: event.location ?? null,
   });
 
-const makeICSCalendarUrl = (event: CalendarEvent) => {
+const getICSCalendarUrl = (event: CalendarEvent) => {
   const components = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "BEGIN:VEVENT",
-    `DTSTART:${makeTime(event.startsAt)}`,
-    `DTEND:${makeTime(event.endsAt)}`,
+    `DTSTART:${getTime(event.startsAt)}`,
+    `DTEND:${getTime(event.endsAt)}`,
     `SUMMARY:${event.name}`,
     `DESCRIPTION:${event.details}`,
     `LOCATION:${event.location}`,
     "END:VEVENT",
     "END:VCALENDAR",
-    makeRRule(event.recurring),
+    getRRule(event.recurring),
   ];
 
   return encodeURI(`data:text/calendar;charset=utf8,${components.join("\n")}`);
 };
 
-export const makeUrls = (event: CalendarEvent) => ({
-  google: makeGoogleCalendarUrl(event),
-  outlook: makeOutlookCalendarUrl(event),
-  yahoo: makeYahooCalendarUrl(event),
-  ics: makeICSCalendarUrl(event),
+export const getUrls = (event: CalendarEvent) => ({
+  google: getGoogleCalendarUrl(event),
+  outlook: getOutlookCalendarUrl(event),
+  yahoo: getYahooCalendarUrl(event),
+  ics: getICSCalendarUrl(event),
 });
 
 // https://calendar.google.com/calendar/event?action=TEMPLATE&dates=20211001T100000Z/20211001T110000Z&text=Example+event&location=Office&recur=RRULE:FREQ%3DWEEKLY;BYDAY%3DMO,TU,TH
