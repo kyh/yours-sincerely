@@ -64,13 +64,17 @@ const findDbUser = async (userId?: string) => {
   );
 };
 
+type CreateTRPCContext = typeof createTRPCContext;
+
+export type Context = Awaited<ReturnType<CreateTRPCContext>>;
+
 /**
  * 2. INITIALIZATION
  *
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
-const t = initTRPC.context<typeof createTRPCContext>().create({
+const t = initTRPC.context<CreateTRPCContext>().create({
   transformer: superjson,
   errorFormatter: ({ shape, error }) => ({
     ...shape,

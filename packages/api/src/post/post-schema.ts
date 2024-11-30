@@ -23,12 +23,6 @@ export const createPostInput = z.object({
 });
 export type CreatePostInput = z.infer<typeof createPostInput>;
 
-export const updatePostInput = z.object({
-  postId: z.string(),
-  content: z.string(),
-});
-export type UpdatePostInput = z.infer<typeof updatePostInput>;
-
 export const deletePostInput = z.object({
   postId: z.string(),
 });

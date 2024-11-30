@@ -1,14 +1,14 @@
 import { and, desc, eq, lt, notInArray, or } from "@init/db";
-import { feed, like, post } from "@init/db/schema";
+import { feed, post } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
 
+import { getUserId } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createPostInput,
   deletePostInput,
   getFeedInput,
   getPostInput,
-  updatePostInput,
 } from "./post-schema";
 
 export const postRouter = createTRPCRouter({
@@ -20,7 +20,7 @@ export const postRouter = createTRPCRouter({
     });
     const blockingUserIds = blockedUsers.map((user) => user.blockingId);
 
-    const feedItems = await ctx.db
+    const feedPosts = await ctx.db
       .select()
       .from(feed)
       .where(
@@ -42,9 +42,25 @@ export const postRouter = createTRPCRouter({
       .orderBy(desc(feed.createdAt), desc(feed.id))
       .limit(limit + 1);
 
+    const feedItemLikes = await ctx.db.query.like.findMany({
+      where: (like, { eq, and, inArray }) =>
+        and(
+          ctx.user?.id ? eq(like.userId, ctx.user.id) : undefined,
+          inArray(
+            like.postId,
+            feedPosts.map((item) => item.id),
+          ),
+        ),
+    });
+
+    const posts = feedPosts.map((post) => ({
+      ...post,
+      isLiked: !!feedItemLikes.find((like) => like.postId === post.id),
+    }));
+
     let nextCursor: typeof input.cursor = undefined;
-    if (feedItems.length > limit) {
-      const nextItem = feedItems.pop();
+    if (feedPosts.length > limit) {
+      const nextItem = feedPosts.pop();
       if (nextItem?.id && nextItem.createdAt) {
         nextCursor = {
           id: nextItem.id,
@@ -55,7 +71,7 @@ export const postRouter = createTRPCRouter({
 
     return {
       nextCursor,
-      posts: feedItems,
+      posts,
     };
   }),
 
@@ -80,24 +96,7 @@ export const postRouter = createTRPCRouter({
   createPost: publicProcedure
     .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
-      let userId = ctx.user?.id;
-
-      // If the user is not logged in, create an anonymous user
-      if (!userId) {
-        const authResponse = await ctx.supabase.auth.signInAnonymously({
-          options: {
-            data: {
-              displayName: input.createdBy,
-            },
-          },
-        });
-
-        if (authResponse.error || !authResponse.data.user) {
-          throw authResponse.error;
-        }
-
-        userId = authResponse.data.user.id;
-      }
+      const userId = await getUserId(ctx, input.createdBy);
 
       const [created] = await ctx.db
         .insert(post)
@@ -110,36 +109,21 @@ export const postRouter = createTRPCRouter({
         })
         .returning();
 
-      return created;
-    }),
-
-  updatePost: protectedProcedure
-    .input(updatePostInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Post")
-        .update({ content: input.content })
-        .eq("id", input.postId);
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return {
+        post: created,
+      };
     }),
 
   deletePost: protectedProcedure
     .input(deletePostInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Post")
-        .delete()
-        .eq("id", input.postId);
+      const [deleted] = await ctx.db
+        .delete(post)
+        .where(eq(post.id, input.postId))
+        .returning();
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return {
+        post: deleted,
+      };
     }),
 });

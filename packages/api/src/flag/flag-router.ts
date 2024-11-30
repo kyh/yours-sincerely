@@ -1,68 +1,41 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import {
-  createFlagInput,
-  deleteFlagInput,
-  getFlagAllInput,
-  getFlagInput,
-} from "./flag-schema";
+import { and, eq } from "@init/db";
+import { flag } from "@init/db/schema";
+import { getDefaultValues } from "@init/db/utils";
+
+import { getUserId } from "../auth/auth-utils";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createFlagInput, deleteFlagInput } from "./flag-schema";
 
 export const flagRouter = createTRPCRouter({
-  getFlag: publicProcedure.input(getFlagInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Flag")
-      .select("*")
-      .match({ postId: input.postId, userId: input.userId })
-      .single();
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-
-  getFlagAll: publicProcedure
-    .input(getFlagAllInput)
-    .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Flag")
-        .select("*")
-        .eq("userId", input.id)
-        .order("createdAt", { ascending: false });
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-
   createFlag: publicProcedure
     .input(createFlagInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.from("Flag").insert({
-        ...input,
-      });
+      const userId = await getUserId(ctx);
 
-      if (response.error) {
-        throw response.error;
-      }
+      const [created] = await ctx.db
+        .insert(flag)
+        .values({
+          ...getDefaultValues({ withId: false }),
+          postId: input.postId,
+          userId,
+        })
+        .returning();
 
-      return response.data;
+      return {
+        flag: created,
+      };
     }),
 
-  deleteFlag: publicProcedure
+  deleteFlag: protectedProcedure
     .input(deleteFlagInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("Flag")
-        .delete()
-        .match({ postId: input.postId, userId: input.userId });
+      const [deleted] = await ctx.db
+        .delete(flag)
+        .where(and(eq(flag.userId, ctx.user.id), eq(flag.postId, input.postId)))
+        .returning();
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return {
+        flag: deleted,
+      };
     }),
 });
