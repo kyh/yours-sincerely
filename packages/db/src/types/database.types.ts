@@ -179,7 +179,7 @@ export type Database = {
           createdAt?: string
           postId: string
           resolved?: boolean
-          updatedAt?: string
+          updatedAt: string
           userId: string
         }
         Update: {
@@ -231,7 +231,7 @@ export type Database = {
         Insert: {
           createdAt?: string
           postId: string
-          updatedAt?: string
+          updatedAt: string
           userId: string
         }
         Update: {
@@ -271,57 +271,6 @@ export type Database = {
           },
         ]
       }
-      Notification: {
-        Row: {
-          body: string
-          channel: Database["public"]["Enums"]["NotificationChannel"]
-          createdAt: string
-          dismissed: boolean
-          expiresAt: string | null
-          id: string
-          link: string | null
-          type: Database["public"]["Enums"]["NotificationType"]
-          userId: string
-        }
-        Insert: {
-          body: string
-          channel?: Database["public"]["Enums"]["NotificationChannel"]
-          createdAt?: string
-          dismissed?: boolean
-          expiresAt?: string | null
-          id?: string
-          link?: string | null
-          type?: Database["public"]["Enums"]["NotificationType"]
-          userId: string
-        }
-        Update: {
-          body?: string
-          channel?: Database["public"]["Enums"]["NotificationChannel"]
-          createdAt?: string
-          dismissed?: boolean
-          expiresAt?: string | null
-          id?: string
-          link?: string | null
-          type?: Database["public"]["Enums"]["NotificationType"]
-          userId?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Notification_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Notification_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "UserStats"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
       Post: {
         Row: {
           baseLikeCount: number | null
@@ -340,7 +289,7 @@ export type Database = {
           createdBy?: string | null
           id: string
           parentId?: string | null
-          updatedAt?: string
+          updatedAt: string
           userId: string
         }
         Update: {
@@ -418,7 +367,7 @@ export type Database = {
           sentTo?: string | null
           token: string
           type: Database["public"]["Enums"]["TokenType"]
-          updatedAt?: string
+          updatedAt: string
           usedAt?: string | null
           userId: string
         }
@@ -549,8 +498,6 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      NotificationChannel: "in_app" | "email" | "push"
-      NotificationType: "info" | "warning" | "error"
       TokenType: "REFRESH_TOKEN" | "VERIFY_EMAIL" | "RESET_PASSWORD"
       UserRole: "USER" | "ADMIN"
     }
