@@ -1,13 +1,13 @@
 "use client";
 
-import type { MotionProps, PanInfo } from "framer-motion";
+import type { MotionProps, PanInfo } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   AnimatePresence,
   motion,
   useMotionValue,
   useTransform,
-} from "framer-motion";
+} from "motion/react";
 
 import { useRootHotkeys } from "@/lib/hotkey";
 
