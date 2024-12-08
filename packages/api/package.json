@@ -18,9 +18,9 @@
   "dependencies": {
     "@init/db": "workspace:latest",
     "@trpc/server": "catalog:",
-    "cookie-signature": "^1.2.1",
-    "stripe": "^17.3.1",
-    "superjson": "^2.2.1",
+    "cookie-signature": "^1.2.2",
+    "stripe": "^17.4.0",
+    "superjson": "^2.2.2",
     "zod": "catalog:"
   },
   "devDependencies": {

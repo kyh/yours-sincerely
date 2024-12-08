@@ -26,7 +26,7 @@
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
-    "framer-motion": "^11.2.4",
+    "motion": "^11.13.1",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -34,7 +34,7 @@
     "react-infinite-scroll-hook": "^4.1.1",
     "react-use": "^17.5.0",
     "reading-time": "^1.5.0",
-    "superjson": "^2.2.1",
+    "superjson": "^2.2.2",
     "zod": "catalog:"
   },
   "devDependencies": {
