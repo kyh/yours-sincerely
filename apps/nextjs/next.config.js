@@ -28,10 +28,12 @@ const getRemotePatterns = () => {
       ];
 };
 
+const transpilePackages = ["@init/api", "@init/db", "@init/ui"];
+
 /** @type {import("next").NextConfig} */
 const config = {
-  pageExtensions: ["js", "jsx", "ts", "tsx"],
-  transpilePackages: ["@init/api", "@init/db", "@init/ui"],
+  pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
+  transpilePackages,
   images: {
     remotePatterns: getRemotePatterns(),
   },

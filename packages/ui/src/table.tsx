@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@init/ui/utils";
-import { Cell, flexRender, Header, Row } from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 
 import type { Table as UseReactTable } from "@tanstack/react-table";
 
