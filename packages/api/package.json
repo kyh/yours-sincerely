@@ -16,11 +16,11 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@init/db": "workspace:latest",
+    "@init/db": "workspace:^",
     "@trpc/server": "catalog:",
     "cookie-signature": "^1.2.2",
-    "stripe": "^17.4.0",
-    "superjson": "^2.2.2",
+    "stripe": "^17.5.0",
+    "superjson": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
