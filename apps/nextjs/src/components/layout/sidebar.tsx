@@ -3,32 +3,49 @@
 import Link from "next/link";
 import { Button } from "@init/ui/button";
 
+import { BellIcon } from "@/components/icons/bell-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
-import { NotificationIcon } from "@/components/icons/notification-icon";
-import { ProfileIcon } from "@/components/icons/profile-icon";
+import { UserIcon } from "@/components/icons/user-icon";
+import { useIconAnimation } from "@/lib/animation";
 import { api } from "@/trpc/react";
 
 export const Sidebar = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
+  const { controls: homeControls, ...homeControlProps } = useIconAnimation();
+  const { controls: bellControls, ...bellControlProps } = useIconAnimation();
+  const { controls: userControls, ...userControlProps } = useIconAnimation();
+
   return (
     <section className="area-nav flex flex-col">
       <nav className="-ml-4 flex flex-col items-start gap-1 py-5">
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
-            <HomeIcon aria-hidden="true" className="h-5 w-5" />
+            <HomeIcon
+              aria-hidden="true"
+              controls={homeControls}
+              className="size-5"
+            />
             <span className="truncate">Home</span>
           </Link>
         </Button>
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" {...bellControlProps} asChild>
           <Link href="/notifications">
-            <NotificationIcon aria-hidden="true" className="h-5 w-5" />
+            <BellIcon
+              aria-hidden="true"
+              controls={bellControls}
+              className="size-5"
+            />
             <span className="truncate">Notifications</span>
           </Link>
         </Button>
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" {...userControlProps} asChild>
           <Link href={user ? `/profile/${user.id}` : `/auth/sign-up`}>
-            <ProfileIcon aria-hidden="true" className="h-5 w-5" />
+            <UserIcon
+              aria-hidden="true"
+              controls={userControls}
+              className="size-5"
+            />
             <span className="truncate">Profile</span>
           </Link>
         </Button>

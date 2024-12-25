@@ -24,7 +24,7 @@ export type CreateUsersInput = z.infer<typeof createUsersInput>;
  **********/
 export const getUserInput = z
   .object({
-    id: z.string(),
+    userId: z.string(),
   })
   .required();
 export type GetUserInput = z.infer<typeof getUserInput>;
@@ -56,7 +56,7 @@ export type GetUsersInput = z.infer<typeof getUsersInput>;
  **********/
 export const updateUserInput = z
   .object({
-    id: z.string(),
+    userId: z.string(),
   })
   .merge(createUserInput);
 export type UpdateUserInput = z.infer<typeof updateUserInput>;
@@ -69,7 +69,7 @@ export type UpdateUsersInput = z.infer<typeof updateUsersInput>;
  **********/
 export const deleteUserInput = z
   .object({
-    id: z.string(),
+    userId: z.string(),
   })
   .required();
 export type DeleteUserInput = z.infer<typeof deleteUserInput>;
@@ -81,7 +81,7 @@ export type DeleteUsersInput = z.infer<typeof deleteUsersInput>;
  * Other
  */
 export const impersonateUserInput = z.object({
-  id: z.string().uuid(),
+  userId: z.string().uuid(),
 });
 
 export const getUserStatsInput = z.object({

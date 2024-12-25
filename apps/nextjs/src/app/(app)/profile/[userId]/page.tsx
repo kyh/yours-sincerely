@@ -3,20 +3,21 @@ import { api, HydrateClient } from "@/trpc/server";
 import { Profile } from "../_components/profile";
 
 type Props = {
-  params: {
-    id: string;
-  };
+  params: Promise<{
+    userId: string;
+  }>;
 };
 
-const Page = ({ params: { id } }: Props) => {
-  void api.user.getUser.prefetch({ userId: id });
-  void api.post.getFeed.prefetch({ userId: id });
+const Page = async (props: Props) => {
+  const params = await props.params;
+
+  void api.user.getUser.prefetch({ userId: params.userId });
 
   return (
     <HydrateClient>
       <PageHeader title="Profile" />
       <PageContent>
-        <Profile id={id} />
+        <Profile userId={params.userId} />
       </PageContent>
     </HydrateClient>
   );

@@ -31,7 +31,7 @@ export const postRouter = createTRPCRouter({
                 lt(feed.createdAt, input.cursor.createdAt),
                 and(
                   eq(feed.createdAt, input.cursor.createdAt),
-                  lt(feed.id, input.cursor.id),
+                  lt(feed.id, input.cursor.postId),
                 ),
               )
             : undefined,
@@ -63,7 +63,7 @@ export const postRouter = createTRPCRouter({
       const nextItem = feedPosts.pop();
       if (nextItem?.id && nextItem.createdAt) {
         nextCursor = {
-          id: nextItem.id,
+          postId: nextItem.id,
           createdAt: nextItem.createdAt,
         };
       }

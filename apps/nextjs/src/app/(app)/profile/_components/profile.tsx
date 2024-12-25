@@ -1,16 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "@init/ui/theme";
-
+import { updateUserInput } from "@init/api/user/user-schema";
+import { Button } from "@init/ui/button";
 import {
-  createPostsDailyActivity,
-  createPostsHeatmap,
-  getCurrentStreak,
-  getLongestStreak,
-  getTotalLikes,
-  getTotalPosts,
-} from "@/lib/stats";
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useForm,
+} from "@init/ui/form";
+import { Input } from "@init/ui/input";
+import { useTheme } from "@init/ui/theme";
+import { toast } from "@init/ui/toast";
+
+import type { RouterOutputs } from "@init/api";
+import type { UpdateUserInput } from "@init/api/user/user-schema";
 import { api } from "@/trpc/react";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
@@ -35,40 +43,45 @@ const darkTheme = {
   stroke: "#312e81",
 };
 
-export const Profile = ({ id }: { id: string }) => {
-  const [user] = api.user.getUser.useSuspenseQuery({ id });
-  const [currentUser] = api.user.me.useSuspenseQuery();
-  const [posts] = api.post.getPostAll.useSuspenseQuery({ userId: id });
+type User = NonNullable<RouterOutputs["user"]["getUser"]["user"]>;
 
-  const showEdit = currentUser ? currentUser.id === id : false;
+type ProfileProps = {
+  userId: string;
+};
 
-  const lastNDays = 200;
+export const Profile = ({ userId }: ProfileProps) => {
+  const [{ user }] = api.user.getUser.useSuspenseQuery({ userId });
+  const [{ user: currentUser }] = api.auth.workspace.useSuspenseQuery();
+  // const [posts] = api.post.getPostAll.useSuspenseQuery({ userId: id });
 
-  const stats = {
-    heatmap: createPostsHeatmap(posts, lastNDays),
-    daily: createPostsDailyActivity(posts),
-    posts: getTotalPosts(posts),
-    likes: getTotalLikes(posts),
-    longestStreak: getLongestStreak(posts),
-    currentStreak: getCurrentStreak(posts),
-  };
+  if (!user) {
+    return <ProfileNotFound />;
+  }
+
+  const allowEdit = currentUser ? currentUser.id === user.id : false;
+  let content = null;
+
+  if (allowEdit) {
+    content = <ProfileEditForm user={user} />;
+  }
+  // const lastNDays = 200;
+
+  // const stats = {
+  //   heatmap: createPostsHeatmap(posts, lastNDays),
+  //   daily: createPostsDailyActivity(posts),
+  //   posts: getTotalPosts(posts),
+  //   likes: getTotalLikes(posts),
+  //   longestStreak: getLongestStreak(posts),
+  //   currentStreak: getCurrentStreak(posts),
+  // };
 
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
 
   return (
     <section className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
-          {user.displayName || "Anonymous"}{" "}
-        </h1>
-        {showEdit && (
-          <Link className="text-sm font-normal" href={`${user.id}/edit`}>
-            Edit
-          </Link>
-        )}
-      </div>
-      <ActivityStats
+      {content}
+      {/* <ActivityStats
         data={{
           posts: stats.posts,
           likes: stats.likes,
@@ -102,7 +115,78 @@ export const Profile = ({ id }: { id: string }) => {
           data={stats.daily.stats}
           theme={isDarkMode ? darkTheme : lightTheme}
         />
-      </div>
+      </div> */}
     </section>
+  );
+};
+
+const ProfileNotFound = () => {
+  return <h1>Hmm, can't seem to find the person you're looking for</h1>;
+};
+
+const ProfileEditForm = ({ user }: { user: User }) => {
+  const updateUser = api.user.updateUser.useMutation();
+
+  const form = useForm({
+    schema: updateUserInput,
+    defaultValues: {
+      userId: user.id,
+      displayName: user.displayName ?? "",
+      email: user.email ?? "",
+    },
+  });
+
+  const onSubmit = (data: UpdateUserInput) => {
+    const promise = updateUser.mutateAsync(data);
+    toast.promise(promise, {
+      loading: "Updating profile...",
+      success: "Profile successfully updated",
+      error: "Could not update profile. Please try again.",
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="displayName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Display Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Your name" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is the name that will be displayed on your profile and in
+                emails.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="displayName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="Your email" {...field} />
+              </FormControl>
+              <FormDescription>
+                Register an email to recover your account.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <footer className="flex justify-end">
+          <Button type="submit" loading={updateUser.isPending}>
+            Update Profile
+          </Button>
+        </footer>
+      </form>
+    </Form>
   );
 };

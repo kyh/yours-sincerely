@@ -9,16 +9,27 @@ import {
 import {
   createUserInput,
   deleteUserInput,
+  getUserInput,
   getUserStatsInput,
   impersonateUserInput,
   updateUserInput,
 } from "./user-schema";
 
 export const userRouter = createTRPCRouter({
+  getUser: publicProcedure.input(getUserInput).query(async ({ ctx, input }) => {
+    const response = await ctx.db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.id, input.userId),
+    });
+
+    return {
+      user: response,
+    };
+  }),
+
   updateUser: protectedProcedure
     .input(updateUserInput)
     .mutation(async ({ ctx, input }) => {
-      const { id: _id, email: _email, ...metadata } = input;
+      const { userId: _id, email: _email, ...metadata } = input;
       const response = await ctx.supabase.auth.updateUser({
         data: metadata,
       });
@@ -70,7 +81,7 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const client = getSupabaseAdminClient();
 
-      const response = await client.auth.admin.deleteUser(input.id, true);
+      const response = await client.auth.admin.deleteUser(input.userId, true);
 
       if (response.error) {
         throw response.error;
@@ -82,7 +93,7 @@ export const userRouter = createTRPCRouter({
   impersonateUser: superAdminProcedure
     .input(impersonateUserInput)
     .mutation(async ({ ctx, input }) => {
-      if (ctx.user.id === input.id) {
+      if (ctx.user.id === input.userId) {
         throw new Error(
           `You cannot perform a destructive action on your own account as a Super Admin`,
         );
@@ -92,7 +103,7 @@ export const userRouter = createTRPCRouter({
       const {
         data: { user },
         error,
-      } = await client.auth.admin.getUserById(input.id);
+      } = await client.auth.admin.getUserById(input.userId);
 
       if (error ?? !user) {
         throw new Error(`Error fetching user`);
