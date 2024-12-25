@@ -11,11 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
 
+import { BellIcon } from "@/components/icons/bell-icon";
 import { HelpIcon } from "@/components/icons/help-icon";
 import { LogoutIcon } from "@/components/icons/logout-icon";
-import { NotificationIcon } from "@/components/icons/notification-icon";
-import { ProfileIcon } from "@/components/icons/profile-icon";
 import { SettingsIcon } from "@/components/icons/settings-icon";
+import { UserIcon } from "@/components/icons/user-icon";
 import { getAvatarUrl } from "@/lib/avatars";
 import { api } from "@/trpc/react";
 
@@ -26,7 +26,7 @@ export const AsideHeader = () => {
   return (
     <div className="area-aside-header flex items-center justify-end space-x-4 border-b border-b-border">
       <Button variant="ghost" size="icon">
-        <NotificationIcon className="h-5 w-5" aria-hidden="true" />
+        <BellIcon className="h-5 w-5" aria-hidden="true" />
         <span className="sr-only">Notifications</span>
       </Button>
       <DropdownMenu>
@@ -45,7 +45,7 @@ export const AsideHeader = () => {
         <DropdownMenuContent className="w-40" align="end">
           {user && (
             <DropdownMenuItem>
-              <ProfileIcon aria-hidden="true" className="mr-1 h-4 w-4" />
+              <UserIcon aria-hidden="true" className="mr-1 h-4 w-4" />
               Profile
             </DropdownMenuItem>
           )}

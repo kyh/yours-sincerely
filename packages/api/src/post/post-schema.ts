@@ -10,7 +10,7 @@ export const getFeedInput = z.object({
   cursor: z
     .object({
       createdAt: z.string(),
-      id: z.string(),
+      postId: z.string(),
     })
     .optional(),
   limit: z.number().optional(),

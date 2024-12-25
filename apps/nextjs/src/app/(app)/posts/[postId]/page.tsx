@@ -3,9 +3,9 @@ import { api, HydrateClient } from "@/trpc/server";
 import { CommentFeed } from "../_components/comment-feed";
 
 type Props = {
-  params: {
+  params: Promise<{
     pid: string;
-  };
+  }>;
 };
 
 const Page = async ({ params: { pid } }: Props) => {
