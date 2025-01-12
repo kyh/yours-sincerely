@@ -26,7 +26,7 @@ export const Sidebar = () => {
               controls={homeControls}
               className="size-5"
             />
-            Home
+            <span className="sr-only md:not-sr-only">Home</span>
           </Link>
         </Button>
         <Button variant="ghost" {...bellControlProps} asChild>
@@ -36,7 +36,7 @@ export const Sidebar = () => {
               controls={bellControls}
               className="size-5"
             />
-            Notifications
+            <span className="sr-only md:not-sr-only">Notifications</span>
           </Link>
         </Button>
         <Button variant="ghost" {...userControlProps} asChild>
@@ -46,7 +46,7 @@ export const Sidebar = () => {
               controls={userControls}
               className="size-5"
             />
-            Profile
+            <span className="sr-only md:not-sr-only">Profile</span>
           </Link>
         </Button>
       </nav>
