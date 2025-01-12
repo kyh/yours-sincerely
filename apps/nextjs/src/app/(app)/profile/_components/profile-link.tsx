@@ -19,10 +19,8 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
     userId: userId,
   });
 
-  // isLoading = true;
-
   return (
-    <div className="flex flex-col items-center gap-1 py-1.5">
+    <div className="flex flex-col items-center gap-1 py-1.5 not-italic">
       <Avatar className="size-10">
         <AvatarImage
           className="dark:invert"
@@ -31,7 +29,9 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
         />
         <AvatarFallback>A</AvatarFallback>
       </Avatar>
-      <h4 className="text-center font-bold">{displayName || "Anonymous"}</h4>
+      <h4 className="mb-1 text-center font-bold">
+        {displayName || "Anonymous"}
+      </h4>
       {!isLoading && data ? (
         <ActivityStats
           data={{
@@ -43,8 +43,11 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
           stack
         />
       ) : (
-        <div className="animate-pulse">
-          <div className="h-[136px] w-[204px] rounded" />
+        <div className="grid h-[104px] w-[180px] animate-pulse grid-cols-2 gap-2">
+          <div className="rounded bg-muted" />
+          <div className="rounded bg-muted" />
+          <div className="rounded bg-muted" />
+          <div className="rounded bg-muted" />
         </div>
       )}
     </div>
