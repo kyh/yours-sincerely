@@ -7,7 +7,7 @@ const Page = () => {
   return (
     <HydrateClient>
       <PageHeader title="Settings" />
-      <PageContent>
+      <PageContent className="flex flex-col gap-8">
         <SettingsForm />
         <AppearanceForm />
       </PageContent>

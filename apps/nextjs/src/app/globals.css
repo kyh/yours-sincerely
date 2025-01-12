@@ -28,9 +28,9 @@
   .dark {
     --background: 60, 4%, 5%;
     --foreground: 0 0% 98%;
-    --card: 0, 0%, 7%;
+    --card: 0, 0%, 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0, 0%, 7%;
+    --popover: 0, 0%, 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
@@ -134,6 +134,7 @@
     flex-direction: column;
     height: calc(100dvh - var(--header-height));
     border: none;
+    width: auto;
   }
 }
 
