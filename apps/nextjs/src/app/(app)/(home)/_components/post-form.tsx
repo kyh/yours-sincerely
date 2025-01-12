@@ -75,9 +75,9 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
             </FormItem>
           )}
         />
-        <footer className="flex items-center justify-between">
+        <footer className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1 text-xs">
-            <span className="flex gap-1">
+            <span className="flex flex-wrap gap-1">
               Publishing as
               <FormField
                 control={form.control}
