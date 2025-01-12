@@ -1,4 +1,4 @@
-export const getAvatarUrl = (str: string) => {
+export const getAvatarUrl = (str = "Anonymous") => {
   const hash = hashString(str);
   return `/avatars/${hash % 20}.svg`;
 };

@@ -92,7 +92,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
                 )}
               />
             </span>
-            <span className="text-slate-500">
+            <span className="text-muted-foreground">
               This post will expire on {format(expiry, "MMMM do")}
             </span>
           </div>

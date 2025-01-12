@@ -27,11 +27,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 60, 4%, 5%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 0, 0%, 7%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 0, 0%, 7%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;

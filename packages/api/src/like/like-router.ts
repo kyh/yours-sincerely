@@ -2,7 +2,7 @@ import { and, eq } from "@init/db";
 import { like } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
 
-import { getUserId } from "../auth/auth-utils";
+import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createLikeInput, deleteLikeInput } from "./like-schema";
 
@@ -10,7 +10,7 @@ export const likeRouter = createTRPCRouter({
   createLike: publicProcedure
     .input(createLikeInput)
     .mutation(async ({ ctx, input }) => {
-      const userId = await getUserId(ctx);
+      const userId = await createUserIfNotExists(ctx);
 
       const [created] = await ctx.db
         .insert(like)

@@ -72,7 +72,7 @@ export const CommentForm = ({ postId, postCreatedBy }: CommentFormProps) => {
           )}
         />
         <Button
-          className="absolute bottom-5 right-5 rounded bg-slate-200 px-3 py-2 text-center text-xs transition hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600"
+          className="absolute bottom-5 right-5 rounded px-3 py-2 text-center text-xs transition"
           type="submit"
           loading={createPost.isPending}
         >

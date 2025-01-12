@@ -23,7 +23,7 @@ export const CalendarMenu = ({
   });
 
   const menuItemClassName =
-    "flex items-center w-full px-2 py-2 text-sm rounded-md text-slate-900 group hover:bg-slate-100 hover:no-underline";
+    "flex items-center w-full px-2 py-2 text-sm rounded-md group";
 
   return null;
   // return (

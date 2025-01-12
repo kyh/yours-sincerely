@@ -51,7 +51,7 @@ const RadioGroupItemLabel = (
       className={cn(
         props.className,
         "flex cursor-pointer rounded-md" +
-          " items-center space-x-4 border border-input" +
+          " items-center space-x-4 border border-border" +
           " transition-duration-500 p-4 text-sm transition-all focus-within:border-primary",
         {
           [`border-primary`]: props.selected,

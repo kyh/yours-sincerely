@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+export const getPostsByUserInput = z.object({
+  userId: z.string(),
+});
+export type GetPostsByUserInput = z.infer<typeof getPostsByUserInput>;
+
 export const getPostInput = z.object({
   postId: z.string(),
 });
+export type GetPostInput = z.infer<typeof getPostInput>;
 
 export const getFeedInput = z.object({
   userId: z.string().optional(),
@@ -15,6 +21,7 @@ export const getFeedInput = z.object({
     .optional(),
   limit: z.number().optional(),
 });
+export type GetFeedInput = z.infer<typeof getFeedInput>;
 
 export const createPostInput = z.object({
   parentId: z.string().optional(),
