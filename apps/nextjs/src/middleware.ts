@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse, URLPattern } from "next/server";
 import { createCsrfProtect, CsrfError } from "@edge-csrf/nextjs";
-import { checkRequiresMultiFactorAuthentication } from "@init/api/auth/check-requires-mfa";
 import { createMiddlewareClient } from "@init/db/supabase-middleware-client";
 
 const CSRF_SECRET_COOKIE = "csrfSecret";
@@ -138,47 +137,7 @@ const getPatterns = () => [
       // If user is logged in and does not need to verify MFA,
       // redirect to home page.
       if (!isVerifyMfa) {
-        return NextResponse.redirect(new URL("/", req.nextUrl.origin).href);
-      }
-    },
-  },
-  {
-    pattern: new URLPattern({ pathname: "/dashboard/*?" }),
-    handler: async (request: NextRequest, response: NextResponse) => {
-      const supabase = createMiddlewareClient(request, response);
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      const origin = request.nextUrl.origin;
-      const next = request.nextUrl.pathname;
-
-      // If user is not logged in, redirect to sign in page.
-      if (!user || error) {
-        const signIn = "/auth/sign-in";
-        const redirectPath = `${signIn}?next=${next}`;
-
-        return NextResponse.redirect(new URL(redirectPath, origin).href);
-      }
-
-      const requiresMultiFactorAuthentication =
-        await checkRequiresMultiFactorAuthentication(supabase);
-
-      // If user requires multi-factor authentication, redirect to MFA page.
-      if (requiresMultiFactorAuthentication) {
-        return NextResponse.redirect(new URL("/auth/verify", origin).href);
-      }
-
-      if (request.nextUrl.pathname === "/dashboard") {
-        if (user.user_metadata.defaultTeamSlug) {
-          return NextResponse.redirect(
-            new URL(`/dashboard/${user.user_metadata.defaultTeamSlug}`, origin)
-              .href,
-          );
-        } else {
-          return NextResponse.redirect(new URL("/", origin).href);
-        }
+        return NextResponse.redirect(new URL("/", request.nextUrl.origin).href);
       }
     },
   },

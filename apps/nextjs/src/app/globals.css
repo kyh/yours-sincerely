@@ -4,45 +4,45 @@
 
 @layer base {
   :root {
-    --background: 34, 12%, 89%;
-    --foreground: 12, 6%, 15%;
-    --card: 48, 14%, 93%;
-    --card-foreground: 12, 6%, 15%;
-    --popover: 48, 14%, 93%;
-    --popover-foreground: 12, 6%, 15%;
-    --primary: 240, 5.9%, 10%;
-    --primary-foreground: 0, 0%, 98%;
-    --secondary: 0, 0%, 85%;
-    --secondary-foreground: 240, 5.9%, 10%;
-    --muted: 0, 0%, 85%;
-    --muted-foreground: 0, 0%, 55%;
-    --accent: 0, 0%, 85%;
-    --accent-foreground: 240, 5.9%, 10%;
-    --destructive: 0, 84.2%, 60.2%;
-    --destructive-foreground: 0, 0%, 98%;
-    --border: 0, 0%, 75%;
-    --ring: 240, 5.9%, 10%;
-    --radius: 0.5rem;
+    --background: 34 12% 89%;
+    --foreground: 12 6% 15%;
+    --card: 48 14% 93%;
+    --card-foreground: 12 6% 15%;
+    --popover: 48 14% 93%;
+    --popover-foreground: 12 6% 15%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 85%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 0 0% 85%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 85%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 75%;
+    --ring: 240 5.9% 10%;
+    --radius: 8px;
   }
 
   .dark {
-    --background: 60, 4%, 5%;
+    --background: 60 4% 5%;
     --foreground: 0 0% 98%;
-    --card: 0, 0%, 10%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0, 0%, 10%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 0, 0%, 15%;
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0, 0%, 15%;
+    --muted: 0 0% 15%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 0, 0%, 15%;
+    --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0, 0%, 15%;
+    --border: 0 0% 15%;
     --ring: 240 4.9% 83.9%;
   }
 }
@@ -172,8 +172,6 @@
 .textarea-grow > textarea,
 .textarea-grow::after {
   grid-area: 1 / 1 / 2 / 2;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
   background: transparent;
   outline: 2px solid transparent;
   outline-offset: 2px;

@@ -1,10 +1,10 @@
 "use client";
 
 import { updateUserInput } from "@init/api/user/user-schema";
+import { Button } from "@init/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -12,7 +12,10 @@ import {
   useForm,
 } from "@init/ui/form";
 import { Input } from "@init/ui/input";
+import { Label } from "@init/ui/label";
 import { toast } from "@init/ui/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+import { CircleHelpIcon } from "lucide-react";
 
 import type { UpdateUserInput } from "@init/api/user/user-schema";
 import { api } from "@/trpc/react";
@@ -40,26 +43,41 @@ export const SettingsForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Your email" {...field} />
-              </FormControl>
-              <FormDescription>
-                You will continue to be anonymous, this email is just used for
-                account recovery.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
+    <div className="-space-y-px">
+      <Form {...form}>
+        <form onBlur={form.handleSubmit(onSubmit)}>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="last:rounded-b-none">
+                <FormLabel>
+                  Email
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <CircleHelpIcon className="size-3" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      You will continue to be anonymous, this email is just used
+                      for account recovery.
+                    </TooltipContent>
+                  </Tooltip>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+      <div className="space-y-1 rounded-b-md px-3 pb-2.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border">
+        <Label>Password</Label>
+        <Button type="button" variant="secondary">
+          Request password reset
+        </Button>
+      </div>
+    </div>
   );
 };

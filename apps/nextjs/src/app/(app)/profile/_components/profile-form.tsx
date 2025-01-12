@@ -30,7 +30,7 @@ export const ProfileForm = ({ userId }: ProfileFormProps) => {
     schema: updateUserInput,
     defaultValues: {
       userId: user?.id,
-      displayName: user?.displayName ?? "",
+      displayName: user?.displayName || "Anonymous",
     },
     mode: "onBlur",
   });
@@ -46,7 +46,10 @@ export const ProfileForm = ({ userId }: ProfileFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onBlur={form.handleSubmit(onSubmit)}
+        className="flex flex-col items-center gap-1"
+      >
         <Avatar className="size-20">
           <AvatarImage
             className="dark:invert"
@@ -59,21 +62,13 @@ export const ProfileForm = ({ userId }: ProfileFormProps) => {
           control={form.control}
           name="displayName"
           render={({ field }) => (
-            <FormItem>
+            <FormItem noStyles>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input placeholder="Your email" {...field} />
+                <Input
+                  className="text-center"
+                  placeholder="Your name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

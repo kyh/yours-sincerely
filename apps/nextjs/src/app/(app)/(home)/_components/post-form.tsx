@@ -65,6 +65,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
           render={({ field }) => (
             <FormItem
               className="textarea-grow"
+              noStyles
               data-textarea-value={field.value}
             >
               <FormLabel className="sr-only">Post content</FormLabel>
