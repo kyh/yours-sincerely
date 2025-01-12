@@ -1,7 +1,9 @@
 import type { Day as WeekDay } from "date-fns";
 import {
+  addDays,
   differenceInCalendarDays,
   eachDayOfInterval,
+  format,
   formatISO,
   getDay,
   getMonth,
@@ -11,6 +13,9 @@ import {
 } from "date-fns";
 
 import type { Day, Theme, Weeks } from "./calendar-types";
+import type { RouterOutputs } from "@init/api";
+
+type Posts = RouterOutputs["post"]["getPostsByUser"]["posts"];
 
 export const MIN_DISTANCE_MONTH_LABELS = 2;
 
@@ -145,6 +150,110 @@ export const generateEmptyData = (): Day[] => {
     count: 0,
     level: 0,
   }));
+};
+
+const groupByDay = (posts: Posts, lastNDays: number) => {
+  const days = eachDayOfInterval({
+    start: addDays(new Date(), -lastNDays),
+    end: new Date(),
+  });
+
+  const daysMap = days.reduce(
+    (acc, day) => {
+      const date = format(day, "yyyy-MM-dd");
+      acc[date] = [];
+      return acc;
+    },
+    {} as Record<string, Posts>,
+  );
+
+  posts.forEach((post) => {
+    const date = new Date(post.createdAt);
+    const day = format(date, "yyyy-MM-dd");
+    if (daysMap[day]) {
+      daysMap[day].push(post);
+    }
+  });
+
+  return daysMap;
+};
+
+const maxPostsPerDay = (groupedByDay: Record<string, Posts>) => {
+  const days = Object.keys(groupedByDay);
+
+  const max = days.reduce((acc, day) => {
+    const posts = groupedByDay[day];
+    if (!posts) return acc;
+    if (acc < posts.length) return posts.length;
+    return acc;
+  }, 0);
+
+  return max;
+};
+
+const getPostLevel = (count: number, max: number): 0 | 1 | 2 | 3 | 4 => {
+  if (!count) return 0;
+  if (count < max * 0.3) return 1;
+  if (count < max * 0.6) return 2;
+  if (count < max * 0.9) return 3;
+  return 4;
+};
+
+export const createPostsHeatmap = (posts: Posts, lastNDays: number) => {
+  const groupedByDay = groupByDay(posts, lastNDays);
+  const max = maxPostsPerDay(groupedByDay);
+  const days = Object.keys(groupedByDay);
+
+  const stats = days.map((day) => {
+    const posts = groupedByDay[day];
+    return {
+      date: day,
+      count: posts?.length ?? 0,
+      level: posts ? getPostLevel(posts.length, max) : 0,
+    };
+  });
+
+  return { stats, max };
+};
+
+export const createPostsDailyActivity = (posts: Posts) => {
+  const daysMap = DEFAULT_WEEKDAY_LABELS.reduce(
+    (acc, day) => {
+      acc[day] = {
+        count: 0,
+        level: 0,
+      };
+      return acc;
+    },
+    {} as Record<string, { count: number; level: number }>,
+  );
+
+  posts.forEach((post) => {
+    const date = new Date(post.createdAt);
+    const day = format(date, "eee");
+    if (daysMap[day]) {
+      daysMap[day] = {
+        count: daysMap[day].count + 1,
+        level: 0,
+      };
+    }
+  });
+
+  const max = DEFAULT_WEEKDAY_LABELS.reduce(
+    (acc, day) => {
+      if (!daysMap[day]) return acc;
+      if (acc.max < daysMap[day].count) return { max: daysMap[day].count, day };
+      return acc;
+    },
+    { max: 0, day: "none" },
+  );
+
+  DEFAULT_WEEKDAY_LABELS.forEach((day) => {
+    if (!daysMap[day]) return;
+    daysMap[day].level = getPostLevel(daysMap[day].count, max.max);
+  });
+
+  return { stats: daysMap, max };
 };
 
 export const DEFAULT_MONTH_LABELS = [

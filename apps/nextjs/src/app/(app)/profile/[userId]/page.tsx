@@ -12,6 +12,8 @@ const Page = async (props: Props) => {
   const params = await props.params;
 
   void api.user.getUser.prefetch({ userId: params.userId });
+  void api.user.getUserStats.prefetch({ userId: params.userId });
+  void api.post.getPostsByUser.prefetch({ userId: params.userId });
 
   return (
     <HydrateClient>

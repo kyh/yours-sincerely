@@ -20,7 +20,7 @@ const getPercentage = (createdAt: Date) => {
 };
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
 export const Timer = ({ post }: Props) => {
@@ -31,13 +31,13 @@ export const Timer = ({ post }: Props) => {
 
   return (
     <Tooltip>
-      <TooltipTrigger className="flex items-center rounded-lg p-2" asChild>
+      <TooltipTrigger className="grid size-8 place-items-center rounded-lg p-2 hover:bg-accent">
         <div
-          className="relative inline-block h-4 w-4 rounded-full bg-slate-400 bg-[length:150%] bg-center bg-blend-overlay"
+          className="relative inline-block h-4 w-4 rounded-full bg-[length:150%] bg-center bg-blend-overlay"
           style={{
             backgroundImage: `conic-gradient(
-          rgba(255, 255, 255, 0.6) calc(3.6deg * ${percentage}),
-          rgba(0, 0, 0, 0) calc(3.6deg * ${percentage})
+          rgba(140, 140, 140, 0.1) calc(3.6deg * ${percentage}),
+          rgba(140, 140, 140, 1) calc(3.6deg * ${percentage})
         )`,
           }}
           data-percentage={percentage}

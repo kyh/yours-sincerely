@@ -13,9 +13,8 @@ import { Timer } from "./timer";
 const LikeButton = dynamic(() => import("./like-button"), {
   ssr: false,
   loading: () => (
-    <span className="relative flex items-center gap-2 rounded-lg p-2">
+    <span className="relative flex h-8 items-center gap-1.5 p-2">
       <svg
-        className="text-slate-400"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -60,13 +59,11 @@ export const PostContent = ({
     >
       {asLink ? (
         <Link href={`/posts/${post.id}`}>
-          <p className="whitespace-pre-wrap text-lg">{post.content}</p>
+          <p className="whitespace-pre-wrap">{post.content}</p>
         </Link>
       ) : (
         <p
-          className={`whitespace-pre-wrap text-lg ${
-            displayFull ? "min-h-[50vh]" : ""
-          }`}
+          className={`whitespace-pre-wrap ${displayFull ? "min-h-[50vh]" : ""}`}
         >
           {post.content}
         </p>
@@ -76,13 +73,13 @@ export const PostContent = ({
           displayFull ? "mt-auto pt-3" : "mt-5"
         }`}
       >
-        <div className="italic sm:flex sm:items-center">
-          <span className="mr-1 align-[1px]">Yours Sincerely,</span>
+        <div className="flex items-center gap-1 text-sm italic">
+          <span>Yours Sincerely,</span>
           {post.userId && (
             <ProfileLink userId={post.userId} displayName={post.createdBy} />
           )}
         </div>
-        <div className="mt-3 flex items-center justify-between sm:mt-0 sm:gap-1">
+        <div className="mt-3 flex items-center justify-between text-muted-foreground sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <Timer post={post} />}

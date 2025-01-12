@@ -17,8 +17,8 @@ export const Sidebar = () => {
   const { controls: userControls, ...userControlProps } = useIconAnimation();
 
   return (
-    <section className="area-nav flex flex-col">
-      <nav className="-ml-4 flex flex-col items-start gap-1 py-5">
+    <section className="area-nav">
+      <nav className="flex w-full items-start justify-around gap-1 bg-background px-2 py-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
         <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
             <HomeIcon
@@ -26,7 +26,7 @@ export const Sidebar = () => {
               controls={homeControls}
               className="size-5"
             />
-            <span className="truncate">Home</span>
+            Home
           </Link>
         </Button>
         <Button variant="ghost" {...bellControlProps} asChild>
@@ -36,7 +36,7 @@ export const Sidebar = () => {
               controls={bellControls}
               className="size-5"
             />
-            <span className="truncate">Notifications</span>
+            Notifications
           </Link>
         </Button>
         <Button variant="ghost" {...userControlProps} asChild>
@@ -46,11 +46,11 @@ export const Sidebar = () => {
               controls={userControls}
               className="size-5"
             />
-            <span className="truncate">Profile</span>
+            Profile
           </Link>
         </Button>
       </nav>
-      <footer className="mt-auto flex flex-col gap-2 border-t border-t-border py-4 text-xs">
+      <footer className="mt-auto hidden flex-col gap-2 border-t border-t-border py-4 text-xs md:flex">
         <div>
           ©{new Date().getFullYear()}, Made with{" "}
           <a

@@ -143,11 +143,11 @@ const LikeButton = ({ post }: Props) => {
     <button
       ref={iconButtonRef}
       type="button"
-      className="relative flex items-center gap-2 rounded-lg p-2 transition hover:bg-slate-100 disabled:hover:bg-transparent dark:hover:bg-slate-700"
+      className="relative flex h-8 items-center gap-1.5 rounded-lg p-2 transition hover:bg-accent"
       onClick={toggleLike}
     >
       <svg
-        className={`${isLiked ? "text-red-500" : "text-slate-400"}`}
+        className={`${isLiked ? "text-red-500" : "text-inherit"}`}
         ref={iconRef}
         width="16"
         height="16"

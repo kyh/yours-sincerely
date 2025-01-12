@@ -2,13 +2,14 @@ import { and, desc, eq, lt, notInArray, or } from "@init/db";
 import { feed, post } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
 
-import { getUserId } from "../auth/auth-utils";
+import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   createPostInput,
   deletePostInput,
   getFeedInput,
   getPostInput,
+  getPostsByUserInput,
 } from "./post-schema";
 
 export const postRouter = createTRPCRouter({
@@ -75,28 +76,33 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
-    const response = await ctx.supabase
-      .from("Post")
-      .select("*, likes:Like(userId)")
-      .eq("id", input.postId)
-      .single();
+  getPostsByUser: publicProcedure
+    .input(getPostsByUserInput)
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.db
+        .select()
+        .from(post)
+        .where(eq(post.userId, input.userId))
+        .orderBy(desc(post.createdAt));
 
-    if (response.error) {
-      throw response.error;
-    }
+      return { posts };
+    }),
+
+  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
+    const [postItem] = await ctx.db
+      .select()
+      .from(post)
+      .where(eq(post.id, input.postId));
 
     return {
-      ...response.data,
-      likeCount: response.data.likes.length,
-      commentCount: 0,
+      post: postItem,
     };
   }),
 
   createPost: publicProcedure
     .input(createPostInput)
     .mutation(async ({ ctx, input }) => {
-      const userId = await getUserId(ctx, input.createdBy);
+      const userId = await createUserIfNotExists(ctx, input.createdBy);
 
       const [created] = await ctx.db
         .insert(post)

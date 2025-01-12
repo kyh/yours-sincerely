@@ -9,13 +9,11 @@ import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
 
 type Props = {
-  post: RouterOutputs["post"]["byId"];
+  post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
-const buttonClass =
-  "w-full text-slate-900 p-5 transition rounded hover:no-underline hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800";
-
 export const MoreButton = ({ post }: Props) => {
+  const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const router = useRouter();
 
   const deleteMutation = api.post.deletePost.useMutation({
@@ -37,12 +35,11 @@ export const MoreButton = ({ post }: Props) => {
     },
   });
 
-  const currentUser = api.user.me.useQuery().data?.id;
-  const isPostOwner = post.userId === currentUser;
+  const isPostOwner = post.userId === user?.id;
   const [isOpen, setIsOpen] = useState(false);
 
   const blockingId = post.userId;
-  const blockerId = currentUser;
+  const blockerId = user?.id;
 
   const handleSubmit = (
     e: React.FormEvent<HTMLFormElement>,
@@ -53,20 +50,18 @@ export const MoreButton = ({ post }: Props) => {
     switch (action) {
       case "delete":
         return deleteMutation.mutate({
-          id: post.id,
+          postId: post.id,
         });
       case "flag":
-        if (!currentUser) {
+        if (!user) {
           return toast("You must be logged in to flag a post");
         }
         return createMutation.mutate({
           postId: post.id,
-          userId: currentUser,
         });
       case "block":
         if (!blockerId || !blockingId) return toast("Invalid block");
         return blockMutation.mutate({
-          blockerId,
           blockingId,
         });
     }
@@ -76,7 +71,7 @@ export const MoreButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="size-8 rounded-lg p-2 transition hover:bg-accent"
         onClick={() => setIsOpen(true)}
       >
         <span className="sr-only">See post options</span>
@@ -97,30 +92,39 @@ export const MoreButton = ({ post }: Props) => {
         </svg>
       </button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="flex flex-col justify-center divide-y divide-slate-200 dark:divide-slate-500">
+        <DialogContent className="flex flex-col justify-center divide-y divide-border">
           <a
-            className={buttonClass}
+            className="w-full rounded p-5 transition hover:no-underline"
             href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
           >
             Report
           </a>
-          {!!currentUser && isPostOwner && (
+          {!!user && isPostOwner && (
             <form method="post" onSubmit={(e) => handleSubmit(e, "delete")}>
-              <button type="submit" className={buttonClass}>
+              <button
+                type="submit"
+                className="w-full rounded p-5 transition hover:no-underline"
+              >
                 Delete Post
               </button>
             </form>
           )}
-          {!!currentUser && !isPostOwner && (
+          {!!user && !isPostOwner && (
             <form method="post" onSubmit={(e) => handleSubmit(e, "flag")}>
-              <button type="submit" className={buttonClass}>
+              <button
+                type="submit"
+                className="w-full rounded p-5 transition hover:no-underline"
+              >
                 Mark as inappropriate
               </button>
             </form>
           )}
-          {!!currentUser && !isPostOwner && (
+          {!!user && !isPostOwner && (
             <form method="post" onSubmit={(e) => handleSubmit(e, "block")}>
-              <button type="submit" className={buttonClass}>
+              <button
+                type="submit"
+                className="w-full rounded p-5 transition hover:no-underline"
+              >
                 Stop seeing content from this user
               </button>
             </form>

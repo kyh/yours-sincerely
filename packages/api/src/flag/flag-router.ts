@@ -2,7 +2,7 @@ import { and, eq } from "@init/db";
 import { flag } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
 
-import { getUserId } from "../auth/auth-utils";
+import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createFlagInput, deleteFlagInput } from "./flag-schema";
 
@@ -10,7 +10,7 @@ export const flagRouter = createTRPCRouter({
   createFlag: publicProcedure
     .input(createFlagInput)
     .mutation(async ({ ctx, input }) => {
-      const userId = await getUserId(ctx);
+      const userId = await createUserIfNotExists(ctx);
 
       const [created] = await ctx.db
         .insert(flag)

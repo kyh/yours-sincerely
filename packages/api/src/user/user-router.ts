@@ -1,3 +1,5 @@
+import { eq } from "@init/db";
+import { userStats } from "@init/db/schema";
 import { getSupabaseAdminClient } from "@init/db/supabase-admin-client";
 
 import {
@@ -44,17 +46,14 @@ export const userRouter = createTRPCRouter({
   getUserStats: publicProcedure
     .input(getUserStatsInput)
     .query(async ({ ctx, input }) => {
-      const response = await ctx.supabase
-        .from("UserStats")
-        .select("*")
-        .eq("userId", input.userId)
-        .single();
+      const [stats] = await ctx.db
+        .select()
+        .from(userStats)
+        .where(eq(userStats.userId, input.userId));
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
+      return {
+        userStats: stats,
+      };
     }),
 
   // ADMIN ACTIONS

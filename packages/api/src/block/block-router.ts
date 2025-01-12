@@ -1,7 +1,7 @@
 import { and, eq } from "@init/db";
 import { block } from "@init/db/schema";
 
-import { getUserId } from "../auth/auth-utils";
+import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createBlockInput, deleteBlockInput } from "./block-schema";
 
@@ -9,7 +9,7 @@ export const blockRouter = createTRPCRouter({
   createBlock: publicProcedure
     .input(createBlockInput)
     .mutation(async ({ ctx, input }) => {
-      const userId = await getUserId(ctx);
+      const userId = await createUserIfNotExists(ctx);
 
       const [created] = await ctx.db
         .insert(block)
