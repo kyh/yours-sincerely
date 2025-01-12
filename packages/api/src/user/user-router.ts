@@ -1,5 +1,5 @@
 import { eq } from "@init/db";
-import { userStats } from "@init/db/schema";
+import { user, userStats } from "@init/db/schema";
 import { getSupabaseAdminClient } from "@init/db/supabase-admin-client";
 
 import {
@@ -28,21 +28,6 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  updateUser: protectedProcedure
-    .input(updateUserInput)
-    .mutation(async ({ ctx, input }) => {
-      const { userId: _id, email: _email, ...metadata } = input;
-      const response = await ctx.supabase.auth.updateUser({
-        data: metadata,
-      });
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-
   getUserStats: publicProcedure
     .input(getUserStatsInput)
     .query(async ({ ctx, input }) => {
@@ -53,6 +38,30 @@ export const userRouter = createTRPCRouter({
 
       return {
         userStats: stats,
+      };
+    }),
+
+  updateUser: protectedProcedure
+    .input(updateUserInput)
+    .mutation(async ({ ctx, input }) => {
+      const updates: Partial<typeof user.$inferInsert> = {};
+
+      if (input.email) {
+        updates.email = input.email;
+      }
+
+      if (input.displayName) {
+        updates.displayName = input.displayName;
+      }
+
+      const [response] = await ctx.db
+        .update(user)
+        .set(updates)
+        .where(eq(user.id, input.userId))
+        .returning();
+
+      return {
+        user: response,
       };
     }),
 

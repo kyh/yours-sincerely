@@ -93,13 +93,22 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 
 const FormItem = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { noStyles?: boolean }
+>(({ className, noStyles, ...props }, ref) => {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div
+        ref={ref}
+        className={cn(
+          noStyles
+            ? null
+            : "px-3 pb-1.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border first:rounded-t-md last:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-primary",
+          className,
+        )}
+        {...props}
+      />
     </FormItemContext.Provider>
   );
 });
