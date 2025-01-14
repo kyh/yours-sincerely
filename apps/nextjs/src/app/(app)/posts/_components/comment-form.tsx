@@ -25,7 +25,7 @@ export const CommentForm = ({ postId, postCreatedBy }: CommentFormProps) => {
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: () => {
-      toast.message("Your comment has been added");
+      toast.success("Your comment has been added");
     },
     onError: (err) => {
       toast.error(err.message);

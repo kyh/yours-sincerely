@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { cn } from "@init/ui/utils";
 
 import type { RouterOutputs } from "@init/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
@@ -51,27 +52,22 @@ export const PostContent = ({
 }: Props) => {
   return (
     <article
-      className={`${
-        displayFull
-          ? "article word-break flex h-full w-full flex-col"
-          : "article"
-      }`}
+      className={cn(displayFull && "word-break flex h-full w-full flex-col")}
     >
       {asLink ? (
         <Link href={`/posts/${post.id}`}>
           <p className="whitespace-pre-wrap">{post.content}</p>
         </Link>
       ) : (
-        <p
-          className={`whitespace-pre-wrap ${displayFull ? "min-h-[50vh]" : ""}`}
-        >
+        <p className={cn("whitespace-pre-wrap", displayFull && "min-h-[50vh]")}>
           {post.content}
         </p>
       )}
       <footer
-        className={`flex flex-col sm:flex-row sm:justify-between ${
-          displayFull ? "mt-auto pt-3" : "mt-5"
-        }`}
+        className={cn(
+          "flex flex-col sm:flex-row sm:justify-between",
+          displayFull ? "mt-auto pt-3" : "mt-5",
+        )}
       >
         <div className="flex items-center gap-1 text-sm italic">
           <span>Yours Sincerely,</span>
