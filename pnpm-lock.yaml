@@ -109,10 +109,10 @@ importers:
         version: 5.64.0(react@19.0.0)
       '@trpc/client':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/react-query':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -242,13 +242,16 @@ importers:
         version: 5.64.0(react@19.0.0)
       '@trpc/client':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/react-query':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      canvas-confetti:
+        specifier: ^1.9.3
+        version: 1.9.3
       motion:
         specifier: ^11.17.0
         version: 11.17.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -295,6 +298,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: 'catalog:'
         version: 5.64.0(@tanstack/react-query@5.64.0(react@19.0.0))(react@19.0.0)
+      '@types/canvas-confetti':
+        specifier: ^1.9.0
+        version: 1.9.0
       '@types/node':
         specifier: 'catalog:'
         version: 22.10.5
@@ -3008,6 +3014,9 @@ packages:
   '@types/bcryptjs@2.4.6':
     resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
 
+  '@types/canvas-confetti@1.9.0':
+    resolution: {integrity: sha512-aBGj/dULrimR1XDZLtG9JwxX1b4HPRF6CX9Yfwh3NvstZEm1ZL7RBnel4keCPSqs1ANRu1u2Aoz9R+VmtjYuTg==}
+
   '@types/cookie-signature@1.1.2':
     resolution: {integrity: sha512-2OhrZV2LVnUAXklUFwuYUTokalh/dUb8rqt70OW6ByMSxYpauPZ+kfNLknX3aJyjY5iu8i3cUyoLZP9Fn37tTg==}
 
@@ -3576,6 +3585,9 @@ packages:
 
   caniuse-lite@1.0.30001692:
     resolution: {integrity: sha512-A95VKan0kdtrsnMubMKxEKUKImOPSuCpYgxSQBo036P5YYgVIcOYJEgt/txJWqObiRQeISNCfef9nvlQ0vbV7A==}
+
+  canvas-confetti@1.9.3:
+    resolution: {integrity: sha512-rFfTURMvmVEX1gyXFgn5QMn81bYk70qa0HLzcIOSVEyl57n6o9ItHeBtUSWdvKAPY0xlvBHno4/v3QPrT83q9g==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -10424,14 +10436,14 @@ snapshots:
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
-  '@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
+  '@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
     dependencies:
       '@trpc/server': 11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
-  '@trpc/react-query@11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@trpc/react-query@11.0.0-rc.630(@tanstack/react-query@5.64.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@tanstack/react-query': 5.64.0(react@19.0.0)
-      '@trpc/client': 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+      '@trpc/client': 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/server': 11.0.0-rc.630(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -10523,6 +10535,8 @@ snapshots:
       '@babel/types': 7.26.5
 
   '@types/bcryptjs@2.4.6': {}
+
+  '@types/canvas-confetti@1.9.0': {}
 
   '@types/cookie-signature@1.1.2':
     dependencies:
@@ -11195,6 +11209,8 @@ snapshots:
   camelcase@6.3.0: {}
 
   caniuse-lite@1.0.30001692: {}
+
+  canvas-confetti@1.9.3: {}
 
   chalk@2.4.2:
     dependencies:
