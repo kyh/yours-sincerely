@@ -2,6 +2,7 @@
 
 import type { MotionProps, PanInfo } from "motion/react";
 import { useEffect, useState } from "react";
+import { Button } from "@init/ui/button";
 import {
   AnimatePresence,
   motion,
@@ -62,7 +63,7 @@ export const Card = (props: CardProps) => {
 
   return (
     <motion.div
-      className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl sm:left-[50%] sm:ml-[-300px] sm:w-[600px]"
+      className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl sm:left-[50%] sm:ml-[-250px] sm:w-[500px]"
       style={{ x, rotate }}
       dragDirectionLock
       drag={props.drag}
@@ -80,7 +81,7 @@ export const Card = (props: CardProps) => {
       onAnimationComplete={props.onAnimationComplete}
     >
       <motion.div
-        className="h-fit w-full rounded-2xl p-5 shadow-lg"
+        className="h-fit w-full rounded-2xl bg-card p-5 shadow"
         style={{ scale }}
       >
         {props.children}
@@ -173,13 +174,13 @@ export const CardStack = <T,>({
         </AnimatePresence>
       </div>
       {nextButton && (
-        <button
-          className="mt-auto rounded-lg px-3 py-2 transition"
+        <Button
+          className="mt-auto"
           onClick={() => onNext(true)}
           disabled={animating}
         >
           {nextButton}
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -10,17 +10,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
+import { useTheme } from "@init/ui/theme";
+import {
+  HelpCircleIcon,
+  LayoutDashboardIcon,
+  SettingsIcon,
+  SunMoonIcon,
+  UserIcon,
+} from "lucide-react";
 
-import { HelpIcon } from "@/components/icons/help-icon";
-import { LogoutIcon } from "@/components/icons/logout-icon";
-import { SettingsIcon } from "@/components/icons/settings-icon";
-import { UserIcon } from "@/components/icons/user-icon";
 import { getAvatarUrl } from "@/lib/avatars";
+import { toggleFeedLayout } from "@/lib/feed-layout-actions";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
+  const { theme, setTheme } = useTheme();
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const signOut = api.auth.signOut.useMutation();
 
   return (
     <div className="area-aside-header">
@@ -59,25 +64,22 @@ export const AsideHeader = () => {
               <Link href="/auth/sign-in">Login</Link>
             </DropdownMenuItem>
           )}
-          {!user && (
-            <DropdownMenuItem asChild>
-              <Link href="/auth/sign-up">Sign up</Link>
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            <SunMoonIcon aria-hidden="true" className="size-4" />
+            Theme
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => toggleFeedLayout()}>
+            <LayoutDashboardIcon aria-hidden="true" className="size-4" />
+            Layout
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <HelpIcon aria-hidden="true" className="size-4" />
+            <HelpCircleIcon aria-hidden="true" className="size-4" />
             Support
           </DropdownMenuItem>
-          {user && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOut.mutate()}>
-                <LogoutIcon aria-hidden="true" className="size-4" />
-                Log out
-              </DropdownMenuItem>
-            </>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

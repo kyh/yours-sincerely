@@ -35,7 +35,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: (_data, variables) => {
-      toast.message("Your love letter has been published");
+      toast.success("Your love letter has been published");
       form.reset({
         content: "",
         createdBy: variables.createdBy,

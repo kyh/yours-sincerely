@@ -3,12 +3,13 @@
 import { Spinner } from "@init/ui/spinner";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
+import type { FeedLayout } from "@/lib/feed-layout-actions";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
 import { api } from "@/trpc/react";
 
 type Props = {
-  view?: "STACK" | "LIST";
+  layout?: FeedLayout;
   filters?: {
     userId?: string;
     parentId?: string;
@@ -17,7 +18,7 @@ type Props = {
   };
 };
 
-export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
+export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
   const [data, { isFetchingNextPage, hasNextPage, fetchNextPage }] =
     api.post.getFeed.useSuspenseInfiniteQuery(filters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -36,7 +37,7 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
       {!posts.length && (
         <div className="h-full py-5 text-center">No posts available</div>
       )}
-      {posts.length > 0 && view === "STACK" && (
+      {posts.length > 0 && layout === "stack" && (
         <CardStack
           data={posts}
           hasNextPage={hasNextPage}
@@ -45,7 +46,7 @@ export const PostFeed = ({ view = "LIST", filters = {} }: Props) => {
           {(post) => <PostContent displayFull asLink={false} post={post} />}
         </CardStack>
       )}
-      {posts.length > 0 && view === "LIST" && (
+      {posts.length > 0 && layout === "list" && (
         <>
           {posts.map((post) => (
             <div key={post.id} className="py-5">
