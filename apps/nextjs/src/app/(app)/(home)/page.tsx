@@ -1,6 +1,7 @@
 // export const runtime = "edge";
 
 import { cookies } from "next/headers";
+import { cn } from "@init/ui/utils";
 
 import {
   PageAside,
@@ -10,7 +11,7 @@ import {
 import { getFeedLayout } from "@/lib/feed-layout-actions";
 import { api, HydrateClient } from "@/trpc/server";
 import { PostFeed } from "./_components/post-feed";
-import { PostForm } from "./_components/post-form";
+import { NewPostButton, PostForm } from "./_components/post-form";
 
 const Page = async () => {
   const cookieStore = await cookies();
@@ -25,9 +26,20 @@ const Page = async () => {
 
   return (
     <HydrateClient>
-      <PageHeader title="Home" />
+      <PageHeader title="Home">
+        <div className={cn(feedLayout === "list" && "md:hidden")}>
+          <NewPostButton placeholder={placeholder} />
+        </div>
+      </PageHeader>
       <PageContent className="flex flex-col gap-5">
-        {feedLayout === "list" ? <PostForm placeholder={placeholder} /> : null}
+        <div
+          className={cn(
+            "hidden border-b border-border pb-5",
+            feedLayout === "list" && "md:block",
+          )}
+        >
+          <PostForm placeholder={placeholder} />
+        </div>
         <PostFeed filters={filters} layout={feedLayout} />
       </PageContent>
       <PageAside>

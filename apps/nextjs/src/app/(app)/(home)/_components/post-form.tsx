@@ -1,8 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { createPostInput } from "@init/api/post/post-schema";
 import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
 import { Button } from "@init/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@init/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@init/ui/drawer";
 import {
   Form,
   FormControl,
@@ -13,7 +30,10 @@ import {
   useForm,
 } from "@init/ui/form";
 import { toast } from "@init/ui/toast";
+import { useMediaQuery } from "@init/ui/utils";
+import confetti from "canvas-confetti";
 import { addDays, format } from "date-fns";
+import { PlusIcon } from "lucide-react";
 
 import type { CreatePostInput } from "@init/api/post/post-schema";
 import { api } from "@/trpc/react";
@@ -48,6 +68,29 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
 
   const handlePostForm = (formData: CreatePostInput) => {
     if (user?.disabled) return toast.error("Your account has been disabled");
+
+    const end = Date.now() + 3 * 1000;
+    (function frame() {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+
     createPost.mutate(formData);
   };
 
@@ -56,7 +99,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-2 border-b border-border pb-5"
+        className="flex flex-col gap-2"
         onSubmit={form.handleSubmit(handlePostForm)}
       >
         <FormField
@@ -103,5 +146,51 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
         </footer>
       </form>
     </Form>
+  );
+};
+
+export const NewPostButton = ({ placeholder }: PostFormProps) => {
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery();
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button>New Post</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader className="sr-only">
+            <DialogTitle>New Post</DialogTitle>
+            <DialogDescription>
+              Send your tiny beautiful letters to the world
+            </DialogDescription>
+          </DialogHeader>
+          <PostForm placeholder={placeholder} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
+        <Button size="icon" className="fixed bottom-16 right-3">
+          <PlusIcon />
+          <span className="sr-only">New Post</span>
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>New Post</DrawerTitle>
+          <DrawerDescription>
+            Send your tiny beautiful letters to the world
+          </DrawerDescription>
+        </DrawerHeader>
+        <section className="p-4">
+          <PostForm placeholder={placeholder} />
+        </section>
+      </DrawerContent>
+    </Drawer>
   );
 };

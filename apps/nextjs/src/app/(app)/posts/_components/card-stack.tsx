@@ -176,6 +176,7 @@ export const CardStack = <T,>({
       {nextButton && (
         <Button
           className="mt-auto"
+          variant="outline"
           onClick={() => onNext(true)}
           disabled={animating}
         >
