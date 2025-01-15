@@ -93,7 +93,7 @@ export const TRPCReactProvider = (props: { children: React.ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <api.Provider client={trpcClient} queryClient={queryClient}>
         {props.children}
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </api.Provider>
     </QueryClientProvider>
   );

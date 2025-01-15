@@ -40,9 +40,10 @@ import { api } from "@/trpc/react";
 
 type PostFormProps = {
   placeholder?: string;
+  onSuccess?: () => void;
 };
 
-export const PostForm = ({ placeholder }: PostFormProps) => {
+export const PostForm = ({ placeholder, onSuccess }: PostFormProps) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
   const form = useForm({
@@ -60,6 +61,7 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
         content: "",
         createdBy: variables.createdBy,
       });
+      onSuccess?.();
     },
     onError: (err) => {
       toast.error(err.message);
@@ -69,7 +71,8 @@ export const PostForm = ({ placeholder }: PostFormProps) => {
   const handlePostForm = (formData: CreatePostInput) => {
     if (user?.disabled) return toast.error("Your account has been disabled");
 
-    const end = Date.now() + 3 * 1000;
+    const duration = 1 * 1000;
+    const end = Date.now() + duration;
     (function frame() {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       confetti({
@@ -157,7 +160,10 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>New Post</Button>
+          <Button size="icon">
+            <PlusIcon />
+            <span className="sr-only">New Post</span>
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader className="sr-only">
@@ -166,7 +172,10 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
               Send your tiny beautiful letters to the world
             </DialogDescription>
           </DialogHeader>
-          <PostForm placeholder={placeholder} />
+          <PostForm
+            placeholder={placeholder}
+            onSuccess={() => setOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -175,7 +184,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button size="icon" className="fixed bottom-16 right-3">
+        <Button size="icon">
           <PlusIcon />
           <span className="sr-only">New Post</span>
         </Button>
@@ -188,7 +197,10 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
           </DrawerDescription>
         </DrawerHeader>
         <section className="p-4">
-          <PostForm placeholder={placeholder} />
+          <PostForm
+            placeholder={placeholder}
+            onSuccess={() => setOpen(false)}
+          />
         </section>
       </DrawerContent>
     </Drawer>

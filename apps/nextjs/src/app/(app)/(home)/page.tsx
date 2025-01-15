@@ -26,11 +26,7 @@ const Page = async () => {
 
   return (
     <HydrateClient>
-      <PageHeader title="Home">
-        <div className={cn(feedLayout === "list" && "md:hidden")}>
-          <NewPostButton placeholder={placeholder} />
-        </div>
-      </PageHeader>
+      <PageHeader title="Home" />
       <PageContent className="flex flex-col gap-5">
         <div
           className={cn(
@@ -41,6 +37,18 @@ const Page = async () => {
           <PostForm placeholder={placeholder} />
         </div>
         <PostFeed filters={filters} layout={feedLayout} />
+        <div
+          className={cn(
+            "pointer-events-none fixed bottom-16 left-0 right-0 z-10 md:bottom-5",
+            feedLayout === "list" && "md:hidden",
+          )}
+        >
+          <div className="mx-auto flex w-full max-w-screen-xl px-5">
+            <div className="pointer-events-auto ml-auto">
+              <NewPostButton placeholder={placeholder} />
+            </div>
+          </div>
+        </div>
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto"></section>
