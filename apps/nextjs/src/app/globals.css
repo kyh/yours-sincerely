@@ -58,6 +58,18 @@
     "content content";
   grid-template-columns: auto;
   grid-template-rows: var(--header-height) auto;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 0 20px;
+  max-width: 48rem;
+}
+
+@media (max-width: 640px) {
+  .page-layout:has(.card-stack) {
+    max-height: 100dvh;
+    max-width: 100dvh;
+    overflow: hidden;
+  }
 }
 
 .area-nav-header {
@@ -96,7 +108,7 @@
 
 .area-content {
   grid-area: content;
-  padding: 20px 0 60px;
+  padding: 20px 0 64px;
 }
 
 .area-aside-header {
@@ -158,6 +170,7 @@
         --right-column-width
       );
     column-gap: 4rem;
+    max-width: 1280px;
   }
 
   .area-aside {

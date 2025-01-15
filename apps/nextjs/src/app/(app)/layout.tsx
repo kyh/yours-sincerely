@@ -10,7 +10,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <HydrateClient>
-      <section className="page-layout mx-auto min-h-dvh max-w-3xl px-5 lg:max-w-screen-xl">
+      <section className="page-layout">
         <div className="area-nav-header">
           <Link href="/">
             <Logo />

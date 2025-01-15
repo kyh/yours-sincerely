@@ -138,7 +138,7 @@ export const CardStack = <T,>({
   ]);
 
   return (
-    <div className="flex h-full flex-col items-center gap-3">
+    <div className="card-stack flex h-full flex-col items-center gap-3">
       <div className="relative h-full w-full">
         <AnimatePresence initial={false}>
           <Card
