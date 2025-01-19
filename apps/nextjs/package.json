@@ -27,7 +27,7 @@
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
     "canvas-confetti": "^1.9.3",
-    "motion": "^11.17.0",
+    "motion": "^11.18.1",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
