@@ -1,35 +1,37 @@
 type Props = {
-  data: {
-    posts: number;
-    likes: number;
-    currentStreak: number;
-    longestStreak: number;
-  };
-  stack?: boolean;
+  posts: number;
+  likes: number;
+  currentStreak: number;
+  longestStreak: number;
 };
 
-export const ActivityStats = ({ data, stack }: Props) => {
+export const ActivityStats = ({
+  posts,
+  likes,
+  currentStreak,
+  longestStreak,
+}: Props) => {
   return (
-    <dl className={`grid gap-2 ${stack ? "grid-cols-2" : "grid-cols-4"}`}>
+    <dl className="grid grid-cols-2 gap-2">
       <div className="flex flex-col gap-1 text-center">
         <dt className="order-2 text-xs text-muted-foreground">
           Current Streak
         </dt>
-        <dd className="order-1 text-lg font-extrabold">{data.currentStreak}</dd>
+        <dd className="order-1 text-lg font-extrabold">{currentStreak}</dd>
       </div>
       <div className="flex flex-col gap-1 text-center">
         <dt className="order-2 text-xs text-muted-foreground">
           Longest Streak
         </dt>
-        <dd className="order-1 text-lg font-extrabold">{data.longestStreak}</dd>
+        <dd className="order-1 text-lg font-extrabold">{longestStreak}</dd>
       </div>
       <div className="flex flex-col gap-1 text-center">
         <dt className="order-2 text-xs text-muted-foreground">Total Posts</dt>
-        <dd className="order-1 text-lg font-extrabold">{data.posts}</dd>
+        <dd className="order-1 text-lg font-extrabold">{posts}</dd>
       </div>
       <div className="flex flex-col gap-1 text-center">
         <dt className="order-2 text-xs text-muted-foreground">Total Likes</dt>
-        <dd className="order-1 text-lg font-extrabold">{data.likes}</dd>
+        <dd className="order-1 text-lg font-extrabold">{likes}</dd>
       </div>
     </dl>
   );
