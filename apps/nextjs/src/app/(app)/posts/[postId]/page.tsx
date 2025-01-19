@@ -8,14 +8,16 @@ type Props = {
   }>;
 };
 
-const Page = async ({ params: { pid } }: Props) => {
-  await api.post.getPost.prefetch({ id: pid });
+const Page = async (props: Props) => {
+  const params = await props.params;
+
+  await api.post.getPost.prefetch({ postId: params.pid });
 
   return (
     <HydrateClient>
       <PageHeader title="Post" />
       <PageContent className="flex flex-col gap-5">
-        <CommentFeed pid={pid} />
+        <CommentFeed postId={params.pid} />
       </PageContent>
     </HydrateClient>
   );
