@@ -94,8 +94,22 @@ export const postRouter = createTRPCRouter({
       .from(post)
       .where(eq(post.id, input.postId));
 
+    if (!postItem) {
+      throw new Error("Post not found");
+    }
+
     return {
-      post: postItem,
+      post: {
+        id: postItem.id,
+        isLiked: false,
+        content: postItem.content,
+        createdAt: postItem.createdAt,
+        userId: postItem.userId,
+        createdBy: postItem.createdBy || "Anonymous",
+        parentId: postItem.parentId || "",
+        likeCount: 0,
+        commentCount: 0,
+      },
     };
   }),
 

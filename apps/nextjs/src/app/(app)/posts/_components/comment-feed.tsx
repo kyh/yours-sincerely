@@ -10,12 +10,12 @@ import { CommentContent } from "./comment-content";
 import { PostContent } from "./post-content";
 
 type Props = {
-  pid: string;
+  postId: string;
 };
 
-export const CommentFeed = ({ pid }: Props) => {
+export const CommentFeed = ({ postId }: Props) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const [{ post }] = api.post.getPost.useSuspenseQuery({ postId: pid });
+  const [{ post }] = api.post.getPost.useSuspenseQuery({ postId });
 
   const { mutate, isPending } = api.post.createPost.useMutation({
     onSuccess: () => {
