@@ -34,13 +34,10 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
       </h4>
       {!isLoading && data ? (
         <ActivityStats
-          data={{
-            posts: data.userStats?.totalPostCount ?? 0,
-            likes: data.userStats?.totalLikeCount ?? 0,
-            longestStreak: data.userStats?.longestPostStreak ?? 0,
-            currentStreak: data.userStats?.currentPostStreak ?? 0,
-          }}
-          stack
+          posts={data.userStats?.totalPostCount ?? 0}
+          likes={data.userStats?.totalLikeCount ?? 0}
+          longestStreak={data.userStats?.longestPostStreak ?? 0}
+          currentStreak={data.userStats?.currentPostStreak ?? 0}
         />
       ) : (
         <div className="grid h-[104px] w-[180px] animate-pulse grid-cols-2 gap-2">

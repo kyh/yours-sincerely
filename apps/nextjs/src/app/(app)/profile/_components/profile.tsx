@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@init/ui/card";
 import { useTheme } from "@init/ui/theme";
 
 import { api } from "@/trpc/react";
@@ -54,41 +55,53 @@ export const Profile = ({ userId }: ProfileProps) => {
   const isDarkMode = theme === "dark";
 
   return (
-    <section className="flex flex-col gap-8">
-      <ProfileForm userId={userId} readonly={!allowEdit} />
-      <ActivityStats
-        data={{
-          posts: userStats?.totalPostCount ?? 0,
-          likes: userStats?.totalLikeCount ?? 0,
-          currentStreak: userStats?.currentPostStreak ?? 0,
-          longestStreak: userStats?.longestPostStreak ?? 0,
-        }}
-      />
-      <ActivityCalendar
-        data={heatmapData.stats}
-        theme={isDarkMode ? darkTheme : lightTheme}
-      />
-      <h2 className="text-sm font-bold">
-        {dailyData.max.day === "none" ? (
-          <>No daily stats yet</>
-        ) : (
-          <>
-            Favorite day to write is on{" "}
-            <span className="text-primary">
-              {
-                FULL_DAY_LABELS[
-                  dailyData.max.day as keyof typeof FULL_DAY_LABELS
-                ]
-              }
-              s
-            </span>
-          </>
-        )}
-      </h2>
-      <ActivityWeek
-        data={dailyData.stats}
-        theme={isDarkMode ? darkTheme : lightTheme}
-      />
+    <section className="grid grid-cols-1 gap-4 lg:grid-cols-6 lg:grid-rows-2">
+      <div className="lg:col-span-6">
+        <Card className="p-5 lg:rounded-t-[calc(2rem+1px)]">
+          <ProfileForm userId={userId} readonly={!allowEdit} />
+          <div className="mx-auto">
+            <ActivityCalendar
+              data={heatmapData.stats}
+              theme={isDarkMode ? darkTheme : lightTheme}
+            />
+          </div>
+        </Card>
+      </div>
+      <div className="lg:col-span-3">
+        <Card className="h-60 p-5 lg:rounded-bl-[calc(2rem+1px)]">
+          <h2 className="text-sm font-bold">
+            {dailyData.max.day === "none" ? (
+              <>No daily stats yet</>
+            ) : (
+              <>
+                Favorite day to write is on{" "}
+                <span className="text-primary">
+                  {
+                    FULL_DAY_LABELS[
+                      dailyData.max.day as keyof typeof FULL_DAY_LABELS
+                    ]
+                  }
+                  s
+                </span>
+              </>
+            )}
+          </h2>
+          <ActivityWeek
+            data={dailyData.stats}
+            theme={isDarkMode ? darkTheme : lightTheme}
+          />
+        </Card>
+      </div>
+      <div className="lg:col-span-3">
+        <Card className="h-60 p-5 lg:rounded-br-[calc(2rem+1px)]">
+          <ActivityStats
+            posts={userStats?.totalPostCount ?? 0}
+            likes={userStats?.totalLikeCount ?? 0}
+            currentStreak={userStats?.currentPostStreak ?? 0}
+            longestStreak={userStats?.longestPostStreak ?? 0}
+          />
+        </Card>
+      </div>
     </section>
   );
 };

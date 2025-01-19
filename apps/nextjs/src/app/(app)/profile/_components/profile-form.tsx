@@ -22,7 +22,7 @@ type ProfileFormProps = {
   readonly?: boolean;
 };
 
-export const ProfileForm = ({ userId }: ProfileFormProps) => {
+export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const [{ user }] = api.user.getUser.useSuspenseQuery({ userId });
   const updateUser = api.user.updateUser.useMutation();
 
@@ -48,7 +48,7 @@ export const ProfileForm = ({ userId }: ProfileFormProps) => {
     <Form {...form}>
       <form
         onBlur={form.handleSubmit(onSubmit)}
-        className="flex flex-col items-center gap-1"
+        className="flex flex-col items-center gap-2"
       >
         <Avatar className="size-20">
           <AvatarImage
@@ -65,8 +65,9 @@ export const ProfileForm = ({ userId }: ProfileFormProps) => {
             <FormItem noStyles>
               <FormControl>
                 <Input
-                  className="text-center"
+                  className="rounded px-3 py-1 text-center text-xl font-bold transition enabled:hover:bg-accent"
                   placeholder="Your name"
+                  disabled={readonly}
                   {...field}
                 />
               </FormControl>

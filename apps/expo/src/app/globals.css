@@ -2,49 +2,207 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-  --radius: 0.3rem;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: 60, 4%, 5%;
+    --background: 34 12% 89%;
+    --foreground: 12 6% 15%;
+    --card: 34 10% 98%;
+    --card-foreground: 12 6% 15%;
+    --popover: 34 10% 98%;
+    --popover-foreground: 12 6% 15%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 85%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 0 0% 85%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 85%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 75%;
+    --ring: 240 5.9% 10%;
+    --radius: 8px;
+  }
+
+  .dark {
+    --background: 60 4% 5%;
     --foreground: 0 0% 98%;
-    --card: 0, 0%, 7%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0, 0%, 7%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 0 0% 15%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 0 0% 15%;
     --ring: 240 4.9% 83.9%;
   }
+}
+
+.page-layout {
+  --header-height: 80px;
+  --left-column-width: 200px;
+  --right-column-width: 300px;
+
+  display: grid;
+  grid-template-areas:
+    "content-header aside-header"
+    "content content";
+  grid-template-columns: auto;
+  grid-template-rows: var(--header-height) auto;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 0 20px;
+  max-width: 48rem;
+}
+
+@media (max-width: 640px) {
+  .page-layout:has(.card-stack) {
+    max-height: 100dvh;
+    max-width: 100dvh;
+    overflow: hidden;
+  }
+}
+
+.area-nav-header {
+  grid-area: nav-header;
+  position: sticky;
+  top: 0;
+  align-items: center;
+  border-bottom: 1px solid hsl(var(--border));
+  display: none;
+}
+
+.area-nav {
+  grid-area: nav;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  z-index: 1;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.area-content-header {
+  grid-area: content-header;
+  position: sticky;
+  top: 0;
+  background-color: hsl(var(--background));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.area-content {
+  grid-area: content;
+  padding: 20px 0 64px;
+}
+
+.area-aside-header {
+  grid-area: aside-header;
+  position: sticky;
+  top: 0;
+  background-color: hsl(var(--background));
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 4px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.area-aside {
+  grid-area: aside;
+  position: sticky;
+  top: var(--header-height);
+  align-self: start;
+  height: calc(100dvh - var(--header-height));
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .page-layout {
+    grid-template-areas:
+      "nav-header content-header aside-header"
+      "nav content content";
+    grid-template-columns: var(--left-column-width) auto;
+  }
+
+  .area-nav-header,
+  .area-nav {
+    display: flex;
+    margin-right: 2rem;
+  }
+
+  .area-nav {
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    flex-direction: column;
+    height: calc(100dvh - var(--header-height));
+    border: none;
+    width: auto;
+  }
+
+  .area-content {
+    padding: 20px 0;
+  }
+}
+
+@media (min-width: 1096px) {
+  .page-layout {
+    grid-template-areas:
+      "nav-header content-header aside-header"
+      "nav content aside";
+    grid-template-columns: var(--left-column-width) auto var(
+        --right-column-width
+      );
+    column-gap: 4rem;
+    max-width: 1280px;
+  }
+
+  .area-aside {
+    display: flex;
+  }
+}
+
+.textarea-grow {
+  display: grid;
+}
+
+.textarea-grow::after {
+  content: attr(data-textarea-value) " ";
+  white-space: pre-wrap;
+  visibility: hidden;
+}
+
+.textarea-grow > textarea {
+  resize: none;
+  overflow: hidden;
+}
+
+.textarea-grow > textarea,
+.textarea-grow::after {
+  grid-area: 1 / 1 / 2 / 2;
+  background: transparent;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  min-height: 120px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: hsl(var(--muted-foreground));
 }
