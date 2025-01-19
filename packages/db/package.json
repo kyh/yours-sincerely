@@ -31,23 +31,23 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.12",
-    "drizzle-orm": "^0.38.3",
+    "@supabase/supabase-js": "^2.47.16",
+    "drizzle-orm": "^0.38.4",
     "next": "catalog:",
     "postgres": "^3.4.5",
     "react": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.3.0",
+    "@faker-js/faker": "^9.4.0",
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
     "@types/react": "catalog:",
-    "drizzle-kit": "^0.30.1",
+    "drizzle-kit": "^0.30.2",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "supabase": "^2.2.1",
+    "supabase": "^2.6.8",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"
