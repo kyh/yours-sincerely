@@ -1,10 +1,12 @@
+import type { Metadata } from "next";
+
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 
-// export let meta: MetaFunction = () => {
-//   return createMeta({
-//     title: "Terms of Use",
-//   });
-// };
+export const metadata: Metadata = {
+  title: "Terms of Use",
+};
+
+export const dynamic = "force-dynamic";
 
 const Page = () => (
   <>

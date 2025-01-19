@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
+
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+
+export const metadata: Metadata = {
+  title: "About",
+};
+
+export const dynamic = "force-dynamic";
 
 const quoteClass =
   "relative before:absolute before:block before:-left-3 before:-top-1 before:w-6 before:h-4 before:-z-10 before:opacity-25 before:content-['_'] before:bg-[url('/assets/quote.svg')] before:bg-no-repeat";
