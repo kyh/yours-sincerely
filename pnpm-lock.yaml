@@ -253,8 +253,8 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3
       motion:
-        specifier: ^11.18.1
-        version: 11.18.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: ^12.0.0
+        version: 12.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 'catalog:'
         version: 15.1.5(@babel/core@7.26.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -376,10 +376,10 @@ importers:
     dependencies:
       '@supabase/ssr':
         specifier: ^0.5.2
-        version: 0.5.2(@supabase/supabase-js@2.47.16)
+        version: 0.5.2(@supabase/supabase-js@2.48.0)
       '@supabase/supabase-js':
-        specifier: ^2.47.16
-        version: 2.47.16
+        specifier: ^2.48.0
+        version: 2.48.0
       drizzle-orm:
         specifier: ^0.38.4
         version: 0.38.4(@types/react@19.0.7)(postgres@3.4.5)(react@19.0.0)
@@ -532,8 +532,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       lucide-react:
-        specifier: ^0.469.0
-        version: 0.469.0(react@19.0.0)
+        specifier: ^0.473.0
+        version: 0.473.0(react@19.0.0)
       next-themes:
         specifier: ^0.4.4
         version: 0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -2900,8 +2900,8 @@ packages:
     resolution: {integrity: sha512-1ibVeYUacxWYi9i0cf5efil6adJ9WRyZBLivgjs+AUpewx1F3xPi7gLgaASI2SmIQxPoCEjAsLAzKPgMJVgOUQ==}
     engines: {node: 4.x || >=6.0.0}
 
-  '@supabase/postgrest-js@1.17.11':
-    resolution: {integrity: sha512-AOqqgQEhLVqzOMmA8Q0bxQFMfbozbjjQ1Tt4kprkstIKdRl4yZRaMdoVxFkCpU8ivmAe2xNfAVkNK+l16a9P0A==}
+  '@supabase/postgrest-js@1.18.0':
+    resolution: {integrity: sha512-DqUEVF5ZFytrYLAuywnUR0srhZbzSoLZePMfGFamYMNdMttBLwAWXJNJ5kBDHn2gK2n87NwLsIshUbdyxPtpsw==}
 
   '@supabase/realtime-js@2.11.2':
     resolution: {integrity: sha512-u/XeuL2Y0QEhXSoIPZZwR6wMXgB+RQbJzG9VErA3VghVt7uRfSVsjeqd7m5GhX3JR6dM/WRmLbVR8URpDWG4+w==}
@@ -2914,8 +2914,8 @@ packages:
   '@supabase/storage-js@2.7.1':
     resolution: {integrity: sha512-asYHcyDR1fKqrMpytAS1zjyEfvxuOIp1CIXX7ji4lHHcJKqyk+sLl/Vxgm4sN6u8zvuUtae9e4kDxQP2qrwWBA==}
 
-  '@supabase/supabase-js@2.47.16':
-    resolution: {integrity: sha512-FnoV0miLnYUL8ZTS94tSIyn+ogCwh5DB5f1fj1n4wHGNAqJSKFb8OQzLVlRFAH7cB9TKQ5eon3/n2lXUWY7GfA==}
+  '@supabase/supabase-js@2.48.0':
+    resolution: {integrity: sha512-8ql5ra3NOIHLBYoFZpxYHRx05J/FmJAQW9EYax0lU4DsU1/5PC4yb2hxMcCIf0oimLcBgsogIaAqba+/9jaUVg==}
 
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -4612,8 +4612,8 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@11.18.1:
-    resolution: {integrity: sha512-EQa8c9lWVOm4zlz14MsBJWr8woq87HsNmsBnQNvcS0hs8uzw6HtGAxZyIU7EGTVpHD1C1n01ufxRyarXcNzpPg==}
+  framer-motion@12.0.0:
+    resolution: {integrity: sha512-S3V6UlZUa6km3TWJS5wH5hJs0RBgvLo2MYWINA2RwG+T/xGGKweJwEn38AtlDCjq9k70QFk7Op67jm8TAOb4qQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -5502,8 +5502,8 @@ packages:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
 
-  lucide-react@0.469.0:
-    resolution: {integrity: sha512-28vvUnnKQ/dBwiCQtwJw7QauYnE7yd2Cyp4tTTJpvglX4EMpbflcdBgrgToX2j71B3YvugK/NH3BGUk+E/p/Fw==}
+  lucide-react@0.473.0:
+    resolution: {integrity: sha512-KW6u5AKeIjkvrxXZ6WuCu9zHE/gEYSXCay+Gre2ZoInD0Je/e3RBtP4OHpJVJ40nDklSvjVKjgH7VU8/e2dzRw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -5699,14 +5699,14 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  motion-dom@11.18.1:
-    resolution: {integrity: sha512-g76KvA001z+atjfxczdRtw/RXOM3OMSdd1f4DL77qCTF/+avrRJiawSG4yDibEQ215sr9kpinSlX2pCTJ9zbhw==}
+  motion-dom@12.0.0:
+    resolution: {integrity: sha512-CvYd15OeIR6kHgMdonCc1ihsaUG4MYh/wrkz8gZ3hBX/uamyZCXN9S9qJoYF03GqfTt7thTV/dxnHYX4+55vDg==}
 
-  motion-utils@11.18.1:
-    resolution: {integrity: sha512-49Kt+HKjtbJKLtgO/LKj9Ld+6vw9BjH5d9sc40R/kVyH8GLAXgT42M2NnuPcJNuA3s9ZfZBUcwIgpmZWGEE+hA==}
+  motion-utils@12.0.0:
+    resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
 
-  motion@11.18.1:
-    resolution: {integrity: sha512-Tqbn7UMVp1V6JH5gbLFJAbP1//gdHNwEciQO22UHgFH1mBScq6gHrq8dlyBGbOlRF8iVSX8k0UV8tkkAVbwpKw==}
+  motion@12.0.0:
+    resolution: {integrity: sha512-nb9sDjfnq+JpBUPBC08ZGtdDhniTfNdtBhC/PtQKZWfzOUQyGHiAoo6JSjpc+ljkBaHapMypzvzr/07/kPVh0g==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -10366,7 +10366,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  '@supabase/postgrest-js@1.17.11':
+  '@supabase/postgrest-js@1.18.0':
     dependencies:
       '@supabase/node-fetch': 2.6.15
 
@@ -10380,9 +10380,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@supabase/ssr@0.5.2(@supabase/supabase-js@2.47.16)':
+  '@supabase/ssr@0.5.2(@supabase/supabase-js@2.48.0)':
     dependencies:
-      '@supabase/supabase-js': 2.47.16
+      '@supabase/supabase-js': 2.48.0
       '@types/cookie': 0.6.0
       cookie: 0.7.2
 
@@ -10390,12 +10390,12 @@ snapshots:
     dependencies:
       '@supabase/node-fetch': 2.6.15
 
-  '@supabase/supabase-js@2.47.16':
+  '@supabase/supabase-js@2.48.0':
     dependencies:
       '@supabase/auth-js': 2.67.3
       '@supabase/functions-js': 2.4.4
       '@supabase/node-fetch': 2.6.15
-      '@supabase/postgrest-js': 1.17.11
+      '@supabase/postgrest-js': 1.18.0
       '@supabase/realtime-js': 2.11.2
       '@supabase/storage-js': 2.7.1
     transitivePeerDependencies:
@@ -12507,10 +12507,10 @@ snapshots:
   forwarded@0.2.0:
     optional: true
 
-  framer-motion@11.18.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  framer-motion@12.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      motion-dom: 11.18.1
-      motion-utils: 11.18.1
+      motion-dom: 12.0.0
+      motion-utils: 12.0.0
       tslib: 2.8.1
     optionalDependencies:
       react: 19.0.0
@@ -13430,7 +13430,7 @@ snapshots:
 
   lru-cache@7.18.3: {}
 
-  lucide-react@0.469.0(react@19.0.0):
+  lucide-react@0.473.0(react@19.0.0):
     dependencies:
       react: 19.0.0
 
@@ -13722,15 +13722,15 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  motion-dom@11.18.1:
+  motion-dom@12.0.0:
     dependencies:
-      motion-utils: 11.18.1
+      motion-utils: 12.0.0
 
-  motion-utils@11.18.1: {}
+  motion-utils@12.0.0: {}
 
-  motion@11.18.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  motion@12.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      framer-motion: 11.18.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      framer-motion: 12.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.0.0
