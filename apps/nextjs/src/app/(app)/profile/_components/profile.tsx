@@ -68,7 +68,7 @@ export const Profile = ({ userId }: ProfileProps) => {
         </Card>
       </div>
       <div className="lg:col-span-3">
-        <Card className="h-60 p-5 lg:rounded-bl-[calc(2rem+1px)]">
+        <Card className="h-60 items-center justify-center p-5 lg:rounded-bl-[calc(2rem+1px)]">
           <h2 className="text-sm font-bold">
             {dailyData.max.day === "none" ? (
               <>No daily stats yet</>
@@ -93,7 +93,7 @@ export const Profile = ({ userId }: ProfileProps) => {
         </Card>
       </div>
       <div className="lg:col-span-3">
-        <Card className="h-60 p-5 lg:rounded-br-[calc(2rem+1px)]">
+        <Card className="h-60 items-center justify-center p-5 lg:rounded-br-[calc(2rem+1px)]">
           <ActivityStats
             posts={userStats?.totalPostCount ?? 0}
             likes={userStats?.totalLikeCount ?? 0}
