@@ -40,16 +40,22 @@ import { api } from "@/trpc/react";
 
 type PostFormProps = {
   placeholder?: string;
+  parentId?: string;
   onSuccess?: () => void;
 };
 
-export const PostForm = ({ placeholder, onSuccess }: PostFormProps) => {
+export const PostForm = ({
+  placeholder,
+  parentId,
+  onSuccess,
+}: PostFormProps) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const isDesktop = useMediaQuery();
 
   const form = useForm({
     schema: createPostInput,
     defaultValues: {
+      parentId,
       content: "",
       createdBy: user?.displayName || "Anonymous",
     },

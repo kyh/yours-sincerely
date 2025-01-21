@@ -4,20 +4,20 @@ import { CommentFeed } from "../_components/comment-feed";
 
 type Props = {
   params: Promise<{
-    pid: string;
+    postId: string;
   }>;
 };
 
 const Page = async (props: Props) => {
   const params = await props.params;
 
-  await api.post.getPost.prefetch({ postId: params.pid });
+  await api.post.getPost.prefetch({ postId: params.postId });
 
   return (
     <HydrateClient>
       <PageHeader title="Post" />
       <PageContent className="flex flex-col gap-5">
-        <CommentFeed postId={params.pid} />
+        <CommentFeed postId={params.postId} />
       </PageContent>
     </HydrateClient>
   );
