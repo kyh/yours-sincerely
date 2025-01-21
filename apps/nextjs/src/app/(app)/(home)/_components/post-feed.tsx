@@ -49,12 +49,15 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
       {posts.length > 0 && layout === "list" && (
         <>
           {posts.map((post) => (
-            <div key={post.id} className="py-5">
+            <div key={post.id} className="pb-3 pt-5">
               <PostContent post={post} />
             </div>
           ))}
           {hasNextPage && (
-            <div className="flex items-center justify-center py-5" ref={ref}>
+            <div
+              className="flex items-center justify-center pb-3 pt-5"
+              ref={ref}
+            >
               <Spinner />
             </div>
           )}
