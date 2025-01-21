@@ -4,6 +4,10 @@ import { cookies } from "next/headers";
 import { cn } from "@init/ui/utils";
 
 import {
+  NewPostButton,
+  PostForm,
+} from "@/app/(app)/posts/_components/post-form";
+import {
   PageAside,
   PageContent,
   PageHeader,
@@ -11,7 +15,6 @@ import {
 import { getFeedLayout } from "@/lib/feed-layout-actions";
 import { api, HydrateClient } from "@/trpc/server";
 import { PostFeed } from "./_components/post-feed";
-import { NewPostButton, PostForm } from "./_components/post-form";
 
 const Page = async () => {
   const cookieStore = await cookies();

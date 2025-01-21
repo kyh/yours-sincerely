@@ -1,12 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { toast } from "@init/ui/toast";
+import { ArrowLeftIcon } from "lucide-react";
 import readingTime from "reading-time";
 
 import { api } from "@/trpc/react";
-import { BackButton } from "./back-button";
-import { CommentContent } from "./comment-content";
 import { PostContent } from "./post-content";
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export const CommentFeed = ({ postId }: Props) => {
+  const router = useRouter();
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [{ post }] = api.post.getPost.useSuspenseQuery({ postId });
 
@@ -43,12 +44,17 @@ export const CommentFeed = ({ postId }: Props) => {
     });
   };
 
+  const goBack = () => router.back();
+
   const stats = readingTime(post.content ?? "");
 
   return (
     <section className="flex flex-col gap-5">
       <header className="flex items-center justify-between">
-        <BackButton />
+        <Button variant="ghost" size="sm" onClick={goBack}>
+          <ArrowLeftIcon className="size-4" />
+          Back
+        </Button>
         <p className="text-xs">{stats.text}</p>
       </header>
       <PostContent post={post} asLink={false} showComment={false} showMore />
@@ -74,7 +80,7 @@ export const CommentFeed = ({ postId }: Props) => {
         {/* {post.comments && (
           <div className="flex flex-col gap-6">
             {post.comments.map((comment) => (
-              <CommentContent key={comment.id} post={comment} />
+              <PostContent key={comment.id} post={post} asLink={false} showComment={false} />
             ))}
           </div>
         )} */}
