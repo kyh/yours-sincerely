@@ -45,6 +45,7 @@ type PostFormProps = {
 
 export const PostForm = ({ placeholder, onSuccess }: PostFormProps) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const isDesktop = useMediaQuery();
 
   const form = useForm({
     schema: createPostInput,
@@ -74,15 +75,14 @@ export const PostForm = ({ placeholder, onSuccess }: PostFormProps) => {
     const duration = 1 * 1000;
     const end = Date.now() + duration;
     (function frame() {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      confetti({
+      void confetti({
         particleCount: 2,
         angle: 60,
         spread: 55,
         origin: { x: 0 },
       });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      confetti({
+
+      void confetti({
         particleCount: 2,
         angle: 120,
         spread: 55,
@@ -116,7 +116,12 @@ export const PostForm = ({ placeholder, onSuccess }: PostFormProps) => {
             >
               <FormLabel className="sr-only">Post content</FormLabel>
               <FormControl>
-                <textarea placeholder={placeholder} {...field} />
+                <textarea
+                  className={isDesktop ? "" : "!min-h-[50dvh]"}
+                  placeholder={placeholder}
+                  autoFocus
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

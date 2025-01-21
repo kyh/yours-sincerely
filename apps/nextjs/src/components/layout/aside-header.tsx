@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
 import { Button } from "@init/ui/button";
@@ -15,6 +16,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  dropdownMenuItemVariants,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
@@ -36,6 +38,96 @@ export const AsideHeader = () => {
   const { theme, setTheme } = useTheme();
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
+  const menuItems = [
+    {
+      id: "profile",
+      condition: user,
+      wrap: true,
+      content: (
+        <Link
+          className={dropdownMenuItemVariants()}
+          href={`/profile/${user?.id}`}
+        >
+          <UserIcon aria-hidden="true" className="size-4" />
+          Profile
+        </Link>
+      ),
+    },
+    {
+      id: "settings",
+      condition: user,
+      wrap: true,
+      content: (
+        <Link className={dropdownMenuItemVariants()} href={`/settings`}>
+          <SettingsIcon aria-hidden="true" className="size-4" />
+          Settings
+        </Link>
+      ),
+    },
+    {
+      id: "login",
+      condition: !user,
+      wrap: true,
+      content: (
+        <Link className={dropdownMenuItemVariants()} href="/auth/sign-in">
+          <UserIcon aria-hidden="true" className="size-4" />
+          Login
+        </Link>
+      ),
+    },
+    {
+      id: "separator-1",
+      condition: true,
+      wrap: false,
+      content: <DropdownMenuSeparator />,
+    },
+    {
+      id: "theme",
+      condition: true,
+      wrap: true,
+      content: (
+        <button
+          className={dropdownMenuItemVariants({ className: "w-full" })}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          <SunMoonIcon aria-hidden="true" className="size-4" />
+          Theme
+        </button>
+      ),
+    },
+    {
+      id: "layout",
+      condition: true,
+      wrap: true,
+      content: (
+        <button
+          className={dropdownMenuItemVariants({ className: "w-full" })}
+          onClick={() => toggleFeedLayout()}
+        >
+          <LayoutDashboardIcon aria-hidden="true" className="size-4" />
+          Layout
+        </button>
+      ),
+    },
+    {
+      id: "separator-2",
+      condition: true,
+      wrap: false,
+      content: <DropdownMenuSeparator />,
+    },
+    {
+      id: "support",
+      condition: true,
+      wrap: true,
+      content: (
+        <Link className={dropdownMenuItemVariants()} href={`/settings`}>
+          <HelpCircleIcon aria-hidden="true" className="size-4" />
+          Support
+        </Link>
+      ),
+    },
+  ];
+
   const isDesktop = useMediaQuery();
 
   if (isDesktop) {
@@ -55,48 +147,19 @@ export const AsideHeader = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="end">
-            {user && (
-              <DropdownMenuItem asChild>
-                <Link href={`/profile/${user.id}`}>
-                  <UserIcon aria-hidden="true" className="size-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-            )}
-            {user && (
-              <DropdownMenuItem asChild>
-                <Link href={`/settings`}>
-                  <SettingsIcon aria-hidden="true" className="size-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
-            )}
-            {!user && (
-              <DropdownMenuItem asChild>
-                <Link href="/auth/sign-in">
-                  <UserIcon aria-hidden="true" className="size-4" />
-                  Login
-                </Link>
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              <SunMoonIcon aria-hidden="true" className="size-4" />
-              Theme
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => toggleFeedLayout()}>
-              <LayoutDashboardIcon aria-hidden="true" className="size-4" />
-              Layout
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/settings`}>
-                <HelpCircleIcon aria-hidden="true" className="size-4" />
-                Support
-              </Link>
-            </DropdownMenuItem>
+            {menuItems.map((item) => {
+              if (!item.condition) {
+                return null;
+              }
+              if (!item.wrap) {
+                return <Fragment key={item.id}>{item.content}</Fragment>;
+              }
+              return (
+                <DropdownMenuItem key={item.id} asChild>
+                  {item.content}
+                </DropdownMenuItem>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -123,38 +186,12 @@ export const AsideHeader = () => {
             <DrawerTitle>Settings</DrawerTitle>
             <DrawerDescription>Settings options</DrawerDescription>
           </DrawerHeader>
-          {user && (
-            <Link href={`/profile/${user.id}`}>
-              <UserIcon aria-hidden="true" className="size-4" />
-              Profile
-            </Link>
-          )}
-          {user && (
-            <Link href={`/settings`}>
-              <SettingsIcon aria-hidden="true" className="size-4" />
-              Settings
-            </Link>
-          )}
-          {!user && (
-            <Link href="/auth/sign-in">
-              <UserIcon aria-hidden="true" className="size-4" />
-              Login
-            </Link>
-          )}
-          <DropdownMenuSeparator />
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            <SunMoonIcon aria-hidden="true" className="size-4" />
-            Theme
-          </button>
-          <button onClick={() => toggleFeedLayout()}>
-            <LayoutDashboardIcon aria-hidden="true" className="size-4" />
-            Layout
-          </button>
-          <DropdownMenuSeparator />
-          <Link href={`/settings`}>
-            <HelpCircleIcon aria-hidden="true" className="size-4" />
-            Support
-          </Link>
+          {menuItems.map((item) => {
+            if (!item.condition) {
+              return null;
+            }
+            return <Fragment key={item.id}>{item.content}</Fragment>;
+          })}
         </DrawerContent>
       </Drawer>
     </div>
