@@ -198,9 +198,11 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       onOpenChange={setOpen}
       onAnimationEnd={(open) => {
         if (open) {
-          requestAnimationFrame(() => {
-            document.getElementById("post-input")?.focus();
-          });
+          const textareaEl: HTMLTextAreaElement | null = document.querySelector(
+            "#drawer-post-form #post-input",
+          );
+          if (!textareaEl) return;
+          textareaEl.focus();
         }
       }}
     >
@@ -217,7 +219,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
             Send your tiny beautiful letters to the world
           </DrawerDescription>
         </DrawerHeader>
-        <section className="p-4">
+        <section id="drawer-post-form" className="p-4">
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
