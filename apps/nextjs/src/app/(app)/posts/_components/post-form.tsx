@@ -123,7 +123,7 @@ export const PostForm = ({
               <FormLabel className="sr-only">Post content</FormLabel>
               <FormControl>
                 <textarea
-                  className={isDesktop ? "" : "!min-h-[50dvh]"}
+                  className={isDesktop ? "" : "!min-h-[30dvh]"}
                   placeholder={placeholder}
                   autoFocus
                   {...field}
