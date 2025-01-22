@@ -123,6 +123,7 @@ export const PostForm = ({
               <FormLabel className="sr-only">Post content</FormLabel>
               <FormControl>
                 <textarea
+                  id="post-input"
                   className={isDesktop ? "" : "!min-h-[30dvh]"}
                   placeholder={placeholder}
                   {...field}
@@ -192,7 +193,17 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} autoFocus>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      onAnimationEnd={(open) => {
+        if (open) {
+          requestAnimationFrame(() => {
+            document.getElementById("post-input")?.focus();
+          });
+        }
+      }}
+    >
       <DrawerTrigger asChild>
         <Button size="icon">
           <PlusIcon />
