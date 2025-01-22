@@ -43,14 +43,22 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
           hasNextPage={hasNextPage}
           onLoadMore={fetchNextPage}
         >
-          {(post) => <PostContent displayFull asLink={false} post={post} />}
+          {(post) => (
+            <PostContent
+              layout="stack"
+              post={post}
+              asLink={false}
+              showMore={false}
+              minHeight
+            />
+          )}
         </CardStack>
       )}
       {posts.length > 0 && layout === "list" && (
         <>
           {posts.map((post) => (
             <div key={post.id} className="pb-3 pt-5">
-              <PostContent post={post} />
+              <PostContent post={post} showMore={false} />
             </div>
           ))}
           {hasNextPage && (

@@ -1,6 +1,6 @@
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { api, HydrateClient } from "@/trpc/server";
-import { CommentFeed } from "../_components/comment-feed";
+import { PostPage } from "../_components/post-page";
 
 type Props = {
   params: Promise<{
@@ -17,7 +17,7 @@ const Page = async (props: Props) => {
     <HydrateClient>
       <PageHeader title="Post" />
       <PageContent className="flex flex-col gap-5">
-        <CommentFeed postId={params.postId} />
+        <PostPage postId={params.postId} />
       </PageContent>
     </HydrateClient>
   );
