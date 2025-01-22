@@ -125,7 +125,6 @@ export const PostForm = ({
                 <textarea
                   className={isDesktop ? "" : "!min-h-[30dvh]"}
                   placeholder={placeholder}
-                  autoFocus
                   {...field}
                 />
               </FormControl>
@@ -193,7 +192,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={open} onOpenChange={setOpen} autoFocus>
       <DrawerTrigger asChild>
         <Button size="icon">
           <PlusIcon />
