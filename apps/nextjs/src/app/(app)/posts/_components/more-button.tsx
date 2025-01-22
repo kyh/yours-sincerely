@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent } from "@init/ui/dialog";
+import { Button } from "@init/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@init/ui/dialog";
 import { toast } from "@init/ui/toast";
+import { MoreVerticalIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
@@ -18,7 +27,7 @@ export const MoreButton = ({ post }: Props) => {
 
   const deleteMutation = api.post.deletePost.useMutation({
     onSuccess: () => {
-      toast("You have flagged this post, we will be reviewing it shortly");
+      toast("You have deleted this post");
       router.push("/");
     },
   });
@@ -41,11 +50,7 @@ export const MoreButton = ({ post }: Props) => {
   const blockingId = post.userId;
   const blockerId = user?.id;
 
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>,
-    action: string,
-  ) => {
-    e.preventDefault();
+  const handleSubmit = (action: "delete" | "flag" | "block") => {
     if (!post.id) return;
     switch (action) {
       case "delete":
@@ -60,7 +65,9 @@ export const MoreButton = ({ post }: Props) => {
           postId: post.id,
         });
       case "block":
-        if (!blockerId || !blockingId) return toast("Invalid block");
+        if (!blockerId || !blockingId) {
+          return toast("Invalid block");
+        }
         return blockMutation.mutate({
           blockingId,
         });
@@ -68,69 +75,55 @@ export const MoreButton = ({ post }: Props) => {
   };
 
   return (
-    <>
-      <button
-        type="button"
-        className="size-8 rounded-lg p-2 transition hover:bg-accent"
-        onClick={() => setIsOpen(true)}
-      >
-        <span className="sr-only">See post options</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          width="20"
-          height="20"
-        >
-          <circle cx="12" cy="12" r="1" />
-          <circle cx="12" cy="5" r="1" />
-          <circle cx="12" cy="19" r="1" />
-        </svg>
-      </button>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="flex flex-col justify-center divide-y divide-border">
-          <a
-            className="w-full rounded p-5 transition hover:no-underline"
-            href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
-          >
-            Report
-          </a>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <button className="size-8 rounded-lg p-2 transition hover:bg-accent">
+          <MoreVerticalIcon className="size-4" />
+        </button>
+      </DialogTrigger>
+      <DialogContent closeButton={false}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Post Settings</DialogTitle>
+          <DialogDescription>Options for this post</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col divide-y divide-border">
+          <Button variant="ghost" asChild className="rounded-sm p-8">
+            <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}>
+              Report Post
+            </a>
+          </Button>
           {!!user && isPostOwner && (
-            <form method="post" onSubmit={(e) => handleSubmit(e, "delete")}>
-              <button
-                type="submit"
-                className="w-full rounded p-5 transition hover:no-underline"
-              >
-                Delete Post
-              </button>
-            </form>
+            <Button
+              type="button"
+              className="rounded-sm p-8"
+              variant="ghost"
+              onClick={() => handleSubmit("delete")}
+            >
+              Delete Post
+            </Button>
           )}
           {!!user && !isPostOwner && (
-            <form method="post" onSubmit={(e) => handleSubmit(e, "flag")}>
-              <button
-                type="submit"
-                className="w-full rounded p-5 transition hover:no-underline"
-              >
-                Mark as inappropriate
-              </button>
-            </form>
+            <Button
+              type="button"
+              className="rounded-sm p-8"
+              variant="ghost"
+              onClick={() => handleSubmit("flag")}
+            >
+              Mark as inappropriate
+            </Button>
           )}
           {!!user && !isPostOwner && (
-            <form method="post" onSubmit={(e) => handleSubmit(e, "block")}>
-              <button
-                type="submit"
-                className="w-full rounded p-5 transition hover:no-underline"
-              >
-                Stop seeing content from this user
-              </button>
-            </form>
+            <Button
+              type="button"
+              className="rounded-sm p-8"
+              variant="ghost"
+              onClick={() => handleSubmit("block")}
+            >
+              Stop seeing content from this user
+            </Button>
           )}
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { cn } from "@init/ui/utils";
 
+import type { FeedLayout } from "@/lib/feed-layout-actions";
 import type { RouterOutputs } from "@init/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
@@ -31,7 +32,8 @@ const LikeButton = dynamic(() => import("./like-button"), {
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
-  displayFull?: boolean;
+  layout?: FeedLayout;
+  minHeight?: boolean;
   asLink?: boolean;
   showLike?: boolean;
   showComment?: boolean;
@@ -42,31 +44,34 @@ type Props = {
 
 export const PostContent = ({
   post,
-  displayFull = false,
+  layout = "list",
+  minHeight = false,
   asLink = true,
   showLike = true,
   showComment = true,
   showTimer = true,
   showShare = true,
-  showMore = false,
+  showMore = true,
 }: Props) => {
+  const contentClass = cn("whitespace-pre-wrap", minHeight && "min-h-[50dvh]");
+
   return (
     <article
-      className={cn(displayFull && "word-break flex h-full w-full flex-col")}
+      className={cn(
+        layout === "stack" && "word-break flex h-full w-full flex-col",
+      )}
     >
       {asLink ? (
         <Link href={`/posts/${post.id}`}>
-          <p className="whitespace-pre-wrap">{post.content}</p>
+          <p className={contentClass}>{post.content}</p>
         </Link>
       ) : (
-        <p className={cn("whitespace-pre-wrap", displayFull && "min-h-[50vh]")}>
-          {post.content}
-        </p>
+        <p className={contentClass}>{post.content}</p>
       )}
       <footer
         className={cn(
           "flex flex-col sm:flex-row sm:justify-between",
-          displayFull ? "mt-auto pt-3" : "mt-5",
+          layout === "stack" ? "mt-auto pt-3" : "mt-5",
         )}
       >
         <div className="flex items-center gap-1 text-sm italic">

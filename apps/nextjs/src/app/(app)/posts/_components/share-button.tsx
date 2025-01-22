@@ -1,5 +1,11 @@
 import { useRef, useState } from "react";
-import { Dialog, DialogContent } from "@init/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@init/ui/dialog";
 import { toast } from "@init/ui/toast";
 
 import type { RouterOutputs } from "@init/api";
@@ -25,7 +31,7 @@ export const ShareButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="size-8 rounded-lg p-2 hover:bg-accent"
+        className="size-8 rounded-lg p-2 transition hover:bg-accent"
         onClick={async () => {
           if (navigator.share) {
             await navigator.share({
@@ -56,6 +62,12 @@ export const ShareButton = ({ post }: Props) => {
       </button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
+          <DialogHeader className="sr-only">
+            <DialogTitle>Share Post</DialogTitle>
+            <DialogDescription>
+              Share this tiny beautiful letter with the world
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex justify-center gap-5">
             <a
               className="rounded-full p-3 transition"
