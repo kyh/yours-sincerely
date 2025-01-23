@@ -23,7 +23,7 @@ type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
-export const Timer = ({ post }: Props) => {
+export const TimerButton = ({ post }: Props) => {
   if (!post.createdAt) return null;
 
   const { percentage, now, end } = getPercentage(new Date(post.createdAt));

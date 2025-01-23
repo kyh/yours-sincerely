@@ -31,7 +31,6 @@ import {
 } from "@init/ui/form";
 import { toast } from "@init/ui/toast";
 import { useMediaQuery } from "@init/ui/utils";
-import confetti from "canvas-confetti";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 
@@ -40,17 +39,20 @@ import { api } from "@/trpc/react";
 
 type PostFormProps = {
   placeholder?: string;
+  submitText?: string;
   parentId?: string;
   onSuccess?: () => void;
+  minHeight?: boolean;
 };
 
 export const PostForm = ({
   placeholder,
+  submitText = "Publish",
   parentId,
   onSuccess,
+  minHeight,
 }: PostFormProps) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const isDesktop = useMediaQuery();
 
   const form = useForm({
     schema: createPostInput,
@@ -65,6 +67,7 @@ export const PostForm = ({
     onSuccess: (_data, variables) => {
       toast.success("Your love letter has been published");
       form.reset({
+        parentId,
         content: "",
         createdBy: variables.createdBy,
       });
@@ -77,29 +80,6 @@ export const PostForm = ({
 
   const handlePostForm = (formData: CreatePostInput) => {
     if (user?.disabled) return toast.error("Your account has been disabled");
-
-    const duration = 1 * 1000;
-    const end = Date.now() + duration;
-    (function frame() {
-      void confetti({
-        particleCount: 2,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-      });
-
-      void confetti({
-        particleCount: 2,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    })();
-
     createPost.mutate(formData);
   };
 
@@ -124,7 +104,7 @@ export const PostForm = ({
               <FormControl>
                 <textarea
                   id="post-input"
-                  className={isDesktop ? "" : "!min-h-[30dvh]"}
+                  className={minHeight ? "!min-h-[30dvh]" : ""}
                   placeholder={placeholder}
                   {...field}
                 />
@@ -155,7 +135,7 @@ export const PostForm = ({
             </span>
           </div>
           <Button type="submit" loading={createPost.isPending}>
-            Publish
+            {submitText}
           </Button>
         </footer>
       </form>
@@ -223,6 +203,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
+            minHeight
           />
         </section>
       </DrawerContent>

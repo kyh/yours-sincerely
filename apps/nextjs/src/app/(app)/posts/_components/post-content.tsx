@@ -10,7 +10,7 @@ import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { MoreButton } from "./more-button";
 import { ShareButton } from "./share-button";
-import { Timer } from "./timer";
+import { TimerButton } from "./timer-button";
 
 const LikeButton = dynamic(() => import("./like-button"), {
   ssr: false,
@@ -83,7 +83,7 @@ export const PostContent = ({
         <div className="mt-3 flex items-center justify-between text-muted-foreground sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
-          {showTimer && <Timer post={post} />}
+          {showTimer && <TimerButton post={post} />}
           {showShare && <ShareButton post={post} />}
           {showMore && <MoreButton post={post} />}
         </div>

@@ -34,6 +34,7 @@ LEFT JOIN (
 WHERE 
     p."id" NOT IN (SELECT "postId" FROM flagged_posts)
     AND p."createdAt" >= CURRENT_DATE - INTERVAL '21 days'
+    AND p."parentId" IS NULL
 ORDER BY p."createdAt" DESC;
 
 CREATE OR REPLACE VIEW public."UserStats" WITH (security_invoker) AS
