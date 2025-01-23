@@ -8,7 +8,6 @@ import readingTime from "reading-time";
 
 import { api } from "@/trpc/react";
 import { PostContent } from "./post-content";
-import { PostFeed } from "./post-feed";
 import { PostForm } from "./post-form";
 
 type Props = {
@@ -41,16 +40,23 @@ export const PostPage = ({ postId }: Props) => {
           showComment={false}
         />
       </Card>
-      <div className="flex flex-col gap-3">
-        {user && (
-          <PostForm
-            parentId={post.id}
-            placeholder="Comment on this love letter..."
-          />
-        )}
-        <h1 className="text-sm">Comments ({post.commentCount ?? 0})</h1>
-        <PostFeed filters={{ parentId: post.id }} />
-      </div>
+      {user && (
+        <PostForm
+          parentId={post.id}
+          placeholder="Comment on this love letter..."
+        />
+      )}
+      <h3 className="border-y border-border py-3 text-sm">
+        Comments ({post.commentCount ?? 0})
+      </h3>
+      {!post.comments?.length && (
+        <div className="h-full py-5 text-center">No comments</div>
+      )}
+      {post.comments?.map((comment) => (
+        <div key={comment.id} className="pb-3 pt-5">
+          <PostContent post={comment} showMore={false} />
+        </div>
+      ))}
     </section>
   );
 };

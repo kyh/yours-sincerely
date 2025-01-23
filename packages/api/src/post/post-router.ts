@@ -5,6 +5,7 @@ import { getDefaultValues } from "@init/db/utils";
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
+  convertDbPostToFeedPost,
   createPostInput,
   deletePostInput,
   getFeedInput,
@@ -79,37 +80,29 @@ export const postRouter = createTRPCRouter({
   getPostsByUser: publicProcedure
     .input(getPostsByUserInput)
     .query(async ({ ctx, input }) => {
-      const posts = await ctx.db
-        .select()
-        .from(post)
-        .where(eq(post.userId, input.userId))
-        .orderBy(desc(post.createdAt));
+      const posts = await ctx.db.query.post.findMany({
+        where: (post, { eq }) => eq(post.userId, input.userId),
+        orderBy: (post, { desc }) => desc(post.createdAt),
+      });
 
       return { posts };
     }),
 
   getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
-    const [postItem] = await ctx.db
-      .select()
-      .from(post)
-      .where(eq(post.id, input.postId));
+    const dbPost = await ctx.db.query.post.findFirst({
+      where: (post, { eq }) => eq(post.id, input.postId),
+      with: {
+        likes: true,
+        posts: true,
+      },
+    });
 
-    if (!postItem) {
+    if (!dbPost) {
       throw new Error("Post not found");
     }
 
     return {
-      post: {
-        id: postItem.id,
-        isLiked: false,
-        content: postItem.content,
-        createdAt: postItem.createdAt,
-        userId: postItem.userId,
-        createdBy: postItem.createdBy || "Anonymous",
-        parentId: postItem.parentId || "",
-        likeCount: 0,
-        commentCount: 0,
-      },
+      post: convertDbPostToFeedPost(dbPost, ctx.user?.id),
     };
   }),
 
