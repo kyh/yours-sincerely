@@ -44,20 +44,24 @@ export const postRouter = createTRPCRouter({
       .orderBy(desc(feed.createdAt), desc(feed.id))
       .limit(limit + 1);
 
-    const feedItemLikes = await ctx.db.query.like.findMany({
-      where: (like, { eq, and, inArray }) =>
-        and(
-          ctx.user?.id ? eq(like.userId, ctx.user.id) : undefined,
-          inArray(
-            like.postId,
-            feedPosts.map((item) => item.id),
+    const myLikes = new Set<string>();
+    if (ctx.user?.id) {
+      const feedItemLikes = await ctx.db.query.like.findMany({
+        where: (like, { eq, and, inArray }) =>
+          and(
+            ctx.user?.id ? eq(like.userId, ctx.user.id) : undefined,
+            inArray(
+              like.postId,
+              feedPosts.map((item) => item.id),
+            ),
           ),
-        ),
-    });
+      });
+      feedItemLikes.forEach((like) => myLikes.add(like.postId));
+    }
 
     const posts = feedPosts.map((post) => ({
       ...post,
-      isLiked: !!feedItemLikes.find((like) => like.postId === post.id),
+      isLiked: myLikes.has(post.id),
     }));
 
     let nextCursor: typeof input.cursor = undefined;

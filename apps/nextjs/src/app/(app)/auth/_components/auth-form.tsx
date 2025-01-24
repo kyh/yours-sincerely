@@ -23,29 +23,19 @@ type AuthFormProps = {
   type: "signin" | "signup";
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
+export const AuthForm = ({ className, type }: AuthFormProps) => {
   const router = useRouter();
   const params = useParams<{ nextPath?: string }>();
 
-  const signInWithOAuth = api.auth.signInWithOAuth.useMutation({
-    onSuccess: ({ url }) => {
-      router.replace(url);
-    },
-    onError: (error) => toast.error(error.message),
-  });
   const signInWithPassword = api.auth.signInWithPassword.useMutation({
-    onSuccess: ({ user }) => {
-      router.replace(
-        params.nextPath ?? `/dashboard/${user.user_metadata.defaultTeamSlug}`,
-      );
+    onSuccess: () => {
+      router.replace(params.nextPath ?? `/`);
     },
     onError: (error) => toast.error(error.message),
   });
   const signUp = api.auth.signUp.useMutation({
-    onSuccess: ({ user }) => {
-      router.replace(
-        params.nextPath ?? `/dashboard/${user.user_metadata.defaultTeamSlug}`,
-      );
+    onSuccess: () => {
+      router.replace(params.nextPath ?? `/`);
     },
     onError: (error) => toast.error(error.message),
   });
@@ -53,16 +43,10 @@ export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
   const form = useForm({
     schema: signInWithPasswordInput,
     defaultValues: {
-      email: "im.kaiyu@gmail.com",
-      password: "testing123",
+      email: "",
+      password: "",
     },
   });
-
-  const handleAuthWithGithub = () => {
-    signInWithOAuth.mutate({
-      provider: "github",
-    });
-  };
 
   const handleAuthWithPassword = (credentials: SignInWithPasswordInput) => {
     if (type === "signup") {
@@ -74,34 +58,18 @@ export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
   };
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
-      <Button
-        variant="outline"
-        type="button"
-        loading={signInWithOAuth.isPending}
-        onClick={handleAuthWithGithub}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleAuthWithPassword)}
+        className={cn("flex flex-col gap-5", className)}
       >
-        Continue with Github
-      </Button>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2">Or</span>
-        </div>
-      </div>
-      <Form {...form}>
-        <form
-          className="grid gap-2"
-          onSubmit={form.handleSubmit(handleAuthWithPassword)}
-        >
+        <div className="-space-y-px">
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="grid gap-1 space-y-0">
-                <FormLabel className="sr-only">Email</FormLabel>
+              <FormItem>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
                     data-test="email-input"
@@ -122,8 +90,8 @@ export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem className="grid gap-1 space-y-0">
-                <FormLabel className="sr-only">Password</FormLabel>
+              <FormItem>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
                     data-test="password-input"
@@ -140,12 +108,12 @@ export const AuthForm = ({ className, type, ...props }: AuthFormProps) => {
               </FormItem>
             )}
           />
-          <Button loading={signUp.isPending || signInWithPassword.isPending}>
-            {type === "signin" ? "Login" : "Sign Up"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+        </div>
+        <Button loading={signUp.isPending || signInWithPassword.isPending}>
+          {type === "signin" ? "Login" : "Sign Up"}
+        </Button>
+      </form>
+    </Form>
   );
 };
 

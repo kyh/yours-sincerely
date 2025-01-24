@@ -104,7 +104,7 @@ const FormItem = React.forwardRef<
         className={cn(
           noStyles
             ? null
-            : "flex flex-col gap-0.5 px-3 pb-1.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border first:rounded-t-md last:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-primary",
+            : "flex flex-col gap-0.5 px-3 pb-1.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-primary",
           className,
         )}
         {...props}
