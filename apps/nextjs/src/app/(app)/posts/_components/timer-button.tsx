@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
@@ -24,14 +25,23 @@ type Props = {
 };
 
 export const TimerButton = ({ post }: Props) => {
+  const [open, setOpen] = useState(false);
+
   if (!post.createdAt) return null;
 
-  const { percentage, now, end } = getPercentage(new Date(post.createdAt));
+  const start = new Date(post.createdAt);
+  const { percentage, now, end } = getPercentage(start);
   const formattedTime = formatDistance(now, end);
 
   return (
-    <Tooltip>
-      <TooltipTrigger className="grid size-8 place-items-center rounded-lg p-2 hover:bg-accent">
+    <Tooltip open={open} onOpenChange={setOpen}>
+      <TooltipTrigger
+        className="grid size-8 place-items-center rounded-lg p-2 hover:bg-accent"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
+      >
         <div
           className="relative inline-block h-4 w-4 rounded-full bg-[length:150%] bg-center bg-blend-overlay"
           style={{
