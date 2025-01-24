@@ -46,17 +46,28 @@ export const PostPage = ({ postId }: Props) => {
           placeholder="Comment on this love letter..."
         />
       )}
-      <h3 className="border-y border-border py-3 text-sm">
-        Comments ({post.commentCount ?? 0})
-      </h3>
-      {!post.comments?.length && (
-        <div className="h-full py-5 text-center">No comments</div>
-      )}
-      {post.comments?.map((comment) => (
-        <div key={comment.id} className="pb-3 pt-5">
-          <PostContent post={comment} showMore={false} />
+      <div>
+        <h3 className="flex items-center gap-2 py-3">
+          <span className="text-sm text-muted-foreground">
+            Comments ({post.commentCount ?? 0})
+          </span>
+          <span className="h-px flex-1 bg-border" />
+        </h3>
+        <div className="divide-y divide-border">
+          {!post.comments?.length && (
+            <div className="py-5 text-center">No comments</div>
+          )}
+          {post.comments?.map((comment) => (
+            <div key={comment.id} className="pb-3 pt-5">
+              <PostContent
+                post={comment}
+                showTimer={false}
+                showComment={false}
+              />
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </section>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import {
@@ -11,7 +11,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@init/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@init/ui/drawer";
+import { dropdownMenuItemVariants } from "@init/ui/dropdown-menu";
 import { toast } from "@init/ui/toast";
+import { useMediaQuery } from "@init/ui/utils";
 import { MoreVerticalIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
@@ -24,6 +34,7 @@ type Props = {
 export const MoreButton = ({ post }: Props) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const router = useRouter();
+  const isDesktop = useMediaQuery();
 
   const deleteMutation = api.post.deletePost.useMutation({
     onSuccess: () => {
@@ -74,56 +85,88 @@ export const MoreButton = ({ post }: Props) => {
     }
   };
 
+  const buttonClassName = isDesktop
+    ? "rounded-sm p-8"
+    : dropdownMenuItemVariants({ className: "w-full" });
+  const menuItems = [
+    <Button variant="ghost" asChild className={buttonClassName}>
+      <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}>
+        Report Post
+      </a>
+    </Button>,
+    !!user && isPostOwner && (
+      <Button
+        type="button"
+        className={buttonClassName}
+        variant="ghost"
+        onClick={() => handleSubmit("delete")}
+      >
+        Delete Post
+      </Button>
+    ),
+    !!user && !isPostOwner && (
+      <Button
+        type="button"
+        className={buttonClassName}
+        variant="ghost"
+        onClick={() => handleSubmit("flag")}
+      >
+        Mark as inappropriate
+      </Button>
+    ),
+    !!user && !isPostOwner && (
+      <Button
+        type="button"
+        className={buttonClassName}
+        variant="ghost"
+        onClick={() => handleSubmit("block")}
+      >
+        Stop seeing content from this user
+      </Button>
+    ),
+  ].filter(Boolean);
+
+  if (isDesktop) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <button className="size-8 rounded-lg p-2 transition hover:bg-accent">
+            <MoreVerticalIcon className="size-4" />
+          </button>
+        </DialogTrigger>
+        <DialogContent closeButton={false}>
+          <DialogHeader className="sr-only">
+            <DialogTitle>Post Settings</DialogTitle>
+            <DialogDescription>Options for this post</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col divide-y divide-border">
+            {menuItems.map((item, index) => (
+              <Fragment key={index}>{item}</Fragment>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerTrigger asChild>
         <button className="size-8 rounded-lg p-2 transition hover:bg-accent">
           <MoreVerticalIcon className="size-4" />
         </button>
-      </DialogTrigger>
-      <DialogContent closeButton={false}>
-        <DialogHeader className="sr-only">
-          <DialogTitle>Post Settings</DialogTitle>
-          <DialogDescription>Options for this post</DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col divide-y divide-border">
-          <Button variant="ghost" asChild className="rounded-sm p-8">
-            <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}>
-              Report Post
-            </a>
-          </Button>
-          {!!user && isPostOwner && (
-            <Button
-              type="button"
-              className="rounded-sm p-8"
-              variant="ghost"
-              onClick={() => handleSubmit("delete")}
-            >
-              Delete Post
-            </Button>
-          )}
-          {!!user && !isPostOwner && (
-            <Button
-              type="button"
-              className="rounded-sm p-8"
-              variant="ghost"
-              onClick={() => handleSubmit("flag")}
-            >
-              Mark as inappropriate
-            </Button>
-          )}
-          {!!user && !isPostOwner && (
-            <Button
-              type="button"
-              className="rounded-sm p-8"
-              variant="ghost"
-              onClick={() => handleSubmit("block")}
-            >
-              Stop seeing content from this user
-            </Button>
-          )}
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>Post Settings</DrawerTitle>
+          <DrawerDescription>Options for this post</DrawerDescription>
+        </DrawerHeader>
+        <div className="mt-4 flex flex-col divide-y divide-border">
+          {menuItems.map((item, index) => (
+            <Fragment key={index}>{item}</Fragment>
+          ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 };
