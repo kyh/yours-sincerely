@@ -50,7 +50,7 @@ export const SettingsForm = () => {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="last:rounded-b-none">
+              <FormItem className="last-of-type:rounded-b-none">
                 <FormLabel>
                   Email
                   <Tooltip>
