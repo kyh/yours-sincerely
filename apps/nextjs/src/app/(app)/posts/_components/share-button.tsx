@@ -24,7 +24,7 @@ export const ShareButton = ({ post }: Props) => {
     ref.current?.select();
     ref.current?.setSelectionRange(0, 99999);
     await navigator.clipboard.writeText(postUrl);
-    toast("📝 Copied to Clipboard");
+    toast.success("📝 Copied to Clipboard");
   };
 
   return (

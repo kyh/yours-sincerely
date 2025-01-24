@@ -31,6 +31,7 @@ import {
 } from "@init/ui/form";
 import { toast } from "@init/ui/toast";
 import { useMediaQuery } from "@init/ui/utils";
+import { balloons } from "balloons-js";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 
@@ -65,6 +66,7 @@ export const PostForm = ({
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: (_data, variables) => {
+      balloons().catch(console.error);
       toast.success("Your love letter has been published");
       form.reset({
         parentId,
