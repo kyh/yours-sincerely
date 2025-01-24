@@ -1,12 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AuthForm } from "@/app/(app)/auth/_components/auth-form";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { AuthForm } from "../_components/auth-form";
 
-export const generateMetadata = () => {
-  return {
-    title: "Sign Up",
-  };
+export const metadata: Metadata = {
+  title: "Sign Up",
 };
 
 const Page = () => {

@@ -1,18 +1,19 @@
-import { UpdatePasswordForm } from "@/app/(app)/auth/_components/auth-form";
+import type { Metadata } from "next";
 
-export const generateMetadata = () => {
-  return {
-    title: "Update Password",
-  };
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { UpdatePasswordForm } from "../_components/auth-form";
+
+export const metadata: Metadata = {
+  title: "Update Password",
 };
 
 const Page = () => (
-  <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-    <div className="flex flex-col gap-2 text-center">
-      <h1 className="text-lg font-light">Update your Password</h1>
-    </div>
-    <UpdatePasswordForm />
-  </div>
+  <>
+    <PageHeader title="Update Password" />
+    <PageContent className="flex flex-col gap-5">
+      <UpdatePasswordForm />
+    </PageContent>
+  </>
 );
 
 export default Page;

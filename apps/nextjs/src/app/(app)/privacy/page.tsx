@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
 };
 
-export const dynamic = "force-dynamic";
-
 const Page = () => (
   <>
     <PageHeader title="Privacy Policy" />

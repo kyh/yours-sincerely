@@ -6,8 +6,8 @@ import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 export const GET = async (request: NextRequest) => {
   const client = getSupabaseServerClient();
   const url = await verifyTokenHash(client, request, {
-    joinTeamPath: "/join",
-    redirectPath: "/dashboard",
+    joinTeamPath: "/",
+    redirectPath: "/",
   });
 
   return NextResponse.redirect(url);
