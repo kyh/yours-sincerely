@@ -1,26 +1,29 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { RequestPasswordResetForm } from "@/app/(app)/auth/_components/auth-form";
+import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { RequestPasswordResetForm } from "../_components/auth-form";
 
-export const generateMetadata = () => {
-  return {
-    title: "Reset Password",
-  };
+export const metadata: Metadata = {
+  title: "Request Password Reset",
 };
 
 const Page = () => (
-  <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-    <div className="flex flex-col gap-2 text-center">
-      <h1 className="text-lg font-light">Reset your Password</h1>
-    </div>
-    <RequestPasswordResetForm />
-    <p className="px-8 text-center text-sm text-muted-foreground">
-      Back to{" "}
-      <Link href="/auth/sign-in" className="underline">
-        sign in
-      </Link>
-    </p>
-  </div>
+  <>
+    <PageHeader title="Request password reset" />
+    <PageContent className="flex flex-col gap-5">
+      <RequestPasswordResetForm />
+      <p className="px-8 text-center text-xs text-muted-foreground">
+        Back to{" "}
+        <Link
+          href="/auth/sign-in"
+          className="underline underline-offset-4 transition hover:text-primary"
+        >
+          Sign in
+        </Link>
+      </p>
+    </PageContent>
+  </>
 );
 
 export default Page;

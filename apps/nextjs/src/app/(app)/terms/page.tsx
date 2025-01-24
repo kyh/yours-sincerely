@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: "Terms of Use",
 };
 
-export const dynamic = "force-dynamic";
-
 const Page = () => (
   <>
     <PageHeader title="Terms of Use" />
