@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import {
   Dialog,
@@ -33,25 +32,23 @@ type Props = {
 
 export const MoreButton = ({ post }: Props) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const router = useRouter();
   const isDesktop = useMediaQuery();
 
   const deleteMutation = api.post.deletePost.useMutation({
     onSuccess: () => {
-      toast("You have deleted this post");
-      router.push("/");
+      toast.success("You have deleted this post");
     },
   });
   const createMutation = api.flag.createFlag.useMutation({
     onSuccess: () => {
-      toast("You have flagged this post, we will be reviewing it shortly");
-      router.push("/");
+      toast.success(
+        "You have flagged this post, we will be reviewing it shortly",
+      );
     },
   });
   const blockMutation = api.block.createBlock.useMutation({
     onSuccess: () => {
-      toast("You have blocked this user");
-      router.push("/");
+      toast.success("You have blocked this user");
     },
   });
 
@@ -70,14 +67,14 @@ export const MoreButton = ({ post }: Props) => {
         });
       case "flag":
         if (!user) {
-          return toast("You must be logged in to flag a post");
+          return toast.error("You must be logged in to flag a post");
         }
         return createMutation.mutate({
           postId: post.id,
         });
       case "block":
         if (!blockerId || !blockingId) {
-          return toast("Invalid block");
+          return toast.error("Invalid block");
         }
         return blockMutation.mutate({
           blockingId,
@@ -87,7 +84,7 @@ export const MoreButton = ({ post }: Props) => {
 
   const buttonClassName = isDesktop
     ? "rounded-sm p-8"
-    : dropdownMenuItemVariants({ className: "w-full" });
+    : dropdownMenuItemVariants({ className: "w-full justify-start" });
   const menuItems = [
     <Button variant="ghost" asChild className={buttonClassName}>
       <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}>
