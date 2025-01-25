@@ -23,6 +23,7 @@ import { api } from "@/trpc/react";
 export const SettingsForm = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const updateUser = api.user.updateUser.useMutation();
+  const requestPasswordReset = api.auth.requestPasswordReset.useMutation();
 
   const form = useForm({
     schema: updateUserInput,
@@ -39,6 +40,17 @@ export const SettingsForm = () => {
       loading: "Updating Settings...",
       success: "Settings successfully updated",
       error: "Could not update Settings. Please try again.",
+    });
+  };
+
+  const handleRequestPasswordReset = () => {
+    const promise = requestPasswordReset.mutateAsync({
+      email: user?.email ?? "",
+    });
+    toast.promise(promise, {
+      loading: "Requesting password reset...",
+      success: "Password reset email sent",
+      error: "Could not send password reset email. Please try again.",
     });
   };
 
@@ -74,7 +86,11 @@ export const SettingsForm = () => {
       </Form>
       <div className="space-y-1 rounded-b-md px-3 pb-2.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border">
         <Label>Password</Label>
-        <Button type="button" variant="secondary">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleRequestPasswordReset}
+        >
           Request password reset
         </Button>
       </div>
