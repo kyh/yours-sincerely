@@ -38,7 +38,9 @@ export const authRouter = createTRPCRouter({
         throw new Error("Unable to create user");
       }
 
-      return { user };
+      return {
+        user,
+      };
     }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
@@ -49,7 +51,9 @@ export const authRouter = createTRPCRouter({
         throw response.error;
       }
 
-      return response.data;
+      return {
+        user: response.data.user,
+      };
     }),
   signInWithOtp: publicProcedure
     .input(signInWithOtpInput)
@@ -60,7 +64,9 @@ export const authRouter = createTRPCRouter({
         throw response.error;
       }
 
-      return response.data;
+      return {
+        user: response.data.user,
+      };
     }),
   signInWithOAuth: publicProcedure
     .input(signInWithOAuthInput)
@@ -80,7 +86,7 @@ export const authRouter = createTRPCRouter({
       throw response.error;
     }
 
-    return { success: true };
+    return { user: null };
   }),
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)

@@ -31,16 +31,17 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   // React Native will pass their token through headers,
   // browsers will have the session cookie set
-  // const token = opts.headers.get("authorization");
+  const token = opts.headers.get("authorization");
 
-  // const { data } = token
-  //   ? await supabase.auth.getUser(token)
-  //   : await supabase.auth.getUser();
+  const { data } = token
+    ? await supabase.auth.getUser(token)
+    : await supabase.auth.getUser();
 
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
   const deprecatedSessionUserId = await getDeprecatedSession();
-  const user = await findDbUser(deprecatedSessionUserId);
+
+  const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
