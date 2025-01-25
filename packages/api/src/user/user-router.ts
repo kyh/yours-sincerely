@@ -60,6 +60,24 @@ export const userRouter = createTRPCRouter({
         .where(eq(user.id, input.userId))
         .returning();
 
+      // Handle old account case where the supabase user hasn't been created
+      if (input.email) {
+        const client = getSupabaseAdminClient();
+        const { data: supabaseUser } = await client.auth.admin.getUserById(
+          input.userId,
+        );
+
+        if (!supabaseUser.user) {
+          await client.auth.admin.createUser({
+            email: input.email,
+          });
+        } else {
+          await client.auth.admin.updateUserById(input.userId, {
+            email: input.email,
+          });
+        }
+      }
+
       return {
         user: response,
       };

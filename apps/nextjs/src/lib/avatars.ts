@@ -9,5 +9,5 @@ const hashString = (str: string) => {
     hash = (hash << 5) - hash + str.charCodeAt(i);
     hash = hash & hash;
   }
-  return hash;
+  return Math.abs(hash);
 };
