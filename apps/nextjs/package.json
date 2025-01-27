@@ -18,6 +18,8 @@
     "@init/api": "workspace:^",
     "@init/db": "workspace:^",
     "@init/ui": "workspace:^",
+    "@knocklabs/node": "^0.6.16",
+    "@knocklabs/react-notification-feed": "^0.8.15",
     "@mojs/core": "^1.7.1",
     "@react-hook/hotkey": "^3.1.0",
     "@stripe/react-stripe-js": "^3.1.1",
