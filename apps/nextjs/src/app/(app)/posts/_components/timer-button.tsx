@@ -1,5 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
+import { useTheme } from "@init/ui/theme";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
 
@@ -46,9 +49,9 @@ export const TimerButton = ({ post }: Props) => {
           className="relative inline-block h-4 w-4 rounded-full bg-[length:150%] bg-center bg-blend-overlay"
           style={{
             backgroundImage: `conic-gradient(
-          rgba(140, 140, 140, 0.1) calc(3.6deg * ${percentage}),
-          rgba(140, 140, 140, 1) calc(3.6deg * ${percentage})
-        )`,
+              rgba(120, 120, 120, 0.1) calc(3.6deg * ${percentage}),
+              rgba(120, 120, 120, 0.5) calc(3.6deg * ${percentage})
+            )`,
           }}
           data-percentage={percentage}
         >
