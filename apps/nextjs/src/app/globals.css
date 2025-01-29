@@ -223,3 +223,18 @@ textarea::placeholder {
 .rnf-notification-feed__knock-branding {
   display: none;
 }
+
+.rnf-notification-cell {
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
+    backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  border-radius: var(--radius);
+}
+
+:root {
+  --rnf-notification-cell-active-bg-color: hsl(var(--accent));
+  --rnf-notification-cell-unread-dot-bg-color: hsl(var(--destructive));
+  --rnf-notification-cell-unread-dot-border-color: hsl(var(--destructive));
+}
