@@ -1,6 +1,7 @@
 import { and, desc, eq, lt, notInArray, or } from "@init/db";
 import { feed, post } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
+import { Knock } from "@knocklabs/node";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -125,6 +126,36 @@ export const postRouter = createTRPCRouter({
           parentId: input.parentId,
         })
         .returning();
+
+      if (created?.parentId) {
+        const knock = new Knock(process.env.KNOCK_API_KEY);
+        const parentPost = await ctx.db.query.post.findFirst({
+          where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
+          with: {
+            user: true,
+          },
+        });
+        const recipient = parentPost?.user;
+
+        if (recipient) {
+          await knock.workflows.trigger("new-comment", {
+            data: {
+              parentPostId: parentPost.id,
+              commentPostId: created.id,
+            },
+            actor: {
+              id: created.userId,
+              displayName: created.createdBy,
+            },
+            recipients: [
+              {
+                id: recipient.id,
+                displayName: recipient.displayName,
+              },
+            ],
+          });
+        }
+      }
 
       return {
         post: created,

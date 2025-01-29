@@ -58,7 +58,7 @@ export const Sidebar = () => {
                 className="size-5"
               />
               {metadata.unread_count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-destructive" />
+                <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-destructive animate-in fade-in zoom-in" />
               )}
             </span>
             <span className="sr-only md:not-sr-only">Notifications</span>
