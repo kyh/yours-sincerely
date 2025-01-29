@@ -1,7 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@init/ui/button";
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
 
 import { BellIcon } from "@/components/icons/bell-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
@@ -12,9 +18,23 @@ import { api } from "@/trpc/react";
 export const Sidebar = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
+  const knock = useAuthenticatedKnockClient(
+    process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!,
+    user?.id,
+  );
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!,
+  );
+  const { metadata } = useNotificationStore(notificationFeed);
+
   const { controls: homeControls, ...homeControlProps } = useIconAnimation();
   const { controls: bellControls, ...bellControlProps } = useIconAnimation();
   const { controls: userControls, ...userControlProps } = useIconAnimation();
+
+  useEffect(() => {
+    notificationFeed.fetch();
+  }, [notificationFeed]);
 
   return (
     <section className="area-nav">
@@ -31,11 +51,16 @@ export const Sidebar = () => {
         </Button>
         <Button variant="ghost" {...bellControlProps} asChild>
           <Link href="/notifications">
-            <BellIcon
-              aria-hidden="true"
-              controls={bellControls}
-              className="size-5"
-            />
+            <span className="relative">
+              <BellIcon
+                aria-hidden="true"
+                controls={bellControls}
+                className="size-5"
+              />
+              {metadata.unread_count > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-destructive" />
+              )}
+            </span>
             <span className="sr-only md:not-sr-only">Notifications</span>
           </Link>
         </Button>
