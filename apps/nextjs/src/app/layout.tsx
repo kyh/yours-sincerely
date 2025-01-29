@@ -9,7 +9,7 @@ import { cn } from "@init/ui/utils";
 import { siteConfig } from "@/lib/site-config";
 import { TRPCReactProvider } from "@/trpc/react";
 
-import "@knocklabs/react-notification-feed/dist/index.css";
+import "@knocklabs/react/dist/index.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

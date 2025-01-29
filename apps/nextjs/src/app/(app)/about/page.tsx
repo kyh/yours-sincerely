@@ -6,15 +6,13 @@ export const metadata: Metadata = {
   title: "About",
 };
 
-export const dynamic = "force-dynamic";
-
 const quoteClass =
   "relative before:absolute before:block before:-left-3 before:-top-1 before:w-6 before:h-4 before:-z-10 before:opacity-25 before:content-['_'] before:bg-[url('/assets/quote.svg')] before:bg-no-repeat";
 
 const Page = () => (
   <>
     <PageHeader title="About" />
-    <PageContent className="flex flex-col gap-6">
+    <PageContent className="flex flex-col gap-5">
       <p className={quoteClass}>
         An ephemeral anonymous blog to send each other tiny beautiful letters
       </p>

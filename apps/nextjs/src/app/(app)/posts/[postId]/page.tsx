@@ -1,6 +1,6 @@
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { api, HydrateClient } from "@/trpc/server";
-import { PostPage } from "../_components/post-page";
+import { PostPage } from "./post-page";
 
 type Props = {
   params: Promise<{

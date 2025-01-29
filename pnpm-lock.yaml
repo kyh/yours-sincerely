@@ -228,9 +228,9 @@ importers:
       '@knocklabs/node':
         specifier: ^0.6.16
         version: 0.6.16
-      '@knocklabs/react-notification-feed':
-        specifier: ^0.8.15
-        version: 0.8.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@knocklabs/react':
+        specifier: ^0.3.0-rc-5.0
+        version: 0.3.0-rc-5.0(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@mojs/core':
         specifier: ^1.7.1
         version: 1.7.1
@@ -2168,18 +2168,26 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@knocklabs/client@0.8.21':
-    resolution: {integrity: sha512-uPaUAwbg9Bi0UIPIYOE4v4GiasKezZNQ/ge9KST2wlSHAfpKWrHf7s85H4mD7IGkVc0xkokF4RZ4lqr7cy48wg==}
+  '@knocklabs/client@0.11.0-rc-5.0':
+    resolution: {integrity: sha512-ycSlXetDZeSUtdl59qTR90zw/NmA2j5w9owTAJ6RBGMeV7xL9BPlv1RrfcxTIJ1VC2Xl5TpAxducMVV0sUZ/ew==}
 
   '@knocklabs/node@0.6.16':
     resolution: {integrity: sha512-8fgsfzcvDrjphJ3WD3EwHbIOibD5hf7gYJpTNLTwq5ZL9YTuKqhyyKDwsbvwd4BBdO5vMFHh4r8Jsw2SPwM2uw==}
     engines: {node: '>=17.5.0'}
 
-  '@knocklabs/react-notification-feed@0.8.15':
-    resolution: {integrity: sha512-elOReO52Sf2xR61PdkvjkVg4dPpZmIkXs8PcrqjO2bKRE5LpfNGx8BNdu3ovS6AhTVT8dvxFitJ3E3QDFx9zLQ==}
+  '@knocklabs/react-core@0.3.0-rc-5.0':
+    resolution: {integrity: sha512-6ETvcfvzdwGzGOBCU+6UCYj/fwQNRMqP38YhN99H1HCMyRYteuNELqlEgYtxazm3SLun3V18RS6cEt59enbiBw==}
     peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+
+  '@knocklabs/react@0.3.0-rc-5.0':
+    resolution: {integrity: sha512-Hn1N4H0wnCLgh7cn4cGXhSdMV9gjZWWxZakP7QhWJtdBfIZzPqhPipz6C7seQ8yeG2EgfLb4RxjhysUnAH77Xg==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.11.0 || ^17.0.0 || ^18.0.0
+
+  '@knocklabs/types@0.1.5-rc-5.0':
+    resolution: {integrity: sha512-X45QoSIk5NSu4QLx4HpgiplZBxNpu79vR04wx5jnilqt0CcjEszgXcDs4yzc+SWluuKQuRqW1iu9zMoudKnDPw==}
 
   '@kyh/eslint-config@1.1.3':
     resolution: {integrity: sha512-syMhf55R68zkfHw9IuSBjkkT9ICwpnFCaMfHE9erhBrmajugNAM9qLq85h8DTxrzQ8WNmp3FbUuLN+jGxiZgHA==}
@@ -2991,6 +2999,12 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
+  '@tanstack/react-store@0.5.8':
+    resolution: {integrity: sha512-G8TFpT/QJv2B2vro4QOUypvMjjSrbLRR8VKNoBByr6gpXAhU7y7mkrsn55Ra6svplVuvF+rAPTvHcUJKtU6geQ==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0
+      react-dom: ^17.0.0 || ^18.0.0
+
   '@tanstack/react-table@8.20.6':
     resolution: {integrity: sha512-w0jluT718MrOKthRcr2xsjqzx+oEM7B7s/XXyfs19ll++hlId3fjTm+B2zrR3ijpANpkzBAr15j1XGVOMxpggQ==}
     engines: {node: '>=12'}
@@ -2998,9 +3012,17 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
+  '@tanstack/store@0.5.5':
+    resolution: {integrity: sha512-EOSrgdDAJExbvRZEQ/Xhh9iZchXpMN+ga1Bnk8Nmygzs8TfiE6hbzThF+Pr2G19uHL6+DTDTHhJ8VQiOd7l4tA==}
+
   '@tanstack/table-core@8.20.5':
     resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
     engines: {node: '>=12'}
+
+  '@telegraph/tokens@0.0.13':
+    resolution: {integrity: sha512-fdkVjvKRrYm5/k59CzKzHc66URpbuDAtmYEhpK/m7K3C7YEKt/ox62MJMcdc98dkZXu+x2LAC0g3B+YPj7/6zA==}
+    peerDependencies:
+      react: ^18.2.0
 
   '@tootallnate/quickjs-emscripten@0.23.0':
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
@@ -3424,8 +3446,10 @@ packages:
     resolution: {integrity: sha512-RE3mdQ7P3FRSe7eqCWoeQ/Z9QXrtniSjp1wUjt5nRC3WIpz5rSCve6o3fsZ2aCpJtrZjSZgjwXAoTO5k4tEI0w==}
     engines: {node: '>=4'}
 
-  axios-retry@3.9.1:
-    resolution: {integrity: sha512-8PJDLJv7qTTMMwdnbMvrLYuvB47M81wRtxQmEdV5w4rgbTXTt+vtPkXwajOfOdSyv/wZICJOC+/UhXH4aQ/R+w==}
+  axios-retry@4.5.0:
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
 
   axios@1.7.9:
     resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
@@ -3937,10 +3961,6 @@ packages:
 
   date-fns-jalali@4.1.0-0:
     resolution: {integrity: sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==}
-
-  date-fns@2.30.0:
-    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
-    engines: {node: '>=0.11'}
 
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
@@ -7254,6 +7274,11 @@ packages:
   swap-case@1.1.2:
     resolution: {integrity: sha512-BAmWG6/bx8syfc6qXPprof3Mn5vQgf5dwdUNJhsNqU9WdPt5P+ES/wQ5bxfijy8zwZgZZHslC3iAsxsuQMCzJQ==}
 
+  swr@2.3.0:
+    resolution: {integrity: sha512-NyZ76wA4yElZWBHzSgEJc28a0u6QZvhb6w0azeL2k7+Q1gAzVK+IqQYXhVOC/mzi+HZIozrZvBVeSeOZNR2bqA==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
@@ -9641,13 +9666,17 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@knocklabs/client@0.8.21(react@19.0.0)':
+  '@knocklabs/client@0.11.0-rc-5.0(react@19.0.0)':
     dependencies:
       '@babel/runtime': 7.26.7
+      '@knocklabs/types': 0.1.5-rc-5.0
+      '@tanstack/store': 0.5.5
+      '@types/phoenix': 1.6.6
       axios: 1.7.9
-      axios-retry: 3.9.1
+      axios-retry: 4.5.0(axios@1.7.9)
       eventemitter2: 6.4.9
       jwt-decode: 4.0.0
+      nanoid: 3.3.8
       phoenix: 1.6.16
       zustand: 3.7.2(react@19.0.0)
     transitivePeerDependencies:
@@ -9658,19 +9687,40 @@ snapshots:
     dependencies:
       jose: 5.9.6
 
-  '@knocklabs/react-notification-feed@0.8.15(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@knocklabs/react-core@0.3.0-rc-5.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@knocklabs/client': 0.8.21(react@19.0.0)
+      '@knocklabs/client': 0.11.0-rc-5.0(react@19.0.0)
+      '@tanstack/react-store': 0.5.8(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      date-fns: 4.1.0
+      fast-deep-equal: 3.1.3
+      react: 19.0.0
+      swr: 2.3.0(react@19.0.0)
+      zustand: 3.7.2(react@19.0.0)
+    transitivePeerDependencies:
+      - debug
+      - react-dom
+
+  '@knocklabs/react@0.3.0-rc-5.0(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@knocklabs/client': 0.11.0-rc-5.0(react@19.0.0)
+      '@knocklabs/react-core': 0.3.0-rc-5.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@popperjs/core': 2.11.8
-      date-fns: 2.30.0
+      '@radix-ui/react-dialog': 1.1.5(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-popover': 1.1.5(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-visually-hidden': 1.1.1(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@telegraph/tokens': 0.0.13(react@19.0.0)
+      clsx: 2.1.1
       lodash.debounce: 4.0.8
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-popper-tooltip: 4.4.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      zustand: 3.7.2(react@19.0.0)
     transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
       - debug
+
+  '@knocklabs/types@0.1.5-rc-5.0': {}
 
   '@kyh/eslint-config@1.1.3(@typescript-eslint/parser@8.21.0(eslint@9.18.0(jiti@1.21.7))(typescript@5.7.3))(eslint@9.18.0(jiti@1.21.7))(turbo@2.3.4)(typescript@5.7.3)':
     dependencies:
@@ -10698,13 +10748,26 @@ snapshots:
       '@tanstack/query-core': 5.64.2
       react: 19.0.0
 
+  '@tanstack/react-store@0.5.8(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@tanstack/store': 0.5.5
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      use-sync-external-store: 1.4.0(react@19.0.0)
+
   '@tanstack/react-table@8.20.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@tanstack/table-core': 8.20.5
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
+  '@tanstack/store@0.5.5': {}
+
   '@tanstack/table-core@8.20.5': {}
+
+  '@telegraph/tokens@0.0.13(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
@@ -11202,9 +11265,9 @@ snapshots:
 
   axe-core@4.10.2: {}
 
-  axios-retry@3.9.1:
+  axios-retry@4.5.0(axios@1.7.9):
     dependencies:
-      '@babel/runtime': 7.26.7
+      axios: 1.7.9
       is-retry-allowed: 2.2.0
 
   axios@1.7.9:
@@ -11825,10 +11888,6 @@ snapshots:
 
   date-fns-jalali@4.1.0-0: {}
 
-  date-fns@2.30.0:
-    dependencies:
-      '@babel/runtime': 7.26.7
-
   date-fns@4.1.0: {}
 
   debug@2.6.9:
@@ -11908,8 +11967,7 @@ snapshots:
 
   depd@2.0.0: {}
 
-  dequal@2.0.3:
-    optional: true
+  dequal@2.0.3: {}
 
   destroy@1.2.0: {}
 
@@ -15638,6 +15696,12 @@ snapshots:
     dependencies:
       lower-case: 1.1.4
       upper-case: 1.1.3
+
+  swr@2.3.0(react@19.0.0):
+    dependencies:
+      dequal: 2.0.3
+      react: 19.0.0
+      use-sync-external-store: 1.4.0(react@19.0.0)
 
   tailwind-merge@2.6.0: {}
 

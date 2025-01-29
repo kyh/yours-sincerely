@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
-import { useTheme } from "@init/ui/theme";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
 

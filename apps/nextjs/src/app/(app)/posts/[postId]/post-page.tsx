@@ -7,8 +7,8 @@ import { ArrowLeftIcon } from "lucide-react";
 import readingTime from "reading-time";
 
 import { api } from "@/trpc/react";
-import { PostContent } from "./post-content";
-import { PostForm } from "./post-form";
+import { PostContent } from "../_components/post-content";
+import { PostForm } from "../_components/post-form";
 
 type Props = {
   postId: string;
@@ -24,7 +24,7 @@ export const PostPage = ({ postId }: Props) => {
   const stats = readingTime(post.content ?? "");
 
   return (
-    <section className="flex flex-col gap-5">
+    <>
       <header className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={goBack}>
           <ArrowLeftIcon className="size-4" />
@@ -55,7 +55,7 @@ export const PostPage = ({ postId }: Props) => {
         </h3>
         <div className="divide-y divide-border">
           {!post.comments?.length && (
-            <div className="py-5 text-center">No comments</div>
+            <div className="h-full py-5 text-center text-sm">No comments</div>
           )}
           {post.comments?.map((comment) => (
             <div key={comment.id} className="pb-3 pt-5">
@@ -68,6 +68,6 @@ export const PostPage = ({ postId }: Props) => {
           ))}
         </div>
       </div>
-    </section>
+    </>
   );
 };

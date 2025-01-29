@@ -18,7 +18,7 @@
     --muted-foreground: 60 6% 60%;
     --accent: 47 27% 87%;
     --accent-foreground: 60 6% 13%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 358 72% 59%;
     --destructive-foreground: 34 10% 98%;
     --border: 60 6% 85%;
     --ring: 60 6% 13%;
@@ -205,4 +205,21 @@
 input::placeholder,
 textarea::placeholder {
   color: hsl(var(--muted-foreground));
+}
+
+/* Knock overrides */
+.rnf-notification-feed {
+  background-color: hsl(var(--background));
+}
+
+.rnf-notification-feed__type {
+  display: none;
+}
+
+.rnf-dropdown select {
+  text-align: left;
+}
+
+.rnf-notification-feed__knock-branding {
+  display: none;
 }
