@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: "com.kyh.yourssincerely",
   appName: "Yours Sincerely",
   server: {
-    url: "https://beta.yourssincerely.org",
+    url: "https://yourssincerely.org",
   },
   ios: {
     allowsLinkPreview: false,
