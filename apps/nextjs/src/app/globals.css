@@ -55,7 +55,7 @@ body {
 }
 
 .page-layout {
-  --header-height: 80px;
+  --header-height: 50px;
   --left-column-width: 200px;
   --right-column-width: 300px;
 
@@ -82,7 +82,7 @@ body {
 .area-nav-header {
   grid-area: nav-header;
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top);
   align-items: center;
   border-bottom: 1px solid hsl(var(--border));
   display: none;
@@ -103,7 +103,7 @@ body {
 .area-content-header {
   grid-area: content-header;
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top);
   background-color: hsl(var(--background));
   z-index: 10;
   display: flex;
@@ -121,7 +121,7 @@ body {
 .area-aside-header {
   grid-area: aside-header;
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top);
   background-color: hsl(var(--background));
   display: flex;
   align-items: center;
@@ -141,6 +141,8 @@ body {
 
 @media (min-width: 768px) {
   .page-layout {
+    --header-height: 80px;
+
     grid-template-areas:
       "nav-header content-header aside-header"
       "nav content content";
