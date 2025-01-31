@@ -1,13 +1,13 @@
-const config = {
+import type { CapacitorConfig } from "@capacitor/cli";
+
+const config: CapacitorConfig = {
   appId: "com.kyh.yourssincerely",
   appName: "Yours Sincerely",
   server: {
     url: "https://beta.yourssincerely.org",
-    cleartext: true,
   },
   ios: {
     allowsLinkPreview: false,
-    scheme: "Yours Sincerely",
   },
   plugins: {
     SplashScreen: {
@@ -16,4 +16,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;
