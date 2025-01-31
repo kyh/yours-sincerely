@@ -1,0 +1,21 @@
+{
+  "name": "@init/capacitor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "git clean -xdf .cache .next .turbo node_modules",
+    "android": "cap run android --target=Pixel_6_API_35",
+    "ios": "cap run ios --target=BFD366C0-71DF-440A-AA5C-E9FBC541160D",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.1",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.1",
+    "@capacitor/ios": "^7.0.1",
+    "@capacitor/splash-screen": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.1"
+  }
+}
