@@ -6,6 +6,7 @@ import { GlobalToaster } from "@init/ui/toast";
 import { TooltipProvider } from "@init/ui/tooltip";
 import { cn } from "@init/ui/utils";
 
+import { CapacitorProvider } from "@/components/providers/capacitor-provider";
 import { siteConfig } from "@/lib/site-config";
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -96,13 +97,15 @@ const RootLayout = (props: LayoutProps) => {
           fontSans.variable,
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TooltipProvider>
-            <TRPCReactProvider>{props.children}</TRPCReactProvider>
-            <GlobalToaster />
-            <GlobalAlertDialog />
-          </TooltipProvider>
-        </ThemeProvider>
+        <CapacitorProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <TooltipProvider>
+              <TRPCReactProvider>{props.children}</TRPCReactProvider>
+              <GlobalToaster />
+              <GlobalAlertDialog />
+            </TooltipProvider>
+          </ThemeProvider>
+        </CapacitorProvider>
       </body>
     </html>
   );
