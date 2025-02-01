@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
 import { Button } from "@init/ui/button";
@@ -23,6 +23,9 @@ import {
 import { useTheme } from "@init/ui/theme";
 import { useMediaQuery } from "@init/ui/utils";
 import {
+  BookCheckIcon,
+  GlobeLockIcon,
+  HandshakeIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
   SettingsIcon,
@@ -36,7 +39,10 @@ import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
   const { theme, setTheme } = useTheme();
+  const isDesktop = useMediaQuery();
+
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const [open, setOpen] = useState(false);
 
   const menuItems = [
     {
@@ -47,6 +53,7 @@ export const AsideHeader = () => {
         <Link
           className={dropdownMenuItemVariants()}
           href={`/profile/${user?.id}`}
+          onClick={() => setOpen(false)}
         >
           <UserIcon aria-hidden="true" className="size-4" />
           Profile
@@ -58,7 +65,11 @@ export const AsideHeader = () => {
       condition: user,
       wrap: true,
       content: (
-        <Link className={dropdownMenuItemVariants()} href={`/settings`}>
+        <Link
+          className={dropdownMenuItemVariants()}
+          href="/settings"
+          onClick={() => setOpen(false)}
+        >
           <SettingsIcon aria-hidden="true" className="size-4" />
           Settings
         </Link>
@@ -69,7 +80,11 @@ export const AsideHeader = () => {
       condition: !user,
       wrap: true,
       content: (
-        <Link className={dropdownMenuItemVariants()} href="/auth/sign-in">
+        <Link
+          className={dropdownMenuItemVariants()}
+          href="/auth/sign-in"
+          onClick={() => setOpen(false)}
+        >
           <UserIcon aria-hidden="true" className="size-4" />
           Login
         </Link>
@@ -88,7 +103,10 @@ export const AsideHeader = () => {
       content: (
         <button
           className={dropdownMenuItemVariants({ className: "w-full" })}
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => {
+            setOpen(false);
+            setTheme(theme === "dark" ? "light" : "dark");
+          }}
         >
           <SunMoonIcon aria-hidden="true" className="size-4" />
           Theme
@@ -102,7 +120,10 @@ export const AsideHeader = () => {
       content: (
         <button
           className={dropdownMenuItemVariants({ className: "w-full" })}
-          onClick={() => toggleFeedLayout()}
+          onClick={() => {
+            setOpen(false);
+            toggleFeedLayout();
+          }}
         >
           <LayoutDashboardIcon aria-hidden="true" className="size-4" />
           Layout
@@ -120,20 +141,67 @@ export const AsideHeader = () => {
       condition: true,
       wrap: true,
       content: (
-        <Link className={dropdownMenuItemVariants()} href={`/settings`}>
+        <Link
+          className={dropdownMenuItemVariants()}
+          href={`mailto:kai@kyh.io?subject=Support: ${user?.id}`}
+          onClick={() => setOpen(false)}
+        >
           <HelpCircleIcon aria-hidden="true" className="size-4" />
           Support
         </Link>
       ),
     },
+    {
+      id: "about",
+      condition: !isDesktop,
+      wrap: true,
+      content: (
+        <Link
+          className={dropdownMenuItemVariants()}
+          href="/about"
+          onClick={() => setOpen(false)}
+        >
+          <BookCheckIcon aria-hidden="true" className="size-4" />
+          About
+        </Link>
+      ),
+    },
+    {
+      id: "privacy",
+      condition: !isDesktop,
+      wrap: true,
+      content: (
+        <Link
+          className={dropdownMenuItemVariants()}
+          href="/privacy"
+          onClick={() => setOpen(false)}
+        >
+          <GlobeLockIcon aria-hidden="true" className="size-4" />
+          Privacy
+        </Link>
+      ),
+    },
+    {
+      id: "terms",
+      condition: !isDesktop,
+      wrap: true,
+      content: (
+        <Link
+          className={dropdownMenuItemVariants()}
+          href="/terms"
+          onClick={() => setOpen(false)}
+        >
+          <HandshakeIcon aria-hidden="true" className="size-4" />
+          Terms
+        </Link>
+      ),
+    },
   ];
-
-  const isDesktop = useMediaQuery();
 
   if (isDesktop) {
     return (
       <div className="area-aside-header">
-        <DropdownMenu>
+        <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
               <Avatar className="size-8">
@@ -168,7 +236,7 @@ export const AsideHeader = () => {
 
   return (
     <div className="area-aside-header">
-      <Drawer>
+      <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon">
             <Avatar className="size-8">
