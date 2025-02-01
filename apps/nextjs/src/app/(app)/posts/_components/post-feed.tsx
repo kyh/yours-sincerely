@@ -42,8 +42,7 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
           data={posts}
           hasNextPage={hasNextPage}
           onLoadMore={fetchNextPage}
-        >
-          {(post) => (
+          render={(post) => (
             <PostContent
               layout="stack"
               post={post}
@@ -52,7 +51,7 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
               minHeight
             />
           )}
-        </CardStack>
+        />
       )}
       {posts.length > 0 && layout === "list" && (
         <>
