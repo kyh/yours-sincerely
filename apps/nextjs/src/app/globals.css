@@ -96,7 +96,19 @@ body {
   width: 100%;
   display: flex;
   z-index: 1;
-  border-top: 1px solid hsl(var(--border));
+}
+
+.area-nav::after {
+  --size: 30px;
+
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--size));
+  left: 0;
+  right: 0;
+  height: var(--size);
+  background: linear-gradient(transparent, hsl(var(--background)));
+  pointer-events: none;
 }
 
 .area-content-header {

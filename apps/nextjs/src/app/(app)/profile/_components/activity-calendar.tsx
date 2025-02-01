@@ -284,17 +284,6 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
       <footer className="flex" style={{ marginTop: 2 * blockMargin, fontSize }}>
         {/* Placeholder */}
         {loading && <div>&nbsp;</div>}
-
-        {!loading && !hideTotalCount && (
-          <div className="count">
-            {labels.totalCount
-              ? labels.totalCount
-                  .replace("{{count}}", String(totalCount))
-                  .replace("{{year}}", String(year))
-              : `${totalCount} posts in ${year}`}
-          </div>
-        )}
-
         {!loading && !hideColorLegend && (
           <div className="ml-auto flex items-center gap-1">
             <span style={{ marginRight: "0.4em" }}>

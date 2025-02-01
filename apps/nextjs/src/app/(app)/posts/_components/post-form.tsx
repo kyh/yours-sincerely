@@ -66,14 +66,14 @@ export const PostForm = ({
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: (_data, variables) => {
-      balloons().catch(console.error);
-      toast.success("Your love letter has been published");
       form.reset({
         parentId,
         content: "",
         createdBy: variables.createdBy,
       });
       onSuccess?.();
+      balloons().catch(console.error);
+      toast.success("Your love letter has been published");
     },
     onError: (err) => {
       toast.error(err.message);
@@ -153,7 +153,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="icon">
+          <Button size="icon" className="size-12">
             <PlusIcon />
             <span className="sr-only">New Post</span>
           </Button>
@@ -189,7 +189,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       }}
     >
       <DrawerTrigger asChild>
-        <Button size="icon">
+        <Button size="icon" className="size-12">
           <PlusIcon />
           <span className="sr-only">New Post</span>
         </Button>

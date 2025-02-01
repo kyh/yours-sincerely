@@ -32,7 +32,7 @@ export const PostPage = ({ postId }: Props) => {
         </Button>
         <p className="text-xs">{stats.text}</p>
       </header>
-      <Card className="p-5">
+      <Card>
         <PostContent
           post={post}
           layout="stack"

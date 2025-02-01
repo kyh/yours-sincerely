@@ -42,7 +42,7 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
 
           return (
             <Tooltip key={day}>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <ellipse {...ellipseProps} />
               </TooltipTrigger>
               <TooltipContent>

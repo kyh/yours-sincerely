@@ -38,7 +38,7 @@ export const Sidebar = () => {
 
   return (
     <section className="area-nav">
-      <nav className="flex w-full items-start justify-around gap-1 bg-background px-2 py-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
+      <nav className="flex w-full items-start justify-around gap-1 bg-background px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
         <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
             <HomeIcon
