@@ -92,7 +92,7 @@ export const Card = (props: CardProps) => {
 
 type Props<T> = {
   data: T[];
-  children: (d: T) => React.ReactNode;
+  render: (d: T) => React.ReactNode;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
   nextButton?: React.ReactNode;
@@ -100,7 +100,7 @@ type Props<T> = {
 
 export const CardStack = <T,>({
   data,
-  children,
+  render,
   hasNextPage,
   onLoadMore,
   nextButton = "Next",
@@ -150,7 +150,7 @@ export const CardStack = <T,>({
               opacity: { duration: 0.4 },
             }}
           >
-            {children(data[nextIndex]!)}
+            {render(data[nextIndex]!)}
           </Card>
           <Card
             key={currentIndex}
@@ -169,7 +169,7 @@ export const CardStack = <T,>({
             drag="x"
             onAnimationComplete={() => setAnimating(false)}
           >
-            {children(data[currentIndex]!)}
+            {render(data[currentIndex]!)}
           </Card>
         </AnimatePresence>
       </div>
