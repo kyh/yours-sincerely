@@ -61,7 +61,7 @@ export const PostForm = ({
     schema: createPostInput,
     defaultValues: {
       parentId,
-      content: localStorage.getItem(postFormKey) || "",
+      content: window ? localStorage.getItem(postFormKey) || "" : "",
       createdBy: user?.displayName || "Anonymous",
     },
   });
