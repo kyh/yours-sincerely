@@ -128,10 +128,10 @@ importers:
         version: 5.66.0(react@19.0.0)
       '@trpc/client':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/react-query':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -276,19 +276,16 @@ importers:
         version: 5.66.0(react@19.0.0)
       '@trpc/client':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+        version: 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/react-query':
         specifier: 'catalog:'
-        version: 11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@vercel/edge-config':
         specifier: ^1.4.0
         version: 1.4.0
-      balloons-js:
-        specifier: 0.0.2
-        version: 0.0.2
       motion:
         specifier: ^12.0.6
         version: 12.0.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -3917,10 +3914,6 @@ packages:
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-
-  balloons-js@0.0.2:
-    resolution: {integrity: sha512-IwLji0PbMABiLzE9i3HM2uChKS6sucer8CBc8L7BT2N4RSeKpTgbYF33HgbuMEa+WuAUp5TmWe47E0BKX3azVA==}
-    engines: {node: '>=12.0.0'}
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
@@ -11423,14 +11416,14 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
+  '@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
     dependencies:
       '@trpc/server': 11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
-  '@trpc/react-query@11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@trpc/react-query@11.0.0-rc.630(@tanstack/react-query@5.66.0(react@19.0.0))(@trpc/client@11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)))(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@tanstack/react-query': 5.66.0(react@19.0.0)
-      '@trpc/client': 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+      '@trpc/client': 11.0.0-rc.630(@trpc/server@11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       '@trpc/server': 11.0.0-rc.630(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -12035,8 +12028,6 @@ snapshots:
       babel-preset-current-node-syntax: 1.1.0(@babel/core@7.26.7)
 
   balanced-match@1.0.2: {}
-
-  balloons-js@0.0.2: {}
 
   base64-js@1.5.1: {}
 

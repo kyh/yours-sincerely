@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: "com.kyh.yourssincerely",
   appName: "Yours Sincerely",
   server: {
+    // url: "http://localhost:3000",
     url: "https://yourssincerely.org",
   },
   ios: {

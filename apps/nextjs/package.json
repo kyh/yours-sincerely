@@ -32,7 +32,6 @@
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
     "@vercel/edge-config": "^1.4.0",
-    "balloons-js": "0.0.2",
     "motion": "^12.0.6",
     "next": "catalog:",
     "react": "catalog:",

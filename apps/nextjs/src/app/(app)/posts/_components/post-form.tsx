@@ -31,12 +31,14 @@ import {
 } from "@init/ui/form";
 import { toast } from "@init/ui/toast";
 import { useMediaQuery } from "@init/ui/utils";
-import { balloons } from "balloons-js";
-import { addDays, format } from "date-fns";
+import { addDays, format, set } from "date-fns";
 import { PlusIcon } from "lucide-react";
 
 import type { CreatePostInput } from "@init/api/post/post-schema";
+import { balloons } from "@/components/animations/balloons";
 import { api } from "@/trpc/react";
+
+const postFormKey = "post-form";
 
 type PostFormProps = {
   placeholder?: string;
@@ -59,21 +61,26 @@ export const PostForm = ({
     schema: createPostInput,
     defaultValues: {
       parentId,
-      content: "",
+      content: localStorage.getItem(postFormKey) || "",
       createdBy: user?.displayName || "Anonymous",
     },
   });
 
   const createPost = api.post.createPost.useMutation({
     onSuccess: (_data, variables) => {
+      localStorage.removeItem(postFormKey);
       form.reset({
         parentId,
         content: "",
         createdBy: variables.createdBy,
       });
       onSuccess?.();
-      balloons().catch(console.error);
-      toast.success("Your love letter has been published");
+      setTimeout(() => {
+        toast.success("Your love letter has been published");
+      }, 500);
+      setTimeout(() => {
+        balloons().catch(console.error);
+      }, 600);
     },
     onError: (err) => {
       toast.error(err.message);
@@ -96,7 +103,7 @@ export const PostForm = ({
         <FormField
           control={form.control}
           name="content"
-          render={({ field }) => (
+          render={({ field: { onBlur, ...field } }) => (
             <FormItem
               className="textarea-grow"
               noStyles
@@ -108,6 +115,14 @@ export const PostForm = ({
                   id="post-input"
                   className={minHeight ? "!min-h-[30dvh]" : ""}
                   placeholder={placeholder}
+                  onBlur={(e) => {
+                    if (e.target.value === "") {
+                      localStorage.removeItem(postFormKey);
+                    } else {
+                      localStorage.setItem(postFormKey, e.target.value);
+                    }
+                    onBlur();
+                  }}
                   {...field}
                 />
               </FormControl>
