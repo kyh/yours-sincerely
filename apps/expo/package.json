@@ -17,7 +17,7 @@
   "dependencies": {
     "@bacons/text-decoder": "^0.0.0",
     "@expo/metro-config": "^0.19.9",
-    "@shopify/flash-list": "^1.7.2",
+    "@shopify/flash-list": "^1.7.3",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
@@ -37,7 +37,7 @@
     "react-native-gesture-handler": "^2.22.1",
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.1.0",
-    "react-native-screens": "^4.5.0",
+    "react-native-screens": "^4.6.0",
     "superjson": "catalog:"
   },
   "devDependencies": {
