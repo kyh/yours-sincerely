@@ -10,19 +10,19 @@ const items = [
     id: "radio-light",
     value: "light",
     label: "Light",
-    image: "/profile/ui-light.webp",
+    image: "/theme/ui-light.webp",
   },
   {
     id: "radio-dark",
     value: "dark",
     label: "Dark",
-    image: "/profile/ui-dark.webp",
+    image: "/theme/ui-dark.webp",
   },
   {
     id: "radio-system",
     value: "system",
     label: "System",
-    image: "/profile/ui-system.webp",
+    image: "/theme/ui-system.webp",
   },
 ];
 
