@@ -9,153 +9,114 @@ export const metadata: Metadata = {
 const Page = () => (
   <>
     <PageHeader title="Privacy Policy" />
-    <PageContent className="prose prose-slate mx-auto dark:prose-invert">
+    <PageContent className="prose prose-sm dark:prose-invert">
+      <p className="text-xs">Last Updated: February 2, 2025</p>
+      <h4>Introduction</h4>
       <p>
-        Kaiyu Hsu built the Yours Sincerely app as an Open Source app. This
-        SERVICE is provided by Kaiyu Hsu at no cost and is intended for use as
-        is.
+        Kaiyu Hsu built the Yours Sincerely app as an{" "}
+        <a href="https://github.com/kyh/yours-sincerely" target="_blank">
+          Open Source
+        </a>{" "}
+        app. This Service is provided by Kaiyu Hsu at no cost and is intended
+        for use as is.
       </p>
       <p>
-        This page is used to inform visitors regarding my policies with the
-        collection, use, and disclosure of Personal Information if anyone
-        decided to use my Service.
-      </p>
-      <p>
-        If you choose to use my Service, then you agree to the collection and
-        use of information in relation to this policy. The Personal Information
-        that I collect is used for providing and improving the Service. I will
-        not use or share your information with anyone except as described in
-        this Privacy Policy.
-      </p>
-      <p>
-        The terms used in this Privacy Policy have the same meanings as in our
-        Terms and Conditions, which is accessible at Yours Sincerely unless
-        otherwise defined in this Privacy Policy.
+        This Privacy Policy explains how we collect, use, disclose, and
+        safeguard your information when you use our application and related
+        services.
       </p>
 
-      <h4>Information Collection and Use</h4>
-
-      <p>
-        For a better experience, while using our Service, I may require you to
-        provide us with certain personally identifiable information, including
-        but not limited to None. The information that I request will be retained
-        on your device and is not collected by me in any way.
-      </p>
-      <p>
-        The app does use third party services that may collect information used
-        to identify you.
-      </p>
-
-      <p>
-        Link to privacy policy of third party service providers used by the app
-      </p>
+      <h4>Information We Collect</h4>
+      <p>Information You Provide:</p>
       <ul>
-        <li>
-          <a
-            href="https://firebase.google.com/policies/analytics"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Google Analytics for Firebase
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://firebase.google.com/support/privacy/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Firebase Crashlytics
-          </a>
-        </li>
+        <li>Account information (name, email address, phone number)</li>
+        <li>Content you create, share, or upload</li>
+        <li>Communications with other users</li>
+        <li>Survey responses and feedback</li>
+      </ul>
+      <p>Automatically Collected Information:</p>
+      <ul>
+        <li>Usage data (interaction with features, time spent on app)</li>
+        <li>Log data (IP address, browser type, access times)</li>
+        <li>Cookies and similar tracking technologies</li>
       </ul>
 
-      <h4>Log Data</h4>
-
-      <p>
-        I want to inform you that whenever you use my Service, in a case of an
-        error in the app I collect data and information (through third party
-        products) on your phone called Log Data. This Log Data may include
-        information such as your device Internet Protocol (“IP”) address, device
-        name, operating system version, the configuration of the app when
-        utilizing my Service, the time and date of your use of the Service, and
-        other statistics.
-      </p>
-
-      <h4>Cookies</h4>
-
-      <p>
-        Cookies are files with a small amount of data that are commonly used as
-        anonymous unique identifiers. These are sent to your browser from the
-        websites that you visit and are stored on your device's internal memory.
-      </p>
-
-      <p>
-        This Service does not use these “cookies” explicitly. However, the app
-        may use third party code and libraries that use “cookies” to collect
-        information and improve their services. You have the option to either
-        accept or refuse these cookies and know when a cookie is being sent to
-        your device. If you choose to refuse our cookies, you may not be able to
-        use some portions of this Service.
-      </p>
-
-      <h4>Service Providers</h4>
-
-      <p>
-        I may employ third-party companies and individuals due to the following
-        reasons:
-      </p>
-
+      <h4>How We Use Your Information</h4>
+      <p>We use your information to:</p>
       <ul>
-        <li>To facilitate our Service;</li>
-        <li>To provide the Service on our behalf;</li>
-        <li>To perform Service-related services; or</li>
-        <li>To assist us in analyzing how our Service is used.</li>
+        <li>Provide and maintain our services</li>
+        <li>Personalize your experience</li>
+        <li>Process your transactions</li>
+        <li>Send notifications and updates</li>
+        <li>Detect and prevent fraud or abuse</li>
+        <li>Comply with legal obligations</li>
       </ul>
 
+      <h4>Information Sharing and Disclosure</h4>
+      <p>We may share your information with:</p>
+      <ul>
+        <li>Other users (based on your privacy settings)</li>
+        <li>Legal authorities (when required by law)</li>
+        <li>Third parties in connection with a business transfer</li>
+        <li>Other parties with your consent</li>
+      </ul>
+
+      <h4>Data Security</h4>
       <p>
-        I want to inform users of this Service that these third parties have
-        access to your Personal Information. The reason is to perform the tasks
-        assigned to them on our behalf. However, they are obligated not to
-        disclose or use the information for any other purpose.
+        We implement appropriate technical and organizational measures to
+        protect your personal information against unauthorized access,
+        alteration, disclosure, or destruction.
       </p>
 
-      <h4>Security</h4>
+      <h4>Your Rights and Choices</h4>
+      <p>You have the right to:</p>
+      <ul>
+        <li>Access your personal information</li>
+        <li>Correct inaccurate data</li>
+        <li>Delete your account and data</li>
+        <li>Adjust privacy settings</li>
+        <li>Export your data</li>
+      </ul>
 
+      <h4>Children's Privacy</h4>
       <p>
-        I value your trust in providing us your Personal Information, thus we
-        are striving to use commercially acceptable means of protecting it. But
-        remember that no method of transmission over the internet, or method of
-        electronic storage is 100% secure and reliable, and I cannot guarantee
-        its absolute security.
-      </p>
-
-      <h4>Links to Other Sites</h4>
-
-      <p>
-        This Service may contain links to other sites. If you click on a
-        third-party link, you will be directed to that site. Note that these
-        external sites are not operated by me. Therefore, I strongly advise you
-        to review the Privacy Policy of these websites. I have no control over
-        and assume no responsibility for the content, privacy policies, or
-        practices of any third-party sites or services.
+        Our services are not intended for users under the age of 13. We do not
+        knowingly collect information from children under 13 years of age.
       </p>
 
       <h4>Changes to This Privacy Policy</h4>
-
       <p>
-        I may update our Privacy Policy from time to time. Thus, you are advised
-        to review this page periodically for any changes. I will notify you of
-        any changes by posting the new Privacy Policy on this page.
+        We may update this Privacy Policy from time to time. We will notify you
+        of any material changes through the app or via email.
       </p>
 
-      <p>This policy is effective as of 2020-04-28</p>
-
-      <h4>Contact</h4>
-
+      <h4>Contact Us</h4>
       <p>
-        If you have any questions or suggestions about my Privacy Policy, do not
-        hesitate to contact me at kai@kyh.io.
+        If you have questions about this Privacy Policy or our practices, please
+        contact us at:{" "}
+        <a href="mailto:kai@kyh.io?subject=Privacy" target="_blank">
+          kai@kyh.io
+        </a>
+      </p>
+
+      <h4>Cookie Policy</h4>
+      <p>
+        We use cookies and similar tracking technologies to enhance your
+        experience. You can control cookie settings through your browser
+        preferences.
+      </p>
+
+      <h4>Third-Party Links</h4>
+      <p>
+        Our app may contain links to third-party websites or services. We are
+        not responsible for their privacy practices.
+      </p>
+
+      <h4>Data Retention</h4>
+      <p>
+        We retain your information for as long as necessary to provide our
+        services and comply with legal obligations. You may request deletion of
+        your data at any time.
       </p>
     </PageContent>
   </>

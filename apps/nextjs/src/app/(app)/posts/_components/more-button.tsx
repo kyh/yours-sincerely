@@ -87,7 +87,10 @@ export const MoreButton = ({ post }: Props) => {
     : dropdownMenuItemVariants({ className: "w-full justify-start" });
   const menuItems = [
     <Button variant="ghost" asChild className={buttonClassName}>
-      <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}>
+      <a
+        href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
+        target="_blank"
+      >
         Report Post
       </a>
     </Button>,
