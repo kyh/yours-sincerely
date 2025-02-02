@@ -21,7 +21,13 @@ import {
 import { dropdownMenuItemVariants } from "@init/ui/dropdown-menu";
 import { toast } from "@init/ui/toast";
 import { useMediaQuery } from "@init/ui/utils";
-import { MoreVerticalIcon } from "lucide-react";
+import {
+  BanIcon,
+  FlagIcon,
+  MoreVerticalIcon,
+  Trash2Icon,
+  TriangleAlertIcon,
+} from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
 import { api } from "@/trpc/react";
@@ -84,13 +90,15 @@ export const MoreButton = ({ post }: Props) => {
 
   const buttonClassName = isDesktop
     ? "rounded-sm p-8"
-    : dropdownMenuItemVariants({ className: "w-full justify-start" });
+    : dropdownMenuItemVariants({ className: "w-full justify-start h-10" });
+
   const menuItems = [
     <Button variant="ghost" asChild className={buttonClassName}>
       <a
         href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
         target="_blank"
       >
+        <FlagIcon aria-hidden="true" className="size-4" />
         Report Post
       </a>
     </Button>,
@@ -101,6 +109,7 @@ export const MoreButton = ({ post }: Props) => {
         variant="ghost"
         onClick={() => handleSubmit("delete")}
       >
+        <Trash2Icon aria-hidden="true" className="size-4" />
         Delete Post
       </Button>
     ),
@@ -111,6 +120,7 @@ export const MoreButton = ({ post }: Props) => {
         variant="ghost"
         onClick={() => handleSubmit("flag")}
       >
+        <TriangleAlertIcon aria-hidden="true" className="size-4" />
         Mark as inappropriate
       </Button>
     ),
@@ -121,6 +131,7 @@ export const MoreButton = ({ post }: Props) => {
         variant="ghost"
         onClick={() => handleSubmit("block")}
       >
+        <BanIcon aria-hidden="true" className="size-4" />
         Stop seeing content from this user
       </Button>
     ),

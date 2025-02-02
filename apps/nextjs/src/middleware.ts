@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse, URLPattern } from "next/server";
 import { createCsrfProtect, CsrfError } from "@edge-csrf/nextjs";
 import { createMiddlewareClient } from "@init/db/supabase-middleware-client";
+import { get } from "@vercel/edge-config";
 
 const CSRF_SECRET_COOKIE = "csrfSecret";
 const NEXT_ACTION_HEADER = "next-action";
@@ -11,6 +12,13 @@ export const config = {
 };
 
 export const middleware = async (request: NextRequest) => {
+  const maintenanceMode = await get("maintenance");
+
+  if (maintenanceMode) {
+    request.nextUrl.pathname = "/maintenance";
+    return NextResponse.rewrite(request.nextUrl);
+  }
+
   const response = NextResponse.next({ request });
 
   // set a unique request ID for each request
