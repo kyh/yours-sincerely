@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { SplashScreen } from "@capacitor/splash-screen";
 
@@ -47,6 +48,14 @@ export const CapacitorProvider = ({
     } else {
       setPlatform(window.config?.platform as Platform);
     }
+
+    App.addListener("backButton", ({ canGoBack }) => {
+      if (!canGoBack) {
+        App.exitApp();
+      } else {
+        window.history.back();
+      }
+    });
   }, []);
 
   const value = useMemo(
