@@ -1,19 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-// import { App } from "@capacitor/app";
+import { useRouter } from "next/navigation";
+import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { SplashScreen } from "@capacitor/splash-screen";
-
-declare global {
-  var config: { platform: string } | undefined;
-}
-
-if (typeof window !== "undefined") {
-  window.config = window.config || {
-    platform: "web",
-  };
-}
 
 export type Platform = "web" | "ios" | "android";
 
@@ -38,24 +29,20 @@ export const CapacitorProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const router = useRouter();
   const [platform, setPlatform] = useState<Platform>("web");
 
   useEffect(() => {
     SplashScreen.hide();
+    setPlatform(Capacitor.getPlatform() as Platform);
 
-    if (Capacitor.isNativePlatform()) {
-      setPlatform(Capacitor.getPlatform() as Platform);
-    } else {
-      setPlatform(window.config?.platform as Platform);
-    }
-
-    // App.addListener("backButton", ({ canGoBack }) => {
-    //   if (!canGoBack) {
-    //     App.exitApp();
-    //   } else {
-    //     window.history.back();
-    //   }
-    // });
+    App.addListener("backButton", ({ canGoBack }) => {
+      if (!canGoBack) {
+        App.exitApp();
+      } else {
+        router.back();
+      }
+    });
   }, []);
 
   const value = useMemo(
