@@ -1,6 +1,5 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/kyh/yours-sincerely/issues)
 [![GitHub last commit](https://img.shields.io/github/last-commit/kyh/yours-sincerely)](https://github.com/kyh/yours-sincerely)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-%237289DA)](https://discord.gg/YtafKzR)
 
 # Yours Sincerely
 
@@ -37,7 +36,7 @@ packages
      └─ UI package for the webapp using shadcn-ui
 ```
 
-> Since some folks have asked, I'll be open sourcing the modified template this app is based off soon. Follow my account for updates.
+> Since some folks have asked, I'll be open sourcing the modified template this app is based off soon. Follow my [account](https://github.com/kyh) for updates.
 
 ### Install dependencies
 

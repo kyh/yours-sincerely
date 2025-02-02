@@ -44,6 +44,10 @@ export const AsideHeader = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [open, setOpen] = useState(false);
 
+  const menuItemClassName = dropdownMenuItemVariants({
+    className: "w-full justify-start h-10",
+  });
+
   const menuItems = [
     {
       id: "profile",
@@ -51,7 +55,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href={`/profile/${user?.id}`}
           onClick={() => setOpen(false)}
         >
@@ -66,7 +70,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href="/settings"
           onClick={() => setOpen(false)}
         >
@@ -81,7 +85,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href="/auth/sign-in"
           onClick={() => setOpen(false)}
         >
@@ -102,7 +106,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <button
-          className={dropdownMenuItemVariants({ className: "w-full" })}
+          className={menuItemClassName}
           onClick={() => {
             setOpen(false);
             setTheme(theme === "dark" ? "light" : "dark");
@@ -119,7 +123,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <button
-          className={dropdownMenuItemVariants({ className: "w-full" })}
+          className={menuItemClassName}
           onClick={() => {
             setOpen(false);
             toggleFeedLayout();
@@ -142,7 +146,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href={`mailto:kai@kyh.io?subject=Support: ${user?.id}`}
           target="_blank"
           onClick={() => setOpen(false)}
@@ -158,7 +162,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href="/about"
           onClick={() => setOpen(false)}
         >
@@ -173,7 +177,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href="/privacy"
           onClick={() => setOpen(false)}
         >
@@ -188,7 +192,7 @@ export const AsideHeader = () => {
       wrap: true,
       content: (
         <Link
-          className={dropdownMenuItemVariants()}
+          className={menuItemClassName}
           href="/terms"
           onClick={() => setOpen(false)}
         >
