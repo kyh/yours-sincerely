@@ -6,31 +6,42 @@
 
 [🚀 Website](https://yourssincerely.org/) | [App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely)
 
-> An ephemeral anonymous blog to send each other tiny beautiful letters. Write as if your arms are wide open, and hold them far apart.
+> An ephemeral anonymous blog to send each other tiny beautiful letters 💌
 
 ## Get Started
 
-The application follows a typical [Remix](https://remix.run/docs/en/v1/tutorials/blog) folder structure. You can find the entry point the web application in the `app` directory.
+The application is built on a modified version of the [T3 Turbo stack](https://github.com/t3-oss/create-t3-turbo) (to include Supabase).
 
-You'll notice that the Remix routes are just thin wrappers and most of the heavy lifting code is done in the `/lib` directory. This follows more of a [nx](https://nx.dev/getting-started/intro)/[flutter](https://flutter.dev/) folder structure which helps compartmentalize feature specific code and encourages sharing business logic code between the frontend web and server.
+The native apps are built on [capacitor](https://capacitorjs.com/) which can be found in the `apps/capacitor` directory.
 
-The native code is a [capacitor](https://capacitorjs.com/) wrapper which can be found in the `ios` and `android` directories.
+``text
+.vscode
+└─ Recommended extensions and settings for VSCode users
+apps
+├─ expo
+| └─ In Progress
+├─ capacitor
+| └─ iOS & Android apps
+└─ next.js
+└─ Web client and server
+packages
+├─ api
+| └─ tRPC router definitions
+├─ db
+| └─ Drizzle database setup and Supabase clients
+├─ tailwind
+| └─ Shared Tailwind configuration between web and native clients
+└─ ui
+└─ UI package for the webapp using shadcn-ui
 
-```
-├── /api                     # Remix server
-├── /app                     # Frontend client
-|   ├── /lib                 # Feature source code (most of the logic lives here)
-|   └── /routes              # Remix file sytem routes
-├── /ios                     # iOS webview wrapper
-├── /android                 # Android webview wrapper
-├── /prisma                  # Prisma schema and database associated files
-├── /public                  # Static assets
-└── /styles                  # Global styles
-```
+````
+
+> Since some folks have asked, I'll be open sourcing the modified template this app is based off soon. Follow my account for updates.
 
 ### Install dependencies
 
 - [Node.js](https://nodejs.org/en) - LTS version recommended
+- [Docker](https://www.docker.com/) - Used for running the database
 
 ### Local Development
 
@@ -39,24 +50,27 @@ The native code is a [capacitor](https://capacitorjs.com/) wrapper which can be 
 mv .env.example .env
 
 # Installing dependencies
-npm install
+pnpm install
+
+# To start the database
+pnpm db:start
 
 # To start the app
-npm run dev
+pnpm dev:nextjs
 
 # To run native apps (make sure web server is running with the command above)
-npm run native-dev-ios
-npm run native-dev-android
-```
+pnpm dev:ios
+pnpm dev:android
+````
 
-This will start the [Remix](https://remix.run) development server. When the above command completes you'll be able to view your website at `http://localhost:3000`
+You'll be able to view the website at `http://localhost:3000`
 
 ## Stack
 
 This project uses the following libraries and services:
 
-- Framework - [Remix](https://remix.run)
+- Framework - [Next.js](https://nextjs.org/)
 - Styling - [Tailwind](https://tailwindcss.com)
-- Database - [MySQL (PlanetScale)](https://planetscale.com) + [Prisma](https://www.prisma.io)
+- Database - [Postgres (Supabase)](https://supabase.com) + [Drizzle](https://orm.drizzle.team)
 - Hosting - [Vercel](https://vercel.com)
 - Notifications - [Knock](https://knock.app)
