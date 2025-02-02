@@ -144,6 +144,7 @@ export const AsideHeader = () => {
         <Link
           className={dropdownMenuItemVariants()}
           href={`mailto:kai@kyh.io?subject=Support: ${user?.id}`}
+          target="_blank"
           onClick={() => setOpen(false)}
         >
           <HelpCircleIcon aria-hidden="true" className="size-4" />
