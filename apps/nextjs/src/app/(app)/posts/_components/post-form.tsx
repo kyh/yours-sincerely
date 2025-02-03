@@ -220,7 +220,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
         </DrawerHeader>
         <section
           id="drawer-post-form"
-          className="max-h-[90dvh] min-h-[25dvh] overflow-y-auto p-4"
+          className="max-h-[70dvh] min-h-[25dvh] overflow-y-auto p-4"
         >
           <PostForm
             placeholder={placeholder}
