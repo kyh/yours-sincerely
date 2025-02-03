@@ -125,8 +125,6 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   if (data.length === 0) return null;
 
   const weeks = groupByWeeks(data, weekStart);
-  const totalCount = data.reduce((sum, day) => sum + day.count, 0);
-  const year = getYear(parseISO(data[0]?.date ?? ""));
 
   const theme = getTheme(themeProp);
   const labels = Object.assign({}, DEFAULT_LABELS, labelsProp);
@@ -200,7 +198,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
           </g>
         )}
         {!hideMonthLabels && (
-          <g className="legend-month" style={style}>
+          <g className="legend-month fill-foreground" style={style}>
             {getMonthLabels(weeks, labels.months).map(
               ({ text, x }, index, labels) => {
                 // Skip the first month label if there's not enough space to the next one
