@@ -219,7 +219,10 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
             Send your tiny beautiful letters to the world
           </DrawerDescription>
         </DrawerHeader>
-        <section id="drawer-post-form" className="p-4">
+        <section
+          id="drawer-post-form"
+          className="max-h-[90dvh] overflow-y-auto p-4"
+        >
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
