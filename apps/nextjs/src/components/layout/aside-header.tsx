@@ -38,7 +38,7 @@ import { toggleFeedLayout } from "@/lib/feed-layout-actions";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const isDesktop = useMediaQuery();
 
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
@@ -109,7 +109,7 @@ export const AsideHeader = () => {
           className={menuItemClassName}
           onClick={() => {
             setOpen(false);
-            setTheme(theme === "dark" ? "light" : "dark");
+            setTheme(resolvedTheme === "dark" ? "light" : "dark");
           }}
         >
           <SunMoonIcon aria-hidden="true" className="size-4" />

@@ -38,7 +38,7 @@ type ProfileProps = {
 };
 
 export const Profile = ({ userId }: ProfileProps) => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [{ user: currentUser }] = api.auth.workspace.useSuspenseQuery();
   const [{ user }] = api.user.getUser.useSuspenseQuery({ userId });
   const [{ userStats }] = api.user.getUserStats.useSuspenseQuery({
@@ -54,7 +54,7 @@ export const Profile = ({ userId }: ProfileProps) => {
   const allowEdit = currentUser ? currentUser.id === user.id : false;
   const dailyData = createPostsDailyActivity(posts);
   const heatmapData = createPostsHeatmap(posts, isDesktop ? 200 : 120);
-  const isDarkMode = theme === "dark";
+  const isDarkMode = resolvedTheme === "dark";
 
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-6 lg:grid-rows-2">
