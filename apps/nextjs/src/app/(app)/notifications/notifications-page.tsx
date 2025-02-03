@@ -11,7 +11,9 @@ import { api } from "@/trpc/react";
 
 export const NotificationsPage = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+
+  const isDarkMode = resolvedTheme === "dark";
 
   return (
     <KnockProvider
@@ -20,7 +22,7 @@ export const NotificationsPage = () => {
     >
       <KnockFeedProvider
         feedId={process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!}
-        colorMode={theme === "dark" ? "dark" : "light"}
+        colorMode={isDarkMode ? "dark" : "light"}
       >
         <KnockNotificationFeed />
       </KnockFeedProvider>
