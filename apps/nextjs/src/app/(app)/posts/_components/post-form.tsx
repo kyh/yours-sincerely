@@ -45,7 +45,6 @@ type PostFormProps = {
   submitText?: string;
   parentId?: string;
   onSuccess?: () => void;
-  minHeight?: boolean;
 };
 
 export const PostForm = ({
@@ -53,7 +52,6 @@ export const PostForm = ({
   submitText = "Publish",
   parentId,
   onSuccess,
-  minHeight,
 }: PostFormProps) => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
 
@@ -116,7 +114,6 @@ export const PostForm = ({
               <FormControl>
                 <textarea
                   id="post-input"
-                  className={minHeight ? "!min-h-[30dvh]" : ""}
                   placeholder={placeholder}
                   onBlur={(e) => {
                     if (e.target.value === "") {
@@ -205,6 +202,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
           textareaEl.focus();
         }
       }}
+      repositionInputs={false}
     >
       <DrawerTrigger asChild>
         <Button size="icon" className="size-12">
@@ -221,12 +219,11 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
         </DrawerHeader>
         <section
           id="drawer-post-form"
-          className="max-h-[90dvh] overflow-y-auto p-4"
+          className="min-h-[80dvh] overflow-y-auto p-4"
         >
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
-            minHeight
           />
         </section>
       </DrawerContent>
