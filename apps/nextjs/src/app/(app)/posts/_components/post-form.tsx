@@ -203,6 +203,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
         }
       }}
       repositionInputs={false}
+      handleOnly
     >
       <DrawerTrigger asChild>
         <Button size="icon" className="size-12">
