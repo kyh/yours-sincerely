@@ -22,7 +22,7 @@
     "@init/db": "workspace:^",
     "@init/ui": "workspace:^",
     "@knocklabs/node": "^0.6.17",
-    "@knocklabs/react": "0.4.0",
+    "@knocklabs/react": "^0.4.1",
     "@mojs/core": "^1.7.1",
     "@react-hook/hotkey": "^3.1.0",
     "@stripe/react-stripe-js": "^3.1.1",
