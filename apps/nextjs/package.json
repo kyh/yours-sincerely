@@ -54,7 +54,6 @@
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"
