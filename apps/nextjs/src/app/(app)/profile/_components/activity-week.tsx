@@ -30,11 +30,10 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
         {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
           const ellipseProps = {
             className: "block",
-            key: day,
             cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
             cy: "50px",
-            rx: data[day] ? `${(data[day]?.level ?? 0) * 4}` : "0",
-            ry: data[day] ? `${(data[day]?.level ?? 0) * 4}` : "0",
+            rx: data[day] ? `${(data[day].level ?? 0) * 4}` : "0",
+            ry: data[day] ? `${(data[day].level ?? 0) * 4}` : "0",
             fill: theme[`level${data[day]?.level}` as keyof typeof theme],
             strokeWidth: 1,
             stroke: theme.stroke,
