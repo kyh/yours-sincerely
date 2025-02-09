@@ -36,7 +36,7 @@ export const ShareButton = ({ post }: Props) => {
     <>
       <button
         type="button"
-        className="size-8 rounded-lg p-2 transition hover:bg-accent"
+        className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
         onClick={() => {
           if (navigator.share) {
             navigator.share({

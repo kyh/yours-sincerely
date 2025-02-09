@@ -51,19 +51,19 @@ export const AppearanceForm = () => {
             alt={item.label}
             width={120}
             height={120}
-            className="relative cursor-pointer overflow-hidden rounded-lg border border-border shadow-sm shadow-black/[.04] ring-offset-background transition-colors peer-[:focus-visible]:ring-2 peer-[:focus-visible]:ring-ring/70 peer-[:focus-visible]:ring-offset-2 peer-data-[disabled]:cursor-not-allowed peer-data-[state=checked]:border-ring peer-data-[state=checked]:bg-accent peer-data-[disabled]:opacity-50"
+            className="relative cursor-pointer overflow-hidden rounded-lg border border-border shadow-xs shadow-black/[.04] ring-offset-background transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring/70 peer-focus-visible:ring-offset-2 peer-data-disabled:cursor-not-allowed peer-data-[state=checked]:border-ring peer-data-[state=checked]:bg-accent peer-data-disabled:opacity-50"
           />
           <span className="group mt-2 flex items-center gap-1 peer-data-[state=unchecked]:text-muted-foreground">
             <Check
               size={16}
               strokeWidth={2}
-              className="peer-data-[state=unchecked]:group-[]:hidden"
+              className="in-[.group]:peer-data-[state=unchecked]:hidden"
               aria-hidden="true"
             />
             <Minus
               size={16}
               strokeWidth={2}
-              className="peer-data-[state=checked]:group-[]:hidden"
+              className="in-[.group]:peer-data-[state=checked]:hidden"
               aria-hidden="true"
             />
             <span className="text-xs font-medium">{item.label}</span>

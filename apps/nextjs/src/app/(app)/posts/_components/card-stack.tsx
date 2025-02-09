@@ -81,7 +81,7 @@ export const Card = (props: CardProps) => {
       onAnimationComplete={props.onAnimationComplete}
     >
       <motion.div
-        className="h-fit w-full rounded-2xl bg-card p-5 shadow"
+        className="h-fit w-full rounded-2xl bg-card p-5 shadow-sm"
         style={{ scale }}
       >
         {props.children}

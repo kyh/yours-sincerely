@@ -6,7 +6,7 @@ import { useColorScheme } from "nativewind";
 
 import { TRPCProvider } from "@/trpc/react";
 
-import "./globals.css";
+import "./styles/globals.css";
 
 // This is the main layout of the app
 // It wraps your pages with the providers they need
