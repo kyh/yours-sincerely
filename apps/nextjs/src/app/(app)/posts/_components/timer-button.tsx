@@ -38,7 +38,7 @@ export const TimerButton = ({ post }: Props) => {
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger
-        className="grid size-8 place-items-center rounded-lg p-2 hover:bg-accent"
+        className="hover:bg-accent grid size-8 cursor-pointer place-items-center rounded-lg p-2 transition"
         onClick={(e) => {
           e.preventDefault();
           setOpen(true);

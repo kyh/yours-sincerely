@@ -143,7 +143,7 @@ const LikeButton = ({ post }: Props) => {
     <button
       ref={iconButtonRef}
       type="button"
-      className="relative flex h-8 items-center gap-1.5 rounded-lg p-2 transition hover:bg-accent"
+      className="hover:bg-accent relative flex h-8 cursor-pointer items-center gap-1.5 rounded-lg p-2 transition"
       onClick={toggleLike}
     >
       <svg

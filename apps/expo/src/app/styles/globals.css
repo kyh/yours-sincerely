@@ -1,7 +1,4 @@
-@import "tailwindcss" source("../../../../");
-
-@plugin "tailwindcss-animate";
-@plugin "@tailwindcss/typography";
+@import "tailwindcss" source("../../../../../");
 
 :root {
   --background: hsl(45 60% 96%);

@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/site-config";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import "@knocklabs/react/dist/index.css";
-import "./globals.css";
+import "./styles/globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -99,7 +99,7 @@ const RootLayout = (props: LayoutProps) => {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "bg-background font-sans text-foreground antialiased",
+          "bg-background text-foreground font-sans antialiased",
           fontSans.variable,
         )}
       >
