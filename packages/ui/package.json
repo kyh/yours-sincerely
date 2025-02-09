@@ -44,7 +44,6 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@init/tailwind-config": "workspace:^",
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
