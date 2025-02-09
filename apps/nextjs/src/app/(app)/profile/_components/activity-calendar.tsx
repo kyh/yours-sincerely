@@ -331,7 +331,3 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     </article>
   );
 };
-
-export const Skeleton: FunctionComponent<Omit<Props, "data">> = (props) => (
-  <ActivityCalendar data={[]} {...props} />
-);

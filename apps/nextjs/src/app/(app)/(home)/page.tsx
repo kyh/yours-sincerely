@@ -46,7 +46,7 @@ const Page = async () => {
             feedLayout === "list" && "md:hidden",
           )}
         >
-          <div className="mx-auto flex w-full max-w-screen-xl px-5">
+          <div className="mx-auto flex w-full max-w-(--breakpoint-xl) px-5">
             <div className="pointer-events-auto ml-auto">
               <NewPostButton placeholder={placeholder} />
             </div>

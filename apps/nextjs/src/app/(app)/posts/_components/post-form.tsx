@@ -145,7 +145,7 @@ export const PostForm = ({
                 render={({ field }) => (
                   <FormControl>
                     <input
-                      className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-none hover:cursor-pointer focus-visible:cursor-text"
+                      className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-hidden hover:cursor-pointer focus-visible:cursor-text"
                       {...field}
                     />
                   </FormControl>
