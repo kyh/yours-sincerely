@@ -44,16 +44,19 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@init/tailwind-config": "workspace:^",
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
+    "@tailwindcss/postcss": "^4.0.5",
+    "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query-devtools": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
+    "postcss": "^8.5.1",
     "prettier": "catalog:",
+    "tailwindcss": "^4.0.5",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"
