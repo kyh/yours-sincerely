@@ -17,6 +17,7 @@
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
     "@tailwindcss/typography": "^0.5.16",
     "eslint": "catalog:",
     "postcss": "^8.5.1",

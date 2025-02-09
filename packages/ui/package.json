@@ -51,7 +51,6 @@
     "@types/react": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {
