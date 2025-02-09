@@ -1,6 +1,7 @@
-@import "tailwindcss";
+@import "tailwindcss" source("../../../../");
 
-@config "../../tailwind.config.ts";
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: hsl(45 60% 96%);
@@ -48,7 +49,35 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --radius-radius: var(--radius);
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 body {
   padding-bottom: env(safe-area-inset-bottom);
@@ -86,7 +115,7 @@ body {
   position: sticky;
   top: 0;
   align-items: center;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--border);
   display: none;
 }
 
@@ -110,7 +139,7 @@ body {
   left: 0;
   right: 0;
   height: var(--size);
-  background: linear-gradient(transparent, hsl(var(--background)));
+  background: linear-gradient(transparent, var(--background));
   pointer-events: none;
 }
 
@@ -118,13 +147,13 @@ body {
   grid-area: content-header;
   position: sticky;
   top: 0;
-  background-color: hsl(var(--background));
+  background-color: var(--background);
   z-index: 10;
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: space-between;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--border);
   padding-top: env(safe-area-inset-top);
 }
 
@@ -137,12 +166,12 @@ body {
   grid-area: aside-header;
   position: sticky;
   top: 0;
-  background-color: hsl(var(--background));
+  background-color: var(--background);
   display: flex;
   align-items: center;
   justify-content: end;
   gap: 4px;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--border);
   padding-top: env(safe-area-inset-top);
 }
 
@@ -229,12 +258,12 @@ body {
 
 input::placeholder,
 textarea::placeholder {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
 }
 
 /* Knock overrides */
 .rnf-notification-feed {
-  background-color: hsl(var(--background));
+  background-color: var(--background);
 }
 
 .rnf-notification-feed__type {
@@ -259,7 +288,7 @@ textarea::placeholder {
 }
 
 :root {
-  --rnf-notification-cell-active-bg-color: hsl(var(--accent));
-  --rnf-notification-cell-unread-dot-bg-color: hsl(var(--destructive));
-  --rnf-notification-cell-unread-dot-border-color: hsl(var(--destructive));
+  --rnf-notification-cell-active-bg-color: var(--accent);
+  --rnf-notification-cell-unread-dot-bg-color: var(--destructive);
+  --rnf-notification-cell-unread-dot-border-color: var(--destructive);
 }
