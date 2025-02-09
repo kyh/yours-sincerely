@@ -141,7 +141,7 @@ export const MoreButton = ({ post }: Props) => {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <button className="size-8 rounded-lg p-2 transition hover:bg-accent">
+          <button className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition">
             <MoreVerticalIcon className="size-4" />
           </button>
         </DialogTrigger>
@@ -150,7 +150,7 @@ export const MoreButton = ({ post }: Props) => {
             <DialogTitle>Post Settings</DialogTitle>
             <DialogDescription>Options for this post</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col divide-y divide-border">
+          <div className="divide-border flex flex-col divide-y">
             {menuItems.map((item, index) => (
               <Fragment key={index}>{item}</Fragment>
             ))}
@@ -163,7 +163,7 @@ export const MoreButton = ({ post }: Props) => {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <button className="size-8 rounded-lg p-2 transition hover:bg-accent">
+        <button className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition">
           <MoreVerticalIcon className="size-4" />
         </button>
       </DrawerTrigger>
@@ -172,7 +172,7 @@ export const MoreButton = ({ post }: Props) => {
           <DrawerTitle>Post Settings</DrawerTitle>
           <DrawerDescription>Options for this post</DrawerDescription>
         </DrawerHeader>
-        <div className="mt-4 flex flex-col divide-y divide-border">
+        <div className="divide-border mt-4 flex flex-col divide-y">
           {menuItems.map((item, index) => (
             <Fragment key={index}>{item}</Fragment>
           ))}

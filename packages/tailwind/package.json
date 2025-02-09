@@ -23,7 +23,6 @@
     "postcss": "^8.5.1",
     "prettier": "catalog:",
     "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"

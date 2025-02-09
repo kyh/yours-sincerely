@@ -1,6 +1,6 @@
-@import "tailwindcss" source("../../../../");
+@import "tailwindcss" source("../../../../../");
+@import "./animations.css";
 
-@plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
 :root {
@@ -23,27 +23,6 @@
   --border: hsl(60 6% 85%);
   --ring: hsl(60 6% 13%);
   --radius: 8px;
-}
-
-.dark {
-  --background: hsl(60 6% 5%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(0 0% 10%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(0 0% 10%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(0 0% 10%);
-  --secondary: hsl(60 6% 17%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(60 6% 17%);
-  --muted-foreground: hsl(60 6% 50%);
-  --accent: hsl(60 6% 17%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(60 6% 17%);
-  --ring: hsl(0 0% 98%);
 }
 
 @theme inline {
@@ -78,6 +57,27 @@
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --background: hsl(60 6% 5%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(0 0% 10%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 10%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(0 0% 98%);
+  --primary-foreground: hsl(0 0% 10%);
+  --secondary: hsl(60 6% 17%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(60 6% 17%);
+  --muted-foreground: hsl(60 6% 50%);
+  --accent: hsl(60 6% 17%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(60 6% 17%);
+  --ring: hsl(0 0% 98%);
+}
 
 body {
   padding-bottom: env(safe-area-inset-bottom);
