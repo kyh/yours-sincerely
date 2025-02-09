@@ -91,56 +91,51 @@ const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-const FormItem = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { noStyles?: boolean }
->(({ className, noStyles, ...props }, ref) => {
+export const FormItem = ({
+  className,
+  noStyles,
+  ...props
+}: React.ComponentProps<"div"> & { noStyles?: boolean }) => {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
       <div
-        ref={ref}
         className={cn(
           noStyles
             ? null
-            : "flex flex-col gap-0.5 px-3 pb-1.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-primary",
+            : "outline-border focus-within:outline-primary flex flex-col gap-0.5 px-3 pt-2.5 pb-1.5 outline outline-1 -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2",
           className,
         )}
         {...props}
       />
     </FormItemContext.Provider>
   );
-});
-FormItem.displayName = "FormItem";
+};
 
-const FormLabel = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
+export const FormLabel = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root>) => {
   const { error, formItemId } = useFormField();
 
   return (
     <Label
-      ref={ref}
       className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
   );
-});
-FormLabel.displayName = "FormLabel";
+};
 
-const FormControl = React.forwardRef<
-  React.ElementRef<typeof Slot>,
-  React.ComponentPropsWithoutRef<typeof Slot>
->(({ ...props }, ref) => {
+export const FormControl = ({
+  ...props
+}: React.ComponentProps<typeof Slot>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
     <Slot
-      ref={ref}
       id={formItemId}
       aria-describedby={
         !error
@@ -151,30 +146,28 @@ const FormControl = React.forwardRef<
       {...props}
     />
   );
-});
-FormControl.displayName = "FormControl";
+};
 
-const FormDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => {
+export const FormDescription = ({
+  className,
+  ...props
+}: React.ComponentProps<"p">) => {
   const { formDescriptionId } = useFormField();
 
   return (
     <p
-      ref={ref}
       id={formDescriptionId}
-      className={cn("text-[0.8rem] text-muted-foreground", className)}
+      className={cn("text-muted-foreground text-[0.8rem]", className)}
       {...props}
     />
   );
-});
-FormDescription.displayName = "FormDescription";
+};
 
-const FormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
+export const FormMessage = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"p">) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error.message) : children;
 
@@ -184,27 +177,15 @@ const FormMessage = React.forwardRef<
 
   return (
     <p
-      ref={ref}
       id={formMessageId}
-      className={cn("text-[0.8rem] text-destructive", className)}
+      className={cn("text-destructive text-[0.8rem]", className)}
       {...props}
     >
       {body}
     </p>
   );
-});
-FormMessage.displayName = "FormMessage";
-
-export {
-  useForm,
-  useFormField,
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
 };
+
+export { useForm, useFormField, Form, FormField };
 
 export { useFieldArray } from "react-hook-form";

@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@init/ui/utils";
 import { cva } from "class-variance-authority";
 
-const badgeVariants = cva(
+export const badgeVariants = cva(
   "inline-flex items-center rounded-full px-2 py-0.5 text-xs",
   {
     variants: {
@@ -23,11 +23,9 @@ const badgeVariants = cva(
   },
 );
 
-export type BadgeProps = {} & React.HTMLAttributes<HTMLDivElement> &
+export type BadgeProps = React.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof badgeVariants>;
 
-const Badge = ({ className, variant, ...props }: BadgeProps) => (
+export const Badge = ({ className, variant, ...props }: BadgeProps) => (
   <div className={cn(badgeVariants({ variant }), className)} {...props} />
 );
-
-export { Badge, badgeVariants };
