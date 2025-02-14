@@ -39,7 +39,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.4.0",
+    "@faker-js/faker": "^9.5.0",
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
@@ -47,7 +47,7 @@
     "drizzle-kit": "^0.30.4",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "supabase": "^2.12.0",
+    "supabase": "^2.12.1",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"
