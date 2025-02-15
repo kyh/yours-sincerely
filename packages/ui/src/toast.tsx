@@ -14,10 +14,10 @@ const GlobalToaster = ({ ...props }: GlobalToasterProps) => {
       className="toaster group"
       toastOptions={{
         classNames: {
-          toast: "!bg-popover !text-popover-foreground !shadow-lg",
-          description: "!text-muted-foreground",
-          actionButton: "!bg-primary !text-primary-foreground",
-          cancelButton: "!bg-muted !text-muted-foreground",
+          toast: "bg-popover text-popover-foreground shadow-lg",
+          description: "text-muted-foreground",
+          actionButton: "bg-primary text-primary-foreground",
+          cancelButton: "bg-muted text-muted-foreground",
         },
       }}
       {...props}
