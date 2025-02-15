@@ -12,7 +12,7 @@ const Page = () => (
   <>
     <PageHeader title="About" />
     <PageContent className="flex flex-col gap-5">
-      <h1 className="text-center text-sm text-muted-foreground">
+      <h1 className="text-muted-foreground text-center text-sm">
         Stories about us, written by you
       </h1>
       <section className="flex flex-wrap gap-5">
@@ -27,7 +27,7 @@ const Page = () => (
           </footer>
           <div className="h-10">
             <Image
-              className="absolute -bottom-1 right-1 scale-x-[-1] opacity-30 dark:invert"
+              className="dark-purple:invert absolute right-1 -bottom-1 scale-x-[-1] opacity-30 dark:invert"
               src="characters/lion.svg"
               alt="Anonymous user"
               width={70}
@@ -43,7 +43,7 @@ const Page = () => (
           </footer>
           <div className="h-7">
             <Image
-              className="absolute -bottom-2 -left-2 opacity-30 dark:invert"
+              className="dark-purple:invert absolute -bottom-2 -left-2 opacity-30 dark:invert"
               src="characters/bunny.svg"
               alt="Anonymous user"
               width={50}
@@ -61,7 +61,7 @@ const Page = () => (
           </footer>
           <div className="h-4">
             <Image
-              className="absolute bottom-2 right-10 opacity-30 dark:invert"
+              className="dark-purple:invert absolute right-10 bottom-2 opacity-30 dark:invert"
               src="characters/seal.svg"
               alt="Anonymous user"
               width={100}
@@ -77,7 +77,7 @@ const Page = () => (
           </footer>
           <div className="h-4">
             <Image
-              className="absolute -bottom-2 -right-3 opacity-30 dark:invert"
+              className="dark-purple:invert absolute -right-3 -bottom-2 opacity-30 dark:invert"
               src="characters/sloth.svg"
               alt="Anonymous user"
               width={100}
@@ -97,7 +97,7 @@ const Page = () => (
           </footer>
           <div className="h-10">
             <Image
-              className="absolute bottom-2 left-2 opacity-30 dark:invert"
+              className="dark-purple:invert absolute bottom-2 left-2 opacity-30 dark:invert"
               src="characters/cat.svg"
               alt="Anonymous user"
               width={50}

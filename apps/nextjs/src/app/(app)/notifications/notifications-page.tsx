@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@init/ui/theme";
+import { isDarkTheme, useTheme } from "@init/ui/theme";
 import {
   KnockFeedProvider,
   NotificationFeed as KnockNotificationFeed,
@@ -13,8 +13,6 @@ export const NotificationsPage = () => {
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const { resolvedTheme } = useTheme();
 
-  const isDarkMode = resolvedTheme === "dark";
-
   return (
     <KnockProvider
       apiKey={process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!}
@@ -22,7 +20,7 @@ export const NotificationsPage = () => {
     >
       <KnockFeedProvider
         feedId={process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!}
-        colorMode={isDarkMode ? "dark" : "light"}
+        colorMode={isDarkTheme(resolvedTheme) ? "dark" : "light"}
       >
         <KnockNotificationFeed />
       </KnockFeedProvider>

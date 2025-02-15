@@ -24,10 +24,10 @@ export const themes = [
     color: "var(--theme-dark)",
   },
   {
-    id: "pastel-purple",
-    value: "pastel-purple",
-    label: "Pastel Purple",
-    color: "var(--theme-pastel-purple)",
+    id: "light-purple",
+    value: "light-purple",
+    label: "Light Purple",
+    color: "var(--theme-light-purple)",
   },
   {
     id: "dark-purple",
@@ -36,6 +36,9 @@ export const themes = [
     color: "var(--theme-dark-purple)",
   },
 ];
+
+export const isDarkTheme = (theme?: string) =>
+  theme ? theme.includes("dark") : false;
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   return (

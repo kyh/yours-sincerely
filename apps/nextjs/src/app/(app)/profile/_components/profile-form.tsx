@@ -1,7 +1,7 @@
 "use client";
 
 import { updateUserInput } from "@init/api/user/user-schema";
-import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
+import { ProfileAvatar } from "@init/ui/avatar";
 import {
   Form,
   FormControl,
@@ -50,14 +50,10 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
         onBlur={form.handleSubmit(onSubmit)}
         className="flex flex-col items-center gap-2"
       >
-        <Avatar className="size-20">
-          <AvatarImage
-            className="dark:invert"
-            src={getAvatarUrl(user?.displayName || user?.id)}
-            alt="Profile image"
-          />
-          <AvatarFallback>A</AvatarFallback>
-        </Avatar>
+        <ProfileAvatar
+          className="size-20"
+          src={getAvatarUrl(user?.displayName || user?.id)}
+        />
         <FormField
           control={form.control}
           name="displayName"
@@ -65,7 +61,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
             <FormItem noStyles>
               <FormControl>
                 <Input
-                  className="rounded px-3 py-1 text-center text-xl font-bold transition enabled:hover:bg-accent"
+                  className="enabled:hover:bg-accent rounded px-3 py-1 text-center text-xl font-bold transition"
                   placeholder="Your name"
                   disabled={readonly}
                   {...field}

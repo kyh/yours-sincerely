@@ -106,7 +106,7 @@ export const SettingsForm = () => {
         <RadioGroup
           className="grid grid-cols-4 gap-4 md:grid-cols-6"
           onValueChange={onChangeTheme}
-          defaultValue={theme}
+          value={theme}
         >
           {themes.map((theme) => (
             <label className="flex flex-col items-center gap-1" key={theme.id}>

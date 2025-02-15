@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
+import { ProfileAvatar } from "@init/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 
 import { getAvatarUrl } from "@/lib/avatars";
@@ -21,14 +21,10 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
 
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">
-      <Avatar className="size-10">
-        <AvatarImage
-          className="dark:invert"
-          src={getAvatarUrl(displayName || userId)}
-          alt="Profile image"
-        />
-        <AvatarFallback>A</AvatarFallback>
-      </Avatar>
+      <ProfileAvatar
+        className="size-10"
+        src={getAvatarUrl(displayName || userId)}
+      />
       <h4 className="mb-1 text-center font-bold">
         {displayName || "Anonymous"}
       </h4>
@@ -41,10 +37,10 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
         />
       ) : (
         <div className="grid h-[104px] w-[180px] animate-pulse grid-cols-2 gap-2">
-          <div className="rounded bg-muted" />
-          <div className="rounded bg-muted" />
-          <div className="rounded bg-muted" />
-          <div className="rounded bg-muted" />
+          <div className="bg-muted rounded" />
+          <div className="bg-muted rounded" />
+          <div className="bg-muted rounded" />
+          <div className="bg-muted rounded" />
         </div>
       )}
     </div>

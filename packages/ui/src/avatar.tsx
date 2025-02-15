@@ -41,3 +41,21 @@ export const AvatarFallback = ({
     {...props}
   />
 );
+
+type ProfileAvatarProps = {
+  className?: string;
+  src?: string;
+};
+
+export const ProfileAvatar = ({ className, src }: ProfileAvatarProps) => {
+  return (
+    <Avatar className={className}>
+      <AvatarImage
+        className="dark-purple:invert dark:invert"
+        src={src}
+        alt="Profile image"
+      />
+      <AvatarFallback>A</AvatarFallback>
+    </Avatar>
+  );
+};

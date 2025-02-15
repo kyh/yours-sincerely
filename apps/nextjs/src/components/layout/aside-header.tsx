@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@init/ui/avatar";
+import { ProfileAvatar } from "@init/ui/avatar";
 import { Button } from "@init/ui/button";
 import {
   Drawer,
@@ -37,15 +37,13 @@ import { toggleFeedLayout } from "@/lib/feed-layout-actions";
 import { api } from "@/trpc/react";
 
 export const AsideHeader = () => {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isDesktop = useMediaQuery();
 
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [open, setOpen] = useState(false);
 
-  const currentThemeIndex = themes.findIndex(
-    (theme) => theme.value === resolvedTheme,
-  );
+  const currentThemeIndex = themes.findIndex((t) => t.value === theme);
   const currentTheme = themes[currentThemeIndex];
 
   const menuItemClassName = dropdownMenuItemVariants({
@@ -137,7 +135,7 @@ export const AsideHeader = () => {
           className={menuItemClassName}
           onClick={() => {
             setOpen(false);
-            toggleFeedLayout();
+            void toggleFeedLayout();
           }}
         >
           <LayoutDashboardIcon aria-hidden="true" className="size-4" />
@@ -220,14 +218,10 @@ export const AsideHeader = () => {
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Avatar className="size-8">
-                <AvatarImage
-                  className="dark:invert"
-                  src={getAvatarUrl(user?.displayName || user?.id)}
-                  alt="Profile image"
-                />
-                <AvatarFallback>A</AvatarFallback>
-              </Avatar>
+              <ProfileAvatar
+                className="size-8"
+                src={getAvatarUrl(user?.displayName || user?.id)}
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="end">
@@ -255,14 +249,10 @@ export const AsideHeader = () => {
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon">
-            <Avatar className="size-8">
-              <AvatarImage
-                className="dark:invert"
-                src={getAvatarUrl(user?.displayName || user?.id)}
-                alt="Profile image"
-              />
-              <AvatarFallback>A</AvatarFallback>
-            </Avatar>
+            <ProfileAvatar
+              className="size-8"
+              src={getAvatarUrl(user?.displayName || user?.id)}
+            />
           </Button>
         </DrawerTrigger>
         <DrawerContent>
