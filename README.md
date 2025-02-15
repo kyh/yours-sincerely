@@ -30,8 +30,6 @@ packages
   |  └─ tRPC router definitions
   ├─ db
   |  └─ Drizzle database setup and Supabase clients
-  ├─ tailwind
-  |  └─ Shared Tailwind configuration between web and native clients
   └─ ui
      └─ UI package for the webapp using shadcn-ui
 ```
