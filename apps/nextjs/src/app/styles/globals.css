@@ -23,6 +23,15 @@
   --border: hsl(60 6% 85%);
   --ring: hsl(60 6% 13%);
   --radius: 8px;
+
+  --theme-light: hsl(45 60% 96%);
+  --theme-dark: hsl(60 6% 5%);
+  --theme-pastel-purple: hsl(270 100% 90%);
+  --theme-dark-purple: hsl(270 100% 10%);
+  --theme-pastel-blue: hsl(210 100% 90%);
+  --theme-dark-blue: hsl(210 100% 10%);
+  --theme-pastel-green: hsl(120 100% 90%);
+  --theme-dark-green: hsl(120 100% 10%);
 }
 
 @theme inline {
@@ -279,9 +288,9 @@ textarea::placeholder {
 }
 
 .rnf-notification-cell {
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    backdrop-filter;
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   border-radius: var(--radius);

@@ -104,7 +104,7 @@ const RootLayout = (props: LayoutProps) => {
         )}
       >
         <CapacitorProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider>
             <TooltipProvider>
               <TRPCReactProvider>{props.children}</TRPCReactProvider>
               <GlobalToaster />

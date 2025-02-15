@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@init/ui/dropdown-menu";
-import { useTheme } from "@init/ui/theme";
+import { themes, useTheme } from "@init/ui/theme";
 import { useMediaQuery } from "@init/ui/utils";
 import {
   BookCheckIcon,
@@ -29,7 +29,6 @@ import {
   HelpCircleIcon,
   LayoutDashboardIcon,
   SettingsIcon,
-  SunMoonIcon,
   UserIcon,
 } from "lucide-react";
 
@@ -43,6 +42,11 @@ export const AsideHeader = () => {
 
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [open, setOpen] = useState(false);
+
+  const currentThemeIndex = themes.findIndex(
+    (theme) => theme.value === resolvedTheme,
+  );
+  const currentTheme = themes[currentThemeIndex];
 
   const menuItemClassName = dropdownMenuItemVariants({
     className: "w-full justify-start h-10",
@@ -109,10 +113,17 @@ export const AsideHeader = () => {
           className={menuItemClassName}
           onClick={() => {
             setOpen(false);
-            setTheme(resolvedTheme === "dark" ? "light" : "dark");
+            const nextThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const nextTheme = themes[nextThemeIndex];
+            setTheme(nextTheme?.value ?? "system");
           }}
         >
-          <SunMoonIcon aria-hidden="true" className="size-4" />
+          <span className="grid size-4 place-content-center">
+            <span
+              className="size-3 rounded-full ring"
+              style={{ background: currentTheme?.color }}
+            />
+          </span>
           Theme
         </button>
       ),

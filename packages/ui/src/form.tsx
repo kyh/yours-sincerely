@@ -104,7 +104,7 @@ export const FormItem = ({
         className={cn(
           noStyles
             ? null
-            : "outline-border focus-within:outline-primary flex flex-col gap-0.5 px-3 pt-2.5 pb-1.5 outline outline-1 -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2",
+            : "group outline-border focus-within:outline-primary flex flex-col gap-0.5 px-3 pt-2.5 pb-1.5 outline -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:-outline-offset-1",
           className,
         )}
         {...props}
@@ -121,7 +121,11 @@ export const FormLabel = ({
 
   return (
     <Label
-      className={cn(error && "text-destructive", className)}
+      className={cn(
+        "group-focus-within:text-primary",
+        error && "text-destructive",
+        className,
+      )}
       htmlFor={formItemId}
       {...props}
     />

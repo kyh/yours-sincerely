@@ -13,6 +13,8 @@ import {
 } from "@init/ui/form";
 import { Input } from "@init/ui/input";
 import { Label } from "@init/ui/label";
+import { RadioGroup, RadioGroupItem } from "@init/ui/radio-group";
+import { themes, useTheme } from "@init/ui/theme";
 import { toast } from "@init/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
 import { CircleHelpIcon } from "lucide-react";
@@ -21,6 +23,7 @@ import type { UpdateUserInput } from "@init/api/user/user-schema";
 import { api } from "@/trpc/react";
 
 export const SettingsForm = () => {
+  const { theme, setTheme } = useTheme();
   const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const updateUser = api.user.updateUser.useMutation();
   const requestPasswordReset = api.auth.requestPasswordReset.useMutation();
@@ -54,6 +57,10 @@ export const SettingsForm = () => {
     });
   };
 
+  const onChangeTheme = (value: string) => {
+    setTheme(value);
+  };
+
   return (
     <div className="-space-y-px">
       <Form {...form}>
@@ -66,7 +73,7 @@ export const SettingsForm = () => {
                 <FormLabel>
                   Email
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <CircleHelpIcon className="size-3" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -84,7 +91,7 @@ export const SettingsForm = () => {
           />
         </form>
       </Form>
-      <div className="space-y-1 rounded-b-md px-3 pb-2.5 pt-2.5 outline outline-1 -outline-offset-1 outline-border">
+      <div className="outline-border space-y-2 px-3 pt-2.5 pb-2.5 outline -outline-offset-1">
         <Label>Password</Label>
         <Button
           type="button"
@@ -93,6 +100,31 @@ export const SettingsForm = () => {
         >
           Request password reset
         </Button>
+      </div>
+      <div className="outline-border space-y-4 rounded-b-md px-3 pt-2.5 pb-2.5 outline -outline-offset-1">
+        <Label>Appearance</Label>
+        <RadioGroup
+          className="grid grid-cols-4 gap-4 md:grid-cols-6"
+          onValueChange={onChangeTheme}
+          defaultValue={theme}
+        >
+          {themes.map((theme) => (
+            <label className="flex flex-col items-center gap-1" key={theme.id}>
+              <RadioGroupItem
+                id={theme.id}
+                value={theme.value}
+                className="peer sr-only after:absolute after:inset-0"
+              />
+              <div
+                style={{ background: theme.color }}
+                className="border-border peer-data-[state=checked]:border-ring size-10 cursor-pointer rounded-full border shadow-xs transition-colors"
+              />
+              <span className="peer-data-[state=unchecked]:text-muted-foreground text-center text-xs">
+                {theme.label}
+              </span>
+            </label>
+          ))}
+        </RadioGroup>
       </div>
     </div>
   );
