@@ -35,5 +35,12 @@
     "turbo": "^2.4.2",
     "typescript": "catalog:"
   },
-  "prettier": "@kyh/prettier-config"
+  "prettier": "@kyh/prettier-config",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "supabase"
+    ]
+  }
 }
