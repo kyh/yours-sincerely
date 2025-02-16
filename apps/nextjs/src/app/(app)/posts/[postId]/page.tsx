@@ -1,6 +1,12 @@
+import { Metadata } from "next";
+
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { api, HydrateClient } from "@/trpc/server";
 import { PostPage } from "./post-page";
+
+export const metadata: Metadata = {
+  title: "A love letter",
+};
 
 type Props = {
   params: Promise<{

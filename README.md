@@ -5,7 +5,7 @@
 
 [🚀 Website](https://yourssincerely.org/) | [App Store](https://apps.apple.com/ag/app/yours-sincerely/id1510472230) | [Play Store](https://play.google.com/store/apps/details?id=com.kyh.yourssincerely)
 
-> An ephemeral anonymous blog to send each other tiny beautiful letters 💌
+> Anonymous love letters 💌 written in disappearing ink.
 
 ## Get Started
 
