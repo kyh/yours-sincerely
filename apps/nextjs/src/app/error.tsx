@@ -1,23 +1,33 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@init/ui/button";
+import { Logo } from "@init/ui/logo";
 
+import { AsideHeader } from "@/components/layout/aside-header";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { Sidebar } from "@/components/layout/sidebar";
 
 type ErrorProps = {
   error: Error;
 };
 
-const Error = ({ error }: ErrorProps) => {
+const Page = ({ error }: ErrorProps) => {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   return (
-    <section className="mx-auto flex max-w-md flex-col px-5">
-      <PageHeader title="Error" className="h-16" />
+    <section className="page-layout">
+      <div className="area-nav-header">
+        <Link href="/">
+          <Logo />
+        </Link>
+      </div>
+      <Sidebar />
+      <PageHeader title="Page Error" />
       <PageContent className="flex flex-col gap-5">
         <h1>
           Looks like you ran into an error, please ping me on{" "}
@@ -26,10 +36,13 @@ const Error = ({ error }: ErrorProps) => {
           </a>{" "}
           if it persists.
         </h1>
-        <Button onClick={() => window.location.reload()}>Refresh</Button>
+        <Button className="self-start" variant="outline" asChild>
+          <Link href="/">Return Home</Link>
+        </Button>
       </PageContent>
+      <AsideHeader />
     </section>
   );
 };
 
-export default Error;
+export default Page;

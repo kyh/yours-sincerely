@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const Page = () => (
   <>
     <PageHeader title="Privacy Policy" />
-    <PageContent className="prose prose-sm dark:prose-invert">
+    <PageContent className="prose dark:prose-invert">
       <p className="text-xs">Last Updated: February 2, 2025</p>
       <h4>Introduction</h4>
       <p>

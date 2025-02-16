@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const Page = () => (
   <>
     <PageHeader title="Terms of Use" />
-    <PageContent className="prose prose-sm dark:prose-invert">
+    <PageContent className="prose dark:prose-invert">
       <p className="text-xs">Last Updated: February 2, 2025</p>
       <h4>Acceptance of Terms</h4>
       <p>
