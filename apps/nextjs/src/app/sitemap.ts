@@ -37,8 +37,8 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     ...defaultPages,
     ...posts.map((post) => ({
       url: `${siteConfig.url}/posts/${post.id}`,
-      lastModified: post.createdAt,
-      changeFrequency: "monthly" as const,
+      lastModified: new Date(post.createdAt),
+      changeFrequency: "never" as const,
       priority: 0.8,
     })),
   ];
