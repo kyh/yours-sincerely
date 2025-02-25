@@ -31,12 +31,13 @@ import {
 } from "@init/ui/form";
 import { toast } from "@init/ui/toast";
 import { cn, useMediaQuery } from "@init/ui/utils";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 
 import type { CreatePostInput } from "@init/api/post/post-schema";
 import { balloons } from "@/components/animations/balloons";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 const postFormKey = "post-form";
 
@@ -55,7 +56,10 @@ export const PostForm = ({
   onSuccess,
   contained,
 }: PostFormProps) => {
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
 
   const form = useForm({
     schema: createPostInput,
@@ -69,26 +73,28 @@ export const PostForm = ({
     },
   });
 
-  const createPost = api.post.createPost.useMutation({
-    onSuccess: (_data, variables) => {
-      localStorage.removeItem(postFormKey);
-      form.reset({
-        parentId,
-        content: "",
-        createdBy: variables.createdBy,
-      });
-      onSuccess?.();
-      setTimeout(() => {
-        toast.success("Your love letter has been published");
-      }, 500);
-      setTimeout(() => {
-        balloons().catch(console.error);
-      }, 600);
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
+  const createPost = useMutation(
+    trpc.post.createPost.mutationOptions({
+      onSuccess: (_data, variables) => {
+        localStorage.removeItem(postFormKey);
+        form.reset({
+          parentId,
+          content: "",
+          createdBy: variables.createdBy,
+        });
+        onSuccess?.();
+        setTimeout(() => {
+          toast.success("Your love letter has been published");
+        }, 500);
+        setTimeout(() => {
+          balloons().catch(console.error);
+        }, 600);
+      },
+      onError: (err) => {
+        toast.error(err.message);
+      },
+    }),
+  );
 
   const handlePostForm = (formData: CreatePostInput) => {
     if (user?.disabled) return toast.error("Your account has been disabled");

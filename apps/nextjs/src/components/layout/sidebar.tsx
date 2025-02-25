@@ -8,15 +8,19 @@ import {
   useNotifications,
   useNotificationStore,
 } from "@knocklabs/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { BellIcon } from "@/components/icons/bell-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
 import { UserIcon } from "@/components/icons/user-icon";
 import { useIconAnimation } from "@/lib/animation";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 export const Sidebar = () => {
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
 
   const knock = useAuthenticatedKnockClient(
     process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!,
@@ -38,7 +42,7 @@ export const Sidebar = () => {
 
   return (
     <section className="area-nav">
-      <nav className="flex w-full items-start justify-around gap-1 bg-background px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
+      <nav className="bg-background flex w-full items-start justify-around gap-1 px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
         <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
             <HomeIcon
@@ -58,7 +62,7 @@ export const Sidebar = () => {
                 className="size-5"
               />
               {metadata.unread_count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-destructive animate-in fade-in zoom-in" />
+                <span className="bg-destructive animate-in fade-in zoom-in absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
               )}
             </span>
             <span className="sr-only md:not-sr-only">Notifications</span>
@@ -75,7 +79,7 @@ export const Sidebar = () => {
           </Link>
         </Button>
       </nav>
-      <footer className="mt-auto hidden flex-col gap-2 border-t border-t-border py-4 text-xs md:flex">
+      <footer className="border-t-border mt-auto hidden flex-col gap-2 border-t py-4 text-xs md:flex">
         <div>
           ©{new Date().getFullYear()}, Made with{" "}
           <a

@@ -6,11 +6,15 @@ import {
   NotificationFeed as KnockNotificationFeed,
   KnockProvider,
 } from "@knocklabs/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 export const NotificationsPage = () => {
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const { resolvedTheme } = useTheme();
 
   return (

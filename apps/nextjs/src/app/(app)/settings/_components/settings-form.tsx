@@ -17,16 +17,22 @@ import { RadioGroup, RadioGroupItem } from "@init/ui/radio-group";
 import { themes, useTheme } from "@init/ui/theme";
 import { toast } from "@init/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleHelpIcon } from "lucide-react";
 
 import type { UpdateUserInput } from "@init/api/user/user-schema";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 export const SettingsForm = () => {
+  const trpc = useTRPC();
   const { theme, setTheme } = useTheme();
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const updateUser = api.user.updateUser.useMutation();
-  const requestPasswordReset = api.auth.requestPasswordReset.useMutation();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
+  const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
+  const requestPasswordReset = useMutation(
+    trpc.auth.requestPasswordReset.mutationOptions(),
+  );
 
   const form = useForm({
     schema: updateUserInput,

@@ -1,5 +1,3 @@
-// export const runtime = "edge";
-
 import { cookies } from "next/headers";
 import { cn } from "@init/ui/utils";
 
@@ -14,18 +12,17 @@ import {
   PageHeader,
 } from "@/components/layout/page-layout";
 import { getFeedLayout } from "@/lib/feed-layout-actions";
-import { api, HydrateClient } from "@/trpc/server";
+import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 const Page = async () => {
   const cookieStore = await cookies();
   const feedLayout = await getFeedLayout(cookieStore);
-  const placeholder = await api.prompt.getRandomPrompt();
+  const placeholder = await caller.prompt.getRandomPrompt();
 
   const filters = {
     limit: 5,
   };
-
-  void api.post.getFeed.prefetchInfinite(filters);
+  prefetch(trpc.post.getFeed.infiniteQueryOptions(filters));
 
   return (
     <HydrateClient>
@@ -33,7 +30,7 @@ const Page = async () => {
       <PageContent className="flex flex-col gap-5">
         <div
           className={cn(
-            "hidden border-b border-border pb-5",
+            "border-border hidden border-b pb-5",
             feedLayout === "list" && "md:block",
           )}
         >
@@ -42,7 +39,7 @@ const Page = async () => {
         <PostFeed filters={filters} layout={feedLayout} />
         <div
           className={cn(
-            "pointer-events-none fixed bottom-16 left-0 right-0 z-10 md:bottom-5",
+            "pointer-events-none fixed right-0 bottom-16 left-0 z-10 md:bottom-5",
             feedLayout === "list" && "md:hidden",
           )}
         >

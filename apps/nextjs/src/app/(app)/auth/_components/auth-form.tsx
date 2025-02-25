@@ -15,9 +15,10 @@ import {
 import { Input } from "@init/ui/input";
 import { toast } from "@init/ui/toast";
 import { cn } from "@init/ui/utils";
+import { useMutation } from "@tanstack/react-query";
 
 import type { SignInWithPasswordInput } from "@init/api/auth/auth-schema";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 type AuthFormProps = {
   type: "signin" | "signup";
@@ -26,19 +27,24 @@ type AuthFormProps = {
 export const AuthForm = ({ className, type }: AuthFormProps) => {
   const router = useRouter();
   const params = useParams<{ nextPath?: string }>();
+  const trpc = useTRPC();
 
-  const signInWithPassword = api.auth.signInWithPassword.useMutation({
-    onSuccess: () => {
-      router.replace(params.nextPath ?? `/`);
-    },
-    onError: (error) => toast.error(error.message),
-  });
-  const signUp = api.auth.signUp.useMutation({
-    onSuccess: () => {
-      router.replace(params.nextPath ?? `/`);
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const signInWithPassword = useMutation(
+    trpc.auth.signInWithPassword.mutationOptions({
+      onSuccess: () => {
+        router.replace(params.nextPath ?? `/`);
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const signUp = useMutation(
+    trpc.auth.signUp.mutationOptions({
+      onSuccess: () => {
+        router.replace(params.nextPath ?? `/`);
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
 
   const form = useForm({
     schema: signInWithPasswordInput,

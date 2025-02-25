@@ -20,7 +20,7 @@
     "@trpc/server": "catalog:",
     "bcryptjs": "^2.4.3",
     "cookie-signature": "^1.2.2",
-    "stripe": "^17.6.0",
+    "stripe": "^17.7.0",
     "superjson": "catalog:",
     "zod": "catalog:"
   },

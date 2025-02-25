@@ -1,12 +1,13 @@
 "use client";
 
 import { Spinner } from "@init/ui/spinner";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
 import type { FeedLayout } from "@/lib/feed-layout-actions";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 type Props = {
   layout?: FeedLayout;
@@ -14,15 +15,17 @@ type Props = {
     userId?: string;
     parentId?: string;
     limit?: number;
-    cursor?: string;
   };
 };
 
 export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
-  const [data, { isFetchingNextPage, hasNextPage, fetchNextPage }] =
-    api.post.getFeed.useSuspenseInfiniteQuery(filters, {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    });
+  const trpc = useTRPC();
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useSuspenseInfiniteQuery(
+      trpc.post.getFeed.infiniteQueryOptions(filters, {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }),
+    );
 
   const [ref] = useInfiniteScroll({
     loading: isFetchingNextPage,
@@ -33,7 +36,7 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
   const posts = data.pages.flatMap((page) => page.posts);
 
   return (
-    <section className="flex-1 divide-y divide-border">
+    <section className="divide-border flex-1 divide-y">
       {!posts.length && (
         <div className="h-full py-5 text-center text-sm">No posts</div>
       )}
@@ -56,13 +59,13 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
       {posts.length > 0 && layout === "list" && (
         <>
           {posts.map((post) => (
-            <div key={post.id} className="pb-3 pt-5">
+            <div key={post.id} className="pt-5 pb-3">
               <PostContent post={post} showMore={false} />
             </div>
           ))}
           {hasNextPage && (
             <div
-              className="flex items-center justify-center pb-3 pt-5"
+              className="flex items-center justify-center pt-5 pb-3"
               ref={ref}
             >
               <Spinner />

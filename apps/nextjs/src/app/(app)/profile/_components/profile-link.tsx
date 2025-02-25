@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { ProfileAvatar } from "@init/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+import { useQuery } from "@tanstack/react-query";
 
 import { getAvatarUrl } from "@/lib/avatars";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 import { ActivityStats } from "./activity-stats";
 
 type Props = {
@@ -15,9 +16,12 @@ type Props = {
 };
 
 const ProfileTooltipContent = ({ userId, displayName }: Props) => {
-  const { data, isLoading } = api.user.getUserStats.useQuery({
-    userId: userId,
-  });
+  const trpc = useTRPC();
+  const { data, isLoading } = useQuery(
+    trpc.user.getUserStats.queryOptions({
+      userId: userId,
+    }),
+  );
 
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">

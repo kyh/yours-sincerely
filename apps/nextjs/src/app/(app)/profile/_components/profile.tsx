@@ -3,8 +3,9 @@
 import { Card } from "@init/ui/card";
 import { isDarkTheme, useTheme } from "@init/ui/theme";
 import { useMediaQuery } from "@init/ui/utils";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
@@ -38,13 +39,24 @@ type ProfileProps = {
 };
 
 export const Profile = ({ userId }: ProfileProps) => {
+  const trpc = useTRPC();
   const { resolvedTheme } = useTheme();
-  const [{ user: currentUser }] = api.auth.workspace.useSuspenseQuery();
-  const [{ user }] = api.user.getUser.useSuspenseQuery({ userId });
-  const [{ userStats }] = api.user.getUserStats.useSuspenseQuery({
-    userId,
-  });
-  const [{ posts }] = api.post.getPostsByUser.useSuspenseQuery({ userId });
+  const {
+    data: { user: currentUser },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.user.getUser.queryOptions({ userId }));
+  const {
+    data: { userStats },
+  } = useSuspenseQuery(
+    trpc.user.getUserStats.queryOptions({
+      userId,
+    }),
+  );
+  const {
+    data: { posts },
+  } = useSuspenseQuery(trpc.post.getPostsByUser.queryOptions({ userId }));
   const isDesktop = useMediaQuery();
 
   if (!user) {
