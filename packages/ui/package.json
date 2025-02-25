@@ -40,7 +40,7 @@
     "react-day-picker": "^9.5.1",
     "react-hook-form": "^7.54.2",
     "sonner": "^1.7.4",
-    "tailwind-merge": "^3.0.1",
+    "tailwind-merge": "^3.0.2",
     "vaul": "^1.1.2"
   },
   "devDependencies": {

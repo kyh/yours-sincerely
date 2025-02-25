@@ -1,9 +1,8 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/lib/site-config";
-import { api } from "@/trpc/server";
 
-const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
+const sitemap = (): MetadataRoute.Sitemap => {
   const defaultPages = [
     {
       url: siteConfig.url,
@@ -31,17 +30,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     },
   ];
 
-  const { posts } = await api.post.getFeed({});
-
-  const sitemap = [
-    ...defaultPages,
-    ...posts.map((post) => ({
-      url: `${siteConfig.url}/posts/${post.id}`,
-      lastModified: new Date(post.createdAt),
-      changeFrequency: "never" as const,
-      priority: 0.8,
-    })),
-  ];
+  const sitemap = [...defaultPages];
 
   return sitemap;
 };

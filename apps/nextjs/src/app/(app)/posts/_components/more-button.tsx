@@ -21,6 +21,7 @@ import {
 import { dropdownMenuItemVariants } from "@init/ui/dropdown-menu";
 import { toast } from "@init/ui/toast";
 import { useMediaQuery } from "@init/ui/utils";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   BanIcon,
   FlagIcon,
@@ -30,33 +31,42 @@ import {
 } from "lucide-react";
 
 import type { RouterOutputs } from "@init/api";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
 export const MoreButton = ({ post }: Props) => {
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const isDesktop = useMediaQuery();
 
-  const deleteMutation = api.post.deletePost.useMutation({
-    onSuccess: () => {
-      toast.success("You have deleted this post");
-    },
-  });
-  const createMutation = api.flag.createFlag.useMutation({
-    onSuccess: () => {
-      toast.success(
-        "You have flagged this post, we will be reviewing it shortly",
-      );
-    },
-  });
-  const blockMutation = api.block.createBlock.useMutation({
-    onSuccess: () => {
-      toast.success("You have blocked this user");
-    },
-  });
+  const deleteMutation = useMutation(
+    trpc.post.deletePost.mutationOptions({
+      onSuccess: () => {
+        toast.success("You have deleted this post");
+      },
+    }),
+  );
+  const createMutation = useMutation(
+    trpc.flag.createFlag.mutationOptions({
+      onSuccess: () => {
+        toast.success(
+          "You have flagged this post, we will be reviewing it shortly",
+        );
+      },
+    }),
+  );
+  const blockMutation = useMutation(
+    trpc.block.createBlock.mutationOptions({
+      onSuccess: () => {
+        toast.success("You have blocked this user");
+      },
+    }),
+  );
 
   const isPostOwner = post.userId === user?.id;
   const [isOpen, setIsOpen] = useState(false);

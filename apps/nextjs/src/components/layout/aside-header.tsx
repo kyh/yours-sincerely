@@ -22,6 +22,7 @@ import {
 } from "@init/ui/dropdown-menu";
 import { themes, useTheme } from "@init/ui/theme";
 import { useMediaQuery } from "@init/ui/utils";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   BookCheckIcon,
   GlobeLockIcon,
@@ -34,13 +35,16 @@ import {
 
 import { getAvatarUrl } from "@/lib/avatars";
 import { toggleFeedLayout } from "@/lib/feed-layout-actions";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 export const AsideHeader = () => {
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const { theme, setTheme } = useTheme();
   const isDesktop = useMediaQuery();
 
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
   const [open, setOpen] = useState(false);
 
   const currentThemeIndex = themes.findIndex((t) => t.value === theme);

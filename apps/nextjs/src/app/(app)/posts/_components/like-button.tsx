@@ -7,9 +7,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import mojs from "@mojs/core";
+import { useMutation } from "@tanstack/react-query";
 
 import type { RouterOutputs } from "@init/api";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 const createHeartAnimation = (el: HTMLElement) => {
   return new mojs.Html({
@@ -116,14 +117,15 @@ type Props = {
 };
 
 const LikeButton = ({ post }: Props) => {
+  const trpc = useTRPC();
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const iconRef = useRef<null | SVGSVGElement>(null);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
   const playAnimation = useHeartAnimation(iconRef, iconButtonRef);
 
-  const createMutate = api.like.createLike.useMutation();
-  const deleteMutate = api.like.deleteLike.useMutation();
+  const createMutate = useMutation(trpc.like.createLike.mutationOptions());
+  const deleteMutate = useMutation(trpc.like.deleteLike.mutationOptions());
 
   const toggleLike = () => {
     if (!post.id) return;

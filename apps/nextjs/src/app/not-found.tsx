@@ -5,12 +5,12 @@ import { Logo } from "@init/ui/logo";
 import { AsideHeader } from "@/components/layout/aside-header";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { Sidebar } from "@/components/layout/sidebar";
-import { api, HydrateClient } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 export const dynamic = "force-dynamic";
 
-const Page = async () => {
-  await api.auth.workspace.prefetch();
+const Page = () => {
+  prefetch(trpc.auth.workspace.queryOptions());
 
   return (
     <HydrateClient>

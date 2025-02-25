@@ -20,9 +20,9 @@
     "@shopify/flash-list": "^1.7.3",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
-    "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
-    "expo": "^52.0.36",
+    "@trpc/tanstack-react-query": "catalog:",
+    "expo": "^52.0.37",
     "expo-constants": "^17.0.7",
     "expo-linking": "^7.0.5",
     "expo-router": "^4.0.17",
@@ -35,9 +35,9 @@
     "react-native": "^0.77.1",
     "react-native-css-interop": "^0.1.22",
     "react-native-gesture-handler": "^2.24.0",
-    "react-native-reanimated": "^3.16.7",
+    "react-native-reanimated": "^3.17.0",
     "react-native-safe-area-context": "^5.2.0",
-    "react-native-screens": "^4.8.0",
+    "react-native-screens": "^4.9.0",
     "superjson": "catalog:"
   },
   "devDependencies": {

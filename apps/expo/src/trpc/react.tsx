@@ -1,23 +1,16 @@
-import { useState } from "react";
 import Constants from "expo-constants";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink, loggerLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
 
 import type { AppRouter } from "@init/api";
 
 /**
- * A set of typesafe hooks for consuming your API.
- */
-export const api = createTRPCReact<AppRouter>();
-export { type RouterInputs, type RouterOutputs } from "@init/api";
-
-/**
  * Extend this function when going to production by
  * setting the baseUrl to your production API URL.
  */
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   /**
    * Gets the IP address of your host-machine. If it cannot automatically find it,
    * you'll have to manually set it. NOTE: Port 3000 should work for most but confirm
@@ -38,39 +31,42 @@ const getBaseUrl = () => {
   return `http://${localhost}:3000`;
 };
 
-/**
- * A wrapper for your app that provides the TRPC context.
- * Use only in _app.tsx
- */
-export const TRPCProvider = (props: { children: React.ReactNode }) => {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    api.createClient({
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
-          colorMode: "ansi",
-        }),
-        httpBatchLink({
-          transformer: superjson,
-          url: `${getBaseUrl()}/api/trpc`,
-          headers: () => {
-            const headers = new Map<string, string>();
-            headers.set("x-trpc-source", "expo");
-            return Object.fromEntries(headers);
-          },
-        }),
-      ],
-    }),
-  );
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ...
+    },
+  },
+});
 
-  return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        {props.children}
-      </QueryClientProvider>
-    </api.Provider>
-  );
-};
+/**
+ * A set of typesafe hooks for consuming your API.
+ */
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+  client: createTRPCClient({
+    links: [
+      loggerLink({
+        enabled: (opts) =>
+          process.env.NODE_ENV === "development" ||
+          (opts.direction === "down" && opts.result instanceof Error),
+        colorMode: "ansi",
+      }),
+      httpBatchLink({
+        transformer: superjson,
+        url: `${getBaseUrl()}/api/trpc`,
+        headers() {
+          const headers = new Map<string, string>();
+          headers.set("x-trpc-source", "expo-react");
+
+          const token = null; // get token
+          if (token) headers.set("Authorization", `Bearer ${token}`);
+
+          return Object.fromEntries(headers);
+        },
+      }),
+    ],
+  }),
+  queryClient,
+});
+
+export { type RouterInputs, type RouterOutputs } from "@init/api";

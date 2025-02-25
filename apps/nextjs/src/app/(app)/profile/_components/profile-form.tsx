@@ -12,10 +12,11 @@ import {
 } from "@init/ui/form";
 import { Input } from "@init/ui/input";
 import { toast } from "@init/ui/toast";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
 import type { UpdateUserInput } from "@init/api/user/user-schema";
 import { getAvatarUrl } from "@/lib/avatars";
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 
 type ProfileFormProps = {
   userId: string;
@@ -23,8 +24,11 @@ type ProfileFormProps = {
 };
 
 export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
-  const [{ user }] = api.user.getUser.useSuspenseQuery({ userId });
-  const updateUser = api.user.updateUser.useMutation();
+  const trpc = useTRPC();
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.user.getUser.queryOptions({ userId }));
+  const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
 
   const form = useForm({
     schema: updateUserInput,

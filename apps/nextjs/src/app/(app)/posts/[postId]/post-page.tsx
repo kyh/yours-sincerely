@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@init/ui/button";
 import { Card } from "@init/ui/card";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import readingTime from "reading-time";
 
-import { api } from "@/trpc/react";
+import { useTRPC } from "@/trpc/react";
 import { PostContent } from "../_components/post-content";
 import { PostForm } from "../_components/post-form";
 
@@ -15,13 +16,18 @@ type Props = {
 };
 
 export const PostPage = ({ postId }: Props) => {
+  const trpc = useTRPC();
   const router = useRouter();
-  const [{ user }] = api.auth.workspace.useSuspenseQuery();
-  const [{ post }] = api.post.getPost.useSuspenseQuery({ postId });
+  const {
+    data: { user },
+  } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
+  const {
+    data: { post },
+  } = useSuspenseQuery(trpc.post.getPost.queryOptions({ postId }));
 
   const goBack = () => router.back();
 
-  const stats = readingTime(post.content ?? "");
+  const stats = readingTime(post.content);
 
   return (
     <>
@@ -48,17 +54,17 @@ export const PostPage = ({ postId }: Props) => {
       )}
       <div>
         <h3 className="flex items-center gap-2 py-3">
-          <span className="text-sm text-muted-foreground">
-            Comments ({post.commentCount ?? 0})
+          <span className="text-muted-foreground text-sm">
+            Comments ({post.commentCount})
           </span>
-          <span className="h-px flex-1 bg-border" />
+          <span className="bg-border h-px flex-1" />
         </h3>
-        <div className="divide-y divide-border">
+        <div className="divide-border divide-y">
           {!post.comments?.length && (
             <div className="h-full py-5 text-center text-sm">No comments</div>
           )}
           {post.comments?.map((comment) => (
-            <div key={comment.id} className="pb-3 pt-5">
+            <div key={comment.id} className="pt-5 pb-3">
               <PostContent
                 post={comment}
                 showTimer={false}
