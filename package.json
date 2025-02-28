@@ -11,8 +11,7 @@
     "db:stop": "pnpm -F db stop",
     "db:reset": "pnpm -F db reset",
     "db:push": "pnpm -F db push",
-    "db:generate": "pnpm -F db generate",
-    "db:migrate": "pnpm -F db migrate",
+    "db:push-remote": "pnpm -F db push-remote",
     "dev": "turbo watch dev --continue",
     "dev:nextjs": "turbo watch dev -F @init/nextjs...",
     "dev:expo": "turbo watch dev -F @init/expo...",
@@ -32,7 +31,7 @@
     "dotenv-cli": "^8.0.0",
     "prettier": "catalog:",
     "tsx": "^4.19.3",
-    "turbo": "^2.4.2",
+    "turbo": "^2.4.4",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config",
