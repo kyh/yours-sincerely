@@ -1,11 +1,12 @@
 import { user } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
+import { TRPCError } from "@trpc/server";
 
-import type { Context } from "../trpc";
+import type { TRPCContext } from "../trpc";
 import { createTempPassword, setDeprecatedSession } from "./deprecated-session";
 
 export const createUserIfNotExists = async (
-  ctx: Context,
+  ctx: TRPCContext,
   displayName?: string,
 ) => {
   let userId = ctx.user?.id;
@@ -22,7 +23,10 @@ export const createUserIfNotExists = async (
       .returning();
 
     if (!userData) {
-      throw new Error("Failed to create user");
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to create user",
+      });
     }
 
     userId = userData.id;

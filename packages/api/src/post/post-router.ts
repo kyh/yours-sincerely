@@ -2,6 +2,7 @@ import { and, desc, eq, lt, notInArray, or } from "@init/db";
 import { feed, post } from "@init/db/schema";
 import { getDefaultValues } from "@init/db/utils";
 import { Knock } from "@knocklabs/node";
+import { TRPCError } from "@trpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -103,7 +104,10 @@ export const postRouter = createTRPCRouter({
     });
 
     if (!dbPost) {
-      throw new Error("Post not found");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Post not found",
+      });
     }
 
     return {

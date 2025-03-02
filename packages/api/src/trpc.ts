@@ -6,7 +6,7 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { db } from "@init/db/client";
+import { db } from "@init/db/drizzle-client";
 import { getSupabaseServerClient } from "@init/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
@@ -65,9 +65,7 @@ const findDbUser = async (userId?: string | null) => {
   return user ?? null;
 };
 
-type CreateTRPCContext = typeof createTRPCContext;
-
-export type Context = Awaited<ReturnType<CreateTRPCContext>>;
+export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
  * 2. INITIALIZATION
@@ -75,7 +73,7 @@ export type Context = Awaited<ReturnType<CreateTRPCContext>>;
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
-const t = initTRPC.context<CreateTRPCContext>().create({
+const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
   errorFormatter: ({ shape, error }) => ({
     ...shape,
