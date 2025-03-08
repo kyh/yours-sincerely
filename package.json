@@ -1,7 +1,7 @@
 {
   "name": "yours-sincerely",
   "private": true,
-  "packageManager": "pnpm@10.4.1",
+  "packageManager": "pnpm@10.6.1",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
@@ -37,8 +37,6 @@
   "prettier": "@kyh/prettier-config",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
       "supabase"
     ]
   }

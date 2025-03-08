@@ -134,6 +134,12 @@ export const PostForm = ({
                     }
                     onBlur();
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      e.preventDefault();
+                      void form.handleSubmit(handlePostForm)();
+                    }
+                  }}
                   {...field}
                 />
               </FormControl>
