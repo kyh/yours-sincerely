@@ -8,7 +8,7 @@ import type {
 } from "react-hook-form";
 import type { ZodType, ZodTypeDef } from "zod";
 import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { cn } from "@init/ui/utils";
 import { Slot } from "@radix-ui/react-slot";
 import {
@@ -30,9 +30,9 @@ const useForm = <
     schema: ZodType<TOut, TDef, TIn>;
   },
 ) => {
-  const form = __useForm<TIn, unknown, TOut>({
+  const form = __useForm<TIn, unknown, any>({
     ...props,
-    resolver: zodResolver(props.schema, undefined),
+    resolver: standardSchemaResolver(props.schema, undefined),
   });
 
   return form;
