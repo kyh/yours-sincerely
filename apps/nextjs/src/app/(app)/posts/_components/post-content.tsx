@@ -2,10 +2,10 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { cn } from "@init/ui/utils";
+import { cn } from "@kyh/ui/utils";
 
 import type { FeedLayout } from "@/lib/feed-layout-actions";
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { MoreButton } from "./more-button";

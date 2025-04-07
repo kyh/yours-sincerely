@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 
 import type { Day, Theme, Weeks } from "./calendar-types";
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 
 type Posts = RouterOutputs["post"]["getPostsByUser"]["posts"];
 

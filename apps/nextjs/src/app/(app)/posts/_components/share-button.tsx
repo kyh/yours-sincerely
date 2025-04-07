@@ -7,12 +7,12 @@ import {
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-} from "@init/ui/drawer";
-import { dropdownMenuItemVariants } from "@init/ui/dropdown-menu";
-import { toast } from "@init/ui/toast";
+} from "@kyh/ui/drawer";
+import { dropdownMenuItemVariants } from "@kyh/ui/dropdown-menu";
+import { toast } from "@kyh/ui/toast";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];

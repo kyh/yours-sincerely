@@ -2,7 +2,7 @@
 
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { cn } from "@init/ui/utils";
+import { cn } from "@kyh/ui/utils";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cva } from "class-variance-authority";
 import { CheckIcon, ChevronRightIcon, CircleDotIcon } from "lucide-react";

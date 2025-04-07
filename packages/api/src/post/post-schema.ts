@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { like, post } from "@init/db/schema";
+import type { like, post } from "@kyh/db/schema";
 
 export const getPostsByUserInput = z.object({
   userId: z.string(),

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@init/ui/utils";
+import { cn } from "@kyh/ui/utils";
 
 export const Card = ({
   className,

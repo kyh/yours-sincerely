@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import mojs from "@mojs/core";
 import { useMutation } from "@tanstack/react-query";
 
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 import { useTRPC } from "@/trpc/react";
 
 const createHeartAnimation = (el: HTMLElement) => {

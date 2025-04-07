@@ -193,7 +193,7 @@ importers:
       '@babel/runtime':
         specifier: ^7.27.0
         version: 7.27.0
-      '@init/api':
+      '@kyh/api':
         specifier: workspace:*
         version: link:../../packages/api
       '@kyh/eslint-config':
@@ -235,13 +235,13 @@ importers:
       '@edge-csrf/nextjs':
         specifier: 2.5.3-cloudflare-rc1
         version: 2.5.3-cloudflare-rc1(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
-      '@init/api':
+      '@kyh/api':
         specifier: workspace:^
         version: link:../../packages/api
-      '@init/db':
+      '@kyh/db':
         specifier: workspace:^
         version: link:../../packages/db
-      '@init/ui':
+      '@kyh/ui':
         specifier: workspace:^
         version: link:../../packages/ui
       '@knocklabs/node':
@@ -350,7 +350,7 @@ importers:
 
   packages/api:
     dependencies:
-      '@init/db':
+      '@kyh/db':
         specifier: workspace:^
         version: link:../db
       '@trpc/server':

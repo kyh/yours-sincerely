@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kyh/ui/tooltip";
 
 import type { Theme } from "./calendar-types";
 import {

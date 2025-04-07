@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@init/ui/button";
 import {
   useAuthenticatedKnockClient,
   useNotifications,
   useNotificationStore,
 } from "@knocklabs/react";
+import { Button } from "@kyh/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { BellIcon } from "@/components/icons/bell-icon";

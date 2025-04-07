@@ -1,6 +1,6 @@
-import { eq } from "@init/db";
-import { user, userStats } from "@init/db/schema";
-import { getSupabaseAdminClient } from "@init/db/supabase-admin-client";
+import { eq } from "@kyh/db";
+import { user, userStats } from "@kyh/db/schema";
+import { getSupabaseAdminClient } from "@kyh/db/supabase-admin-client";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {

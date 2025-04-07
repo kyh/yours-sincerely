@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { Button } from "@init/ui/button";
+import { Button } from "@kyh/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@init/ui/dialog";
+} from "@kyh/ui/dialog";
 import {
   Drawer,
   DrawerContent,
@@ -17,10 +17,10 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@init/ui/drawer";
-import { dropdownMenuItemVariants } from "@init/ui/dropdown-menu";
-import { toast } from "@init/ui/toast";
-import { useMediaQuery } from "@init/ui/utils";
+} from "@kyh/ui/drawer";
+import { dropdownMenuItemVariants } from "@kyh/ui/dropdown-menu";
+import { toast } from "@kyh/ui/toast";
+import { useMediaQuery } from "@kyh/ui/utils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   BanIcon,
@@ -30,7 +30,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 import { useTRPC } from "@/trpc/react";
 
 type Props = {

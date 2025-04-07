@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { POST_EXPIRY_DAYS_AGO } from "@init/api/post/post-utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@init/ui/tooltip";
+import { POST_EXPIRY_DAYS_AGO } from "@kyh/api/post/post-utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@kyh/ui/tooltip";
 import { addDays, formatDistance } from "date-fns";
 
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 
 const getPercentage = (createdAt: Date) => {
   const now = new Date();

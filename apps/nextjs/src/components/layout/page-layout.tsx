@@ -1,4 +1,4 @@
-import { cn } from "@init/ui/utils";
+import { cn } from "@kyh/ui/utils";
 
 type PageLayoutProps = {
   children?: React.ReactNode;

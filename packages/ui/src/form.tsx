@@ -9,7 +9,7 @@ import type {
 import type { ZodType, ZodTypeDef } from "zod";
 import * as React from "react";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { cn } from "@init/ui/utils";
+import { cn } from "@kyh/ui/utils";
 import { Slot } from "@radix-ui/react-slot";
 import {
   useForm as __useForm,

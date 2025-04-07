@@ -1,5 +1,5 @@
 {
-  "name": "@init/nextjs",
+  "name": "@kyh/nextjs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,16 +13,17 @@
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },
+  "prettier": "@kyh/prettier-config",
   "dependencies": {
     "@capacitor/app": "^7.0.1",
     "@capacitor/core": "^7.2.0",
     "@capacitor/splash-screen": "^7.0.1",
     "@edge-csrf/nextjs": "2.5.3-cloudflare-rc1",
-    "@init/api": "workspace:^",
-    "@init/db": "workspace:^",
-    "@init/ui": "workspace:^",
     "@knocklabs/node": "^0.6.19",
     "@knocklabs/react": "^0.5.2",
+    "@kyh/api": "workspace:^",
+    "@kyh/db": "workspace:^",
+    "@kyh/ui": "workspace:^",
     "@mojs/core": "^1.7.1",
     "@react-hook/hotkey": "^3.1.0",
     "@stripe/react-stripe-js": "^3.6.0",
@@ -57,6 +58,5 @@
     "prettier": "catalog:",
     "tailwindcss": "^4.1.3",
     "typescript": "catalog:"
-  },
-  "prettier": "@kyh/prettier-config"
+  }
 }

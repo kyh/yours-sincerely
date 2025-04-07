@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MessageCircleIcon } from "lucide-react";
 
-import type { RouterOutputs } from "@init/api";
+import type { RouterOutputs } from "@kyh/api";
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
@@ -10,7 +10,7 @@ type Props = {
 export const CommentButton = ({ post }: Props) => {
   return (
     <Link
-      className="relative flex h-8 items-center gap-1.5 rounded-lg p-2 transition hover:bg-accent"
+      className="hover:bg-accent relative flex h-8 items-center gap-1.5 rounded-lg p-2 transition"
       href={`/posts/${post.id}`}
     >
       <MessageCircleIcon className="size-4" />

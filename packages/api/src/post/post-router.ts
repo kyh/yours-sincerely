@@ -1,6 +1,6 @@
-import { and, desc, eq, lt, notInArray, or } from "@init/db";
-import { feed, post } from "@init/db/schema";
-import { getDefaultValues } from "@init/db/utils";
+import { and, desc, eq, lt, notInArray, or } from "@kyh/db";
+import { feed, post } from "@kyh/db/schema";
+import { getDefaultValues } from "@kyh/db/utils";
 import { Knock } from "@knocklabs/node";
 import { TRPCError } from "@trpc/server";
 

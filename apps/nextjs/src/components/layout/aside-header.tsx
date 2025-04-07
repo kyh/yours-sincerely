@@ -2,8 +2,8 @@
 
 import { Fragment, useState } from "react";
 import Link from "next/link";
-import { ProfileAvatar } from "@init/ui/avatar";
-import { Button } from "@init/ui/button";
+import { ProfileAvatar } from "@kyh/ui/avatar";
+import { Button } from "@kyh/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -11,7 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@init/ui/drawer";
+} from "@kyh/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +19,9 @@ import {
   dropdownMenuItemVariants,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@init/ui/dropdown-menu";
-import { themes, useTheme } from "@init/ui/theme";
-import { useMediaQuery } from "@init/ui/utils";
+} from "@kyh/ui/dropdown-menu";
+import { themes, useTheme } from "@kyh/ui/theme";
+import { useMediaQuery } from "@kyh/ui/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   BookCheckIcon,

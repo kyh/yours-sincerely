@@ -2,7 +2,7 @@
 
 import type { MotionProps, PanInfo } from "motion/react";
 import { useEffect, useState } from "react";
-import { Button } from "@init/ui/button";
+import { Button } from "@kyh/ui/button";
 import {
   AnimatePresence,
   motion,
@@ -81,7 +81,7 @@ export const Card = (props: CardProps) => {
       onAnimationComplete={props.onAnimationComplete}
     >
       <motion.div
-        className="h-fit w-full rounded-2xl bg-card p-5 shadow-sm"
+        className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm"
         style={{ scale }}
       >
         {props.children}

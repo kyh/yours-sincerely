@@ -1,5 +1,5 @@
-import { and, eq } from "@init/db";
-import { block } from "@init/db/schema";
+import { and, eq } from "@kyh/db";
+import { block } from "@kyh/db/schema";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";

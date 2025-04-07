@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Card } from "@init/ui/card";
+import { Card } from "@kyh/ui/card";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 

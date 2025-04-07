@@ -1,11 +1,11 @@
 "use client";
 
-import { isDarkTheme, useTheme } from "@init/ui/theme";
 import {
   KnockFeedProvider,
   NotificationFeed as KnockNotificationFeed,
   KnockProvider,
 } from "@knocklabs/react";
+import { isDarkTheme, useTheme } from "@kyh/ui/theme";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/react";

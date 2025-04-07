@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@init/ui/button";
-import { Logo } from "@init/ui/logo";
+import { Button } from "@kyh/ui/button";
+import { Logo } from "@kyh/ui/logo";
 
 import { AsideHeader } from "@/components/layout/aside-header";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";

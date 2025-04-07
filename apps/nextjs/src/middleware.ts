@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse, URLPattern } from "next/server";
 import { createCsrfProtect, CsrfError } from "@edge-csrf/nextjs";
-import { createMiddlewareClient } from "@init/db/supabase-middleware-client";
+import { createMiddlewareClient } from "@kyh/db/supabase-middleware-client";
 
 // import { get } from "@vercel/edge-config";
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@init/ui/logo";
+import { Logo } from "@kyh/ui/logo";
 
 import { AsideHeader } from "@/components/layout/aside-header";
 import { Sidebar } from "@/components/layout/sidebar";

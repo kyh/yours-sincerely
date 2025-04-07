@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { GlobalAlertDialog } from "@init/ui/alert-dialog";
-import { ThemeProvider } from "@init/ui/theme";
-import { GlobalToaster } from "@init/ui/toast";
-import { TooltipProvider } from "@init/ui/tooltip";
-import { cn } from "@init/ui/utils";
+import { GlobalAlertDialog } from "@kyh/ui/alert-dialog";
+import { ThemeProvider } from "@kyh/ui/theme";
+import { GlobalToaster } from "@kyh/ui/toast";
+import { TooltipProvider } from "@kyh/ui/tooltip";
+import { cn } from "@kyh/ui/utils";
 
 import { CapacitorProvider } from "@/components/providers/capacitor-provider";
 import { siteConfig } from "@/lib/site-config";
