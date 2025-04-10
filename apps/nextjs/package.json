@@ -37,7 +37,7 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-hotkeys-hook": "^4.6.1",
+    "react-hotkeys-hook": "^4.6.2",
     "react-infinite-scroll-hook": "^5.0.1",
     "react-use": "^17.6.0",
     "reading-time": "^1.5.0",
