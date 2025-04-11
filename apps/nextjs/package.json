@@ -24,6 +24,7 @@
     "@kyh/api": "workspace:^",
     "@kyh/db": "workspace:^",
     "@kyh/ui": "workspace:^",
+    "@lottiefiles/dotlottie-react": "^0.13.3",
     "@mojs/core": "^1.7.1",
     "@react-hook/hotkey": "^3.1.0",
     "@stripe/react-stripe-js": "^3.6.0",

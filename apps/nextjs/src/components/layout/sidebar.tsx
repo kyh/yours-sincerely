@@ -8,12 +8,10 @@ import {
   useNotificationStore,
 } from "@knocklabs/react";
 import { Button } from "@kyh/ui/button";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { BellIcon } from "@/components/icons/bell-icon";
-import { HomeIcon } from "@/components/icons/home-icon";
-import { UserIcon } from "@/components/icons/user-icon";
-import { useIconAnimation } from "@/lib/animation";
+import { useIconAnimation } from "@/components/animations/use-icon-animation";
 import { useTRPC } from "@/trpc/react";
 
 export const Sidebar = () => {
@@ -32,9 +30,13 @@ export const Sidebar = () => {
   );
   const { metadata } = useNotificationStore(notificationFeed);
 
-  const { controls: homeControls, ...homeControlProps } = useIconAnimation();
-  const { controls: bellControls, ...bellControlProps } = useIconAnimation();
-  const { controls: userControls, ...userControlProps } = useIconAnimation();
+  const iconClassName = "size-6 dark:invert dark-purple:invert";
+  const { setDotLottie: homeSetDotLottie, ...homeControlProps } =
+    useIconAnimation();
+  const { setDotLottie: bellSetDotLottie, ...bellControlProps } =
+    useIconAnimation();
+  const { setDotLottie: userSetDotLottie, ...userControlProps } =
+    useIconAnimation();
 
   useEffect(() => {
     notificationFeed.fetch();
@@ -45,10 +47,11 @@ export const Sidebar = () => {
       <nav className="bg-background flex w-full items-start justify-around gap-1 px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
         <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
-            <HomeIcon
+            <DotLottieReact
+              src="/icons/home-icon.json"
+              className={iconClassName}
               aria-hidden="true"
-              controls={homeControls}
-              className="size-5"
+              dotLottieRefCallback={homeSetDotLottie}
             />
             <span className="sr-only md:not-sr-only">Home</span>
           </Link>
@@ -56,10 +59,11 @@ export const Sidebar = () => {
         <Button variant="ghost" {...bellControlProps} asChild>
           <Link href="/notifications">
             <span className="relative">
-              <BellIcon
+              <DotLottieReact
+                src="/icons/bell-icon.json"
+                className={iconClassName}
                 aria-hidden="true"
-                controls={bellControls}
-                className="size-5"
+                dotLottieRefCallback={bellSetDotLottie}
               />
               {metadata.unread_count > 0 && (
                 <span className="bg-destructive animate-in fade-in zoom-in absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
@@ -70,10 +74,11 @@ export const Sidebar = () => {
         </Button>
         <Button variant="ghost" {...userControlProps} asChild>
           <Link href={user ? `/profile/${user.id}` : `/auth/sign-up`}>
-            <UserIcon
+            <DotLottieReact
+              src="/icons/user-icon.json"
+              className={iconClassName}
               aria-hidden="true"
-              controls={userControls}
-              className="size-5"
+              dotLottieRefCallback={userSetDotLottie}
             />
             <span className="sr-only md:not-sr-only">Profile</span>
           </Link>
