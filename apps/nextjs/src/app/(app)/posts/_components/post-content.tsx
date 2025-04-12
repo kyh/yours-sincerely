@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { cn } from "@kyh/ui/utils";
 
@@ -8,27 +7,10 @@ import type { FeedLayout } from "@/lib/feed-layout-actions";
 import type { RouterOutputs } from "@kyh/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
+import { LikeButton } from "./like-button";
 import { MoreButton } from "./more-button";
 import { ShareButton } from "./share-button";
 import { TimerButton } from "./timer-button";
-
-const LikeButton = dynamic(() => import("./like-button"), {
-  ssr: false,
-  loading: () => (
-    <span className="relative flex h-8 items-center gap-1.5 p-2">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        fill="currentColor"
-      >
-        <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
-      </svg>
-      <span className="min-w-[0.75rem]" />
-    </span>
-  ),
-});
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
@@ -80,7 +62,7 @@ export const PostContent = ({
             <ProfileLink userId={post.userId} displayName={post.createdBy} />
           )}
         </div>
-        <div className="mt-3 flex items-center justify-between text-muted-foreground sm:mt-0 sm:gap-1">
+        <div className="text-muted-foreground mt-3 flex items-center justify-between sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}
           {showLike && <LikeButton post={post} />}
           {showTimer && <TimerButton post={post} />}

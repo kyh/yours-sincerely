@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NumberFlow from "@number-flow/react";
 import { MessageCircleIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@kyh/api";
@@ -15,7 +16,7 @@ export const CommentButton = ({ post }: Props) => {
     >
       <MessageCircleIcon className="size-4" />
       <span className="min-w-[0.75rem]">
-        {post.commentCount}
+        <NumberFlow value={post.commentCount} />
         <span className="sr-only"> comments, click to see details</span>
       </span>
     </Link>
