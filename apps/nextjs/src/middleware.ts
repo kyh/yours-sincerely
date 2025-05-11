@@ -1,11 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse, URLPattern } from "next/server";
-import { createCsrfProtect, CsrfError } from "@edge-csrf/nextjs";
 import { createMiddlewareClient } from "@kyh/db/supabase-middleware-client";
 
 // import { get } from "@vercel/edge-config";
 
-const CSRF_SECRET_COOKIE = "csrfSecret";
 const NEXT_ACTION_HEADER = "next-action";
 
 export const config = {
@@ -26,59 +24,23 @@ export const middleware = async (request: NextRequest) => {
   // this helps us log and trace requests
   request.headers.set("x-correlation-id", crypto.randomUUID());
 
-  // apply CSRF protection for mutating requests
-  const csrfResponse = await withCsrfMiddleware(request, response);
-
   // handle patterns for specific routes
   const handlePattern = matchUrlPattern(request.url);
 
   // if a pattern handler exists, call it
   if (handlePattern) {
-    await handlePattern(request, csrfResponse);
+    await handlePattern(request, response);
   }
 
   // append the action path to the request headers
   // which is useful for knowing the action path in server actions
   if (isServerAction(request)) {
-    csrfResponse.headers.set("x-action-path", request.nextUrl.pathname);
+    response.headers.set("x-action-path", request.nextUrl.pathname);
   }
 
   // if no pattern handler returned a response,
   // return the session response
-  return csrfResponse;
-};
-
-const withCsrfMiddleware = async (
-  request: NextRequest,
-  response: NextResponse,
-) => {
-  // set up CSRF protection
-  const csrfProtect = createCsrfProtect({
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      name: CSRF_SECRET_COOKIE,
-    },
-    // ignore CSRF errors for server actions since protection is built-in
-    ignoreMethods: isServerAction(request)
-      ? ["POST"]
-      : // always ignore GET, HEAD, and OPTIONS requests
-        ["GET", "HEAD", "OPTIONS"],
-  });
-
-  try {
-    await csrfProtect(request, response);
-
-    return response;
-  } catch (error) {
-    // if there is a CSRF error, return a 403 response
-    if (error instanceof CsrfError) {
-      return NextResponse.json("Invalid CSRF token", {
-        status: 401,
-      });
-    }
-
-    throw error;
-  }
+  return response;
 };
 
 const isServerAction = (request: NextRequest) => {
