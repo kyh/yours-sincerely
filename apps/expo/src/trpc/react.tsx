@@ -4,7 +4,7 @@ import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
 
-import type { AppRouter } from "@kyh/api";
+import type { AppRouter } from "@repo/api";
 
 /**
  * Extend this function when going to production by
@@ -69,4 +69,4 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
   queryClient,
 });
 
-export { type RouterInputs, type RouterOutputs } from "@kyh/api";
+export { type RouterInputs, type RouterOutputs } from "@repo/api";

@@ -1,5 +1,6 @@
 "use client";
 
+import type { Label as LabelPrimitive } from "radix-ui";
 import type {
   ControllerProps,
   FieldPath,
@@ -9,8 +10,8 @@ import type {
 import type { ZodType, ZodTypeDef } from "zod";
 import * as React from "react";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { cn } from "@kyh/ui/utils";
-import { Slot } from "@radix-ui/react-slot";
+import { cn } from "@repo/ui/utils";
+import { Slot } from "radix-ui";
 import {
   useForm as __useForm,
   Controller,
@@ -18,7 +19,6 @@ import {
   useFormContext,
 } from "react-hook-form";
 
-import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Label } from "./label";
 
 const useForm = <
@@ -134,12 +134,12 @@ export const FormLabel = ({
 
 export const FormControl = ({
   ...props
-}: React.ComponentProps<typeof Slot>) => {
+}: React.ComponentProps<typeof Slot.Root>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot
+    <Slot.Root
       id={formItemId}
       aria-describedby={
         !error

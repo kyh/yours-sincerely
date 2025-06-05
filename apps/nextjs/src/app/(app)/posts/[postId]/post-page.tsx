@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@kyh/ui/button";
-import { Card } from "@kyh/ui/card";
+import { Button } from "@repo/ui/button";
+import { Card } from "@repo/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import readingTime from "reading-time";

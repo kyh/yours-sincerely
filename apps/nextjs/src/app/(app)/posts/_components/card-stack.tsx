@@ -2,7 +2,7 @@
 
 import type { MotionProps, PanInfo } from "motion/react";
 import { useEffect, useState } from "react";
-import { Button } from "@kyh/ui/button";
+import { Button } from "@repo/ui/button";
 import {
   AnimatePresence,
   motion,

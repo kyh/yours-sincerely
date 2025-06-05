@@ -1,5 +1,5 @@
-import { user } from "@kyh/db/schema";
-import { getDefaultValues } from "@kyh/db/utils";
+import { user } from "@repo/db/schema";
+import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 
 import type { TRPCContext } from "../trpc";

@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useRef } from "react";
 
-import type { DotLottie } from "@lottiefiles/dotlottie-react";
+type DotLottie = { play: () => void };
 
 export const useIconAnimation = () => {
-  const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
+  const dotLottieRef = useRef<DotLottie>(null);
 
-  const onMouseEnter = () => dotLottie?.play();
-  const onTouchStart = () => dotLottie?.play();
+  const setDotLottie = (dotLottie: DotLottie) => {
+    dotLottieRef.current = dotLottie;
+  };
+
+  const onMouseEnter = () => dotLottieRef.current?.play();
+  const onTouchStart = () => dotLottieRef.current?.play();
 
   return { setDotLottie, onMouseEnter, onTouchStart };
 };

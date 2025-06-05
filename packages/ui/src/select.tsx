@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@kyh/ui/utils";
-import * as SelectPrimitive from "@radix-ui/react-select";
+import { cn } from "@repo/ui/utils";
 import {
   ArrowUpDownIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
 } from "lucide-react";
+import { Select as SelectPrimitive } from "radix-ui";
 
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -21,7 +21,7 @@ export const SelectTrigger = ({
 }: React.ComponentProps<typeof SelectPrimitive.Trigger>) => (
   <SelectPrimitive.Trigger
     className={cn(
-      "border-border ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs focus:ring-1 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+      "border-border ring-offset-background placeholder:text-muted-foreground focus:ring-ring shadow-xs focus:outline-hidden flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-transparent px-3 py-2 text-sm focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       className,
     )}
     {...props}
@@ -112,7 +112,7 @@ export const SelectItem = ({
 }: React.ComponentProps<typeof SelectPrimitive.Item>) => (
   <SelectPrimitive.Item
     className={cn(
-      "focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50",
+      "focus:bg-accent focus:text-accent-foreground outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm",
       className,
     )}
     {...props}

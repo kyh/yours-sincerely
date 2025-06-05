@@ -1,7 +1,7 @@
 "use client";
 
-import { updateUserInput } from "@kyh/api/user/user-schema";
-import { Button } from "@kyh/ui/button";
+import { updateUserInput } from "@repo/api/user/user-schema";
+import { Button } from "@repo/ui/button";
 import {
   Form,
   FormControl,
@@ -10,17 +10,17 @@ import {
   FormLabel,
   FormMessage,
   useForm,
-} from "@kyh/ui/form";
-import { Input } from "@kyh/ui/input";
-import { Label } from "@kyh/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyh/ui/radio-group";
-import { themes, useTheme } from "@kyh/ui/theme";
-import { toast } from "@kyh/ui/toast";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@kyh/ui/tooltip";
+} from "@repo/ui/form";
+import { Input } from "@repo/ui/input";
+import { Label } from "@repo/ui/label";
+import { RadioGroup, RadioGroupItem } from "@repo/ui/radio-group";
+import { themes, useTheme } from "@repo/ui/theme";
+import { toast } from "@repo/ui/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleHelpIcon } from "lucide-react";
 
-import type { UpdateUserInput } from "@kyh/api/user/user-schema";
+import type { UpdateUserInput } from "@repo/api/user/user-schema";
 import { useTRPC } from "@/trpc/react";
 
 export const SettingsForm = () => {

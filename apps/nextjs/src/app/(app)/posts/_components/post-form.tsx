@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createPostInput } from "@kyh/api/post/post-schema";
-import { POST_EXPIRY_DAYS_AGO } from "@kyh/api/post/post-utils";
-import { Button } from "@kyh/ui/button";
+import { createPostInput } from "@repo/api/post/post-schema";
+import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
+import { Button } from "@repo/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@kyh/ui/dialog";
+} from "@repo/ui/dialog";
 import {
   Drawer,
   DrawerContent,
@@ -19,7 +19,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@kyh/ui/drawer";
+} from "@repo/ui/drawer";
 import {
   Form,
   FormControl,
@@ -28,14 +28,14 @@ import {
   FormLabel,
   FormMessage,
   useForm,
-} from "@kyh/ui/form";
-import { toast } from "@kyh/ui/toast";
-import { cn, useMediaQuery } from "@kyh/ui/utils";
+} from "@repo/ui/form";
+import { toast } from "@repo/ui/toast";
+import { cn, useMediaQuery } from "@repo/ui/utils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 
-import type { CreatePostInput } from "@kyh/api/post/post-schema";
+import type { CreatePostInput } from "@repo/api/post/post-schema";
 import { balloons } from "@/components/animations/balloons";
 import { useTRPC } from "@/trpc/react";
 

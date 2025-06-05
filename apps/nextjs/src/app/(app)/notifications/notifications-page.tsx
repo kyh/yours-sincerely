@@ -5,7 +5,7 @@ import {
   NotificationFeed as KnockNotificationFeed,
   KnockProvider,
 } from "@knocklabs/react";
-import { isDarkTheme, useTheme } from "@kyh/ui/theme";
+import { isDarkTheme, useTheme } from "@repo/ui/theme";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/react";
@@ -19,11 +19,11 @@ export const NotificationsPage = () => {
 
   return (
     <KnockProvider
-      apiKey={process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!}
+      apiKey={process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY}
       userId={user?.id}
     >
       <KnockFeedProvider
-        feedId={process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!}
+        feedId={process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID}
         colorMode={isDarkTheme(resolvedTheme) ? "dark" : "light"}
       >
         <KnockNotificationFeed />

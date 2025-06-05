@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "@kyh/ui/spinner";
+import { Spinner } from "@repo/ui/spinner";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 

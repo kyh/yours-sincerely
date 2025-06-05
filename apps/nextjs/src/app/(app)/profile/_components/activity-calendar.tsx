@@ -1,6 +1,6 @@
 import type { Day as WeekDay } from "date-fns";
 import type { CSSProperties, FunctionComponent } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@kyh/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
 import { format, getDay, getYear, parseISO } from "date-fns";
 
 import type {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import NumberFlow from "@number-flow/react";
 import { MessageCircleIcon } from "lucide-react";
 
-import type { RouterOutputs } from "@kyh/api";
+import type { RouterOutputs } from "@repo/api";
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];

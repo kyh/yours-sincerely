@@ -5,7 +5,7 @@ import NumberFlow from "@number-flow/react";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
-import type { RouterOutputs } from "@kyh/api";
+import type { RouterOutputs } from "@repo/api";
 import { useTRPC } from "@/trpc/react";
 
 const CircleAnimation = () => {

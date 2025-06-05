@@ -1,7 +1,7 @@
-import { and, desc, eq, lt, notInArray, or } from "@kyh/db";
-import { feed, post } from "@kyh/db/schema";
-import { getDefaultValues } from "@kyh/db/utils";
 import { Knock } from "@knocklabs/node";
+import { and, desc, eq, lt, notInArray, or } from "@repo/db";
+import { feed, post } from "@repo/db/schema";
+import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";

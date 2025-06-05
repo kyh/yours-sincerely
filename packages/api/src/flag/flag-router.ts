@@ -1,6 +1,6 @@
-import { and, eq } from "@kyh/db";
-import { flag } from "@kyh/db/schema";
-import { getDefaultValues } from "@kyh/db/utils";
+import { and, eq } from "@repo/db";
+import { flag } from "@repo/db/schema";
+import { getDefaultValues } from "@repo/db/utils";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";

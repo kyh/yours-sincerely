@@ -1,7 +1,7 @@
 "use client";
 
-import { updateUserInput } from "@kyh/api/user/user-schema";
-import { ProfileAvatar } from "@kyh/ui/avatar";
+import { updateUserInput } from "@repo/api/user/user-schema";
+import { ProfileAvatar } from "@repo/ui/avatar";
 import {
   Form,
   FormControl,
@@ -9,12 +9,12 @@ import {
   FormItem,
   FormMessage,
   useForm,
-} from "@kyh/ui/form";
-import { Input } from "@kyh/ui/input";
-import { toast } from "@kyh/ui/toast";
+} from "@repo/ui/form";
+import { Input } from "@repo/ui/input";
+import { toast } from "@repo/ui/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
-import type { UpdateUserInput } from "@kyh/api/user/user-schema";
+import type { UpdateUserInput } from "@repo/api/user/user-schema";
 import { getAvatarUrl } from "@/lib/avatars";
 import { useTRPC } from "@/trpc/react";
 

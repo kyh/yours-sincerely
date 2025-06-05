@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@kyh/ui/utils";
+import { cn } from "@repo/ui/utils";
 
 import type { FeedLayout } from "@/lib/feed-layout-actions";
-import type { RouterOutputs } from "@kyh/api";
+import type { RouterOutputs } from "@repo/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { LikeButton } from "./like-button";

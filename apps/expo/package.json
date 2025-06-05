@@ -1,5 +1,5 @@
 {
-  "name": "@kyh/expo",
+  "name": "@repo/expo",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
@@ -46,10 +46,10 @@
     "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2",
     "@babel/runtime": "^7.27.6",
-    "@kyh/api": "workspace:*",
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
+    "@repo/api": "workspace:*",
     "@types/babel__core": "^7.20.5",
     "@types/react": "catalog:",
     "eslint": "catalog:",

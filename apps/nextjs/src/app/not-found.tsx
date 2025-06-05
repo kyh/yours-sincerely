@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@kyh/ui/button";
-import { Logo } from "@kyh/ui/logo";
+import { Button } from "@repo/ui/button";
+import { Logo } from "@repo/ui/logo";
 
 import { AsideHeader } from "@/components/layout/aside-header";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";

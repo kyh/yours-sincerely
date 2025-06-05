@@ -1,5 +1,5 @@
 {
-  "name": "@kyh/api",
+  "name": "@repo/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kyh/db": "workspace:^",
+    "@repo/db": "workspace:^",
     "@trpc/server": "catalog:",
     "bcryptjs": "^2.4.3",
     "cookie-signature": "^1.2.2",

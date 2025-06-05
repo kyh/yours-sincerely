@@ -1,8 +1,8 @@
-CREATE TABLE IF NOT EXISTS "auth"."users" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"email" varchar(255),
-	"rawUserMetaData" jsonb
-);
+-- CREATE TABLE IF NOT EXISTS "auth"."users" (
+-- 	"id" uuid PRIMARY KEY NOT NULL,
+-- 	"email" varchar(255),
+-- 	"rawUserMetaData" jsonb
+-- );
 
 CREATE OR REPLACE VIEW public."Feed" WITH (security_invoker) AS
 WITH flagged_posts AS (

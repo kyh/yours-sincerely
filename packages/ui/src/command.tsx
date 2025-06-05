@@ -1,11 +1,11 @@
 "use client";
 
+import type { Dialog as DialogPrimitive } from "radix-ui";
 import * as React from "react";
-import { cn } from "@kyh/ui/utils";
+import { cn } from "@repo/ui/utils";
 import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
-import type { DialogProps } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent } from "./dialog";
 
 export const Command = ({
@@ -21,7 +21,7 @@ export const Command = ({
   />
 );
 
-export type CommandDialogProps = {} & DialogProps;
+export type CommandDialogProps = {} & DialogPrimitive.DialogProps;
 
 export const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (

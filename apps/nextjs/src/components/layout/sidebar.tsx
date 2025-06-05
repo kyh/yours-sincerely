@@ -1,18 +1,25 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   useAuthenticatedKnockClient,
   useNotifications,
   useNotificationStore,
 } from "@knocklabs/react";
-import { Button } from "@kyh/ui/button";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { Button } from "@repo/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useIconAnimation } from "@/components/animations/use-icon-animation";
 import { useTRPC } from "@/trpc/react";
+
+const LottiePlayer = dynamic(
+  () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
+  {
+    ssr: false,
+  },
+);
 
 export const Sidebar = () => {
   const trpc = useTRPC();
@@ -39,7 +46,7 @@ export const Sidebar = () => {
     useIconAnimation();
 
   useEffect(() => {
-    notificationFeed.fetch();
+    void notificationFeed.fetch();
   }, [notificationFeed]);
 
   return (
@@ -47,11 +54,11 @@ export const Sidebar = () => {
       <nav className="bg-background flex w-full items-start justify-around gap-1 px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
         <Button variant="ghost" {...homeControlProps} asChild>
           <Link href="/">
-            <DotLottieReact
+            <LottiePlayer
               src="/icons/home-icon.json"
               className={iconClassName}
               aria-hidden="true"
-              dotLottieRefCallback={homeSetDotLottie}
+              lottieRef={homeSetDotLottie}
             />
             <span className="sr-only md:not-sr-only">Home</span>
           </Link>
@@ -59,11 +66,11 @@ export const Sidebar = () => {
         <Button variant="ghost" {...bellControlProps} asChild>
           <Link href="/notifications">
             <span className="relative">
-              <DotLottieReact
+              <LottiePlayer
                 src="/icons/bell-icon.json"
                 className={iconClassName}
                 aria-hidden="true"
-                dotLottieRefCallback={bellSetDotLottie}
+                lottieRef={bellSetDotLottie}
               />
               {metadata.unread_count > 0 && (
                 <span className="bg-destructive animate-in fade-in zoom-in absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
@@ -74,11 +81,11 @@ export const Sidebar = () => {
         </Button>
         <Button variant="ghost" {...userControlProps} asChild>
           <Link href={user ? `/profile/${user.id}` : `/auth/sign-up`}>
-            <DotLottieReact
+            <LottiePlayer
               src="/icons/user-icon.json"
               className={iconClassName}
               aria-hidden="true"
-              dotLottieRefCallback={userSetDotLottie}
+              lottieRef={userSetDotLottie}
             />
             <span className="sr-only md:not-sr-only">Profile</span>
           </Link>
