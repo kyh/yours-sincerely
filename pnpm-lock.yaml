@@ -238,9 +238,6 @@ importers:
       '@knocklabs/react':
         specifier: ^0.7.13
         version: 0.7.13(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@lottiefiles/dotlottie-react':
-        specifier: ^0.14.0
-        version: 0.14.0(react@19.1.0)
       '@lottiefiles/react-lottie-player':
         specifier: ^3.6.0
         version: 3.6.0(react@19.1.0)
@@ -1991,14 +1988,6 @@ packages:
 
   '@kyh/tsconfig@1.1.5':
     resolution: {integrity: sha512-xWRS2q2ixy8k2c560qu/vUf3vuKnNkiwb6swwa5A5mx2Eqs+HJAdh7bnFsaGghZxE4T87h5EuQ4IjKssiJnMwQ==}
-
-  '@lottiefiles/dotlottie-react@0.14.0':
-    resolution: {integrity: sha512-81wz6Wg/+0kEgcGgWyzQJB9ssZyC7U74bGH6LfbA39lIekAo5vs8RwZa6PMe2n3zBYLvrhvc2Ii+4MRMW7sDZg==}
-    peerDependencies:
-      react: ^17 || ^18 || ^19
-
-  '@lottiefiles/dotlottie-web@0.45.0':
-    resolution: {integrity: sha512-MAgb6ea2JK80X8hNQruUOMAkA1G5dFcC9ZEgylvazuUwr/KbQuvoRS7WFI6Z/0dFPyxoj9wEaZ8i2Q9aZlrLzg==}
 
   '@lottiefiles/react-lottie-player@3.6.0':
     resolution: {integrity: sha512-WK5TriLJT93VF3w4IjSVyveiedraZCnDhKzCPhpbeLgQeMi6zufxa3dXNc4HmAFRXq+LULPAy+Idv1rAfkReMA==}
@@ -9007,13 +8996,6 @@ snapshots:
       - supports-color
 
   '@kyh/tsconfig@1.1.5': {}
-
-  '@lottiefiles/dotlottie-react@0.14.0(react@19.1.0)':
-    dependencies:
-      '@lottiefiles/dotlottie-web': 0.45.0
-      react: 19.1.0
-
-  '@lottiefiles/dotlottie-web@0.45.0': {}
 
   '@lottiefiles/react-lottie-player@3.6.0(react@19.1.0)':
     dependencies:
