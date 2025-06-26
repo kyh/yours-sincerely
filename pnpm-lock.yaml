@@ -43,8 +43,8 @@ catalogs:
       specifier: ^15.3.4
       version: 15.3.4
     prettier:
-      specifier: ^3.6.0
-      version: 3.6.0
+      specifier: ^3.6.1
+      version: 3.6.1
     react:
       specifier: ^19.1.0
       version: 19.1.0
@@ -73,7 +73,7 @@ importers:
         version: 8.0.0
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
@@ -216,7 +216,7 @@ importers:
         version: 9.29.0(jiti@2.4.2)
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -331,7 +331,7 @@ importers:
         version: 8.5.6
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       tailwindcss:
         specifier: ^4.1.10
         version: 4.1.10
@@ -380,7 +380,7 @@ importers:
         version: 9.29.0(jiti@2.4.2)
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -389,10 +389,10 @@ importers:
     dependencies:
       '@supabase/ssr':
         specifier: ^0.6.1
-        version: 0.6.1(@supabase/supabase-js@2.50.1(ws@8.18.2))
+        version: 0.6.1(@supabase/supabase-js@2.50.2)
       '@supabase/supabase-js':
-        specifier: ^2.50.1
-        version: 2.50.1(ws@8.18.2)
+        specifier: ^2.50.2
+        version: 2.50.2
       drizzle-orm:
         specifier: ^0.43.1
         version: 0.43.1(gel@2.0.2)(postgres@3.4.7)
@@ -432,7 +432,7 @@ importers:
         version: 9.29.0(jiti@2.4.2)
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       supabase:
         specifier: ^2.26.9
         version: 2.26.9
@@ -505,7 +505,7 @@ importers:
         version: 9.29.0(jiti@2.4.2)
       prettier:
         specifier: 'catalog:'
-        version: 3.6.0
+        version: 3.6.1
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -2945,8 +2945,8 @@ packages:
   '@supabase/postgrest-js@1.19.4':
     resolution: {integrity: sha512-O4soKqKtZIW3olqmbXXbKugUtByD2jPa8kL2m2c1oozAO11uCcGrRhkZL0kVxjBLrXHE0mdSkFsMj7jDSfyNpw==}
 
-  '@supabase/realtime-js@2.11.13':
-    resolution: {integrity: sha512-X2Gs+f0qjLr/60UTCidxRj+FCI/ABNar93aeMQj+v/7sm4RYOWlKNw46xmwWXL8zAL30wsHG2jD7ZvCH6zDv1A==}
+  '@supabase/realtime-js@2.11.15':
+    resolution: {integrity: sha512-HQKRnwAqdVqJW/P9TjKVK+/ETpW4yQ8tyDPPtRMKOH4Uh3vQD74vmj353CYs8+YwVBKubeUOOEpI9CT8mT4obw==}
 
   '@supabase/ssr@0.6.1':
     resolution: {integrity: sha512-QtQgEMvaDzr77Mk3vZ3jWg2/y+D8tExYF7vcJT+wQ8ysuvOeGGjYbZlvj5bHYsj/SpC0bihcisnwPrM4Gp5G4g==}
@@ -2956,8 +2956,8 @@ packages:
   '@supabase/storage-js@2.7.1':
     resolution: {integrity: sha512-asYHcyDR1fKqrMpytAS1zjyEfvxuOIp1CIXX7ji4lHHcJKqyk+sLl/Vxgm4sN6u8zvuUtae9e4kDxQP2qrwWBA==}
 
-  '@supabase/supabase-js@2.50.1':
-    resolution: {integrity: sha512-X4vniGZ57wJ0QF20GIX6DgLYKynwYAtq/JHqF3GEXzABKpSziLggaKL1aTfMQ2cFkVrzoEuZha5VhilO9F87Lw==}
+  '@supabase/supabase-js@2.50.2':
+    resolution: {integrity: sha512-+27xlGgw7VyfwXXe+OiDJQosJNS+PPtjj1EnLR4uk+PKKZ91RA0/8NbIQybe6AGPanAaPtgOFFMMCArC6fZ++Q==}
 
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -3272,6 +3272,9 @@ packages:
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -5984,8 +5987,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.6.0:
-    resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
+  prettier@3.6.1:
+    resolution: {integrity: sha512-5xGWRa90Sp2+x1dQtNpIpeOQpTDBs9cZDmA/qs2vDNN2i18PdapqY7CmBeyLlMuGqXJRIOPaCaVZTLNQRWUH/A==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -8663,13 +8666,13 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.0)':
+  '@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.1)':
     dependencies:
       '@babel/generator': 7.27.3
       '@babel/parser': 7.27.4
       '@babel/traverse': 7.27.4
       '@babel/types': 7.27.3
-      prettier: 3.6.0
+      prettier: 3.6.1
       semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
@@ -9012,9 +9015,9 @@ snapshots:
 
   '@kyh/prettier-config@1.1.6':
     dependencies:
-      '@ianvs/prettier-plugin-sort-imports': 4.4.2(prettier@3.6.0)
-      prettier: 3.6.0
-      prettier-plugin-tailwindcss: 0.6.13(@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.0))(prettier@3.6.0)
+      '@ianvs/prettier-plugin-sort-imports': 4.4.2(prettier@3.6.1)
+      prettier: 3.6.1
+      prettier-plugin-tailwindcss: 0.6.13(@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.1))(prettier@3.6.1)
     transitivePeerDependencies:
       - '@prettier/plugin-pug'
       - '@shopify/prettier-plugin-liquid'
@@ -10093,33 +10096,37 @@ snapshots:
     dependencies:
       '@supabase/node-fetch': 2.6.15
 
-  '@supabase/realtime-js@2.11.13(ws@8.18.2)':
+  '@supabase/realtime-js@2.11.15':
     dependencies:
       '@supabase/node-fetch': 2.6.15
       '@types/phoenix': 1.6.6
+      '@types/ws': 8.18.1
       isows: 1.0.7(ws@8.18.2)
+      ws: 8.18.2
     transitivePeerDependencies:
-      - ws
+      - bufferutil
+      - utf-8-validate
 
-  '@supabase/ssr@0.6.1(@supabase/supabase-js@2.50.1(ws@8.18.2))':
+  '@supabase/ssr@0.6.1(@supabase/supabase-js@2.50.2)':
     dependencies:
-      '@supabase/supabase-js': 2.50.1(ws@8.18.2)
+      '@supabase/supabase-js': 2.50.2
       cookie: 1.0.2
 
   '@supabase/storage-js@2.7.1':
     dependencies:
       '@supabase/node-fetch': 2.6.15
 
-  '@supabase/supabase-js@2.50.1(ws@8.18.2)':
+  '@supabase/supabase-js@2.50.2':
     dependencies:
       '@supabase/auth-js': 2.70.0
       '@supabase/functions-js': 2.4.4
       '@supabase/node-fetch': 2.6.15
       '@supabase/postgrest-js': 1.19.4
-      '@supabase/realtime-js': 2.11.13(ws@8.18.2)
+      '@supabase/realtime-js': 2.11.15
       '@supabase/storage-js': 2.7.1
     transitivePeerDependencies:
-      - ws
+      - bufferutil
+      - utf-8-validate
 
   '@swc/counter@0.1.3': {}
 
@@ -10511,6 +10518,10 @@ snapshots:
   '@types/slice-ansi@4.0.0': {}
 
   '@types/stack-utils@2.0.3': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.15.33
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -13448,13 +13459,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.6.13(@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.0))(prettier@3.6.0):
+  prettier-plugin-tailwindcss@0.6.13(@ianvs/prettier-plugin-sort-imports@4.4.2(prettier@3.6.1))(prettier@3.6.1):
     dependencies:
-      prettier: 3.6.0
+      prettier: 3.6.1
     optionalDependencies:
-      '@ianvs/prettier-plugin-sort-imports': 4.4.2(prettier@3.6.0)
+      '@ianvs/prettier-plugin-sort-imports': 4.4.2(prettier@3.6.1)
 
-  prettier@3.6.0: {}
+  prettier@3.6.1: {}
 
   pretty-bytes@5.6.0: {}
 
