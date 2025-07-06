@@ -16,10 +16,10 @@
   "prettier": "@kyh/prettier-config",
   "dependencies": {
     "@capacitor/app": "^7.0.1",
-    "@capacitor/core": "^7.4.0",
+    "@capacitor/core": "^7.4.1",
     "@capacitor/splash-screen": "^7.0.1",
     "@knocklabs/node": "^0.6.19",
-    "@knocklabs/react": "^0.7.15",
+    "@knocklabs/react": "^0.7.19",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.5.10",
     "@react-hook/hotkey": "^3.1.0",
@@ -31,7 +31,7 @@
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "@vercel/edge-config": "^1.4.0",
-    "motion": "^12.19.1",
+    "motion": "^12.23.0",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -45,7 +45,7 @@
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
-    "@tailwindcss/postcss": "^4.1.10",
+    "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -53,7 +53,7 @@
     "eslint": "catalog:",
     "postcss": "^8.5.6",
     "prettier": "catalog:",
-    "tailwindcss": "^4.1.10",
+    "tailwindcss": "^4.1.11",
     "typescript": "catalog:"
   }
 }
