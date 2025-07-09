@@ -22,7 +22,7 @@
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
-    "expo": "^53.0.17",
+    "expo": "^53.0.19",
     "expo-constants": "^17.1.7",
     "expo-dev-client": "^5.2.4",
     "expo-linking": "^7.1.7",
