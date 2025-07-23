@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@knocklabs/node": "^1.11.1",
     "@repo/db": "workspace:^",
     "@trpc/server": "catalog:",
     "bcryptjs": "^2.4.3",

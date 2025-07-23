@@ -69,8 +69,8 @@ importers:
         specifier: 'catalog:'
         version: 1.1.7
       dotenv-cli:
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^9.0.0
+        version: 9.0.0
       prettier:
         specifier: 'catalog:'
         version: 3.6.2
@@ -232,9 +232,6 @@ importers:
       '@capacitor/splash-screen':
         specifier: ^7.0.1
         version: 7.0.1(@capacitor/core@7.4.2)
-      '@knocklabs/node':
-        specifier: ^0.6.19
-        version: 0.6.19
       '@knocklabs/react':
         specifier: ^0.7.25
         version: 0.7.25(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -341,6 +338,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@knocklabs/node':
+        specifier: ^1.11.1
+        version: 1.11.1
       '@repo/db':
         specifier: workspace:^
         version: link:../db
@@ -1961,9 +1961,8 @@ packages:
   '@knocklabs/client@0.15.1':
     resolution: {integrity: sha512-LzT7XioZmC0cgvp1MzE5NFeGIgF7oKYKyC28CbASx6AwjogF1PCU1ta8JAufH/MdslEndtjk7VauODixrNsC8g==}
 
-  '@knocklabs/node@0.6.19':
-    resolution: {integrity: sha512-hmu0g7BJiHz20ApkRnesM0SeOugvYhwHilwDMDk1TmpdQ2Z7jmWrYRsmR7L78EZ5zvEBR6bExICqmW9bz4oXQw==}
-    engines: {node: '>=17.5.0'}
+  '@knocklabs/node@1.11.1':
+    resolution: {integrity: sha512-j+BzEFwtcCDGpaYp3KgZdZml08suzeE7AJblhEEnpgjvRxDHEPEA6EPCnOUydgJgM+wPPIBK1oAIGDWDh6ahlw==}
 
   '@knocklabs/react-core@0.7.3':
     resolution: {integrity: sha512-vCIZmwQWC4b8wfvPNRFhkQZb3vX6ihpb15Vu0qiT6ZeEAMk5YyDGktMKbcbqiLYsUGjXzgTrU9lrrzmQPwehuw==}
@@ -3965,8 +3964,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dotenv-cli@8.0.0:
-    resolution: {integrity: sha512-aLqYbK7xKOiTMIRf1lDPbI+Y+Ip/wo5k3eyp6ePysVaSqbyxjyK3dK35BTxG+rmd7djf5q2UPs4noPNH+cj0Qw==}
+  dotenv-cli@9.0.0:
+    resolution: {integrity: sha512-NhGrQum/u1VTBxnSnlNwVkTP3gojYO8T6Fntyru93wbR1hPo8aFhDFJiBPmkT0771i7f5Rd7EQDaOreS8jY8gA==}
     hasBin: true
 
   dotenv-expand@10.0.0:
@@ -3985,8 +3984,8 @@ packages:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
-  dotenv@16.6.1:
-    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+  dotenv@17.2.0:
+    resolution: {integrity: sha512-Q4sgBT60gzd0BB0lSyYD3xM4YxrXA9y4uBDof1JNYGzOXrQdQ6yX+7XIAqoFOGQFOTK1D3Hts5OllpxMDZFONQ==}
     engines: {node: '>=12'}
 
   drizzle-kit@0.31.4:
@@ -5035,8 +5034,8 @@ packages:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
 
-  jose@5.10.0:
-    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
+  jose@6.0.12:
+    resolution: {integrity: sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==}
 
   js-cookie@2.2.1:
     resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
@@ -8754,9 +8753,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@knocklabs/node@0.6.19':
+  '@knocklabs/node@1.11.1':
     dependencies:
-      jose: 5.10.0
+      jose: 6.0.12
 
   '@knocklabs/react-core@0.7.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -11103,10 +11102,10 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dotenv-cli@8.0.0:
+  dotenv-cli@9.0.0:
     dependencies:
       cross-spawn: 7.0.6
-      dotenv: 16.6.1
+      dotenv: 17.2.0
       dotenv-expand: 10.0.0
       minimist: 1.2.8
 
@@ -11120,7 +11119,7 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  dotenv@16.6.1: {}
+  dotenv@17.2.0: {}
 
   drizzle-kit@0.31.4:
     dependencies:
@@ -12342,7 +12341,7 @@ snapshots:
 
   jiti@2.4.2: {}
 
-  jose@5.10.0: {}
+  jose@6.0.12: {}
 
   js-cookie@2.2.1: {}
 

@@ -132,7 +132,7 @@ export const postRouter = createTRPCRouter({
         .returning();
 
       if (created?.parentId) {
-        const knock = new Knock(process.env.KNOCK_API_KEY);
+        const knock = new Knock();
         const parentPost = await ctx.db.query.post.findFirst({
           where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
           with: {
