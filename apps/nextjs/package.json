@@ -19,7 +19,7 @@
     "@capacitor/core": "^7.4.2",
     "@capacitor/splash-screen": "^7.0.1",
     "@knocklabs/node": "^0.6.19",
-    "@knocklabs/react": "^0.7.21",
+    "@knocklabs/react": "^0.7.25",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.5.10",
     "@react-hook/hotkey": "^3.1.0",
