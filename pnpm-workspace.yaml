@@ -13,8 +13,8 @@ catalog:
   "@types/node": ^24.1.0
   "@types/react": ^19.1.8
   "@types/react-dom": ^19.1.6
-  eslint: ^9.31.0
-  next: ^15.4.3
+  eslint: ^9.32.0
+  next: ^15.4.4
   prettier: ^3.6.2
   react: ^19.1.0
   react-dom: ^19.1.0
