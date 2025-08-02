@@ -1,5 +1,6 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/api/user/user-schema";
 import { ProfileAvatar } from "@repo/ui/avatar";
 import {
@@ -8,11 +9,11 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  useForm,
 } from "@repo/ui/form";
 import { Input } from "@repo/ui/input";
 import { toast } from "@repo/ui/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 
 import type { UpdateUserInput } from "@repo/api/user/user-schema";
 import { getAvatarUrl } from "@/lib/avatars";
@@ -31,7 +32,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
 
   const form = useForm({
-    schema: updateUserInput,
+    resolver: zodResolver(updateUserInput),
     defaultValues: {
       userId: user?.id,
       displayName: user?.displayName || "Anonymous",

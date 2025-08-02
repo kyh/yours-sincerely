@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createPostInput } from "@repo/api/post/post-schema";
 import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
 import { Button } from "@repo/ui/button";
@@ -27,13 +28,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useForm,
 } from "@repo/ui/form";
 import { toast } from "@repo/ui/toast";
 import { cn, useMediaQuery } from "@repo/ui/utils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import type { CreatePostInput } from "@repo/api/post/post-schema";
 import { balloons } from "@/components/animations/balloons";
@@ -62,7 +63,7 @@ export const PostForm = ({
   } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
 
   const form = useForm({
-    schema: createPostInput,
+    resolver: zodResolver(createPostInput),
     defaultValues: {
       parentId,
       content:

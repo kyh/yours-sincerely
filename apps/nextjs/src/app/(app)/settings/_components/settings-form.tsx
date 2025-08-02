@@ -1,5 +1,6 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/api/user/user-schema";
 import { Button } from "@repo/ui/button";
 import {
@@ -9,7 +10,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useForm,
 } from "@repo/ui/form";
 import { Input } from "@repo/ui/input";
 import { Label } from "@repo/ui/label";
@@ -19,6 +19,7 @@ import { toast } from "@repo/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleHelpIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import type { UpdateUserInput } from "@repo/api/user/user-schema";
 import { useTRPC } from "@/trpc/react";
@@ -35,7 +36,7 @@ export const SettingsForm = () => {
   );
 
   const form = useForm({
-    schema: updateUserInput,
+    resolver: zodResolver(updateUserInput),
     defaultValues: {
       userId: user?.id,
       email: user?.email ?? "",
