@@ -13,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@repo/ui/form";
-import { Input } from "@repo/ui/input";
 import { toast } from "@repo/ui/toast";
 import { cn } from "@repo/ui/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -80,7 +79,7 @@ export const AuthForm = ({ className, type }: AuthFormProps) => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
+                  <input
                     data-test="email-input"
                     required
                     type="email"
@@ -102,7 +101,7 @@ export const AuthForm = ({ className, type }: AuthFormProps) => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
+                  <input
                     data-test="password-input"
                     required
                     type="password"
@@ -181,7 +180,7 @@ export const RequestPasswordResetForm = () => {
             <FormItem className="grid gap-1 space-y-0">
               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
-                <Input
+                <input
                   required
                   type="email"
                   placeholder="name@example.com"
@@ -255,7 +254,7 @@ export const UpdatePasswordForm = () => {
             <FormItem className="grid gap-1 space-y-0">
               <FormLabel className="sr-only">New Password</FormLabel>
               <FormControl>
-                <Input
+                <input
                   required
                   type="password"
                   placeholder="Enter new password"
@@ -276,7 +275,7 @@ export const UpdatePasswordForm = () => {
             <FormItem className="grid gap-1 space-y-0">
               <FormLabel className="sr-only">Confirm New Password</FormLabel>
               <FormControl>
-                <Input
+                <input
                   required
                   type="password"
                   placeholder="Confirm new password"

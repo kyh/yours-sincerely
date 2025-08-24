@@ -6,6 +6,7 @@ export const Card = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
+    data-slot="card"
     className={cn(
       "bg-card flex flex-col gap-5 overflow-hidden rounded-xl p-5 shadow-sm",
       className,

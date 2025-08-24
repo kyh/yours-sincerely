@@ -90,7 +90,7 @@ export const SettingsForm = () => {
                   </Tooltip>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Your email" {...field} />
+                  <input placeholder="Your email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,7 +98,7 @@ export const SettingsForm = () => {
           />
         </form>
       </Form>
-      <div className="outline-border space-y-2 px-3 pt-2.5 pb-2.5 outline -outline-offset-1">
+      <div className="outline-border space-y-2 px-3 py-4 outline -outline-offset-1">
         <Label>Password</Label>
         <Button
           type="button"
@@ -108,7 +108,7 @@ export const SettingsForm = () => {
           Request password reset
         </Button>
       </div>
-      <div className="outline-border space-y-4 rounded-b-md px-3 pt-2.5 pb-2.5 outline -outline-offset-1">
+      <div className="outline-border space-y-4 rounded-b-md px-3 py-4 outline -outline-offset-1">
         <Label>Appearance</Label>
         <RadioGroup
           className="grid grid-cols-4 gap-4 md:grid-cols-6"

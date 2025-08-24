@@ -1,8 +1,9 @@
 "use client";
 
+import type { Label as LabelPrimitive } from "radix-ui";
 import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "radix-ui";
 import {
   Controller,
   FormProvider,
@@ -10,7 +11,6 @@ import {
   useFormState,
 } from "react-hook-form";
 
-import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Label } from "./label";
 import { cn } from "./utils";
 
@@ -85,7 +85,7 @@ const FormItem = ({
         className={cn(
           noStyles
             ? null
-            : "group outline-border focus-within:outline-primary flex flex-col gap-0.5 px-3 pt-2.5 pb-1.5 outline -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:-outline-offset-1",
+            : "group outline-border focus-within:outline-primary flex flex-col gap-1.5 px-3 pt-4 pb-3 outline -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:-outline-offset-1 [&>input]:focus-visible:outline-0",
           className,
         )}
         {...props}
@@ -111,12 +111,12 @@ const FormLabel = ({
   );
 };
 
-const FormControl = ({ ...props }: React.ComponentProps<typeof Slot>) => {
+const FormControl = ({ ...props }: React.ComponentProps<typeof Slot.Root>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot
+    <Slot.Root
       data-slot="form-control"
       id={formItemId}
       aria-describedby={

@@ -155,7 +155,7 @@ export const MoreButton = ({ post }: Props) => {
             <MoreVerticalIcon className="size-4" />
           </button>
         </DialogTrigger>
-        <DialogContent closeButton={false}>
+        <DialogContent showCloseButton={false}>
           <DialogHeader className="sr-only">
             <DialogTitle>Post Settings</DialogTitle>
             <DialogDescription>Options for this post</DialogDescription>

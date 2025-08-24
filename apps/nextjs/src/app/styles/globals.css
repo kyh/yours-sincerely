@@ -1,8 +1,27 @@
 @import "tailwindcss" source("../../../../../");
-@import "./animations.css";
+@import "tw-animate-css";
 @import "./themes.css";
 
 @plugin "@tailwindcss/typography";
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border, currentColor);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
 
 body {
   padding-bottom: env(safe-area-inset-bottom);
