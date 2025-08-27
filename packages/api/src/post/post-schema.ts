@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { like, post } from "@repo/db/schema";
+import type { like, post } from "@repo/db/drizzle-schema";
 
 export const getPostsByUserInput = z.object({
   userId: z.string(),

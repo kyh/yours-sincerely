@@ -1,5 +1,5 @@
 import { and, eq } from "@repo/db";
-import { like } from "@repo/db/schema";
+import { like } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 
 import { createUserIfNotExists } from "../auth/auth-utils";

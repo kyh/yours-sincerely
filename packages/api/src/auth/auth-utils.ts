@@ -1,4 +1,4 @@
-import { user } from "@repo/db/schema";
+import { user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 

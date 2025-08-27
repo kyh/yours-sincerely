@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import {
-  createTRPCClient,
-  httpBatchLink,
-  httpBatchStreamLink,
-  loggerLink,
-  splitLink,
-} from "@trpc/client";
+import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import SuperJSON from "superjson";
 
@@ -40,29 +34,13 @@ export const TRPCReactProvider = (props: { children: React.ReactNode }) => {
             process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        splitLink({
-          condition: (_op) => {
-            // return op.path.startsWith("auth.");
-            return true;
+        httpBatchLink({
+          transformer: SuperJSON,
+          url: `${getBaseUrl()}/api/trpc`,
+          headers: () => {
+            const headers = new Headers();
+            return headers;
           },
-          true: httpBatchLink({
-            transformer: SuperJSON,
-            url: `${getBaseUrl()}/api/trpc`,
-            headers: () => {
-              const headers = new Headers();
-              headers.set("x-trpc-source", "nextjs-client");
-              return headers;
-            },
-          }),
-          false: httpBatchStreamLink({
-            transformer: SuperJSON,
-            url: `${getBaseUrl()}/api/trpc`,
-            headers: () => {
-              const headers = new Headers();
-              headers.set("x-trpc-source", "nextjs-client-batch-stream");
-              return headers;
-            },
-          }),
         }),
       ],
     }),

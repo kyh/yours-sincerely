@@ -1,6 +1,6 @@
 import { eq } from "@repo/db";
-import { user, userStats } from "@repo/db/schema";
-import { getSupabaseAdminClient } from "@repo/db/supabase-admin-client";
+import { user, userStats } from "@repo/db/drizzle-schema";
+import { getSupabaseAdminClient } from "@repo/db/supabase-server-client";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {

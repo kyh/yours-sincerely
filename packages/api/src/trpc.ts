@@ -40,12 +40,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   // For users who were logged in via the deprecated session method we grab the
   // user from the database and assign them to a supabase user object
   const deprecatedSessionUserId = await getDeprecatedSession();
-
   const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
-
-  const source = opts.headers.get("x-trpc-source") ?? "unknown";
-
-  console.log(">>> tRPC Request from", source, "by", user?.email ?? "unknown");
 
   return {
     headers: opts.headers,
