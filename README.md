@@ -18,8 +18,6 @@ The native apps are built on [capacitor](https://capacitorjs.com/) which can be 
   └─ Recommended extensions and settings for VSCode users
 
 apps
-  ├─ expo
-  |  └─ In Progress
   ├─ capacitor
   |  └─ iOS & Android apps
   └─ next.js

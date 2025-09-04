@@ -1,7 +1,7 @@
 {
   "name": "yours-sincerely",
   "private": true,
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.15.1",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
@@ -14,7 +14,6 @@
     "db:push-remote": "pnpm -F db push-remote",
     "dev": "turbo watch dev --continue",
     "dev:nextjs": "turbo watch dev -F @repo/nextjs...",
-    "dev:expo": "turbo watch dev -F @repo/expo...",
     "dev:capacitor-ios": "pnpm -F capacitor ios",
     "dev:capacitor-android": "pnpm -F capacitor android",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
