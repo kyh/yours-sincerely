@@ -141,7 +141,7 @@ export const CardStack = <T extends { id: string }>({
             <Card
               key={item.id}
               minDistance={width * 0.5}
-              maxRotate={5}
+              maxRotate={3}
               index={index}
               currentIndex={currentIndex}
               total={data.length}
