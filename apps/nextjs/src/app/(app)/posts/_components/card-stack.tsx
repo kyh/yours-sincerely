@@ -1,90 +1,95 @@
 "use client";
 
-import type { MotionProps, PanInfo } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@repo/ui/button";
 import {
-  AnimatePresence,
+  animate,
+  easeIn,
+  mix,
   motion,
+  progress,
   useMotionValue,
   useTransform,
+  wrap,
 } from "motion/react";
 
 import { useRootHotkeys } from "@/lib/hotkey";
 
 type CardProps = {
-  transition: MotionProps["transition"];
-  animate: MotionProps["animate"];
-  initial?: MotionProps["initial"];
-  drag?: MotionProps["drag"];
-  onNext?: (auto?: boolean) => void;
-  exit?: {
-    x: number;
-    duration: number;
-  };
-  setExit?: (exit: { x: number; duration: number }) => void;
-  onAnimationComplete?: () => void;
+  index: number;
+  currentIndex: number;
+  total: number;
+  maxRotate: number;
+  minDistance?: number;
+  minSpeed?: number;
+  setNextPost: () => void;
   children: React.ReactNode;
 };
 
-const cardDragConstraints = {
-  top: 0,
-  right: 0,
-  bottom: 0,
-  left: 0,
-};
-
-export const Card = (props: CardProps) => {
+export const Card = ({
+  index,
+  currentIndex,
+  total,
+  maxRotate,
+  setNextPost,
+  minDistance = 400,
+  minSpeed = 50,
+  children,
+}: CardProps) => {
+  const baseRotation = mix(0, maxRotate, Math.sin(index));
   const x = useMotionValue(0);
-  const scale = useTransform(x, [-300, 0, 300], [0.5, 1, 0.5]);
-  const rotate = useTransform(x, [-100, 0, 100], [-20, 0, 20], {
+  const rotate = useTransform(x, [0, 400], [baseRotation, baseRotation + 10], {
     clamp: false,
   });
+  const zIndex = total - wrap(total, 0, index - currentIndex + 1);
 
-  const handleDragEnd = (event: MouseEvent, info: PanInfo) => {
-    if (!event.x) return;
-    if (info.offset.x < -100) {
-      props.setExit &&
-        props.setExit({
-          x: -300,
-          duration: 0.2,
-        });
-      props.onNext && props.onNext();
-    }
-    if (info.offset.x > 100) {
-      props.setExit &&
-        props.setExit({
-          x: 300,
-          duration: 0.2,
-        });
-      props.onNext && props.onNext();
+  const onDragEnd = () => {
+    const distance = Math.abs(x.get());
+    const speed = Math.abs(x.getVelocity());
+
+    if (distance > minDistance || speed > minSpeed) {
+      setNextPost();
+
+      animate(x, 0, {
+        type: "spring",
+        stiffness: 600,
+        damping: 50,
+      });
+    } else {
+      animate(x, 0, {
+        type: "spring",
+        stiffness: 300,
+        damping: 50,
+      });
     }
   };
 
+  const opacity = progress(total * 0.25, total * 0.75, zIndex);
+
+  const progressInStack = progress(0, total - 1, zIndex);
+  const scale = mix(0.5, 1, easeIn(progressInStack));
+
   return (
     <motion.div
-      className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl sm:left-[50%] sm:ml-[-250px] sm:w-[500px]"
-      style={{ x, rotate }}
-      dragDirectionLock
-      drag={props.drag}
-      dragConstraints={cardDragConstraints}
-      onDragEnd={handleDragEnd}
-      initial={props.initial}
-      animate={props.animate}
-      transition={props.transition}
-      exit={{
-        x: props.exit?.x,
-        opacity: 0,
-        scale: 0.5,
-        transition: { duration: props.exit?.duration },
+      className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl"
+      style={{
+        zIndex,
+        rotate,
+        x,
       }}
-      onAnimationComplete={props.onAnimationComplete}
+      initial={{ opacity: 0, scale: 0.3 }}
+      animate={{ opacity, scale }}
+      whileTap={index === currentIndex ? { scale: 0.98 } : {}}
+      transition={{
+        type: "spring",
+        stiffness: 600,
+        damping: 30,
+      }}
+      drag={index === currentIndex ? "x" : false}
+      onDragEnd={onDragEnd}
     >
-      <motion.div
-        className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm"
-        style={{ scale }}
-      >
-        {props.children}
+      <motion.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">
+        {children}
       </motion.div>
     </motion.div>
   );
@@ -95,94 +100,66 @@ type Props<T> = {
   render: (d: T) => React.ReactNode;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
-  nextButton?: React.ReactNode;
 };
 
-export const CardStack = <T,>({
+export const CardStack = <T extends { id: string }>({
   data,
   render,
   hasNextPage,
   onLoadMore,
-  nextButton = "Next",
 }: Props<T>) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const [exit, setExit] = useState({
-    x: -300,
-    duration: 0.2,
-  });
-  const nextIndex = data[currentIndex + 1] ? currentIndex + 1 : 0;
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(400);
 
   useEffect(() => {
-    if (!data[currentIndex + 2] && hasNextPage && onLoadMore) {
-      onLoadMore();
-    }
-  }, [currentIndex]);
+    if (!ref.current) return;
+    setWidth(ref.current.offsetWidth);
+  }, []);
 
-  const onNext = (auto?: boolean) => {
-    if (animating) return;
-    if (auto) {
-      setExit({
-        x: Math.random() < 0.5 ? -300 : 300,
-        duration: 0.5,
-      });
-    }
-    setAnimating(true);
-    setCurrentIndex(nextIndex);
+  const handleSetNextPost = () => {
+    const postsLeft = data.length - currentIndex - 1;
+    if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
+    setCurrentIndex(wrap(0, data.length, currentIndex + 1));
+  };
+
+  const handleSetPreviousPost = () => {
+    setCurrentIndex(wrap(0, data.length, currentIndex - 1));
   };
 
   useRootHotkeys([
-    ["spacebar", () => onNext(true)],
-    ["left", () => onNext(true)],
-    ["right", () => onNext(true)],
+    ["spacebar", handleSetNextPost],
+    ["left", handleSetPreviousPost],
+    ["right", handleSetNextPost],
   ]);
 
   return (
     <div className="card-stack flex h-full flex-col items-center gap-3">
-      <div className="relative h-full w-full">
-        <AnimatePresence initial={false}>
-          <Card
-            key={nextIndex}
-            initial={{ scale: 0, y: 105, opacity: 0 }}
-            animate={{ scale: 0.75, y: 30, opacity: 0.5 }}
-            transition={{
-              scale: { duration: 0.2 },
-              opacity: { duration: 0.4 },
-            }}
-          >
-            {render(data[nextIndex]!)}
-          </Card>
-          <Card
-            key={currentIndex}
-            onNext={onNext}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            transition={
-              {
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                opacity: { duration: 0.2 },
-              } as MotionProps["transition"]
-            }
-            exit={exit}
-            setExit={setExit}
-            drag="x"
-            onAnimationComplete={() => setAnimating(false)}
-          >
-            {render(data[currentIndex]!)}
-          </Card>
-        </AnimatePresence>
+      <div ref={ref} className="relative h-full w-full">
+        {data.map((item, index) => {
+          return (
+            <Card
+              key={item.id}
+              minDistance={width * 0.5}
+              maxRotate={5}
+              index={index}
+              currentIndex={currentIndex}
+              total={data.length}
+              setNextPost={handleSetNextPost}
+            >
+              {render(item)}
+            </Card>
+          );
+        })}
       </div>
-      {nextButton && (
-        <Button
-          className="mt-auto"
-          variant="outline"
-          onClick={() => onNext(true)}
-          disabled={animating}
-        >
-          {nextButton}
+      <div className="flex items-center justify-center gap-2">
+        <Button size="sm" variant="ghost" onClick={handleSetPreviousPost}>
+          Previous
         </Button>
-      )}
+        <Button size="sm" variant="outline" onClick={handleSetNextPost}>
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
