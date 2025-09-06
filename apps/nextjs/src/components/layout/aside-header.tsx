@@ -33,6 +33,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
+import { useCardStack } from "@/app/(app)/posts/_components/card-stack";
 import { getAvatarUrl } from "@/lib/avatars";
 import { toggleFeedLayout } from "@/lib/feed-layout-actions";
 import { useTRPC } from "@/trpc/react";
@@ -44,6 +45,7 @@ export const AsideHeader = () => {
   } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const { theme, setTheme } = useTheme();
   const isDesktop = useMediaQuery();
+  const { setCurrentIndex } = useCardStack();
 
   const [open, setOpen] = useState(false);
 
@@ -137,9 +139,12 @@ export const AsideHeader = () => {
       content: (
         <button
           className={menuItemClassName}
-          onClick={() => {
-            setOpen(false);
-            void toggleFeedLayout();
+          onClick={async () => {
+            await toggleFeedLayout();
+            setTimeout(() => {
+              setOpen(false);
+              setCurrentIndex(0);
+            }, 50);
           }}
         >
           <LayoutDashboardIcon aria-hidden="true" className="size-4" />

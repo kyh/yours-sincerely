@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Button } from "@repo/ui/button";
 import {
   animate,
@@ -14,6 +14,42 @@ import {
 } from "motion/react";
 
 import { useRootHotkeys } from "@/lib/hotkey";
+
+type CardStackContextType = {
+  currentIndex: number;
+  setCurrentIndex: (index: number) => void;
+};
+
+const CardStackContext = createContext<CardStackContextType | undefined>(
+  undefined,
+);
+
+export const CardStackProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const value: CardStackContextType = {
+    currentIndex,
+    setCurrentIndex,
+  };
+
+  return (
+    <CardStackContext.Provider value={value}>
+      {children}
+    </CardStackContext.Provider>
+  );
+};
+
+export const useCardStack = () => {
+  const context = useContext(CardStackContext);
+  if (context === undefined) {
+    throw new Error("useCardStack must be used within a CardStackProvider");
+  }
+  return context;
+};
 
 type CardProps = {
   index: number;
@@ -108,7 +144,7 @@ export const CardStack = <T extends { id: string }>({
   hasNextPage,
   onLoadMore,
 }: Props<T>) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { currentIndex, setCurrentIndex } = useCardStack();
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(400);
 
@@ -120,11 +156,13 @@ export const CardStack = <T extends { id: string }>({
   const handleSetNextPost = () => {
     const postsLeft = data.length - currentIndex - 1;
     if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
-    setCurrentIndex(wrap(0, data.length, currentIndex + 1));
+    const newIndex = wrap(0, data.length, currentIndex + 1);
+    setCurrentIndex(newIndex);
   };
 
   const handleSetPreviousPost = () => {
-    setCurrentIndex(wrap(0, data.length, currentIndex - 1));
+    const newIndex = wrap(0, data.length, currentIndex - 1);
+    setCurrentIndex(newIndex);
   };
 
   useRootHotkeys([
