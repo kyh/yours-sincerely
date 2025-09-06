@@ -15,9 +15,9 @@
   },
   "prettier": "@kyh/prettier-config",
   "dependencies": {
-    "@capacitor/app": "^7.0.2",
+    "@capacitor/app": "^7.1.0",
     "@capacitor/core": "^7.4.3",
-    "@capacitor/splash-screen": "^7.0.2",
+    "@capacitor/splash-screen": "^7.0.3",
     "@knocklabs/react": "^0.7.34",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.5.10",
@@ -44,7 +44,7 @@
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -52,7 +52,7 @@
     "eslint": "catalog:",
     "postcss": "^8.5.6",
     "prettier": "catalog:",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "typescript": "catalog:"
   }
 }
