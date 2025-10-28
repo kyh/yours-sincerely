@@ -16,7 +16,7 @@
   "prettier": "@kyh/prettier-config",
   "dependencies": {
     "@capacitor/app": "^7.1.0",
-    "@capacitor/core": "^7.4.3",
+    "@capacitor/core": "^7.4.4",
     "@capacitor/splash-screen": "^7.0.3",
     "@knocklabs/react": "^0.7.34",
     "@lottiefiles/react-lottie-player": "^3.6.0",
@@ -29,7 +29,7 @@
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
-    "@vercel/edge-config": "^1.4.0",
+    "@vercel/edge-config": "^1.4.3",
     "motion": "^12.23.24",
     "next": "catalog:",
     "react": "catalog:",
@@ -44,7 +44,7 @@
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
-    "@tailwindcss/postcss": "^4.1.14",
+    "@tailwindcss/postcss": "^4.1.16",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -52,7 +52,7 @@
     "eslint": "catalog:",
     "postcss": "^8.5.6",
     "prettier": "catalog:",
-    "tailwindcss": "^4.1.14",
+    "tailwindcss": "^4.1.16",
     "typescript": "catalog:"
   }
 }
