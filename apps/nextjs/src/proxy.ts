@@ -10,7 +10,7 @@ export const config = {
   ],
 };
 
-export const middleware = async (request: NextRequest) => {
+export const proxy = async (request: NextRequest) => {
   // set a unique request ID for each request
   // this helps us log and trace requests
   request.headers.set("x-correlation-id", crypto.randomUUID());
