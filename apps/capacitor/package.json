@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
-    "@capacitor/app": "^7.1.0",
+    "@capacitor/app": "^7.1.1",
     "@capacitor/core": "^7.4.4",
     "@capacitor/ios": "^7.4.4",
-    "@capacitor/splash-screen": "^7.0.3"
+    "@capacitor/splash-screen": "^7.0.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.4"

@@ -10,11 +10,11 @@ catalog:
   "@trpc/client": ^11.7.2
   "@trpc/server": ^11.7.2
   "@trpc/tanstack-react-query": ^11.7.2
-  "@types/node": ^24.10.1
+  "@types/node": ^24.10.3
   "@types/react": ^19.2.7
   "@types/react-dom": ^19.2.3
   eslint: ^9.39.1
-  next: ^16.0.7
+  next: ^16.0.8
   prettier: ^3.7.4
   react: ^19.2.1
   react-dom: ^19.2.1
