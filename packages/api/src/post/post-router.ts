@@ -128,6 +128,7 @@ export const postRouter = createTRPCRouter({
           content: input.content,
           createdBy: input.createdBy || "Anonymous",
           parentId: input.parentId,
+          baseLikeCount: input.baseLikeCount,
         })
         .returning();
 
