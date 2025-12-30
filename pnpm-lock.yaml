@@ -16,8 +16,8 @@ catalogs:
       specifier: ^1.1.10
       version: 1.1.10
     '@tanstack/react-query':
-      specifier: ^5.90.12
-      version: 5.90.12
+      specifier: ^5.90.15
+      version: 5.90.15
     '@trpc/client':
       specifier: ^11.8.1
       version: 11.8.1
@@ -140,7 +140,7 @@ importers:
         version: link:../../packages/ui
       '@tanstack/react-query':
         specifier: 'catalog:'
-        version: 5.90.12(react@19.2.3)
+        version: 5.90.15(react@19.2.3)
       '@trpc/client':
         specifier: 'catalog:'
         version: 11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3)
@@ -149,7 +149,7 @@ importers:
         version: 11.8.1(typescript@5.9.3)
       '@trpc/tanstack-react-query':
         specifier: 'catalog:'
-        version: 11.8.1(@tanstack/react-query@5.90.12(react@19.2.3))(@trpc/client@11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.8.1(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
+        version: 11.8.1(@tanstack/react-query@5.90.15(react@19.2.3))(@trpc/client@11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.8.1(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
       '@vercel/edge-config':
         specifier: ^1.4.3
         version: 1.4.3(next@16.1.1(@babel/core@7.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
@@ -224,8 +224,8 @@ importers:
   packages/api:
     dependencies:
       '@knocklabs/node':
-        specifier: ^1.25.0
-        version: 1.25.0
+        specifier: ^1.27.0
+        version: 1.27.0
       '@repo/db':
         specifier: workspace:^
         version: link:../db
@@ -316,8 +316,8 @@ importers:
         specifier: 'catalog:'
         version: 3.7.4
       supabase:
-        specifier: ^2.70.4
-        version: 2.70.4
+        specifier: ^2.70.5
+        version: 2.70.5
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1283,8 +1283,8 @@ packages:
   '@knocklabs/client@0.19.4':
     resolution: {integrity: sha512-dvTBsGBHsVB73YfsdVt/kubCjH2fzG1eLEV9UIfSmozgUrfRKQcD6wu86S1WR2sz96y3hpGOmcF0QQgBjvPh3g==}
 
-  '@knocklabs/node@1.25.0':
-    resolution: {integrity: sha512-x5O0R6W5giGIEGNizVeq3sBU3iyh/utSTxo2tdKXctUYou0DJTLLL3LXFsTbeeoRKTx0tHfGMgSQPAKKz0oAYw==}
+  '@knocklabs/node@1.27.0':
+    resolution: {integrity: sha512-HGRIpNmcv0ohUOju91duE/B1irDL2oBQhrWLCidm3nwaiEFyYIuHwsQ1kFevzbouAtfuMaEvIMLVe9Gkg46bkw==}
 
   '@knocklabs/react-core@0.11.4':
     resolution: {integrity: sha512-TvhT8HcWrzL9Q142kN8BMvyju1vqrkg5tW76eiBMyPyR/u4fj+cc8RV9y9pl+w5aYQ3prAwHzMaMo8WQ+B03Jw==}
@@ -2281,11 +2281,11 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
 
-  '@tanstack/query-core@5.90.12':
-    resolution: {integrity: sha512-T1/8t5DhV/SisWjDnaiU2drl6ySvsHj1bHBCWNXd+/T+Hh1cf6JodyEYMd5sgwm+b/mETT4EV3H+zCVczCU5hg==}
+  '@tanstack/query-core@5.90.15':
+    resolution: {integrity: sha512-mInIZNUZftbERE+/Hbtswfse49uUQwch46p+27gP9DWJL927UjnaWEF2t3RMOqBcXbfMdcNkPe06VyUIAZTV1g==}
 
-  '@tanstack/react-query@5.90.12':
-    resolution: {integrity: sha512-graRZspg7EoEaw0a8faiUASCyJrqjKPdqJ9EwuDRUF9mEYJ1YPczI9H+/agJ0mOJkPCJDk0lsz5QTrLZ/jQ2rg==}
+  '@tanstack/react-query@5.90.15':
+    resolution: {integrity: sha512-uQvnDDcTOgJouNtAyrgRej+Azf0U5WDov3PXmHFUBc+t1INnAYhIlpZtCGNBLwCN41b43yO7dPNZu8xWkUFBwQ==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -4472,8 +4472,8 @@ packages:
   stylis@4.3.6:
     resolution: {integrity: sha512-yQ3rwFWRfwNUY7H5vpU0wfdkNSnvnJinhF9830Swlaxl03zsOjCfmX0ugac+3LtK0lYSgwL/KXc8oYL3mG4YFQ==}
 
-  supabase@2.70.4:
-    resolution: {integrity: sha512-6Z5d0Snq5dxjL2K6XY89fPd9PNUJi83p7UpwlurPeSOHYhJfX9DbhzLhBGygrGigLST3M97ITgp4sFDXPd77Iw==}
+  supabase@2.70.5:
+    resolution: {integrity: sha512-HtMGtYbcL9dxi2Yz4eGWWlxl9nQi76pOyGgCTBeE67p5AeIlv+KJhDOR8oinaNfHHMPKk0Uo1WW7Kxyrz+tdgg==}
     engines: {npm: '>=8'}
     hasBin: true
 
@@ -5517,7 +5517,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@knocklabs/node@1.25.0':
+  '@knocklabs/node@1.27.0':
     dependencies:
       jose: 6.0.12
 
@@ -6598,11 +6598,11 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.1.18
 
-  '@tanstack/query-core@5.90.12': {}
+  '@tanstack/query-core@5.90.15': {}
 
-  '@tanstack/react-query@5.90.12(react@19.2.3)':
+  '@tanstack/react-query@5.90.15(react@19.2.3)':
     dependencies:
-      '@tanstack/query-core': 5.90.12
+      '@tanstack/query-core': 5.90.15
       react: 19.2.3
 
   '@tanstack/react-store@0.7.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
@@ -6803,9 +6803,9 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  '@trpc/tanstack-react-query@11.8.1(@tanstack/react-query@5.90.12(react@19.2.3))(@trpc/client@11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.8.1(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)':
+  '@trpc/tanstack-react-query@11.8.1(@tanstack/react-query@5.90.15(react@19.2.3))(@trpc/client@11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.8.1(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)':
     dependencies:
-      '@tanstack/react-query': 5.90.12(react@19.2.3)
+      '@tanstack/react-query': 5.90.15(react@19.2.3)
       '@trpc/client': 11.8.1(@trpc/server@11.8.1(typescript@5.9.3))(typescript@5.9.3)
       '@trpc/server': 11.8.1(typescript@5.9.3)
       react: 19.2.3
@@ -9044,7 +9044,7 @@ snapshots:
 
   stylis@4.3.6: {}
 
-  supabase@2.70.4:
+  supabase@2.70.5:
     dependencies:
       bin-links: 6.0.0
       https-proxy-agent: 7.0.6
