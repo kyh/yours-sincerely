@@ -21,3 +21,7 @@ catalog:
   superjson: ^2.2.6
   typescript: ^5.9.3
   zod: ^4.2.1
+
+publicHoistPattern:
+  - "@ianvs/prettier-plugin-sort-imports"
+  - prettier-plugin-tailwindcss

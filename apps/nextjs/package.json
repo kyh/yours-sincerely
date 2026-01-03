@@ -15,9 +15,9 @@
   },
   "prettier": "@kyh/prettier-config",
   "dependencies": {
-    "@capacitor/app": "^7.1.1",
-    "@capacitor/core": "^7.4.4",
-    "@capacitor/splash-screen": "^7.0.4",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
     "@knocklabs/react": "^0.9.5",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.5.10",
