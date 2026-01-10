@@ -226,10 +226,11 @@ export const AsideHeader = () => {
       <div className="area-aside-header">
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Open menu">
               <ProfileAvatar
                 className="size-8"
                 src={getAvatarUrl(user?.displayName || user?.id)}
+                alt="Profile"
               />
             </Button>
           </DropdownMenuTrigger>
@@ -257,10 +258,11 @@ export const AsideHeader = () => {
     <div className="area-aside-header">
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Open menu">
             <ProfileAvatar
               className="size-8"
               src={getAvatarUrl(user?.displayName || user?.id)}
+              alt="Profile"
             />
           </Button>
         </DrawerTrigger>

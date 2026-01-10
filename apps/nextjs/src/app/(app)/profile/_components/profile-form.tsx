@@ -8,6 +8,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@repo/ui/form";
 import { Input } from "@repo/ui/input";
@@ -64,6 +65,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
           name="displayName"
           render={({ field }) => (
             <FormItem noStyles>
+              <FormLabel className="sr-only">Display name</FormLabel>
               <FormControl>
                 <Input
                   className="enabled:hover:bg-accent rounded px-3 py-1 text-center text-xl font-bold transition"

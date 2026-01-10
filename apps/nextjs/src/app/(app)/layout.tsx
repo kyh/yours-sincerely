@@ -16,8 +16,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <CardStackProvider>
         <section className="page-layout">
           <div className="area-nav-header">
-            <Link href="/">
-              <Logo />
+            <Link href="/" aria-label="Yours Sincerely home">
+              <Logo aria-hidden="true" />
             </Link>
           </div>
           <Sidebar />

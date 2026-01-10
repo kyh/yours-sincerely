@@ -22,8 +22,8 @@ const Page = ({ error }: ErrorProps) => {
   return (
     <section className="page-layout">
       <div className="area-nav-header">
-        <Link href="/">
-          <Logo />
+        <Link href="/" aria-label="Yours Sincerely home">
+          <Logo aria-hidden="true" />
         </Link>
       </div>
       <Sidebar />
