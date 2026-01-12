@@ -30,7 +30,7 @@
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "@vercel/edge-config": "^1.4.3",
-    "motion": "^12.23.26",
+    "motion": "^12.26.1",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
