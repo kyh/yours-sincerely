@@ -29,6 +29,7 @@
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
+    "@vercel/analytics": "^1.6.1",
     "@vercel/edge-config": "^1.4.3",
     "motion": "^12.26.2",
     "next": "catalog:",
