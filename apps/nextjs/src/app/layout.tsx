@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { GlobalAlertDialog } from "@repo/ui/alert-dialog";
 import { ThemeProvider } from "@repo/ui/theme";
 import { GlobalToaster } from "@repo/ui/toast";
@@ -119,6 +120,7 @@ const RootLayout = (props: LayoutProps) => {
             </TooltipProvider>
           </ThemeProvider>
         </CapacitorProvider>
+        <Analytics />
       </body>
     </html>
   );
