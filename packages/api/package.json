@@ -19,7 +19,7 @@
     "@knocklabs/node": "^1.28.0",
     "@repo/db": "workspace:^",
     "@trpc/server": "catalog:",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
     "superjson": "catalog:",
     "zod": "catalog:"
@@ -28,7 +28,6 @@
     "@kyh/eslint-config": "catalog:",
     "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
-    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-signature": "^1.1.2",
     "eslint": "catalog:",
     "prettier": "catalog:",
