@@ -118,8 +118,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0(@capacitor/core@8.0.2)
       '@knocklabs/react':
-        specifier: ^0.10.4
-        version: 0.10.4(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^0.10.5
+        version: 0.10.5(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@lottiefiles/react-lottie-player':
         specifier: ^3.6.0
         version: 3.6.0(react@19.2.4)
@@ -274,10 +274,10 @@ importers:
     dependencies:
       '@supabase/ssr':
         specifier: ^0.8.0
-        version: 0.8.0(@supabase/supabase-js@2.93.2)
+        version: 0.8.0(@supabase/supabase-js@2.93.3)
       '@supabase/supabase-js':
-        specifier: ^2.93.2
-        version: 2.93.2
+        specifier: ^2.93.3
+        version: 2.93.3
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(postgres@3.4.8)
@@ -316,8 +316,8 @@ importers:
         specifier: 'catalog:'
         version: 3.8.1
       supabase:
-        specifier: ^2.72.9
-        version: 2.72.9
+        specifier: ^2.74.4
+        version: 2.74.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -458,6 +458,10 @@ packages:
 
   '@babel/runtime@7.28.4':
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -1279,19 +1283,19 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@knocklabs/client@0.20.3':
-    resolution: {integrity: sha512-A1YPC+JfQO5J4wRx16Wf4UaOeKuzfrdsUen/hA9DatFpBGv1HXswKEtU78ftPRq4t2ehzhAZPoP9DL0HmHnOIw==}
+  '@knocklabs/client@0.20.4':
+    resolution: {integrity: sha512-AhPtdOySBps29igGprRlVRWXpcwGsNkCjWpAPQxnZcJxOvRFgHLEJs8LiRkw4/CcQIg/rVNkJx8pc7mW2AK5sw==}
 
   '@knocklabs/node@1.28.0':
     resolution: {integrity: sha512-xWUPNWgjEt3CYA+gKsyFNtc44nDJDvIzyWcCyqu+EkNC6zu96BZw4NB8h8YPYUYWWN2diYdqkbRiiT8fw4d6Ew==}
 
-  '@knocklabs/react-core@0.12.4':
-    resolution: {integrity: sha512-roAr1XuMJbyGY4FMtqL35iPvlkaInHK5tAw71CruHbB6VHIgYflH2yNzfus51f8LURcnJ3Zhji7r38T3OwAJfw==}
+  '@knocklabs/react-core@0.12.5':
+    resolution: {integrity: sha512-QSuAUsKLzzGyB6WQ4XplC9MfJqElS+d+rTfDExrCAAS7+gH0viWQiHk7ggbCPTOilZpfLPhyRXUgNnGb0EvHlQ==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@knocklabs/react@0.10.4':
-    resolution: {integrity: sha512-Au4Uqjd+916OEV7lKThwB9K3l/j/fGXnyK47OCG3kPRhVO0KFB/XWX92fXiScoQuIWtDNyZ9kulO3IBP0sXEUw==}
+  '@knocklabs/react@0.10.5':
+    resolution: {integrity: sha512-Lm9yHD7a92j7Kj70Hc4UZw304Ftuo6ZGu7MIkLTow/KMkgZhVxgzLSih/HCNOTGUhsJ3NFbN6mWdDmfoB2v1hQ==}
     peerDependencies:
       '@tanstack/react-router': ^1.0.0
       next: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
@@ -2153,20 +2157,20 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@supabase/auth-js@2.93.2':
-    resolution: {integrity: sha512-uifI5vkhvHCQjn+LUPL5QlsuDMP4oVBD5SiliREgYuTJvCkbPLOcAPGrw88q7VUX9S0J0QuJn+37hrcTITisuw==}
+  '@supabase/auth-js@2.93.3':
+    resolution: {integrity: sha512-JdnkHZPKexVGSNONtu89RHU4bxz3X9kxx+f5ZnR5osoCIX+vs/MckwWRPZEybAEvlJXt5xjomDb3IB876QCxWQ==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/functions-js@2.93.2':
-    resolution: {integrity: sha512-reSp7yj4KmvAFfmN+N7vYsHXOIZQh9cmRBh+VrZlm7qgIIUdYmzKuD85TvFnWApqcdI2pPnuZGKWE/2B4GXT1A==}
+  '@supabase/functions-js@2.93.3':
+    resolution: {integrity: sha512-qWO0gHNDm/5jRjROv/nv9L6sYabCWS1kzorOLUv3kqCwRvEJLYZga93ppJPrZwOgoZfXmJzvpjY8fODA4HQfBw==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/postgrest-js@2.93.2':
-    resolution: {integrity: sha512-W2AWDsYwRT217II5yD3jWaX3fJjB7DwyNi2KNi4sphdUI3DKY4fP2XYVDGfeb1clEFL18gw+GBhyQb3BcpNWkw==}
+  '@supabase/postgrest-js@2.93.3':
+    resolution: {integrity: sha512-+iJ96g94skO2e4clsRSmEXg22NUOjh9BziapsJSAvnB1grOBf/BA8vGtCHjNOA+Z6lvKXL1jwBqcL9+fS1W/Lg==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/realtime-js@2.93.2':
-    resolution: {integrity: sha512-YpAmJn7DLbMeYfQilcf3f0DKoY8O8TRbTF2oRpWFzHXTlEA+YWms8fBqM13Mf7RE72ouSNKDYyf5K2pWRSHvFw==}
+  '@supabase/realtime-js@2.93.3':
+    resolution: {integrity: sha512-gnYpcFzwy8IkezRP4CDbT5I8jOsiOjrWrqTY1B+7jIriXsnpifmlM6RRjLBm9oD7OwPG0/WksniGPdKW67sXOA==}
     engines: {node: '>=20.0.0'}
 
   '@supabase/ssr@0.8.0':
@@ -2174,12 +2178,12 @@ packages:
     peerDependencies:
       '@supabase/supabase-js': ^2.76.1
 
-  '@supabase/storage-js@2.93.2':
-    resolution: {integrity: sha512-abRSVClfIQn+SqpdqL7S7b3VeyS8270/o0gqmGFtiidb7Lu0COsIV6Mor/mK9xE99KYWzyd37vwYYwv/jaANhw==}
+  '@supabase/storage-js@2.93.3':
+    resolution: {integrity: sha512-cw4qXiLrx3apglDM02Tx/w/stvFlrkKocC6vCvuFAz3JtVEl1zH8MUfDQDTH59kJAQVaVdbewrMWSoBob7REnA==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/supabase-js@2.93.2':
-    resolution: {integrity: sha512-G3bZZi6rPwXcPtyHLXQTeHKa5ADZ2UW/+hv8YhwZFwngz4TlPnR4+TeO37EwU5+d/reD02qXozOZgz+QHv1Jtg==}
+  '@supabase/supabase-js@2.93.3':
+    resolution: {integrity: sha512-paUqEqdBI9ztr/4bbMoCgeJ6M8ZTm2fpfjSOlzarPuzYveKFM20ZfDZqUpi9CFfYagYj5Iv3m3ztUjaI9/tM1w==}
     engines: {node: '>=20.0.0'}
 
   '@swc/helpers@0.5.15':
@@ -4462,8 +4466,8 @@ packages:
   stylis@4.3.6:
     resolution: {integrity: sha512-yQ3rwFWRfwNUY7H5vpU0wfdkNSnvnJinhF9830Swlaxl03zsOjCfmX0ugac+3LtK0lYSgwL/KXc8oYL3mG4YFQ==}
 
-  supabase@2.72.9:
-    resolution: {integrity: sha512-kifjjxhjs0K1c10YiXh3bZ2lRp9s+MnloT1sTUAoV7mIkkfYn6XCq59hEYoNxfaZyE4j8nuQKszHz5XCMmFt9w==}
+  supabase@2.74.4:
+    resolution: {integrity: sha512-6PyC0V95T7fNBsi1Wh5wTohw7HGXoBZzPnq5y0WPtu/mDv600nF+hN/eq/bZ05hFIUcIzdIAnPIo2gxNGadSOA==}
     engines: {npm: '>=8'}
     hasBin: true
 
@@ -4841,6 +4845,8 @@ snapshots:
       '@babel/types': 7.28.5
 
   '@babel/runtime@7.28.4': {}
+
+  '@babel/runtime@7.28.6': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -5450,9 +5456,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@knocklabs/client@0.20.3':
+  '@knocklabs/client@0.20.4':
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       '@knocklabs/types': 0.1.5
       '@tanstack/store': 0.7.7
       '@types/phoenix': 1.6.7
@@ -5470,9 +5476,9 @@ snapshots:
     dependencies:
       jose: 6.1.3
 
-  '@knocklabs/react-core@0.12.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@knocklabs/react-core@0.12.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@knocklabs/client': 0.20.3
+      '@knocklabs/client': 0.20.4
       '@tanstack/react-store': 0.7.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       date-fns: 4.1.0
       fast-deep-equal: 3.1.3
@@ -5482,10 +5488,10 @@ snapshots:
       - debug
       - react-dom
 
-  '@knocklabs/react@0.10.4(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@knocklabs/react@0.10.5(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@knocklabs/client': 0.20.3
-      '@knocklabs/react-core': 0.12.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@knocklabs/client': 0.20.4
+      '@knocklabs/react-core': 0.12.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@popperjs/core': 2.11.8
       '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@telegraph/combobox': 0.1.24(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -6406,19 +6412,19 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@supabase/auth-js@2.93.2':
+  '@supabase/auth-js@2.93.3':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/functions-js@2.93.2':
+  '@supabase/functions-js@2.93.3':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/postgrest-js@2.93.2':
+  '@supabase/postgrest-js@2.93.3':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/realtime-js@2.93.2':
+  '@supabase/realtime-js@2.93.3':
     dependencies:
       '@types/phoenix': 1.6.7
       '@types/ws': 8.18.1
@@ -6428,23 +6434,23 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@supabase/ssr@0.8.0(@supabase/supabase-js@2.93.2)':
+  '@supabase/ssr@0.8.0(@supabase/supabase-js@2.93.3)':
     dependencies:
-      '@supabase/supabase-js': 2.93.2
+      '@supabase/supabase-js': 2.93.3
       cookie: 1.1.1
 
-  '@supabase/storage-js@2.93.2':
+  '@supabase/storage-js@2.93.3':
     dependencies:
       iceberg-js: 0.8.1
       tslib: 2.8.1
 
-  '@supabase/supabase-js@2.93.2':
+  '@supabase/supabase-js@2.93.3':
     dependencies:
-      '@supabase/auth-js': 2.93.2
-      '@supabase/functions-js': 2.93.2
-      '@supabase/postgrest-js': 2.93.2
-      '@supabase/realtime-js': 2.93.2
-      '@supabase/storage-js': 2.93.2
+      '@supabase/auth-js': 2.93.3
+      '@supabase/functions-js': 2.93.3
+      '@supabase/postgrest-js': 2.93.3
+      '@supabase/realtime-js': 2.93.3
+      '@supabase/storage-js': 2.93.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -6809,7 +6815,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@typescript-eslint/eslint-plugin@8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
@@ -8934,7 +8940,7 @@ snapshots:
 
   stylis@4.3.6: {}
 
-  supabase@2.72.9:
+  supabase@2.74.4:
     dependencies:
       bin-links: 6.0.0
       https-proxy-agent: 7.0.6

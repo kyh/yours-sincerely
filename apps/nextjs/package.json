@@ -18,7 +18,7 @@
     "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.2",
     "@capacitor/splash-screen": "^8.0.0",
-    "@knocklabs/react": "^0.10.4",
+    "@knocklabs/react": "^0.10.5",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.5.11",
     "@react-hook/hotkey": "^3.1.0",
