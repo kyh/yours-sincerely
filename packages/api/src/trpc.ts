@@ -12,7 +12,10 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getDeprecatedSession } from "./auth/deprecated-session";
+import {
+  getDeprecatedSession,
+  setDeprecatedSession,
+} from "./auth/deprecated-session";
 
 /**
  * 1. CONTEXT
@@ -28,18 +31,17 @@ import { getDeprecatedSession } from "./auth/deprecated-session";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const supabase = getSupabaseServerClient();
+  const { data } = await supabase.auth.getUser();
 
-  // React Native will pass their token through headers,
-  // browsers will have the session cookie set
-  const token = opts.headers.get("authorization");
-
-  const { data } = token
-    ? await supabase.auth.getUser(token)
-    : await supabase.auth.getUser();
-
-  // For users who were logged in via the deprecated session method we grab the
-  // user from the database and assign them to a supabase user object
+  // Check for custom session cookie
   const deprecatedSessionUserId = await getDeprecatedSession();
+
+  // Auto-migrate: If user has Supabase session but no custom session, create one
+  if (data.user?.id && !deprecatedSessionUserId) {
+    await setDeprecatedSession(data.user.id);
+  }
+
+  // Custom session takes priority, fall back to Supabase during migration
   const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
 
   return {

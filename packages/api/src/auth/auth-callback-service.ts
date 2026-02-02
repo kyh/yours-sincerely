@@ -1,5 +1,7 @@
 import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
+import { setDeprecatedSession } from "./deprecated-session";
+
 /**
  * @name verifyTokenHash
  * @description Verifies the token hash and type and redirects the user to the next page
@@ -47,12 +49,14 @@ export const verifyTokenHash = async (
   }
 
   if (token_hash && type) {
-    const { error } = await client.auth.verifyOtp({
+    const { data, error } = await client.auth.verifyOtp({
       type,
       token_hash,
     });
 
-    if (!error) {
+    if (!error && data.user) {
+      // Set custom session for the user
+      await setDeprecatedSession(data.user.id);
       return url;
     }
   }
@@ -101,7 +105,7 @@ export const exchangeCodeForSession = async (
 
   if (authCode) {
     try {
-      const { error } = await client.auth.exchangeCodeForSession(authCode);
+      const { data, error } = await client.auth.exchangeCodeForSession(authCode);
 
       // if we have an error, we redirect to the error page
       if (error) {
@@ -109,6 +113,11 @@ export const exchangeCodeForSession = async (
           error: error.message,
           path: errorPath,
         });
+      }
+
+      // Set custom session for the user
+      if (data.user) {
+        await setDeprecatedSession(data.user.id);
       }
     } catch (error) {
       console.error(

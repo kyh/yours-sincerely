@@ -1,15 +1,22 @@
+import { user } from "@repo/db/drizzle-schema";
+import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   requestPasswordResetInput,
-  setSessionInput,
   signInWithOAuthInput,
-  signInWithOtpInput,
   signInWithPasswordInput,
   signUpInput,
   updatePasswordInput,
 } from "./auth-schema";
+import {
+  clearDeprecatedSession,
+  createPasswordHash,
+  setDeprecatedSession,
+  validatePassword,
+} from "./deprecated-session";
 
 export const authRouter = createTRPCRouter({
   workspace: publicProcedure.query(({ ctx }) => {
@@ -20,62 +27,76 @@ export const authRouter = createTRPCRouter({
   signUp: publicProcedure
     .input(signUpInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signUp({
-        ...input,
+      // Check if email already exists
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.email, input.email),
       });
 
-      if (response.error) {
-        throw response.error;
-      }
-
-      const user = response.data.user;
-      const identities = user?.identities ?? [];
-
-      // if the user has no identities, it means that the email is taken
-      if (identities.length === 0) {
+      if (existingUser) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "User already registered",
         });
       }
 
-      if (!user) {
+      const passwordHash = await createPasswordHash(input.password);
+
+      const [newUser] = await ctx.db
+        .insert(user)
+        .values({
+          ...getDefaultValues(),
+          email: input.email,
+          passwordHash,
+          displayName: "Anonymous",
+        })
+        .returning();
+
+      if (!newUser) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Unable to create user",
         });
       }
 
+      await setDeprecatedSession(newUser.id);
+
       return {
-        user,
+        user: newUser,
       };
     }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithPassword(input);
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.email, input.email),
+      });
 
-      if (response.error) {
-        throw response.error;
+      if (!existingUser?.passwordHash) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
       }
 
-      return {
-        user: response.data.user,
-      };
-    }),
-  signInWithOtp: publicProcedure
-    .input(signInWithOtpInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOtp(input);
+      const isValid = await validatePassword(
+        input.password,
+        existingUser.passwordHash,
+      );
 
-      if (response.error) {
-        throw response.error;
+      if (!isValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
       }
 
+      await setDeprecatedSession(existingUser.id);
+
       return {
-        user: response.data.user,
+        user: existingUser,
       };
     }),
+  // Note: OAuth still uses Supabase during migration, session is set in callback
   signInWithOAuth: publicProcedure
     .input(signInWithOAuthInput)
     .mutation(async ({ ctx, input }) => {
@@ -88,11 +109,11 @@ export const authRouter = createTRPCRouter({
       return response.data;
     }),
   signOut: protectedProcedure.mutation(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.signOut();
+    // Clear custom session
+    await clearDeprecatedSession();
 
-    if (response.error) {
-      throw response.error;
-    }
+    // Also clear Supabase session during migration period
+    await ctx.supabase.auth.signOut();
 
     return { user: null };
   }),
@@ -112,41 +133,13 @@ export const authRouter = createTRPCRouter({
   updatePassword: protectedProcedure
     .input(updatePasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.updateUser(input);
+      const passwordHash = await createPasswordHash(input.password);
 
-      if (response.error) {
-        throw response.error;
-      }
+      await ctx.db
+        .update(user)
+        .set({ passwordHash })
+        .where(eq(user.id, ctx.user.id));
 
-      return response.data;
-    }),
-  mfaFactors: protectedProcedure.query(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.mfa.listFactors();
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-  setSession: protectedProcedure
-    .input(setSessionInput)
-    .mutation(async ({ ctx, input }) => {
-      const signOutResponse = await ctx.supabase.auth.signOut();
-
-      if (signOutResponse.error) {
-        throw signOutResponse.error;
-      }
-
-      const setSessionResponse = await ctx.supabase.auth.setSession({
-        refresh_token: input.refreshToken,
-        access_token: input.accessToken,
-      });
-
-      if (setSessionResponse.error) {
-        throw setSessionResponse.error;
-      }
-
-      return setSessionResponse.data;
+      return { success: true };
     }),
 });

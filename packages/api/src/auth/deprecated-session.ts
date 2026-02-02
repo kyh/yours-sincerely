@@ -4,14 +4,14 @@ import { compare, hash } from "bcryptjs";
 import cookieSignature from "cookie-signature";
 
 const COOKIE_SECRET = process.env.COOKIE_SECRET ?? "c-secret";
+const SESSION_COOKIE_NAME = "__session";
 
 /**
- * Get the user ID from the deprecated session cookie
- * @deprecated
+ * Get the user ID from the session cookie
  */
 export const getDeprecatedSession = async () => {
   const cookieStore = await cookies();
-  const sessionValue = cookieStore.get("__session")?.value;
+  const sessionValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (!sessionValue) {
     return null;
@@ -31,8 +31,7 @@ export const getDeprecatedSession = async () => {
 };
 
 /**
- * Set the user ID from the deprecated session cookie
- * @deprecated
+ * Set the user ID in the session cookie
  */
 export const setDeprecatedSession = async (userId: string) => {
   const cookieStore = await cookies();
@@ -45,7 +44,21 @@ export const setDeprecatedSession = async (userId: string) => {
   const base64Session = Buffer.from(sessionString).toString("base64");
   const signedCookie = cookieSignature.sign(base64Session, COOKIE_SECRET);
 
-  cookieStore.set("__session", signedCookie);
+  cookieStore.set(SESSION_COOKIE_NAME, signedCookie, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: "/",
+  });
+};
+
+/**
+ * Clear the session cookie
+ */
+export const clearDeprecatedSession = async () => {
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 };
 
 export const createTempPassword = async () => {
