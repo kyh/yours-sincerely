@@ -90,8 +90,8 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0(@capacitor/core@8.1.0)
       '@capacitor/app':
-        specifier: ^8.0.0
-        version: 8.0.0(@capacitor/core@8.1.0)
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.1.0)
       '@capacitor/core':
         specifier: ^8.1.0
         version: 8.1.0
@@ -99,8 +99,8 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0(@capacitor/core@8.1.0)
       '@capacitor/splash-screen':
-        specifier: ^8.0.0
-        version: 8.0.0(@capacitor/core@8.1.0)
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.1.0)
     devDependencies:
       '@capacitor/cli':
         specifier: ^8.1.0
@@ -109,14 +109,14 @@ importers:
   apps/nextjs:
     dependencies:
       '@capacitor/app':
-        specifier: ^8.0.0
-        version: 8.0.0(@capacitor/core@8.1.0)
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.1.0)
       '@capacitor/core':
         specifier: ^8.1.0
         version: 8.1.0
       '@capacitor/splash-screen':
-        specifier: ^8.0.0
-        version: 8.0.0(@capacitor/core@8.1.0)
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.1.0)
       '@knocklabs/react':
         specifier: ^0.10.5
         version: 0.10.5(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -481,8 +481,8 @@ packages:
     peerDependencies:
       '@capacitor/core': ^8.1.0
 
-  '@capacitor/app@8.0.0':
-    resolution: {integrity: sha512-OwzIkUs4w433Bu9WWAEbEYngXEfJXZ9Wmdb8eoaqzYBgB0W9/3Ed/mh6sAYPNBAZlpyarmewgP7Nb+d3Vrh+xA==}
+  '@capacitor/app@8.0.1':
+    resolution: {integrity: sha512-yeG3yyA0ETKqvgqexwHMBlmVOF13A1hRXzv/km0Ptv5TrNIZvZJK4MTI3uiqvnbHrzoJGP5DwWAjEXEfi90v3Q==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -499,8 +499,8 @@ packages:
     peerDependencies:
       '@capacitor/core': ^8.1.0
 
-  '@capacitor/splash-screen@8.0.0':
-    resolution: {integrity: sha512-zkFdUSd6C6gd3s3bIEgtO3DVjfwpaX5mmWU9er8xYTg47zr2toEkGtfyE6CPhhErG09fl4rCqrK5DfnGrXLh9w==}
+  '@capacitor/splash-screen@8.0.1':
+    resolution: {integrity: sha512-c/ew/Z3eA7z8l06WoRAtzVF16VwYYrExmHmfGq1Cg675pVzaC/yuucB8/1xG1vhEfnW4fZ1KhSf/kzR1RiVYgg==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -4869,7 +4869,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.1.0
 
-  '@capacitor/app@8.0.0(@capacitor/core@8.1.0)':
+  '@capacitor/app@8.0.1(@capacitor/core@8.1.0)':
     dependencies:
       '@capacitor/core': 8.1.0
 
@@ -4903,7 +4903,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.1.0
 
-  '@capacitor/splash-screen@8.0.0(@capacitor/core@8.1.0)':
+  '@capacitor/splash-screen@8.0.1(@capacitor/core@8.1.0)':
     dependencies:
       '@capacitor/core': 8.1.0
 
