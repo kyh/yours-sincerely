@@ -31,7 +31,7 @@
     "@trpc/tanstack-react-query": "catalog:",
     "@vercel/analytics": "^1.6.1",
     "@vercel/edge-config": "^1.4.3",
-    "motion": "^12.34.2",
+    "motion": "^12.34.3",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
