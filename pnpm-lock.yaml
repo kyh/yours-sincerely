@@ -124,8 +124,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0(react@19.2.4)
       '@number-flow/react':
-        specifier: ^0.5.12
-        version: 0.5.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^0.5.14
+        version: 0.5.14(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@react-hook/hotkey':
         specifier: ^3.1.0
         version: 3.1.0(react@19.2.4)
@@ -1398,8 +1398,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@number-flow/react@0.5.12':
-    resolution: {integrity: sha512-34Kt3kd7kC5V3BqrDmxCJsqZlF43NFuOAUd8XZVjR75IJ1JPsgDMYArywqOHJm4gy/ZGzWQGFPxfYSSbscvppA==}
+  '@number-flow/react@0.5.14':
+    resolution: {integrity: sha512-FGUqjh/P5/ukr0U0ySwb987M0SbRkrnZq70f0wQFncDbXa3SIib4L+FTr5ngvWwGAW8S6b391eTXcfhErZsw4w==}
     peerDependencies:
       react: ^18 || ^19
       react-dom: ^18 || ^19
@@ -3928,8 +3928,8 @@ packages:
     resolution: {integrity: sha512-CJi3OS4JLsNMmr2u07OJlhcrPxCeOeP/4xq67aWNai6TNWWbTrlNDgl8NcFKVlcBKp18GPj+EzbNIgrBfZhsag==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  number-flow@0.5.10:
-    resolution: {integrity: sha512-Ss6fU7zZgfAlhT4KFcUVOafStQVHs22xTx7/Fm6nj9j9WUREYlQpBgFX+vzdnB2PpGPTrtdGZPJou6Yyu/uDeA==}
+  number-flow@0.5.12:
+    resolution: {integrity: sha512-CIs21h2JkfYG4rfgERaUNAk0Cz+Ef14fNJfSCbGGhgRgconQc9b7rcCQfi9SZ36kNjVXmsl2BrzDbjGtEgumAA==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -5616,10 +5616,10 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@number-flow/react@0.5.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@number-flow/react@0.5.14(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       esm-env: 1.2.2
-      number-flow: 0.5.10
+      number-flow: 0.5.12
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
@@ -8329,7 +8329,7 @@ snapshots:
 
   npm-normalize-package-bin@5.0.0: {}
 
-  number-flow@0.5.10:
+  number-flow@0.5.12:
     dependencies:
       esm-env: 1.2.2
 
