@@ -16,7 +16,7 @@
   "prettier": "@kyh/prettier-config",
   "dependencies": {
     "@capacitor/app": "^8.0.1",
-    "@capacitor/core": "^8.1.0",
+    "@capacitor/core": "^8.2.0",
     "@capacitor/splash-screen": "^8.0.1",
     "@knocklabs/react": "^0.10.5",
     "@lottiefiles/react-lottie-player": "^3.6.0",
@@ -31,7 +31,7 @@
     "@trpc/tanstack-react-query": "catalog:",
     "@vercel/analytics": "^1.6.1",
     "@vercel/edge-config": "^1.4.3",
-    "motion": "^12.35.0",
+    "motion": "^12.35.1",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
