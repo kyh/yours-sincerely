@@ -17,7 +17,7 @@ Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase.
 ```
 apps/
   web/         # Next.js web app
-  capacitor/   # iOS/Android wrapper
+  mobile/      # iOS/Android wrapper (Capacitor)
 packages/
   api/         # tRPC routers
   db/          # Drizzle schema, Supabase clients
