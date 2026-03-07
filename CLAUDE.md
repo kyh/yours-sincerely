@@ -16,7 +16,7 @@ Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase.
 
 ```
 apps/
-  nextjs/      # Web app (@repo/nextjs)
+  web/         # Next.js web app
   capacitor/   # iOS/Android wrapper
 packages/
   api/         # tRPC routers
@@ -28,7 +28,7 @@ packages/
 
 ```bash
 pnpm dev              # All packages (turbo watch)
-pnpm dev-nextjs       # Web only
+pnpm dev-web          # Web only
 pnpm db-start         # Start local Supabase
 pnpm db-stop          # Stop Supabase
 pnpm db-reset         # Reset DB

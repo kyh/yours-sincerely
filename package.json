@@ -13,7 +13,7 @@
     "db-push": "pnpm -F db push",
     "db-push-remote": "pnpm -F db push-remote",
     "dev": "turbo watch dev --continue",
-    "dev-nextjs": "turbo watch dev -F @repo/nextjs...",
+    "dev-web": "turbo watch dev -F @repo/web...",
     "dev-capacitor-ios": "pnpm -F capacitor ios",
     "dev-capacitor-android": "pnpm -F capacitor android",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
