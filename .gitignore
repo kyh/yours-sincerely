@@ -54,3 +54,4 @@ yarn-error.log*
 .branches
 .temp
 tooling/prettier/index.js
+.superset

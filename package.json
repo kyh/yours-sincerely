@@ -1,7 +1,7 @@
 {
   "name": "yours-sincerely",
   "private": true,
-  "packageManager": "pnpm@10.28.2",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
@@ -13,9 +13,9 @@
     "db-push": "pnpm -F db push",
     "db-push-remote": "pnpm -F db push-remote",
     "dev": "turbo watch dev --continue",
-    "dev-nextjs": "turbo watch dev -F @repo/nextjs...",
-    "dev-capacitor-ios": "pnpm -F capacitor ios",
-    "dev-capacitor-android": "pnpm -F capacitor android",
+    "dev-web": "turbo watch dev -F @repo/web...",
+    "dev-mobile-ios": "pnpm -F mobile ios",
+    "dev-mobile-android": "pnpm -F mobile android",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format-fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
@@ -30,7 +30,7 @@
     "dotenv-cli": "^11.0.0",
     "prettier": "catalog:",
     "tsx": "^4.21.0",
-    "turbo": "^2.8.0",
+    "turbo": "^2.8.14",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config",
