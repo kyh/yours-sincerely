@@ -1,11 +1,13 @@
-import { token, user } from "@repo/db/drizzle-schema";
+import { user } from "@repo/db/drizzle-schema";
+import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   requestPasswordResetInput,
+  setPasswordInput,
   signInWithPasswordInput,
   signUpInput,
   updatePasswordInput,
@@ -103,79 +105,44 @@ export const authRouter = createTRPCRouter({
       };
     }),
   signOut: protectedProcedure.mutation(async () => {
+    // Clear custom session
     await clearSession();
+
+    // Also clear Supabase session during migration period
+    const supabase = getSupabaseServerClient();
+    await supabase.auth.signOut();
+
     return { user: null };
   }),
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
-    .mutation(async ({ ctx, input }) => {
-      const existingUser = await ctx.db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.email, input.email),
-      });
+    .mutation(async ({ input }) => {
+      // Use Supabase to send password reset email
+      const supabase = getSupabaseServerClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(input.email);
 
-      // Always return success to prevent email enumeration
-      if (!existingUser) {
-        return { success: true };
-      }
-
-      // Generate reset token
-      const resetToken = crypto.randomUUID();
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-      await ctx.db.insert(token).values({
-        ...getDefaultValues(),
-        token: resetToken,
-        type: "RESET_PASSWORD",
-        expiresAt: expiresAt.toISOString(),
-        sentTo: input.email,
-        userId: existingUser.id,
-      });
-
-      // TODO: Send email with reset link containing resetToken
-      // For now, log the token in development
-      if (process.env.NODE_ENV === "development") {
-        console.log(`Password reset token for ${input.email}: ${resetToken}`);
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send password reset email",
+        });
       }
 
       return { success: true };
     }),
-  resetPassword: publicProcedure
-    .input(
-      signUpInput.pick({ password: true }).extend({
-        token: signInWithPasswordInput.shape.password,
-      }),
-    )
+  // Used after password reset flow - user has valid session from Supabase token verification
+  setPassword: protectedProcedure
+    .input(setPasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const tokenRecord = await ctx.db.query.token.findFirst({
-        where: (t) =>
-          and(
-            eq(t.token, input.token),
-            eq(t.type, "RESET_PASSWORD"),
-            isNull(t.usedAt),
-            gt(t.expiresAt, new Date().toISOString()),
-          ),
-      });
-
-      if (!tokenRecord) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Invalid or expired reset token",
-        });
-      }
-
       const passwordHash = await createPasswordHash(input.password);
 
-      await ctx.db.transaction(async (tx) => {
-        await tx
-          .update(user)
-          .set({ passwordHash })
-          .where(eq(user.id, tokenRecord.userId));
+      await ctx.db
+        .update(user)
+        .set({ passwordHash })
+        .where(eq(user.id, ctx.user.id));
 
-        await tx
-          .update(token)
-          .set({ usedAt: new Date().toISOString() })
-          .where(eq(token.id, tokenRecord.id));
-      });
+      // Rotate session after password change
+      await setSession(ctx.user.id);
 
       return { success: true };
     }),
