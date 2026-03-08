@@ -12,10 +12,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import {
-  getDeprecatedSession,
-  setDeprecatedSession,
-} from "./auth/deprecated-session";
+import { getSession, setSession } from "./auth/session";
 
 /**
  * 1. CONTEXT
@@ -30,24 +27,33 @@ import {
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  // Check for custom session cookie first
+  const sessionUserId = await getSession();
+
+  // If we have a custom session, skip Supabase entirely
+  if (sessionUserId) {
+    const user = await findDbUser(sessionUserId);
+    return {
+      headers: opts.headers,
+      user,
+      db,
+    };
+  }
+
+  // Fallback: Check Supabase session for migration
   const supabase = getSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
 
-  // Check for custom session cookie
-  const deprecatedSessionUserId = await getDeprecatedSession();
-
-  // Auto-migrate: If user has Supabase session but no custom session, create one
-  if (data.user?.id && !deprecatedSessionUserId) {
-    await setDeprecatedSession(data.user.id);
+  // Auto-migrate: If user has Supabase session, create custom session
+  if (data.user?.id) {
+    await setSession(data.user.id);
   }
 
-  // Custom session takes priority, fall back to Supabase during migration
-  const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
+  const user = await findDbUser(data.user?.id);
 
   return {
     headers: opts.headers,
     user,
-    supabase,
     db,
   };
 };

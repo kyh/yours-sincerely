@@ -12,11 +12,6 @@ export const signInWithPasswordInput = z.object({
 });
 export type SignInWithPasswordInput = z.infer<typeof signInWithPasswordInput>;
 
-export const signInWithOAuthInput = z.object({
-  provider: z.enum(["github"]),
-});
-export type SignInWithOAuthInput = z.infer<typeof signInWithOAuthInput>;
-
 export const requestPasswordResetInput = z.object({
   email: z.string().email(),
 });
@@ -25,6 +20,7 @@ export type RequestPasswordResetInput = z.infer<
 >;
 
 export const updatePasswordInput = z.object({
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  currentPassword: z.string(),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
 export type UpdatePasswordInput = z.infer<typeof updatePasswordInput>;

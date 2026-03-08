@@ -1,22 +1,28 @@
-import { user } from "@repo/db/drizzle-schema";
+import { token, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, and, isNull, gt } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   requestPasswordResetInput,
-  signInWithOAuthInput,
   signInWithPasswordInput,
   signUpInput,
   updatePasswordInput,
 } from "./auth-schema";
 import {
-  clearDeprecatedSession,
+  clearSession,
   createPasswordHash,
-  setDeprecatedSession,
+  setSession,
   validatePassword,
-} from "./deprecated-session";
+} from "./session";
+
+const sanitizeUser = <T extends { passwordHash?: string | null }>(
+  user: T,
+): Omit<T, "passwordHash"> => {
+  const { passwordHash: _, ...safeUser } = user;
+  return safeUser;
+};
 
 export const authRouter = createTRPCRouter({
   workspace: publicProcedure.query(({ ctx }) => {
@@ -58,10 +64,10 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      await setDeprecatedSession(newUser.id);
+      await setSession(newUser.id);
 
       return {
-        user: newUser,
+        user: sanitizeUser(newUser),
       };
     }),
   signInWithPassword: publicProcedure
@@ -90,55 +96,126 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      await setDeprecatedSession(existingUser.id);
+      await setSession(existingUser.id);
 
       return {
-        user: existingUser,
+        user: sanitizeUser(existingUser),
       };
     }),
-  // Note: OAuth still uses Supabase during migration, session is set in callback
-  signInWithOAuth: publicProcedure
-    .input(signInWithOAuthInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOAuth(input);
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      return response.data;
-    }),
-  signOut: protectedProcedure.mutation(async ({ ctx }) => {
-    // Clear custom session
-    await clearDeprecatedSession();
-
-    // Also clear Supabase session during migration period
-    await ctx.supabase.auth.signOut();
-
+  signOut: protectedProcedure.mutation(async () => {
+    await clearSession();
     return { user: null };
   }),
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.resetPasswordForEmail(
-        input.email,
-      );
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.email, input.email),
+      });
 
-      if (response.error) {
-        throw response.error;
+      // Always return success to prevent email enumeration
+      if (!existingUser) {
+        return { success: true };
       }
 
-      return response.data;
+      // Generate reset token
+      const resetToken = crypto.randomUUID();
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await ctx.db.insert(token).values({
+        ...getDefaultValues(),
+        token: resetToken,
+        type: "RESET_PASSWORD",
+        expiresAt: expiresAt.toISOString(),
+        sentTo: input.email,
+        userId: existingUser.id,
+      });
+
+      // TODO: Send email with reset link containing resetToken
+      // For now, log the token in development
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Password reset token for ${input.email}: ${resetToken}`);
+      }
+
+      return { success: true };
+    }),
+  resetPassword: publicProcedure
+    .input(
+      signUpInput.pick({ password: true }).extend({
+        token: signInWithPasswordInput.shape.password,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const tokenRecord = await ctx.db.query.token.findFirst({
+        where: (t) =>
+          and(
+            eq(t.token, input.token),
+            eq(t.type, "RESET_PASSWORD"),
+            isNull(t.usedAt),
+            gt(t.expiresAt, new Date().toISOString()),
+          ),
+      });
+
+      if (!tokenRecord) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid or expired reset token",
+        });
+      }
+
+      const passwordHash = await createPasswordHash(input.password);
+
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(user)
+          .set({ passwordHash })
+          .where(eq(user.id, tokenRecord.userId));
+
+        await tx
+          .update(token)
+          .set({ usedAt: new Date().toISOString() })
+          .where(eq(token.id, tokenRecord.id));
+      });
+
+      return { success: true };
     }),
   updatePassword: protectedProcedure
     .input(updatePasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const passwordHash = await createPasswordHash(input.password);
+      // Get current user with password hash
+      const currentUser = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+      });
+
+      if (!currentUser?.passwordHash) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot update password for this account",
+        });
+      }
+
+      // Verify current password
+      const isValid = await validatePassword(
+        input.currentPassword,
+        currentUser.passwordHash,
+      );
+
+      if (!isValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Current password is incorrect",
+        });
+      }
+
+      const passwordHash = await createPasswordHash(input.newPassword);
 
       await ctx.db
         .update(user)
         .set({ passwordHash })
         .where(eq(user.id, ctx.user.id));
+
+      // Rotate session after password change
+      await setSession(ctx.user.id);
 
       return { success: true };
     }),

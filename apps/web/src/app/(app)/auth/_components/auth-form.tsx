@@ -220,25 +220,33 @@ export const UpdatePasswordForm = () => {
     resolver: zodResolver(
       z
         .object({
-          password: z.string().min(8, "Password must be at least 8 characters"),
+          currentPassword: z.string().min(1, "Current password is required"),
+          newPassword: z
+            .string()
+            .min(8, "Password must be at least 8 characters"),
           confirmPassword: z.string(),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine((data) => data.newPassword === data.confirmPassword, {
           message: "Passwords don't match",
           path: ["confirmPassword"],
         }),
     ),
     defaultValues: {
-      password: "",
+      currentPassword: "",
+      newPassword: "",
       confirmPassword: "",
     },
   });
 
   const handleUpdatePassword = (data: {
-    password: string;
+    currentPassword: string;
+    newPassword: string;
     confirmPassword: string;
   }) => {
-    updatePassword.mutate({ password: data.password });
+    updatePassword.mutate({
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
   };
 
   return (
@@ -249,7 +257,28 @@ export const UpdatePasswordForm = () => {
       >
         <FormField
           control={form.control}
-          name="password"
+          name="currentPassword"
+          render={({ field }) => (
+            <FormItem className="grid gap-1 space-y-0">
+              <FormLabel className="sr-only">Current Password</FormLabel>
+              <FormControl>
+                <input
+                  required
+                  type="password"
+                  placeholder="Current password"
+                  autoCapitalize="none"
+                  autoComplete="current-password"
+                  autoCorrect="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="newPassword"
           render={({ field }) => (
             <FormItem className="grid gap-1 space-y-0">
               <FormLabel className="sr-only">New Password</FormLabel>
@@ -257,7 +286,7 @@ export const UpdatePasswordForm = () => {
                 <input
                   required
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder="New password"
                   autoCapitalize="none"
                   autoComplete="new-password"
                   autoCorrect="off"

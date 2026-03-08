@@ -1,6 +1,6 @@
 import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
-import { setDeprecatedSession } from "./deprecated-session";
+import { setSession } from "./session";
 
 /**
  * @name verifyTokenHash
@@ -56,7 +56,7 @@ export const verifyTokenHash = async (
 
     if (!error && data.user) {
       // Set custom session for the user
-      await setDeprecatedSession(data.user.id);
+      await setSession(data.user.id);
       return url;
     }
   }
@@ -117,7 +117,7 @@ export const exchangeCodeForSession = async (
 
       // Set custom session for the user
       if (data.user) {
-        await setDeprecatedSession(data.user.id);
+        await setSession(data.user.id);
       }
     } catch (error) {
       console.error(

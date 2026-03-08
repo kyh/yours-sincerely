@@ -9,7 +9,7 @@ const SESSION_COOKIE_NAME = "__session";
 /**
  * Get the user ID from the session cookie
  */
-export const getDeprecatedSession = async () => {
+export const getSession = async () => {
   const cookieStore = await cookies();
   const sessionValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
@@ -25,7 +25,7 @@ export const getDeprecatedSession = async () => {
   try {
     const parsed = JSON.parse(atob(unsignedCookie)) as { user: string };
     return parsed.user;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -33,7 +33,7 @@ export const getDeprecatedSession = async () => {
 /**
  * Set the user ID in the session cookie
  */
-export const setDeprecatedSession = async (userId: string) => {
+export const setSession = async (userId: string) => {
   const cookieStore = await cookies();
 
   if (!userId) {
@@ -56,7 +56,7 @@ export const setDeprecatedSession = async (userId: string) => {
 /**
  * Clear the session cookie
  */
-export const clearDeprecatedSession = async () => {
+export const clearSession = async () => {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
 };
