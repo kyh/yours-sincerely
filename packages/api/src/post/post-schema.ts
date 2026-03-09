@@ -43,10 +43,7 @@ type DbPost = typeof post.$inferSelect & {
   posts?: (typeof post.$inferSelect)[];
 };
 
-type FeedPost = Omit<
-  typeof post.$inferSelect,
-  "baseLikeCount" | "updatedAt"
-> & {
+type FeedPost = Omit<typeof post.$inferSelect, "baseLikeCount" | "updatedAt"> & {
   createdBy: string;
   parentId: string;
   isLiked: boolean;
@@ -55,10 +52,7 @@ type FeedPost = Omit<
   comments?: FeedPost[];
 };
 
-export const convertDbPostToFeedPost = (
-  dbPost: DbPost,
-  userId?: string,
-): FeedPost => {
+export const convertDbPostToFeedPost = (dbPost: DbPost, userId?: string): FeedPost => {
   return {
     id: dbPost.id,
     content: dbPost.content,

@@ -98,12 +98,8 @@
           "tableFrom": "Account",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -247,12 +243,8 @@
           "tableFrom": "Post",
           "tableTo": "Post",
           "schemaTo": "public",
-          "columnsFrom": [
-            "parentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parentId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -261,12 +253,8 @@
           "tableFrom": "Post",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -343,12 +331,8 @@
           "tableFrom": "EnrolledEvent",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -492,12 +476,8 @@
           "tableFrom": "Token",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -659,12 +639,8 @@
           "tableFrom": "Block",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "blockerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["blockerId"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -673,12 +649,8 @@
           "tableFrom": "Block",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "blockingId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["blockingId"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -686,10 +658,7 @@
       "compositePrimaryKeys": {
         "Block_pkey": {
           "name": "Block_pkey",
-          "columns": [
-            "blockerId",
-            "blockingId"
-          ]
+          "columns": ["blockerId", "blockingId"]
         }
       },
       "uniqueConstraints": {},
@@ -790,12 +759,8 @@
           "tableFrom": "Like",
           "tableTo": "Post",
           "schemaTo": "public",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -804,12 +769,8 @@
           "tableFrom": "Like",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -817,10 +778,7 @@
       "compositePrimaryKeys": {
         "Like_pkey": {
           "name": "Like_pkey",
-          "columns": [
-            "postId",
-            "userId"
-          ]
+          "columns": ["postId", "userId"]
         }
       },
       "uniqueConstraints": {},
@@ -934,12 +892,8 @@
           "tableFrom": "Flag",
           "tableTo": "Post",
           "schemaTo": "public",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -948,12 +902,8 @@
           "tableFrom": "Flag",
           "tableTo": "User",
           "schemaTo": "public",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -961,10 +911,7 @@
       "compositePrimaryKeys": {
         "Flag_pkey": {
           "name": "Flag_pkey",
-          "columns": [
-            "postId",
-            "userId"
-          ]
+          "columns": ["postId", "userId"]
         }
       },
       "uniqueConstraints": {},
@@ -976,19 +923,12 @@
   "enums": {
     "public.TokenType": {
       "name": "TokenType",
-      "values": [
-        "REFRESH_TOKEN",
-        "VERIFY_EMAIL",
-        "RESET_PASSWORD"
-      ],
+      "values": ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"],
       "schema": "public"
     },
     "public.UserRole": {
       "name": "UserRole",
-      "values": [
-        "USER",
-        "ADMIN"
-      ],
+      "values": ["USER", "ADMIN"],
       "schema": "public"
     }
   },

@@ -77,11 +77,7 @@ export const AsideHeader = () => {
       condition: user,
       wrap: true,
       content: (
-        <Link
-          className={menuItemClassName}
-          href="/settings"
-          onClick={() => setOpen(false)}
-        >
+        <Link className={menuItemClassName} href="/settings" onClick={() => setOpen(false)}>
           <SettingsIcon aria-hidden="true" className="size-4" />
           Settings
         </Link>
@@ -92,11 +88,7 @@ export const AsideHeader = () => {
       condition: !user,
       wrap: true,
       content: (
-        <Link
-          className={menuItemClassName}
-          href="/auth/sign-in"
-          onClick={() => setOpen(false)}
-        >
+        <Link className={menuItemClassName} href="/auth/sign-in" onClick={() => setOpen(false)}>
           <UserIcon aria-hidden="true" className="size-4" />
           Login
         </Link>
@@ -179,11 +171,7 @@ export const AsideHeader = () => {
       condition: !isDesktop,
       wrap: true,
       content: (
-        <Link
-          className={menuItemClassName}
-          href="/about"
-          onClick={() => setOpen(false)}
-        >
+        <Link className={menuItemClassName} href="/about" onClick={() => setOpen(false)}>
           <BookCheckIcon aria-hidden="true" className="size-4" />
           About
         </Link>
@@ -194,11 +182,7 @@ export const AsideHeader = () => {
       condition: !isDesktop,
       wrap: true,
       content: (
-        <Link
-          className={menuItemClassName}
-          href="/privacy"
-          onClick={() => setOpen(false)}
-        >
+        <Link className={menuItemClassName} href="/privacy" onClick={() => setOpen(false)}>
           <GlobeLockIcon aria-hidden="true" className="size-4" />
           Privacy
         </Link>
@@ -209,11 +193,7 @@ export const AsideHeader = () => {
       condition: !isDesktop,
       wrap: true,
       content: (
-        <Link
-          className={menuItemClassName}
-          href="/terms"
-          onClick={() => setOpen(false)}
-        >
+        <Link className={menuItemClassName} href="/terms" onClick={() => setOpen(false)}>
           <HandshakeIcon aria-hidden="true" className="size-4" />
           Terms
         </Link>

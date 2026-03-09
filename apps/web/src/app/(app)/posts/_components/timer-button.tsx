@@ -16,8 +16,7 @@ const getPercentage = (createdAt: Date) => {
     start,
     end,
     percentage: Math.round(
-      ((now.getTime() - start.getTime()) / (end.getTime() - start.getTime())) *
-        100,
+      ((now.getTime() - start.getTime()) / (end.getTime() - start.getTime())) * 100,
     ),
   };
 };

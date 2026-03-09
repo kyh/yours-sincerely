@@ -14,17 +14,15 @@ const Page = () => (
       <p className="text-xs">Last Updated: February 2, 2025</p>
       <h4>Acceptance of Terms</h4>
       <p>
-        By accessing or using Yours Sincerely ("the Service"), you agree to be
-        bound by these Terms of Use. If you disagree with any part of these
-        terms, you may not access the Service.
+        By accessing or using Yours Sincerely ("the Service"), you agree to be bound by these Terms
+        of Use. If you disagree with any part of these terms, you may not access the Service.
       </p>
 
       <h4>Account Registration</h4>
       <ul>
         <li>This service allows anonymous registration</li>
         <li>
-          Please only enter in data you are willing to be shared with other
-          users of the Service
+          Please only enter in data you are willing to be shared with other users of the Service
         </li>
       </ul>
 
@@ -60,20 +58,14 @@ const Page = () => (
       <h4>Intellectual Property</h4>
       <ul>
         <li>The Service's branding, design, and features are our property</li>
-        <li>
-          You may not copy or modify our intellectual property without
-          permission
-        </li>
-        <li>
-          We respect others' intellectual property rights and expect users to do
-          the same
-        </li>
+        <li>You may not copy or modify our intellectual property without permission</li>
+        <li>We respect others' intellectual property rights and expect users to do the same</li>
       </ul>
 
       <h4>Privacy</h4>
       <p>
-        Your use of the Service is also governed by our Privacy Policy. Please
-        review it <Link href="/privacy">here</Link>.
+        Your use of the Service is also governed by our Privacy Policy. Please review it{" "}
+        <Link href="/privacy">here</Link>.
       </p>
 
       <h4>Termination</h4>
@@ -85,26 +77,25 @@ const Page = () => (
 
       <h4>Disclaimers</h4>
       <p>
-        THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER
-        EXPRESS OR IMPLIED.
+        THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED.
       </p>
 
       <h4>Limitation of Liability</h4>
       <p>
-        We shall not be liable for any indirect, incidental, special,
-        consequential, or punitive damages.
+        We shall not be liable for any indirect, incidental, special, consequential, or punitive
+        damages.
       </p>
 
       <h4>Indemnification</h4>
       <p>
-        You agree to indemnify and hold us harmless from any claims resulting
-        from your use of the Service.
+        You agree to indemnify and hold us harmless from any claims resulting from your use of the
+        Service.
       </p>
 
       <h4>Changes to Terms</h4>
       <p>
-        We reserve the right to modify these terms at any time. We will notify
-        users of any material changes.
+        We reserve the right to modify these terms at any time. We will notify users of any material
+        changes.
       </p>
 
       <h4>Dispute Resolution</h4>
@@ -117,8 +108,8 @@ const Page = () => (
 
       <h4>Severability</h4>
       <p>
-        If any provision of these terms is found to be unenforceable, the
-        remaining provisions will remain in effect.
+        If any provision of these terms is found to be unenforceable, the remaining provisions will
+        remain in effect.
       </p>
 
       <h4>Contact Information</h4>

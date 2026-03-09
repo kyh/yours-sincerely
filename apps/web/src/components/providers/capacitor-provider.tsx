@@ -24,11 +24,7 @@ export const useCapacitor = () => {
   return useContext(CapacitorContext);
 };
 
-export const CapacitorProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const CapacitorProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [platform, setPlatform] = useState<Platform>("web");
 
@@ -55,9 +51,5 @@ export const CapacitorProvider = ({
     [platform],
   );
 
-  return (
-    <CapacitorContext.Provider value={value}>
-      {children}
-    </CapacitorContext.Provider>
-  );
+  return <CapacitorContext.Provider value={value}>{children}</CapacitorContext.Provider>;
 };

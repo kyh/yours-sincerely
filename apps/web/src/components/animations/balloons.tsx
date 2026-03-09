@@ -486,9 +486,7 @@ function createBalloonAnimation({
         {
           transform: `translate(-50%, 0%) translate3d(${targetX}px, ${
             y + targetY * 5
-          }px, ${targetZ}px) rotate3d(0, 0, 1, ${
-            tiltDirection * -tiltAngle
-          }deg)`,
+          }px, ${targetZ}px) rotate3d(0, 0, 1, ${tiltDirection * -tiltAngle}deg)`,
           opacity: 1,
         },
       ],
@@ -522,22 +520,13 @@ export function balloons(): Promise<void> {
 
     const sceneSize = { width: window.innerWidth, height: window.innerHeight };
     // make balloon height relative to screen size for this nice bokeh/perspective effect
-    const balloonHeight = Math.floor(
-      Math.min(sceneSize.width, sceneSize.height) * 1,
-    );
+    const balloonHeight = Math.floor(Math.min(sceneSize.width, sceneSize.height) * 1);
 
-    const balloonWidth =
-      (balloonDefaultSize.width / balloonDefaultSize.height) * balloonHeight;
-    let amount = Math.max(
-      7,
-      Math.round(window.innerWidth / (balloonWidth / 2)),
-    );
+    const balloonWidth = (balloonDefaultSize.width / balloonDefaultSize.height) * balloonHeight;
+    let amount = Math.max(7, Math.round(window.innerWidth / (balloonWidth / 2)));
     // make max dist depend on number of balloons and their size for realistic effect
     // we dont want them to be too separated or too squeezed together
-    const maxDist = Math.max(
-      (amount * balloonWidth) / 2,
-      (balloonWidth / 2) * 10,
-    );
+    const maxDist = Math.max((amount * balloonWidth) / 2, (balloonWidth / 2) * 10);
 
     type BallonPosition = {
       x: number;
@@ -572,7 +561,7 @@ export function balloons(): Promise<void> {
       });
     }
 
-    balloonPositions = balloonPositions.sort((a, b) => a.z - b.z);
+    balloonPositions = balloonPositions.toSorted((a, b) => a.z - b.z);
     const closestBallonPosition = balloonPositions[balloonPositions.length - 1];
     const farthestBallonPosition = balloonPositions[0];
     // console.log({ closestBallonPosition, farthestBallonPosition });

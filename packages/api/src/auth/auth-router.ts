@@ -17,39 +17,37 @@ export const authRouter = createTRPCRouter({
       user: ctx.user,
     };
   }),
-  signUp: publicProcedure
-    .input(signUpInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signUp({
-        ...input,
+  signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
+    const response = await ctx.supabase.auth.signUp({
+      ...input,
+    });
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    const user = response.data.user;
+    const identities = user?.identities ?? [];
+
+    // if the user has no identities, it means that the email is taken
+    if (identities.length === 0) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "User already registered",
       });
+    }
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (!user) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Unable to create user",
+      });
+    }
 
-      const user = response.data.user;
-      const identities = user?.identities ?? [];
-
-      // if the user has no identities, it means that the email is taken
-      if (identities.length === 0) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "User already registered",
-        });
-      }
-
-      if (!user) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Unable to create user",
-        });
-      }
-
-      return {
-        user,
-      };
-    }),
+    return {
+      user,
+    };
+  }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
@@ -63,30 +61,26 @@ export const authRouter = createTRPCRouter({
         user: response.data.user,
       };
     }),
-  signInWithOtp: publicProcedure
-    .input(signInWithOtpInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOtp(input);
+  signInWithOtp: publicProcedure.input(signInWithOtpInput).mutation(async ({ ctx, input }) => {
+    const response = await ctx.supabase.auth.signInWithOtp(input);
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (response.error) {
+      throw response.error;
+    }
 
-      return {
-        user: response.data.user,
-      };
-    }),
-  signInWithOAuth: publicProcedure
-    .input(signInWithOAuthInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithOAuth(input);
+    return {
+      user: response.data.user,
+    };
+  }),
+  signInWithOAuth: publicProcedure.input(signInWithOAuthInput).mutation(async ({ ctx, input }) => {
+    const response = await ctx.supabase.auth.signInWithOAuth(input);
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (response.error) {
+      throw response.error;
+    }
 
-      return response.data;
-    }),
+    return response.data;
+  }),
   signOut: protectedProcedure.mutation(async ({ ctx }) => {
     const response = await ctx.supabase.auth.signOut();
 
@@ -99,9 +93,7 @@ export const authRouter = createTRPCRouter({
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.resetPasswordForEmail(
-        input.email,
-      );
+      const response = await ctx.supabase.auth.resetPasswordForEmail(input.email);
 
       if (response.error) {
         throw response.error;
@@ -109,17 +101,15 @@ export const authRouter = createTRPCRouter({
 
       return response.data;
     }),
-  updatePassword: protectedProcedure
-    .input(updatePasswordInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.updateUser(input);
+  updatePassword: protectedProcedure.input(updatePasswordInput).mutation(async ({ ctx, input }) => {
+    const response = await ctx.supabase.auth.updateUser(input);
 
-      if (response.error) {
-        throw response.error;
-      }
+    if (response.error) {
+      throw response.error;
+    }
 
-      return response.data;
-    }),
+    return response.data;
+  }),
   mfaFactors: protectedProcedure.query(async ({ ctx }) => {
     const response = await ctx.supabase.auth.mfa.listFactors();
 
@@ -129,24 +119,22 @@ export const authRouter = createTRPCRouter({
 
     return response.data;
   }),
-  setSession: protectedProcedure
-    .input(setSessionInput)
-    .mutation(async ({ ctx, input }) => {
-      const signOutResponse = await ctx.supabase.auth.signOut();
+  setSession: protectedProcedure.input(setSessionInput).mutation(async ({ ctx, input }) => {
+    const signOutResponse = await ctx.supabase.auth.signOut();
 
-      if (signOutResponse.error) {
-        throw signOutResponse.error;
-      }
+    if (signOutResponse.error) {
+      throw signOutResponse.error;
+    }
 
-      const setSessionResponse = await ctx.supabase.auth.setSession({
-        refresh_token: input.refreshToken,
-        access_token: input.accessToken,
-      });
+    const setSessionResponse = await ctx.supabase.auth.setSession({
+      refresh_token: input.refreshToken,
+      access_token: input.accessToken,
+    });
 
-      if (setSessionResponse.error) {
-        throw setSessionResponse.error;
-      }
+    if (setSessionResponse.error) {
+      throw setSessionResponse.error;
+    }
 
-      return setSessionResponse.data;
-    }),
+    return setSessionResponse.data;
+  }),
 });

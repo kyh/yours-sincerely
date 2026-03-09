@@ -1,10 +1,5 @@
 export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="110"
-    viewBox="0 0 775 270"
-    {...props}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="110" viewBox="0 0 775 270" {...props}>
     <g fill="none" fillRule="evenodd">
       <path
         fill="currentColor"

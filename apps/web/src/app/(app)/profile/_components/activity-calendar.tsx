@@ -140,9 +140,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   const getTooltipMessage = (contribution: Day) => {
     const date = format(parseISO(contribution.date), dateFormat);
     if (!contribution.count) return `No posts on ${date}`;
-    return `${contribution.count} post${
-      contribution.count > 1 ? "s" : ""
-    } on ${date}`;
+    return `${contribution.count} post${contribution.count > 1 ? "s" : ""} on ${date}`;
   };
 
   const getEventHandlers = (data: Day): SVGRectEventHandler => {
@@ -151,8 +149,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     ).reduce<SVGRectEventHandler>(
       (handlers, key) => ({
         ...handlers,
-        [key]: (event: ReactEvent<SVGRectElement>) =>
-          eventHandlers[key]?.(event)(data),
+        [key]: (event: ReactEvent<SVGRectElement>) => eventHandlers[key]?.(event)(data),
       }),
       {},
     );
@@ -181,17 +178,11 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
               return (
                 <text
                   x={-2 * blockMargin}
-                  y={
-                    textHeight +
-                    (fontSize / 2 + blockMargin) +
-                    (blockSize + blockMargin) * y
-                  }
+                  y={textHeight + (fontSize / 2 + blockMargin) + (blockSize + blockMargin) * y}
                   textAnchor="end"
                   key={day.date}
                 >
-                  {labels.weekdays
-                    ? labels.weekdays[dayIndex]
-                    : DEFAULT_WEEKDAY_LABELS[dayIndex]}
+                  {labels.weekdays ? labels.weekdays[dayIndex] : DEFAULT_WEEKDAY_LABELS[dayIndex]}
                 </text>
               );
             })}
@@ -199,28 +190,18 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         )}
         {!hideMonthLabels && (
           <g className="legend-month fill-foreground" style={style}>
-            {getMonthLabels(weeks, labels.months).map(
-              ({ text, x }, index, labels) => {
-                // Skip the first month label if there's not enough space to the next one
-                if (
-                  index === 0 &&
-                  labels[1] &&
-                  labels[1].x - x <= MIN_DISTANCE_MONTH_LABELS
-                ) {
-                  return null;
-                }
+            {getMonthLabels(weeks, labels.months).map(({ text, x }, index, labels) => {
+              // Skip the first month label if there's not enough space to the next one
+              if (index === 0 && labels[1] && labels[1].x - x <= MIN_DISTANCE_MONTH_LABELS) {
+                return null;
+              }
 
-                return (
-                  <text
-                    x={(blockSize + blockMargin) * x}
-                    alignmentBaseline="hanging"
-                    key={x}
-                  >
-                    {text}
-                  </text>
-                );
-              },
-            )}
+              return (
+                <text x={(blockSize + blockMargin) * x} alignmentBaseline="hanging" key={x}>
+                  {text}
+                </text>
+              );
+            })}
           </g>
         )}
       </>
@@ -284,9 +265,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         {loading && <div>&nbsp;</div>}
         {!loading && !hideColorLegend && (
           <div className="ml-auto flex items-center gap-1">
-            <span style={{ marginRight: "0.4em" }}>
-              {labels.legend.less ?? "Less"}
-            </span>
+            <span style={{ marginRight: "0.4em" }}>{labels.legend.less ?? "Less"}</span>
             {Array(5)
               .fill(undefined)
               .map((_, index) => (
@@ -300,9 +279,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
                   />
                 </svg>
               ))}
-            <span style={{ marginLeft: "0.4em" }}>
-              {labels.legend.more ?? "More"}
-            </span>
+            <span style={{ marginLeft: "0.4em" }}>{labels.legend.more ?? "More"}</span>
           </div>
         )}
       </footer>
@@ -318,12 +295,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
   return (
     <article style={{ ...style, ...additionalStyles }}>
-      <svg
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        className="calendar"
-      >
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="calendar">
         {!loading && renderLabels()}
         {renderBlocks()}
       </svg>

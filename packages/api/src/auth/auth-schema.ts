@@ -30,9 +30,7 @@ export type SignInWithOAuthInput = z.infer<typeof signInWithOAuthInput>;
 export const requestPasswordResetInput = z.object({
   email: z.string().email(),
 });
-export type RequestPasswordResetInput = z.infer<
-  typeof requestPasswordResetInput
->;
+export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetInput>;
 
 export const updatePasswordInput = z.object({
   password: z.string(),

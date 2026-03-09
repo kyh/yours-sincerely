@@ -4,12 +4,7 @@ import type { Label as LabelPrimitive } from "radix-ui";
 import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
 import * as React from "react";
 import { Slot } from "radix-ui";
-import {
-  Controller,
-  FormProvider,
-  useFormContext,
-  useFormState,
-} from "react-hook-form";
+import { Controller, FormProvider, useFormContext, useFormState } from "react-hook-form";
 
 import { Label } from "./label";
 import { cn } from "./utils";
@@ -23,9 +18,7 @@ type FormFieldContextValue<
   name: TName;
 };
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue,
-);
+const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -67,9 +60,7 @@ type FormItemContextValue = {
   id: string;
 };
 
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
-);
+const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
 const FormItem = ({
   className,
@@ -94,10 +85,7 @@ const FormItem = ({
   );
 };
 
-const FormLabel = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) => {
+const FormLabel = ({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -112,28 +100,20 @@ const FormLabel = ({
 };
 
 const FormControl = ({ ...props }: React.ComponentProps<typeof Slot.Root>) => {
-  const { error, formItemId, formDescriptionId, formMessageId } =
-    useFormField();
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
     <Slot.Root
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
+      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
       aria-invalid={!!error}
       {...props}
     />
   );
 };
 
-const FormDescription = ({
-  className,
-  ...props
-}: React.ComponentProps<"p">) => {
+const FormDescription = ({ className, ...props }: React.ComponentProps<"p">) => {
   const { formDescriptionId } = useFormField();
 
   return (

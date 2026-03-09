@@ -21,14 +21,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@repo/ui/drawer";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@repo/ui/form";
 import { toast } from "@repo/ui/toast";
 import { cn, useMediaQuery } from "@repo/ui/utils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
@@ -66,10 +59,7 @@ export const PostForm = ({
     resolver: zodResolver(createPostInput),
     defaultValues: {
       parentId,
-      content:
-        typeof window !== "undefined"
-          ? localStorage.getItem(postFormKey) || ""
-          : "",
+      content: typeof window !== "undefined" ? localStorage.getItem(postFormKey) || "" : "",
       createdBy: user?.displayName || "Anonymous",
     },
   });
@@ -106,10 +96,7 @@ export const PostForm = ({
 
   return (
     <Form {...form}>
-      <form
-        className="flex flex-col gap-2"
-        onSubmit={form.handleSubmit(handlePostForm)}
-      >
+      <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(handlePostForm)}>
         <FormField
           control={form.control}
           name="content"
@@ -194,14 +181,9 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
         <DialogContent>
           <DialogHeader className="sr-only">
             <DialogTitle>New Post</DialogTitle>
-            <DialogDescription>
-              Send your tiny beautiful letters to the world
-            </DialogDescription>
+            <DialogDescription>Send your tiny beautiful letters to the world</DialogDescription>
           </DialogHeader>
-          <PostForm
-            placeholder={placeholder}
-            onSuccess={() => setOpen(false)}
-          />
+          <PostForm placeholder={placeholder} onSuccess={() => setOpen(false)} />
         </DialogContent>
       </Dialog>
     );
@@ -232,16 +214,10 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       <DrawerContent>
         <DrawerHeader className="sr-only">
           <DrawerTitle>New Post</DrawerTitle>
-          <DrawerDescription>
-            Send your tiny beautiful letters to the world
-          </DrawerDescription>
+          <DrawerDescription>Send your tiny beautiful letters to the world</DrawerDescription>
         </DrawerHeader>
         <section id="drawer-post-form" className="p-4">
-          <PostForm
-            placeholder={placeholder}
-            onSuccess={() => setOpen(false)}
-            contained
-          />
+          <PostForm placeholder={placeholder} onSuccess={() => setOpen(false)} contained />
         </section>
       </DrawerContent>
     </Drawer>

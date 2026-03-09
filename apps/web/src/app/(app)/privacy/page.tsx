@@ -17,13 +17,11 @@ const Page = () => (
         <a href="https://github.com/kyh/yours-sincerely" target="_blank">
           Open Source
         </a>{" "}
-        app. This Service is provided by Kaiyu Hsu at no cost and is intended
-        for use as is.
+        app. This Service is provided by Kaiyu Hsu at no cost and is intended for use as is.
       </p>
       <p>
-        This Privacy Policy explains how we collect, use, disclose, and
-        safeguard your information when you use our application and related
-        services.
+        This Privacy Policy explains how we collect, use, disclose, and safeguard your information
+        when you use our application and related services.
       </p>
 
       <h4>Information We Collect</h4>
@@ -63,9 +61,8 @@ const Page = () => (
 
       <h4>Data Security</h4>
       <p>
-        We implement appropriate technical and organizational measures to
-        protect your personal information against unauthorized access,
-        alteration, disclosure, or destruction.
+        We implement appropriate technical and organizational measures to protect your personal
+        information against unauthorized access, alteration, disclosure, or destruction.
       </p>
 
       <h4>Your Rights and Choices</h4>
@@ -80,20 +77,19 @@ const Page = () => (
 
       <h4>Children's Privacy</h4>
       <p>
-        Our services are not intended for users under the age of 13. We do not
-        knowingly collect information from children under 13 years of age.
+        Our services are not intended for users under the age of 13. We do not knowingly collect
+        information from children under 13 years of age.
       </p>
 
       <h4>Changes to This Privacy Policy</h4>
       <p>
-        We may update this Privacy Policy from time to time. We will notify you
-        of any material changes through the app or via email.
+        We may update this Privacy Policy from time to time. We will notify you of any material
+        changes through the app or via email.
       </p>
 
       <h4>Contact Us</h4>
       <p>
-        If you have questions about this Privacy Policy or our practices, please
-        contact us at:{" "}
+        If you have questions about this Privacy Policy or our practices, please contact us at:{" "}
         <a href="mailto:kai@kyh.io?subject=Privacy" target="_blank">
           kai@kyh.io
         </a>
@@ -101,22 +97,20 @@ const Page = () => (
 
       <h4>Cookie Policy</h4>
       <p>
-        We use cookies and similar tracking technologies to enhance your
-        experience. You can control cookie settings through your browser
-        preferences.
+        We use cookies and similar tracking technologies to enhance your experience. You can control
+        cookie settings through your browser preferences.
       </p>
 
       <h4>Third-Party Links</h4>
       <p>
-        Our app may contain links to third-party websites or services. We are
-        not responsible for their privacy practices.
+        Our app may contain links to third-party websites or services. We are not responsible for
+        their privacy practices.
       </p>
 
       <h4>Data Retention</h4>
       <p>
-        We retain your information for as long as necessary to provide our
-        services and comply with legal obligations. You may request deletion of
-        your data at any time.
+        We retain your information for as long as necessary to provide our services and comply with
+        legal obligations. You may request deletion of your data at any time.
       </p>
     </PageContent>
   </>

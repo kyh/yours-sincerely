@@ -38,11 +38,7 @@ export const PostContent = ({
   const contentClass = cn("whitespace-pre-wrap", minHeight && "min-h-[50dvh]");
 
   return (
-    <article
-      className={cn(
-        layout === "stack" && "word-break flex h-full w-full flex-col",
-      )}
-    >
+    <article className={cn(layout === "stack" && "word-break flex h-full w-full flex-col")}>
       {asLink ? (
         <Link href={`/posts/${post.id}`}>
           <p className={contentClass}>{post.content}</p>
@@ -58,9 +54,7 @@ export const PostContent = ({
       >
         <div className="flex items-center gap-1 text-sm italic">
           <span>Yours Sincerely,</span>
-          {post.userId && (
-            <ProfileLink userId={post.userId} displayName={post.createdBy} />
-          )}
+          {post.userId && <ProfileLink userId={post.userId} displayName={post.createdBy} />}
         </div>
         <div className="text-muted-foreground mt-3 flex items-center justify-between sm:mt-0 sm:gap-1">
           {showComment && <CommentButton post={post} />}

@@ -5,14 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithPasswordInput } from "@repo/api/auth/auth-schema";
 import { Button } from "@repo/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@repo/ui/form";
 import { toast } from "@repo/ui/toast";
 import { cn } from "@repo/ui/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -159,8 +152,8 @@ export const RequestPasswordResetForm = () => {
       <div className="space-y-4 text-center">
         <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
           <p className="text-sm text-green-800 dark:text-green-200">
-            Password reset email sent! Check your inbox and follow the
-            instructions to reset your password.
+            Password reset email sent! Check your inbox and follow the instructions to reset your
+            password.
           </p>
         </div>
       </div>
@@ -169,10 +162,7 @@ export const RequestPasswordResetForm = () => {
 
   return (
     <Form {...form}>
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(handlePasswordReset)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handlePasswordReset)}>
         <FormField
           control={form.control}
           name="email"
@@ -194,9 +184,7 @@ export const RequestPasswordResetForm = () => {
             </FormItem>
           )}
         />
-        <Button loading={requestPasswordReset.isPending}>
-          Request Password Reset
-        </Button>
+        <Button loading={requestPasswordReset.isPending}>Request Password Reset</Button>
       </form>
     </Form>
   );
@@ -234,19 +222,13 @@ export const UpdatePasswordForm = () => {
     },
   });
 
-  const handleUpdatePassword = (data: {
-    password: string;
-    confirmPassword: string;
-  }) => {
+  const handleUpdatePassword = (data: { password: string; confirmPassword: string }) => {
     updatePassword.mutate({ password: data.password });
   };
 
   return (
     <Form {...form}>
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(handleUpdatePassword)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handleUpdatePassword)}>
         <FormField
           control={form.control}
           name="password"

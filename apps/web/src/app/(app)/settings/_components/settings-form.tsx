@@ -3,14 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/api/user/user-schema";
 import { Button } from "@repo/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@repo/ui/form";
 import { Input } from "@repo/ui/input";
 import { Label } from "@repo/ui/label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/radio-group";
@@ -31,9 +24,7 @@ export const SettingsForm = () => {
     data: { user },
   } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
-  const requestPasswordReset = useMutation(
-    trpc.auth.requestPasswordReset.mutationOptions(),
-  );
+  const requestPasswordReset = useMutation(trpc.auth.requestPasswordReset.mutationOptions());
 
   const form = useForm({
     resolver: zodResolver(updateUserInput),
@@ -84,8 +75,8 @@ export const SettingsForm = () => {
                       <CircleHelpIcon className="size-3" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      You will continue to be anonymous, this email is just used
-                      for account recovery.
+                      You will continue to be anonymous, this email is just used for account
+                      recovery.
                     </TooltipContent>
                   </Tooltip>
                 </FormLabel>
@@ -100,11 +91,7 @@ export const SettingsForm = () => {
       </Form>
       <div className="outline-border space-y-2 px-3 py-4 outline -outline-offset-1">
         <Label>Password</Label>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleRequestPasswordReset}
-        >
+        <Button type="button" variant="secondary" onClick={handleRequestPasswordReset}>
           Request password reset
         </Button>
       </div>

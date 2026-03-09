@@ -22,13 +22,7 @@ import { dropdownMenuItemVariants } from "@repo/ui/dropdown-menu";
 import { toast } from "@repo/ui/toast";
 import { useMediaQuery } from "@repo/ui/utils";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import {
-  BanIcon,
-  FlagIcon,
-  MoreVerticalIcon,
-  Trash2Icon,
-  TriangleAlertIcon,
-} from "lucide-react";
+import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@repo/api";
 import { useTRPC } from "@/trpc/react";
@@ -54,9 +48,7 @@ export const MoreButton = ({ post }: Props) => {
   const createMutation = useMutation(
     trpc.flag.createFlag.mutationOptions({
       onSuccess: () => {
-        toast.success(
-          "You have flagged this post, we will be reviewing it shortly",
-        );
+        toast.success("You have flagged this post, we will be reviewing it shortly");
       },
     }),
   );
@@ -104,10 +96,7 @@ export const MoreButton = ({ post }: Props) => {
 
   const menuItems = [
     <Button variant="ghost" asChild className={buttonClassName}>
-      <a
-        href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`}
-        target="_blank"
-      >
+      <a href={`mailto:kai@kyh.io?subject=Report YS Post: ${post.id}`} target="_blank">
         <FlagIcon aria-hidden="true" className="size-4" />
         Report Post
       </a>

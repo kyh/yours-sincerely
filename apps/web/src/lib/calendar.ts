@@ -8,14 +8,11 @@ export type CalendarEvent = {
 };
 
 const getDuration = (event: CalendarEvent) => {
-  const minutes = Math.floor(
-    (+new Date(event.endsAt) - +new Date(event.startsAt)) / 60 / 1000,
-  );
+  const minutes = Math.floor((+new Date(event.endsAt) - +new Date(event.startsAt)) / 60 / 1000);
   return `${Math.floor(minutes / 60)}:${`0${minutes % 60}`.slice(-2)}`;
 };
 
-const getTime = (time: string) =>
-  new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, "");
+const getTime = (time: string) => new Date(time).toISOString().replace(/[-:]|\.\d{3}/g, "");
 
 const getRRule = (recurring: string[]) =>
   `RRULE:FREQ=WEEKLY;BYDAY=${recurring.map((d) => d.toUpperCase()).join(",")}`;
@@ -27,9 +24,7 @@ const getUrl = (base: string, query: Query) =>
     const value = query[key];
 
     if (value !== null) {
-      return `${accum}${index === 0 ? "?" : "&"}${key}=${encodeURIComponent(
-        value!,
-      )}`;
+      return `${accum}${index === 0 ? "?" : "&"}${key}=${encodeURIComponent(value!)}`;
     }
     return accum;
   }, base);

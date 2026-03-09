@@ -2,15 +2,8 @@ import { cookies } from "next/headers";
 import { cn } from "@repo/ui/utils";
 
 import { PostFeed } from "@/app/(app)/posts/_components/post-feed";
-import {
-  NewPostButton,
-  PostForm,
-} from "@/app/(app)/posts/_components/post-form";
-import {
-  PageAside,
-  PageContent,
-  PageHeader,
-} from "@/components/layout/page-layout";
+import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form";
+import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";
 import { getFeedLayout } from "@/lib/feed-layout-actions";
 import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
 
@@ -29,10 +22,7 @@ const Page = async () => {
       <PageHeader title="Home" />
       <PageContent className="flex flex-col gap-5">
         <div
-          className={cn(
-            "border-border hidden border-b pb-5",
-            feedLayout === "list" && "md:block",
-          )}
+          className={cn("border-border hidden border-b pb-5", feedLayout === "list" && "md:block")}
         >
           <PostForm placeholder={placeholder} />
         </div>

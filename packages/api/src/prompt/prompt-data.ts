@@ -6,8 +6,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0005bhfi5qdmfkq2",
-    content:
-      "How do you feel when you love someone who does not love you back?",
+    content: "How do you feel when you love someone who does not love you back?",
   },
   {
     id: "cky8b014b0006bhfiawwds5n0",
@@ -29,8 +28,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0010bhfis2qjorkx",
-    content:
-      "Write about a rocket-ship on its way to the moon or a distant galaxy far, far, away.",
+    content: "Write about a rocket-ship on its way to the moon or a distant galaxy far, far, away.",
   },
   {
     id: "cky8b014b0011bhfihrig5ugy",
@@ -51,8 +49,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0015bhfif7xo62ei",
-    content:
-      "Write a story or poem that starts with the word “hello” or another greeting.",
+    content: "Write a story or poem that starts with the word “hello” or another greeting.",
   },
   {
     id: "cky8b014b0016bhfi4yf9gjj9",
@@ -66,8 +63,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0018bhfiegyxapvk",
-    content:
-      "Create a poem, short story, or journal entry about a conversation you’ve overheard.",
+    content: "Create a poem, short story, or journal entry about a conversation you’ve overheard.",
   },
   {
     id: "cky8b014b0019bhfijtwt593i",
@@ -76,8 +72,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0020bhfi5j8f3226",
-    content:
-      "Open up a dictionary to a random word. Define what that word means to you.",
+    content: "Open up a dictionary to a random word. Define what that word means to you.",
   },
   {
     id: "cky8b014b0021bhfilucmh415",
@@ -86,8 +81,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0022bhfizrdmnj39",
-    content:
-      "Write  about someone you admire and you thought to have had a beautiful mind.",
+    content: "Write  about someone you admire and you thought to have had a beautiful mind.",
   },
   {
     id: "cky8b014b0023bhfipwz20q0h",
@@ -109,8 +103,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0027bhfif8va1rms",
-    content:
-      "Write a poem or journal entry about numbers that have special meaning to you.",
+    content: "Write a poem or journal entry about numbers that have special meaning to you.",
   },
   {
     id: "cky8b014b0028bhfi8rrecn4z",
@@ -118,8 +111,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0029bhfijkxhpyf0",
-    content:
-      "What scares you a little? What do you feel when scared? How do you react?",
+    content: "What scares you a little? What do you feel when scared? How do you react?",
   },
   {
     id: "cky8b014b0030bhfil2lnf07r",
@@ -135,8 +127,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0033bhfidlv1in17",
-    content:
-      "Write about your shopping wishlist and how you like to spend money.",
+    content: "Write about your shopping wishlist and how you like to spend money.",
   },
   {
     id: "cky8b014b0034bhfixx2lm68x",
@@ -144,8 +135,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0035bhfig79xo8bl",
-    content:
-      "Take any poem or short story you enjoy. Rewrite it in your own words.",
+    content: "Take any poem or short story you enjoy. Rewrite it in your own words.",
   },
   {
     id: "cky8b014b0036bhfiobsp5g86",
@@ -161,8 +151,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0039bhfi77u42hcc",
-    content:
-      "Write a poem or some phrases that would make for good wall art in your home.",
+    content: "Write a poem or some phrases that would make for good wall art in your home.",
   },
   {
     id: "cky8b014b0040bhfieznmc04m",
@@ -174,13 +163,11 @@ const prompts = [
   },
   {
     id: "cky8b014b0042bhfiwmp1y4kr",
-    content:
-      "Surely you drink one or the other or know someone who does- write about it!",
+    content: "Surely you drink one or the other or know someone who does- write about it!",
   },
   {
     id: "cky8b014b0043bhfidv1gedvz",
-    content:
-      "Write about someone getting their driver’s license for the first time.",
+    content: "Write about someone getting their driver’s license for the first time.",
   },
   {
     id: "cky8b014b0044bhfi7y0rbsah",
@@ -202,8 +189,7 @@ const prompts = [
   },
   {
     id: "cky8b014b0048bhfigkayyh0l",
-    content:
-      "What if you mirror started talking to you? What might the mirror say?",
+    content: "What if you mirror started talking to you? What might the mirror say?",
   },
   {
     id: "cky8b014b0049bhfimpurptgw",
@@ -238,13 +224,11 @@ const prompts = [
   },
   {
     id: "cky8b014c0056bhfidsuc5wmt",
-    content:
-      "Watch a movie that makes you cry. Write about that scene in the movie.",
+    content: "Watch a movie that makes you cry. Write about that scene in the movie.",
   },
   {
     id: "cky8b014c0057bhfie0kzo7sx",
-    content:
-      "Write a poem or short story about a diary entry you’ve read or imagined.",
+    content: "Write a poem or short story about a diary entry you’ve read or imagined.",
   },
   {
     id: "cky8b014c0058bhfiyq7oyvxl",
@@ -287,8 +271,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0067bhfiuhll4ank",
-    content:
-      "Take a popular song off the radio and rewrite it as a poem in your own words.",
+    content: "Take a popular song off the radio and rewrite it as a poem in your own words.",
   },
   {
     id: "cky8b014c0068bhfi9t741lf2",
@@ -300,13 +283,11 @@ const prompts = [
   },
   {
     id: "cky8b014c0070bhfi5bkq3c94",
-    content:
-      "Write a poem or short story from the viewpoint of someone living in a doll house.",
+    content: "Write a poem or short story from the viewpoint of someone living in a doll house.",
   },
   {
     id: "cky8b014c0071bhfib2p5raqg",
-    content:
-      "Go to Wikipedia and click on Random Article. Write about whatever the page you get.",
+    content: "Go to Wikipedia and click on Random Article. Write about whatever the page you get.",
   },
   {
     id: "cky8b014c0072bhficpr809ev",
@@ -328,8 +309,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0076bhfila2cinxx",
-    content:
-      "Write a quick little poem or story about the last person you spoke with.",
+    content: "Write a quick little poem or story about the last person you spoke with.",
   },
   {
     id: "cky8b014c0077bhfiqnc63r7w",
@@ -365,8 +345,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0084bhfith40gvve",
-    content:
-      "Go people watching and write an ode to a stranger you see on the street.",
+    content: "Go people watching and write an ode to a stranger you see on the street.",
   },
   {
     id: "cky8b014c0085bhfibd50mtpb",
@@ -385,8 +364,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0088bhfiwqvsp2h4",
-    content:
-      "Get out your favorite pen, pencils, or even colored markers and write using them!",
+    content: "Get out your favorite pen, pencils, or even colored markers and write using them!",
   },
   {
     id: "cky8b014c0089bhfiefyro2i7",
@@ -399,8 +377,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0091bhfifur0ar6x",
-    content:
-      "Write about an experience you’ve had at a gas station or convenience store.",
+    content: "Write about an experience you’ve had at a gas station or convenience store.",
   },
   {
     id: "cky8b014c0092bhfi4tggqv7t",
@@ -417,8 +394,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0095bhfiuo7s78d7",
-    content:
-      "Write about an object that’s been passed through the generations in your family.",
+    content: "Write about an object that’s been passed through the generations in your family.",
   },
   {
     id: "cky8b014c0096bhfi9rq4tnf3",
@@ -440,8 +416,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0100bhfi3klm7do3",
-    content:
-      "Rewrite a fairy tale. Give it a new ending or make it modern or write as a poem.",
+    content: "Rewrite a fairy tale. Give it a new ending or make it modern or write as a poem.",
   },
   {
     id: "cky8b014c0101bhfi9ubtloz9",
@@ -466,8 +441,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0106bhfi44q54tce",
-    content:
-      "Write about a fashion model or what’s currently in your closet or drawers.",
+    content: "Write about a fashion model or what’s currently in your closet or drawers.",
   },
   {
     id: "cky8b014c0107bhfiw090ht1b",
@@ -488,8 +462,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0111bhfi3b4jnwrl",
-    content:
-      "Write about collecting something, such as salt shakers, sea shells, or stamps.",
+    content: "Write about collecting something, such as salt shakers, sea shells, or stamps.",
   },
   {
     id: "cky8b014c0112bhfii036qx3i",
@@ -498,13 +471,11 @@ const prompts = [
   },
   {
     id: "cky8b014c0113bhfi0gcd1ew9",
-    content:
-      "Write a poem or story or journal entry inspired by a carnival or street fair.",
+    content: "Write a poem or story or journal entry inspired by a carnival or street fair.",
   },
   {
     id: "cky8b014c0114bhfi8knt5b55",
-    content:
-      "Write about someone who grew up in the country visiting the city for the first time.",
+    content: "Write about someone who grew up in the country visiting the city for the first time.",
   },
   {
     id: "cky8b014c0115bhfiiinjod6g",
@@ -561,13 +532,11 @@ const prompts = [
   },
   {
     id: "cky8b014c0128bhfiom7vucoy",
-    content:
-      "Do they inspire you or do you not like the noise and commotion? Write about it.",
+    content: "Do they inspire you or do you not like the noise and commotion? Write about it.",
   },
   {
     id: "cky8b014c0129bhfiq1ul2t4z",
-    content:
-      "Write about a moment in your life you wish you could freeze and preserve.",
+    content: "Write about a moment in your life you wish you could freeze and preserve.",
   },
   {
     id: "cky8b014c0130bhfitdeuhmn2",
@@ -580,8 +549,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0132bhfifwwtjx6r",
-    content:
-      "Write about a promise you’ve made to someone. Did you keep that promise?",
+    content: "Write about a promise you’ve made to someone. Did you keep that promise?",
   },
   {
     id: "cky8b014c0133bhfiwzual7vf",
@@ -589,8 +557,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0134bhfir6cx7ui5",
-    content:
-      "Construct a poem or story using a news headline for your first line.",
+    content: "Construct a poem or story using a news headline for your first line.",
   },
   {
     id: "cky8b014c0135bhfic2o6l0sk",
@@ -598,8 +565,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0136bhfi9oinrarv",
-    content:
-      "Write about taking your favorite (or least-favorite) form of transportation.",
+    content: "Write about taking your favorite (or least-favorite) form of transportation.",
   },
   {
     id: "cky8b014c0137bhfiq1mkgti2",
@@ -608,8 +574,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0138bhfijj3j3565",
-    content:
-      "Write a tacky love poem that is so cheesy, it belongs on top of a pizza.",
+    content: "Write a tacky love poem that is so cheesy, it belongs on top of a pizza.",
   },
   {
     id: "cky8b014c0139bhficz0w5fuf",
@@ -649,8 +614,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0147bhfipfefyg1x",
-    content:
-      "Write about a time you failed at something. Did you try again or give up completely?",
+    content: "Write about a time you failed at something. Did you try again or give up completely?",
   },
   {
     id: "cky8b014c0148bhfiid4tn7l0",
@@ -676,8 +640,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0153bhfiuuy6avpq",
-    content:
-      "Search online for color palettes and be inspired to write by one you resonate with.",
+    content: "Search online for color palettes and be inspired to write by one you resonate with.",
   },
   {
     id: "cky8b014c0154bhfiktazuwfi",
@@ -691,8 +654,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0156bhfi4i2iq2wz",
-    content:
-      "Write something that would motivate others to workout and exercise.",
+    content: "Write something that would motivate others to workout and exercise.",
   },
   {
     id: "cky8b014c0157bhfig6ic39iy",
@@ -749,8 +711,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0169bhfik40eycj5",
-    content:
-      "Write about packing for a trip or unpacking from when you arrive home.",
+    content: "Write about packing for a trip or unpacking from when you arrive home.",
   },
   {
     id: "cky8b014c0170bhfi1na7fis7",
@@ -788,8 +749,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0178bhfi2vbich9p",
-    content:
-      "Write about a pair of gloves – what kind of gloves are they? Who wears them and why?",
+    content: "Write about a pair of gloves – what kind of gloves are they? Who wears them and why?",
   },
   {
     id: "cky8b014c0179bhfij65wklqm",
@@ -801,8 +761,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0181bhfiecvqqbuv",
-    content:
-      "How Does Your Garden Grow? Write about a flower that grows in an unusual place.",
+    content: "How Does Your Garden Grow? Write about a flower that grows in an unusual place.",
   },
   {
     id: "cky8b014c0182bhfibywizyyk",
@@ -818,8 +777,7 @@ const prompts = [
   },
   {
     id: "cky8b014c0185bhfisu7vs6wq",
-    content:
-      "Think of something you’ve recently discovered and use it as inspiration.",
+    content: "Think of something you’ve recently discovered and use it as inspiration.",
   },
   {
     id: "cky8b014c0186bhfi52zfk3hx",
@@ -827,13 +785,11 @@ const prompts = [
   },
   {
     id: "cky8b014c0187bhfi2xkujqlp",
-    content:
-      "Write a poem or journal entry that is all about things you are thankful for.",
+    content: "Write a poem or journal entry that is all about things you are thankful for.",
   },
   {
     id: "cky8b014c0188bhfip2dzr0zq",
-    content:
-      "Choose an element and write a poem or story that uses that word in one of the lines.",
+    content: "Choose an element and write a poem or story that uses that word in one of the lines.",
   },
   {
     id: "cky8b014d0189bhfi2iw0s8xi",
@@ -860,8 +816,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0194bhfit35ljegg",
-    content:
-      "What’s on the other side of this rainbow? Who’s waiting for you? Write about it!",
+    content: "What’s on the other side of this rainbow? Who’s waiting for you? Write about it!",
   },
   {
     id: "cky8b014d0195bhfi7530gss9",
@@ -875,8 +830,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0197bhfi929l4h6x",
-    content:
-      "Borrow a line from a famous public domain poem to craft your own.",
+    content: "Borrow a line from a famous public domain poem to craft your own.",
   },
   {
     id: "cky8b014d0198bhfisznqe8cm",
@@ -894,8 +848,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0201bhfiipgftyor",
-    content:
-      "Write about your favorite place in your neighborhood to visit and hang out at.",
+    content: "Write about your favorite place in your neighborhood to visit and hang out at.",
   },
   {
     id: "cky8b014d0202bhfi9223uqir",
@@ -903,8 +856,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0203bhfitxf7b35p",
-    content:
-      "Write based on a recent interview you’ve read or seen on TV or heard on the radio.",
+    content: "Write based on a recent interview you’ve read or seen on TV or heard on the radio.",
   },
   {
     id: "cky8b014d0204bhfir87a7g2b",
@@ -918,8 +870,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0206bhfil9sd0i2i",
-    content:
-      "Write about your feelings of empathy or compassion for another person.",
+    content: "Write about your feelings of empathy or compassion for another person.",
   },
   {
     id: "cky8b014d0207bhfipr31lz9c",
@@ -927,8 +878,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0208bhfivvqun7ay",
-    content:
-      "Write about being bored or make a list of different ways to entertain yourself.",
+    content: "Write about being bored or make a list of different ways to entertain yourself.",
   },
   {
     id: "cky8b014d0209bhfi6ggy2xty",
@@ -941,8 +891,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0211bhfikugf43xl",
-    content:
-      "Write about someone who always wants more – whether it be money, power, etc. etc.",
+    content: "Write about someone who always wants more – whether it be money, power, etc. etc.",
   },
   {
     id: "cky8b014d0212bhfijoqw0v6k",
@@ -968,13 +917,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0217bhfi7cznmgg5",
-    content:
-      "Choose a unique font and type out a poem, story or journal entry using that font.",
+    content: "Choose a unique font and type out a poem, story or journal entry using that font.",
   },
   {
     id: "cky8b014d0218bhfis7ktwdqk",
-    content:
-      "Take a look at your calendar and use the schedule for inspiration in writing.",
+    content: "Take a look at your calendar and use the schedule for inspiration in writing.",
   },
   {
     id: "cky8b014d0219bhfif4eg4ojf",
@@ -1001,8 +948,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0224bhfi8hblg9ng",
-    content:
-      "Write about an ironic situation you’ve been in throughout your life.",
+    content: "Write about an ironic situation you’ve been in throughout your life.",
   },
   {
     id: "cky8b014d0225bhfini5ustd2",
@@ -1027,8 +973,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0230bhfi3k2ect77",
-    content:
-      "Write an ode to someone online you’ve met and become friends with.",
+    content: "Write an ode to someone online you’ve met and become friends with.",
   },
   {
     id: "cky8b014d0231bhfi9vvaw9ay",
@@ -1058,13 +1003,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0237bhfif4ux6qs0",
-    content:
-      "Use computers or a conversation with tech support you’ve had as inspiration.",
+    content: "Use computers or a conversation with tech support you’ve had as inspiration.",
   },
   {
     id: "cky8b014d0238bhfimm5zd637",
-    content:
-      "Write from the perspective of someone who works at a hotel or staying at a hotel.",
+    content: "Write from the perspective of someone who works at a hotel or staying at a hotel.",
   },
   {
     id: "cky8b014d0239bhfi56g2wyut",
@@ -1082,8 +1025,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0242bhfi8ys49e8i",
-    content:
-      "Make up a poem or story of complete lies about yourself or someone else.",
+    content: "Make up a poem or story of complete lies about yourself or someone else.",
   },
   {
     id: "cky8b014d0243bhfidwvwh5qg",
@@ -1092,13 +1034,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0244bhfirnyrw97j",
-    content:
-      "Rummage through your pockets and write about what you keep or find in your pockets.",
+    content: "Rummage through your pockets and write about what you keep or find in your pockets.",
   },
   {
     id: "cky8b014d0245bhfigm6qmge2",
-    content:
-      "Write a cinquain poem, which consists of  lines that do not rhyme.",
+    content: "Write a cinquain poem, which consists of  lines that do not rhyme.",
   },
   {
     id: "cky8b014d0246bhfipvsjkhf4",
@@ -1118,13 +1058,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0250bhfifgyrsk33",
-    content:
-      "Write about witnessing two people get in an argument with each other.",
+    content: "Write about witnessing two people get in an argument with each other.",
   },
   {
     id: "cky8b014d0251bhfimkb6i97c",
-    content:
-      "Facebook, Pinterest, Google, Twitter, etc.) and write a about a post you see there.",
+    content: "Facebook, Pinterest, Google, Twitter, etc.) and write a about a post you see there.",
   },
   {
     id: "cky8b014d0252bhfimqcorynd",
@@ -1132,8 +1070,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0253bhfiv5fzrhqe",
-    content:
-      "Go cloud watching for the day and write about what you imagine in the clouds.",
+    content: "Go cloud watching for the day and write about what you imagine in the clouds.",
   },
   {
     id: "cky8b014d0254bhfim2mi8n1z",
@@ -1171,8 +1108,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0262bhfimfauktzn",
-    content:
-      "Write a poem or essay that raises awareness for a cause you support.",
+    content: "Write a poem or essay that raises awareness for a cause you support.",
   },
   {
     id: "cky8b014d0263bhfig8dio2zs",
@@ -1196,23 +1132,19 @@ const prompts = [
   },
   {
     id: "cky8b014d0268bhfincvprpia",
-    content:
-      "Imagine you can fast forward and rewind your life with a remote control.",
+    content: "Imagine you can fast forward and rewind your life with a remote control.",
   },
   {
     id: "cky8b014d0269bhfij0kixwx6",
-    content:
-      "Think of objects, animals, etc. that have symbolic meaning to you. Write about it.",
+    content: "Think of objects, animals, etc. that have symbolic meaning to you. Write about it.",
   },
   {
     id: "cky8b014d0270bhfisq9iphaf",
-    content:
-      "Write about a time when you saw hope when it seemed like a hopeless situation.",
+    content: "Write about a time when you saw hope when it seemed like a hopeless situation.",
   },
   {
     id: "cky8b014d0271bhfi20s6tr3a",
-    content:
-      "“Where there’s smoke, there’s fire.” Use this saying as inspiration to write!",
+    content: "“Where there’s smoke, there’s fire.” Use this saying as inspiration to write!",
   },
   {
     id: "cky8b014d0272bhfiuqgxy2br",
@@ -1224,13 +1156,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0274bhfispgl419v",
-    content:
-      "Write about being stranded somewhere – an island, a bus stop, etc.",
+    content: "Write about being stranded somewhere – an island, a bus stop, etc.",
   },
   {
     id: "cky8b014d0275bhfiusgwake2",
-    content:
-      "Use a popular quote from a speaker and use it as inspiration for your writing.",
+    content: "Use a popular quote from a speaker and use it as inspiration for your writing.",
   },
   {
     id: "cky8b014d0276bhfiboua8p0m",
@@ -1265,8 +1195,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0283bhfitk7oly8l",
-    content:
-      "Imagine you are in a classroom. What does it say on the chalkboard?",
+    content: "Imagine you are in a classroom. What does it say on the chalkboard?",
   },
   {
     id: "cky8b014d0284bhfie4bouhww",
@@ -1275,8 +1204,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0285bhfi9q7oku1h",
-    content:
-      "Imagine going somewhere very dark with only a flashlight to guide you.",
+    content: "Imagine going somewhere very dark with only a flashlight to guide you.",
   },
   {
     id: "cky8b014d0286bhfiushwq3ld",
@@ -1293,8 +1221,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0289bhfiwfge2t1b",
-    content:
-      "Write a poem that is about a brick wall – whether literal or figurative.",
+    content: "Write a poem that is about a brick wall – whether literal or figurative.",
   },
   {
     id: "cky8b014d0290bhfil6n388eh",
@@ -1312,8 +1239,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0293bhfixno07xmk",
-    content:
-      "Write about a scary (or not-so-scary) monster in your closet or under the bed.",
+    content: "Write about a scary (or not-so-scary) monster in your closet or under the bed.",
   },
   {
     id: "cky8b014d0294bhfiooj0wl2w",
@@ -1330,8 +1256,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0297bhfi76assfyw",
-    content:
-      "Make a list of potential poem or story titles and choose one to write from.",
+    content: "Make a list of potential poem or story titles and choose one to write from.",
   },
   {
     id: "cky8b014d0298bhfi4v0bxj5n",
@@ -1339,8 +1264,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0299bhfix6rznmar",
-    content:
-      "Write a poem that will help someone who is sick feel better quick!",
+    content: "Write a poem that will help someone who is sick feel better quick!",
   },
   {
     id: "cky8b014d0300bhfi37wixkxo",
@@ -1364,13 +1288,11 @@ const prompts = [
   },
   {
     id: "cky8b014d0305bhfiq6jtakas",
-    content:
-      "Write about walking down a sidewalk and what you see and experience.",
+    content: "Write about walking down a sidewalk and what you see and experience.",
   },
   {
     id: "cky8b014d0306bhfim91e0ng9",
-    content:
-      "Write about an epic battle, whether real, fictional or figurative.",
+    content: "Write about an epic battle, whether real, fictional or figurative.",
   },
   {
     id: "cky8b014d0307bhfip0mixvej",
@@ -1412,8 +1334,7 @@ const prompts = [
   },
   {
     id: "cky8b014d0316bhfioajx8ld4",
-    content:
-      "Use a memorable conversation from a favorite movie to inspire your writing.",
+    content: "Use a memorable conversation from a favorite movie to inspire your writing.",
   },
   {
     id: "cky8b014d0317bhfi1vbxlwws",
@@ -1438,18 +1359,15 @@ const prompts = [
   },
   {
     id: "cky8b014d0322bhfixt5qzviq",
-    content:
-      "What’s it like to live a day in the life of a rock star? Imagine your story!",
+    content: "What’s it like to live a day in the life of a rock star? Imagine your story!",
   },
   {
     id: "cky8b014d0323bhfiu95b262m",
-    content:
-      "Imagine ordinary objects have come to life. Write about what they do and say.",
+    content: "Imagine ordinary objects have come to life. Write about what they do and say.",
   },
   {
     id: "cky8b014d0324bhfiza5rjhi7",
-    content:
-      "Write about meeting someone on an airplane and a conversation you might have.",
+    content: "Write about meeting someone on an airplane and a conversation you might have.",
   },
   {
     id: "cky8b014d0325bhfifm9hfusb",
@@ -1496,8 +1414,7 @@ const prompts = [
   },
   {
     id: "cky8b014e0335bhfiuz6w6n7h",
-    content:
-      "Write a poem about the story that is told through someone’s eyes.",
+    content: "Write a poem about the story that is told through someone’s eyes.",
   },
   {
     id: "cky8b014e0336bhfi8rn6eih1",
@@ -1551,8 +1468,7 @@ const prompts = [
   },
   {
     id: "cky8b014e0348bhfi2fne2dxz",
-    content:
-      "Write about a time when someone forgave you or you forgave someone.",
+    content: "Write about a time when someone forgave you or you forgave someone.",
   },
   {
     id: "cky8b014e0349bhfi1g4bkk4u",
@@ -1573,8 +1489,7 @@ const prompts = [
   },
   {
     id: "cky8b014e0353bhfife3h60d6",
-    content:
-      "Imagine living in a home underground and use that as inspiration for writing.",
+    content: "Imagine living in a home underground and use that as inspiration for writing.",
   },
   {
     id: "cky8b014e0354bhfi4g8k3619",
@@ -1608,8 +1523,7 @@ const prompts = [
   },
   {
     id: "cky8b014e0361bhfiluzeiutm",
-    content:
-      "Write about a point in life where things turned for the better or worse.",
+    content: "Write about a point in life where things turned for the better or worse.",
   },
   {
     id: "cky8b014e0362bhfi8nlu1ex1",
@@ -1633,18 +1547,15 @@ const prompts = [
   },
   {
     id: "cky8b014e0367bhfi3fswwygq",
-    content:
-      "Review your week, month, or year in a journal entry or poem format.",
+    content: "Review your week, month, or year in a journal entry or poem format.",
   },
   {
     id: "cky8b014e0368bhfi8zxy2hqh",
-    content:
-      "Write about a detective searching for clues or solving a mystery.",
+    content: "Write about a detective searching for clues or solving a mystery.",
   },
   {
     id: "cky8b014e0369bhfiteyv1xqs",
-    content:
-      "Take your camera for a walk and write based on one of the photographs you take.",
+    content: "Take your camera for a walk and write based on one of the photographs you take.",
   },
   {
     id: "cky8b014e0370bhfin6iuimo6",

@@ -97,12 +97,8 @@
           "name": "Account_userId_fkey",
           "tableFrom": "Account",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -200,12 +196,8 @@
           "name": "Block_blockerId_fkey",
           "tableFrom": "Block",
           "tableTo": "User",
-          "columnsFrom": [
-            "blockerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["blockerId"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -213,12 +205,8 @@
           "name": "Block_blockingId_fkey",
           "tableFrom": "Block",
           "tableTo": "User",
-          "columnsFrom": [
-            "blockingId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["blockingId"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -226,10 +214,7 @@
       "compositePrimaryKeys": {
         "Block_pkey": {
           "name": "Block_pkey",
-          "columns": [
-            "blockerId",
-            "blockingId"
-          ]
+          "columns": ["blockerId", "blockingId"]
         }
       },
       "uniqueConstraints": {},
@@ -302,12 +287,8 @@
           "name": "EnrolledEvent_userId_fkey",
           "tableFrom": "EnrolledEvent",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -423,12 +404,8 @@
           "name": "Flag_postId_fkey",
           "tableFrom": "Flag",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -436,12 +413,8 @@
           "name": "Flag_userId_fkey",
           "tableFrom": "Flag",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -449,10 +422,7 @@
       "compositePrimaryKeys": {
         "Flag_pkey": {
           "name": "Flag_pkey",
-          "columns": [
-            "postId",
-            "userId"
-          ]
+          "columns": ["postId", "userId"]
         }
       },
       "uniqueConstraints": {},
@@ -552,12 +522,8 @@
           "name": "Like_postId_fkey",
           "tableFrom": "Like",
           "tableTo": "Post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["postId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -565,12 +531,8 @@
           "name": "Like_userId_fkey",
           "tableFrom": "Like",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -578,10 +540,7 @@
       "compositePrimaryKeys": {
         "Like_pkey": {
           "name": "Like_pkey",
-          "columns": [
-            "postId",
-            "userId"
-          ]
+          "columns": ["postId", "userId"]
         }
       },
       "uniqueConstraints": {},
@@ -721,12 +680,8 @@
           "name": "Post_parentId_fkey",
           "tableFrom": "Post",
           "tableTo": "Post",
-          "columnsFrom": [
-            "parentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parentId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -734,12 +689,8 @@
           "name": "Post_userId_fkey",
           "tableFrom": "Post",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -882,12 +833,8 @@
           "name": "Token_userId_fkey",
           "tableFrom": "Token",
           "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -997,19 +944,12 @@
     "public.TokenType": {
       "name": "TokenType",
       "schema": "public",
-      "values": [
-        "REFRESH_TOKEN",
-        "VERIFY_EMAIL",
-        "RESET_PASSWORD"
-      ]
+      "values": ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"]
     },
     "public.UserRole": {
       "name": "UserRole",
       "schema": "public",
-      "values": [
-        "USER",
-        "ADMIN"
-      ]
+      "values": ["USER", "ADMIN"]
     }
   },
   "schemas": {},

@@ -39,24 +39,12 @@ export const PostPage = ({ postId }: Props) => {
         <p className="text-xs">{stats.text}</p>
       </header>
       <Card>
-        <PostContent
-          post={post}
-          layout="stack"
-          asLink={false}
-          showComment={false}
-        />
+        <PostContent post={post} layout="stack" asLink={false} showComment={false} />
       </Card>
-      {user && (
-        <PostForm
-          parentId={post.id}
-          placeholder="Comment on this love letter..."
-        />
-      )}
+      {user && <PostForm parentId={post.id} placeholder="Comment on this love letter..." />}
       <div>
         <h3 className="flex items-center gap-2 py-3">
-          <span className="text-muted-foreground text-sm">
-            Comments ({post.commentCount})
-          </span>
+          <span className="text-muted-foreground text-sm">Comments ({post.commentCount})</span>
           <span className="bg-border h-px flex-1" />
         </h3>
         <div className="divide-border divide-y">
@@ -65,11 +53,7 @@ export const PostPage = ({ postId }: Props) => {
           )}
           {post.comments?.map((comment) => (
             <div key={comment.id} className="pt-5 pb-3">
-              <PostContent
-                post={comment}
-                showTimer={false}
-                showComment={false}
-              />
+              <PostContent post={comment} showTimer={false} showComment={false} />
             </div>
           ))}
         </div>

@@ -55,9 +55,7 @@ export const ShareButton = ({ post }: Props) => {
         <DrawerContent>
           <DrawerHeader className="sr-only">
             <DrawerTitle>Share Post</DrawerTitle>
-            <DrawerDescription>
-              Share this tiny beautiful letter with the world
-            </DrawerDescription>
+            <DrawerDescription>Share this tiny beautiful letter with the world</DrawerDescription>
           </DrawerHeader>
           <a
             className={menuItemClassName}
