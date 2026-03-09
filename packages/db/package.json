@@ -11,8 +11,6 @@
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "tsc",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "supabase": "pnpm with-env supabase",
     "drizzle-kit": "pnpm with-env drizzle-kit",
@@ -40,13 +38,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@kyh/eslint-config": "catalog:",
-    "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
     "@types/react": "catalog:",
     "drizzle-kit": "^0.31.9",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
     "supabase": "^2.77.0",
     "typescript": "catalog:"
   },
