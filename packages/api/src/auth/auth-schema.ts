@@ -15,9 +15,7 @@ export type SignInWithPasswordInput = z.infer<typeof signInWithPasswordInput>;
 export const requestPasswordResetInput = z.object({
   email: z.string().email(),
 });
-export type RequestPasswordResetInput = z.infer<
-  typeof requestPasswordResetInput
->;
+export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetInput>;
 
 export const setPasswordInput = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),

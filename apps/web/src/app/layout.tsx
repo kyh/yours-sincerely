@@ -106,10 +106,7 @@ const RootLayout = (props: LayoutProps) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={cn(
-          "bg-background text-foreground font-sans antialiased",
-          fontSans.variable,
-        )}
+        className={cn("bg-background text-foreground font-sans antialiased", fontSans.variable)}
       >
         <CapacitorProvider>
           <ThemeProvider>

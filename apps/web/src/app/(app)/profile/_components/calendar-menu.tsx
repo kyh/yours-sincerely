@@ -8,22 +8,17 @@ type Props = {
   recurring?: string[];
 };
 
-export const CalendarMenu = ({
-  text = "Add to Calendar",
-  recurring = [],
-}: Props) => {
+export const CalendarMenu = ({ text = "Add to Calendar", recurring = [] }: Props) => {
   const now = new Date();
   const links = makeUrls({
     name: "Yours Sincerely",
-    details:
-      "Your reminder to write on Yours Sincerely: https://yoursincerely.org/posts/new",
+    details: "Your reminder to write on Yours Sincerely: https://yoursincerely.org/posts/new",
     startsAt: setMinutes(setHours(now, 19), 0).toString(),
     endsAt: setMinutes(setHours(now, 19), 15).toString(),
     recurring,
   });
 
-  const menuItemClassName =
-    "flex items-center w-full px-2 py-2 text-sm rounded-md group";
+  const menuItemClassName = "flex items-center w-full px-2 py-2 text-sm rounded-md group";
 
   return null;
   // return (

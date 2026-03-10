@@ -1,14 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePrevious, useWindowScroll, useWindowSize } from "react-use";
 
 type ScrollObserverContextType = {
@@ -16,9 +9,7 @@ type ScrollObserverContextType = {
   setActive: (index: number | null) => void;
   previous: number | null;
 };
-const ScrollObserverContext = createContext<ScrollObserverContextType | null>(
-  null,
-);
+const ScrollObserverContext = createContext<ScrollObserverContextType | null>(null);
 
 type GroupContextType = {
   peers: Element[];
@@ -32,12 +23,7 @@ type RootProps = {
   className?: string;
 };
 
-const Root = ({
-  as: Component = "div",
-  children,
-  className,
-  ...props
-}: RootProps) => {
+const Root = ({ as: Component = "div", children, className, ...props }: RootProps) => {
   const [active, setActive] = useState<number | null>(null);
   const previous = usePrevious<number | null>(active) ?? null;
   const isHidden = useMemo(() => active === null, [active]);
@@ -96,12 +82,7 @@ type TriggerProps = {
   className?: string;
 };
 
-const Trigger = ({
-  as: Component = "div",
-  children,
-  className,
-  ...props
-}: TriggerProps) => {
+const Trigger = ({ as: Component = "div", children, className, ...props }: TriggerProps) => {
   const container = useRef<Element>();
   const scrollObserverContext = useContext(ScrollObserverContext);
   const triggerGroupContext = useContext(TriggerGroupContext);
@@ -197,12 +178,7 @@ type ReactorProps = {
   className?: string;
 };
 
-export const Reactor = ({
-  as: Component = "div",
-  children,
-  className,
-  ...props
-}: ReactorProps) => {
+export const Reactor = ({ as: Component = "div", children, className, ...props }: ReactorProps) => {
   const container = useRef<Element>(null);
   const scrollObserverContext = useContext(ScrollObserverContext);
   const reactorGroupContext = useContext(ReactorGroupContext);

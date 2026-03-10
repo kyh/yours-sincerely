@@ -20,15 +20,9 @@ type CardStackContextType = {
   setCurrentIndex: (index: number) => void;
 };
 
-const CardStackContext = createContext<CardStackContextType | undefined>(
-  undefined,
-);
+const CardStackContext = createContext<CardStackContextType | undefined>(undefined);
 
-export const CardStackProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const CardStackProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const value: CardStackContextType = {
@@ -36,11 +30,7 @@ export const CardStackProvider = ({
     setCurrentIndex,
   };
 
-  return (
-    <CardStackContext.Provider value={value}>
-      {children}
-    </CardStackContext.Provider>
-  );
+  return <CardStackContext.Provider value={value}>{children}</CardStackContext.Provider>;
 };
 
 export const useCardStack = () => {
@@ -124,9 +114,7 @@ export const Card = ({
       drag={index === currentIndex ? "x" : false}
       onDragEnd={onDragEnd}
     >
-      <motion.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">
-        {children}
-      </motion.div>
+      <motion.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">{children}</motion.div>
     </motion.div>
   );
 };

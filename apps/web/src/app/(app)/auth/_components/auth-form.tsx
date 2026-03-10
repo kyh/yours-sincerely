@@ -5,14 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithPasswordInput } from "@repo/api/auth/auth-schema";
 import { Button } from "@repo/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@repo/ui/form";
 import { toast } from "@repo/ui/toast";
 import { cn } from "@repo/ui/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -159,8 +152,8 @@ export const RequestPasswordResetForm = () => {
       <div className="space-y-4 text-center">
         <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
           <p className="text-sm text-green-800 dark:text-green-200">
-            Password reset email sent! Check your inbox and follow the
-            instructions to reset your password.
+            Password reset email sent! Check your inbox and follow the instructions to reset your
+            password.
           </p>
         </div>
       </div>
@@ -169,10 +162,7 @@ export const RequestPasswordResetForm = () => {
 
   return (
     <Form {...form}>
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(handlePasswordReset)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handlePasswordReset)}>
         <FormField
           control={form.control}
           name="email"
@@ -194,9 +184,7 @@ export const RequestPasswordResetForm = () => {
             </FormItem>
           )}
         />
-        <Button loading={requestPasswordReset.isPending}>
-          Request Password Reset
-        </Button>
+        <Button loading={requestPasswordReset.isPending}>Request Password Reset</Button>
       </form>
     </Form>
   );
@@ -221,9 +209,7 @@ export const UpdatePasswordForm = () => {
       z
         .object({
           currentPassword: z.string().min(1, "Current password is required"),
-          newPassword: z
-            .string()
-            .min(8, "Password must be at least 8 characters"),
+          newPassword: z.string().min(8, "Password must be at least 8 characters"),
           confirmPassword: z.string(),
         })
         .refine((data) => data.newPassword === data.confirmPassword, {
@@ -251,10 +237,7 @@ export const UpdatePasswordForm = () => {
 
   return (
     <Form {...form}>
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(handleUpdatePassword)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handleUpdatePassword)}>
         <FormField
           control={form.control}
           name="currentPassword"
@@ -343,9 +326,7 @@ export const SetPasswordForm = () => {
     resolver: zodResolver(
       z
         .object({
-          password: z
-            .string()
-            .min(8, "Password must be at least 8 characters"),
+          password: z.string().min(8, "Password must be at least 8 characters"),
           confirmPassword: z.string(),
         })
         .refine((data) => data.password === data.confirmPassword, {
@@ -359,19 +340,13 @@ export const SetPasswordForm = () => {
     },
   });
 
-  const handleSetPassword = (data: {
-    password: string;
-    confirmPassword: string;
-  }) => {
+  const handleSetPassword = (data: { password: string; confirmPassword: string }) => {
     setPassword.mutate({ password: data.password });
   };
 
   return (
     <Form {...form}>
-      <form
-        className="grid gap-4"
-        onSubmit={form.handleSubmit(handleSetPassword)}
-      >
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handleSetPassword)}>
         <FormField
           control={form.control}
           name="password"

@@ -7,13 +7,10 @@
     "build": "pnpm with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "pnpm with-env next dev --turbopack",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
     "start": "pnpm with-env next start",
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },
-  "prettier": "@kyh/prettier-config",
   "dependencies": {
     "@capacitor/app": "^8.0.1",
     "@capacitor/core": "^8.2.0",
@@ -31,7 +28,7 @@
     "@trpc/tanstack-react-query": "catalog:",
     "@vercel/analytics": "^1.6.1",
     "@vercel/edge-config": "^1.4.3",
-    "motion": "^12.35.1",
+    "motion": "^12.35.2",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -42,18 +39,15 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@kyh/eslint-config": "catalog:",
-    "@kyh/prettier-config": "catalog:",
     "@kyh/tsconfig": "catalog:",
     "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "eslint": "catalog:",
     "postcss": "^8.5.8",
-    "prettier": "catalog:",
     "tailwindcss": "^4.2.1",
     "typescript": "catalog:"
-  }
+  },
+  "prettier": "@kyh/prettier-config"
 }

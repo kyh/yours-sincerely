@@ -25,13 +25,8 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
 
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">
-      <ProfileAvatar
-        className="size-10"
-        src={getAvatarUrl(displayName || userId)}
-      />
-      <h4 className="mb-1 text-center font-bold">
-        {displayName || "Anonymous"}
-      </h4>
+      <ProfileAvatar className="size-10" src={getAvatarUrl(displayName || userId)} />
+      <h4 className="mb-1 text-center font-bold">{displayName || "Anonymous"}</h4>
       {!isLoading && data ? (
         <ActivityStats
           posts={data.userStats?.totalPostCount ?? 0}

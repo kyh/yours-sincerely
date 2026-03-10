@@ -31,19 +31,13 @@ export const Sidebar = () => {
     process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!,
     user?.id,
   );
-  const notificationFeed = useNotifications(
-    knock,
-    process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!,
-  );
+  const notificationFeed = useNotifications(knock, process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!);
   const { metadata } = useNotificationStore(notificationFeed);
 
   const iconClassName = "size-6 dark:invert dark-purple:invert";
-  const { setDotLottie: homeSetDotLottie, ...homeControlProps } =
-    useIconAnimation();
-  const { setDotLottie: bellSetDotLottie, ...bellControlProps } =
-    useIconAnimation();
-  const { setDotLottie: userSetDotLottie, ...userControlProps } =
-    useIconAnimation();
+  const { setDotLottie: homeSetDotLottie, ...homeControlProps } = useIconAnimation();
+  const { setDotLottie: bellSetDotLottie, ...bellControlProps } = useIconAnimation();
+  const { setDotLottie: userSetDotLottie, ...userControlProps } = useIconAnimation();
 
   useEffect(() => {
     void notificationFeed.fetch();

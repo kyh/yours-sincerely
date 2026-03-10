@@ -9,11 +9,7 @@ import { useTRPC } from "@/trpc/react";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
-import {
-  createPostsDailyActivity,
-  createPostsHeatmap,
-  FULL_DAY_LABELS,
-} from "./calendar-util";
+import { createPostsDailyActivity, createPostsHeatmap, FULL_DAY_LABELS } from "./calendar-util";
 import { ProfileForm } from "./profile-form";
 
 const lightTheme = {
@@ -90,20 +86,12 @@ export const Profile = ({ userId }: ProfileProps) => {
               <>
                 Favorite day to write is on{" "}
                 <span className="text-primary">
-                  {
-                    FULL_DAY_LABELS[
-                      dailyData.max.day as keyof typeof FULL_DAY_LABELS
-                    ]
-                  }
-                  s
+                  {FULL_DAY_LABELS[dailyData.max.day as keyof typeof FULL_DAY_LABELS]}s
                 </span>
               </>
             )}
           </h2>
-          <ActivityWeek
-            data={dailyData.stats}
-            theme={isDarkMode ? darkTheme : lightTheme}
-          />
+          <ActivityWeek data={dailyData.stats} theme={isDarkMode ? darkTheme : lightTheme} />
         </Card>
       </div>
       <div className="lg:col-span-3">

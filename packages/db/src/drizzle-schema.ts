@@ -17,11 +17,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
-export const tokenType = pgEnum("TokenType", [
-  "REFRESH_TOKEN",
-  "VERIFY_EMAIL",
-  "RESET_PASSWORD",
-]);
+export const tokenType = pgEnum("TokenType", ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"]);
 export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
 
 export const prompt = pgTable("Prompt", {
@@ -68,9 +64,7 @@ export const account = pgTable(
   },
   (table) => {
     return {
-      providerProviderAccountIdKey: uniqueIndex(
-        "Account_provider_providerAccountId_key",
-      ).using(
+      providerProviderAccountIdKey: uniqueIndex("Account_provider_providerAccountId_key").using(
         "btree",
         table.provider.asc().nullsLast().op("text_ops"),
         table.providerAccountId.asc().nullsLast().op("text_ops"),

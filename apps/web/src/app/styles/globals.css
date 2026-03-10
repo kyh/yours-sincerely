@@ -164,9 +164,7 @@ body {
     grid-template-areas:
       "nav-header content-header aside-header"
       "nav content aside";
-    grid-template-columns: var(--left-column-width) auto var(
-        --right-column-width
-      );
+    grid-template-columns: var(--left-column-width) auto var(--right-column-width);
     column-gap: 4rem;
     max-width: 1280px;
   }
@@ -224,8 +222,8 @@ textarea::placeholder {
 
 .rnf-notification-cell {
   transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke,
-    opacity, box-shadow, transform, filter, backdrop-filter;
+    color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow,
+    transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   border-radius: var(--radius);

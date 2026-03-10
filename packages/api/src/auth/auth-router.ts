@@ -12,12 +12,7 @@ import {
   signUpInput,
   updatePasswordInput,
 } from "./auth-schema";
-import {
-  clearSession,
-  createPasswordHash,
-  setSession,
-  validatePassword,
-} from "./session";
+import { clearSession, createPasswordHash, setSession, validatePassword } from "./session";
 
 const sanitizeUser = <T extends { passwordHash?: string | null }>(
   user: T,
@@ -32,46 +27,44 @@ export const authRouter = createTRPCRouter({
       user: ctx.user,
     };
   }),
-  signUp: publicProcedure
-    .input(signUpInput)
-    .mutation(async ({ ctx, input }) => {
-      // Check if email already exists
-      const existingUser = await ctx.db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.email, input.email),
+  signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
+    // Check if email already exists
+    const existingUser = await ctx.db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.email, input.email),
+    });
+
+    if (existingUser) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "User already registered",
       });
+    }
 
-      if (existingUser) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "User already registered",
-        });
-      }
+    const passwordHash = await createPasswordHash(input.password);
 
-      const passwordHash = await createPasswordHash(input.password);
+    const [newUser] = await ctx.db
+      .insert(user)
+      .values({
+        ...getDefaultValues(),
+        email: input.email,
+        passwordHash,
+        displayName: "Anonymous",
+      })
+      .returning();
 
-      const [newUser] = await ctx.db
-        .insert(user)
-        .values({
-          ...getDefaultValues(),
-          email: input.email,
-          passwordHash,
-          displayName: "Anonymous",
-        })
-        .returning();
+    if (!newUser) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Unable to create user",
+      });
+    }
 
-      if (!newUser) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Unable to create user",
-        });
-      }
+    await setSession(newUser.id);
 
-      await setSession(newUser.id);
-
-      return {
-        user: sanitizeUser(newUser),
-      };
-    }),
+    return {
+      user: sanitizeUser(newUser),
+    };
+  }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
@@ -86,10 +79,7 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      const isValid = await validatePassword(
-        input.password,
-        existingUser.passwordHash,
-      );
+      const isValid = await validatePassword(input.password, existingUser.passwordHash);
 
       if (!isValid) {
         throw new TRPCError({
@@ -131,59 +121,46 @@ export const authRouter = createTRPCRouter({
       return { success: true };
     }),
   // Used after password reset flow - user has valid session from Supabase token verification
-  setPassword: protectedProcedure
-    .input(setPasswordInput)
-    .mutation(async ({ ctx, input }) => {
-      const passwordHash = await createPasswordHash(input.password);
+  setPassword: protectedProcedure.input(setPasswordInput).mutation(async ({ ctx, input }) => {
+    const passwordHash = await createPasswordHash(input.password);
 
-      await ctx.db
-        .update(user)
-        .set({ passwordHash })
-        .where(eq(user.id, ctx.user.id));
+    await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, ctx.user.id));
 
-      // Rotate session after password change
-      await setSession(ctx.user.id);
+    // Rotate session after password change
+    await setSession(ctx.user.id);
 
-      return { success: true };
-    }),
-  updatePassword: protectedProcedure
-    .input(updatePasswordInput)
-    .mutation(async ({ ctx, input }) => {
-      // Get current user with password hash
-      const currentUser = await ctx.db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.id, ctx.user.id),
+    return { success: true };
+  }),
+  updatePassword: protectedProcedure.input(updatePasswordInput).mutation(async ({ ctx, input }) => {
+    // Get current user with password hash
+    const currentUser = await ctx.db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, ctx.user.id),
+    });
+
+    if (!currentUser?.passwordHash) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Cannot update password for this account",
       });
+    }
 
-      if (!currentUser?.passwordHash) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Cannot update password for this account",
-        });
-      }
+    // Verify current password
+    const isValid = await validatePassword(input.currentPassword, currentUser.passwordHash);
 
-      // Verify current password
-      const isValid = await validatePassword(
-        input.currentPassword,
-        currentUser.passwordHash,
-      );
+    if (!isValid) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Current password is incorrect",
+      });
+    }
 
-      if (!isValid) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Current password is incorrect",
-        });
-      }
+    const passwordHash = await createPasswordHash(input.newPassword);
 
-      const passwordHash = await createPasswordHash(input.newPassword);
+    await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, ctx.user.id));
 
-      await ctx.db
-        .update(user)
-        .set({ passwordHash })
-        .where(eq(user.id, ctx.user.id));
+    // Rotate session after password change
+    await setSession(ctx.user.id);
 
-      // Rotate session after password change
-      await setSession(ctx.user.id);
-
-      return { success: true };
-    }),
+    return { success: true };
+  }),
 });

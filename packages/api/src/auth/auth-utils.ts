@@ -5,10 +5,7 @@ import { TRPCError } from "@trpc/server";
 import type { TRPCContext } from "../trpc";
 import { createTempPassword, setSession } from "./session";
 
-export const createUserIfNotExists = async (
-  ctx: TRPCContext,
-  displayName?: string,
-) => {
+export const createUserIfNotExists = async (ctx: TRPCContext, displayName?: string) => {
   let userId = ctx.user?.id;
 
   // If the user is not logged in, create an anonymous user

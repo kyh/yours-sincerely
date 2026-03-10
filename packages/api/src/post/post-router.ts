@@ -33,10 +33,7 @@ export const postRouter = createTRPCRouter({
           input.cursor
             ? or(
                 lt(feed.createdAt, input.cursor.createdAt),
-                and(
-                  eq(feed.createdAt, input.cursor.createdAt),
-                  lt(feed.id, input.cursor.postId),
-                ),
+                and(eq(feed.createdAt, input.cursor.createdAt), lt(feed.id, input.cursor.postId)),
               )
             : undefined,
           input.userId ? eq(feed.userId, input.userId) : undefined,
@@ -83,16 +80,14 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  getPostsByUser: publicProcedure
-    .input(getPostsByUserInput)
-    .query(async ({ ctx, input }) => {
-      const posts = await ctx.db.query.post.findMany({
-        where: (post, { eq }) => eq(post.userId, input.userId),
-        orderBy: (post, { desc }) => desc(post.createdAt),
-      });
+  getPostsByUser: publicProcedure.input(getPostsByUserInput).query(async ({ ctx, input }) => {
+    const posts = await ctx.db.query.post.findMany({
+      where: (post, { eq }) => eq(post.userId, input.userId),
+      orderBy: (post, { desc }) => desc(post.createdAt),
+    });
 
-      return { posts };
-    }),
+    return { posts };
+  }),
 
   getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
     const dbPost = await ctx.db.query.post.findFirst({
@@ -115,68 +110,61 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  createPost: publicProcedure
-    .input(createPostInput)
-    .mutation(async ({ ctx, input }) => {
-      const userId = await createUserIfNotExists(ctx, input.createdBy);
+  createPost: publicProcedure.input(createPostInput).mutation(async ({ ctx, input }) => {
+    const userId = await createUserIfNotExists(ctx, input.createdBy);
 
-      const [created] = await ctx.db
-        .insert(post)
-        .values({
-          ...getDefaultValues(),
-          userId: userId,
-          content: input.content,
-          createdBy: input.createdBy || "Anonymous",
-          parentId: input.parentId,
-          baseLikeCount: input.baseLikeCount,
-        })
-        .returning();
+    const [created] = await ctx.db
+      .insert(post)
+      .values({
+        ...getDefaultValues(),
+        userId: userId,
+        content: input.content,
+        createdBy: input.createdBy || "Anonymous",
+        parentId: input.parentId,
+        baseLikeCount: input.baseLikeCount,
+      })
+      .returning();
 
-      if (created?.parentId) {
-        const knock = new Knock();
-        const parentPost = await ctx.db.query.post.findFirst({
-          where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
-          with: {
-            user: true,
+    if (created?.parentId) {
+      const knock = new Knock();
+      const parentPost = await ctx.db.query.post.findFirst({
+        where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
+        with: {
+          user: true,
+        },
+      });
+      const recipient = parentPost?.user;
+
+      if (recipient) {
+        await knock.workflows.trigger("new-comment", {
+          data: {
+            parentPostId: parentPost.id,
+            commentPostId: created.id,
           },
+          actor: {
+            id: created.userId,
+            displayName: created.createdBy,
+          },
+          recipients: [
+            {
+              id: recipient.id,
+              displayName: recipient.displayName,
+            },
+          ],
         });
-        const recipient = parentPost?.user;
-
-        if (recipient) {
-          await knock.workflows.trigger("new-comment", {
-            data: {
-              parentPostId: parentPost.id,
-              commentPostId: created.id,
-            },
-            actor: {
-              id: created.userId,
-              displayName: created.createdBy,
-            },
-            recipients: [
-              {
-                id: recipient.id,
-                displayName: recipient.displayName,
-              },
-            ],
-          });
-        }
       }
+    }
 
-      return {
-        post: created,
-      };
-    }),
+    return {
+      post: created,
+    };
+  }),
 
-  deletePost: protectedProcedure
-    .input(deletePostInput)
-    .mutation(async ({ ctx, input }) => {
-      const [deleted] = await ctx.db
-        .delete(post)
-        .where(eq(post.id, input.postId))
-        .returning();
+  deletePost: protectedProcedure.input(deletePostInput).mutation(async ({ ctx, input }) => {
+    const [deleted] = await ctx.db.delete(post).where(eq(post.id, input.postId)).returning();
 
-      return {
-        post: deleted,
-      };
-    }),
+    return {
+      post: deleted,
+    };
+  }),
 });

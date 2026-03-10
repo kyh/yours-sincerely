@@ -49,24 +49,18 @@ export const groupByWeeks = (
   // specified week day the desired day one week earlier will be selected.
   const firstDate = parseISO(normalizedDays[0]?.date ?? "");
   const firstCalendarDate =
-    getDay(firstDate) === weekStart
-      ? firstDate
-      : subWeeks(nextDay(firstDate, weekStart), 1);
+    getDay(firstDate) === weekStart ? firstDate : subWeeks(nextDay(firstDate, weekStart), 1);
 
   // In order to correctly group contributions by week it is necessary to
   // left pad the list because the first date might not be desired week day.
   const paddedDays = [
-    ...Array(differenceInCalendarDays(firstDate, firstCalendarDate)).fill(
-      undefined,
-    ),
+    ...Array(differenceInCalendarDays(firstDate, firstCalendarDate)).fill(undefined),
     ...normalizedDays,
   ];
 
   return Array(Math.ceil(paddedDays.length / 7))
     .fill(undefined)
-    .map((_, calendarWeek) =>
-      paddedDays.slice(calendarWeek * 7, calendarWeek * 7 + 7),
-    );
+    .map((_, calendarWeek) => paddedDays.slice(calendarWeek * 7, calendarWeek * 7 + 7));
 };
 
 const normalizeCalendarDays = (days: Day[]): Day[] => {
@@ -93,10 +87,7 @@ const normalizeCalendarDays = (days: Day[]): Day[] => {
   });
 };
 
-export const getMonthLabels = (
-  weeks: Weeks,
-  monthNames: string[] = DEFAULT_MONTH_LABELS,
-) => {
+export const getMonthLabels = (weeks: Weeks, monthNames: string[] = DEFAULT_MONTH_LABELS) => {
   return weeks
     .reduce<Label[]>((labels, week, index) => {
       const firstWeekDay = week.find((day) => day !== undefined);
@@ -271,15 +262,7 @@ export const DEFAULT_MONTH_LABELS = [
   "Dec",
 ];
 
-export const DEFAULT_WEEKDAY_LABELS = [
-  "Mon",
-  "Tue",
-  "Wed",
-  "Thu",
-  "Fri",
-  "Sat",
-  "Sun",
-];
+export const DEFAULT_WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export const FULL_DAY_LABELS = {
   Sun: "Sunday",

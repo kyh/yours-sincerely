@@ -17,10 +17,7 @@ const Page = () => (
       </h1>
       <section className="flex flex-wrap gap-5">
         <Card className="h-fit -rotate-2 sm:w-1/2">
-          <p>
-            An ephemeral anonymous blog to send each other tiny beautiful
-            letters
-          </p>
+          <p>An ephemeral anonymous blog to send each other tiny beautiful letters</p>
           <footer className="flex items-center gap-1 text-sm italic">
             <span>Yours Sincerely,</span>
             <span>Anonymous</span>
@@ -52,9 +49,7 @@ const Page = () => (
           </div>
         </Card>
         <Card className="relative h-fit w-full">
-          <p>
-            It’s like a magical graffiti wall in a foot traffic part of town
-          </p>
+          <p>It’s like a magical graffiti wall in a foot traffic part of town</p>
           <footer className="flex items-center gap-1 text-sm italic">
             <span>Yours Sincerely,</span>
             <span>Anonymous</span>
@@ -87,9 +82,8 @@ const Page = () => (
         </Card>
         <Card className="ml-auto h-fit w-2/3 rotate-1">
           <p>
-            YS is a public art project with optional anonymity. It's a direct
-            channel to the inner lives of other humans who, in other contexts,
-            rarely reveal such vulnerability
+            YS is a public art project with optional anonymity. It's a direct channel to the inner
+            lives of other humans who, in other contexts, rarely reveal such vulnerability
           </p>
           <footer className="flex items-center gap-1 text-sm italic">
             <span>Yours Sincerely,</span>

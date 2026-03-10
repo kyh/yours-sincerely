@@ -3,14 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/api/user/user-schema";
 import { ProfileAvatar } from "@repo/ui/avatar";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@repo/ui/form";
 import { Input } from "@repo/ui/input";
 import { toast } from "@repo/ui/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
@@ -52,14 +45,8 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   return (
     <Form {...form}>
-      <form
-        onBlur={form.handleSubmit(onSubmit)}
-        className="flex flex-col items-center gap-2"
-      >
-        <ProfileAvatar
-          className="size-20"
-          src={getAvatarUrl(user?.displayName || user?.id)}
-        />
+      <form onBlur={form.handleSubmit(onSubmit)} className="flex flex-col items-center gap-2">
+        <ProfileAvatar className="size-20" src={getAvatarUrl(user?.displayName || user?.id)} />
         <FormField
           control={form.control}
           name="displayName"

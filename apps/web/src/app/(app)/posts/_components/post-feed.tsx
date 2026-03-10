@@ -20,12 +20,11 @@ type Props = {
 
 export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
   const trpc = useTRPC();
-  const { data, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useSuspenseInfiniteQuery(
-      trpc.post.getFeed.infiniteQueryOptions(filters, {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      }),
-    );
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
+    trpc.post.getFeed.infiniteQueryOptions(filters, {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }),
+  );
 
   const [ref] = useInfiniteScroll({
     loading: isFetchingNextPage,
@@ -37,22 +36,14 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
 
   return (
     <section className="divide-border flex-1 divide-y">
-      {!posts.length && (
-        <div className="h-full py-5 text-center text-sm">No posts</div>
-      )}
+      {!posts.length && <div className="h-full py-5 text-center text-sm">No posts</div>}
       {posts.length > 0 && layout === "stack" && (
         <CardStack
           data={posts}
           hasNextPage={hasNextPage}
           onLoadMore={fetchNextPage}
           render={(post) => (
-            <PostContent
-              layout="stack"
-              post={post}
-              asLink={false}
-              showMore={false}
-              minHeight
-            />
+            <PostContent layout="stack" post={post} asLink={false} showMore={false} minHeight />
           )}
         />
       )}
@@ -64,10 +55,7 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
             </div>
           ))}
           {hasNextPage && (
-            <div
-              className="flex items-center justify-center pt-5 pb-3"
-              ref={ref}
-            >
+            <div className="flex items-center justify-center pt-5 pb-3" ref={ref}>
               <Spinner />
             </div>
           )}

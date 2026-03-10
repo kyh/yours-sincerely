@@ -231,10 +231,7 @@ export const LikeButton = ({ post }: Props) => {
       </div>
       <span className="min-w-[0.75rem]">
         <NumberFlow value={likeCount} />
-        <span className="sr-only">
-          {" "}
-          likes, click to {isLiked ? "unlike" : "like"}
-        </span>
+        <span className="sr-only"> likes, click to {isLiked ? "unlike" : "like"}</span>
       </span>
     </button>
   );

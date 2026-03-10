@@ -11,8 +11,8 @@ const Page = () => (
     <PageHeader title="Maintenance" className="h-16" />
     <PageContent className="flex flex-col gap-5">
       <h1>
-        We're currently undergoing some maintenance and will be back shortly. In
-        the meantime, you can bug me on{" "}
+        We're currently undergoing some maintenance and will be back shortly. In the meantime, you
+        can bug me on{" "}
         <a className="font-semibold underline" href="https://x.com/kaiyuhsu">
           X
         </a>{" "}
