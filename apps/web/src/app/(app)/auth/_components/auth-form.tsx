@@ -346,49 +346,51 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
 
   return (
     <Form {...form}>
-      <form className="grid gap-4" onSubmit={form.handleSubmit(handleSetPassword)}>
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="grid gap-1 space-y-0">
-              <FormLabel className="sr-only">New Password</FormLabel>
-              <FormControl>
-                <input
-                  required
-                  type="password"
-                  placeholder="New password"
-                  autoCapitalize="none"
-                  autoComplete="new-password"
-                  autoCorrect="off"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem className="grid gap-1 space-y-0">
-              <FormLabel className="sr-only">Confirm Password</FormLabel>
-              <FormControl>
-                <input
-                  required
-                  type="password"
-                  placeholder="Confirm password"
-                  autoCapitalize="none"
-                  autoComplete="new-password"
-                  autoCorrect="off"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form className="flex flex-col gap-5" onSubmit={form.handleSubmit(handleSetPassword)}>
+        <div className="-space-y-px">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New Password</FormLabel>
+                <FormControl>
+                  <input
+                    required
+                    type="password"
+                    placeholder="******"
+                    autoCapitalize="none"
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <input
+                    required
+                    type="password"
+                    placeholder="******"
+                    autoCapitalize="none"
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button loading={setPassword.isPending}>Set Password</Button>
       </form>
     </Form>
