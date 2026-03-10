@@ -7,12 +7,11 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import { db } from "@repo/db/drizzle-client";
-import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getSession, setSession } from "./auth/session";
+import { getSession } from "./auth/session";
 
 /**
  * 1. CONTEXT
@@ -27,29 +26,8 @@ import { getSession, setSession } from "./auth/session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // Check for custom session cookie first
   const sessionUserId = await getSession();
-
-  // If we have a custom session, skip Supabase entirely
-  if (sessionUserId) {
-    const user = await findDbUser(sessionUserId);
-    return {
-      headers: opts.headers,
-      user,
-      db,
-    };
-  }
-
-  // Fallback: Check Supabase session for migration
-  const supabase = getSupabaseServerClient();
-  const { data } = await supabase.auth.getUser();
-
-  // Auto-migrate: If user has Supabase session, create custom session
-  if (data.user?.id) {
-    await setSession(data.user.id);
-  }
-
-  const user = await findDbUser(data.user?.id);
+  const user = await findDbUser(sessionUserId);
 
   return {
     headers: opts.headers,
