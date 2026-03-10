@@ -7,12 +7,11 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import { db } from "@repo/db/drizzle-client";
-import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getDeprecatedSession } from "./auth/deprecated-session";
+import { getSession } from "./auth/session";
 
 /**
  * 1. CONTEXT
@@ -27,23 +26,12 @@ import { getDeprecatedSession } from "./auth/deprecated-session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const supabase = getSupabaseServerClient();
-
-  // React Native will pass their token through headers,
-  // browsers will have the session cookie set
-  const token = opts.headers.get("authorization");
-
-  const { data } = token ? await supabase.auth.getUser(token) : await supabase.auth.getUser();
-
-  // For users who were logged in via the deprecated session method we grab the
-  // user from the database and assign them to a supabase user object
-  const deprecatedSessionUserId = await getDeprecatedSession();
-  const user = await findDbUser(deprecatedSessionUserId ?? data.user?.id);
+  const sessionUserId = await getSession();
+  const user = await findDbUser(sessionUserId);
 
   return {
     headers: opts.headers,
     user,
-    supabase,
     db,
   };
 };

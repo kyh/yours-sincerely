@@ -3,7 +3,7 @@ import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 
 import type { TRPCContext } from "../trpc";
-import { createTempPassword, setDeprecatedSession } from "./deprecated-session";
+import { createTempPassword, setSession } from "./session";
 
 export const createUserIfNotExists = async (ctx: TRPCContext, displayName?: string) => {
   let userId = ctx.user?.id;
@@ -28,7 +28,7 @@ export const createUserIfNotExists = async (ctx: TRPCContext, displayName?: stri
 
     userId = userData.id;
 
-    await setDeprecatedSession(userId);
+    await setSession(userId);
   }
 
   return userId;

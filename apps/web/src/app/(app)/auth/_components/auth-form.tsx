@@ -208,22 +208,31 @@ export const UpdatePasswordForm = () => {
     resolver: zodResolver(
       z
         .object({
-          password: z.string().min(8, "Password must be at least 8 characters"),
+          currentPassword: z.string().min(1, "Current password is required"),
+          newPassword: z.string().min(8, "Password must be at least 8 characters"),
           confirmPassword: z.string(),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine((data) => data.newPassword === data.confirmPassword, {
           message: "Passwords don't match",
           path: ["confirmPassword"],
         }),
     ),
     defaultValues: {
-      password: "",
+      currentPassword: "",
+      newPassword: "",
       confirmPassword: "",
     },
   });
 
-  const handleUpdatePassword = (data: { password: string; confirmPassword: string }) => {
-    updatePassword.mutate({ password: data.password });
+  const handleUpdatePassword = (data: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    updatePassword.mutate({
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
   };
 
   return (
@@ -231,7 +240,28 @@ export const UpdatePasswordForm = () => {
       <form className="grid gap-4" onSubmit={form.handleSubmit(handleUpdatePassword)}>
         <FormField
           control={form.control}
-          name="password"
+          name="currentPassword"
+          render={({ field }) => (
+            <FormItem className="grid gap-1 space-y-0">
+              <FormLabel className="sr-only">Current Password</FormLabel>
+              <FormControl>
+                <input
+                  required
+                  type="password"
+                  placeholder="Current password"
+                  autoCapitalize="none"
+                  autoComplete="current-password"
+                  autoCorrect="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="newPassword"
           render={({ field }) => (
             <FormItem className="grid gap-1 space-y-0">
               <FormLabel className="sr-only">New Password</FormLabel>
@@ -239,7 +269,7 @@ export const UpdatePasswordForm = () => {
                 <input
                   required
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder="New password"
                   autoCapitalize="none"
                   autoComplete="new-password"
                   autoCorrect="off"
@@ -272,6 +302,94 @@ export const UpdatePasswordForm = () => {
           )}
         />
         <Button loading={updatePassword.isPending}>Update Password</Button>
+      </form>
+    </Form>
+  );
+};
+
+// Used after password reset flow - user has valid session but doesn't know current password
+export const SetPasswordForm = () => {
+  const trpc = useTRPC();
+  const router = useRouter();
+
+  const setPassword = useMutation(
+    trpc.auth.setPassword.mutationOptions({
+      onSuccess: () => {
+        toast.success("Password set successfully!");
+        router.push("/");
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+
+  const form = useForm({
+    resolver: zodResolver(
+      z
+        .object({
+          password: z.string().min(8, "Password must be at least 8 characters"),
+          confirmPassword: z.string(),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: "Passwords don't match",
+          path: ["confirmPassword"],
+        }),
+    ),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const handleSetPassword = (data: { password: string; confirmPassword: string }) => {
+    setPassword.mutate({ password: data.password });
+  };
+
+  return (
+    <Form {...form}>
+      <form className="grid gap-4" onSubmit={form.handleSubmit(handleSetPassword)}>
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem className="grid gap-1 space-y-0">
+              <FormLabel className="sr-only">New Password</FormLabel>
+              <FormControl>
+                <input
+                  required
+                  type="password"
+                  placeholder="New password"
+                  autoCapitalize="none"
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem className="grid gap-1 space-y-0">
+              <FormLabel className="sr-only">Confirm Password</FormLabel>
+              <FormControl>
+                <input
+                  required
+                  type="password"
+                  placeholder="Confirm password"
+                  autoCapitalize="none"
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button loading={setPassword.isPending}>Set Password</Button>
       </form>
     </Form>
   );

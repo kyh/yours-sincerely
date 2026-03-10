@@ -1,15 +1,25 @@
+import { user } from "@repo/db/drizzle-schema";
+import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
+import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   requestPasswordResetInput,
-  setSessionInput,
-  signInWithOAuthInput,
-  signInWithOtpInput,
+  setPasswordInput,
   signInWithPasswordInput,
   signUpInput,
   updatePasswordInput,
 } from "./auth-schema";
+import { clearSession, createPasswordHash, setSession, validatePassword } from "./session";
+
+const sanitizeUser = <T extends { passwordHash?: string | null }>(
+  user: T,
+): Omit<T, "passwordHash"> => {
+  const { passwordHash: _, ...safeUser } = user;
+  return safeUser;
+};
 
 export const authRouter = createTRPCRouter({
   workspace: publicProcedure.query(({ ctx }) => {
@@ -18,123 +28,139 @@ export const authRouter = createTRPCRouter({
     };
   }),
   signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
-    const response = await ctx.supabase.auth.signUp({
-      ...input,
+    // Check if email already exists
+    const existingUser = await ctx.db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.email, input.email),
     });
 
-    if (response.error) {
-      throw response.error;
-    }
-
-    const user = response.data.user;
-    const identities = user?.identities ?? [];
-
-    // if the user has no identities, it means that the email is taken
-    if (identities.length === 0) {
+    if (existingUser) {
       throw new TRPCError({
         code: "CONFLICT",
         message: "User already registered",
       });
     }
 
-    if (!user) {
+    const passwordHash = await createPasswordHash(input.password);
+
+    const [newUser] = await ctx.db
+      .insert(user)
+      .values({
+        ...getDefaultValues(),
+        email: input.email,
+        passwordHash,
+        displayName: "Anonymous",
+      })
+      .returning();
+
+    if (!newUser) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Unable to create user",
       });
     }
 
+    await setSession(newUser.id);
+
     return {
-      user,
+      user: sanitizeUser(newUser),
     };
   }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.signInWithPassword(input);
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.email, input.email),
+      });
 
-      if (response.error) {
-        throw response.error;
+      if (!existingUser?.passwordHash) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
       }
 
+      const isValid = await validatePassword(input.password, existingUser.passwordHash);
+
+      if (!isValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
+      }
+
+      await setSession(existingUser.id);
+
       return {
-        user: response.data.user,
+        user: sanitizeUser(existingUser),
       };
     }),
-  signInWithOtp: publicProcedure.input(signInWithOtpInput).mutation(async ({ ctx, input }) => {
-    const response = await ctx.supabase.auth.signInWithOtp(input);
+  signOut: protectedProcedure.mutation(async () => {
+    // Clear custom session
+    await clearSession();
 
-    if (response.error) {
-      throw response.error;
-    }
-
-    return {
-      user: response.data.user,
-    };
-  }),
-  signInWithOAuth: publicProcedure.input(signInWithOAuthInput).mutation(async ({ ctx, input }) => {
-    const response = await ctx.supabase.auth.signInWithOAuth(input);
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-  signOut: protectedProcedure.mutation(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.signOut();
-
-    if (response.error) {
-      throw response.error;
-    }
+    // Also clear Supabase session during migration period
+    const supabase = getSupabaseServerClient();
+    await supabase.auth.signOut();
 
     return { user: null };
   }),
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
-    .mutation(async ({ ctx, input }) => {
-      const response = await ctx.supabase.auth.resetPasswordForEmail(input.email);
+    .mutation(async ({ input }) => {
+      // Use Supabase to send password reset email
+      const supabase = getSupabaseServerClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(input.email);
 
-      if (response.error) {
-        throw response.error;
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send password reset email",
+        });
       }
 
-      return response.data;
+      return { success: true };
     }),
+  // Used after password reset flow - user has valid session from Supabase token verification
+  setPassword: protectedProcedure.input(setPasswordInput).mutation(async ({ ctx, input }) => {
+    const passwordHash = await createPasswordHash(input.password);
+
+    await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, ctx.user.id));
+
+    // Rotate session after password change
+    await setSession(ctx.user.id);
+
+    return { success: true };
+  }),
   updatePassword: protectedProcedure.input(updatePasswordInput).mutation(async ({ ctx, input }) => {
-    const response = await ctx.supabase.auth.updateUser(input);
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-  mfaFactors: protectedProcedure.query(async ({ ctx }) => {
-    const response = await ctx.supabase.auth.mfa.listFactors();
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
-  }),
-  setSession: protectedProcedure.input(setSessionInput).mutation(async ({ ctx, input }) => {
-    const signOutResponse = await ctx.supabase.auth.signOut();
-
-    if (signOutResponse.error) {
-      throw signOutResponse.error;
-    }
-
-    const setSessionResponse = await ctx.supabase.auth.setSession({
-      refresh_token: input.refreshToken,
-      access_token: input.accessToken,
+    // Get current user with password hash
+    const currentUser = await ctx.db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, ctx.user.id),
     });
 
-    if (setSessionResponse.error) {
-      throw setSessionResponse.error;
+    if (!currentUser?.passwordHash) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Cannot update password for this account",
+      });
     }
 
-    return setSessionResponse.data;
+    // Verify current password
+    const isValid = await validatePassword(input.currentPassword, currentUser.passwordHash);
+
+    if (!isValid) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Current password is incorrect",
+      });
+    }
+
+    const passwordHash = await createPasswordHash(input.newPassword);
+
+    await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, ctx.user.id));
+
+    // Rotate session after password change
+    await setSession(ctx.user.id);
+
+    return { success: true };
   }),
 });
