@@ -6,14 +6,12 @@ import {
   index,
   integer,
   pgEnum,
-  pgSchema,
   pgTable,
   pgView,
   primaryKey,
   text,
   timestamp,
   uniqueIndex,
-  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
@@ -399,15 +397,6 @@ export const flagRelations = relations(flag, ({ one }) => ({
     fields: [flag.userId],
     references: [user.id],
   }),
-}));
-
-// ----- NEW SCHEMA -----
-const auth = pgSchema("auth");
-
-export const authUsers = auth.table("users", (t) => ({
-  id: uuid().primaryKey().notNull(),
-  email: t.varchar({ length: 255 }),
-  rawUserMetaData: t.jsonb(),
 }));
 
 export const feed = pgView("Feed", {

@@ -59,6 +59,13 @@ export const setSession = async (userId: string) => {
 export const clearSession = async () => {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
+
+  // Clear any lingering Supabase auth cookies (migration period)
+  for (const cookie of cookieStore.getAll()) {
+    if (cookie.name.startsWith("sb-")) {
+      cookieStore.delete(cookie.name);
+    }
+  }
 };
 
 export const createTempPassword = async () => {

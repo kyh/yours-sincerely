@@ -1,6 +1,5 @@
 import { randomBytes } from "crypto";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
-import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
@@ -102,9 +101,6 @@ export const authRouter = createTRPCRouter({
     }),
   signOut: protectedProcedure.mutation(async () => {
     await clearSession();
-
-    const supabase = getSupabaseServerClient();
-    await supabase.auth.signOut();
 
     return { user: null };
   }),

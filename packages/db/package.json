@@ -20,17 +20,14 @@
     "reset": "supabase db reset",
     "status": "supabase status",
     "test": "supabase db test",
-    "typegen": "supabase gen types typescript --local > src/database.types.ts",
     "push": "pnpm with-env drizzle-kit push",
     "push-remote": "dotenv -e ../../.env.production.local -- drizzle-kit push",
-    "generate": "pnpm with-env drizzle-kit generate && pnpm typegen",
+    "generate": "pnpm with-env drizzle-kit generate",
     "migrate": "pnpm with-env drizzle-kit migrate",
     "studio": "pnpm with-env drizzle-kit studio",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.99.0",
     "drizzle-orm": "^0.45.1",
     "next": "catalog:",
     "postgres": "^3.4.8",

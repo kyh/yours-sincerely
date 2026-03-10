@@ -2,7 +2,6 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { setSession } from "@repo/api/auth/session";
 import { db } from "@repo/db/drizzle-client";
-import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 
 /**
  * Extract user ID from Supabase auth cookie JWT without verifying expiry.
@@ -50,11 +49,14 @@ export const GET = async (request: NextRequest) => {
     if (existingUser) {
       await setSession(existingUser.id);
     }
-
-    // Clear Supabase cookies
-    const supabase = getSupabaseServerClient();
-    await supabase.auth.signOut();
   }
 
-  return NextResponse.redirect(new URL(redirectTo, request.url));
+  // Clear Supabase cookies and redirect
+  const response = NextResponse.redirect(new URL(redirectTo, request.url));
+  for (const cookie of request.cookies.getAll()) {
+    if (cookie.name.startsWith("sb-")) {
+      response.cookies.delete(cookie.name);
+    }
+  }
+  return response;
 };

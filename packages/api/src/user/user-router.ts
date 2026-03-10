@@ -1,6 +1,5 @@
 import { eq } from "@repo/db";
 import { user, userStats } from "@repo/db/drizzle-schema";
-import { getSupabaseAdminClient } from "@repo/db/supabase-server-client";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { getUserInput, getUserStatsInput, updateUserInput } from "./user-schema";
@@ -40,22 +39,6 @@ export const userRouter = createTRPCRouter({
       .set(updates)
       .where(eq(user.id, input.userId))
       .returning();
-
-    // Handle old account case where the supabase user hasn't been created
-    if (input.email) {
-      const client = getSupabaseAdminClient();
-      const { data: supabaseUser } = await client.auth.admin.getUserById(input.userId);
-
-      if (!supabaseUser.user) {
-        await client.auth.admin.createUser({
-          email: input.email,
-        });
-      } else {
-        await client.auth.admin.updateUserById(input.userId, {
-          email: input.email,
-        });
-      }
-    }
 
     return {
       user: response,
