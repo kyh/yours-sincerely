@@ -41,7 +41,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/react": "catalog:",
     "drizzle-kit": "^0.31.9",
-    "supabase": "^2.77.1",
+    "supabase": "^2.78.1",
     "typescript": "catalog:"
   },
   "prettier": "@kyh/prettier-config"
