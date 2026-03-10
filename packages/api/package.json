@@ -19,6 +19,7 @@
     "@trpc/server": "catalog:",
     "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
+    "resend": "^6.9.3",
     "superjson": "catalog:",
     "zod": "catalog:"
   },

@@ -307,8 +307,8 @@ export const UpdatePasswordForm = () => {
   );
 };
 
-// Used after password reset flow - user has valid session but doesn't know current password
-export const SetPasswordForm = () => {
+// Used after password reset flow - token from email link
+export const SetPasswordForm = ({ token }: { token: string }) => {
   const trpc = useTRPC();
   const router = useRouter();
 
@@ -341,7 +341,7 @@ export const SetPasswordForm = () => {
   });
 
   const handleSetPassword = (data: { password: string; confirmPassword: string }) => {
-    setPassword.mutate({ password: data.password });
+    setPassword.mutate({ token, password: data.password });
   };
 
   return (

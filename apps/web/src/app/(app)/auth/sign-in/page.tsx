@@ -15,12 +15,18 @@ const Page = () => {
       <PageContent className="flex flex-col gap-5">
         <AuthForm type="signin" className="mt-2" />
         <p className="px-8 text-center text-xs text-muted-foreground">
-          Don't have an account?{" "}
           <Link
             href="/auth/sign-up"
             className="underline underline-offset-4 transition hover:text-primary"
           >
             Sign up
+          </Link>
+          {" · "}
+          <Link
+            href="/auth/password-reset"
+            className="underline underline-offset-4 transition hover:text-primary"
+          >
+            Forgot password?
           </Link>
         </p>
       </PageContent>

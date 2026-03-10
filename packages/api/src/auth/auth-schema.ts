@@ -18,9 +18,15 @@ export const requestPasswordResetInput = z.object({
 export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetInput>;
 
 export const setPasswordInput = z.object({
+  token: z.string(),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 export type SetPasswordInput = z.infer<typeof setPasswordInput>;
+
+export const verifyResetTokenInput = z.object({
+  token: z.string(),
+});
+export type VerifyResetTokenInput = z.infer<typeof verifyResetTokenInput>;
 
 export const updatePasswordInput = z.object({
   currentPassword: z.string(),
