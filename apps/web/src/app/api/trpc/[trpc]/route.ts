@@ -1,7 +1,5 @@
 import type { NextRequest } from "next/server";
 import { appRouter, createTRPCContext } from "@repo/api";
-import { getSession, setSession } from "@repo/api/auth/session";
-import { getSupabaseServerClient } from "@repo/db/supabase-server-client";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 // export const runtime = "edge";
@@ -28,18 +26,6 @@ export const OPTIONS = () => {
 };
 
 const handler = async (req: NextRequest) => {
-  // Auto-migrate: If user has Supabase session but no custom session, create one
-  // and sign out of Supabase so we don't re-check on every request
-  const sessionUserId = await getSession();
-  if (!sessionUserId) {
-    const supabase = getSupabaseServerClient();
-    const { data } = await supabase.auth.getUser();
-    if (data.user?.id) {
-      await setSession(data.user.id);
-      await supabase.auth.signOut();
-    }
-  }
-
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
