@@ -95,13 +95,7 @@ export const authRouter = createTRPCRouter({
       };
     }),
   signOut: protectedProcedure.mutation(async () => {
-    // Clear custom session
     await clearSession();
-
-    // Also clear Supabase session during migration period
-    const supabase = getSupabaseServerClient();
-    await supabase.auth.signOut();
-
     return { user: null };
   }),
   requestPasswordReset: publicProcedure

@@ -12,6 +12,7 @@ import { toast } from "@repo/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/tooltip";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleHelpIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import type { UpdateUserInput } from "@repo/api/user/user-schema";
@@ -19,12 +20,19 @@ import { useTRPC } from "@/trpc/react";
 
 export const SettingsForm = () => {
   const trpc = useTRPC();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const {
     data: { user },
   } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
   const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
   const requestPasswordReset = useMutation(trpc.auth.requestPasswordReset.mutationOptions());
+  const signOut = useMutation(
+    trpc.auth.signOut.mutationOptions({
+      onSuccess: () => router.replace("/"),
+      onError: (error) => toast.error(error.message),
+    }),
+  );
 
   const form = useForm({
     resolver: zodResolver(updateUserInput),
@@ -95,7 +103,7 @@ export const SettingsForm = () => {
           Request password reset
         </Button>
       </div>
-      <div className="outline-border space-y-4 rounded-b-md px-3 py-4 outline -outline-offset-1">
+      <div className="outline-border space-y-4 px-3 py-4 outline -outline-offset-1">
         <Label>Appearance</Label>
         <RadioGroup
           className="grid grid-cols-4 gap-4 md:grid-cols-6"
@@ -119,6 +127,16 @@ export const SettingsForm = () => {
             </label>
           ))}
         </RadioGroup>
+      </div>
+      <div className="outline-border rounded-b-md px-3 py-4 outline -outline-offset-1">
+        <Button
+          type="button"
+          variant="destructive"
+          loading={signOut.isPending}
+          onClick={() => signOut.mutate()}
+        >
+          Log out
+        </Button>
       </div>
     </div>
   );
