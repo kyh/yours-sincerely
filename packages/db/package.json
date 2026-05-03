@@ -30,7 +30,7 @@
   "dependencies": {
     "drizzle-orm": "^0.45.2",
     "next": "catalog:",
-    "postgres": "^3.4.8",
+    "postgres": "^3.4.9",
     "react": "catalog:",
     "zod": "catalog:"
   },
@@ -38,7 +38,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/react": "catalog:",
     "drizzle-kit": "^0.31.10",
-    "supabase": "^2.84.4",
+    "supabase": "^2.98.0",
     "typescript": "catalog:"
   }
 }

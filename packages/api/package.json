@@ -14,12 +14,12 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@knocklabs/node": "^1.29.1",
+    "@knocklabs/node": "^1.32.0",
     "@repo/db": "workspace:^",
     "@trpc/server": "catalog:",
     "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
-    "resend": "^6.9.4",
+    "resend": "^6.12.2",
     "superjson": "catalog:",
     "zod": "catalog:"
   },
