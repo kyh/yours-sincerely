@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithPasswordInput } from "@repo/api/auth/auth-schema";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@repo/ui/components/toast";
 import { cn } from "@repo/ui/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";

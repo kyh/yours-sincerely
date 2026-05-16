@@ -5,7 +5,7 @@ import { updateUserInput } from "@repo/api/user/user-schema";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { Input } from "@repo/ui/components/input";
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@repo/ui/components/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 

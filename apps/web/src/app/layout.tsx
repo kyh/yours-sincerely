@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme";
-import { Toaster } from "@repo/ui/components/sonner";
+import { Toaster } from "@repo/ui/components/toast";
 import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 

@@ -19,7 +19,7 @@ import {
   DrawerTrigger,
 } from "@repo/ui/components/drawer";
 import { drawerItemClass } from "@/lib/drawer-item";
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@repo/ui/components/toast";
 import { useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
