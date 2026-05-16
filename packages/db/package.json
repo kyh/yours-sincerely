@@ -38,7 +38,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/react": "catalog:",
     "drizzle-kit": "^0.31.10",
-    "supabase": "^2.98.0",
+    "supabase": "^2.98.2",
     "typescript": "catalog:"
   }
 }

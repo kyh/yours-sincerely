@@ -9,13 +9,13 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@capacitor/android": "^8.3.1",
+    "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",
-    "@capacitor/core": "^8.3.1",
-    "@capacitor/ios": "^8.3.1",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "@capacitor/splash-screen": "^8.0.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.3.1"
+    "@capacitor/cli": "^8.3.4"
   }
 }
