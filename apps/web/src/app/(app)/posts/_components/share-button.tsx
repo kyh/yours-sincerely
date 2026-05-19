@@ -9,7 +9,7 @@ import {
   DrawerTitle,
 } from "@repo/ui/components/drawer";
 import { drawerItemClass } from "@/lib/drawer-item";
-import { toast } from "@repo/ui/components/toast";
+import { toast } from "@repo/ui/components/sonner";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@repo/api";
