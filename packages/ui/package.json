@@ -30,7 +30,7 @@
     "@kyh/tsconfig": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/react": "catalog:",
-    "shadcn": "^4.7.0",
+    "shadcn": "^4.8.0",
     "typescript": "catalog:"
   },
   "peerDependencies": {
