@@ -1,10 +1,6 @@
 import * as React from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn } from "cnfast";
 
 export function useMediaQuery(query = "(min-width: 640px)") {
   const [value, setValue] = React.useState(false);
