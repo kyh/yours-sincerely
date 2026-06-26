@@ -34,8 +34,5 @@
     "onlyBuiltDependencies": [
       "supabase"
     ]
-  },
-  "engines": {
-    "node": ">=24"
   }
 }
