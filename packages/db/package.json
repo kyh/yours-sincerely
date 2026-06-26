@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
     "drizzle-kit": "^0.31.10",
     "supabase": "^2.101.0",

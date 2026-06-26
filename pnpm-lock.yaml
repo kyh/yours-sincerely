@@ -156,6 +156,12 @@ importers:
       '@vercel/edge-config':
         specifier: ^1.4.3
         version: 1.4.3(next@16.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+      date-fns:
+        specifier: ^4.0.0
+        version: 4.3.0
+      lucide-react:
+        specifier: ^1.16.0
+        version: 1.16.0(react@19.2.6)
       motion:
         specifier: ^12.40.0
         version: 12.40.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -235,6 +241,12 @@ importers:
       cookie-signature:
         specifier: ^1.2.2
         version: 1.2.2
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(postgres@3.4.9)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       resend:
         specifier: ^6.12.3
         version: 6.12.3
@@ -276,6 +288,9 @@ importers:
       '@kyh/tsconfig':
         specifier: 'catalog:'
         version: 1.1.14
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.15

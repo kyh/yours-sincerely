@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import NumberFlow from "@number-flow/react";
 import { useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
 import { useTRPC } from "@/trpc/react";
