@@ -1,0 +1,62 @@
+import { useState } from "react";
+import { View } from "react-native";
+import Svg, { Ellipse, G, Rect, Text as SvgText } from "react-native-svg";
+
+import type { Theme } from "@/lib/calendar-util";
+import { DEFAULT_WEEKDAY_LABELS, levelColor, toLevel } from "@/lib/calendar-util";
+import { useThemeColors } from "@/components/theme-colors";
+
+/** Weekly activity bubbles — RN port of the web activity-week chart. */
+type Props = {
+  data: Record<string, { count: number; level: number }>;
+  theme: Theme;
+};
+
+export const ActivityWeek = ({ data, theme }: Props) => {
+  const colors = useThemeColors();
+  const [width, setWidth] = useState(0);
+
+  const step = width / DEFAULT_WEEKDAY_LABELS.length;
+
+  return (
+    <View className="w-full" onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+      {width > 0 && (
+        <Svg width={width} height={100}>
+          <Rect fill={theme.level0} width={width} height={16} rx={8} ry={8} y={84} />
+          <G x={width * 0.055}>
+            {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
+              const entry = data[day];
+              const level = toLevel(entry?.level ?? 0);
+              const radius = entry !== undefined ? entry.level * 4 : 0;
+              return (
+                <Ellipse
+                  key={day}
+                  cx={index * step}
+                  cy={50}
+                  rx={radius}
+                  ry={radius}
+                  fill={levelColor(theme, level)}
+                  strokeWidth={1}
+                  stroke={theme.stroke}
+                />
+              );
+            })}
+          </G>
+          <G x={width * 0.05}>
+            {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
+              <SvgText
+                key={day}
+                x={index * step}
+                y={96}
+                fontSize={12}
+                fill={colors.mutedForeground}
+              >
+                {day.charAt(0)}
+              </SvgText>
+            ))}
+          </G>
+        </Svg>
+      )}
+    </View>
+  );
+};

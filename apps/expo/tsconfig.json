@@ -1,0 +1,13 @@
+{
+  "extends": ["@kyh/tsconfig/base.json"],
+  "compilerOptions": {
+    "jsx": "react-native",
+    "checkJs": false,
+    "moduleSuffixes": [".ios", ".android", ".native", ""],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "*.ts", "*.js", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"],
+  "exclude": ["node_modules"]
+}
