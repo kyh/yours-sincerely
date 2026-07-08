@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  FEED_LAYOUT_STORAGE_KEY,
-  FeedLayoutContext,
-  type FeedLayout,
-} from "@/lib/feed-layout";
+import { FEED_LAYOUT_STORAGE_KEY, FeedLayoutContext, type FeedLayout } from "@/lib/feed-layout";
 
 export const FeedLayoutProvider = ({ children }: { children: ReactNode }) => {
   const [layout, setLayout] = useState<FeedLayout>("list");

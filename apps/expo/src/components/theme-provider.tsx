@@ -18,8 +18,7 @@ export const isDarkTheme = (theme: string) => theme === "dark" || theme === "dar
 
 const THEME_STORAGE_KEY = "theme";
 
-const isThemeId = (value: string): value is ThemeId =>
-  themes.some((theme) => theme.id === value);
+const isThemeId = (value: string): value is ThemeId => themes.some((theme) => theme.id === value);
 
 type ThemeContextValue = {
   /** The user's selected theme (may be "system"). */
@@ -52,13 +51,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     AsyncStorage.setItem(THEME_STORAGE_KEY, next).catch(() => undefined);
   };
 
-  const resolvedTheme =
-    theme === "system" ? (colorScheme === "dark" ? "dark" : "light") : theme;
+  const resolvedTheme = theme === "system" ? (colorScheme === "dark" ? "dark" : "light") : theme;
 
-  const value = useMemo(
-    () => ({ theme, resolvedTheme, setTheme }),
-    [theme, resolvedTheme],
-  );
+  const value = useMemo(() => ({ theme, resolvedTheme, setTheme }), [theme, resolvedTheme]);
 
   return (
     <ThemeContext.Provider value={value}>

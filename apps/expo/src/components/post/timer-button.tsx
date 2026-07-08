@@ -41,6 +41,8 @@ type Props = {
 };
 
 export const TimerButton = ({ post }: Props) => {
+  if (!post.createdAt) return null;
+
   const start = new Date(post.createdAt);
   const { percentage, now, end } = getPercentage(start);
   const formattedTime = formatDistance(now, end);

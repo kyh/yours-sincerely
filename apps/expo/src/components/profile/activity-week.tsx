@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { View } from "react-native";
 import Svg, { Ellipse, G, Rect, Text as SvgText } from "react-native-svg";
+import { toast } from "sonner-native";
 
 import type { Theme } from "@/lib/calendar-util";
-import { DEFAULT_WEEKDAY_LABELS, levelColor, toLevel } from "@/lib/calendar-util";
+import { DEFAULT_WEEKDAY_LABELS, FULL_DAY_LABELS, levelColor, toLevel } from "@/lib/calendar-util";
 import { useThemeColors } from "@/components/theme-colors";
 
 /** Weekly activity bubbles — RN port of the web activity-week chart. */
@@ -28,6 +29,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
               const entry = data[day];
               const level = toLevel(entry?.level ?? 0);
               const radius = entry !== undefined ? entry.level * 4 : 0;
+              const count = entry?.count ?? 0;
               return (
                 <Ellipse
                   key={day}
@@ -38,6 +40,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
                   fill={levelColor(theme, level)}
                   strokeWidth={1}
                   stroke={theme.stroke}
+                  onPress={() => toast(`${count} posts written on ${FULL_DAY_LABELS[day] ?? day}s`)}
                 />
               );
             })}

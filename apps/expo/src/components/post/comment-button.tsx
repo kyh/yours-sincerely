@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
 
 import type { FeedPost } from "@/lib/post-types";
-import { Text } from "@/components/ui/text";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 
 type Props = {
@@ -22,7 +22,7 @@ export const CommentButton = ({ post }: Props) => {
       onPress={() => router.push({ pathname: "/posts/[post-id]", params: { "post-id": post.id } })}
     >
       <MessageCircle size={16} color={colors.mutedForeground} />
-      <Text className="text-muted-foreground min-w-3 text-sm">{post.commentCount}</Text>
+      <AnimatedNumber value={post.commentCount} />
     </Pressable>
   );
 };

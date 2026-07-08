@@ -58,9 +58,7 @@ export const ProfileContent = ({ userId }: Props) => {
   if (user === undefined || user === null) {
     return (
       <View className="flex-1 items-center justify-center px-5">
-        <Text className="text-center">
-          Hmm, can't seem to find the person you're looking for
-        </Text>
+        <Text className="text-center">Hmm, can't seem to find the person you're looking for</Text>
       </View>
     );
   }
@@ -86,7 +84,8 @@ export const ProfileContent = ({ userId }: Props) => {
             "No daily stats yet"
           ) : (
             <>
-              Favorite day to write is on <Text className="text-primary text-sm font-bold">{favoriteDay}s</Text>
+              Favorite day to write is on{" "}
+              <Text className="text-primary text-sm font-bold">{favoriteDay}s</Text>
             </>
           )}
         </Text>

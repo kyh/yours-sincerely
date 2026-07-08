@@ -54,13 +54,9 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
         queryClient
           .invalidateQueries(trpc.post.getFeed.infiniteQueryFilter())
           .catch(() => undefined);
-        queryClient
-          .invalidateQueries(trpc.auth.workspace.queryFilter())
-          .catch(() => undefined);
+        queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
         onSuccess?.();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
-          () => undefined,
-        );
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
         setTimeout(() => {
           toast.success("Your love letter has been published");
         }, 500);

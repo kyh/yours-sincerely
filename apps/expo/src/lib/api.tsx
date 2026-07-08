@@ -21,8 +21,7 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
   client: createTRPCClient({
     links: [
       loggerLink({
-        enabled: (opts) =>
-          __DEV__ || (opts.direction === "down" && opts.result instanceof Error),
+        enabled: (opts) => __DEV__ || (opts.direction === "down" && opts.result instanceof Error),
         colorMode: "ansi",
       }),
       httpBatchLink({

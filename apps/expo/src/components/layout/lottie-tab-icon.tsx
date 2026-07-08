@@ -36,13 +36,7 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
         height: size,
         opacity: focused ? 1 : 0.5,
       }}
-      colorFilters={
-        isDarkTheme(resolvedTheme)
-          ? [
-              { keypath: "**", color: "#FAFAFA" },
-            ]
-          : undefined
-      }
+      colorFilters={isDarkTheme(resolvedTheme) ? [{ keypath: "**", color: "#FAFAFA" }] : undefined}
     />
   );
 };

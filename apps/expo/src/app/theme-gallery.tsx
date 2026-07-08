@@ -66,9 +66,7 @@ export default function ThemeGallery() {
         </View>
 
         <View className="bg-primary rounded-radius p-3">
-          <Text className="text-primary-foreground text-center font-medium">
-            Primary surface
-          </Text>
+          <Text className="text-primary-foreground text-center font-medium">Primary surface</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
+import { updateUserInput } from "@repo/api/user/user-schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, trpc } from "@/lib/api";
 
@@ -20,6 +22,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   const user = data?.user;
 
   const [displayName, setDisplayName] = useState("Anonymous");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.displayName !== undefined && user.displayName !== null) {
@@ -44,8 +47,17 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
 
   const handleBlur = () => {
     if (readonly || user === undefined || user === null) return;
-    if (displayName === (user.displayName ?? "Anonymous")) return;
-    updateUser.mutate({ userId, displayName });
+    if (displayName === (user.displayName ?? "Anonymous")) {
+      setError(null);
+      return;
+    }
+    const parsed = updateUserInput.safeParse({ userId, displayName });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Invalid name");
+      return;
+    }
+    setError(null);
+    updateUser.mutate(parsed.data);
   };
 
   return (
@@ -54,12 +66,16 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
       <TextInput
         value={displayName}
         editable={!readonly}
-        onChangeText={setDisplayName}
+        onChangeText={(value) => {
+          setDisplayName(value);
+          setError(null);
+        }}
         onBlur={handleBlur}
         placeholder="Your name"
         placeholderTextColor={colors.mutedForeground}
         className="text-foreground rounded px-3 py-1 text-center font-sans text-xl font-bold"
       />
+      {error !== null && <Text className="text-destructive text-xs">{error}</Text>}
     </View>
   );
 };

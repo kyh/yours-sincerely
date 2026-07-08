@@ -69,9 +69,7 @@ export default function PostScreen() {
 
           <View>
             <View className="flex-row items-center gap-2 py-3">
-              <Text className="text-muted-foreground text-sm">
-                Comments ({post.commentCount})
-              </Text>
+              <Text className="text-muted-foreground text-sm">Comments ({post.commentCount})</Text>
               <View className="bg-border h-px flex-1" />
             </View>
             {(post.comments === undefined || post.comments.length === 0) && (
@@ -79,12 +77,7 @@ export default function PostScreen() {
             )}
             {post.comments?.map((comment) => (
               <View key={comment.id} className="border-border border-b pt-5 pb-3">
-                <PostContent
-                  post={comment}
-                  showTimer={false}
-                  showComment={false}
-                  asLink={false}
-                />
+                <PostContent post={comment} showTimer={false} showComment={false} asLink={false} />
               </View>
             ))}
           </View>

@@ -1,7 +1,17 @@
 import { useState } from "react";
-import { Linking, Pressable } from "react-native";
+import { Linking, Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Layout, LogIn, Palette, Settings, User } from "lucide-react-native";
+import {
+  BookCheck,
+  GlobeLock,
+  Handshake,
+  HelpCircle,
+  Layout,
+  LogIn,
+  Palette,
+  Settings,
+  User,
+} from "lucide-react-native";
 
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
 import { Text } from "@/components/ui/text";
@@ -32,6 +42,9 @@ const MenuItem = ({
   </Pressable>
 );
 
+/** Mirrors the web menu's grouping separators. */
+const MenuSeparator = () => <View className="bg-border my-1 h-px" />;
+
 export const AvatarMenu = () => {
   const router = useRouter();
   const colors = useThemeColors();
@@ -47,6 +60,11 @@ export const AvatarMenu = () => {
   };
 
   const iconSize = 16;
+
+  const openUrl = (url: string) => {
+    setIsOpen(false);
+    Linking.openURL(url).catch(() => undefined);
+  };
 
   return (
     <>
@@ -85,6 +103,7 @@ export const AvatarMenu = () => {
             router.push("/settings");
           }}
         />
+        <MenuSeparator />
         <MenuItem
           icon={<Palette size={iconSize} color={colors.foreground} />}
           label={`Theme: ${themes.find((option) => option.id === theme)?.label ?? "System"}`}
@@ -95,13 +114,26 @@ export const AvatarMenu = () => {
           label={`Layout: ${layout === "list" ? "List" : "Stack"}`}
           onPress={toggleLayout}
         />
+        <MenuSeparator />
         <MenuItem
-          icon={<User size={iconSize} color={colors.foreground} />}
+          icon={<HelpCircle size={iconSize} color={colors.foreground} />}
           label="Support"
-          onPress={() => {
-            setIsOpen(false);
-            Linking.openURL(`mailto:${siteConfig.supportEmail}`).catch(() => undefined);
-          }}
+          onPress={() => openUrl(`mailto:${siteConfig.supportEmail}`)}
+        />
+        <MenuItem
+          icon={<BookCheck size={iconSize} color={colors.foreground} />}
+          label="About"
+          onPress={() => openUrl(`${siteConfig.url}/about`)}
+        />
+        <MenuItem
+          icon={<GlobeLock size={iconSize} color={colors.foreground} />}
+          label="Privacy"
+          onPress={() => openUrl(`${siteConfig.url}/privacy`)}
+        />
+        <MenuItem
+          icon={<Handshake size={iconSize} color={colors.foreground} />}
+          label="Terms"
+          onPress={() => openUrl(`${siteConfig.url}/terms`)}
         />
       </BottomDrawer>
     </>
