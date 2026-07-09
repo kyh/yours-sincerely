@@ -21,7 +21,7 @@
     "cookie-signature": "^1.2.2",
     "drizzle-orm": "^0.45.2",
     "next": "catalog:",
-    "resend": "^6.12.3",
+    "resend": "^6.17.2",
     "superjson": "catalog:",
     "zod": "catalog:"
   },
