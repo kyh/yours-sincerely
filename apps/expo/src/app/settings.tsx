@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Linking, Pressable, ScrollView, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react-native";
@@ -17,7 +17,7 @@ import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of the web settings page: email (saved on blur), password reset,
-    theme picker, sign out, legal links. */
+    theme picker, sign out, account deletion, legal links. */
 export default function SettingsScreen() {
   const router = useRouter();
   const colors = useThemeColors();
@@ -32,7 +32,10 @@ export default function SettingsScreen() {
 
   const updateUser = useMutation(
     trpc.user.updateUser.mutationOptions({
-      onSuccess: () => toast.success("Settings successfully updated"),
+      onSuccess: () => {
+        toast.success("Settings successfully updated");
+        queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
+      },
       onError: () => toast.error("Could not update Settings. Please try again."),
     }),
   );
@@ -44,14 +47,40 @@ export default function SettingsScreen() {
   );
   const signOut = useMutation(
     trpc.auth.signOut.mutationOptions({
+      // Clear local state even if the server call fails — otherwise an
+      // offline or already-invalid session can never sign out.
+      onSettled: async () => {
+        await deleteSessionCookie();
+        queryClient.clear();
+        router.replace("/");
+      },
+    }),
+  );
+  const deleteAccount = useMutation(
+    trpc.user.deleteUser.mutationOptions({
       onSuccess: async () => {
         await deleteSessionCookie();
         queryClient.clear();
         router.replace("/");
       },
-      onError: (error) => toast.error(error.message),
+      onError: () => toast.error("Could not delete account. Please try again."),
     }),
   );
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      "Delete account?",
+      "This permanently deletes your account, letters, and likes. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteAccount.mutate(),
+        },
+      ],
+    );
+  };
 
   const handleEmailBlur = () => {
     if (user === null || email === (user.email ?? "")) return;
@@ -146,13 +175,22 @@ export default function SettingsScreen() {
 
         <View className="gap-2">
           {user !== null ? (
-            <Button
-              variant="destructive"
-              onPress={() => signOut.mutate()}
-              loading={signOut.isPending}
-            >
-              Log out
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onPress={() => signOut.mutate()}
+                loading={signOut.isPending}
+              >
+                Log out
+              </Button>
+              <Button
+                variant="destructive"
+                onPress={confirmDeleteAccount}
+                loading={deleteAccount.isPending}
+              >
+                Delete account
+              </Button>
+            </>
           ) : (
             <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
           )}

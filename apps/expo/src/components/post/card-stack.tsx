@@ -159,14 +159,18 @@ export const CardStack = <T extends { id: string }>({
   const { currentIndex, setCurrentIndex } = useCardStack();
   const [width, setWidth] = useState(400);
 
+  // The feed can shrink (block/delete invalidation) below currentIndex; wrap
+  // it back into range so exactly one card stays gesture-enabled.
+  const safeIndex = data.length > 0 ? wrap(0, data.length, currentIndex) : 0;
+
   const handleSetNextPost = () => {
-    const postsLeft = data.length - currentIndex - 1;
+    const postsLeft = data.length - safeIndex - 1;
     if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
-    setCurrentIndex(wrap(0, data.length, currentIndex + 1));
+    setCurrentIndex(wrap(0, data.length, safeIndex + 1));
   };
 
   const handleSetPreviousPost = () => {
-    setCurrentIndex(wrap(0, data.length, currentIndex - 1));
+    setCurrentIndex(wrap(0, data.length, safeIndex - 1));
   };
 
   return (
@@ -181,7 +185,7 @@ export const CardStack = <T extends { id: string }>({
             minDistance={width * 0.5}
             maxRotate={3}
             index={index}
-            currentIndex={currentIndex}
+            currentIndex={safeIndex}
             total={data.length}
             setNextPost={handleSetNextPost}
           >

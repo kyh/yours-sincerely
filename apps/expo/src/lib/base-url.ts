@@ -8,6 +8,10 @@ const PROD_URL = "https://yourssincerely.org";
  * the live site.
  */
 export const getBaseUrl = () => {
+  // Explicit escape hatch: point any build (incl. release) at a chosen API,
+  // e.g. a local server for screenshots or a staging host. Inlined at build time.
+  const override = process.env.EXPO_PUBLIC_API_URL;
+  if (override) return override;
   if (!__DEV__) return PROD_URL;
   const host = Constants.expoConfig?.hostUri?.split(":")[0];
   if (!host) return PROD_URL;

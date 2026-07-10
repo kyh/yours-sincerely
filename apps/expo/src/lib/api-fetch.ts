@@ -1,5 +1,6 @@
 import { parse, splitCookiesString } from "set-cookie-parser";
 
+import { ensureLegacySessionMigrated } from "./legacy-session-migration";
 import { deleteSessionCookie, getSessionCookie, setSessionCookie } from "./session-store";
 
 const SESSION_COOKIE = "__session";
@@ -15,6 +16,8 @@ const SESSION_COOKIE = "__session";
  * round-trip byte-for-byte or signature verification fails server-side.
  */
 export const fetchWithSession: typeof fetch = async (input, init) => {
+  await ensureLegacySessionMigrated();
+
   const headers = new Headers(init?.headers);
   const session = getSessionCookie();
   if (session !== null && session.length > 0) {

@@ -1,0 +1,11 @@
+# expo
+.expo/
+expo-env.d.ts
+# CNG prebuild output (root only — must not swallow modules/*/ios|android native source)
+/ios/
+/android/
+
+# caches
+.cache/
+.turbo/
+node_modules/

@@ -20,6 +20,7 @@ type Props = {
   showComment?: boolean;
   showTimer?: boolean;
   showMore?: boolean;
+  onDeleted?: () => void;
 };
 
 export const PostContent = ({
@@ -30,6 +31,7 @@ export const PostContent = ({
   showComment = true,
   showTimer = true,
   showMore = true,
+  onDeleted,
 }: Props) => {
   const router = useRouter();
 
@@ -63,7 +65,7 @@ export const PostContent = ({
           <LikeButton post={post} />
           {showTimer ? <TimerButton post={post} /> : null}
           <ShareButton post={post} />
-          {showMore ? <MoreButton post={post} /> : null}
+          {showMore ? <MoreButton post={post} onDeleted={onDeleted} /> : null}
         </View>
       </View>
     </View>

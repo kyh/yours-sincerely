@@ -11,7 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getSession } from "./auth/session";
+import { getSession, renewSessionIfStale } from "./auth/session";
 
 /**
  * 1. CONTEXT
@@ -29,6 +29,11 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const sessionUserId = await getSession();
   const user = await findDbUser(sessionUserId);
 
+  // tRPC runs in a route handler, where cookie writes are allowed
+  if (user) {
+    await renewSessionIfStale();
+  }
+
   return {
     headers: opts.headers,
     user,
@@ -41,6 +46,7 @@ const findDbUser = async (userId?: string | null) => {
 
   const user = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, userId),
+    columns: { passwordHash: false },
   });
 
   return user ?? null;

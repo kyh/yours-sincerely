@@ -5,6 +5,7 @@ import Svg, { Circle, Path } from "react-native-svg";
 import { toast } from "sonner-native";
 
 import type { FeedPost } from "@/lib/post-types";
+import { parseServerDate } from "@/lib/dates";
 
 /** Same countdown math as the web timer-button. */
 const getPercentage = (createdAt: Date) => {
@@ -43,7 +44,7 @@ type Props = {
 export const TimerButton = ({ post }: Props) => {
   if (!post.createdAt) return null;
 
-  const start = new Date(post.createdAt);
+  const start = parseServerDate(post.createdAt);
   const { percentage, now, end } = getPercentage(start);
   const formattedTime = formatDistance(now, end);
 

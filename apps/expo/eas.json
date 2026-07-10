@@ -14,17 +14,21 @@
     "development": {
       "extends": "base",
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "development"
     },
     "preview": {
       "extends": "base",
       "distribution": "internal",
+      "environment": "preview",
       "ios": {
         "simulator": true
       }
     },
     "production": {
-      "extends": "base"
+      "extends": "base",
+      "autoIncrement": true,
+      "environment": "production"
     }
   },
   "submit": {

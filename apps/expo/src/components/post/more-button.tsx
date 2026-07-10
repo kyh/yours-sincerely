@@ -14,6 +14,7 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 type Props = {
   post: FeedPost;
+  onDeleted?: () => void;
 };
 
 const DrawerItem = ({
@@ -35,19 +36,28 @@ const DrawerItem = ({
   </Pressable>
 );
 
-export const MoreButton = ({ post }: Props) => {
+export const MoreButton = ({ post, onDeleted }: Props) => {
   const colors = useThemeColors();
   const { user } = useWorkspaceUser();
   const [isOpen, setIsOpen] = useState(false);
 
-  const invalidateFeed = () =>
-    queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter());
+  const invalidatePosts = () =>
+    Promise.all([
+      queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
+      queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
+    ]);
 
   const deleteMutation = useMutation(
     trpc.post.deletePost.mutationOptions({
       onSuccess: () => {
         toast.success("You have deleted this post");
-        invalidateFeed().catch(() => undefined);
+        invalidatePosts().catch(() => undefined);
+        Promise.all([
+          queryClient.invalidateQueries(trpc.post.getPostsByUser.queryFilter()),
+          queryClient.invalidateQueries(trpc.user.getUser.queryFilter()),
+          queryClient.invalidateQueries(trpc.user.getUserStats.queryFilter()),
+        ]).catch(() => undefined);
+        onDeleted?.();
       },
     }),
   );
@@ -55,6 +65,7 @@ export const MoreButton = ({ post }: Props) => {
     trpc.flag.createFlag.mutationOptions({
       onSuccess: () => {
         toast.success("You have flagged this post, we will be reviewing it shortly");
+        invalidatePosts().catch(() => undefined);
       },
     }),
   );
@@ -62,7 +73,7 @@ export const MoreButton = ({ post }: Props) => {
     trpc.block.createBlock.mutationOptions({
       onSuccess: () => {
         toast.success("You have blocked this user");
-        invalidateFeed().catch(() => undefined);
+        invalidatePosts().catch(() => undefined);
       },
     }),
   );
@@ -88,7 +99,11 @@ export const MoreButton = ({ post }: Props) => {
             setIsOpen(false);
             Linking.openURL(
               `mailto:${siteConfig.supportEmail}?subject=Report YS Post: ${post.id}`,
-            ).catch(() => undefined);
+            ).catch(() => {
+              toast.error(
+                `Could not open your mail app. Report this post to ${siteConfig.supportEmail}`,
+              );
+            });
           }}
         />
         {user !== null && isPostOwner ? (
@@ -101,7 +116,7 @@ export const MoreButton = ({ post }: Props) => {
             }}
           />
         ) : null}
-        {user !== null && !isPostOwner ? (
+        {!isPostOwner ? (
           <DrawerItem
             icon={<TriangleAlert size={iconSize} color={colors.foreground} />}
             label="Mark as inappropriate"

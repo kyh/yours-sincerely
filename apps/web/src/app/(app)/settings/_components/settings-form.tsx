@@ -3,6 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/api/user/user-schema";
 import { Button } from "@repo/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@repo/ui/components/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { Label } from "@repo/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
@@ -29,6 +37,12 @@ export const SettingsForm = () => {
     trpc.auth.signOut.mutationOptions({
       onSuccess: () => router.replace("/"),
       onError: (error) => toast.error(error.message),
+    }),
+  );
+  const deleteUser = useMutation(
+    trpc.user.deleteUser.mutationOptions({
+      onSuccess: () => window.location.assign("/"),
+      onError: () => toast.error("Could not delete account. Please try again."),
     }),
   );
 
@@ -124,15 +138,36 @@ export const SettingsForm = () => {
           ))}
         </RadioGroup>
       </div>
-      <div className="outline-border rounded-b-md px-3 py-4 outline -outline-offset-1">
+      <div className="outline-border flex gap-2 rounded-b-md px-3 py-4 outline -outline-offset-1">
         <Button
           type="button"
-          variant="destructive"
+          variant="outline"
           loading={signOut.isPending}
           onClick={() => signOut.mutate()}
         >
           Log out
         </Button>
+        <Dialog>
+          <DialogTrigger render={<Button type="button" variant="destructive" />}>
+            Delete account
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete account?</DialogTitle>
+              <DialogDescription>
+                This permanently deletes your account, letters, and likes. This cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <Button
+              type="button"
+              variant="destructive"
+              loading={deleteUser.isPending}
+              onClick={() => deleteUser.mutate()}
+            >
+              Delete my account
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import { View } from "react-native";
-import { LegendList } from "@legendapp/list";
+import { LegendList } from "@legendapp/list/react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import type { FeedLayout } from "@/lib/feed-layout";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { trpc } from "@/lib/api";
@@ -20,12 +21,20 @@ type Props = {
 };
 
 export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
-  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage, refetch, isRefetching } =
-    useInfiniteQuery(
-      trpc.post.getFeed.infiniteQueryOptions(filters, {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      }),
-    );
+  const {
+    data,
+    isPending,
+    isError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+    isRefetching,
+  } = useInfiniteQuery(
+    trpc.post.getFeed.infiniteQueryOptions(filters, {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }),
+  );
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
@@ -33,6 +42,23 @@ export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
     return (
       <View className="flex-1 items-center justify-center py-10">
         <Spinner />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center gap-3 py-10">
+        <Text className="text-sm">Couldn't load posts</Text>
+        <Button
+          size="sm"
+          variant="outline"
+          onPress={() => {
+            refetch().catch(() => undefined);
+          }}
+        >
+          Retry
+        </Button>
       </View>
     );
   }

@@ -55,6 +55,11 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
           .invalidateQueries(trpc.post.getFeed.infiniteQueryFilter())
           .catch(() => undefined);
         queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
+        queryClient
+          .invalidateQueries(trpc.post.getPostsByUser.queryFilter())
+          .catch(() => undefined);
+        queryClient.invalidateQueries(trpc.user.getUser.queryFilter()).catch(() => undefined);
+        queryClient.invalidateQueries(trpc.user.getUserStats.queryFilter()).catch(() => undefined);
         onSuccess?.();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
         setTimeout(() => {

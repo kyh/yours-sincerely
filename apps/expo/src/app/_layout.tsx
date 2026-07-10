@@ -43,18 +43,20 @@ const RootStack = () => {
 };
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
   });
+  // On font failure, proceed with system fonts rather than hang on the splash.
+  const fontsReady = fontsLoaded || fontError !== null;
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync().catch(() => undefined);
-  }, [fontsLoaded]);
+    if (fontsReady) SplashScreen.hideAsync().catch(() => undefined);
+  }, [fontsReady]);
 
-  if (!fontsLoaded) return null;
+  if (!fontsReady) return null;
 
   return (
     <GestureHandlerRootView className="flex-1">

@@ -4,8 +4,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Yours Sincerely",
   slug: "yours-sincerely",
+  owner: "kaiyuhsu",
   scheme: "yourssincerely",
-  version: "0.1.0",
+  // Native rewrite replacing the Capacitor app (live store version 1.0).
+  version: "2.0.0",
   orientation: "portrait",
   icon: "./assets/icon-light.png",
   userInterfaceStyle: "automatic",
@@ -14,28 +16,39 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "org.yourssincerely.app",
+    // Must match the live App Store app (Capacitor) so this ships as an update
+    // and inherits the app container (WebView cookies → session migration).
+    bundleIdentifier: "com.kyh.yourssincerely",
     supportsTablet: true,
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      // Expo's iPad-multitasking default re-enables all orientations on iPad;
+      // the app is designed portrait-only, so opt out explicitly.
+      UIRequiresFullScreen: true,
+      "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"],
+    },
     icon: {
       light: "./assets/icon-light.png",
       dark: "./assets/icon-dark.png",
     },
   },
   android: {
-    package: "org.yourssincerely.app",
+    package: "com.kyh.yourssincerely",
     adaptiveIcon: {
       foregroundImage: "./assets/icon-light.png",
       backgroundColor: "#FBF8EF",
     },
   },
   extra: {
+    eas: {
+      projectId: "289e7cea-2c1b-487c-8ab4-ec91572dfb86",
+    },
     knockPublicApiKey: process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY,
     knockFeedChannelId: process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID,
   },
   experiments: {
     tsconfigPaths: true,
     typedRoutes: true,
-    reactCanary: true,
     reactCompiler: true,
   },
   plugins: [

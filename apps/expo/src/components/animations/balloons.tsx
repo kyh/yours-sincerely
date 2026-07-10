@@ -290,7 +290,10 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
     const maxLifetime = configs.reduce((max, c) => Math.max(max, c.duration + c.delay), 0);
 
     setBalloonBatch(configs);
-    setTimeout(() => setBalloonBatch(null), maxLifetime + 500);
+    // Only clear our own batch — a later celebrate() may have replaced it.
+    setTimeout(() => {
+      setBalloonBatch((prev) => (prev === configs ? null : prev));
+    }, maxLifetime + 500);
   }, [screenWidth, screenHeight]);
 
   const contextValue = useMemo(() => ({ celebrate }), [celebrate]);

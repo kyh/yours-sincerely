@@ -21,8 +21,13 @@ export default function PostScreen() {
   const colors = useThemeColors();
   const { user } = useWorkspaceUser();
 
-  const { data, isPending } = useQuery(trpc.post.getPost.queryOptions({ postId }));
+  const { data, isPending, isError } = useQuery(trpc.post.getPost.queryOptions({ postId }));
   const post = data?.post;
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
@@ -30,10 +35,7 @@ export default function PostScreen() {
         <Pressable
           accessibilityRole="button"
           className="active:bg-accent -ml-2 h-8 flex-row items-center gap-1 rounded-lg px-2"
-          onPress={() => {
-            if (router.canGoBack()) router.back();
-            else router.replace("/");
-          }}
+          onPress={goBack}
         >
           <ArrowLeft size={16} color={colors.foreground} />
           <Text className="text-sm font-medium">Back</Text>
@@ -41,7 +43,11 @@ export default function PostScreen() {
         {post !== undefined && <Text className="text-xs">{readingTime(post.content).text}</Text>}
       </View>
 
-      {isPending || post === undefined ? (
+      {isError ? (
+        <View className="flex-1 items-center justify-center px-5">
+          <Text className="text-sm">This letter is gone</Text>
+        </View>
+      ) : isPending || post === undefined ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -52,7 +58,7 @@ export default function PostScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <Card>
-            <PostContent post={post} asLink={false} showComment={false} />
+            <PostContent post={post} asLink={false} showComment={false} onDeleted={goBack} />
           </Card>
 
           {user !== null && (

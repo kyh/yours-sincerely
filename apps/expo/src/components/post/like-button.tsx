@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
+import type { InfiniteData, QueryKey } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -16,10 +17,11 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle, Path } from "react-native-svg";
 
+import type { RouterOutputs } from "@/lib/api";
 import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
-import { trpc } from "@/lib/api";
+import { queryClient, trpc } from "@/lib/api";
 
 /** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
     ring, and 14-particle burst with the same timings/easings/colors. */
@@ -225,24 +227,91 @@ type Props = {
   post: FeedPost;
 };
 
+type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
+type PostQueryData = RouterOutputs["post"]["getPost"];
+
+type LikeSnapshot = {
+  previousFeed: [QueryKey, unknown][];
+  previousPosts: [QueryKey, unknown][];
+};
+
+const likePatch = (item: { likeCount: number }, liked: boolean) => ({
+  isLiked: liked,
+  likeCount: item.likeCount + (liked ? 1 : -1),
+});
+
+/** Optimistically toggles a like across the feed and post-detail caches so
+    remounted rows (list virtualization, screen re-entry) stay in sync. */
+const likeMutationHandlers = (postId: string, liked: boolean) => {
+  const feedFilter = trpc.post.getFeed.infiniteQueryFilter();
+  const postFilter = trpc.post.getPost.queryFilter();
+
+  return {
+    onMutate: async (): Promise<LikeSnapshot> => {
+      await Promise.all([
+        queryClient.cancelQueries(feedFilter),
+        queryClient.cancelQueries(postFilter),
+      ]);
+      const previousFeed = queryClient.getQueriesData(feedFilter);
+      const previousPosts = queryClient.getQueriesData(postFilter);
+      queryClient.setQueriesData<FeedQueryData>(feedFilter, (data) =>
+        data === undefined
+          ? undefined
+          : {
+              ...data,
+              pages: data.pages.map((page) => ({
+                ...page,
+                posts: page.posts.map((item) =>
+                  item.id === postId ? { ...item, ...likePatch(item, liked) } : item,
+                ),
+              })),
+            },
+      );
+      queryClient.setQueriesData<PostQueryData>(postFilter, (data) =>
+        data === undefined
+          ? undefined
+          : {
+              ...data,
+              post: {
+                ...data.post,
+                ...(data.post.id === postId ? likePatch(data.post, liked) : undefined),
+                comments: data.post.comments?.map((comment) =>
+                  comment.id === postId ? { ...comment, ...likePatch(comment, liked) } : comment,
+                ),
+              },
+            },
+      );
+      return { previousFeed, previousPosts };
+    },
+    onError: (_error: unknown, _variables: unknown, snapshot: LikeSnapshot | undefined) => {
+      if (snapshot === undefined) return;
+      for (const [queryKey, data] of [...snapshot.previousFeed, ...snapshot.previousPosts]) {
+        queryClient.setQueryData(queryKey, data);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(feedFilter).catch(() => undefined);
+      queryClient.invalidateQueries(postFilter).catch(() => undefined);
+    },
+  };
+};
+
 export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
-  const [likeCount, setLikeCount] = useState(post.likeCount);
-  const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const createMutate = useMutation(trpc.like.createLike.mutationOptions());
-  const deleteMutate = useMutation(trpc.like.deleteLike.mutationOptions());
+  const createMutate = useMutation(
+    trpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
+  );
+  const deleteMutate = useMutation(
+    trpc.like.deleteLike.mutationOptions(likeMutationHandlers(post.id, false)),
+  );
 
   const toggleLike = () => {
-    if (isLiked) {
-      setLikeCount(likeCount - 1);
-      setIsLiked(false);
+    if (post.isLiked) {
       deleteMutate.mutate({ postId: post.id });
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
-      setLikeCount(likeCount + 1);
-      setIsLiked(true);
       setIsAnimating(true);
       createMutate.mutate({ postId: post.id });
     }
@@ -251,7 +320,7 @@ export const LikeButton = ({ post }: Props) => {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${likeCount} likes, tap to ${isLiked ? "unlike" : "like"}`}
+      accessibilityLabel={`${post.likeCount} likes, tap to ${post.isLiked ? "unlike" : "like"}`}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
       onPress={toggleLike}
     >
@@ -261,10 +330,10 @@ export const LikeButton = ({ post }: Props) => {
         {isAnimating ? (
           <AnimatingHeart onComplete={() => setIsAnimating(false)} />
         ) : (
-          <Heart color={isLiked ? "#ef4444" : colors.mutedForeground} />
+          <Heart color={post.isLiked ? "#ef4444" : colors.mutedForeground} />
         )}
       </View>
-      <AnimatedNumber value={likeCount} />
+      <AnimatedNumber value={post.likeCount} />
     </Pressable>
   );
 };

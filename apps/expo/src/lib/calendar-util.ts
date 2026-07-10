@@ -14,6 +14,8 @@ import {
 
 import type { RouterOutputs } from "@repo/api";
 
+import { parseServerDate } from "./dates";
+
 /** Port of apps/web (app)/profile/_components/calendar-util.ts +
     calendar-types.ts (typed without non-null assertions). */
 
@@ -150,7 +152,7 @@ const groupByDay = (posts: Posts, lastNDays: number) => {
   for (const day of days) daysMap[format(day, "yyyy-MM-dd")] = [];
 
   for (const post of posts) {
-    const day = format(new Date(post.createdAt), "yyyy-MM-dd");
+    const day = format(parseServerDate(post.createdAt), "yyyy-MM-dd");
     daysMap[day]?.push(post);
   }
 
@@ -186,7 +188,7 @@ export const createPostsDailyActivity = (posts: Posts) => {
   for (const day of DEFAULT_WEEKDAY_LABELS) daysMap[day] = { count: 0, level: 0 };
 
   for (const post of posts) {
-    const day = format(new Date(post.createdAt), "eee");
+    const day = format(parseServerDate(post.createdAt), "eee");
     const entry = daysMap[day];
     if (entry !== undefined) entry.count += 1;
   }

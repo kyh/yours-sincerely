@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  :root {
+    --paper: #fbf8ef;      /* hsl(45 60% 96%) app background */
+    --paper-deep: #f3ecd6; /* deeper cream for alternating panels */
+    --ink: #23231f;        /* hsl(60 6% 13%) foreground */
+    --ink-soft: #6b6a63;   /* muted foreground */
+    --accent: #d8cfae;     /* secondary band */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #000; }
+
+  /* The stage is the full 6-panel-wide strip. Each rendered frame is a
+     1320x2868 window onto it, shifted by --frame. Straddling devices and the
+     continuous ink ribbon read as one flowing story across App Store frames. */
+  #viewport {
+    width: 1320px; height: 2868px; overflow: hidden; position: relative;
+  }
+  #stage {
+    position: absolute; top: 0; left: 0;
+    width: 7920px; height: 2868px;
+    transform: translateX(calc(var(--frame) * -1320px));
+  }
+
+  .panel {
+    position: absolute; top: 0; width: 1320px; height: 2868px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 150px 96px 0;
+  }
+  .panel.p0 { left: 0;    background: var(--paper); }
+  .panel.p1 { left: 1320px; background: var(--paper-deep); }
+  .panel.p2 { left: 2640px; background: var(--paper); }
+  .panel.p3 { left: 3960px; background: var(--paper-deep); }
+  .panel.p4 { left: 5280px; background: var(--paper); }
+  .panel.p5 { left: 6600px; background: var(--paper-deep); justify-content: center; padding-top: 0; padding-bottom: 260px; }
+
+  .headline {
+    font-family: 'Iowan Old Style', 'Palatino Linotype', 'Hoefler Text', Georgia, serif;
+    color: var(--ink);
+    font-size: 108px; line-height: 1.06; letter-spacing: -0.5px;
+    text-align: center; font-weight: 600; max-width: 1050px;
+    text-wrap: balance;
+  }
+  .headline em { font-style: italic; }
+  .sub {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink-soft); font-size: 40px; margin-top: 34px;
+    text-align: center; letter-spacing: 0.2px;
+  }
+
+  /* Continuous hand-drawn ink line threading the whole strip together. */
+  #ribbon { position: absolute; top: 0; left: 0; width: 7920px; height: 2868px; pointer-events: none; }
+
+  /* Device: real app screen inside a titanium-ish bezel. */
+  .device {
+    position: absolute;
+    width: 900px;            /* screen width; frame adds bezel */
+    border-radius: 92px;
+    background: #0e0e0c;
+    padding: 18px;
+    box-shadow: 0 70px 130px -28px rgba(35,35,31,0.5), 0 22px 50px -20px rgba(35,35,31,0.38);
+  }
+  .device .screen {
+    width: 100%; display: block; border-radius: 62px; overflow: hidden;
+    background: var(--paper);
+  }
+  .device .screen img { width: 100%; display: block; }
+
+  .brandmark {
+    display: flex; flex-direction: column; align-items: center; gap: 40px;
+  }
+  .brandmark .sub { max-width: 720px; margin-top: 0; }
+  .brandmark .icon {
+    width: 300px; height: 300px; border-radius: 68px; overflow: hidden;
+    box-shadow: 0 30px 70px -25px rgba(35,35,31,0.4);
+  }
+  .brandmark .icon img { width: 100%; height: 100%; object-fit: cover; }
+  .wordmark {
+    font-family: 'Iowan Old Style','Palatino Linotype', Georgia, serif;
+    font-style: italic; font-size: 92px; color: var(--ink); font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <!-- Panels / headlines -->
+    <div class="panel p0"><div class="headline">Say the thing you <em>never sent.</em></div></div>
+    <div class="panel p1"><div class="headline">Written in <em>disappearing ink.</em></div><div class="sub">Every letter fades in 21 days.</div></div>
+    <div class="panel p2"><div class="headline">To anyone. To no one.<br/><em>To the one.</em></div></div>
+    <div class="panel p3"><div class="headline">No names here.<br/>Only what's <em>true.</em></div></div>
+    <div class="panel p4"><div class="headline">Someone out there<br/><em>needed it too.</em></div></div>
+    <div class="panel p5">
+      <div class="brandmark">
+        <div class="icon"><img id="appicon" src="" alt="" /></div>
+        <div class="wordmark">Yours, sincerely</div>
+        <div class="sub">Anonymous love letters, written in disappearing ink.</div>
+      </div>
+    </div>
+
+    <!-- Continuous ink ribbon threading all panels -->
+    <svg id="ribbon" viewBox="0 0 7920 2868" fill="none">
+      <path d="M -50 2250 C 900 2050, 1500 2400, 2200 2150 S 3400 1950, 4100 2200 S 5400 2450, 6100 2150 S 7300 1980, 7970 2120"
+            stroke="#c9bd94" stroke-width="6" stroke-linecap="round" opacity="0.55" stroke-dasharray="2 26" />
+    </svg>
+
+    <!-- Devices straddle boundaries so the phone flows across frames.
+         Positions are global stage coords; swap src for real captures. -->
+    <div class="device" style="left: 720px;  top: 900px;  transform: rotate(-4deg);"><div class="screen"><img class="shot" data-shot="feed" src="" /></div></div>
+    <div class="device" style="left: 2080px; top: 940px;  transform: rotate(3deg);"><div class="screen"><img class="shot" data-shot="timer" src="" /></div></div>
+    <div class="device" style="left: 3400px; top: 900px;  transform: rotate(-3deg);"><div class="screen"><img class="shot" data-shot="detail" src="" /></div></div>
+    <div class="device" style="left: 4720px; top: 940px;  transform: rotate(4deg);"><div class="screen"><img class="shot" data-shot="swipe" src="" /></div></div>
+    <div class="device" style="left: 5680px; top: 900px;  transform: rotate(-3deg);"><div class="screen"><img class="shot" data-shot="hearts" src="" /></div></div>
+  </div>
+</div>
+<script>
+  // Render modes: ?full=1 renders the entire 7920px stage (then slice with magick);
+  // otherwise ?frame=N windows a single 1320x2868 App Store frame.
+  const q = new URLSearchParams(location.search);
+  const vp = document.getElementById('viewport');
+  const stage = document.getElementById('stage');
+  if (q.get('full')) {
+    vp.style.width = '7920px';
+    stage.style.transform = 'none';
+  } else {
+    stage.style.setProperty('--frame', q.get('frame') || '0');
+  }
+  // Image paths passed as ?icon=..&feed=..&timer=..&detail=..&swipe=..
+  const setSrc = (sel, key) => {
+    const v = q.get(key); if (!v) return;
+    document.querySelectorAll(sel).forEach((el) => { el.src = v; });
+  };
+  setSrc('#appicon', 'icon');
+  ['feed','timer','detail','swipe','hearts'].forEach((k) => setSrc('.shot[data-shot="'+k+'"]', k));
+</script>
+</body>
+</html>
