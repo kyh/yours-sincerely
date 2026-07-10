@@ -26,6 +26,8 @@
     }
   },
   "globalEnv": [
+    "COOKIE_SECRET",
+    "COOKIE_SECRET_LEGACY",
     "POSTGRES_URL",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
