@@ -90,23 +90,44 @@ export const postRouter = createTRPCRouter({
   }),
 
   getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
+    const blockedUsers = await ctx.db.query.block.findMany({
+      where: (block, { eq }) => eq(block.blockerId, ctx.user?.id ?? ""),
+    });
+    const blockingUserIds = new Set(blockedUsers.map((user) => user.blockingId));
+
     const dbPost = await ctx.db.query.post.findFirst({
       where: (post, { eq }) => eq(post.id, input.postId),
       with: {
         likes: true,
-        posts: true,
+        flags: true,
+        posts: {
+          with: {
+            likes: true,
+            flags: true,
+          },
+        },
       },
     });
 
-    if (!dbPost) {
+    // Mirror the Feed view's moderation rules: hide content from blocked
+    // users and posts flagged by the community more than 3 times.
+    const isHidden = (item: { userId: string; flags: unknown[] }) =>
+      blockingUserIds.has(item.userId) || item.flags.length > 3;
+
+    if (!dbPost || isHidden(dbPost)) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Post not found",
       });
     }
 
+    const comments = dbPost.posts.filter((comment) => !isHidden(comment));
+
     return {
-      post: convertDbPostToFeedPost(dbPost, ctx.user?.id),
+      post: {
+        ...convertDbPostToFeedPost({ ...dbPost, posts: comments }, ctx.user?.id),
+        comments: comments.map((comment) => convertDbPostToFeedPost(comment, ctx.user?.id)),
+      },
     };
   }),
 

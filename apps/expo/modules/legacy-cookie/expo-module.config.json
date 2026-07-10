@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["LegacyCookieModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.legacycookie.LegacyCookieModule"]
+  }
+}
