@@ -15,18 +15,12 @@
       "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "environment": "development",
-      "env": {
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      }
+      "environment": "development"
     },
     "preview": {
       "extends": "base",
       "distribution": "internal",
       "environment": "preview",
-      "env": {
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      },
       "android": {
         "buildType": "apk"
       }
@@ -35,9 +29,6 @@
       "extends": "base",
       "distribution": "internal",
       "environment": "preview",
-      "env": {
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      },
       "ios": {
         "simulator": true
       }

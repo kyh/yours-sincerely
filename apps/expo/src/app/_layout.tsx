@@ -6,7 +6,6 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
-import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
 import type { ErrorBoundaryProps } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -20,32 +19,17 @@ import { BalloonsProvider } from "@/components/animations/balloons";
 import { ConnectivityBanner } from "@/components/connectivity-banner";
 import { FeedLayoutProvider } from "@/components/feed-layout-provider";
 import { KnockProviders } from "@/components/notifications/knock-providers";
-import { SentryUser } from "@/components/observability/sentry-user";
 import { GestureHandlerRootView } from "@/lib/css-interop";
 import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient } from "@/lib/api";
-import { appConfig } from "@/lib/app-config";
 
 import "../styles.css";
 import "@/lib/css-interop";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
-Sentry.init({
-  dsn: appConfig.sentryDsn,
-  enabled: !__DEV__ && appConfig.sentryDsn !== undefined,
-  sendDefaultPii: false,
-  tracesSampleRate: 0.1,
-  attachScreenshot: false,
-  attachViewHierarchy: false,
-});
-
-export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
-
+export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
   return (
     <View
       style={{
@@ -114,7 +98,6 @@ function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <SentryUser />
           <ThemeProvider>
             <KnockProviders>
               <FeedLayoutProvider>
@@ -130,4 +113,4 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;

@@ -11,7 +11,6 @@ const extraSchema = z.object({
   knockPublicApiKey: optionalConfigString,
   knockFeedChannelId: optionalConfigString,
   knockExpoChannelId: optionalConfigString,
-  sentryDsn: optionalConfigString,
 });
 
 const parsed = extraSchema.safeParse(Constants.expoConfig?.extra ?? {});

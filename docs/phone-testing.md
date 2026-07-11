@@ -97,21 +97,12 @@ These cannot safely be invented or recovered from source code.
 
 ### Knock
 
-- Production `NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY`.
-- Production `NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID`.
-- Production `NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID`.
-- Production `KNOCK_API_KEY` and `KNOCK_SIGNING_KEY` in the web deployment.
+- Already present: Vercel production `KNOCK_API_KEY`, public key, and feed channel. The public key and feed channel are synced to EAS preview/production.
+- Still needed: production `NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID`.
 - Configure the Knock Expo channel with project `@kaiyuhsu/yours-sincerely` and an Expo access token only if Expo Enhanced Push Security is enabled.
-- Enable Knock Enhanced Security after deploying `KNOCK_SIGNING_KEY`.
+- Optional hardening: add `KNOCK_SIGNING_KEY` to Vercel and enable Knock Enhanced Security.
 
-All five Knock values must come from the same production environment. Test keys are rejected by the release gate.
-
-### Sentry
-
-- `EXPO_PUBLIC_SENTRY_DSN`.
-- `SENTRY_ORG`.
-- `SENTRY_PROJECT`.
-- Secret `SENTRY_AUTH_TOKEN` for source-map uploads.
+All configured Knock values must come from the same environment. Explicitly marked test keys are rejected by the release gate.
 
 ### Session signer
 

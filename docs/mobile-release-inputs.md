@@ -21,22 +21,13 @@ The existing store identity is committed in `packages/contracts/src/mobile-ident
 - `NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID`: Knock in-app feed channel ID.
 - `NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID`: Knock Expo push channel ID.
 - `KNOCK_API_KEY`: Knock server API key. Web/server only.
-- `KNOCK_SIGNING_KEY`: base64 application signing key from Knock. Keep server-only. After deploying it, enable Enhanced Security in the Knock production environment.
+- `KNOCK_SIGNING_KEY`: optional base64 application signing key from Knock. Add it server-side only if enabling Knock Enhanced Security.
 - `RESEND_API_KEY`: Resend server API key for transactional email. Web/server only.
 - `GOOGLE_SERVICES_JSON`: EAS file variable containing the Firebase Android app config for `com.kyh.yourssincerely`.
 
-All Knock keys and channel IDs must come from the same Knock production environment. The release check rejects `_test_` API keys. Replace the existing test public key, secret key, and feed channel together in local, Vercel production, and EAS production.
+The existing public key and feed channel were copied from Vercel production into EAS preview and production. All Knock keys and channel IDs must come from that same Knock environment. The release check rejects explicitly marked `_test_` API keys.
 
 Configure APNs and FCM V1 credentials in EAS. Configure the Knock Expo channel with Expo project `@kaiyuhsu/yours-sincerely` and, only when Expo Enhanced Push Security is enabled, an Expo access token. Then use physical devices to opt in, receive a notification, and open its exact post.
-
-## Crash reporting
-
-Create one React Native project in Sentry.
-
-- `EXPO_PUBLIC_SENTRY_DSN`: project DSN. Safe to embed in the app.
-- `SENTRY_ORG`: organization slug.
-- `SENTRY_PROJECT`: project slug.
-- `SENTRY_AUTH_TOKEN`: source-map upload token. EAS secret only; never expose as `EXPO_PUBLIC_*`.
 
 ## Validate
 
@@ -68,4 +59,3 @@ Final manual-only checks:
 2. Android Capacitor logged-in upgrade to Expo on physical Android device.
 3. Cold, warm, and background universal links for post, profile, and password reset.
 4. Physical push delivery and exact-post navigation on iOS and Android.
-5. One intentional test error appears symbolicated in Sentry, then remove the trigger before submission.

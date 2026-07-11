@@ -44,9 +44,6 @@
     "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
     "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
     "NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID",
-    "EXPO_PUBLIC_SENTRY_DSN",
-    "SENTRY_ORG",
-    "SENTRY_PROJECT",
     "GOOGLE_SERVICES_JSON",
     "PORT"
   ],
@@ -56,7 +53,6 @@
     "VERCEL",
     "VERCEL_ENV",
     "VERCEL_URL",
-    "SENTRY_AUTH_TOKEN",
     "npm_lifecycle_event"
   ]
 }

@@ -84,7 +84,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       knockPublicApiKey: process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY,
       knockFeedChannelId: process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID,
       knockExpoChannelId: process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID,
-      sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     },
     experiments: {
       tsconfigPaths: true,
@@ -94,13 +93,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins: [
       "expo-router",
       ["expo-notifications", { mode: notificationsMode }],
-      [
-        "@sentry/react-native/expo",
-        {
-          organization: process.env.SENTRY_ORG,
-          project: process.env.SENTRY_PROJECT,
-        },
-      ],
       "expo-secure-store",
       "expo-image",
       "expo-font",

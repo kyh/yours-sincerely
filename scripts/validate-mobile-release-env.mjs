@@ -5,7 +5,6 @@ const webRequired = [
   "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
   "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
   "KNOCK_API_KEY",
-  "KNOCK_SIGNING_KEY",
   "RESEND_API_KEY",
 ];
 
@@ -13,10 +12,6 @@ const easRequired = [
   "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
   "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
   "NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID",
-  "EXPO_PUBLIC_SENTRY_DSN",
-  "SENTRY_ORG",
-  "SENTRY_PROJECT",
-  "SENTRY_AUTH_TOKEN",
   "GOOGLE_SERVICES_JSON",
 ];
 
@@ -49,16 +44,6 @@ if (knockPublicKey?.includes("_test_")) {
 
 if (target !== "eas" && knockSecretKey?.includes("_test_")) {
   invalid.push("KNOCK_API_KEY");
-}
-
-const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
-if (sentryDsn !== undefined && sentryDsn !== "") {
-  try {
-    const parsed = new URL(sentryDsn);
-    if (parsed.protocol !== "https:") invalid.push("EXPO_PUBLIC_SENTRY_DSN");
-  } catch {
-    invalid.push("EXPO_PUBLIC_SENTRY_DSN");
-  }
 }
 
 const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;

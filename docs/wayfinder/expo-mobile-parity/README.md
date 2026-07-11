@@ -10,16 +10,16 @@ Signed Release passes the upgrade journey and critical native journeys on iOS. A
 
 ## Map
 
-| Slice                                                 | Status      | Proof                                            |
-| ----------------------------------------------------- | ----------- | ------------------------------------------------ |
-| [01 API safety](./01-api-safety.md)                   | Verified    | Four schema tests + three database tests         |
-| [02 identity continuity](./02-identity-continuity.md) | Verified    | Real Capacitor cookie, reinstall, cold restart   |
-| [03 profile Release](./03-profile-release.md)         | Verified    | Signed Hermes Release + live profile persistence |
-| [04 notifications](./04-notifications.md)             | In progress | Explicit opt-in + routing; physical push pending |
-| [05 deep links](./05-deep-links.md)                   | Implemented | Universal links + canonical HTTPS password reset |
-| [06 shared domain](./06-shared-domain.md)             | Implemented | Contracts, calendar, content, preferences shared |
-| [07 release gate](./07-release-gate.md)               | In progress | iOS E2E + Android Release launch passed          |
-| [08 polish](./08-polish.md)                           | Implemented | Native UX, offline state, reduced motion, Sentry |
+| Slice                                                 | Status      | Proof                                                    |
+| ----------------------------------------------------- | ----------- | -------------------------------------------------------- |
+| [01 API safety](./01-api-safety.md)                   | Verified    | Four schema tests + three database tests                 |
+| [02 identity continuity](./02-identity-continuity.md) | Verified    | Real Capacitor cookie, reinstall, cold restart           |
+| [03 profile Release](./03-profile-release.md)         | Verified    | Signed Hermes Release + live profile persistence         |
+| [04 notifications](./04-notifications.md)             | In progress | Explicit opt-in + routing; physical push pending         |
+| [05 deep links](./05-deep-links.md)                   | Implemented | Universal links + canonical HTTPS password reset         |
+| [06 shared domain](./06-shared-domain.md)             | Implemented | Contracts, calendar, content, preferences shared         |
+| [07 release gate](./07-release-gate.md)               | In progress | iOS E2E + Android Release launch passed                  |
+| [08 polish](./08-polish.md)                           | Implemented | Native UX, offline state, reduced motion, error recovery |
 
 ## Decisions
 

@@ -24,7 +24,6 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@repo/api": "workspace:*",
     "@repo/contracts": "workspace:*",
-    "@sentry/react-native": "~7.11.0",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
