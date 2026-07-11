@@ -22,7 +22,9 @@
     "format": "oxfmt",
     "lint:fix": "oxlint --fix",
     "format:fix": "oxfmt --write",
-    "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs"
+    "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs",
+    "release:mobile:check:eas": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target eas",
+    "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",

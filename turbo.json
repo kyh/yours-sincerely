@@ -47,6 +47,7 @@
     "EXPO_PUBLIC_SENTRY_DSN",
     "SENTRY_ORG",
     "SENTRY_PROJECT",
+    "GOOGLE_SERVICES_JSON",
     "PORT"
   ],
   "globalPassThroughEnv": [

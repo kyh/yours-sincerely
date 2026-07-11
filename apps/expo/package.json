@@ -9,6 +9,7 @@
     "dev:ios": "pnpm with-env expo start --ios",
     "android": "pnpm with-env expo run:android",
     "ios": "pnpm with-env expo run:ios",
+    "eas-build-post-install": "node ../../scripts/validate-mobile-release-env.mjs --target eas --if-production",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/lib/legacy-session-migration-core.test.ts",
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"

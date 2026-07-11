@@ -21,6 +21,14 @@
       "extends": "base",
       "distribution": "internal",
       "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "simulator": {
+      "extends": "base",
+      "distribution": "internal",
+      "environment": "preview",
       "ios": {
         "simulator": true
       }
@@ -32,6 +40,13 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "1510472230"
+      },
+      "android": {
+        "track": "internal"
+      }
+    }
   }
 }

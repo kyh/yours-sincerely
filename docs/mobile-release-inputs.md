@@ -2,6 +2,8 @@
 
 Code-side release work is complete. Fill these values in the production EAS environment and the web deployment environment.
 
+For install commands and the exact upgrade test, use [phone testing](./phone-testing.md).
+
 ## Session continuity
 
 - `COOKIE_SECRET`: current production web session signer.
@@ -21,10 +23,11 @@ The existing store identity is committed in `packages/contracts/src/mobile-ident
 - `KNOCK_API_KEY`: Knock server API key. Web/server only.
 - `KNOCK_SIGNING_KEY`: base64 application signing key from Knock. Keep server-only. After deploying it, enable Enhanced Security in the Knock production environment.
 - `RESEND_API_KEY`: Resend server API key for transactional email. Web/server only.
+- `GOOGLE_SERVICES_JSON`: EAS file variable containing the Firebase Android app config for `com.kyh.yourssincerely`.
 
 All Knock keys and channel IDs must come from the same Knock production environment. The release check rejects `_test_` API keys. Replace the existing test public key, secret key, and feed channel together in local, Vercel production, and EAS production.
 
-Configure APNs and FCM credentials on the Knock Expo channel. Then use a physical iPhone and Android device to opt in, receive a notification, and open its exact post.
+Configure APNs and FCM V1 credentials in EAS. Configure the Knock Expo channel with Expo project `@kaiyuhsu/yours-sincerely` and, only when Expo Enhanced Push Security is enabled, an Expo access token. Then use physical devices to opt in, receive a notification, and open its exact post.
 
 ## Crash reporting
 
@@ -53,7 +56,7 @@ Before the first production build:
 
 `apps/expo/eas.json` uses remote versions and auto-increments production builds after the initial seed.
 
-After values pass, create production builds from `apps/expo`:
+After values pass, create production builds from `apps/expo`. Production EAS builds also run the EAS-only release check remotely and fail before compilation if mobile keys are missing:
 
 ```sh
 pnpm exec eas build --profile production --platform all

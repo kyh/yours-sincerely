@@ -6,15 +6,23 @@ import {
 } from "@repo/contracts/mobile-identity";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const notificationsMode =
-    process.env.EAS_BUILD_PROFILE === "production" ? "production" : "development";
+  const isStoreBuild = process.env.EAS_BUILD_PROFILE === "production";
+  const notificationsMode = isStoreBuild ? "production" : "development";
+  const appName = isStoreBuild ? "Yours Sincerely" : "Yours Sincerely Preview";
+  const scheme = isStoreBuild ? "yourssincerely" : "yourssincerely-preview";
+  const iosBundleIdentifier = isStoreBuild
+    ? MOBILE_IOS_BUNDLE_ID
+    : `${MOBILE_IOS_BUNDLE_ID}.preview`;
+  const androidPackage = isStoreBuild
+    ? MOBILE_ANDROID_PACKAGE
+    : `${MOBILE_ANDROID_PACKAGE}.preview`;
 
   return {
     ...config,
-    name: "Yours Sincerely",
+    name: appName,
     slug: "yours-sincerely",
     owner: "kaiyuhsu",
-    scheme: "yourssincerely",
+    scheme,
     // Native rewrite replacing the live Capacitor apps.
     version: "2.0.0",
     orientation: "portrait",
@@ -25,9 +33,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      // Must match the live App Store app (Capacitor) so this ships as an update
-      // and inherits the app container (WebView cookies → session migration).
-      bundleIdentifier: MOBILE_IOS_BUNDLE_ID,
+      // Production must match the live Capacitor app so the update inherits
+      // its app container (WebView cookies → session migration).
+      bundleIdentifier: iosBundleIdentifier,
       appleTeamId: MOBILE_APPLE_TEAM_ID,
       associatedDomains: ["applinks:yourssincerely.org"],
       supportsTablet: true,
@@ -46,7 +54,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     },
     android: {
-      package: MOBILE_ANDROID_PACKAGE,
+      package: androidPackage,
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       intentFilters: [
         {
           action: "VIEW",
