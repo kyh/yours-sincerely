@@ -11,10 +11,7 @@ These are web/server secrets, not EAS values. Losing the legacy signer invalidat
 
 ## App links
 
-- `APPLE_TEAM_ID`: Apple Developer account team ID.
-- `ANDROID_APP_CERT_SHA256_FINGERPRINTS`: Play Console > App integrity > App signing key certificate. Use the SHA-256 fingerprint. Separate multiple fingerprints with commas.
-
-Both values must also exist on the web deployment so `/.well-known/apple-app-site-association` and `/.well-known/assetlinks.json` can render valid associations.
+The existing store identity is committed in `packages/contracts/src/mobile-identity.ts`. It intentionally preserves different shipped IDs: iOS `com.tehkaiyu.yourssincerely`, Android `com.kyh.yourssincerely`. It drives Expo signing and both web association files, so deployments cannot drift from the live store apps.
 
 ## Notifications
 
@@ -24,6 +21,8 @@ Both values must also exist on the web deployment so `/.well-known/apple-app-sit
 - `KNOCK_API_KEY`: Knock server API key. Web/server only.
 - `KNOCK_SIGNING_KEY`: base64 application signing key from Knock. Keep server-only. After deploying it, enable Enhanced Security in the Knock production environment.
 - `RESEND_API_KEY`: Resend server API key for transactional email. Web/server only.
+
+All Knock keys and channel IDs must come from the same Knock production environment. The release check rejects `_test_` API keys. Replace the existing test public key, secret key, and feed channel together in local, Vercel production, and EAS production.
 
 Configure APNs and FCM credentials on the Knock Expo channel. Then use a physical iPhone and Android device to opt in, receive a notification, and open its exact post.
 
@@ -48,7 +47,7 @@ pnpm release:mobile:check
 
 Before the first production build:
 
-- iOS: use the existing App Store Connect app and bundle ID `com.kyh.yourssincerely`. Seed EAS remote build version above the live Capacitor build number.
+- iOS: use the existing App Store Connect app and bundle ID `com.tehkaiyu.yourssincerely`. Seed EAS remote build version above the live Capacitor build number.
 - Android: import/reuse the existing Play upload keystore for `com.kyh.yourssincerely`; do not generate a replacement. Confirm its certificate matches Play Console > App integrity. Seed EAS remote version code above the live build.
 - Check/import credentials with `pnpm exec eas credentials`. Set remote versions with `pnpm exec eas build:version:set`.
 

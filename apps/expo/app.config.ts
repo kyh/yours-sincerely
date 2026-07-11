@@ -1,4 +1,9 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+import {
+  MOBILE_ANDROID_PACKAGE,
+  MOBILE_APPLE_TEAM_ID,
+  MOBILE_IOS_BUNDLE_ID,
+} from "@repo/contracts/mobile-identity";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const notificationsMode =
@@ -10,7 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: "yours-sincerely",
     owner: "kaiyuhsu",
     scheme: "yourssincerely",
-    // Native rewrite replacing the Capacitor app (live store version 1.0).
+    // Native rewrite replacing the live Capacitor apps.
     version: "2.0.0",
     orientation: "portrait",
     icon: "./assets/icon-light.png",
@@ -22,7 +27,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       // Must match the live App Store app (Capacitor) so this ships as an update
       // and inherits the app container (WebView cookies → session migration).
-      bundleIdentifier: "com.kyh.yourssincerely",
+      bundleIdentifier: MOBILE_IOS_BUNDLE_ID,
+      appleTeamId: MOBILE_APPLE_TEAM_ID,
       associatedDomains: ["applinks:yourssincerely.org"],
       supportsTablet: true,
       requireFullScreen: true,
@@ -40,7 +46,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     },
     android: {
-      package: "com.kyh.yourssincerely",
+      package: MOBILE_ANDROID_PACKAGE,
       intentFilters: [
         {
           action: "VIEW",

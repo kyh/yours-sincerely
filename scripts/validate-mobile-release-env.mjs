@@ -1,7 +1,5 @@
 const required = [
   "COOKIE_SECRET",
-  "APPLE_TEAM_ID",
-  "ANDROID_APP_CERT_SHA256_FINGERPRINTS",
   "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
   "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
   "NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID",
@@ -16,13 +14,15 @@ const required = [
 
 const missing = required.filter((name) => !process.env[name]?.trim());
 const invalid = [];
-const fingerprints = process.env.ANDROID_APP_CERT_SHA256_FINGERPRINTS?.split(",").map((value) =>
-  value.trim(),
-);
-const fingerprintPattern = /^(?:[A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2}$/;
+const knockPublicKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
+const knockSecretKey = process.env.KNOCK_API_KEY;
 
-if (fingerprints !== undefined && fingerprints.some((value) => !fingerprintPattern.test(value))) {
-  invalid.push("ANDROID_APP_CERT_SHA256_FINGERPRINTS");
+if (knockPublicKey?.includes("_test_") || knockSecretKey?.includes("_test_")) {
+  invalid.push(
+    "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
+    "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
+    "KNOCK_API_KEY",
+  );
 }
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;

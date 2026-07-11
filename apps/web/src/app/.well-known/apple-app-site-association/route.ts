@@ -1,14 +1,11 @@
-const APP_BUNDLE_ID = "com.kyh.yourssincerely";
+import { MOBILE_APPLE_TEAM_ID, MOBILE_IOS_BUNDLE_ID } from "@repo/contracts/mobile-identity";
+
 const APP_PATHS = ["/posts/*", "/profile/*", "/auth/password-update*"];
 
 export const dynamic = "force-dynamic";
 
 export const GET = () => {
-  const teamId = process.env.APPLE_TEAM_ID?.trim();
-  const details =
-    teamId === undefined || teamId.length === 0
-      ? []
-      : [{ appID: `${teamId}.${APP_BUNDLE_ID}`, paths: APP_PATHS }];
+  const details = [{ appID: `${MOBILE_APPLE_TEAM_ID}.${MOBILE_IOS_BUNDLE_ID}`, paths: APP_PATHS }];
 
   return Response.json(
     { applinks: { apps: [], details } },
