@@ -7,13 +7,14 @@ import { CardStackProvider } from "@/components/post/card-stack";
 import { NewPostButton } from "@/components/post/new-post-button";
 import { PostFeed } from "@/components/post/post-feed";
 import { useFeedLayout } from "@/lib/feed-layout";
+import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 
 export default function HomeScreen() {
   const { layout } = useFeedLayout();
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
-      <View style={{ width: "100%", maxWidth: 760, flex: 1, alignSelf: "center" }}>
+      <View style={[CONTENT_COLUMN_STYLE, { flex: 1 }]}>
         <View className="flex-row items-center justify-between px-5 py-3">
           <Text className="text-xl font-bold">Home</Text>
           <AvatarMenu />

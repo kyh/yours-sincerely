@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from "@/lib/css-interop";
 import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient } from "@/lib/api";
+import { subscribeToNativeConnectivity } from "@/lib/connectivity";
 
 import "../styles.css";
 import "@/lib/css-interop";
@@ -91,6 +92,10 @@ function RootLayout() {
   useEffect(() => {
     if (fontsReady) SplashScreen.hideAsync().catch(() => undefined);
   }, [fontsReady]);
+
+  // The probe feeds onlineManager, which query pausing, push retry, and the
+  // connectivity banner all consume — it belongs beside the query client.
+  useEffect(() => subscribeToNativeConnectivity(), []);
 
   if (!fontsReady) return null;
 

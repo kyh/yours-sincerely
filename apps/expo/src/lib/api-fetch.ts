@@ -1,9 +1,8 @@
+import { SESSION_COOKIE_NAME as SESSION_COOKIE } from "@repo/contracts/auth";
 import { parse, splitCookiesString } from "set-cookie-parser";
 
 import { ensureLegacySessionMigrated } from "./legacy-session-migration";
 import { deleteSessionCookie, getSessionCookie, setSessionCookie } from "./session-store";
-
-const SESSION_COOKIE = "__session";
 
 /**
  * Fetch wrapper that gives React Native a cookie jar for the API's

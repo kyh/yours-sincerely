@@ -14,14 +14,14 @@ import type {
   Theme,
 } from "./calendar-types";
 import {
-  DEFAULT_LABELS,
+  DEFAULT_CALENDAR_LABELS as DEFAULT_LABELS,
   DEFAULT_WEEKDAY_LABELS,
-  generateEmptyData,
-  getMonthLabels,
-  getTheme,
-  groupByWeeks,
+  generateEmptyCalendarData as generateEmptyData,
+  getCalendarMonthLabels as getMonthLabels,
+  getCalendarTheme as getTheme,
+  groupCalendarDaysByWeeks as groupByWeeks,
   MIN_DISTANCE_MONTH_LABELS,
-} from "./calendar-util";
+} from "@repo/contracts/calendar";
 
 type CalendarData = Day[];
 const EMPTY_EVENT_HANDLERS: EventHandlerMap = {};

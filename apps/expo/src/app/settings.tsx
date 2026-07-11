@@ -14,6 +14,8 @@ import { useThemeColors } from "@/components/theme-colors";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { deleteSessionCookie } from "@/lib/session-store";
 import { queryClient, trpc } from "@/lib/api";
+import { refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
@@ -38,7 +40,7 @@ export default function SettingsScreen() {
     trpc.user.updateUser.mutationOptions({
       onSuccess: () => {
         toast.success("Settings successfully updated");
-        queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
+        refreshWorkspaceIdentity().catch(() => undefined);
       },
       onError: () => toast.error("Could not update Settings. Please try again."),
     }),
@@ -73,9 +75,7 @@ export default function SettingsScreen() {
             setIsPreparingDelete(true);
             releasePushIdentity()
               .then(() => deleteAccount.mutate())
-              .catch(() =>
-                toast.error("Could not disconnect notifications. Please try again."),
-              )
+              .catch(() => toast.error("Could not disconnect notifications. Please try again."))
               .finally(() => setIsPreparingDelete(false));
           },
         },
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
 
       <ScrollView
         contentContainerClassName="gap-6 px-5 pb-10"
-        contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
+        contentContainerStyle={CONTENT_COLUMN_STYLE}
       >
         {user !== null && (
           <>

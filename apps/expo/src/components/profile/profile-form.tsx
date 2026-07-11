@@ -7,7 +7,8 @@ import { toast } from "sonner-native";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { queryClient, trpc } from "@/lib/api";
+import { trpc } from "@/lib/api";
+import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
 
 /** Avatar + editable display name (owner only), saved on blur —
     port of the web profile-form. */
@@ -34,10 +35,8 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     trpc.user.updateUser.mutationOptions({
       onSuccess: () => {
         toast.success("Profile successfully updated");
-        queryClient
-          .invalidateQueries(trpc.user.getUser.queryFilter({ userId }))
-          .catch(() => undefined);
-        queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
+        refreshProfileData().catch(() => undefined);
+        refreshWorkspaceIdentity().catch(() => undefined);
       },
       onError: () => {
         toast.error("Could not update profile. Please try again.");

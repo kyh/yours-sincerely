@@ -3,13 +3,17 @@ import { View } from "react-native";
 import Svg, { Ellipse, G, Rect, Text as SvgText } from "react-native-svg";
 import { toast } from "sonner-native";
 
-import type { Theme } from "@/lib/calendar-util";
-import { DEFAULT_WEEKDAY_LABELS, FULL_DAY_LABELS, levelColor, toLevel } from "@/lib/calendar-util";
+import type { CalendarLevel, CalendarTheme as Theme } from "@repo/contracts/calendar";
+import {
+  calendarLevelColor as levelColor,
+  DEFAULT_WEEKDAY_LABELS,
+  FULL_DAY_LABELS,
+} from "@repo/contracts/calendar";
 import { useThemeColors } from "@/components/theme-colors";
 
 /** Weekly activity bubbles — RN port of the web activity-week chart. */
 type Props = {
-  data: Record<string, { count: number; level: number }>;
+  data: Record<string, { count: number; level: CalendarLevel }>;
   theme: Theme;
 };
 
@@ -27,7 +31,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
           <G x={width * 0.055}>
             {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
               const entry = data[day];
-              const level = toLevel(entry?.level ?? 0);
+              const level = entry?.level ?? 0;
               const radius = entry !== undefined ? entry.level * 4 : 0;
               const count = entry?.count ?? 0;
               return (

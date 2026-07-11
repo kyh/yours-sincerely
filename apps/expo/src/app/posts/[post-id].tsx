@@ -14,6 +14,7 @@ import { PostForm } from "@/components/post/post-form";
 import { queryClient, trpc } from "@/lib/api";
 import { getReadingTime } from "@repo/contracts/content";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
 export default function PostScreen() {
@@ -68,7 +69,7 @@ export default function PostScreen() {
         <ScrollView
           className="flex-1"
           contentContainerClassName="gap-5 px-5 pb-10"
-          contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
+          contentContainerStyle={CONTENT_COLUMN_STYLE}
           keyboardShouldPersistTaps="handled"
         >
           <Card>

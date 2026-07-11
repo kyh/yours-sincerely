@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { View } from "react-native";
-import {
-  useKnockFeed,
-} from "@knocklabs/react-native";
+import { useKnockFeed } from "@knocklabs/react-native";
 import { ZoomIn, ZoomOut } from "react-native-reanimated";
 
 import { LottieTabIcon } from "@/components/layout/lottie-tab-icon";
@@ -46,9 +44,7 @@ export const NotificationsTabIcon = ({ focused }: Props) => {
   return (
     <View>
       <LottieTabIcon name="bell" focused={focused} />
-      {user !== null && apiKey !== undefined && feedId !== undefined ? (
-        <UnreadDot />
-      ) : null}
+      {user !== null && apiKey !== undefined && feedId !== undefined ? <UnreadDot /> : null}
     </View>
   );
 };

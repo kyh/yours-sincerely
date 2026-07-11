@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { Knock, NotFoundError, signUserToken } from "@knocklabs/node";
+import { NotFoundError } from "@knocklabs/node";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { z } from "zod";
 
+import { createKnockUserToken, getKnockClient } from "../knock";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   requestPasswordResetInput,
@@ -24,7 +25,6 @@ import {
 } from "./session";
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;
-const KNOCK_TOKEN_EXPIRY_SECONDS = 60 * 60;
 const cleanupPushDeviceInput = z.object({
   capability: z.string().min(1),
   token: z.string().min(1),
@@ -42,65 +42,51 @@ const sanitizeUser = <T extends { passwordHash?: string | null }>(
   return safeUser;
 };
 
-const createKnockUserToken = async (userId: string) => {
-  const signingKey = process.env.KNOCK_SIGNING_KEY;
-  if (signingKey === undefined || signingKey.length === 0) return null;
-
-  return signUserToken(userId, {
-    signingKey,
-    expiresInSeconds: KNOCK_TOKEN_EXPIRY_SECONDS,
-  });
-};
-
 export const authRouter = createTRPCRouter({
   workspace: publicProcedure.query(async ({ ctx }) => {
     return {
       user: ctx.user,
       knockUserToken: ctx.user === null ? null : await createKnockUserToken(ctx.user.id),
-      pushCleanupCapability:
-        ctx.user === null ? null : createPushCleanupCapability(ctx.user.id),
+      pushCleanupCapability: ctx.user === null ? null : createPushCleanupCapability(ctx.user.id),
     };
   }),
   knockUserToken: protectedProcedure.query(async ({ ctx }) => ({
     token: await createKnockUserToken(ctx.user.id),
   })),
-  cleanupPushDevice: publicProcedure
-    .input(cleanupPushDeviceInput)
-    .mutation(async ({ input }) => {
-      const userId = verifyPushCleanupCapability(input.capability);
-      if (userId === null) throw new TRPCError({ code: "UNAUTHORIZED" });
+  cleanupPushDevice: publicProcedure.input(cleanupPushDeviceInput).mutation(async ({ input }) => {
+    const userId = verifyPushCleanupCapability(input.capability);
+    if (userId === null) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-      const apiKey = process.env.KNOCK_API_KEY;
-      const channelId = process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
-      if (apiKey === undefined || channelId === undefined) {
+    const knock = getKnockClient();
+    const channelId = process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
+    if (knock === null || channelId === undefined) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message: "Push cleanup is not configured",
+      });
+    }
+
+    try {
+      const channelData = await knock.users.getChannelData(userId, channelId);
+      const parsed = knockPushChannelData.safeParse(channelData.data);
+      if (!parsed.success) {
         throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Push cleanup is not configured",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Invalid push channel data",
         });
       }
 
-      const knock = new Knock({ apiKey });
-      try {
-        const channelData = await knock.users.getChannelData(userId, channelId);
-        const parsed = knockPushChannelData.safeParse(channelData.data);
-        if (!parsed.success) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Invalid push channel data",
-          });
-        }
+      await knock.users.setChannelData(userId, channelId, {
+        data: {
+          devices: parsed.data.devices.filter((device) => device.token !== input.token),
+        },
+      });
+    } catch (error) {
+      if (!(error instanceof NotFoundError)) throw error;
+    }
 
-        await knock.users.setChannelData(userId, channelId, {
-          data: {
-            devices: parsed.data.devices.filter((device) => device.token !== input.token),
-          },
-        });
-      } catch (error) {
-        if (!(error instanceof NotFoundError)) throw error;
-      }
-
-      return { success: true };
-    }),
+    return { success: true };
+  }),
   signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
     // Check if email already exists
     const existingUser = await ctx.db.query.user.findFirst({

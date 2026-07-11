@@ -3,14 +3,15 @@ import { KnockExpoPushNotificationProvider } from "@knocklabs/expo";
 import { KnockFeedProvider, KnockProvider } from "@knocklabs/react-native";
 import * as Notifications from "expo-notifications";
 import { AppState } from "react-native";
-import { onlineManager, useMutation } from "@tanstack/react-query";
+import { onlineManager } from "@tanstack/react-query";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { queryClient, trpc } from "@/lib/api";
 import { appConfig } from "@/lib/app-config";
-import { deleteRegisteredPushDevice, getRegisteredPushDevice } from "@/lib/push-token-store";
+import { getRegisteredPushDevice } from "@/lib/push-token-store";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { PushNotificationCoordinator } from "./push-notification-registration";
+import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
 /** Knock feed providers — mirrors the web notifications-page wiring.
     Renders children bare when logged out or when Knock isn't configured.
@@ -18,9 +19,7 @@ import { PushNotificationCoordinator } from "./push-notification-registration";
 export const KnockProviders = ({ children }: { children: ReactNode }) => {
   const { user, knockUserToken, pushCleanupCapability, isPending } = useWorkspaceUser();
   const { resolvedTheme } = useTheme();
-  const { mutateAsync: cleanupPushDevice } = useMutation(
-    trpc.auth.cleanupPushDevice.mutationOptions({ networkMode: "always" }),
-  );
+  const cleanupPushDevice = usePushDeviceCleanup();
 
   const apiKey = appConfig.knockPublicApiKey;
   const feedId = appConfig.knockFeedChannelId;
@@ -39,9 +38,8 @@ export const KnockProviders = ({ children }: { children: ReactNode }) => {
       const device = getRegisteredPushDevice();
       if (device === null) return;
 
-      cleanupPushDevice({ capability: device.cleanupCapability, token: device.token })
+      cleanupPushDevice(device)
         .then(() => Notifications.unregisterForNotificationsAsync())
-        .then(() => deleteRegisteredPushDevice())
         .catch(() => undefined);
     };
 

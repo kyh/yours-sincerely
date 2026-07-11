@@ -1,16 +1,21 @@
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 
-import type { Theme } from "@/lib/calendar-util";
+import type { CalendarTheme as Theme } from "@repo/contracts/calendar";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
-import { createPostsDailyActivity, createPostsHeatmap, FULL_DAY_LABELS } from "@/lib/calendar-util";
+import {
+  createPostsDailyActivity,
+  createPostsHeatmap,
+  FULL_DAY_LABELS,
+} from "@repo/contracts/calendar";
 import { trpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { cn } from "@/lib/utils";
+import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
@@ -91,7 +96,7 @@ export const ProfileContent = ({ userId }: Props) => {
   return (
     <ScrollView
       contentContainerClassName="gap-4 px-5 pb-10"
-      contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
+      contentContainerStyle={CONTENT_COLUMN_STYLE}
     >
       <Card>
         <ProfileForm userId={userId} readonly={!allowEdit} />

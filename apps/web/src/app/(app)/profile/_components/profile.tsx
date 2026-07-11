@@ -10,7 +10,11 @@ import { useTRPC } from "@/trpc/react";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
-import { createPostsDailyActivity, createPostsHeatmap, FULL_DAY_LABELS } from "./calendar-util";
+import {
+  createPostsDailyActivity,
+  createPostsHeatmap,
+  FULL_DAY_LABELS,
+} from "@repo/contracts/calendar";
 import { ProfileForm } from "./profile-form";
 
 const lightTheme = {

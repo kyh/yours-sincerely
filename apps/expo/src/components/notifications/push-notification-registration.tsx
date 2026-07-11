@@ -11,18 +11,14 @@ import { AppState, Linking, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useExpoPushNotifications } from "@knocklabs/expo";
 import * as Notifications from "expo-notifications";
-import { onlineManager, useMutation } from "@tanstack/react-query";
+import { onlineManager } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { appConfig } from "@/lib/app-config";
-import { trpc } from "@/lib/api";
-import {
-  deleteRegisteredPushDevice,
-  getRegisteredPushDevice,
-  setRegisteredPushDevice,
-} from "@/lib/push-token-store";
+import { getRegisteredPushDevice, setRegisteredPushDevice } from "@/lib/push-token-store";
+import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
 type PushRegistrationContextValue = {
   permission: Notifications.PermissionStatus | null;
@@ -96,28 +92,28 @@ export const PushNotificationCoordinator = ({
   const [permission, setPermission] = useState<Notifications.PermissionStatus | null>(null);
   const [registrationFailed, setRegistrationFailed] = useState(false);
   const [registering, setRegistering] = useState(false);
-  const { mutateAsync: cleanupPushDevice } = useMutation(
-    trpc.auth.cleanupPushDevice.mutationOptions({ networkMode: "always" }),
-  );
-
-  const cleanupStoredDevice = useCallback(
-    async (device: ReturnType<typeof getRegisteredPushDevice>) => {
-      if (device === null) return;
-      await cleanupPushDevice({
-        capability: device.cleanupCapability,
-        token: device.token,
-      });
-      await deleteRegisteredPushDevice();
-    },
-    [cleanupPushDevice],
-  );
+  const cleanupStoredDevice = usePushDeviceCleanup();
 
   const register = useCallback(async () => {
     if (channelId === undefined) return;
 
+    const previousDevice = getRegisteredPushDevice();
+    // Already registered this exact device for this user this session —
+    // skip the Knock channel PUT and keychain writes on every foreground.
+    if (
+      expoPushToken !== null &&
+      previousDevice !== null &&
+      previousDevice.userId === userId &&
+      previousDevice.token === expoPushToken &&
+      previousDevice.cleanupCapability === pushCleanupCapability
+    ) {
+      setPermission(Notifications.PermissionStatus.GRANTED);
+      setRegistrationFailed(false);
+      return;
+    }
+
     setRegistering(true);
     try {
-      const previousDevice = getRegisteredPushDevice();
       if (previousDevice !== null && previousDevice.userId !== userId) {
         await cleanupStoredDevice(previousDevice);
         await Notifications.unregisterForNotificationsAsync();
@@ -144,6 +140,7 @@ export const PushNotificationCoordinator = ({
   }, [
     channelId,
     cleanupStoredDevice,
+    expoPushToken,
     pushCleanupCapability,
     registerForPushNotifications,
     registerPushTokenToChannel,
@@ -193,7 +190,6 @@ export const PushNotificationCoordinator = ({
     } catch {
       // Remote cleanup is authoritative; native cleanup is defense in depth.
     }
-
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, userId]);
   const registrationContext = useMemo(
     () => ({ permission, register, registrationFailed, registering }),

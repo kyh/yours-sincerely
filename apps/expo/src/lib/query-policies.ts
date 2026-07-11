@@ -3,6 +3,15 @@ import { queryClient, trpc } from "./api";
 export const refreshWorkspaceIdentity = () =>
   queryClient.invalidateQueries(trpc.auth.workspace.queryFilter());
 
+/** Content mutations (like/flag/post) only change identity when they mint the
+    anonymous user — skip the workspace roundtrip once a user exists. */
+export const refreshWorkspaceIdentityIfAnonymous = () => {
+  const workspace = queryClient.getQueryData(trpc.auth.workspace.queryKey());
+  return workspace === undefined || workspace.user === null
+    ? refreshWorkspaceIdentity()
+    : Promise.resolve();
+};
+
 export const refreshPostContent = () =>
   Promise.all([
     queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
@@ -17,4 +26,4 @@ export const refreshProfileData = () =>
   ]);
 
 export const refreshAfterPostCreated = () =>
-  Promise.all([refreshWorkspaceIdentity(), refreshPostContent(), refreshProfileData()]);
+  Promise.all([refreshWorkspaceIdentityIfAnonymous(), refreshPostContent(), refreshProfileData()]);

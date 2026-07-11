@@ -3,8 +3,16 @@ import Svg, { G, Rect, Text as SvgText } from "react-native-svg";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner-native";
 
-import type { Day, Level, Theme } from "@/lib/calendar-util";
-import { getMonthLabels, groupByWeeks, levelColor } from "@/lib/calendar-util";
+import type {
+  CalendarDay as Day,
+  CalendarLevel as Level,
+  CalendarTheme as Theme,
+} from "@repo/contracts/calendar";
+import {
+  calendarLevelColor as levelColor,
+  getCalendarMonthLabels as getMonthLabels,
+  groupCalendarDaysByWeeks as groupByWeeks,
+} from "@repo/contracts/calendar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 

@@ -70,16 +70,6 @@ export const FULL_DAY_LABELS: Record<string, string> = {
   Sat: "Saturday",
 };
 
-export const CALENDAR_LABELS = {
-  Sun: "SU",
-  Mon: "MO",
-  Tue: "TU",
-  Wed: "WE",
-  Thu: "TH",
-  Fri: "FR",
-  Sat: "SA",
-};
-
 export const DEFAULT_CALENDAR_LABELS = {
   months: DEFAULT_MONTH_LABELS,
   weekdays: DEFAULT_WEEKDAY_LABELS,
@@ -111,16 +101,8 @@ export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): 
   }
 };
 
-export const toCalendarLevel = (value: number): CalendarLevel => {
-  if (value <= 0) return 0;
-  if (value === 1) return 1;
-  if (value === 2) return 2;
-  if (value === 3) return 3;
-  return 4;
-};
-
 export const getCalendarTheme = (theme?: CalendarTheme): CalendarTheme =>
-  theme === undefined ? DEFAULT_CALENDAR_THEME : { ...DEFAULT_CALENDAR_THEME, ...theme };
+  theme ?? DEFAULT_CALENDAR_THEME;
 
 export const groupCalendarDaysByWeeks = (
   days: CalendarDay[],
@@ -215,7 +197,10 @@ export const createPostsDailyActivity = (posts: CalendarPost[]) => {
     { max: 0, day: "none" },
   );
   const stats = Object.fromEntries(
-    [...counts].map(([day, count]) => [day, { count, level: getPostLevel(count, maximum.max) }]),
+    [...counts].map(([day, count]): [string, { count: number; level: CalendarLevel }] => [
+      day,
+      { count, level: getPostLevel(count, maximum.max) },
+    ]),
   );
   return { stats, max: maximum };
 };

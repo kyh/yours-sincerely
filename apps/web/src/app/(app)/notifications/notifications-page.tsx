@@ -1,30 +1,19 @@
 "use client";
 
-import { useCallback } from "react";
 import {
   KnockFeedProvider,
   NotificationFeed as KnockNotificationFeed,
   KnockProvider,
 } from "@knocklabs/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { isDarkTheme, useTheme } from "@/components/theme";
 
+import { useKnockTokenRefresh } from "@/lib/use-knock-token-refresh";
 import { useWorkspace } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
 
 export const NotificationsPage = () => {
   const { user, knockUserToken } = useWorkspace();
   const { resolvedTheme } = useTheme();
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-
-  const refreshUserToken = useCallback(async () => {
-    const { token } = await queryClient.fetchQuery({
-      ...trpc.auth.knockUserToken.queryOptions(),
-      staleTime: 0,
-    });
-    return token ?? undefined;
-  }, [queryClient, trpc.auth.knockUserToken]);
+  const refreshUserToken = useKnockTokenRefresh();
 
   if (user === null) return null;
 

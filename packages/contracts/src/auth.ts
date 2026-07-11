@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/** Wire contract between the API's Set-Cookie and the native cookie jar —
+    renaming it server-side silently breaks the Expo app. */
+export const SESSION_COOKIE_NAME = "__session";
+
 export const signUpInput = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),

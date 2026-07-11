@@ -22,7 +22,8 @@ import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, trpc } from "@/lib/api";
-import { refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
+import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
@@ -76,23 +77,6 @@ const CircleAnimation = () => {
     </Animated.View>
   );
 };
-
-const colorPairs = [
-  { id: "blue-mint-a", from: "#9EC9F5", to: "#9ED8C6" },
-  { id: "sky-mint-a", from: "#91D3F7", to: "#9AE4CF" },
-  { id: "pink-gold", from: "#DC93CF", to: "#E3D36B" },
-  { id: "purple-lime-a", from: "#CF8EEF", to: "#CBEB98" },
-  { id: "green-emerald", from: "#87E9C6", to: "#1FCC93" },
-  { id: "mint-mint", from: "#A7ECD0", to: "#9AE4CF" },
-  { id: "green-purple-a", from: "#87E9C6", to: "#A635D9" },
-  { id: "rose-lilac", from: "#D58EB3", to: "#E0B6F5" },
-  { id: "coral-purple", from: "#F48BA2", to: "#CF8EEF" },
-  { id: "sky-purple", from: "#91D3F7", to: "#A635D9" },
-  { id: "purple-lime-b", from: "#CF8EEF", to: "#CBEB98" },
-  { id: "green-purple-b", from: "#87E9C6", to: "#A635D9" },
-  { id: "blue-mint-b", from: "#9EC9F5", to: "#9ED8C6" },
-  { id: "sky-mint-b", from: "#91D3F7", to: "#9AE4CF" },
-];
 
 const BURST_RADIUS = 32;
 const START_RADIUS = 4;
@@ -189,13 +173,13 @@ const BurstAnimation = () => (
       justifyContent: "center",
     }}
   >
-    {colorPairs.map((colors, index) => (
+    {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
       <Particle
         key={colors.id}
         fromColor={colors.from}
         toColor={colors.to}
         index={index}
-        totalParticles={colorPairs.length}
+        totalParticles={LIKE_BURST_COLOR_PAIRS.length}
       />
     ))}
   </View>
@@ -292,9 +276,8 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries(feedFilter).catch(() => undefined);
-      queryClient.invalidateQueries(postFilter).catch(() => undefined);
-      refreshWorkspaceIdentity().catch(() => undefined);
+      refreshPostContent().catch(() => undefined);
+      refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
     },
   };
 };

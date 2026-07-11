@@ -1,4 +1,4 @@
-import { Knock, NotFoundError } from "@knocklabs/node";
+import { NotFoundError } from "@knocklabs/node";
 import { eq, inArray, or } from "@repo/db";
 import {
   account,
@@ -13,6 +13,8 @@ import {
 } from "@repo/db/drizzle-schema";
 
 import { clearSession } from "../auth/session";
+import { getKnockClient } from "../knock";
+import { collectDescendantPostIds } from "../post/post-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { getUserInput, getUserStatsInput, updateUserInput } from "./user-schema";
 
@@ -69,11 +71,11 @@ export const userRouter = createTRPCRouter({
 
   deleteUser: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.user.id;
-    const knockApiKey = process.env.KNOCK_API_KEY;
+    const knock = getKnockClient();
 
-    if (knockApiKey !== undefined && knockApiKey.length > 0) {
+    if (knock !== null) {
       try {
-        await new Knock({ apiKey: knockApiKey }).users.delete(userId);
+        await knock.users.delete(userId);
       } catch (error) {
         if (!(error instanceof NotFoundError)) throw error;
       }
@@ -84,21 +86,7 @@ export const userRouter = createTRPCRouter({
       const userPostIds = userPosts.map((row) => row.id);
 
       if (userPostIds.length > 0) {
-        const affectedPostIds = new Set(userPostIds);
-        let parentIds = userPostIds;
-
-        while (parentIds.length > 0) {
-          const childPosts = await tx
-            .select({ id: post.id })
-            .from(post)
-            .where(inArray(post.parentId, parentIds));
-          parentIds = childPosts
-            .map((row) => row.id)
-            .filter((postId) => !affectedPostIds.has(postId));
-          parentIds.forEach((postId) => affectedPostIds.add(postId));
-        }
-
-        const deletedPostIds = [...affectedPostIds];
+        const deletedPostIds = await collectDescendantPostIds(tx, userPostIds);
 
         await tx
           .delete(like)

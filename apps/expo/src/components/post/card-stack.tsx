@@ -51,7 +51,6 @@ type CardProps = {
   maxRotate: number;
   minDistance?: number;
   minSpeed?: number;
-  reduceMotionEnabled: boolean;
   setNextPost: () => void;
   children: ReactNode;
 };
@@ -61,12 +60,12 @@ const Card = ({
   currentIndex,
   total,
   maxRotate,
-  reduceMotionEnabled,
   setNextPost,
   minDistance = 400,
   minSpeed = 50,
   children,
 }: CardProps) => {
+  const reduceMotionEnabled = useReducedMotion();
   const baseRotation = mix(0, maxRotate, Math.sin(index));
   const isCurrent = index === currentIndex;
 
@@ -157,7 +156,6 @@ export const CardStack = <T extends { id: string }>({
   onLoadMore,
 }: Props<T>) => {
   const { currentIndex, setCurrentIndex } = useCardStack();
-  const reduceMotionEnabled = useReducedMotion();
   const [width, setWidth] = useState(400);
 
   // The feed can shrink (block/delete invalidation) below currentIndex; wrap
@@ -188,7 +186,6 @@ export const CardStack = <T extends { id: string }>({
             index={index}
             currentIndex={safeIndex}
             total={data.length}
-            reduceMotionEnabled={reduceMotionEnabled}
             setNextPost={handleSetNextPost}
           >
             {render(item)}

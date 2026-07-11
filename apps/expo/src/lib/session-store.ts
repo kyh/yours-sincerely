@@ -1,12 +1,12 @@
 import * as SecureStore from "expo-secure-store";
 
+import type { LegacySessionMigrationCheckpoint } from "./legacy-session-migration-core";
+
 /** Holds the raw signed `__session` cookie value issued by the API
     (see packages/api/src/auth/session.ts). SecureStore is the single
     source of truth — the native cookie jar is never consulted. */
 const SESSION_KEY = "session-cookie";
 const LEGACY_MIGRATION_CHECKPOINT_KEY = "legacy-session-migration-complete";
-
-export type LegacySessionMigrationCheckpoint = "cleanup-pending" | "complete" | null;
 
 export const getSessionCookie = () => SecureStore.getItem(SESSION_KEY);
 

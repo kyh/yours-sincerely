@@ -1,7 +1,11 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 
 import type { Theme } from "./calendar-types";
-import { DEFAULT_WEEKDAY_LABELS, FULL_DAY_LABELS, getTheme } from "./calendar-util";
+import {
+  DEFAULT_WEEKDAY_LABELS,
+  FULL_DAY_LABELS,
+  getCalendarTheme as getTheme,
+} from "@repo/contracts/calendar";
 
 type Props = {
   data: Record<string, { count: number; level: number }>;

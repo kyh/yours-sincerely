@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
 
+// Node 22.18+ strips types, so the canonical identity constants import directly.
+import { MOBILE_ANDROID_PACKAGE } from "../packages/contracts/src/mobile-identity.ts";
+
 const webRequired = [
   "COOKIE_SECRET",
   "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
@@ -52,8 +55,7 @@ if (target !== "web" && googleServicesFile) {
     const googleServices = JSON.parse(readFileSync(googleServicesFile, "utf8"));
     const clients = Array.isArray(googleServices.client) ? googleServices.client : [];
     const hasProductionAndroidApp = clients.some(
-      (client) =>
-        client?.client_info?.android_client_info?.package_name === "com.kyh.yourssincerely",
+      (client) => client?.client_info?.android_client_info?.package_name === MOBILE_ANDROID_PACKAGE,
     );
 
     if (!hasProductionAndroidApp) invalid.push("GOOGLE_SERVICES_JSON");

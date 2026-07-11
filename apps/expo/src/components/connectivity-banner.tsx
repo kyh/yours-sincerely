@@ -5,21 +5,14 @@ import { RefreshCw } from "lucide-react-native";
 
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { refreshConnectivity, subscribeToNativeConnectivity } from "@/lib/connectivity";
+import { refreshConnectivity } from "@/lib/connectivity";
 
 export const ConnectivityBanner = () => {
   const colors = useThemeColors();
   const [online, setOnline] = useState(onlineManager.isOnline());
   const [checking, setChecking] = useState(false);
 
-  useEffect(() => {
-    const unsubscribeMonitor = subscribeToNativeConnectivity();
-    const unsubscribeStatus = onlineManager.subscribe(setOnline);
-    return () => {
-      unsubscribeMonitor();
-      unsubscribeStatus();
-    };
-  }, []);
+  useEffect(() => onlineManager.subscribe(setOnline), []);
 
   useEffect(() => {
     if (!online) {

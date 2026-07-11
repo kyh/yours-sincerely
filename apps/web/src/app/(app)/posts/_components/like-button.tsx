@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
 import NumberFlow from "@number-flow/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { motion } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
@@ -45,33 +46,15 @@ const CircleAnimation = () => {
 
 // Burst animation with particles
 const BurstAnimation = () => {
-  // Colors for particles with from/to transitions
-  const colorPairs = [
-    { id: "blue-mint-a", from: "#9EC9F5", to: "#9ED8C6" },
-    { id: "sky-mint-a", from: "#91D3F7", to: "#9AE4CF" },
-    { id: "pink-gold", from: "#DC93CF", to: "#E3D36B" },
-    { id: "purple-lime-a", from: "#CF8EEF", to: "#CBEB98" },
-    { id: "green-emerald", from: "#87E9C6", to: "#1FCC93" },
-    { id: "mint-mint", from: "#A7ECD0", to: "#9AE4CF" },
-    { id: "green-purple-a", from: "#87E9C6", to: "#A635D9" },
-    { id: "rose-lilac", from: "#D58EB3", to: "#E0B6F5" },
-    { id: "coral-purple", from: "#F48BA2", to: "#CF8EEF" },
-    { id: "sky-purple", from: "#91D3F7", to: "#A635D9" },
-    { id: "purple-lime-b", from: "#CF8EEF", to: "#CBEB98" },
-    { id: "green-purple-b", from: "#87E9C6", to: "#A635D9" },
-    { id: "blue-mint-b", from: "#9EC9F5", to: "#9ED8C6" },
-    { id: "sky-mint-b", from: "#91D3F7", to: "#9AE4CF" },
-  ];
-
   return (
     <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
-      {colorPairs.map((colors, index) => (
+      {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
         <Particle
           key={colors.id}
           fromColor={colors.from}
           toColor={colors.to}
           index={index}
-          totalParticles={colorPairs.length}
+          totalParticles={LIKE_BURST_COLOR_PAIRS.length}
         />
       ))}
     </div>
@@ -162,26 +145,19 @@ type Props = {
 
 export const LikeButton = ({ post }: Props) => {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isAnimating, setIsAnimating] = useState(false);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
 
-  const invalidateLikeState = () =>
-    Promise.all([
-      queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()),
-      queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
-      queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
-    ]);
-
+  // No onSuccess/onSettled invalidation: the query client's default mutation
+  // onSuccess already invalidates every query.
   const createMutate = useMutation(
     trpc.like.createLike.mutationOptions({
       onError: () => {
         setLikeCount((count) => Math.max(0, count - 1));
         setIsLiked(false);
       },
-      onSettled: () => invalidateLikeState().catch(() => undefined),
     }),
   );
   const deleteMutate = useMutation(
@@ -190,7 +166,6 @@ export const LikeButton = ({ post }: Props) => {
         setLikeCount((count) => count + 1);
         setIsLiked(true);
       },
-      onSettled: () => invalidateLikeState().catch(() => undefined),
     }),
   );
 

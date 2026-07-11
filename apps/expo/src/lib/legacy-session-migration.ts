@@ -6,84 +6,50 @@ import {
   setSessionCookie,
 } from "./session-store";
 import {
-  copyLegacySession,
   finalizeLegacySession,
-  type CopyLegacySessionResult,
+  migrateLegacySession,
+  type MigrateLegacySessionResult,
 } from "./legacy-session-migration-core";
 
 /** The old Capacitor app was a WebView onto production, so its `__session`
     cookie lives in the native WebView jars for this host. Same bundle id =
-    same app container, so the jars survive the store update. */
+    same app container, so the jars survive the store update.
+    Deliberately frozen literals (not imported from contracts): they must
+    match what the RETIRED app wrote, even if the live values ever change. */
 const HOST = "yourssincerely.org";
 const SESSION_COOKIE = "__session";
-let migrationProvenanceEstablished = false;
 
-type MigrationResult =
-  | CopyLegacySessionResult
-  | "cleanup-pending"
-  | "complete"
-  | "unavailable"
-  | "failed";
+type MigrationResult = MigrateLegacySessionResult | "unavailable" | "failed";
 
 const reportFailure = (phase: "copy" | "clear", error: unknown) => {
   const message = error instanceof Error ? error.message : "Unknown error";
   console.warn(`[legacy-session-migration] ${phase} failed: ${message}`);
 };
 
-const migrate = async (): Promise<MigrationResult> => {
-  const checkpoint = getLegacySessionMigrationCheckpoint();
-  if (checkpoint === "complete") return "complete";
-
-  // Null in builds compiled before the native module existed — nothing to do.
-  const legacyCookie = LegacyCookie;
-  if (legacyCookie === null) return "unavailable";
-
-  const stored = getSessionCookie();
-  if (checkpoint === "cleanup-pending" && stored !== null && stored.length > 0) {
-    migrationProvenanceEstablished = true;
-    return "cleanup-pending";
-  }
-
-  // Recover the narrow crash window between persisting the copied cookie and
-  // checkpointing it. Exact equality proves this stored value came from the
-  // legacy jar without treating an unrelated native session as migratable.
-  if (checkpoint === null && stored !== null && stored.length > 0) {
-    const legacy = await legacyCookie.read(SESSION_COOKIE, HOST);
-    if (legacy !== null && legacy.length > 0 && legacy === stored) {
-      setLegacySessionMigrationCheckpoint("cleanup-pending");
-      if (getLegacySessionMigrationCheckpoint() !== "cleanup-pending") {
-        throw new Error("The migration cleanup checkpoint could not be verified");
-      }
-      migrationProvenanceEstablished = true;
-      return "cleanup-pending";
-    }
-    return "already-stored";
-  }
-
-  const result = await copyLegacySession({
-    getStored: getSessionCookie,
-    setStored: setSessionCookie,
-    // Keep the value verbatim (still percent-encoded) — the signed cookie
-    // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
-    readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
-  });
-  if (result === "copied") {
-    setLegacySessionMigrationCheckpoint("cleanup-pending");
-    if (getLegacySessionMigrationCheckpoint() !== "cleanup-pending") {
-      throw new Error("The migration cleanup checkpoint could not be verified");
-    }
-    migrationProvenanceEstablished = true;
-  }
-  return result;
-};
-
+let migrationProvenanceEstablished = false;
 let migration: Promise<MigrationResult> | null = null;
 let finalization: Promise<void> | null = null;
 let finalized = false;
 
 /** One-shot per cold start; safe to await before every request. */
 export const ensureLegacySessionMigrated = (): Promise<MigrationResult> => {
-  migration ??= migrate().catch((error: unknown) => {
+  migration ??= (async (): Promise<MigrationResult> => {
+    // Null in builds compiled before the native module existed — nothing to do.
+    const legacyCookie = LegacyCookie;
+    if (legacyCookie === null) return "unavailable";
+
+    const { result, legacyProvenance } = await migrateLegacySession({
+      getStored: getSessionCookie,
+      setStored: setSessionCookie,
+      // Keep the value verbatim (still percent-encoded) — the signed cookie
+      // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
+      readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
+      getCheckpoint: getLegacySessionMigrationCheckpoint,
+      setCheckpoint: setLegacySessionMigrationCheckpoint,
+    });
+    migrationProvenanceEstablished = legacyProvenance;
+    return result;
+  })().catch((error: unknown) => {
     reportFailure("copy", error);
     return "failed";
   });

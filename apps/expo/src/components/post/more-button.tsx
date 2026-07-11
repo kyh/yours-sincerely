@@ -12,7 +12,7 @@ import { trpc } from "@/lib/api";
 import {
   refreshPostContent,
   refreshProfileData,
-  refreshWorkspaceIdentity,
+  refreshWorkspaceIdentityIfAnonymous,
 } from "@/lib/query-policies";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
@@ -62,7 +62,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
       onSuccess: () => {
         toast.success("You have flagged this post, we will be reviewing it shortly");
         refreshPostContent().catch(() => undefined);
-        refreshWorkspaceIdentity().catch(() => undefined);
+        refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
       },
     }),
   );

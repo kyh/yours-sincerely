@@ -1,10 +1,10 @@
-import { Knock } from "@knocklabs/node";
 import { and, desc, eq, inArray, lt, notInArray, or } from "@repo/db";
 import { feed, flag, like, post } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
+import { getKnockClient } from "../knock";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   convertDbPostToFeedPost,
@@ -14,6 +14,7 @@ import {
   getPostInput,
   getPostsByUserInput,
 } from "./post-schema";
+import { collectDescendantPostIds } from "./post-utils";
 
 export const postRouter = createTRPCRouter({
   getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
@@ -149,8 +150,8 @@ export const postRouter = createTRPCRouter({
       })
       .returning();
 
-    if (created?.parentId) {
-      const knock = new Knock();
+    const knock = getKnockClient();
+    if (created?.parentId && knock !== null) {
       const parentPost = await ctx.db.query.post.findFirst({
         where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
         with: {
@@ -195,38 +196,15 @@ export const postRouter = createTRPCRouter({
     }
 
     const deleted = await ctx.db.transaction(async (tx) => {
-      const levels: string[][] = [[input.postId]];
-
-      while (true) {
-        const parentIds = levels.at(-1);
-        if (parentIds === undefined) break;
-
-        const children = await tx
-          .select({ id: post.id })
-          .from(post)
-          .where(inArray(post.parentId, parentIds));
-        if (children.length === 0) break;
-
-        levels.push(children.map((child) => child.id));
-      }
-
-      const postIds = levels.flat();
+      const postIds = await collectDescendantPostIds(tx, [input.postId]);
 
       await tx.delete(like).where(inArray(like.postId, postIds));
       await tx.delete(flag).where(inArray(flag.postId, postIds));
+      // One statement so the self-referential Post.parentId FK is checked
+      // after parents and children are gone together.
+      const deletedPosts = await tx.delete(post).where(inArray(post.id, postIds)).returning();
 
-      for (let index = levels.length - 1; index >= 1; index -= 1) {
-        const level = levels[index];
-        if (level === undefined) continue;
-        await tx.delete(post).where(inArray(post.id, level));
-      }
-
-      const [result] = await tx
-        .delete(post)
-        .where(and(eq(post.id, input.postId), eq(post.userId, ctx.user.id)))
-        .returning();
-
-      return result;
+      return deletedPosts.find((row) => row.id === input.postId);
     });
 
     return {

@@ -1,12 +1,10 @@
 import { randomBytes } from "crypto";
 import { cookies } from "next/headers";
+import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
 import { compare, hash } from "bcryptjs";
 import cookieSignature from "cookie-signature";
 
-import {
-  parsePushCleanupCapability,
-  signPushCleanupCapability,
-} from "./push-cleanup-capability";
+import { parsePushCleanupCapability, signPushCleanupCapability } from "./push-cleanup-capability";
 
 // Product decision: sessions are effectively permanent — nobody is logged out
 // for inactivity. `COOKIE_SECRET` (from the env, required in production) signs
@@ -40,7 +38,6 @@ const unsignSession = (value: string) => {
   return null;
 };
 
-const SESSION_COOKIE_NAME = "__session";
 // 400 days is the max lifetime browsers honor for a cookie; sliding renewal
 // (renewSessionIfStale) resets it on every visit, so an active web user never
 // expires, and the native app persists the value in SecureStore indefinitely.

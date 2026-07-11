@@ -2,7 +2,9 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 import {
   MOBILE_ANDROID_PACKAGE,
   MOBILE_APPLE_TEAM_ID,
+  MOBILE_DEEP_LINK_PATH_PREFIXES,
   MOBILE_IOS_BUNDLE_ID,
+  WEB_HOST,
 } from "@repo/contracts/mobile-identity";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -37,7 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // its app container (WebView cookies → session migration).
       bundleIdentifier: iosBundleIdentifier,
       appleTeamId: MOBILE_APPLE_TEAM_ID,
-      associatedDomains: ["applinks:yourssincerely.org"],
+      associatedDomains: [`applinks:${WEB_HOST}`],
       supportsTablet: true,
       requireFullScreen: true,
       entitlements: {
@@ -61,15 +63,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           action: "VIEW",
           autoVerify: true,
           category: ["BROWSABLE", "DEFAULT"],
-          data: [
-            { scheme: "https", host: "yourssincerely.org", pathPrefix: "/posts/" },
-            { scheme: "https", host: "yourssincerely.org", pathPrefix: "/profile/" },
-            {
-              scheme: "https",
-              host: "yourssincerely.org",
-              pathPrefix: "/auth/password-update",
-            },
-          ],
+          data: MOBILE_DEEP_LINK_PATH_PREFIXES.map((pathPrefix) => ({
+            scheme: "https",
+            host: WEB_HOST,
+            pathPrefix,
+          })),
         },
       ],
       adaptiveIcon: {
