@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserInput } from "@repo/api/user/user-schema";
+import { updateUserInput } from "@repo/contracts/user";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { Input } from "@repo/ui/components/input";
@@ -9,7 +9,7 @@ import { toast } from "@repo/ui/components/sonner";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
-import type { UpdateUserInput } from "@repo/api/user/user-schema";
+import type { UpdateUserInput } from "@repo/contracts/user";
 import { getAvatarUrl } from "@/lib/avatars";
 import { useTRPC } from "@/trpc/react";
 

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import NumberFlow from "@number-flow/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
@@ -47,27 +47,27 @@ const CircleAnimation = () => {
 const BurstAnimation = () => {
   // Colors for particles with from/to transitions
   const colorPairs = [
-    { from: "#9EC9F5", to: "#9ED8C6" },
-    { from: "#91D3F7", to: "#9AE4CF" },
-    { from: "#DC93CF", to: "#E3D36B" },
-    { from: "#CF8EEF", to: "#CBEB98" },
-    { from: "#87E9C6", to: "#1FCC93" },
-    { from: "#A7ECD0", to: "#9AE4CF" },
-    { from: "#87E9C6", to: "#A635D9" },
-    { from: "#D58EB3", to: "#E0B6F5" },
-    { from: "#F48BA2", to: "#CF8EEF" },
-    { from: "#91D3F7", to: "#A635D9" },
-    { from: "#CF8EEF", to: "#CBEB98" },
-    { from: "#87E9C6", to: "#A635D9" },
-    { from: "#9EC9F5", to: "#9ED8C6" },
-    { from: "#91D3F7", to: "#9AE4CF" },
+    { id: "blue-mint-a", from: "#9EC9F5", to: "#9ED8C6" },
+    { id: "sky-mint-a", from: "#91D3F7", to: "#9AE4CF" },
+    { id: "pink-gold", from: "#DC93CF", to: "#E3D36B" },
+    { id: "purple-lime-a", from: "#CF8EEF", to: "#CBEB98" },
+    { id: "green-emerald", from: "#87E9C6", to: "#1FCC93" },
+    { id: "mint-mint", from: "#A7ECD0", to: "#9AE4CF" },
+    { id: "green-purple-a", from: "#87E9C6", to: "#A635D9" },
+    { id: "rose-lilac", from: "#D58EB3", to: "#E0B6F5" },
+    { id: "coral-purple", from: "#F48BA2", to: "#CF8EEF" },
+    { id: "sky-purple", from: "#91D3F7", to: "#A635D9" },
+    { id: "purple-lime-b", from: "#CF8EEF", to: "#CBEB98" },
+    { id: "green-purple-b", from: "#87E9C6", to: "#A635D9" },
+    { id: "blue-mint-b", from: "#9EC9F5", to: "#9ED8C6" },
+    { id: "sky-mint-b", from: "#91D3F7", to: "#9AE4CF" },
   ];
 
   return (
     <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
       {colorPairs.map((colors, index) => (
         <Particle
-          key={index}
+          key={colors.id}
           fromColor={colors.from}
           toColor={colors.to}
           index={index}
@@ -162,23 +162,47 @@ type Props = {
 
 export const LikeButton = ({ post }: Props) => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isAnimating, setIsAnimating] = useState(false);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
 
-  const createMutate = useMutation(trpc.like.createLike.mutationOptions());
-  const deleteMutate = useMutation(trpc.like.deleteLike.mutationOptions());
+  const invalidateLikeState = () =>
+    Promise.all([
+      queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()),
+      queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
+      queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
+    ]);
+
+  const createMutate = useMutation(
+    trpc.like.createLike.mutationOptions({
+      onError: () => {
+        setLikeCount((count) => Math.max(0, count - 1));
+        setIsLiked(false);
+      },
+      onSettled: () => invalidateLikeState().catch(() => undefined),
+    }),
+  );
+  const deleteMutate = useMutation(
+    trpc.like.deleteLike.mutationOptions({
+      onError: () => {
+        setLikeCount((count) => count + 1);
+        setIsLiked(true);
+      },
+      onSettled: () => invalidateLikeState().catch(() => undefined),
+    }),
+  );
 
   const toggleLike = () => {
     if (!post.id) return;
 
     if (isLiked) {
-      setLikeCount(likeCount - 1);
+      setLikeCount((count) => Math.max(0, count - 1));
       setIsLiked(false);
       deleteMutate.mutate({ postId: post.id });
     } else {
-      setLikeCount(likeCount + 1);
+      setLikeCount((count) => count + 1);
       setIsLiked(true);
       setIsAnimating(true);
       createMutate.mutate({ postId: post.id });

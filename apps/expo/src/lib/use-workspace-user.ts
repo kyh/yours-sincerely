@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { trpc } from "./api";
+import { finalizeLegacySessionMigration } from "./legacy-session-migration";
 import { deleteSessionCookie, getSessionCookie } from "./session-store";
 
 /** Current user (null when browsing anonymously) — mirrors
@@ -14,10 +15,17 @@ export const useWorkspaceUser = () => {
   // deleted elsewhere, or signature rejected) — drop it so the app settles
   // into a clean signed-out state instead of replaying it forever.
   useEffect(() => {
-    if (data !== undefined && data.user === null && getSessionCookie() !== null) {
+    if (data !== undefined && data.user !== null) {
+      finalizeLegacySessionMigration(true).catch(() => undefined);
+    } else if (data !== undefined && data.user === null && getSessionCookie() !== null) {
       deleteSessionCookie().catch(() => undefined);
     }
   }, [data]);
 
-  return { user, isPending };
+  return {
+    user,
+    knockUserToken: data?.knockUserToken ?? null,
+    pushCleanupCapability: data?.pushCleanupCapability ?? null,
+    isPending,
+  };
 };

@@ -1,4 +1,5 @@
 import type { ImageSourcePropType } from "react-native";
+import { getLegacyAvatarIndex } from "@repo/contracts/content";
 
 const avatarSources: ImageSourcePropType[] = [
   require("../../assets/avatars/0.svg"),
@@ -26,16 +27,6 @@ const avatarSources: ImageSourcePropType[] = [
 /** Same deterministic hash as apps/web/src/lib/avatars.ts — a given
     display name maps to the same avatar on web and native. */
 export const getAvatarSource = (str = "Anonymous") => {
-  const hash = hashString(str);
-  const source = avatarSources[hash % 20];
+  const source = avatarSources[getLegacyAvatarIndex(str)];
   return source ?? avatarSources[0];
-};
-
-const hashString = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
 };

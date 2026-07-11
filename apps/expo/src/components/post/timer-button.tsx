@@ -1,5 +1,5 @@
 import { Pressable } from "react-native";
-import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
+import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
 import { addDays, formatDistance } from "date-fns";
 import Svg, { Circle, Path } from "react-native-svg";
 import { toast } from "sonner-native";
@@ -11,7 +11,7 @@ import { parseServerDate } from "@/lib/dates";
 const getPercentage = (createdAt: Date) => {
   const now = new Date();
   const start = createdAt;
-  const end = addDays(createdAt, POST_EXPIRY_DAYS_AGO);
+  const end = addDays(createdAt, POST_EXPIRY_DAYS);
   return {
     now,
     start,
@@ -52,8 +52,9 @@ export const TimerButton = ({ post }: Props) => {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Content disappears in ${formattedTime}`}
+      hitSlop={6}
       className="size-8 items-center justify-center rounded-lg active:bg-accent"
-      onPress={() => toast(`Dissapears in ${formattedTime}`)}
+      onPress={() => toast(`Disappears in ${formattedTime}`)}
     >
       <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
         <Circle cx={RADIUS} cy={RADIUS} r={RADIUS} fill="rgba(120, 120, 120, 0.5)" />

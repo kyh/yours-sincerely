@@ -53,7 +53,10 @@ export const ActivityCalendar = ({ data, theme }: Props) => {
           ))}
         </G>
         {weeks.map((week, weekIndex) => (
-          <G key={weekIndex} x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}>
+          <G
+            key={week.map((day) => day?.date ?? "empty").join("|")}
+            x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}
+          >
             {week.map((day, dayIndex) =>
               day !== undefined ? (
                 <Rect

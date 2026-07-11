@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserInput } from "@repo/api/user/user-schema";
+import { updateUserInput } from "@repo/contracts/user";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -22,7 +22,7 @@ import { CircleHelpIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-import type { UpdateUserInput } from "@repo/api/user/user-schema";
+import type { UpdateUserInput } from "@repo/contracts/user";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
 

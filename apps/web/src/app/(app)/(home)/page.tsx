@@ -5,7 +5,7 @@ import { PostFeed } from "@/app/(app)/posts/_components/post-feed";
 import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form";
 import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";
 import { getFeedLayout } from "@/lib/feed-layout-actions";
-import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { caller, HydrateClient, prefetchInfinite, trpc } from "@/trpc/server";
 
 const Page = async () => {
   const cookieStore = await cookies();
@@ -15,7 +15,7 @@ const Page = async () => {
   const filters = {
     limit: 5,
   };
-  prefetch(
+  prefetchInfinite(
     trpc.post.getFeed.infiniteQueryOptions(filters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }),

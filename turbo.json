@@ -18,6 +18,10 @@
       "dependsOn": ["^topo", "^build"],
       "outputs": [".cache/tsbuildinfo.json"]
     },
+    "test": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": []
+    },
     "clean": {
       "cache": false
     },
@@ -36,8 +40,15 @@
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
     "KNOCK_API_KEY",
+    "KNOCK_SIGNING_KEY",
     "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
     "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
+    "NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID",
+    "APPLE_TEAM_ID",
+    "ANDROID_APP_CERT_SHA256_FINGERPRINTS",
+    "EXPO_PUBLIC_SENTRY_DSN",
+    "SENTRY_ORG",
+    "SENTRY_PROJECT",
     "PORT"
   ],
   "globalPassThroughEnv": [
@@ -46,6 +57,7 @@
     "VERCEL",
     "VERCEL_ENV",
     "VERCEL_URL",
+    "SENTRY_AUTH_TOKEN",
     "npm_lifecycle_event"
   ]
 }

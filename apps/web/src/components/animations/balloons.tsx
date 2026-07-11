@@ -563,8 +563,6 @@ export function balloons(): Promise<void> {
 
     balloonPositions = balloonPositions.toSorted((a, b) => a.z - b.z);
     const closestBallonPosition = balloonPositions[balloonPositions.length - 1];
-    const farthestBallonPosition = balloonPositions[0];
-    // console.log({ closestBallonPosition, farthestBallonPosition });
     balloonPositions = balloonPositions.map((pos) => ({
       ...pos,
       z: pos.z - (closestBallonPosition?.z ?? 0),
@@ -600,12 +598,14 @@ export function balloons(): Promise<void> {
         const a = getAnimation();
         return a.finished.then(() => {
           balloon.remove();
+          return undefined;
         });
       });
 
       Promise.all(animationPromises).then(() => {
         balloonsContainer.remove();
         resolve();
+        return undefined;
       });
     });
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -94,6 +94,7 @@ export const MoreButton = ({ post }: Props) => {
 
   const menuItems = [
     <Button
+      key="report"
       variant="ghost"
       nativeButton={false}
       className={buttonClassName}
@@ -109,6 +110,7 @@ export const MoreButton = ({ post }: Props) => {
     </Button>,
     !!user && isPostOwner && (
       <Button
+        key="delete"
         type="button"
         className={buttonClassName}
         variant="ghost"
@@ -120,6 +122,7 @@ export const MoreButton = ({ post }: Props) => {
     ),
     !!user && !isPostOwner && (
       <Button
+        key="flag"
         type="button"
         className={buttonClassName}
         variant="ghost"
@@ -131,6 +134,7 @@ export const MoreButton = ({ post }: Props) => {
     ),
     !!user && !isPostOwner && (
       <Button
+        key="block"
         type="button"
         className={buttonClassName}
         variant="ghost"
@@ -153,11 +157,7 @@ export const MoreButton = ({ post }: Props) => {
             <DialogTitle>Post Settings</DialogTitle>
             <DialogDescription>Options for this post</DialogDescription>
           </DialogHeader>
-          <div className="divide-border flex flex-col divide-y">
-            {menuItems.map((item, index) => (
-              <Fragment key={index}>{item}</Fragment>
-            ))}
-          </div>
+          <div className="divide-border flex flex-col divide-y">{menuItems}</div>
         </DialogContent>
       </Dialog>
     );
@@ -175,11 +175,7 @@ export const MoreButton = ({ post }: Props) => {
           <DrawerTitle>Post Settings</DrawerTitle>
           <DrawerDescription>Options for this post</DrawerDescription>
         </DrawerHeader>
-        <div className="divide-border mt-4 flex flex-col divide-y">
-          {menuItems.map((item, index) => (
-            <Fragment key={index}>{item}</Fragment>
-          ))}
-        </div>
+        <div className="divide-border mt-4 flex flex-col divide-y">{menuItems}</div>
       </DrawerContent>
     </Drawer>
   );

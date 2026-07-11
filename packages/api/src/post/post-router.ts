@@ -1,6 +1,6 @@
 import { Knock } from "@knocklabs/node";
-import { and, desc, eq, lt, notInArray, or } from "@repo/db";
-import { feed, post } from "@repo/db/drizzle-schema";
+import { and, desc, eq, inArray, lt, notInArray, or } from "@repo/db";
+import { feed, flag, like, post } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 
@@ -84,6 +84,10 @@ export const postRouter = createTRPCRouter({
     const posts = await ctx.db.query.post.findMany({
       where: (post, { eq }) => eq(post.userId, input.userId),
       orderBy: (post, { desc }) => desc(post.createdAt),
+      columns: {
+        id: true,
+        createdAt: true,
+      },
     });
 
     return { posts };
@@ -142,7 +146,6 @@ export const postRouter = createTRPCRouter({
         content: input.content,
         createdBy: input.createdBy || "Anonymous",
         parentId: input.parentId,
-        baseLikeCount: input.baseLikeCount,
       })
       .returning();
 
@@ -182,7 +185,49 @@ export const postRouter = createTRPCRouter({
   }),
 
   deletePost: protectedProcedure.input(deletePostInput).mutation(async ({ ctx, input }) => {
-    const [deleted] = await ctx.db.delete(post).where(eq(post.id, input.postId)).returning();
+    const ownedPost = await ctx.db.query.post.findFirst({
+      where: (post, { and, eq }) => and(eq(post.id, input.postId), eq(post.userId, ctx.user.id)),
+      columns: { id: true },
+    });
+
+    if (ownedPost === undefined) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
+    }
+
+    const deleted = await ctx.db.transaction(async (tx) => {
+      const levels: string[][] = [[input.postId]];
+
+      while (true) {
+        const parentIds = levels.at(-1);
+        if (parentIds === undefined) break;
+
+        const children = await tx
+          .select({ id: post.id })
+          .from(post)
+          .where(inArray(post.parentId, parentIds));
+        if (children.length === 0) break;
+
+        levels.push(children.map((child) => child.id));
+      }
+
+      const postIds = levels.flat();
+
+      await tx.delete(like).where(inArray(like.postId, postIds));
+      await tx.delete(flag).where(inArray(flag.postId, postIds));
+
+      for (let index = levels.length - 1; index >= 1; index -= 1) {
+        const level = levels[index];
+        if (level === undefined) continue;
+        await tx.delete(post).where(inArray(post.id, level));
+      }
+
+      const [result] = await tx
+        .delete(post)
+        .where(and(eq(post.id, input.postId), eq(post.userId, ctx.user.id)))
+        .returning();
+
+      return result;
+    });
 
     return {
       post: deleted,

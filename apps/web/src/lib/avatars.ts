@@ -1,13 +1,5 @@
-export const getAvatarUrl = (str = "Anonymous") => {
-  const hash = hashString(str);
-  return `/avatars/${hash % 20}.svg`;
-};
+import { getLegacyAvatarIndex } from "@repo/contracts/content";
 
-const hashString = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
+export const getAvatarUrl = (str = "Anonymous") => {
+  return `/avatars/${getLegacyAvatarIndex(str)}.svg`;
 };

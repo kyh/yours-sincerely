@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AnimatedView } from "@/lib/css-interop";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Bottom sheet used where the web app opens a vaul Drawer
     (share menu, post options, new-post form). Hand-rolled gesture sheet
@@ -42,9 +43,10 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => {
   const insets = useSafeAreaInsets();
+  const reduceMotionEnabled = useReducedMotion();
   // Modal stays visible through the exit animation, then unmounts.
   const [visible, setVisible] = useState(false);
-  const prevOpen = useRef(false);
+  const previousSettings = useRef({ open: false, reduceMotionEnabled });
   // translateY: 0 = fully open, sheetHeight = fully dismissed (offscreen).
   const translateY = useSharedValue(SCREEN_HEIGHT);
   // Where the sheet sat when a drag started, so drags that begin mid-spring
@@ -56,8 +58,16 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
   // Drive enter/exit from the `open` prop so every close path (item select,
   // scrim tap, hardware back, drag) animates out before the Modal unmounts.
   useEffect(() => {
-    if (open === prevOpen.current) return;
-    prevOpen.current = open;
+    const previous = previousSettings.current;
+    if (open === previous.open && reduceMotionEnabled === previous.reduceMotionEnabled) return;
+    previousSettings.current = { open, reduceMotionEnabled };
+
+    if (reduceMotionEnabled) {
+      translateY.value = open ? 0 : sheetHeight.value;
+      setVisible(open);
+      return;
+    }
+
     if (open) {
       // Fresh open starts offscreen; a reopen mid-exit springs back from
       // wherever the sheet currently is.
@@ -70,7 +80,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
         if (finished === true) runOnJS(setVisible)(false);
       });
     }
-  }, [open, visible, sheetHeight, translateY]);
+  }, [open, reduceMotionEnabled, visible, sheetHeight, translateY]);
 
   const pan = Gesture.Pan()
     // Only while open — touches during the exit animation can't drag the
@@ -97,7 +107,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
         // Flip the prop; the effect above runs the exit spring from here.
         runOnJS(onClose)();
       } else {
-        translateY.value = withSpring(0, SETTLE_SPRING);
+        translateY.value = reduceMotionEnabled ? 0 : withSpring(0, SETTLE_SPRING);
       }
     });
 

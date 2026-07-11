@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import {
   animate,
@@ -25,10 +25,10 @@ const CardStackContext = createContext<CardStackContextType | undefined>(undefin
 export const CardStackProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const value: CardStackContextType = {
-    currentIndex,
-    setCurrentIndex,
-  };
+  const value = useMemo<CardStackContextType>(
+    () => ({ currentIndex, setCurrentIndex }),
+    [currentIndex],
+  );
 
   return <CardStackContext.Provider value={value}>{children}</CardStackContext.Provider>;
 };

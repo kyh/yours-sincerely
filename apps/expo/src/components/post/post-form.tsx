@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
-import { createPostInput, type CreatePostInput } from "@repo/api/post/post-schema";
-import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
+import { POST_EXPIRY_DAYS, createPostInput, type CreatePostInput } from "@repo/contracts";
 import { useMutation } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import * as Haptics from "expo-haptics";
@@ -11,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { useBalloons } from "@/components/animations/balloons";
-import { queryClient, trpc } from "@/lib/api";
+import { trpc } from "@/lib/api";
 import { clearPostDraft, getPostDraft, setPostDraft } from "@/lib/post-draft";
+import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of apps/web posts/_components/post-form.tsx. */
@@ -36,6 +36,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
     if (parentId !== undefined) return;
     getPostDraft().then((draft) => {
       if (draft !== null) setContent(draft);
+      return undefined;
     });
   }, [parentId]);
 
@@ -51,15 +52,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
         if (parentId === undefined) clearPostDraft().catch(() => undefined);
         setContent("");
         setError(null);
-        queryClient
-          .invalidateQueries(trpc.post.getFeed.infiniteQueryFilter())
-          .catch(() => undefined);
-        queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()).catch(() => undefined);
-        queryClient
-          .invalidateQueries(trpc.post.getPostsByUser.queryFilter())
-          .catch(() => undefined);
-        queryClient.invalidateQueries(trpc.user.getUser.queryFilter()).catch(() => undefined);
-        queryClient.invalidateQueries(trpc.user.getUserStats.queryFilter()).catch(() => undefined);
+        refreshAfterPostCreated().catch(() => undefined);
         onSuccess?.();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
         setTimeout(() => {
@@ -90,7 +83,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
     createPost.mutate(parsed.data);
   };
 
-  const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
+  const expiry = addDays(new Date(), POST_EXPIRY_DAYS);
 
   return (
     <View className="flex-col gap-2">

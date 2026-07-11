@@ -22,6 +22,8 @@ import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, trpc } from "@/lib/api";
+import { refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
     ring, and 14-particle burst with the same timings/easings/colors. */
@@ -76,20 +78,20 @@ const CircleAnimation = () => {
 };
 
 const colorPairs = [
-  { from: "#9EC9F5", to: "#9ED8C6" },
-  { from: "#91D3F7", to: "#9AE4CF" },
-  { from: "#DC93CF", to: "#E3D36B" },
-  { from: "#CF8EEF", to: "#CBEB98" },
-  { from: "#87E9C6", to: "#1FCC93" },
-  { from: "#A7ECD0", to: "#9AE4CF" },
-  { from: "#87E9C6", to: "#A635D9" },
-  { from: "#D58EB3", to: "#E0B6F5" },
-  { from: "#F48BA2", to: "#CF8EEF" },
-  { from: "#91D3F7", to: "#A635D9" },
-  { from: "#CF8EEF", to: "#CBEB98" },
-  { from: "#87E9C6", to: "#A635D9" },
-  { from: "#9EC9F5", to: "#9ED8C6" },
-  { from: "#91D3F7", to: "#9AE4CF" },
+  { id: "blue-mint-a", from: "#9EC9F5", to: "#9ED8C6" },
+  { id: "sky-mint-a", from: "#91D3F7", to: "#9AE4CF" },
+  { id: "pink-gold", from: "#DC93CF", to: "#E3D36B" },
+  { id: "purple-lime-a", from: "#CF8EEF", to: "#CBEB98" },
+  { id: "green-emerald", from: "#87E9C6", to: "#1FCC93" },
+  { id: "mint-mint", from: "#A7ECD0", to: "#9AE4CF" },
+  { id: "green-purple-a", from: "#87E9C6", to: "#A635D9" },
+  { id: "rose-lilac", from: "#D58EB3", to: "#E0B6F5" },
+  { id: "coral-purple", from: "#F48BA2", to: "#CF8EEF" },
+  { id: "sky-purple", from: "#91D3F7", to: "#A635D9" },
+  { id: "purple-lime-b", from: "#CF8EEF", to: "#CBEB98" },
+  { id: "green-purple-b", from: "#87E9C6", to: "#A635D9" },
+  { id: "blue-mint-b", from: "#9EC9F5", to: "#9ED8C6" },
+  { id: "sky-mint-b", from: "#91D3F7", to: "#9AE4CF" },
 ];
 
 const BURST_RADIUS = 32;
@@ -189,7 +191,7 @@ const BurstAnimation = () => (
   >
     {colorPairs.map((colors, index) => (
       <Particle
-        key={index}
+        key={colors.id}
         fromColor={colors.from}
         toColor={colors.to}
         index={index}
@@ -292,13 +294,19 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
     onSettled: () => {
       queryClient.invalidateQueries(feedFilter).catch(() => undefined);
       queryClient.invalidateQueries(postFilter).catch(() => undefined);
+      refreshWorkspaceIdentity().catch(() => undefined);
     },
   };
 };
 
 export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
+  const reduceMotionEnabled = useReducedMotion();
   const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (reduceMotionEnabled) setIsAnimating(false);
+  }, [reduceMotionEnabled]);
 
   const createMutate = useMutation(
     trpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
@@ -312,7 +320,7 @@ export const LikeButton = ({ post }: Props) => {
       deleteMutate.mutate({ postId: post.id });
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
-      setIsAnimating(true);
+      setIsAnimating(!reduceMotionEnabled);
       createMutate.mutate({ postId: post.id });
     }
   };
@@ -321,13 +329,14 @@ export const LikeButton = ({ post }: Props) => {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${post.likeCount} likes, tap to ${post.isLiked ? "unlike" : "like"}`}
+      hitSlop={6}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
       onPress={toggleLike}
     >
       <View>
-        {isAnimating && <CircleAnimation />}
-        {isAnimating && <BurstAnimation />}
-        {isAnimating ? (
+        {isAnimating && !reduceMotionEnabled && <CircleAnimation />}
+        {isAnimating && !reduceMotionEnabled && <BurstAnimation />}
+        {isAnimating && !reduceMotionEnabled ? (
           <AnimatingHeart onComplete={() => setIsAnimating(false)} />
         ) : (
           <Heart color={post.isLiked ? "#ef4444" : colors.mutedForeground} />

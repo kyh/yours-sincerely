@@ -6,24 +6,75 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
+import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
+import type { ErrorBoundaryProps } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { Pressable, Text as NativeText, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Toaster } from "sonner-native";
 
 import { BalloonsProvider } from "@/components/animations/balloons";
+import { ConnectivityBanner } from "@/components/connectivity-banner";
 import { FeedLayoutProvider } from "@/components/feed-layout-provider";
+import { KnockProviders } from "@/components/notifications/knock-providers";
+import { SentryUser } from "@/components/observability/sentry-user";
 import { GestureHandlerRootView } from "@/lib/css-interop";
 import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient } from "@/lib/api";
+import { appConfig } from "@/lib/app-config";
 
 import "../styles.css";
 import "@/lib/css-interop";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+Sentry.init({
+  dsn: appConfig.sentryDsn,
+  enabled: !__DEV__ && appConfig.sentryDsn !== undefined,
+  sendDefaultPii: false,
+  tracesSampleRate: 0.1,
+  attachScreenshot: false,
+  attachViewHierarchy: false,
+});
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 16,
+        paddingHorizontal: 32,
+        backgroundColor: "#FBF8EF",
+      }}
+    >
+      <NativeText style={{ color: "#171717", fontSize: 24, fontWeight: "700" }}>
+        This letter hit a snag
+      </NativeText>
+      <NativeText style={{ color: "#66615A", fontSize: 14, textAlign: "center" }}>
+        Your session is safe. Try opening the page again.
+      </NativeText>
+      <Pressable
+        accessibilityRole="button"
+        onPress={retry}
+        style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 20 }}
+      >
+        <NativeText style={{ color: "#4F46E5", fontSize: 16, fontWeight: "600" }}>
+          Try again
+        </NativeText>
+      </Pressable>
+    </View>
+  );
+}
 
 const RootStack = () => {
   const { resolvedTheme } = useTheme();
@@ -37,12 +88,13 @@ const RootStack = () => {
         }}
       />
       <Toaster />
+      <ConnectivityBanner />
       <StatusBar style={isDarkTheme(resolvedTheme) ? "light" : "dark"} />
     </>
   );
 };
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -62,15 +114,20 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
+          <SentryUser />
           <ThemeProvider>
-            <FeedLayoutProvider>
-              <BalloonsProvider>
-                <RootStack />
-              </BalloonsProvider>
-            </FeedLayoutProvider>
+            <KnockProviders>
+              <FeedLayoutProvider>
+                <BalloonsProvider>
+                  <RootStack />
+                </BalloonsProvider>
+              </FeedLayoutProvider>
+            </KnockProviders>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);

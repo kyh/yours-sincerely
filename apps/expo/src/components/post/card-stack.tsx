@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AnimatedView } from "@/lib/css-interop";
 import { clamp01, easeIn, mix, progress, wrap } from "@/lib/motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Port of apps/web posts/_components/card-stack.tsx (motion → reanimated).
     Spring constants match the web version exactly. */
@@ -50,6 +51,7 @@ type CardProps = {
   maxRotate: number;
   minDistance?: number;
   minSpeed?: number;
+  reduceMotionEnabled: boolean;
   setNextPost: () => void;
   children: ReactNode;
 };
@@ -59,6 +61,7 @@ const Card = ({
   currentIndex,
   total,
   maxRotate,
+  reduceMotionEnabled,
   setNextPost,
   minDistance = 400,
   minSpeed = 50,
@@ -75,41 +78,38 @@ const Card = ({
   const scale = mix(0.5, 1, easeIn(clamp01(progress(0, total - 1, zIndex))));
 
   // Mount like the web card: from {opacity: 0, scale: 0.3} with a spring.
-  const animatedOpacity = useSharedValue(0);
-  const animatedScale = useSharedValue(0.3);
+  const animatedOpacity = useSharedValue(reduceMotionEnabled ? opacity : 0);
+  const animatedScale = useSharedValue(reduceMotionEnabled ? scale : 0.3);
   useEffect(() => {
-    animatedOpacity.value = withSpring(opacity, STACK_SPRING);
-    animatedScale.value = withSpring(scale, STACK_SPRING);
-  }, [opacity, scale, animatedOpacity, animatedScale]);
+    animatedOpacity.value = reduceMotionEnabled ? opacity : withSpring(opacity, STACK_SPRING);
+    animatedScale.value = reduceMotionEnabled ? scale : withSpring(scale, STACK_SPRING);
+  }, [opacity, scale, reduceMotionEnabled, animatedOpacity, animatedScale]);
 
   const pan = Gesture.Pan()
     .enabled(isCurrent)
     .activeOffsetX([-10, 10])
     .onBegin(() => {
-      pressed.value = withSpring(0.98, STACK_SPRING);
+      pressed.value = reduceMotionEnabled ? 1 : withSpring(0.98, STACK_SPRING);
     })
     .onChange((event) => {
       x.value = event.translationX;
     })
     .onFinalize((event) => {
-      pressed.value = withSpring(1, STACK_SPRING);
+      pressed.value = reduceMotionEnabled ? 1 : withSpring(1, STACK_SPRING);
       const distance = Math.abs(event.translationX);
       const speed = Math.abs(event.velocityX);
       if (distance > minDistance || speed > minSpeed) {
         runOnJS(setNextPost)();
-        x.value = withSpring(0, ADVANCE_SPRING);
+        x.value = reduceMotionEnabled ? 0 : withSpring(0, ADVANCE_SPRING);
       } else {
-        x.value = withSpring(0, SNAP_BACK_SPRING);
+        x.value = reduceMotionEnabled ? 0 : withSpring(0, SNAP_BACK_SPRING);
       }
     });
 
   const animatedStyle = useAnimatedStyle(() => {
-    const rotate = interpolate(
-      x.value,
-      [0, 400],
-      [baseRotation, baseRotation + 10],
-      Extrapolation.EXTEND,
-    );
+    const rotate = reduceMotionEnabled
+      ? baseRotation
+      : interpolate(x.value, [0, 400], [baseRotation, baseRotation + 10], Extrapolation.EXTEND);
     return {
       opacity: animatedOpacity.value,
       transform: [
@@ -157,6 +157,7 @@ export const CardStack = <T extends { id: string }>({
   onLoadMore,
 }: Props<T>) => {
   const { currentIndex, setCurrentIndex } = useCardStack();
+  const reduceMotionEnabled = useReducedMotion();
   const [width, setWidth] = useState(400);
 
   // The feed can shrink (block/delete invalidation) below currentIndex; wrap
@@ -187,6 +188,7 @@ export const CardStack = <T extends { id: string }>({
             index={index}
             currentIndex={safeIndex}
             total={data.length}
+            reduceMotionEnabled={reduceMotionEnabled}
             setNextPost={handleSetNextPost}
           >
             {render(item)}

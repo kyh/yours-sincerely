@@ -2,13 +2,14 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { signInWithPasswordInput, signUpInput } from "@repo/api/auth/auth-schema";
+import { signInWithPasswordInput, signUpInput } from "@repo/contracts/auth";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { queryClient, trpc } from "@/lib/api";
 
 /** Port of the web auth-form — email + password sign in/up. The session
@@ -22,20 +23,27 @@ type Props = {
 
 type FieldErrors = Partial<Record<"email" | "password", string>>;
 
+const showMutationError = (mutationError: { message: string }) =>
+  toast.error(mutationError.message);
+
 export const AuthForm = ({ type, next = "/" }: Props) => {
   const router = useRouter();
+  const releasePushIdentity = useReleasePushIdentity();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const onSuccess = () => {
+  const onSuccess = async () => {
+    if (type === "signin") await releasePushIdentity();
     queryClient.clear();
     router.replace(next);
   };
-  const onError = (mutationError: { message: string }) => toast.error(mutationError.message);
-
-  const signIn = useMutation(trpc.auth.signInWithPassword.mutationOptions({ onSuccess, onError }));
-  const signUp = useMutation(trpc.auth.signUp.mutationOptions({ onSuccess, onError }));
+  const signIn = useMutation(
+    trpc.auth.signInWithPassword.mutationOptions({ onSuccess, onError: showMutationError }),
+  );
+  const signUp = useMutation(
+    trpc.auth.signUp.mutationOptions({ onSuccess, onError: showMutationError }),
+  );
 
   const handleSubmit = () => {
     const schema = type === "signup" ? signUpInput : signInWithPasswordInput;

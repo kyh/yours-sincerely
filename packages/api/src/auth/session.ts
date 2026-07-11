@@ -3,6 +3,11 @@ import { cookies } from "next/headers";
 import { compare, hash } from "bcryptjs";
 import cookieSignature from "cookie-signature";
 
+import {
+  parsePushCleanupCapability,
+  signPushCleanupCapability,
+} from "./push-cleanup-capability";
+
 // Product decision: sessions are effectively permanent — nobody is logged out
 // for inactivity. `COOKIE_SECRET` (from the env, required in production) signs
 // every new cookie. `COOKIE_SECRET_LEGACY` is a comma-separated list of secrets
@@ -41,6 +46,13 @@ const SESSION_COOKIE_NAME = "__session";
 // expires, and the native app persists the value in SecureStore indefinitely.
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // 400 days (browser cap)
 const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7; // renew if older than 7 days
+
+export const createPushCleanupCapability = (userId: string) => {
+  return signPushCleanupCapability(userId, COOKIE_SECRET);
+};
+
+export const verifyPushCleanupCapability = (capability: string) =>
+  parsePushCleanupCapability(capability, VERIFY_SECRETS);
 
 // Legacy payloads (pre sliding renewal) have no `iat`
 const parseSessionPayload = (unsignedCookie: string) => {

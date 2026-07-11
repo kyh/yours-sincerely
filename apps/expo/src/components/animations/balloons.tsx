@@ -28,6 +28,8 @@ import Svg, {
   Stop,
 } from "react-native-svg";
 
+import { useReducedMotion } from "@/lib/use-reduced-motion";
+
 /** Port of apps/web/src/components/animations/balloons.tsx (Web Animations
     API → reanimated). Same color pairs, easings, sway + alternating tilt.
     The balloon art mirrors the web SVG (viewBox 223x609): gradient string,
@@ -250,10 +252,17 @@ export const useBalloons = () => useContext(BalloonsContext);
 
 export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const reduceMotionEnabled = useReducedMotion();
   const [balloonBatch, setBalloonBatch] = useState<BalloonConfig[] | null>(null);
   const nextId = useRef(0);
 
+  useEffect(() => {
+    if (reduceMotionEnabled) setBalloonBatch(null);
+  }, [reduceMotionEnabled]);
+
   const celebrate = useCallback(() => {
+    if (reduceMotionEnabled) return;
+
     const balloonWidth = Math.min(screenWidth, screenHeight) * 0.4;
     const amount = Math.max(7, Math.round(screenWidth / (balloonWidth / 2)));
 
@@ -294,7 +303,7 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
     setTimeout(() => {
       setBalloonBatch((prev) => (prev === configs ? null : prev));
     }, maxLifetime + 500);
-  }, [screenWidth, screenHeight]);
+  }, [screenWidth, screenHeight, reduceMotionEnabled]);
 
   const contextValue = useMemo(() => ({ celebrate }), [celebrate]);
 

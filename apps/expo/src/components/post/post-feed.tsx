@@ -20,7 +20,9 @@ type Props = {
   };
 };
 
-export const PostFeed = ({ layout = "list", filters = {} }: Props) => {
+const EMPTY_FILTERS: NonNullable<Props["filters"]> = {};
+
+export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) => {
   const {
     data,
     isPending,

@@ -1,10 +1,10 @@
 // Learn more: https://docs.expo.dev/guides/monorepos/
 const path = require("node:path");
-const { getDefaultConfig } = require("expo/metro-config");
+const { getSentryExpoConfig } = require("@sentry/react-native/metro");
 const { FileStore } = require("metro-cache");
 const { withNativewind } = require("nativewind/metro");
 
-const config = getDefaultConfig(__dirname);
+const config = getSentryExpoConfig(__dirname);
 
 config.cacheStores = [
   new FileStore({

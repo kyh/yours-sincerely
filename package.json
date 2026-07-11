@@ -17,10 +17,12 @@
     "dev:mobile-ios": "pnpm -F mobile ios",
     "dev:mobile-android": "pnpm -F mobile android",
     "lint": "oxlint --report-unused-disable-directives",
+    "test": "turbo run test --filter=@repo/api --filter=@repo/expo",
     "typecheck": "turbo run typecheck",
     "format": "oxfmt",
     "lint:fix": "oxlint --fix",
-    "format:fix": "oxfmt --write"
+    "format:fix": "oxfmt --write",
+    "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",
@@ -29,6 +31,9 @@
     "tsx": "^4.23.0",
     "turbo": "^2.10.4",
     "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {
@@ -43,8 +48,5 @@
         "typescript"
       ]
     }
-  },
-  "engines": {
-    "node": ">=24"
   }
 }

@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, View } from "react-native";
+import { Redirect } from "expo-router";
 import { SafeAreaView } from "@/lib/css-interop";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { themes, useTheme } from "@/components/theme-provider";
 /** Dev screen: verifies every theme's tokens render correctly on native. */
 export default function ThemeGallery() {
   const { theme, setTheme } = useTheme();
+
+  if (!__DEV__) return <Redirect href="/" />;
 
   return (
     <SafeAreaView className="bg-background flex-1">

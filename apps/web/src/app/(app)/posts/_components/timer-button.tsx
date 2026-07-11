@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
+import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 import { addDays, formatDistance } from "date-fns";
 
@@ -10,7 +10,7 @@ import type { RouterOutputs } from "@repo/api";
 const getPercentage = (createdAt: Date) => {
   const now = new Date();
   const start = createdAt;
-  const end = addDays(createdAt, POST_EXPIRY_DAYS_AGO);
+  const end = addDays(createdAt, POST_EXPIRY_DAYS);
   return {
     now,
     start,

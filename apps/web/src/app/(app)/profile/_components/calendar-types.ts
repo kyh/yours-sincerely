@@ -1,16 +1,15 @@
 import type React from "react";
 import type { DOMAttributes } from "react";
+import type {
+  CalendarDay,
+  CalendarLevel,
+  CalendarTheme,
+  CalendarWeeks,
+} from "@repo/contracts/calendar";
 
-export type Level = 0 | 1 | 2 | 3 | 4;
-
-export type Day = {
-  date: string;
-  count: number;
-  level: Level;
-};
-
-type Week = (Day | undefined)[];
-export type Weeks = Week[];
+export type Level = CalendarLevel;
+export type Day = CalendarDay;
+export type Weeks = CalendarWeeks;
 export type Labels = Partial<{
   readonly months: string[];
   readonly weekdays: string[];
@@ -21,14 +20,7 @@ export type Labels = Partial<{
   }>;
 }>;
 
-export type Theme = {
-  readonly level4: string;
-  readonly level3: string;
-  readonly level2: string;
-  readonly level1: string;
-  readonly level0: string;
-  readonly stroke: string;
-};
+export type Theme = CalendarTheme;
 
 export type SVGRectEventHandler = Omit<
   DOMAttributes<SVGRectElement>,

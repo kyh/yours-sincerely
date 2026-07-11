@@ -7,21 +7,27 @@ import { SafeAreaView } from "@/lib/css-interop";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { useThemeColors } from "@/components/theme-colors";
 import { PostContent } from "@/components/post/post-content";
 import { PostForm } from "@/components/post/post-form";
 import { queryClient, trpc } from "@/lib/api";
-import { readingTime } from "@/lib/reading-time";
+import { getReadingTime } from "@repo/contracts/content";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
 export default function PostScreen() {
-  const { "post-id": postId } = useLocalSearchParams<{ "post-id": string }>();
+  const params = useLocalSearchParams();
+  const postIdParam = params["post-id"];
+  const postId = typeof postIdParam === "string" ? postIdParam : "";
   const router = useRouter();
   const colors = useThemeColors();
   const { user } = useWorkspaceUser();
 
-  const { data, isPending, isError } = useQuery(trpc.post.getPost.queryOptions({ postId }));
+  const { data, error, isPending, isError, refetch } = useQuery({
+    ...trpc.post.getPost.queryOptions({ postId }),
+    enabled: postId.length > 0,
+  });
   const post = data?.post;
 
   const goBack = () => {
@@ -40,13 +46,20 @@ export default function PostScreen() {
           <ArrowLeft size={16} color={colors.foreground} />
           <Text className="text-sm font-medium">Back</Text>
         </Pressable>
-        {post !== undefined && <Text className="text-xs">{readingTime(post.content).text}</Text>}
+        {post !== undefined && <Text className="text-xs">{getReadingTime(post.content).text}</Text>}
       </View>
 
-      {isError ? (
+      {postId.length === 0 || (isError && error.data?.code === "NOT_FOUND") ? (
         <View className="flex-1 items-center justify-center px-5">
           <Text className="text-sm">This letter is gone</Text>
         </View>
+      ) : isError ? (
+        <QueryErrorState
+          message="Couldn't load this letter. Check your connection and try again."
+          onRetry={() => {
+            refetch().catch(() => undefined);
+          }}
+        />
       ) : isPending || post === undefined ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
@@ -55,6 +68,7 @@ export default function PostScreen() {
         <ScrollView
           className="flex-1"
           contentContainerClassName="gap-5 px-5 pb-10"
+          contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
           keyboardShouldPersistTaps="handled"
         >
           <Card>

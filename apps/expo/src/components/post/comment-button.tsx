@@ -18,6 +18,7 @@ export const CommentButton = ({ post }: Props) => {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${post.commentCount} comments, open post`}
+      hitSlop={6}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
       onPress={() => router.push({ pathname: "/posts/[post-id]", params: { "post-id": post.id } })}
     >

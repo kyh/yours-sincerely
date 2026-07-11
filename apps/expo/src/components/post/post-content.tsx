@@ -42,8 +42,23 @@ export const PostContent = ({
     router.push({ pathname: "/profile/[user-id]", params: { "user-id": post.userId } });
   };
 
+  const truncateInFeed =
+    asLink &&
+    layout === "list" &&
+    (post.content.length > 500 || post.content.split("\n").length > 12);
+
   const content = (
-    <Text className={cn("text-base leading-6", minHeight && "min-h-72")}>{post.content}</Text>
+    <>
+      <Text
+        className={cn("text-base leading-6", minHeight && "min-h-72")}
+        numberOfLines={truncateInFeed ? 12 : undefined}
+      >
+        {post.content}
+      </Text>
+      {truncateInFeed ? (
+        <Text className="text-muted-foreground mt-2 text-sm font-medium">Read full letter</Text>
+      ) : null}
+    </>
   );
 
   return (

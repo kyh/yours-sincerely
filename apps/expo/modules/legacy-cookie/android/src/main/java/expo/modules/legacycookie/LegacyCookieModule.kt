@@ -23,10 +23,24 @@ class LegacyCookieModule : Module() {
         ?.substringAfter("=")
     }
 
-    AsyncFunction("clear") { _: String ->
+    AsyncFunction("clear") { name: String, host: String ->
       val manager = CookieManager.getInstance()
-      manager.removeAllCookies(null)
+      manager.setCookie("https://$host", "$name=; Max-Age=0; Path=/; Secure; HttpOnly")
+      manager.setCookie(
+        "https://$host",
+        "$name=; Max-Age=0; Path=/; Domain=$host; Secure; HttpOnly",
+      )
+      manager.setCookie(
+        "https://$host",
+        "$name=; Max-Age=0; Path=/; Domain=.$host; Secure; HttpOnly",
+      )
       manager.flush()
+
+      val remains = manager.getCookie("https://$host")
+        ?.split("; ")
+        ?.any { it.substringBefore("=") == name }
+        ?: false
+      check(!remains) { "Legacy cookie remains readable after clearing" }
     }
   }
 }

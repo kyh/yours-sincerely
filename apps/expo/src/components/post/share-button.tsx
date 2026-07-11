@@ -62,6 +62,7 @@ export const ShareButton = ({ post }: Props) => {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Share post"
+        hitSlop={6}
         className="active:bg-accent size-8 items-center justify-center rounded-lg"
         onPress={share}
       >

@@ -1,3 +1,4 @@
+import { Knock, NotFoundError } from "@knocklabs/node";
 import { eq, inArray, or } from "@repo/db";
 import {
   account,
@@ -19,6 +20,11 @@ export const userRouter = createTRPCRouter({
   getUser: publicProcedure.input(getUserInput).query(async ({ ctx, input }) => {
     const response = await ctx.db.query.user.findFirst({
       where: (user, { eq }) => eq(user.id, input.userId),
+      columns: {
+        id: true,
+        displayName: true,
+        displayImage: true,
+      },
     });
 
     return {
@@ -37,19 +43,24 @@ export const userRouter = createTRPCRouter({
   updateUser: protectedProcedure.input(updateUserInput).mutation(async ({ ctx, input }) => {
     const updates: Partial<typeof user.$inferInsert> = {};
 
-    if (input.email) {
+    if (input.email !== undefined) {
       updates.email = input.email;
     }
 
-    if (input.displayName) {
+    if (input.displayName !== undefined) {
       updates.displayName = input.displayName;
     }
 
     const [response] = await ctx.db
       .update(user)
       .set(updates)
-      .where(eq(user.id, input.userId))
-      .returning();
+      .where(eq(user.id, ctx.user.id))
+      .returning({
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        displayImage: user.displayImage,
+      });
 
     return {
       user: response,
@@ -58,27 +69,44 @@ export const userRouter = createTRPCRouter({
 
   deleteUser: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.user.id;
+    const knockApiKey = process.env.KNOCK_API_KEY;
+
+    if (knockApiKey !== undefined && knockApiKey.length > 0) {
+      try {
+        await new Knock({ apiKey: knockApiKey }).users.delete(userId);
+      } catch (error) {
+        if (!(error instanceof NotFoundError)) throw error;
+      }
+    }
 
     await ctx.db.transaction(async (tx) => {
       const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
       const userPostIds = userPosts.map((row) => row.id);
 
       if (userPostIds.length > 0) {
-        const childPosts = await tx
-          .select({ id: post.id })
-          .from(post)
-          .where(inArray(post.parentId, userPostIds));
-        const affectedPostIds = [...userPostIds, ...childPosts.map((row) => row.id)];
+        const affectedPostIds = new Set(userPostIds);
+        let parentIds = userPostIds;
+
+        while (parentIds.length > 0) {
+          const childPosts = await tx
+            .select({ id: post.id })
+            .from(post)
+            .where(inArray(post.parentId, parentIds));
+          parentIds = childPosts
+            .map((row) => row.id)
+            .filter((postId) => !affectedPostIds.has(postId));
+          parentIds.forEach((postId) => affectedPostIds.add(postId));
+        }
+
+        const deletedPostIds = [...affectedPostIds];
 
         await tx
           .delete(like)
-          .where(or(eq(like.userId, userId), inArray(like.postId, affectedPostIds)));
+          .where(or(eq(like.userId, userId), inArray(like.postId, deletedPostIds)));
         await tx
           .delete(flag)
-          .where(or(eq(flag.userId, userId), inArray(flag.postId, affectedPostIds)));
-        // Child comments reference their parent post, so they go first
-        await tx.delete(post).where(inArray(post.parentId, userPostIds));
-        await tx.delete(post).where(eq(post.userId, userId));
+          .where(or(eq(flag.userId, userId), inArray(flag.postId, deletedPostIds)));
+        await tx.delete(post).where(inArray(post.id, deletedPostIds));
       } else {
         await tx.delete(like).where(eq(like.userId, userId));
         await tx.delete(flag).where(eq(flag.userId, userId));

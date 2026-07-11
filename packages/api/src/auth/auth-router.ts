@@ -1,9 +1,11 @@
 import { randomBytes } from "crypto";
+import { Knock, NotFoundError, signUserToken } from "@knocklabs/node";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
@@ -12,9 +14,24 @@ import {
   signInWithPasswordInput,
   signUpInput,
 } from "./auth-schema";
-import { clearSession, createPasswordHash, setSession, validatePassword } from "./session";
+import {
+  clearSession,
+  createPasswordHash,
+  createPushCleanupCapability,
+  setSession,
+  validatePassword,
+  verifyPushCleanupCapability,
+} from "./session";
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;
+const KNOCK_TOKEN_EXPIRY_SECONDS = 60 * 60;
+const cleanupPushDeviceInput = z.object({
+  capability: z.string().min(1),
+  token: z.string().min(1),
+});
+const knockPushChannelData = z.object({
+  devices: z.array(z.object({ token: z.string() }).passthrough()),
+});
 const APP_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://yourssincerely.org";
 
@@ -25,12 +42,65 @@ const sanitizeUser = <T extends { passwordHash?: string | null }>(
   return safeUser;
 };
 
+const createKnockUserToken = async (userId: string) => {
+  const signingKey = process.env.KNOCK_SIGNING_KEY;
+  if (signingKey === undefined || signingKey.length === 0) return null;
+
+  return signUserToken(userId, {
+    signingKey,
+    expiresInSeconds: KNOCK_TOKEN_EXPIRY_SECONDS,
+  });
+};
+
 export const authRouter = createTRPCRouter({
-  workspace: publicProcedure.query(({ ctx }) => {
+  workspace: publicProcedure.query(async ({ ctx }) => {
     return {
       user: ctx.user,
+      knockUserToken: ctx.user === null ? null : await createKnockUserToken(ctx.user.id),
+      pushCleanupCapability:
+        ctx.user === null ? null : createPushCleanupCapability(ctx.user.id),
     };
   }),
+  knockUserToken: protectedProcedure.query(async ({ ctx }) => ({
+    token: await createKnockUserToken(ctx.user.id),
+  })),
+  cleanupPushDevice: publicProcedure
+    .input(cleanupPushDeviceInput)
+    .mutation(async ({ input }) => {
+      const userId = verifyPushCleanupCapability(input.capability);
+      if (userId === null) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const apiKey = process.env.KNOCK_API_KEY;
+      const channelId = process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
+      if (apiKey === undefined || channelId === undefined) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Push cleanup is not configured",
+        });
+      }
+
+      const knock = new Knock({ apiKey });
+      try {
+        const channelData = await knock.users.getChannelData(userId, channelId);
+        const parsed = knockPushChannelData.safeParse(channelData.data);
+        if (!parsed.success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Invalid push channel data",
+          });
+        }
+
+        await knock.users.setChannelData(userId, channelId, {
+          data: {
+            devices: parsed.data.devices.filter((device) => device.token !== input.token),
+          },
+        });
+      } catch (error) {
+        if (!(error instanceof NotFoundError)) throw error;
+      }
+
+      return { success: true };
+    }),
   signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
     // Check if email already exists
     const existingUser = await ctx.db.query.user.findFirst({
@@ -44,17 +114,30 @@ export const authRouter = createTRPCRouter({
       });
     }
 
+    if (ctx.user?.email !== null && ctx.user?.email !== undefined) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "Current user is already registered",
+      });
+    }
+
     const passwordHash = await createPasswordHash(input.password);
 
-    const [newUser] = await ctx.db
-      .insert(user)
-      .values({
-        ...getDefaultValues(),
-        email: input.email,
-        passwordHash,
-        displayName: "Anonymous",
-      })
-      .returning();
+    const [newUser] = ctx.user
+      ? await ctx.db
+          .update(user)
+          .set({ email: input.email, passwordHash })
+          .where(eq(user.id, ctx.user.id))
+          .returning()
+      : await ctx.db
+          .insert(user)
+          .values({
+            ...getDefaultValues(),
+            email: input.email,
+            passwordHash,
+            displayName: "Anonymous",
+          })
+          .returning();
 
     if (!newUser) {
       throw new TRPCError({
@@ -127,6 +210,8 @@ export const authRouter = createTRPCRouter({
         userId: existingUser.id,
       });
 
+      // One HTTPS link serves every client. Associated domains open the
+      // installed app; browsers remain the universal fallback.
       const resetUrl = `${APP_URL}/auth/password-update?token=${resetToken}`;
       const resend = new Resend(process.env.RESEND_API_KEY);
 

@@ -6,7 +6,7 @@ import { SafeAreaView } from "@/lib/css-interop";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
-import { KnockProviders } from "@/components/notifications/knock-providers";
+import { PushNotificationRegistration } from "@/components/notifications/push-notification-registration";
 import { appConfig } from "@/lib/app-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
@@ -40,7 +40,8 @@ export default function NotificationsScreen() {
           </Text>
         </View>
       ) : (
-        <KnockProviders>
+        <View className="flex-1">
+          {appConfig.knockExpoChannelId !== undefined && <PushNotificationRegistration />}
           <NotificationFeed
             onRowTap={(item) => {
               const postId = item.data?.parentPostId;
@@ -49,7 +50,7 @@ export default function NotificationsScreen() {
               }
             }}
           />
-        </KnockProviders>
+        </View>
       )}
     </SafeAreaView>
   );

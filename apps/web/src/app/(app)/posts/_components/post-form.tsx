@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createPostInput } from "@repo/api/post/post-schema";
-import { POST_EXPIRY_DAYS_AGO } from "@repo/api/post/post-utils";
+import { POST_EXPIRY_DAYS, createPostInput } from "@repo/contracts";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -24,12 +23,12 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
 import { cn, useMediaQuery } from "@repo/ui/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type { CreatePostInput } from "@repo/api/post/post-schema";
+import type { CreatePostInput } from "@repo/contracts/post";
 import { balloons } from "@/components/animations/balloons";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
@@ -45,6 +44,7 @@ type PostFormProps = {
 
 export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFormProps) => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const user = useWorkspaceUser();
 
   const form = useForm({
@@ -59,6 +59,11 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
   const createPost = useMutation(
     trpc.post.createPost.mutationOptions({
       onSuccess: (_data, variables) => {
+        Promise.all([
+          queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()),
+          queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
+          queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
+        ]).catch(() => undefined);
         localStorage.removeItem(postFormKey);
         form.reset({
           parentId,
@@ -84,7 +89,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
     createPost.mutate(formData);
   };
 
-  const expiry = addDays(new Date(), POST_EXPIRY_DAYS_AGO);
+  const expiry = addDays(new Date(), POST_EXPIRY_DAYS);
 
   return (
     <Form {...form}>

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import LottieView from "lottie-react-native";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Animated nav icons — same Lottie JSON files the web sidebar uses,
     played when the tab becomes focused. */
@@ -20,10 +21,11 @@ type Props = {
 export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
   const ref = useRef<LottieView>(null);
   const { resolvedTheme } = useTheme();
+  const reduceMotionEnabled = useReducedMotion();
 
   useEffect(() => {
-    if (focused) ref.current?.play();
-  }, [focused]);
+    if (focused && !reduceMotionEnabled) ref.current?.play();
+  }, [focused, reduceMotionEnabled]);
 
   return (
     <LottieView
@@ -31,6 +33,7 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
       source={icons[name]}
       loop={false}
       autoPlay={false}
+      progress={reduceMotionEnabled ? 1 : undefined}
       style={{
         width: size,
         height: size,

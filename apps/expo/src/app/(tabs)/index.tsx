@@ -13,13 +13,15 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
-      <View className="flex-row items-center justify-between px-5 py-3">
-        <Text className="text-xl font-bold">Home</Text>
-        <AvatarMenu />
+      <View style={{ width: "100%", maxWidth: 760, flex: 1, alignSelf: "center" }}>
+        <View className="flex-row items-center justify-between px-5 py-3">
+          <Text className="text-xl font-bold">Home</Text>
+          <AvatarMenu />
+        </View>
+        <CardStackProvider key={layout}>
+          <PostFeed layout={layout} filters={{ limit: 5 }} />
+        </CardStackProvider>
       </View>
-      <CardStackProvider key={layout}>
-        <PostFeed layout={layout} filters={{ limit: 5 }} />
-      </CardStackProvider>
       <NewPostButton />
     </SafeAreaView>
   );

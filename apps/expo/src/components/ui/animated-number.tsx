@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { Text } from "@/components/ui/text";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 
 /** NumberFlow substitute — a per-digit odometer. Each digit lives in a
@@ -113,6 +114,7 @@ const Digit = ({
 };
 
 export const AnimatedNumber = ({ value, className }: { value: number; className?: string }) => {
+  const reduceMotionEnabled = useReducedMotion();
   const safe = Math.max(0, Math.trunc(value));
   const text = String(safe);
   const chars = text.split("");
@@ -129,6 +131,18 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   // Column height is derived from the rendered text so it tracks the font
   // size the className resolves to. Until measured we render the plain number.
   const [height, setHeight] = useState(0);
+
+  if (reduceMotionEnabled) {
+    return (
+      <Text
+        accessibilityLabel={text}
+        style={TABULAR}
+        className={cn("text-muted-foreground text-sm", className)}
+      >
+        {text}
+      </Text>
+    );
+  }
 
   return (
     <View accessible accessibilityLabel={text} style={{ flexDirection: "row" }}>

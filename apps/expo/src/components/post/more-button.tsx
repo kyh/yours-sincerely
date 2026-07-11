@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Linking, Pressable } from "react-native";
+import { Alert, Linking, Pressable } from "react-native";
 import { useMutation } from "@tanstack/react-query";
 import { Ban, Flag, MoreVertical, Trash2, TriangleAlert } from "lucide-react-native";
 import { toast } from "sonner-native";
@@ -8,7 +8,12 @@ import type { FeedPost } from "@/lib/post-types";
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { queryClient, trpc } from "@/lib/api";
+import { trpc } from "@/lib/api";
+import {
+  refreshPostContent,
+  refreshProfileData,
+  refreshWorkspaceIdentity,
+} from "@/lib/query-policies";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
@@ -41,31 +46,23 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
   const { user } = useWorkspaceUser();
   const [isOpen, setIsOpen] = useState(false);
 
-  const invalidatePosts = () =>
-    Promise.all([
-      queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
-      queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
-    ]);
-
   const deleteMutation = useMutation(
     trpc.post.deletePost.mutationOptions({
       onSuccess: () => {
         toast.success("You have deleted this post");
-        invalidatePosts().catch(() => undefined);
-        Promise.all([
-          queryClient.invalidateQueries(trpc.post.getPostsByUser.queryFilter()),
-          queryClient.invalidateQueries(trpc.user.getUser.queryFilter()),
-          queryClient.invalidateQueries(trpc.user.getUserStats.queryFilter()),
-        ]).catch(() => undefined);
+        refreshPostContent().catch(() => undefined);
+        refreshProfileData().catch(() => undefined);
         onDeleted?.();
       },
+      onError: () => toast.error("Could not delete this post. Please try again."),
     }),
   );
   const flagMutation = useMutation(
     trpc.flag.createFlag.mutationOptions({
       onSuccess: () => {
         toast.success("You have flagged this post, we will be reviewing it shortly");
-        invalidatePosts().catch(() => undefined);
+        refreshPostContent().catch(() => undefined);
+        refreshWorkspaceIdentity().catch(() => undefined);
       },
     }),
   );
@@ -73,7 +70,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     trpc.block.createBlock.mutationOptions({
       onSuccess: () => {
         toast.success("You have blocked this user");
-        invalidatePosts().catch(() => undefined);
+        refreshPostContent().catch(() => undefined);
       },
     }),
   );
@@ -81,11 +78,28 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
   const isPostOwner = post.userId === user?.id;
   const iconSize = 16;
 
+  const confirmDelete = () => {
+    setIsOpen(false);
+    Alert.alert(
+      "Delete this letter?",
+      "This permanently removes the letter and its comments. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteMutation.mutate({ postId: post.id }),
+        },
+      ],
+    );
+  };
+
   return (
     <>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Post options"
+        hitSlop={6}
         className="active:bg-accent size-8 items-center justify-center rounded-lg"
         onPress={() => setIsOpen(true)}
       >
@@ -110,10 +124,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
           <DrawerItem
             icon={<Trash2 size={iconSize} color={colors.foreground} />}
             label="Delete Post"
-            onPress={() => {
-              setIsOpen(false);
-              deleteMutation.mutate({ postId: post.id });
-            }}
+            onPress={confirmDelete}
           />
         ) : null}
         {!isPostOwner ? (

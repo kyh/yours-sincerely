@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { themes, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
+import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { deleteSessionCookie } from "@/lib/session-store";
 import { queryClient, trpc } from "@/lib/api";
 import { siteConfig } from "@/lib/site-config";
@@ -23,8 +24,11 @@ export default function SettingsScreen() {
   const colors = useThemeColors();
   const { theme, setTheme } = useTheme();
   const { user } = useWorkspaceUser();
+  const releasePushIdentity = useReleasePushIdentity();
 
   const [email, setEmail] = useState("");
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isPreparingDelete, setIsPreparingDelete] = useState(false);
 
   useEffect(() => {
     if (user?.email !== undefined && user.email !== null) setEmail(user.email);
@@ -43,17 +47,6 @@ export default function SettingsScreen() {
     trpc.auth.requestPasswordReset.mutationOptions({
       onSuccess: () => toast.success("Password reset email sent"),
       onError: () => toast.error("Could not send password reset email. Please try again."),
-    }),
-  );
-  const signOut = useMutation(
-    trpc.auth.signOut.mutationOptions({
-      // Clear local state even if the server call fails — otherwise an
-      // offline or already-invalid session can never sign out.
-      onSettled: async () => {
-        await deleteSessionCookie();
-        queryClient.clear();
-        router.replace("/");
-      },
     }),
   );
   const deleteAccount = useMutation(
@@ -76,7 +69,15 @@ export default function SettingsScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => deleteAccount.mutate(),
+          onPress: () => {
+            setIsPreparingDelete(true);
+            releasePushIdentity()
+              .then(() => deleteAccount.mutate())
+              .catch(() =>
+                toast.error("Could not disconnect notifications. Please try again."),
+              )
+              .finally(() => setIsPreparingDelete(false));
+          },
         },
       ],
     );
@@ -85,6 +86,19 @@ export default function SettingsScreen() {
   const handleEmailBlur = () => {
     if (user === null || email === (user.email ?? "")) return;
     updateUser.mutate({ userId: user.id, email });
+  };
+
+  const signOut = () => {
+    setIsSigningOut(true);
+    releasePushIdentity()
+      .then(() => deleteSessionCookie())
+      .then(() => {
+        queryClient.clear();
+        router.replace("/");
+        return undefined;
+      })
+      .catch(() => toast.error("Could not clear this session. Please try again."))
+      .finally(() => setIsSigningOut(false));
   };
 
   return (
@@ -103,7 +117,10 @@ export default function SettingsScreen() {
         <Text className="text-xl font-bold">Settings</Text>
       </View>
 
-      <ScrollView contentContainerClassName="gap-6 px-5 pb-10">
+      <ScrollView
+        contentContainerClassName="gap-6 px-5 pb-10"
+        contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
+      >
         {user !== null && (
           <>
             <View className="gap-2">
@@ -176,17 +193,13 @@ export default function SettingsScreen() {
         <View className="gap-2">
           {user !== null ? (
             <>
-              <Button
-                variant="outline"
-                onPress={() => signOut.mutate()}
-                loading={signOut.isPending}
-              >
+              <Button variant="outline" onPress={signOut} loading={isSigningOut}>
                 Log out
               </Button>
               <Button
                 variant="destructive"
                 onPress={confirmDeleteAccount}
-                loading={deleteAccount.isPending}
+                loading={deleteAccount.isPending || isPreparingDelete}
               >
                 Delete account
               </Button>

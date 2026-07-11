@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -8,9 +8,11 @@ import {
   useNotifications,
   useNotificationStore,
 } from "@knocklabs/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { buttonVariants } from "@repo/ui/components/button";
 
-import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { useWorkspace } from "@/lib/use-workspace-user";
+import { useTRPC } from "@/trpc/react";
 
 const LottiePlayer = dynamic(
   () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
@@ -33,13 +35,27 @@ const useIconAnimation = () => {
 };
 
 export const Sidebar = () => {
-  const user = useWorkspaceUser();
+  const { user, knockUserToken } = useWorkspace();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const refreshUserToken = useCallback(async () => {
+    const { token } = await queryClient.fetchQuery({
+      ...trpc.auth.knockUserToken.queryOptions(),
+      staleTime: 0,
+    });
+    return token ?? undefined;
+  }, [queryClient, trpc.auth.knockUserToken]);
 
   const knock = useAuthenticatedKnockClient(
-    process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY!,
+    process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY ?? "",
     user?.id,
+    knockUserToken ?? undefined,
+    { onUserTokenExpiring: refreshUserToken },
   );
-  const notificationFeed = useNotifications(knock, process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID!);
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID ?? "",
+  );
   const { metadata } = useNotificationStore(notificationFeed);
 
   const iconClassName = "size-6 dark:invert dark-purple:invert";

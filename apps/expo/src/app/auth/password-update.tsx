@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { setPasswordInput } from "@repo/api/auth/auth-schema";
+import { setPasswordInput } from "@repo/contracts/auth";
 import { useMutation } from "@tanstack/react-query";
 import { SafeAreaView } from "@/lib/css-interop";
 import { toast } from "sonner-native";
@@ -30,7 +30,9 @@ type FieldErrors = Partial<Record<"password" | "confirmPassword", string>>;
 /** Deep-link target: yourssincerely://auth/password-update?token=... */
 export default function PasswordUpdateScreen() {
   const router = useRouter();
-  const { token } = useLocalSearchParams<{ token?: string }>();
+  const params = useLocalSearchParams();
+  const tokenParam = params.token;
+  const token = typeof tokenParam === "string" ? tokenParam : undefined;
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});

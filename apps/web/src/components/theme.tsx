@@ -1,10 +1,13 @@
 "use client";
 
 import { ThemeProvider as NextThemeProvider } from "next-themes";
+import { isDarkThemeId, type ThemeId } from "@repo/contracts/preferences";
+
+type ThemeOption = { id: ThemeId; value: ThemeId; label: string; color: string };
 
 export { useTheme } from "next-themes";
 
-export const themes = [
+export const themes: readonly ThemeOption[] = [
   {
     id: "system",
     value: "system",
@@ -37,7 +40,7 @@ export const themes = [
   },
 ];
 
-export const isDarkTheme = (theme?: string) => theme === "dark" || theme === "dark-purple";
+export const isDarkTheme = isDarkThemeId;
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   return (

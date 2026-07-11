@@ -1,12 +1,14 @@
 import type { Day as WeekDay } from "date-fns";
 import type { CSSProperties, FunctionComponent } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
+import { calendarLevelColor } from "@repo/contracts/calendar";
 import { format, getDay, parseISO } from "date-fns";
 
 import type {
   Day,
   EventHandlerMap,
   Labels,
+  Level,
   ReactEvent,
   SVGRectEventHandler,
   Theme,
@@ -22,6 +24,9 @@ import {
 } from "./calendar-util";
 
 type CalendarData = Day[];
+const EMPTY_EVENT_HANDLERS: EventHandlerMap = {};
+const EMPTY_STYLE: CSSProperties = {};
+const LEGEND_LEVELS: Level[] = [0, 1, 2, 3, 4];
 
 export type Props = {
   /**
@@ -109,7 +114,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   blockRadius = 2,
   blockSize = 12,
   dateFormat = "MMM do, yyyy",
-  eventHandlers = {},
+  eventHandlers = EMPTY_EVENT_HANDLERS,
   fontSize = 12,
   hideColorLegend = false,
   hideMonthLabels = false,
@@ -117,7 +122,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   labels: labelsProp,
   loading = false,
   showWeekdayLabels = false,
-  style = {},
+  style = EMPTY_STYLE,
   theme: themeProp,
   weekStart = 0, // Sunday
 }: Props) => {
@@ -147,10 +152,10 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     return (
       Object.keys(eventHandlers) as (keyof SVGRectEventHandler)[]
     ).reduce<SVGRectEventHandler>(
-      (handlers, key) => ({
-        ...handlers,
-        [key]: (event: ReactEvent<SVGRectElement>) => eventHandlers[key]?.(event)(data),
-      }),
+      (handlers, key) =>
+        Object.assign(handlers, {
+          [key]: (event: ReactEvent<SVGRectElement>) => eventHandlers[key]?.(event)(data),
+        }),
       {},
     );
   };
@@ -229,7 +234,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
             y: textHeight + (blockSize + blockMargin) * dayIndex,
             width: blockSize,
             height: blockSize,
-            fill: theme[`level${day.level}` as keyof Theme],
+            fill: calendarLevelColor(theme, day.level),
             rx: blockRadius,
             ry: blockRadius,
             strokeWidth: 1,
@@ -246,7 +251,10 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         }),
       )
       .map((week, x) => (
-        <g key={x} transform={`translate(${(blockSize + blockMargin) * x}, 0)`}>
+        <g
+          key={weeks[x]?.map((day) => day?.date ?? "empty").join("|")}
+          transform={`translate(${(blockSize + blockMargin) * x}, 0)`}
+        >
           {week}
         </g>
       ));
@@ -264,19 +272,17 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
         {!loading && !hideColorLegend && (
           <div className="ml-auto flex items-center gap-1">
             <span style={{ marginRight: "0.4em" }}>{labels.legend.less ?? "Less"}</span>
-            {Array(5)
-              .fill(undefined)
-              .map((_, index) => (
-                <svg width={blockSize} height={blockSize} key={index}>
-                  <rect
-                    width={blockSize}
-                    height={blockSize}
-                    fill={theme[`level${index}` as keyof Theme]}
-                    rx={blockRadius}
-                    ry={blockRadius}
-                  />
-                </svg>
-              ))}
+            {LEGEND_LEVELS.map((level) => (
+              <svg width={blockSize} height={blockSize} key={level}>
+                <rect
+                  width={blockSize}
+                  height={blockSize}
+                  fill={calendarLevelColor(theme, level)}
+                  rx={blockRadius}
+                  ry={blockRadius}
+                />
+              </svg>
+            ))}
             <span style={{ marginLeft: "0.4em" }}>{labels.legend.more ?? "More"}</span>
           </div>
         )}

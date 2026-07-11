@@ -8,7 +8,9 @@ import { useThemeColors } from "@/components/theme-colors";
 import { ProfileContent } from "@/components/profile/profile-content";
 
 export default function ProfileScreen() {
-  const { "user-id": userId } = useLocalSearchParams<{ "user-id": string }>();
+  const params = useLocalSearchParams();
+  const userIdParam = params["user-id"];
+  const userId = typeof userIdParam === "string" ? userIdParam : null;
   const router = useRouter();
   const colors = useThemeColors();
 
@@ -27,7 +29,13 @@ export default function ProfileScreen() {
           <Text className="text-sm font-medium">Back</Text>
         </Pressable>
       </View>
-      <ProfileContent userId={userId} />
+      {userId === null ? (
+        <View className="flex-1 items-center justify-center px-5">
+          <Text className="text-center">Hmm, can't seem to find the person you're looking for</Text>
+        </View>
+      ) : (
+        <ProfileContent userId={userId} />
+      )}
     </SafeAreaView>
   );
 }

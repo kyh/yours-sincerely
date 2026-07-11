@@ -5,7 +5,7 @@ import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
-import readingTime from "reading-time";
+import { getReadingTime } from "@repo/contracts/content";
 
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
@@ -26,7 +26,7 @@ export const PostPage = ({ postId }: Props) => {
 
   const goBack = () => router.back();
 
-  const stats = readingTime(post.content);
+  const stats = getReadingTime(post.content);
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
-import { requestPasswordResetInput } from "@repo/api/auth/auth-schema";
+import { requestPasswordResetInput } from "@repo/contracts/auth";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "@/lib/css-interop";

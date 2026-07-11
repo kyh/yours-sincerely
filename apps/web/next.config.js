@@ -37,7 +37,6 @@ const config = {
   images: {
     remotePatterns: /** @type {any} */ (getRemotePatterns()),
   },
-  typescript: { ignoreBuildErrors: true },
 };
 
 export default config;

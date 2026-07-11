@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
-import { updateUserInput } from "@repo/api/user/user-schema";
+import { updateUserInput } from "@repo/contracts/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
@@ -64,8 +64,10 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     <View className="items-center gap-2">
       <ProfileAvatar name={user?.displayName ?? user?.id} />
       <TextInput
+        accessibilityLabel="Display name"
+        accessibilityState={{ disabled: readonly, busy: updateUser.isPending }}
         value={displayName}
-        editable={!readonly}
+        editable={!readonly && !updateUser.isPending}
         onChangeText={(value) => {
           setDisplayName(value);
           setError(null);
@@ -73,8 +75,10 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
         onBlur={handleBlur}
         placeholder="Your name"
         placeholderTextColor={colors.mutedForeground}
-        className="text-foreground rounded px-3 py-1 text-center font-sans text-xl font-bold"
+        className="text-foreground rounded px-3 py-1 font-sans text-xl font-bold"
+        style={{ textAlign: "center" }}
       />
+      {updateUser.isPending && <Text className="text-muted-foreground text-xs">Saving…</Text>}
       {error !== null && <Text className="text-destructive text-xs">{error}</Text>}
     </View>
   );

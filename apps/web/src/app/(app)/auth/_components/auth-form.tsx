@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInWithPasswordInput } from "@repo/api/auth/auth-schema";
+import { signInWithPasswordInput } from "@repo/contracts/auth";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
@@ -12,7 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import type { SignInWithPasswordInput } from "@repo/api/auth/auth-schema";
+import type { SignInWithPasswordInput } from "@repo/contracts/auth";
 import { useTRPC } from "@/trpc/react";
 
 type AuthFormProps = {

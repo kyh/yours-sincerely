@@ -1,14 +1,16 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 
 import type { Theme } from "@/lib/calendar-util";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { createPostsDailyActivity, createPostsHeatmap, FULL_DAY_LABELS } from "@/lib/calendar-util";
 import { trpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { cn } from "@/lib/utils";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
@@ -39,6 +41,7 @@ type Props = {
 };
 
 export const ProfileContent = ({ userId }: Props) => {
+  const { width } = useWindowDimensions();
   const { resolvedTheme } = useTheme();
   const { user: currentUser } = useWorkspaceUser();
 
@@ -51,6 +54,19 @@ export const ProfileContent = ({ userId }: Props) => {
       <View className="flex-1 items-center justify-center">
         <Spinner />
       </View>
+    );
+  }
+
+  if (userQuery.isError || statsQuery.isError || postsQuery.isError) {
+    return (
+      <QueryErrorState
+        message="Couldn't load this profile. Check your connection and try again."
+        onRetry={() => {
+          Promise.all([userQuery.refetch(), statsQuery.refetch(), postsQuery.refetch()]).catch(
+            () => undefined,
+          );
+        }}
+      />
     );
   }
 
@@ -73,32 +89,37 @@ export const ProfileContent = ({ userId }: Props) => {
   const favoriteDay = FULL_DAY_LABELS[dailyData.max.day];
 
   return (
-    <ScrollView contentContainerClassName="gap-4 px-5 pb-10">
+    <ScrollView
+      contentContainerClassName="gap-4 px-5 pb-10"
+      contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }}
+    >
       <Card>
         <ProfileForm userId={userId} readonly={!allowEdit} />
         <ActivityCalendar data={heatmapData.stats} theme={theme} />
       </Card>
-      <Card className="items-center justify-center py-8">
-        <Text className="text-sm font-bold">
-          {dailyData.max.day === "none" ? (
-            "No daily stats yet"
-          ) : (
-            <>
-              Favorite day to write is on{" "}
-              <Text className="text-primary text-sm font-bold">{favoriteDay}s</Text>
-            </>
-          )}
-        </Text>
-        <ActivityWeek data={dailyData.stats} theme={theme} />
-      </Card>
-      <Card className="items-center justify-center py-8">
-        <ActivityStats
-          posts={userStats?.totalPostCount ?? 0}
-          likes={userStats?.totalLikeCount ?? 0}
-          currentStreak={userStats?.currentPostStreak ?? 0}
-          longestStreak={userStats?.longestPostStreak ?? 0}
-        />
-      </Card>
+      <View className={cn("gap-4", width >= 768 && "flex-row")}>
+        <Card className="min-h-60 flex-1 items-center justify-center py-8">
+          <Text className="text-sm font-bold">
+            {dailyData.max.day === "none" ? (
+              "No daily stats yet"
+            ) : (
+              <>
+                Favorite day to write is on{" "}
+                <Text className="text-primary text-sm font-bold">{favoriteDay}s</Text>
+              </>
+            )}
+          </Text>
+          <ActivityWeek data={dailyData.stats} theme={theme} />
+        </Card>
+        <Card className="min-h-60 flex-1 items-center justify-center py-8">
+          <ActivityStats
+            posts={userStats?.totalPostCount ?? 0}
+            likes={userStats?.totalLikeCount ?? 0}
+            currentStreak={userStats?.currentPostStreak ?? 0}
+            longestStreak={userStats?.longestPostStreak ?? 0}
+          />
+        </Card>
+      </View>
     </ScrollView>
   );
 };
