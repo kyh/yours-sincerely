@@ -9,7 +9,7 @@ import { refreshConnectivity } from "@/lib/connectivity";
 
 export const ConnectivityBanner = () => {
   const colors = useThemeColors();
-  const [online, setOnline] = useState(onlineManager.isOnline());
+  const [online, setOnline] = useState(() => onlineManager.isOnline());
   const [checking, setChecking] = useState(false);
 
   useEffect(() => onlineManager.subscribe(setOnline), []);

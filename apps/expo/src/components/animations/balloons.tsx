@@ -204,16 +204,17 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
   // effect (not the render body) so re-renders never restart the flight.
   useEffect(() => {
     const easing = easings[config.easingIndex] ?? Easing.linear;
-    y.value = withDelay(config.delay, withTiming(-travel, { duration: config.duration, easing }));
-    x.value = withDelay(
-      config.delay,
-      withTiming(config.targetX, { duration: config.duration, easing }),
+    y.set(withDelay(config.delay, withTiming(-travel, { duration: config.duration, easing })));
+    x.set(
+      withDelay(config.delay, withTiming(config.targetX, { duration: config.duration, easing })),
     );
-    rotate.value = withDelay(
-      config.delay,
-      withSequence(
-        withTiming(config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
-        withTiming(-config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
+    rotate.set(
+      withDelay(
+        config.delay,
+        withSequence(
+          withTiming(config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
+          withTiming(-config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
+        ),
       ),
     );
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- one-shot flight per mounted balloon

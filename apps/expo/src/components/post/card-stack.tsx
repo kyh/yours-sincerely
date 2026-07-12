@@ -80,8 +80,8 @@ const Card = ({
   const animatedOpacity = useSharedValue(reduceMotionEnabled ? opacity : 0);
   const animatedScale = useSharedValue(reduceMotionEnabled ? scale : 0.3);
   useEffect(() => {
-    animatedOpacity.value = reduceMotionEnabled ? opacity : withSpring(opacity, STACK_SPRING);
-    animatedScale.value = reduceMotionEnabled ? scale : withSpring(scale, STACK_SPRING);
+    animatedOpacity.set(reduceMotionEnabled ? opacity : withSpring(opacity, STACK_SPRING));
+    animatedScale.set(reduceMotionEnabled ? scale : withSpring(scale, STACK_SPRING));
   }, [opacity, scale, reduceMotionEnabled, animatedOpacity, animatedScale]);
 
   const pan = Gesture.Pan()

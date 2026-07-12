@@ -48,7 +48,7 @@ const CircleAnimation = () => {
   const progress = useSharedValue(0);
 
   useEffect(() => {
-    progress.value = withTiming(1, { duration: 400, easing: Easing.bezier(0.33, 1, 0.68, 1) });
+    progress.set(withTiming(1, { duration: 400, easing: Easing.bezier(0.33, 1, 0.68, 1) }));
   }, [progress]);
 
   const animatedProps = useAnimatedProps(() => ({
@@ -114,16 +114,20 @@ const Particle = ({
 
   useEffect(() => {
     // Movement/scale/color start at +300ms; opacity keyframes [0,1,1,0] at +400ms.
-    progress.value = withDelay(
-      300,
-      withTiming(1, { duration: config.duration, easing: Easing.bezier(0.23, 1, 0.32, 1) }),
+    progress.set(
+      withDelay(
+        300,
+        withTiming(1, { duration: config.duration, easing: Easing.bezier(0.23, 1, 0.32, 1) }),
+      ),
     );
-    opacity.value = withDelay(
-      400,
-      withSequence(
-        withTiming(1, { duration: config.duration * 0.01 }),
-        withTiming(1, { duration: config.duration * 0.98 }),
-        withTiming(0, { duration: config.duration * 0.01 }),
+    opacity.set(
+      withDelay(
+        400,
+        withSequence(
+          withTiming(1, { duration: config.duration * 0.01 }),
+          withTiming(1, { duration: config.duration * 0.98 }),
+          withTiming(0, { duration: config.duration * 0.01 }),
+        ),
       ),
     );
   }, [progress, opacity, config]);
@@ -190,11 +194,13 @@ const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
   const scale = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withDelay(
-      300,
-      withSpring(1, { stiffness: 300, damping: 10 }, (finished) => {
-        if (finished === true) runOnJS(onComplete)();
-      }),
+    scale.set(
+      withDelay(
+        300,
+        withSpring(1, { stiffness: 300, damping: 10 }, (finished) => {
+          if (finished === true) runOnJS(onComplete)();
+        }),
+      ),
     );
   }, [scale, onComplete]);
 

@@ -88,7 +88,7 @@ const Digit = ({
     // moved (1..9 tiles — covers multi-step changes and decade wraps).
     const steps = direction >= 0 ? (value - from + 10) % 10 : -((from - value + 10) % 10);
     target.current += steps;
-    position.value = withSpring(target.current, SPRING);
+    position.set(withSpring(target.current, SPRING));
   }, [value, direction, position]);
 
   return (

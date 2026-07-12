@@ -63,7 +63,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     previousSettings.current = { open, reduceMotionEnabled };
 
     if (reduceMotionEnabled) {
-      translateY.value = open ? 0 : sheetHeight.value;
+      translateY.set(open ? 0 : sheetHeight.get());
       setVisible(open);
       return;
     }
@@ -71,14 +71,16 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     if (open) {
       // Fresh open starts offscreen; a reopen mid-exit springs back from
       // wherever the sheet currently is.
-      if (!visible) translateY.value = SCREEN_HEIGHT;
+      if (!visible) translateY.set(SCREEN_HEIGHT);
       setVisible(true);
-      translateY.value = withSpring(0, SETTLE_SPRING);
+      translateY.set(withSpring(0, SETTLE_SPRING));
     } else {
-      translateY.value = withSpring(sheetHeight.value, SETTLE_SPRING, (finished) => {
-        // Skip hiding when the exit spring was cancelled by a reopen.
-        if (finished === true) runOnJS(setVisible)(false);
-      });
+      translateY.set(
+        withSpring(sheetHeight.get(), SETTLE_SPRING, (finished) => {
+          // Skip hiding when the exit spring was cancelled by a reopen.
+          if (finished === true) runOnJS(setVisible)(false);
+        }),
+      );
     }
   }, [open, reduceMotionEnabled, visible, sheetHeight, translateY]);
 
@@ -133,7 +135,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
               className="bg-popover rounded-t-2xl px-4"
               style={{ paddingBottom: insets.bottom + 12 }}
               onLayout={(event) => {
-                sheetHeight.value = event.nativeEvent.layout.height;
+                sheetHeight.set(event.nativeEvent.layout.height);
               }}
             >
               <GestureDetector gesture={pan}>
