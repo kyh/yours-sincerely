@@ -92,12 +92,11 @@ export const getSession = async () => {
  * Set the user ID in the session cookie
  */
 export const setSession = async (userId: string) => {
-  const cookieStore = await cookies();
-
   if (!userId) {
     return null;
   }
 
+  const cookieStore = await cookies();
   const sessionString = JSON.stringify({ user: userId, iat: Math.floor(Date.now() / 1000) });
   const base64Session = Buffer.from(sessionString).toString("base64");
   const signedCookie = cookieSignature.sign(base64Session, COOKIE_SECRET);
