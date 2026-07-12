@@ -9,15 +9,19 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
   const router = useRouter();
 
   useEffect(() => {
-    SplashScreen.hide();
+    void SplashScreen.hide();
 
-    App.addListener("backButton", ({ canGoBack }) => {
+    const listener = App.addListener("backButton", ({ canGoBack }) => {
       if (!canGoBack) {
         App.exitApp();
       } else {
         router.back();
       }
     });
+
+    return () => {
+      void listener.then((handle) => handle.remove());
+    };
   }, [router]);
 
   return <>{children}</>;
