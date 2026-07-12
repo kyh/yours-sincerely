@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { KnockExpoPushNotificationProvider } from "@knocklabs/expo";
 import { KnockFeedProvider, KnockProvider } from "@knocklabs/react-native";
 import * as Notifications from "expo-notifications";
@@ -13,6 +13,14 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { PushNotificationCoordinator } from "./push-notification-registration";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
+const refreshUserToken = async () => {
+  const { token } = await queryClient.fetchQuery({
+    ...trpc.auth.knockUserToken.queryOptions(),
+    staleTime: 0,
+  });
+  return token ?? undefined;
+};
+
 /** Knock feed providers — mirrors the web notifications-page wiring.
     Renders children bare when logged out or when Knock isn't configured.
     Push registration activates only once a Knock Expo channel id is set. */
@@ -23,14 +31,6 @@ export const KnockProviders = ({ children }: { children: ReactNode }) => {
 
   const apiKey = appConfig.knockPublicApiKey;
   const feedId = appConfig.knockFeedChannelId;
-  const refreshUserToken = useCallback(async () => {
-    const { token } = await queryClient.fetchQuery({
-      ...trpc.auth.knockUserToken.queryOptions(),
-      staleTime: 0,
-    });
-    return token ?? undefined;
-  }, []);
-
   useEffect(() => {
     if (isPending || user !== null || getRegisteredPushDevice() === null) return;
 
