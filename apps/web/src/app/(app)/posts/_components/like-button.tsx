@@ -145,40 +145,27 @@ type Props = {
 
 export const LikeButton = ({ post }: Props) => {
   const trpc = useTRPC();
-  const [likeCount, setLikeCount] = useState(post.likeCount);
-  const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isAnimating, setIsAnimating] = useState(false);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
 
   // No onSuccess/onSettled invalidation: the query client's default mutation
   // onSuccess already invalidates every query.
-  const createMutate = useMutation(
-    trpc.like.createLike.mutationOptions({
-      onError: () => {
-        setLikeCount((count) => Math.max(0, count - 1));
-        setIsLiked(false);
-      },
-    }),
-  );
-  const deleteMutate = useMutation(
-    trpc.like.deleteLike.mutationOptions({
-      onError: () => {
-        setLikeCount((count) => count + 1);
-        setIsLiked(true);
-      },
-    }),
-  );
+  const createMutate = useMutation(trpc.like.createLike.mutationOptions());
+  const deleteMutate = useMutation(trpc.like.deleteLike.mutationOptions());
+  const mutationPending = createMutate.isPending || deleteMutate.isPending;
+  const isLiked = createMutate.isPending ? true : deleteMutate.isPending ? false : post.isLiked;
+  const likeCount = createMutate.isPending
+    ? post.likeCount + Number(!post.isLiked)
+    : deleteMutate.isPending
+      ? Math.max(0, post.likeCount - Number(post.isLiked))
+      : post.likeCount;
 
   const toggleLike = () => {
     if (!post.id) return;
 
     if (isLiked) {
-      setLikeCount((count) => Math.max(0, count - 1));
-      setIsLiked(false);
       deleteMutate.mutate({ postId: post.id });
     } else {
-      setLikeCount((count) => count + 1);
-      setIsLiked(true);
       setIsAnimating(true);
       createMutate.mutate({ postId: post.id });
     }
@@ -188,6 +175,7 @@ export const LikeButton = ({ post }: Props) => {
     <button
       ref={iconButtonRef}
       type="button"
+      disabled={mutationPending}
       className="hover:bg-accent relative flex h-8 cursor-pointer items-center gap-1.5 rounded-lg p-2 transition"
       onClick={toggleLike}
     >
