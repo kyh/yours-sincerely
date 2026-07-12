@@ -52,7 +52,7 @@ type CardProps = {
   children: React.ReactNode;
 };
 
-export const Card = ({
+const Card = ({
   index,
   currentIndex,
   total,
