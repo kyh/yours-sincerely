@@ -30,7 +30,7 @@ const cleanupPushDeviceInput = z.object({
   token: z.string().min(1),
 });
 const knockPushChannelData = z.object({
-  devices: z.array(z.object({ token: z.string() }).passthrough()),
+  devices: z.array(z.looseObject({ token: z.string() })),
 });
 const APP_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://yourssincerely.org";

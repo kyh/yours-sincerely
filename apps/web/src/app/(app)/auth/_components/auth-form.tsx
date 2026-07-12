@@ -135,7 +135,7 @@ export const RequestPasswordResetForm = () => {
   const form = useForm({
     resolver: zodResolver(
       z.object({
-        email: z.string().email(),
+        email: z.email(),
       }),
     ),
     defaultValues: {
