@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
 import NumberFlow from "@number-flow/react";
 import { useMutation } from "@tanstack/react-query";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
 import { useTRPC } from "@/trpc/react";
@@ -20,7 +20,7 @@ const CircleAnimation = () => {
         height: CIRCLE_RADIUS * 2,
       }}
     >
-      <motion.circle
+      <m.circle
         cx={CIRCLE_RADIUS}
         cy={CIRCLE_RADIUS}
         r={CIRCLE_RADIUS - 2}
@@ -92,7 +92,7 @@ const Particle = ({
   const degreeShift = (13 * Math.PI) / 180;
 
   return (
-    <motion.div
+    <m.div
       className="pointer-events-none absolute size-1.5 rounded-full"
       style={{ backgroundColor: fromColor, opacity: 0 }}
       initial={{
@@ -183,7 +183,7 @@ export const LikeButton = ({ post }: Props) => {
         {isAnimating && <CircleAnimation />}
         {isAnimating && <BurstAnimation />}
         {isAnimating ? (
-          <motion.svg
+          <m.svg
             key="animating-heart"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -202,7 +202,7 @@ export const LikeButton = ({ post }: Props) => {
             fill="currentColor"
           >
             <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
-          </motion.svg>
+          </m.svg>
         ) : (
           <svg
             className={`${isLiked ? "text-red-500" : "text-inherit"}`}

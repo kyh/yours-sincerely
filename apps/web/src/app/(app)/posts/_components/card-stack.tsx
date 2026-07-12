@@ -5,8 +5,8 @@ import { Button } from "@repo/ui/components/button";
 import {
   animate,
   easeIn,
+  m,
   mix,
-  motion,
   progress,
   useMotionValue,
   useTransform,
@@ -96,7 +96,7 @@ const Card = ({
   const scale = mix(0.5, 1, easeIn(progressInStack));
 
   return (
-    <motion.div
+    <m.div
       className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl"
       style={{
         zIndex,
@@ -114,8 +114,8 @@ const Card = ({
       drag={index === currentIndex ? "x" : false}
       onDragEnd={onDragEnd}
     >
-      <motion.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">{children}</motion.div>
-    </motion.div>
+      <m.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">{children}</m.div>
+    </m.div>
   );
 };
 
