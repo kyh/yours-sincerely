@@ -15,11 +15,7 @@ const Page = () => (
       <h4>Introduction</h4>
       <p>
         Kaiyu Hsu built the Yours Sincerely app as an{" "}
-        <a
-          href="https://github.com/kyh/yours-sincerely"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://github.com/kyh/yours-sincerely" target="_blank" rel="noopener noreferrer">
           Open Source
         </a>{" "}
         app. This Service is provided by Kaiyu Hsu at no cost and is intended for use as is.
@@ -95,9 +91,7 @@ const Page = () => (
       <h4>Contact Us</h4>
       <p>
         If you have questions about this Privacy Policy or our practices, please contact us at:{" "}
-        <a href={`mailto:${siteConfig.supportEmail}?subject=Privacy`}>
-          {siteConfig.supportEmail}
-        </a>
+        <a href={`mailto:${siteConfig.supportEmail}?subject=Privacy`}>{siteConfig.supportEmail}</a>
       </p>
 
       <h4>Cookie Policy</h4>
