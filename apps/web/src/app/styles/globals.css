@@ -10,6 +10,17 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .page-layout {
   --header-height: calc(env(safe-area-inset-top) + 50px);
   --left-column-width: 200px;

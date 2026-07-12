@@ -7,6 +7,7 @@ import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 
 import { CapacitorProvider } from "@/components/providers/capacitor-provider";
+import { MotionProvider } from "@/components/providers/motion-provider";
 import { siteConfig } from "@/lib/site-config";
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -108,12 +109,14 @@ const RootLayout = (props: LayoutProps) => {
         className={cn("bg-background text-foreground font-sans antialiased", fontSans.variable)}
       >
         <CapacitorProvider>
-          <ThemeProvider>
-            <TooltipProvider>
-              <TRPCReactProvider>{props.children}</TRPCReactProvider>
-              <Toaster />
-            </TooltipProvider>
-          </ThemeProvider>
+          <MotionProvider>
+            <ThemeProvider>
+              <TooltipProvider>
+                <TRPCReactProvider>{props.children}</TRPCReactProvider>
+                <Toaster />
+              </TooltipProvider>
+            </ThemeProvider>
+          </MotionProvider>
         </CapacitorProvider>
         <Analytics />
       </body>
