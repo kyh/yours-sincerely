@@ -90,7 +90,7 @@ export const ShareButton = ({ post }: Props) => {
             </svg>
             Share on Twitter
           </a>
-          <button className={drawerItemClass} onClick={copyLink}>
+          <button type="button" className={drawerItemClass} onClick={copyLink}>
             <ClipboardCopyIcon aria-hidden="true" className="size-4" />
             Copy Link
           </button>

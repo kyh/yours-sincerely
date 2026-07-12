@@ -100,8 +100,8 @@ export const MoreButton = ({ post }: Props) => {
       className={buttonClassName}
       render={
         <a
+          aria-label="Report post"
           href={`mailto:${siteConfig.supportEmail}?subject=Report YS Post: ${post.id}`}
-          target="_blank"
         />
       }
     >
@@ -149,8 +149,11 @@ export const MoreButton = ({ post }: Props) => {
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition">
-          <MoreVerticalIcon className="size-4" />
+        <DialogTrigger
+          aria-label="Post settings"
+          className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
+        >
+          <MoreVerticalIcon aria-hidden="true" className="size-4" />
         </DialogTrigger>
         <DialogContent showCloseButton={false} className="p-0">
           <DialogHeader className="sr-only">
@@ -166,8 +169,12 @@ export const MoreButton = ({ post }: Props) => {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <button className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition">
-          <MoreVerticalIcon className="size-4" />
+        <button
+          type="button"
+          aria-label="Post settings"
+          className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
+        >
+          <MoreVerticalIcon aria-hidden="true" className="size-4" />
         </button>
       </DrawerTrigger>
       <DrawerContent>
