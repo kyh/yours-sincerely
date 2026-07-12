@@ -7,16 +7,19 @@ import { PageAside, PageContent, PageHeader } from "@/components/layout/page-lay
 import { getFeedLayout } from "@/lib/feed-layout-actions";
 import { caller, HydrateClient, prefetchInfinite, trpc } from "@/trpc/server";
 
-const Page = async () => {
-  const cookieStore = await cookies();
-  const feedLayout = await getFeedLayout(cookieStore);
-  const placeholder = await caller.prompt.getRandomPrompt();
+const feedFilters = {
+  limit: 5,
+};
 
-  const filters = {
-    limit: 5,
-  };
+const Page = async () => {
+  const [cookieStore, placeholder] = await Promise.all([
+    cookies(),
+    caller.prompt.getRandomPrompt(),
+  ]);
+  const feedLayout = await getFeedLayout(cookieStore);
+
   prefetchInfinite(
-    trpc.post.getFeed.infiniteQueryOptions(filters, {
+    trpc.post.getFeed.infiniteQueryOptions(feedFilters, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }),
   );
@@ -30,7 +33,7 @@ const Page = async () => {
         >
           <PostForm placeholder={placeholder} />
         </div>
-        <PostFeed filters={filters} layout={feedLayout} />
+        <PostFeed filters={feedFilters} layout={feedLayout} />
         <div
           className={cn(
             "pointer-events-none fixed right-0 bottom-16 left-0 z-10 md:bottom-5",
