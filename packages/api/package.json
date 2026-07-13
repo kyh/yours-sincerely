@@ -8,12 +8,10 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
     "test": "tsc -p tsconfig.test.json && node --test src/**/*.test.ts",
     "test:db": "RUN_DB_TESTS=1 tsc -p tsconfig.test.json && RUN_DB_TESTS=1 tsx --test src/**/*.integration.ts",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@knocklabs/node": "^1.32.0",
