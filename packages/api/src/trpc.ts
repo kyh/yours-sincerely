@@ -11,7 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getSession, renewSessionIfStale } from "./auth/session";
+import { getSessionUser, renewSessionIfStale } from "./auth/session";
 
 /**
  * 1. CONTEXT
@@ -26,12 +26,16 @@ import { getSession, renewSessionIfStale } from "./auth/session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const sessionUserId = await getSession();
-  const user = await findDbUser(sessionUserId);
+  // Resolves the cookie AND enforces the session epoch: a session revoked by a
+  // password reset or "sign out everywhere" yields no user. Reuses the user row
+  // the context loads anyway, so the check costs zero extra queries.
+  const user = await getSessionUser(findDbUser);
 
-  // tRPC runs in a route handler, where cookie writes are allowed
+  // tRPC runs in a route handler, where cookie writes are allowed. Renewal is
+  // gated behind a valid session and re-signs with the epoch from the DATABASE,
+  // so a revoked session can never renew itself back into validity.
   if (user) {
-    await renewSessionIfStale();
+    await renewSessionIfStale(user.sessionEpoch);
   }
 
   return {
@@ -41,9 +45,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-const findDbUser = async (userId?: string | null) => {
-  if (!userId) return null;
-
+/** Excludes only `passwordHash`, so `sessionEpoch` comes through. */
+const findDbUser = async (userId: string) => {
   const user = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, userId),
     columns: { passwordHash: false },
@@ -62,13 +65,24 @@ export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
  */
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
-  errorFormatter: ({ shape, error }) => ({
-    ...shape,
-    data: {
-      ...shape.data,
-      zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
-    },
-  }),
+  errorFormatter: ({ shape, error }) => {
+    // An INTERNAL_SERVER_ERROR is, by definition, something we did not model —
+    // in practice a raw Postgres exception, whose message names constraints and
+    // tables. Redact it for the client in production. The route handler still
+    // console.errors the full error, so nothing is lost from the logs, and
+    // development keeps the real message.
+    const leaksInternals =
+      error.code === "INTERNAL_SERVER_ERROR" && process.env.NODE_ENV === "production";
+
+    return {
+      ...shape,
+      message: leaksInternals ? "Something went wrong" : shape.message,
+      data: {
+        ...shape.data,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+      },
+    };
+  },
 });
 
 export const createTRPCRouter = t.router;

@@ -36,9 +36,24 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.3
       version: 19.2.3
+    class-variance-authority:
+      specifier: ^0.7.1
+      version: 0.7.1
+    date-fns:
+      specifier: ^4.4.0
+      version: 4.4.0
+    dotenv-cli:
+      specifier: ^11.0.0
+      version: 11.0.0
+    drizzle-orm:
+      specifier: ^0.45.2
+      version: 0.45.2
     next:
       specifier: ^16.2.10
       version: 16.2.10
+    next-themes:
+      specifier: ^0.4.6
+      version: 0.4.6
     react:
       specifier: 19.2.3
       version: 19.2.3
@@ -51,22 +66,33 @@ catalogs:
     tailwindcss:
       specifier: ^4.3.2
       version: 4.3.2
+    tsx:
+      specifier: ^4.23.0
+      version: 4.23.0
     typescript:
       specifier: ^6.0.3
       version: 6.0.3
     zod:
       specifier: ^4.4.3
       version: 4.4.3
+  expo:
+    react:
+      specifier: 19.2.3
+      version: 19.2.3
+    react-dom:
+      specifier: 19.2.3
+      version: 19.2.3
 
 overrides:
   lightningcss: 1.30.1
+  lucide-react: ^1.24.0
 
 importers:
 
   .:
     devDependencies:
       dotenv-cli:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       oxfmt:
         specifier: ^0.58.0
@@ -75,7 +101,7 @@ importers:
         specifier: ^1.73.0
         version: 1.73.0
       tsx:
-        specifier: ^4.23.0
+        specifier: 'catalog:'
         version: 4.23.0
       turbo:
         specifier: ^2.10.4
@@ -126,13 +152,13 @@ importers:
         specifier: 'catalog:'
         version: 11.18.0(@tanstack/react-query@5.101.2(react@19.2.3))(@trpc/client@11.18.0(@trpc/server@11.18.0(typescript@6.0.3))(typescript@6.0.3))(@trpc/server@11.18.0(typescript@6.0.3))(react@19.2.3)(typescript@6.0.3)
       class-variance-authority:
-        specifier: ^0.7.1
+        specifier: 'catalog:'
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
       date-fns:
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.4.0
       expo:
         specifier: ~57.0.4
@@ -189,10 +215,10 @@ importers:
         specifier: 5.0.0-preview.3
         version: 5.0.0-preview.3(react-native-css@3.0.7(@expo/metro-config@57.0.3(expo@57.0.4)(typescript@6.0.3))(lightningcss@1.30.1)(react-native@0.86.0(@babel/core@7.29.7)(@react-native/metro-config@0.86.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))(react@19.2.3))(tailwindcss@4.3.2)
       react:
-        specifier: 19.2.3
+        specifier: catalog:expo
         version: 19.2.3
       react-dom:
-        specifier: 19.2.3
+        specifier: catalog:expo
         version: 19.2.3(react@19.2.3)
       react-native:
         specifier: ~0.86.0
@@ -247,7 +273,7 @@ importers:
         specifier: ^2.4.10
         version: 2.4.10
       dotenv-cli:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       metro-cache:
         specifier: ^0.86.0
@@ -307,18 +333,12 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.3.0
         version: 1.3.0(@types/react@19.2.17)(react@19.2.3)
-      '@react-hook/hotkey':
-        specifier: ^3.1.0
-        version: 3.1.0(react@19.2.3)
       '@repo/api':
         specifier: workspace:^
         version: link:../../packages/api
       '@repo/contracts':
         specifier: workspace:^
         version: link:../../packages/contracts
-      '@repo/db':
-        specifier: workspace:^
-        version: link:../../packages/db
       '@repo/ui':
         specifier: workspace:^
         version: link:../../packages/ui
@@ -337,11 +357,8 @@ importers:
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(next@16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
-      '@vercel/edge-config':
-        specifier: ^1.4.3
-        version: 1.4.3(next@16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       date-fns:
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.4.0
       lucide-react:
         specifier: ^1.24.0
@@ -353,7 +370,7 @@ importers:
         specifier: 'catalog:'
         version: 16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       next-themes:
-        specifier: ^0.4.6
+        specifier: 'catalog:'
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
         specifier: 'catalog:'
@@ -423,7 +440,7 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       drizzle-orm:
-        specifier: ^0.45.2
+        specifier: 'catalog:'
         version: 0.45.2(postgres@3.4.9)
       next:
         specifier: 'catalog:'
@@ -448,7 +465,7 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
       tsx:
-        specifier: ^4.23.0
+        specifier: 'catalog:'
         version: 4.23.0
       typescript:
         specifier: 'catalog:'
@@ -457,7 +474,7 @@ importers:
   packages/contracts:
     dependencies:
       date-fns:
-        specifier: ^4.4.0
+        specifier: 'catalog:'
         version: 4.4.0
       zod:
         specifier: 'catalog:'
@@ -466,6 +483,12 @@ importers:
       '@kyh/tsconfig':
         specifier: 'catalog:'
         version: 1.1.14
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -473,7 +496,7 @@ importers:
   packages/db:
     dependencies:
       drizzle-orm:
-        specifier: ^0.45.2
+        specifier: 'catalog:'
         version: 0.45.2(postgres@3.4.9)
       postgres:
         specifier: ^3.4.9
@@ -488,9 +511,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.1.1
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.17
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
@@ -507,7 +527,7 @@ importers:
         specifier: 'catalog:'
         version: 1.6.0(@date-fns/tz@1.4.1)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       class-variance-authority:
-        specifier: ^0.7.1
+        specifier: 'catalog:'
         version: 0.7.1
       cnfast:
         specifier: ^0.0.8
@@ -516,7 +536,7 @@ importers:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.3)
       next-themes:
-        specifier: ^0.4.6
+        specifier: 'catalog:'
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
         specifier: 'catalog:'
@@ -533,9 +553,6 @@ importers:
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.76
     devDependencies:
       '@kyh/tsconfig':
         specifier: 'catalog:'
@@ -2625,16 +2642,6 @@ packages:
   '@radix-ui/rect@1.1.2':
     resolution: {integrity: sha512-xnXE7wG13PI+cxieVssYXlQJuYVRhH9NBoxt3KNwzghDIA69GMm7d4wXRouHIYjE+KvS6U/MsMO73NdS2MH9ZA==}
 
-  '@react-hook/event@1.2.6':
-    resolution: {integrity: sha512-JUL5IluaOdn5w5Afpe/puPa1rj8X6udMlQ9dt4hvMuKmTrBS1Ya6sb4sVgvfe2eU4yDuOfAhik8xhbcCekbg9Q==}
-    peerDependencies:
-      react: '>=16.8'
-
-  '@react-hook/hotkey@3.1.0':
-    resolution: {integrity: sha512-ekIIW8S12P/fP9krrsOWZCIqzQPzjz2WVkD3v1epP6SAy/XxDIWgJrItd2ySh0RKLkYcfW8z+eii3W/h1TKjOg==}
-    peerDependencies:
-      react: '>=16.8'
-
   '@react-native-async-storage/async-storage@2.2.0':
     resolution: {integrity: sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==}
     peerDependencies:
@@ -3175,21 +3182,6 @@ packages:
       vue:
         optional: true
       vue-router:
-        optional: true
-
-  '@vercel/edge-config-fs@0.1.0':
-    resolution: {integrity: sha512-NRIBwfcS0bUoUbRWlNGetqjvLSwgYH/BqKqDN7vK1g32p7dN96k0712COgaz6VFizAm9b0g6IG6hR6+hc0KCPg==}
-
-  '@vercel/edge-config@1.4.3':
-    resolution: {integrity: sha512-8vTDATodRrH49wMzKEjZ8/5H2qs1aPkD0uRK585f/Fx4YN2wfHfY/3td9OFrh+gdnCq07z8A5f0hoY6xhBcPkg==}
-    engines: {node: '>=14.6'}
-    peerDependencies:
-      '@opentelemetry/api': ^1.7.0
-      next: '>=1'
-    peerDependenciesMeta:
-      '@opentelemetry/api':
-        optional: true
-      next:
         optional: true
 
   '@xmldom/xmldom@0.8.13':
@@ -4943,11 +4935,6 @@ packages:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-native: '*'
       react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
-
-  lucide-react@0.544.0:
-    resolution: {integrity: sha512-t5tS44bqd825zAW45UQxpG2CvcC4urOwn2TrwSH8u+MjeE+1NnWl6QqeQ/6NdjMqdOygyiT9p3Ev0p1NJykxjw==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   lucide-react@1.24.0:
     resolution: {integrity: sha512-YT6mBD8lGKkg4nM39enlm94/sfJIiW0YKUT60fBy4YK8tai31ylg1VhGNWxkpSKHo9UagfnZqwIff3HTDQwXeA==}
@@ -8002,7 +7989,7 @@ snapshots:
       '@telegraph/typography': 0.4.2(@date-fns/tz@1.4.1)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       clsx: 2.1.1
       lodash.debounce: 4.0.8
-      lucide-react: 0.544.0(react@19.2.3)
+      lucide-react: 1.24.0(react@19.2.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
     optionalDependencies:
@@ -8499,15 +8486,6 @@ snapshots:
       '@types/react': 19.2.17
 
   '@radix-ui/rect@1.1.2': {}
-
-  '@react-hook/event@1.2.6(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-
-  '@react-hook/hotkey@3.1.0(react@19.2.3)':
-    dependencies:
-      '@react-hook/event': 1.2.6(react@19.2.3)
-      react: 19.2.3
 
   '@react-native-async-storage/async-storage@2.2.0(react-native@0.86.0(@babel/core@7.29.7)(@react-native/metro-config@0.86.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))':
     dependencies:
@@ -9177,14 +9155,6 @@ snapshots:
     optionalDependencies:
       next: 16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
-
-  '@vercel/edge-config-fs@0.1.0': {}
-
-  '@vercel/edge-config@1.4.3(next@16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
-    dependencies:
-      '@vercel/edge-config-fs': 0.1.0
-    optionalDependencies:
-      next: 16.2.10(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
   '@xmldom/xmldom@0.8.13': {}
 
@@ -10878,10 +10848,6 @@ snapshots:
       react: 19.2.3
       react-native: 0.86.0(@babel/core@7.29.7)(@react-native/metro-config@0.86.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3)
       react-native-svg: 15.15.4(react-native@0.86.0(@babel/core@7.29.7)(@react-native/metro-config@0.86.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))(react@19.2.3)
-
-  lucide-react@0.544.0(react@19.2.3):
-    dependencies:
-      react: 19.2.3
 
   lucide-react@1.24.0(react@19.2.3):
     dependencies:

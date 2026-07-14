@@ -30,6 +30,7 @@ import { useForm } from "react-hook-form";
 
 import type { CreatePostInput } from "@repo/contracts/post";
 import { balloons } from "@/components/animations/balloons";
+import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
 
@@ -59,11 +60,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
   const createPost = useMutation(
     trpc.post.createPost.mutationOptions({
       onSuccess: (_data, variables) => {
-        Promise.all([
-          queryClient.invalidateQueries(trpc.auth.workspace.queryFilter()),
-          queryClient.invalidateQueries(trpc.post.getFeed.infiniteQueryFilter()),
-          queryClient.invalidateQueries(trpc.post.getPost.queryFilter()),
-        ]).catch(() => undefined);
+        refreshAfterPostCreated(queryClient, trpc).catch(() => undefined);
         localStorage.removeItem(postFormKey);
         form.reset({
           parentId,

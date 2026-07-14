@@ -28,7 +28,7 @@ export const createUserIfNotExists = async (ctx: TRPCContext, displayName?: stri
 
     userId = userData.id;
 
-    await setSession(userId);
+    await setSession(userId, userData.sessionEpoch);
   }
 
   return userId;

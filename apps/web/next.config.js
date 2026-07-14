@@ -28,7 +28,7 @@ const getRemotePatterns = () => {
   return remotePatterns;
 };
 
-const transpilePackages = ["@repo/api", "@repo/db", "@repo/ui"];
+const transpilePackages = ["@repo/api", "@repo/ui"];
 
 /** @type {import("next").NextConfig} */
 const config = {

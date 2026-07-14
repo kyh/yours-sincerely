@@ -17,7 +17,7 @@
     "stop": "supabase stop",
     "reset": "supabase db reset",
     "status": "supabase status",
-    "test": "supabase db test",
+    "db:test": "supabase db test",
     "push": "pnpm with-env drizzle-kit push",
     "push:remote": "dotenv -e ../../.env.production.local -- drizzle-kit push",
     "generate": "pnpm with-env drizzle-kit generate",
@@ -26,14 +26,13 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "catalog:",
     "postgres": "^3.4.9",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
     "drizzle-kit": "^0.31.10",
     "supabase": "^2.109.1",
     "typescript": "catalog:"

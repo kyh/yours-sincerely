@@ -10,7 +10,8 @@
     ".expo",
     ".wxt",
     ".output",
-    "out"
+    "out",
+    "packages/db/supabase/migrations/meta"
   ],
   "experimentalSortPackageJson": {}
 }

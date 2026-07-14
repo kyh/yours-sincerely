@@ -8,11 +8,12 @@ import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
 import { cn } from "@repo/ui/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import type { SignInWithPasswordInput } from "@repo/contracts/auth";
+import { refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { useTRPC } from "@/trpc/react";
 
 type AuthFormProps = {
@@ -23,20 +24,25 @@ export const AuthForm = ({ className, type }: AuthFormProps) => {
   const router = useRouter();
   const params = useParams<{ nextPath?: string }>();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  // Await the identity refresh BEFORE navigating: redirecting first renders the
+  // destination against the stale `auth.workspace`, so the user lands on the
+  // page still looking signed-out.
+  const enterApp = async () => {
+    await refreshWorkspaceIdentity(queryClient, trpc);
+    router.replace(params.nextPath ?? `/`);
+  };
 
   const signInWithPassword = useMutation(
     trpc.auth.signInWithPassword.mutationOptions({
-      onSuccess: () => {
-        router.replace(params.nextPath ?? `/`);
-      },
+      onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
     }),
   );
   const signUp = useMutation(
     trpc.auth.signUp.mutationOptions({
-      onSuccess: () => {
-        router.replace(params.nextPath ?? `/`);
-      },
+      onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
     }),
   );
@@ -110,7 +116,7 @@ export const AuthForm = ({ className, type }: AuthFormProps) => {
             )}
           />
         </div>
-        <Button loading={signUp.isPending || signInWithPassword.isPending}>
+        <Button type="submit" loading={signUp.isPending || signInWithPassword.isPending}>
           {type === "signin" ? "Login" : "Sign Up"}
         </Button>
       </form>
@@ -122,6 +128,8 @@ export const RequestPasswordResetForm = () => {
   const trpc = useTRPC();
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // No invalidation policy: this only sends an email. It changes nothing that
+  // is held in the query cache.
   const requestPasswordReset = useMutation(
     trpc.auth.requestPasswordReset.mutationOptions({
       onSuccess: () => {
@@ -184,7 +192,9 @@ export const RequestPasswordResetForm = () => {
             </FormItem>
           )}
         />
-        <Button loading={requestPasswordReset.isPending}>Request Password Reset</Button>
+        <Button type="submit" loading={requestPasswordReset.isPending}>
+          Request Password Reset
+        </Button>
       </form>
     </Form>
   );
@@ -193,10 +203,14 @@ export const RequestPasswordResetForm = () => {
 export const SetPasswordForm = ({ token }: { token: string }) => {
   const trpc = useTRPC();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const setPassword = useMutation(
     trpc.auth.setPassword.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        // A successful reset re-admits the user with a fresh session, so the
+        // identity changes. Await it before navigating, as with sign-in.
+        await refreshWorkspaceIdentity(queryClient, trpc);
         toast.success("Password set successfully!");
         router.push("/");
       },
@@ -273,7 +287,9 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
             )}
           />
         </div>
-        <Button loading={setPassword.isPending}>Set Password</Button>
+        <Button type="submit" loading={setPassword.isPending}>
+          Set Password
+        </Button>
       </form>
     </Form>
   );

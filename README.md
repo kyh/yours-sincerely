@@ -11,32 +11,34 @@
 
 The application is built on a modified version of the [T3 Turbo stack](https://github.com/t3-oss/create-t3-turbo) (to include Supabase).
 
-The native apps are built on [capacitor](https://capacitorjs.com/) which can be found in the `apps/capacitor` directory.
+The native apps are built with [Expo](https://expo.dev/) and live in `apps/expo`.
 
 ```text
 .vscode
   └─ Recommended extensions and settings for VSCode users
 
 apps
-  ├─ capacitor
-  |  └─ iOS & Android apps
-  └─ next.js
-     └─ Web client and server
+  ├─ web
+  |  └─ Web client and server (Next.js)
+  ├─ expo
+  |  └─ iOS & Android apps (Expo / React Native) — the ones that ship
+  └─ mobile
+     └─ Legacy Capacitor shell — superseded by apps/expo, pending removal
 
 packages
   ├─ api
-  |  └─ tRPC router definitions
+  |  └─ tRPC router definitions and session/auth
+  ├─ contracts
+  |  └─ Shared domain: zod schemas and pure rules used by both web and expo
   ├─ db
-  |  └─ Drizzle database setup and Supabase clients
+  |  └─ Drizzle schema and Postgres client
   └─ ui
      └─ UI package for the webapp using shadcn-ui
 ```
 
-> Since some folks have asked, I'll be open sourcing the modified template this app is based off soon. Follow my [account](https://github.com/kyh) for updates.
-
 ### Install dependencies
 
-- [Node.js](https://nodejs.org/en) - LTS version recommended
+- [Node.js](https://nodejs.org/en) - LTS version recommended (>= 24)
 - [Docker](https://www.docker.com/) - Used for running the database
 
 ### Local Development
@@ -45,27 +47,40 @@ packages
 # Rename .env.example to .env and update variables
 mv .env.example .env
 
+# Set COOKIE_SECRET in .env — sessions are signed with it. The server throws
+# without it in production, and falls back to an insecure dev constant locally.
+
 # Installing dependencies
 pnpm install
 
 # To start the database
 pnpm db:start
 
-# To start the app
-pnpm dev:nextjs
+# To start the web app
+pnpm dev:web
 
-# To run native apps (make sure web server is running with the command above)
-pnpm dev:ios
-pnpm dev:android
+# To start the native app (Expo)
+pnpm dev:expo
 ```
 
 You'll be able to view the website at `http://localhost:3000`
+
+### Checks
+
+```sh
+pnpm typecheck
+pnpm lint        # oxlint
+pnpm format      # oxfmt --check
+pnpm test        # node:test
+```
 
 ## Stack
 
 This project uses the following libraries and services:
 
 - Framework - [Next.js](https://nextjs.org/)
+- Native - [Expo](https://expo.dev/) / React Native
+- API - [tRPC](https://trpc.io)
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [Postgres (Supabase)](https://supabase.com) + [Drizzle](https://orm.drizzle.team)
 - Hosting - [Vercel](https://vercel.com)

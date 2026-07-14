@@ -1,14 +1,20 @@
 # Agent Instructions
 
-Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase.
+Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase (as the
+Postgres host — see "Architecture decisions" before assuming anything else about it).
 
 ## Stack
 
 - **Monorepo**: pnpm + Turborepo
 - **Web**: Next.js (App Router, Turbopack), Tailwind v4, tRPC
-- **Mobile**: Capacitor (iOS/Android)
+- **Mobile**: Expo / React Native (`apps/expo`) — the shipping native app
+- **Legacy mobile**: Capacitor (`apps/mobile`) — superseded WebView shell, plus the
+  `@capacitor/*` runtime inside `apps/web` (see "Architecture decisions"). Do not add
+  features; do not delete either without reading "Architecture decisions" first.
 - **DB**: Postgres (Supabase) + Drizzle ORM
-- **Auth**: Supabase Auth
+- **Auth**: hand-rolled signed-cookie sessions (`packages/api/src/auth/session.ts`).
+  **Not Supabase Auth.** Supabase is the Postgres host and local CLI only.
+  Read "Architecture decisions" before changing anything here.
 - **Notifications**: Knock
 - **Hosting**: Vercel
 
@@ -17,11 +23,16 @@ Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase.
 ```
 apps/
   web/         # Next.js web app
-  mobile/      # iOS/Android wrapper (Capacitor)
+  expo/        # iOS/Android native app (Expo) — the one that ships
+  mobile/      # Legacy Capacitor shell — superseded, pending removal. Its Android
+               # applicationId still matches the live Play Store package, so it is
+               # the only source that can rebuild the legacy Android artifact.
 packages/
-  api/         # tRPC routers
-  db/          # Drizzle schema, Supabase clients
-  ui/          # shadcn-ui components
+  api/         # tRPC routers + auth/session
+  contracts/   # SHARED domain: zod schemas + pure rules used by BOTH web and expo.
+               # Shared domain logic belongs HERE, not duplicated per-platform.
+  db/          # Drizzle schema, Postgres client
+  ui/          # shadcn-ui components (web only)
 ```
 
 ## Commands
@@ -29,14 +40,16 @@ packages/
 ```bash
 pnpm dev              # All packages (turbo watch)
 pnpm dev:web          # Web only
+pnpm dev:expo         # Expo only
 pnpm db:start         # Start local Supabase
 pnpm db:stop          # Stop Supabase
 pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
-pnpm lint             # ESLint
-pnpm format           # Prettier check
+pnpm lint             # oxlint (NOT ESLint)
+pnpm format           # oxfmt --check (use format:fix to write)
 pnpm typecheck        # TypeScript
+pnpm test             # node:test suites (turbo run test)
 pnpm build            # Build all
 ```
 
@@ -45,6 +58,115 @@ pnpm build            # Build all
 ```bash
 pnpm -F db studio     # Drizzle Studio
 pnpm -F db seed       # Run seed script
-pnpm -F db generate   # Generate migrations + types
-pnpm -F db typegen    # Regenerate Supabase types
+pnpm -F db generate   # Generate migrations
+pnpm -F db db:test    # pgTAP tests (needs local Supabase; not run in CI)
 ```
+
+**drizzle-kit spuriously emits `DROP TABLE "auth"."users" CASCADE;`** in generated
+migrations. Every migration has it commented out by hand. Always read generated SQL and
+comment out any `auth`-schema DDL before applying. Never uncomment it.
+
+## Testing
+
+Test runner is Node's built-in `node:test` + `node:assert/strict`. **Do not add vitest or jest.**
+
+- `pnpm test` — unit suites (`*.test.ts`), no I/O, runs in CI.
+- `pnpm -F @repo/api test:db` — integration suites (`*.integration.ts`) against a local
+  Supabase. Not run in CI (CI has no Supabase).
+
+The pattern to follow for anything with I/O: extract a pure, dependency-injected core
+(`*-core.ts`) and test it with in-memory fakes. The exemplars are
+`apps/expo/src/lib/legacy-session-migration-core.ts` and
+`packages/api/src/auth/session-core.ts` — read one before writing new tests.
+
+Test globs in package.json scripts MUST stay single-quoted (`'src/**/*.test.ts'`) so
+/bin/sh cannot expand them and silently narrow the test run.
+
+## Architecture decisions — do not reverse
+
+These look like anti-patterns from the outside. They are deliberate, and each one has a
+failure mode that is silent and severe. Read this section before "fixing" any of them.
+
+### Sessions are hand-rolled, not Supabase Auth
+
+Sessions are a signed cookie: `base64({user, iat})` signed with `COOKIE_SECRET` via
+`cookie-signature`. Implementation: `packages/api/src/auth/session.ts`.
+
+**Why:**
+
+1. **Anonymous-first identity.** Writing a letter requires no account. The server mints a
+   credential-less `User` row on first write (`packages/api/src/auth/auth-utils.ts`,
+   `createUserIfNotExists`) and hands back a session. A stock auth provider has no model
+   for "a user with no credentials, created as a side effect of a POST" — and this is the
+   product's core act, not an edge case.
+2. **Sessions NEVER expire.** This is deliberate and load-bearing — not an oversight, and
+   not a security gap to close. **Do not add a timeout, an idle expiry, or a shorter max
+   age.** A user who wrote letters anonymously years ago must still own them, and the
+   legacy cookies carried forward by the native app have no expiry semantics at all. The
+   400-day cookie `maxAge` is the browser's hard ceiling, refreshed by sliding renewal
+   (`renewSessionIfStale`) — a workaround for a browser limit, **not** a session lifetime.
+3. **Revocation is a different thing, and it exists.** `sessionEpoch` on the user row lets
+   us invalidate a user's outstanding sessions on demand ("sign out everywhere"). That is
+   desirable and orthogonal to (2) — revocation is deliberate; expiry is not.
+4. **Signer rotation must not log anyone out.** `COOKIE_SECRET_LEGACY` is a
+   comma-separated list of secrets accepted for verification only. This is what makes the
+   live Capacitor→Expo identity migration survivable — the native app carries the legacy
+   cookie forward verbatim.
+
+**Consequences:** we own the security of this code. Any change to the cookie payload shape
+must stay backward-compatible with cookies already in the wild, or it is a mass logout.
+
+**Rejected:** Supabase Auth — no anonymous-user model that fits (1); migrating would orphan
+every existing anonymous author from their letters.
+
+### The Supabase Data API is OFF — that is why there are no RLS policies
+
+There is not a single RLS policy in this repo, and that is correct: nothing can reach the
+tables except `packages/api`, which holds the Postgres connection directly.
+
+**If anyone re-enables the Data API (PostgREST), every table in `public` becomes directly
+readable and writable with the anon key, bypassing all of `packages/api`** — every
+authorization check, rate limit, and input cap in the tRPC layer becomes optional. Turning
+it on without first writing RLS policies for every table is a full data breach, not a
+config change.
+
+### Legacy Capacitor runtime in `apps/web` is load-bearing
+
+`apps/web` still depends on `@capacitor/app`, `@capacitor/core`, `@capacitor/splash-screen`
+and mounts `apps/web/src/components/providers/capacitor-provider.tsx` in the root layout.
+**Do not remove them.** The legacy Capacitor app is a _remote WebView_ pointed at production
+web — it runs `apps/web`'s JavaScript live on users' phones today. The provider hides its
+splash screen (`launchAutoHide: false` makes `SplashScreen.hide()` mandatory) and wires the
+Android back button. Removing it strands every remaining legacy install on a permanent
+splash screen. Gated on store-rollout data; tracked as GitHub issue #72.
+
+`apps/expo/src/lib/legacy-session-migration*.ts` is the identity-upgrade path off that app.
+It must survive.
+
+### `apps/mobile` cannot be deleted yet either — the Android id still matches
+
+It is tempting to delete `apps/mobile` on the grounds that its `appId`
+(`com.kyh.yourssincerely`) does not match the live iOS bundle
+(`com.tehkaiyu.yourssincerely`). That reasoning is **only true for iOS**.
+
+On Android it is the opposite: `apps/mobile/android/app/build.gradle` declares
+`applicationId "com.kyh.yourssincerely"`, which is **exactly** `MOBILE_ANDROID_PACKAGE` in
+`packages/contracts/src/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
+is the only source in the repo that can rebuild the shipped legacy **Android** app, and
+`docs/wayfinder/expo-mobile-parity/07-release-gate.md` still has "Android legacy-session
+upgrade journey" unchecked. Delete it only once that gate is closed (or once it is agreed
+the store build alone is enough — `docs/phone-testing.md` says the upgrade test installs
+the public store build, which would make deletion safe).
+
+## Tracked constraints — do not "fix" these
+
+- **TypeScript is held at v6.** TS 7 removed the JS Compiler API that Next.js's type-check
+  step loads, so `next build` fails on TS 7. `pnpm.updateConfig.ignoreDependencies` keeps
+  update sweeps off it. Exit criterion: Next ships non-experimental `tsgo` support. Re-test
+  with `pnpm -F @repo/web build` on a scratch branch before lifting.
+- **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
+  bump either without bumping both and running a real device build. Exit criterion:
+  NativeWind 5.0.0 stable.
+- **`lightningcss` is pinned** via `pnpm.overrides` in the root `package.json`.
+- **Expo's `react`/`react-dom` are pinned via the `expo` named catalog**, not the default
+  one. Expo must hold an SDK-blessed React, which may diverge from web.

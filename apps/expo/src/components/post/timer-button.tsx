@@ -1,26 +1,10 @@
 import { Pressable } from "react-native";
-import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
-import { addDays, formatDistance } from "date-fns";
+import { getExpiryProgress } from "@repo/contracts/content";
+import { formatDistance } from "date-fns";
 import Svg, { Circle, Path } from "react-native-svg";
 import { toast } from "sonner-native";
 
 import type { FeedPost } from "@/lib/post-types";
-import { parseServerDate } from "@/lib/dates";
-
-/** Same countdown math as the web timer-button. */
-const getPercentage = (createdAt: Date) => {
-  const now = new Date();
-  const start = createdAt;
-  const end = addDays(createdAt, POST_EXPIRY_DAYS);
-  return {
-    now,
-    start,
-    end,
-    percentage: Math.round(
-      ((now.getTime() - start.getTime()) / (end.getTime() - start.getTime())) * 100,
-    ),
-  };
-};
 
 const SIZE = 16;
 const RADIUS = SIZE / 2;
@@ -44,17 +28,16 @@ type Props = {
 export const TimerButton = ({ post }: Props) => {
   if (!post.createdAt) return null;
 
-  const start = parseServerDate(post.createdAt);
-  const { percentage, now, end } = getPercentage(start);
-  const formattedTime = formatDistance(now, end);
+  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
+  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Content disappears in ${formattedTime}`}
+      accessibilityLabel={formattedTime}
       hitSlop={6}
       className="size-8 items-center justify-center rounded-lg active:bg-accent"
-      onPress={() => toast(`Disappears in ${formattedTime}`)}
+      onPress={() => toast(formattedTime)}
     >
       <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
         <Circle cx={RADIUS} cy={RADIUS} r={RADIUS} fill="rgba(120, 120, 120, 0.5)" />

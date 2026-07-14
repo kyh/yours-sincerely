@@ -9,8 +9,8 @@
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "test": "tsc -p tsconfig.test.json && node --test src/**/*.test.ts",
-    "test:db": "RUN_DB_TESTS=1 tsc -p tsconfig.test.json && RUN_DB_TESTS=1 tsx --test src/**/*.integration.ts",
+    "test": "NODE_ENV=test tsc -p tsconfig.test.json && NODE_ENV=test node --test --test-reporter=spec 'src/**/*.test.ts'",
+    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 tsc -p tsconfig.test.json && NODE_ENV=test RUN_DB_TESTS=1 tsx --test 'src/**/*.integration.ts'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -20,7 +20,7 @@
     "@trpc/server": "catalog:",
     "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "catalog:",
     "next": "catalog:",
     "resend": "^6.17.2",
     "superjson": "catalog:",
@@ -30,7 +30,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/cookie-signature": "^1.1.2",
     "@types/node": "catalog:",
-    "tsx": "^4.23.0",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

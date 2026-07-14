@@ -25,5 +25,14 @@ export const refreshProfileData = () =>
     queryClient.invalidateQueries(trpc.user.getUserStats.queryFilter()),
   ]);
 
+/** Blocking or unblocking changes both the viewer's block inventory and which
+    letters the feed is allowed to show them. Refresh both, or an unblocked author
+    stays invisible until the app is restarted. */
+export const refreshBlocks = () =>
+  Promise.all([
+    queryClient.invalidateQueries(trpc.block.listBlocks.queryFilter()),
+    refreshPostContent(),
+  ]);
+
 export const refreshAfterPostCreated = () =>
   Promise.all([refreshWorkspaceIdentityIfAnonymous(), refreshPostContent(), refreshProfileData()]);

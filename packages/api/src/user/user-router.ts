@@ -1,5 +1,5 @@
 import { NotFoundError } from "@knocklabs/node";
-import { eq, inArray, or } from "@repo/db";
+import { eq, inArray, or, sql } from "@repo/db";
 import {
   account,
   block,
@@ -9,14 +9,17 @@ import {
   post,
   token,
   user,
-  userStats,
 } from "@repo/db/drizzle-schema";
 
 import { clearSession } from "../auth/session";
 import { getKnockClient } from "../knock";
 import { collectDescendantPostIds } from "../post/post-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { getUserInput, getUserStatsInput, updateUserInput } from "./user-schema";
+import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
+
+/** `public."getUserStats"(text)` — see migration 0004. Quoted because the name is
+    camelCase; `sql.raw` would invite injection, an identifier cannot. */
+const getUserStatsFn = sql.identifier("getUserStats");
 
 export const userRouter = createTRPCRouter({
   getUser: publicProcedure.input(getUserInput).query(async ({ ctx, input }) => {
@@ -34,11 +37,22 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
+  /** Fired on profile-link HOVER, so it is far hotter than it looks.
+   *
+   *  It used to read the `UserStats` VIEW, which computed streaks for EVERY user
+   *  with a window function over every post in the table and only then filtered
+   *  to the one asked for — the predicate could not be pushed down. It now calls
+   *  the `getUserStats(text)` function, which pushes the userId into the CTEs.
+   *  Same columns, same numbers (characterized against the view for all users). */
   getUserStats: publicProcedure.input(getUserStatsInput).query(async ({ ctx, input }) => {
-    const [stats] = await ctx.db.select().from(userStats).where(eq(userStats.userId, input.userId));
+    const rows = await ctx.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
+
+    const parsed = userStatsRow.safeParse(rows[0]);
 
     return {
-      userStats: stats,
+      // A user with no posts still yields a row (zeros). No row at all means no
+      // such user — the clients already render that as "not found".
+      userStats: parsed.success ? parsed.data : undefined,
     };
   }),
 
