@@ -37,16 +37,23 @@ there, for the column types only, and put the DDL in `090-views.sql`.
 
 ## Filename order is dependency order
 
-| File                  | Contains                                                        |
-| --------------------- | --------------------------------------------------------------- |
-| `000-grants.sql`      | Schema-level grants                                             |
-| `005-legacy-auth.sql` | Dormant Supabase Auth wiring, preserved deliberately            |
-| `010-flagger.sql`     | `isEstablishedFlagger` — the definition of "a flag that counts" |
-| `020-counters.sql`    | The three `syncPost*Count` trigger functions                    |
-| `030-triggers.sql`    | Every trigger, attached to its table                            |
-| `040-user-stats.sql`  | `getUserStats(text)`                                            |
-| `080-reconcile.sql`   | Backfill of unjudged flags + absolute recompute of the counters |
-| `090-views.sql`       | The `Feed` view — **must stay last**                            |
+| File                             | Contains                                                        |
+| -------------------------------- | --------------------------------------------------------------- |
+| `000-grants.sql`                 | Schema-level grants                                             |
+| `010-flagger.sql`                | `isEstablishedFlagger` — the definition of "a flag that counts" |
+| `020-counters.sql`               | The three `syncPost*Count` trigger functions                    |
+| `030-triggers.sql`               | Every trigger, attached to its table                            |
+| `040-user-stats.sql`             | `getUserStats(text)`                                            |
+| `070-legacy-password-rescue.sql` | Un-strands the accounts orphaned by the 2026-03-10 auth cutover |
+| `075-retire-legacy-auth.sql`     | Drops the dead Supabase Auth wiring — after `070` has used it   |
+| `080-reconcile.sql`              | Backfill of unjudged flags + absolute recompute of the counters |
+| `090-views.sql`                  | The `Feed` view — **must stay last**                            |
+
+`070-` then `075-` is deliberate: rescue the credentials, then retire the machinery
+that made them. Both are transitional and can be deleted once production is
+confirmed clean — `075-` has to exist rather than just deleting the file that
+created the wiring, because push does not manage functions, so removing it would
+have left `handleNewUser` live in production with its source erased from the repo.
 
 `080-` is the only file that touches data, and it is what makes counter drift
 self-healing: repairing drift is `pnpm db:push`, not a script anyone has to

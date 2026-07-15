@@ -50,16 +50,23 @@ const runRescue = async () => {
 };
 
 /** An identity that signed up through Supabase Auth before the cutover: a row in
-    auth.users holding the password, and a User row holding none. */
+    auth.users holding the password, and a User row holding none.
+ *
+ *  Both rows are written explicitly. `on_auth_user_created` used to mirror the
+ *  second one automatically, and this fixture leaned on that until
+ *  `075-retire-legacy-auth.sql` dropped the trigger — at which point the fixture
+ *  would have silently produced no User row and every assertion below would have
+ *  been vacuous. The state under test is what the cutover LEFT BEHIND, so it is
+ *  built directly rather than re-enacted through machinery that no longer exists. */
 const createStrandedAccount = async () => {
   const id = randomUUID();
+  const email = `${id}@example.com`;
   const encrypted = await gotrueHash(ORIGINAL_PASSWORD);
   await db.execute(
     sql`INSERT INTO auth.users (id, email, encrypted_password)
-        VALUES (${id}::uuid, ${`${id}@example.com`}, ${encrypted})`,
+        VALUES (${id}::uuid, ${email}, ${encrypted})`,
   );
-  // The insert above fires `on_auth_user_created`, which mirrors the account into
-  // public."User" with no passwordHash — exactly how the 485 came to exist.
+  await db.insert(user).values({ id, email, displayName: "Stranded", passwordHash: null });
   return id;
 };
 

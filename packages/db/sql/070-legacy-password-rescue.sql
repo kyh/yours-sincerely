@@ -40,13 +40,15 @@
 --     `createTempPassword()` hash, so their `passwordHash` is never null, and they
 --     have no `auth.users` row to join to anyway.
 --
--- ONCE THIS HAS RUN EVERYWHERE, the `auth` schema is finally inert: nothing has
--- written it since 2026-03-10 and nothing reads it. Deleting it, `handleNewUser`
--- and `on_auth_user_created` (005) becomes a real option. Not before — until then
--- `auth.users` is the ONLY copy of these credentials.
+-- ORDERING: this runs immediately before `075-retire-legacy-auth.sql`, which drops
+-- the wiring that created these accounts. Rescue first, retire second — and both
+-- inside the applier's single transaction, so a failure here rolls the retirement
+-- back with it. `075` deliberately leaves `auth.users` and its rows alone: they are
+-- the ONLY copy of these credentials, and dropping the wiring is reversible from
+-- git while dropping the hashes is not.
 --
--- The guard mirrors 005: `auth` is Supabase-provided, absent on a bare Postgres,
--- and its absence must be a no-op rather than a failed push.
+-- The guard: `auth` is Supabase-provided, absent on a bare Postgres, and its
+-- absence must be a no-op rather than a failed push.
 DO $$
 DECLARE
   rescued integer;
