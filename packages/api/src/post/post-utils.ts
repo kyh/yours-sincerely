@@ -11,9 +11,9 @@ export const FLAG_HIDE_THRESHOLD = 3;
 /** Whether the community has flagged this post into hiding.
  *
  *  `Post.flagCount` is THE count of flags that count, and it is maintained in
- *  exactly one place: the `syncPostFlagCount` trigger (migration 0004), which
+ *  exactly one place: the `syncPostFlagCount` trigger (`sql/030-triggers.sql`), which
  *  moves it only for flags whose `Flag.countsTowardHide` the `isEstablishedFlagger`
- *  function (migration 0003) already decided. The Feed view's `flagCount <= 3`
+ *  function (`sql/010-flagger.sql`) already decided. The Feed view's `flagCount <= 3`
  *  reads the same column.
  *
  *  So "a flag that counts" has one definition, in one place, and SQL and

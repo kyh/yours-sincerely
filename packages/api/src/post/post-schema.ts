@@ -60,7 +60,7 @@ type ConvertOptions = {
   comments?: FeedPost[];
 };
 
-/** Reads the denormalized counters (migration 0004) instead of counting loaded
+/** Reads the denormalized counters (`sql/030-triggers.sql`) instead of counting loaded
     rows. `getPost` used to load every `Like` and `Flag` row for a post AND each
     of its comments purely to derive two integers and a boolean — a popular
     letter shipped thousands of rows to Node to do it. */

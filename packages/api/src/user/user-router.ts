@@ -17,7 +17,7 @@ import { collectDescendantPostIds } from "../post/post-utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
 
-/** `public."getUserStats"(text)` — see migration 0004. Quoted because the name is
+/** `public."getUserStats"(text)` — see `sql/040-user-stats.sql`. Quoted because the name is
     camelCase; `sql.raw` would invite injection, an identifier cannot. */
 const getUserStatsFn = sql.identifier("getUserStats");
 

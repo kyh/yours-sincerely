@@ -77,7 +77,7 @@ drift from the schema.
 that is missing and drops one deleted from the schema file, but when the name already
 exists it emits _nothing_, however much the SELECT changed — exit 0, no warning.
 Verified against a production-shaped database. So: **any view is declared `.existing()`
-in `drizzle-schema.ts` (for column types only) and its DDL lives in `sql/050-views.sql`.**
+in `drizzle-schema.ts` (for column types only) and its DDL lives in `sql/090-views.sql`.**
 A view written with `.as(...)` will silently rot in production while push reports
 success. `main` shipped a `Feed` whose drizzle copy had already drifted from the
 deployed view (it was missing `AND p."parentId" IS NULL`, which would have put every

@@ -48,7 +48,7 @@ $$;
 -- re-evaluating every flag. Freezing errs strictly toward counting FEWER flags,
 -- which is the safe direction for a censorship primitive.
 --
--- `090-reconcile.sql` is careful not to undo this. Read the note there before
+-- `080-reconcile.sql` is careful not to undo this. Read the note there before
 -- changing anything about how this column is populated.
 CREATE OR REPLACE FUNCTION public."setFlagCountsTowardHide"()
 RETURNS TRIGGER

@@ -8,7 +8,7 @@
 --
 -- Any new write path touching Like / Flag / child-Post must go through these
 -- triggers, or the numbers drift. Drift is the failure mode of denormalization and
--- nobody notices it for weeks — which is why `090-reconcile.sql` recomputes them
+-- nobody notices it for weeks — which is why `080-reconcile.sql` recomputes them
 -- from ground truth on every push, and why `post-counters.integration.ts` asserts
 -- zero drift after each mutation.
 --
@@ -43,7 +43,7 @@ $$;
 -- Only flags carrying moderation authority move this counter. `countsTowardHide`
 -- is frozen at insert time by `010-flagger.sql`, so the UPDATE branch is
 -- belt-and-braces: nothing in the app rewrites it. NULL means "not yet judged"
--- (see `090-reconcile.sql`) and `IS TRUE` keeps it out of the count until it is.
+-- (see `080-reconcile.sql`) and `IS TRUE` keeps it out of the count until it is.
 CREATE OR REPLACE FUNCTION public."syncPostFlagCount"()
 RETURNS TRIGGER
 LANGUAGE plpgsql

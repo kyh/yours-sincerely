@@ -121,22 +121,23 @@ export const post = pgTable(
         `baseLikeCount + likeCount`. Conflating the two silently rewrites the
         like count of every seeded post. */
     baseLikeCount: integer(),
-    // Denormalized counters, maintained by triggers (migration 0004). They exist
-    // because the Feed view used to re-aggregate all of "Like", all of "Post" and
-    // all of "Flag" on EVERY page of EVERY feed request.
+    // Denormalized counters, maintained by the triggers in `sql/030-triggers.sql`.
+    // They exist because the Feed view used to re-aggregate all of "Like", all of
+    // "Post" and all of "Flag" on EVERY page of EVERY feed request.
     //
     // Any new write path touching Like / Flag / child-Post must go through those
     // triggers, or these numbers drift. Drift is the failure mode of
-    // denormalization and nobody notices it for weeks: keep the drift-check query
-    // in `packages/db/src/drift-check.sql` runnable.
+    // denormalization and nobody notices it for weeks — so `sql/080-reconcile.sql`
+    // recomputes all three from ground truth on every push. Repairing drift is
+    // `pnpm db:push`; there is no separate script to remember.
     /** Real `Like` rows for this post. NOT including `baseLikeCount`. */
     likeCount: integer().default(0).notNull(),
     /** Direct child posts. */
     commentCount: integer().default(0).notNull(),
     /** Flags that COUNT toward auto-hide — i.e. `Flag."countsTowardHide"` only,
         never a raw count of `Flag` rows. A raw count here would silently undo the
-        censorship fix in migration 0003 and let four cookieless requests hide any
-        post again. */
+        censorship fix in `sql/010-flagger.sql` and let four cookieless requests
+        hide any post again. */
     flagCount: integer().default(0).notNull(),
     parentId: text(),
     userId: text().notNull(),
@@ -342,7 +343,7 @@ export const flag = pgTable(
     //     false = judged, no authority, frozen
     //
     // `NOT NULL DEFAULT false` would collapse "not yet judged" into "judged, no
-    // authority", and the backfill in `sql/090-reconcile.sql` could then never
+    // authority", and the backfill in `sql/080-reconcile.sql` could then never
     // tell which rows it had already decided. Since that file re-runs on every
     // push, it would re-judge every flag against a wall-clock rule and could flip
     // a frozen false to true — hiding a post because someone deployed. The NULL
@@ -479,7 +480,7 @@ export const flagRelations = relations(flag, ({ one }) => ({
 /** The row shape of the `Feed` view, for the query builder ONLY.
  *
  *  `.existing()` is load-bearing, not a style choice: it tells drizzle-kit this
- *  view is not its to manage. The DDL lives in `sql/050-views.sql`.
+ *  view is not its to manage. The DDL lives in `sql/090-views.sql`.
  *
  *  WHY, because this is not obvious and the failure is silent:
  *  **`drizzle-kit push` does not diff a view's body.** It creates a view that is

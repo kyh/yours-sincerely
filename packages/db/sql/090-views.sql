@@ -16,16 +16,29 @@
 --
 -- Dropping a view readers are using sounds alarming and is not, because
 -- `apply-sql.ts` runs every file in ONE transaction. DROP VIEW takes an ACCESS
--- EXCLUSIVE lock, so concurrent readers block for the length of the transaction
--- and then see the new view. Nobody ever observes a missing `Feed`.
+-- EXCLUSIVE lock, so concurrent readers block until the transaction commits and
+-- then see the new view. Nobody ever observes a missing `Feed`.
 --
--- That atomicity is also what removes the deploy window. `drizzle-kit push` adds
--- `Post."likeCount"` and friends beforehand, defaulted to 0 and maintained by
--- nothing yet — but the OLD `Feed` does not read those columns; it aggregates live
--- and stays correct the whole time. Then this transaction swaps in the new `Feed`
--- and reconciles the counters (`090-reconcile.sql`) together, atomically. There is
--- no instant at which a reader sees the new view over unreconciled counters, and
--- so no window of zeroed like counts.
+-- THIS FILE RUNS LAST, AND THAT IS THE WHOLE POINT OF ITS NUMBER.
+--
+-- The ACCESS EXCLUSIVE lock is taken at the DROP and held until COMMIT, so every
+-- statement that runs after it is time a feed reader spends blocked. This file
+-- sorted as `050-` at first, ahead of the reconcile — which measured 2.1s of
+-- ground-truth computation against production (166k posts, 143k likes) before the
+-- 166k-row UPDATE even begins. That would have blocked every feed read for the
+-- whole reconcile. Invisible on the 7.8k-post fixture; a visible stall on real
+-- data. Nothing may be added after this file that is not O(1).
+--
+-- Running last is safe because the OLD `Feed` stays correct right up to the swap:
+-- `drizzle-kit push` adds `Post."likeCount"` and friends beforehand, defaulted to
+-- 0 and maintained by nothing yet, but the old view does not read those columns —
+-- it aggregates live. So the reconcile can take its time, and this file then swaps
+-- the view in atomically over counters that are already correct. There is no
+-- instant at which a reader sees the new view over unreconciled counters, and so
+-- no window of zeroed like counts.
+--
+-- The reconcile does NOT block readers on its own: it takes row locks on "Post",
+-- and MVCC means a SELECT never waits on those.
 
 DROP VIEW IF EXISTS "public"."Feed";
 

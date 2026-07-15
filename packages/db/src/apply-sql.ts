@@ -35,7 +35,7 @@ const nonPoolingUrl = connectionUrl.replace(":6543", ":5432");
 
 const sql = postgres(nonPoolingUrl, {
   max: 1,
-  /** `090-reconcile.sql` reports repaired drift this way. Surfacing it means a
+  /** `080-reconcile.sql` reports repaired drift this way. Surfacing it means a
       push that silently fixed thousands of rows cannot look like a push that did
       nothing. */
   onnotice: (notice) => {
