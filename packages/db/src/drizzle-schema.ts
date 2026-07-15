@@ -212,10 +212,21 @@ export const token = pgTable(
   },
   (table) => {
     return {
+      /** `type` is the `TokenType` enum, so its btree opclass is `enum_ops`.
+          drizzle-kit's introspection wrote `text_ops` here for every column
+          regardless of type, and Postgres rejects that for an enum:
+          `operator class "text_ops" does not accept data type "TokenType"` (42804).
+
+          It looked harmless because push never hit it against a database that
+          already had this index — i.e. production, or anything built from the old
+          migrations. It only fired on push into an EMPTY database, where it
+          aborted the run and silently skipped every index after it, including the
+          UNIQUE `User_email_key`. A schema that permits duplicate emails, from a
+          push that reported success. */
       tokenTypeKey: uniqueIndex("Token_token_type_key").using(
         "btree",
         table.token.asc().nullsLast().op("text_ops"),
-        table.type.asc().nullsLast().op("text_ops"),
+        table.type.asc().nullsLast().op("enum_ops"),
       ),
       userIdIdx: index("Token_userId_idx").using(
         "btree",
@@ -323,7 +334,20 @@ export const flag = pgTable(
     // so a live rule could not be denormalized onto Post.flagCount without a
     // cron re-evaluating every flag. Freezing errs strictly toward counting
     // FEWER flags, which is the safe direction for a censorship primitive.
-    countsTowardHide: boolean().default(false).notNull(),
+    //
+    // NULLABLE, and deliberately so — the three states are distinct:
+    //
+    //     NULL  = not yet judged
+    //     true  = judged, carries authority, frozen
+    //     false = judged, no authority, frozen
+    //
+    // `NOT NULL DEFAULT false` would collapse "not yet judged" into "judged, no
+    // authority", and the backfill in `sql/090-reconcile.sql` could then never
+    // tell which rows it had already decided. Since that file re-runs on every
+    // push, it would re-judge every flag against a wall-clock rule and could flip
+    // a frozen false to true — hiding a post because someone deployed. The NULL
+    // is what keeps the freeze honest. Read the note in that file before touching.
+    countsTowardHide: boolean(),
     postId: text().notNull(),
     userId: text().notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
@@ -452,19 +476,32 @@ export const flagRelations = relations(flag, ({ one }) => ({
   }),
 }));
 
-/** Mirror of the deployed `Feed` view. It MUST stay byte-for-byte equivalent to
-    the SQL in `supabase/migrations/` — these two have already drifted once.
+/** The row shape of the `Feed` view, for the query builder ONLY.
  *
- *  Since migration 0004 this is a plain filtered projection: no CTE, no joins, no
- *  aggregation. It used to hash-aggregate ALL of "Like", ALL of "Post" and ALL of
- *  "Flag" to return five letters, on every page of every request. The counters on
- *  `Post` do that work incrementally instead.
+ *  `.existing()` is load-bearing, not a style choice: it tells drizzle-kit this
+ *  view is not its to manage. The DDL lives in `sql/050-views.sql`.
+ *
+ *  WHY, because this is not obvious and the failure is silent:
+ *  **`drizzle-kit push` does not diff a view's body.** It creates a view that is
+ *  absent and drops one that is gone from this file, but if the name already
+ *  exists it emits nothing, no matter how much the SELECT changed. Verified
+ *  against a production-shaped database: push applied all five ADD COLUMNs and
+ *  both CREATE INDEXes, dropped the removed `UserStats`, and left a materially
+ *  rewritten `Feed` completely untouched — exit 0, no warning.
+ *
+ *  Had this stayed a `.as(...)` view, `pnpm db:push-remote` would have reported
+ *  success while leaving the OLD aggregating `Feed` live: the performance fix
+ *  would not have shipped, and neither would the flag-censorship fix, because the
+ *  old body counts raw `Flag` rows (`HAVING count(*) > 3`) instead of reading
+ *  `Post."flagCount"`. Anyone could still hide any post with four cookieless
+ *  requests, with the repo claiming otherwise.
+ *
+ *  So: if it is a view, `sql/` owns it. Drizzle only describes the columns.
  *
  *  `parentId` is nullable because the view keeps only root posts, so every row in
- *  it has a null parentId; declaring it `.notNull()` was a type-level lie.
- *
- *  There is deliberately NO `ORDER BY` here — `getFeed` orders, and the view's own
- *  ORDER BY forced the whole window to be sorted a second time. */
+ *  it has a null parentId; declaring it `.notNull()` was a type-level lie. The
+ *  counts are `integer` because they are now plain columns on `Post`, not
+ *  `count(*)` aggregates — which is also why they no longer come back as strings. */
 export const feed = pgView("Feed", {
   id: text().notNull(),
   content: text().notNull(),
@@ -474,15 +511,15 @@ export const feed = pgView("Feed", {
   createdBy: text().notNull(),
   likeCount: integer().notNull(),
   commentCount: integer().notNull(),
-})
-  .with({ securityInvoker: true })
-  .as(
-    sql`SELECT p.id, p.content, p."userId", p."createdAt", p."parentId", p."createdBy", COALESCE(p."baseLikeCount", 0) + p."likeCount" AS "likeCount", p."commentCount" AS "commentCount" FROM "Post" p WHERE p."flagCount" <= 3 AND p."createdAt" >= (CURRENT_DATE - '21 days'::interval) AND p."parentId" IS NULL`,
-  );
+}).existing();
 
-// NOTE: the `UserStats` VIEW is gone (migration 0004). It computed streaks for
-// EVERY user with a window function over every post in the table, and only then
-// filtered to the one caller asked for — and it is fired on profile-link HOVER.
-// It is now the `public."getUserStats"(text)` FUNCTION, which pushes the userId
-// into the CTEs so the work is proportional to one user's posts. The streak logic
-// inside it is a verbatim port; `packages/api/src/user/user-router.ts` calls it.
+// NOTE: the `UserStats` VIEW is gone. It computed streaks for EVERY user with a
+// window function over every post in the table, and only then filtered to the one
+// caller asked for — and it is fired on profile-link HOVER. It is now the
+// `public."getUserStats"(text)` FUNCTION in `sql/040-user-stats.sql`, which pushes
+// the userId into the CTEs so the work is proportional to one user's posts. The
+// streak logic is a verbatim port; `packages/api/src/user/user-router.ts` calls it.
+//
+// Its absence from this file is what makes push drop it — unlike `Feed` above,
+// which push would have silently left alone. Removing a view here works; changing
+// one does not.

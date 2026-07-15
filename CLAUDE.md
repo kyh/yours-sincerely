@@ -58,13 +58,38 @@ pnpm build            # Build all
 ```bash
 pnpm -F db studio     # Drizzle Studio
 pnpm -F db seed       # Run seed script
-pnpm -F db generate   # Generate migrations
-pnpm -F db db:test    # pgTAP tests (needs local Supabase; not run in CI)
+pnpm -F db apply-sql  # Re-apply sql/ only (push already does this)
 ```
 
-**drizzle-kit spuriously emits `DROP TABLE "auth"."users" CASCADE;`** in generated
-migrations. Every migration has it commented out by hand. Always read generated SQL and
-comment out any `auth`-schema DDL before applying. Never uncomment it.
+**The schema is declared, not migrated. There are no migrations.** It has two halves,
+and `pnpm db:push` applies both, in this order:
+
+1. `src/drizzle-schema.ts` — tables, columns, indexes. `drizzle-kit push` syncs these.
+2. `sql/*.sql` — functions, triggers, grants, **and views**. `src/apply-sql.ts` runs
+   every file, in filename order, in one transaction. Every file is idempotent; it
+   re-runs on every push. See `sql/README.md`.
+
+`pnpm db:push` is therefore the whole deploy, and `pnpm db:reset` is
+`supabase db reset && push && seed`. Nothing is replayed, so no migration history can
+drift from the schema.
+
+**`drizzle-kit push` does NOT diff a view's body.** This is the trap. It creates a view
+that is missing and drops one deleted from the schema file, but when the name already
+exists it emits _nothing_, however much the SELECT changed — exit 0, no warning.
+Verified against a production-shaped database. So: **any view is declared `.existing()`
+in `drizzle-schema.ts` (for column types only) and its DDL lives in `sql/050-views.sql`.**
+A view written with `.as(...)` will silently rot in production while push reports
+success. `main` shipped a `Feed` whose drizzle copy had already drifted from the
+deployed view (it was missing `AND p."parentId" IS NULL`, which would have put every
+comment in the feed); it never broke anything _only_ because push ignored it.
+
+Corollary: **push cannot roll a view back either.** Reverting the schema file and
+pushing will leave the new view live. A rollback needs explicit SQL.
+
+The old `generate`/`migrate` scripts are gone, which retired the standing footgun that
+generate emitted `DROP TABLE "auth"."users" CASCADE` into every migration (an artifact
+of `schemaFilter: ["public"]` hiding Supabase's `auth` schema). `push` never had that
+bug — verified, it emits no `auth` DDL.
 
 ## Testing
 
