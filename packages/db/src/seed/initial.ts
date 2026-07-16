@@ -3,7 +3,7 @@
  * and shaped so the profile stats have something to be wrong about.
  *
  * Deterministic: the RNG is seeded, so two runs produce the same data and a
- * before/after characterization of `Feed` and `UserStats` compares like for like.
+ * before/after characterization of `Feed` and `getUserStats` compares like for like.
  *
  * Run with: pnpm -F db seed
  */
@@ -44,7 +44,7 @@ const pick = <T>(items: T[]): T => {
 const now = Date.now();
 const at = (msAgo: number) => new Date(now - msAgo).toISOString();
 
-/** Streak shapes the UserStats view must get right. Index 0..5 of the user list
+/** Streak shapes `getUserStats` must get right. Index 0..5 of the user list
     gets one of these; everyone else gets scattered posts. */
 type StreakShape = "none" | "single" | "current-run" | "broken" | "past-run" | "same-day";
 const STREAK_SHAPES: StreakShape[] = [

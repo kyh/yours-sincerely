@@ -152,6 +152,21 @@ export const post = pgTable(
         "btree",
         table.createdAt.asc().nullsLast().op("timestamp_ops"),
       ),
+      /** DO NOT DROP. This looks like textbook dead weight — it is led by `id`,
+          the primary key, so it can never be more selective than `Post_pkey` — and
+          that reasoning has already been raised once as "pure write overhead".
+          It is wrong, and the argument is seductive enough to be worth writing down.
+
+          Production says the opposite: 1,119,988 scans against `Post_pkey`'s 0
+          (`pg_stat_user_indexes`, lifetime — `stats_reset` is null). It is not
+          competing with the primary key, it is REPLACING it: `(id, userId)` covers
+          "given a post id, whose is it?", which the authorization checks ask
+          constantly, so the planner serves them index-only and never touches the
+          heap. Dropping it moves ~1.1M lookups onto heap fetches.
+
+          Never judge this one locally: on a fresh database every index reports
+          `idx_scan = 0`, which proves nothing at all. Only `pg_stat_user_indexes`
+          on production can answer it, and it already has. */
       idUserIdIdx: index("Post_id_userId_idx").using(
         "btree",
         table.id.asc().nullsLast().op("text_ops"),
