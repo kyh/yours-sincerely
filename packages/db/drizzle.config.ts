@@ -1,14 +1,15 @@
 import type { Config } from "drizzle-kit";
 
+import { toDirectConnectionUrl } from "./src/connection-url";
+
 if (!process.env.POSTGRES_URL) {
   throw new Error("Missing POSTGRES_URL");
 }
 
-/** DDL must not go through the transaction pooler — it holds no session state, so
-    a multi-statement transaction can land on different backends. `src/apply-sql.ts`
-    rewrites the port identically; the two must agree or push and the applier would
-    target different databases. */
-const nonPoolingUrl = process.env.POSTGRES_URL.replace(":6543", ":5432");
+/** DDL must not go through the transaction pooler. `src/apply-sql.ts` calls the
+    same helper: the two have to resolve to the same database, or `pnpm db:push`
+    would apply half the schema through each. */
+const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
 
 /** There is no `out`, and no `generate`/`migrate` script, because this schema is
     declared rather than accumulated: `drizzle-kit push` syncs tables, columns and

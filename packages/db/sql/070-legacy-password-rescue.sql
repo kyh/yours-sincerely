@@ -62,12 +62,21 @@ BEGIN
     RETURN;
   END IF;
 
+  -- `LENGTH(...) = 60` is not paranoia about the 485 (measured: every one is a
+  -- valid `$2a$10$` of length 60). It is what makes the `passwordHash IS NULL`
+  -- marker hold BY CONSTRUCTION rather than by luck. GoTrue stores an empty string,
+  -- not NULL, for identities that never had a password (OAuth, magic link) — and
+  -- copying `''` would consume the marker: the row stops being NULL, so this file
+  -- can never revisit it, while `signInWithPassword` still rejects the account
+  -- because `''` is falsy. A silent, permanent lockout dressed as a rescue.
+  -- Requiring a full-length bcrypt hash means only a real credential is ever moved.
   UPDATE public."User" u
   SET "passwordHash" = a.encrypted_password
   FROM auth.users a
   WHERE a.id::text = u."id"
     AND u."passwordHash" IS NULL
-    AND a.encrypted_password IS NOT NULL;
+    AND a.encrypted_password IS NOT NULL
+    AND LENGTH(a.encrypted_password) = 60;
 
   GET DIAGNOSTICS rescued = ROW_COUNT;
 

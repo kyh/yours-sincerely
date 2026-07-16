@@ -66,7 +66,18 @@ SELECT
   p."userId",
   p."createdAt",
   p."parentId",
-  p."createdBy",
+  -- COALESCE so `feed.createdBy`'s `.notNull()` is true by construction rather
+  -- than by luck. `Post."createdBy"` is nullable and 201 legacy rows are in fact
+  -- null; `createPost` has since defaulted it to 'Anonymous', and none of the 201
+  -- is inside the 21-day window, so the lie is currently unreachable — but it is
+  -- still a lie, and it is the same one this schema just fixed for `parentId`.
+  --
+  -- 'Anonymous' rather than '' because that is exactly what the permalink already
+  -- shows: `convertDbPostToFeedPost` does `dbPost.createdBy || "Anonymous"`.
+  -- `getFeed` spreads raw view rows onto the wire without that coalesce, so doing
+  -- it here is what keeps the feed and the permalink telling the same story about
+  -- the same letter.
+  COALESCE(p."createdBy", 'Anonymous') AS "createdBy",
   COALESCE(p."baseLikeCount", 0) + p."likeCount" AS "likeCount",
   p."commentCount" AS "commentCount"
 FROM "public"."Post" p

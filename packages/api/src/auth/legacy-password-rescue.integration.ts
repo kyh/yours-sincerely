@@ -137,6 +137,28 @@ integrationTest("the rescue is idempotent — a second run changes nothing", asy
   }
 });
 
+integrationTest("an identity with no real password is left alone, not half-rescued", async () => {
+  // GoTrue stores '' rather than NULL for identities that never had a password
+  // (OAuth, magic link). Copying that would consume the `passwordHash IS NULL`
+  // marker — the row could never be revisited — while signInWithPassword still
+  // rejects the account, because '' is falsy. A permanent lockout dressed as a
+  // rescue. The rescue must skip it and leave the marker intact.
+  const id = randomUUID();
+  try {
+    await db.execute(
+      sql`INSERT INTO auth.users (id, email, encrypted_password)
+          VALUES (${id}::uuid, ${`${id}@example.com`}, '')`,
+    );
+    await db.insert(user).values({ id, displayName: "No password", passwordHash: null });
+
+    await runRescue();
+
+    assert.equal(await passwordHashOf(id), null, "must stay NULL so a later rescue can act");
+  } finally {
+    await cleanup(id);
+  }
+});
+
 integrationTest("anonymous authors are untouched", async () => {
   // They have no auth.users row and `createUserIfNotExists` already gave them a
   // temp hash, so there is nothing here for the rescue to match on.

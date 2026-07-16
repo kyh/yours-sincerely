@@ -10,6 +10,7 @@
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.test.json && tsx --test --test-reporter=spec 'src/**/*.test.ts'",
     "supabase": "pnpm with-env supabase",
     "drizzle:kit": "pnpm with-env drizzle-kit",
     "seed": "pnpm with-env tsx src/seed/initial.ts",

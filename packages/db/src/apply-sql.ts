@@ -20,6 +20,8 @@ import { fileURLToPath } from "node:url";
 
 import postgres from "postgres";
 
+import { toDirectConnectionUrl } from "./connection-url";
+
 const SQL_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "sql");
 
 const connectionUrl = process.env.POSTGRES_URL;
@@ -27,11 +29,10 @@ if (!connectionUrl) {
   throw new Error("Missing POSTGRES_URL");
 }
 
-/** DDL must not go through the transaction pooler — it holds no session state, so
-    a multi-statement transaction can land on different backends. `drizzle.config.ts`
-    rewrites the port for the same reason; the two must agree, or push and this
-    would target different databases. */
-const nonPoolingUrl = connectionUrl.replace(":6543", ":5432");
+/** DDL must not go through the transaction pooler. `drizzle.config.ts` calls the
+    same helper: the two have to resolve to the same database, or `pnpm db:push`
+    would apply half the schema through each. */
+const nonPoolingUrl = toDirectConnectionUrl(connectionUrl);
 
 const sql = postgres(nonPoolingUrl, {
   max: 1,
@@ -57,6 +58,21 @@ const main = async () => {
   console.log(`Applying ${files.length} sql file(s) from sql/`);
 
   await sql.begin(async (tx) => {
+    /** Fail fast instead of taking production down.
+     *
+     *  `085-triggers.sql` and `090-views.sql` need ACCESS EXCLUSIVE, which conflicts
+     *  with the ACCESS SHARE every reader holds. Without a timeout, one slow query
+     *  on `Post` — an analytics scan, a backup, a pathological feed page — parks the
+     *  DROP behind it, and because a pending exclusive request blocks every lock
+     *  request queued after it, EVERY subsequent read of `Post` stalls too. A push
+     *  during a slow query would escalate into a site-wide outage lasting as long as
+     *  that query.
+     *
+     *  5s is far longer than the swap needs (two catalog updates) and far shorter
+     *  than an outage. On timeout the whole transaction rolls back, changing
+     *  nothing: re-run the push. LOCAL, so it dies with this transaction. */
+    await tx.unsafe("SET LOCAL lock_timeout = '5s'").simple();
+
     for (const file of files) {
       const content = await readFile(join(SQL_DIR, file), "utf8");
       try {

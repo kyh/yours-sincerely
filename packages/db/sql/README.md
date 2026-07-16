@@ -42,11 +42,11 @@ there, for the column types only, and put the DDL in `090-views.sql`.
 | `000-grants.sql`                 | Schema-level grants                                             |
 | `010-flagger.sql`                | `isEstablishedFlagger` — the definition of "a flag that counts" |
 | `020-counters.sql`               | The three `syncPost*Count` trigger functions                    |
-| `030-triggers.sql`               | Every trigger, attached to its table                            |
 | `040-user-stats.sql`             | `getUserStats(text)`                                            |
 | `070-legacy-password-rescue.sql` | Un-strands the accounts orphaned by the 2026-03-10 auth cutover |
 | `075-retire-legacy-auth.sql`     | Drops the dead Supabase Auth wiring — after `070` has used it   |
 | `080-reconcile.sql`              | Backfill of unjudged flags + absolute recompute of the counters |
+| `085-triggers.sql`               | Every trigger — takes ACCESS EXCLUSIVE, so it runs late         |
 | `090-views.sql`                  | The `Feed` view — **must stay last**                            |
 
 `070-` then `075-` is deliberate: rescue the credentials, then retire the machinery
@@ -59,12 +59,26 @@ have left `handleNewUser` live in production with its source erased from the rep
 self-healing: repairing drift is `pnpm db:push`, not a script anyone has to
 remember.
 
-`090-` is last, and the ordering is load-bearing rather than cosmetic. `DROP VIEW`
-takes an ACCESS EXCLUSIVE lock held until COMMIT, so anything running after it is
-time a feed reader spends blocked. With the view swap ahead of the reconcile, every
-read would block for the reconcile's full duration — 2.1s of computation against
-production before its 166k-row UPDATE even starts. **Do not add a file after `090-`
-unless it is O(1).**
+### The last two files hold locks. That is what the numbering is for.
+
+`085-` and `090-` are the only files that take **ACCESS EXCLUSIVE** — `DROP TRIGGER`
+on a table, `DROP VIEW` on a view. Everything in this directory runs in ONE
+transaction, so those locks are held until COMMIT: **every statement sequenced after
+them is time a feed reader spends blocked.** Not "writes blocked" — reads. The feed
+stops.
+
+So the slow work goes first and the locks go last. Both files were originally
+ordered the other way (`030-triggers`, `050-views`), which meant every push held an
+ACCESS EXCLUSIVE lock on `Post` across the reconcile's 2.1s ground-truth computation
+(measured against production, 166k posts) plus its 166k-row UPDATE. Every deploy
+would have frozen the feed for seconds. Verified with a concurrent reader:
+`DROP TRIGGER` on `Post` blocks `SELECT ... FROM "Feed"` outright.
+
+**Do not add a file at or after `085-` unless it is O(1), and do not move slow work
+after them.** `apply-sql.ts` sets `lock_timeout` so that a push which cannot get the
+lock quickly fails and rolls back rather than queueing — a pending exclusive request
+blocks every reader queued behind it, so without the timeout a push during one slow
+query becomes a site-wide outage.
 
 ## Recovery
 

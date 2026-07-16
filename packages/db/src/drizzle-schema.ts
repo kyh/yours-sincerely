@@ -121,7 +121,7 @@ export const post = pgTable(
         `baseLikeCount + likeCount`. Conflating the two silently rewrites the
         like count of every seeded post. */
     baseLikeCount: integer(),
-    // Denormalized counters, maintained by the triggers in `sql/030-triggers.sql`.
+    // Denormalized counters, maintained by the triggers in `sql/085-triggers.sql`.
     // They exist because the Feed view used to re-aggregate all of "Like", all of
     // "Post" and all of "Flag" on EVERY page of EVERY feed request.
     //

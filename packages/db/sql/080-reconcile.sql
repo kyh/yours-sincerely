@@ -27,7 +27,7 @@
 -- ever touch are ones no decision has been made about yet.
 --
 -- It stays reachable rather than becoming dead code because of the deploy window:
--- `drizzle-kit push` adds the column before `030-triggers.sql` attaches the
+-- `drizzle-kit push` adds the column before `085-triggers.sql` attaches the
 -- BEFORE INSERT trigger, so a flag landing in those few seconds gets NULL. This
 -- judges it, seconds late, which is the correct answer anyway.
 UPDATE public."Flag" f
