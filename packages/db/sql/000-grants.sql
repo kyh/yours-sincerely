@@ -1,0 +1,19 @@
+-- Rescued from the old `0000_remote_schema.sql` dump, which was otherwise entirely
+-- Supabase platform boilerplate (extensions into `extensions`/`graphql`/`vault`,
+-- a realtime publication owner) plus tables `drizzle-schema.ts` already declares.
+-- This one line was the only thing in 401 lines that was ours.
+--
+-- Postgres grants USAGE on `public` to PUBLIC by default, i.e. to every role that
+-- can open a connection. Nothing should reach these tables except `packages/api`,
+-- which connects as the owner and holds the Postgres connection directly.
+--
+-- This is defence in depth, not the actual defence: the Supabase Data API
+-- (PostgREST) is OFF, which is why there is not a single RLS policy in this repo.
+-- If the Data API is ever turned on, `anon` and `authenticated` still hold USAGE
+-- here (Supabase grants it at project creation and we deliberately do not revoke
+-- it, as it is load-bearing for the platform's own schemas) and every table in
+-- `public` becomes readable and writable with the anon key. Re-enabling the Data
+-- API is a full data breach unless RLS policies are written for every table first.
+--
+-- Naturally idempotent: revoking a privilege that is already absent is a no-op.
+REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;

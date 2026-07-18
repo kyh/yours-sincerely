@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import {
-  bigint,
   boolean,
   foreignKey,
   index,
@@ -35,6 +34,11 @@ export const user = pgTable(
     disabled: boolean(),
     weeklyDigestEmail: boolean().default(false).notNull(),
     role: userRole().default("USER").notNull(),
+    // Revocation, NOT expiry. Bumping this invalidates every session cookie
+    // already issued for this user (password reset, "sign out everywhere").
+    // Cookies minted before this column existed carry no `epoch` and are read as
+    // 0, which matches the default — so no existing session is logged out.
+    sessionEpoch: integer().default(0).notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -113,7 +117,28 @@ export const post = pgTable(
     id: text().primaryKey().notNull(),
     content: text().notNull(),
     createdBy: text(),
+    /** A SEEDED OFFSET, not a count of rows. The feed shows
+        `baseLikeCount + likeCount`. Conflating the two silently rewrites the
+        like count of every seeded post. */
     baseLikeCount: integer(),
+    // Denormalized counters, maintained by the triggers in `sql/085-triggers.sql`.
+    // They exist because the Feed view used to re-aggregate all of "Like", all of
+    // "Post" and all of "Flag" on EVERY page of EVERY feed request.
+    //
+    // Any new write path touching Like / Flag / child-Post must go through those
+    // triggers, or these numbers drift. Drift is the failure mode of
+    // denormalization and nobody notices it for weeks — so `sql/080-reconcile.sql`
+    // recomputes all three from ground truth on every push. Repairing drift is
+    // `pnpm db:push`; there is no separate script to remember.
+    /** Real `Like` rows for this post. NOT including `baseLikeCount`. */
+    likeCount: integer().default(0).notNull(),
+    /** Direct child posts. */
+    commentCount: integer().default(0).notNull(),
+    /** Flags that COUNT toward auto-hide — i.e. `Flag."countsTowardHide"` only,
+        never a raw count of `Flag` rows. A raw count here would silently undo the
+        censorship fix in `sql/010-flagger.sql` and let four cookieless requests
+        hide any post again. */
+    flagCount: integer().default(0).notNull(),
     parentId: text(),
     userId: text().notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
@@ -127,6 +152,21 @@ export const post = pgTable(
         "btree",
         table.createdAt.asc().nullsLast().op("timestamp_ops"),
       ),
+      /** DO NOT DROP. This looks like textbook dead weight — it is led by `id`,
+          the primary key, so it can never be more selective than `Post_pkey` — and
+          that reasoning has already been raised once as "pure write overhead".
+          It is wrong, and the argument is seductive enough to be worth writing down.
+
+          Production says the opposite: 1,119,988 scans against `Post_pkey`'s 0
+          (`pg_stat_user_indexes`, lifetime — `stats_reset` is null). It is not
+          competing with the primary key, it is REPLACING it: `(id, userId)` covers
+          "given a post id, whose is it?", which the authorization checks ask
+          constantly, so the planner serves them index-only and never touches the
+          heap. Dropping it moves ~1.1M lookups onto heap fetches.
+
+          Never judge this one locally: on a fresh database every index reports
+          `idx_scan = 0`, which proves nothing at all. Only `pg_stat_user_indexes`
+          on production can answer it, and it already has. */
       idUserIdIdx: index("Post_id_userId_idx").using(
         "btree",
         table.id.asc().nullsLast().op("text_ops"),
@@ -139,6 +179,23 @@ export const post = pgTable(
       userIdIdx: index("Post_userId_idx").using(
         "btree",
         table.userId.asc().nullsLast().op("text_ops"),
+      ),
+      /** Supports the feed's keyset seek. Ascending, because the feed's
+          `ORDER BY createdAt DESC, id DESC` reverses BOTH columns uniformly, and
+          Postgres serves that with a backward scan of this index. Partial,
+          because the feed never looks at comments. */
+      feedIdx: index("Post_feed_idx")
+        .using(
+          "btree",
+          table.createdAt.asc().nullsLast().op("timestamp_ops"),
+          table.id.asc().nullsLast().op("text_ops"),
+        )
+        .where(sql`"parentId" IS NULL`),
+      /** Supports getPostsByUser and the parameterized getUserStats. */
+      userIdCreatedAtIdx: index("Post_userId_createdAt_idx").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+        table.createdAt.asc().nullsLast().op("timestamp_ops"),
       ),
       postParentIdFkey: foreignKey({
         columns: [table.parentId],
@@ -171,10 +228,21 @@ export const token = pgTable(
   },
   (table) => {
     return {
+      /** `type` is the `TokenType` enum, so its btree opclass is `enum_ops`.
+          drizzle-kit's introspection wrote `text_ops` here for every column
+          regardless of type, and Postgres rejects that for an enum:
+          `operator class "text_ops" does not accept data type "TokenType"` (42804).
+
+          It looked harmless because push never hit it against a database that
+          already had this index — i.e. production, or anything built from the old
+          migrations. It only fired on push into an EMPTY database, where it
+          aborted the run and silently skipped every index after it, including the
+          UNIQUE `User_email_key`. A schema that permits duplicate emails, from a
+          push that reported success. */
       tokenTypeKey: uniqueIndex("Token_token_type_key").using(
         "btree",
         table.token.asc().nullsLast().op("text_ops"),
-        table.type.asc().nullsLast().op("text_ops"),
+        table.type.asc().nullsLast().op("enum_ops"),
       ),
       userIdIdx: index("Token_userId_idx").using(
         "btree",
@@ -271,6 +339,31 @@ export const flag = pgTable(
   {
     comment: text(),
     resolved: boolean().default(false).notNull(),
+    // Whether this flag carries moderation AUTHORITY, i.e. counts toward the
+    // auto-hide threshold. Anyone may submit a flag — a brand-new cookieless
+    // identity costs one request, so counting every flag let four requests hide
+    // any post in the app. The value is decided ONCE, at insert time, by the
+    // `isEstablishedFlagger` SQL function (the single definition of the rule)
+    // via the `setFlagCountsTowardHide` trigger. Never write it from the app.
+    //
+    // Frozen at insert time on purpose: "established" depends on wall-clock age,
+    // so a live rule could not be denormalized onto Post.flagCount without a
+    // cron re-evaluating every flag. Freezing errs strictly toward counting
+    // FEWER flags, which is the safe direction for a censorship primitive.
+    //
+    // NULLABLE, and deliberately so — the three states are distinct:
+    //
+    //     NULL  = not yet judged
+    //     true  = judged, carries authority, frozen
+    //     false = judged, no authority, frozen
+    //
+    // `NOT NULL DEFAULT false` would collapse "not yet judged" into "judged, no
+    // authority", and the backfill in `sql/080-reconcile.sql` could then never
+    // tell which rows it had already decided. Since that file re-runs on every
+    // push, it would re-judge every flag against a wall-clock rule and could flip
+    // a frozen false to true — hiding a post because someone deployed. The NULL
+    // is what keeps the freeze honest. Read the note in that file before touching.
+    countsTowardHide: boolean(),
     postId: text().notNull(),
     userId: text().notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
@@ -399,30 +492,50 @@ export const flagRelations = relations(flag, ({ one }) => ({
   }),
 }));
 
+/** The row shape of the `Feed` view, for the query builder ONLY.
+ *
+ *  `.existing()` is load-bearing, not a style choice: it tells drizzle-kit this
+ *  view is not its to manage. The DDL lives in `sql/090-views.sql`.
+ *
+ *  WHY, because this is not obvious and the failure is silent:
+ *  **`drizzle-kit push` does not diff a view's body.** It creates a view that is
+ *  absent and drops one that is gone from this file, but if the name already
+ *  exists it emits nothing, no matter how much the SELECT changed. Verified
+ *  against a production-shaped database: push applied all five ADD COLUMNs and
+ *  both CREATE INDEXes, dropped the removed `UserStats`, and left a materially
+ *  rewritten `Feed` completely untouched — exit 0, no warning.
+ *
+ *  Had this stayed a `.as(...)` view, `pnpm db:push-remote` would have reported
+ *  success while leaving the OLD aggregating `Feed` live: the performance fix
+ *  would not have shipped, and neither would the flag-censorship fix, because the
+ *  old body counts raw `Flag` rows (`HAVING count(*) > 3`) instead of reading
+ *  `Post."flagCount"`. Anyone could still hide any post with four cookieless
+ *  requests, with the repo claiming otherwise.
+ *
+ *  So: if it is a view, `sql/` owns it. Drizzle only describes the columns.
+ *
+ *  `parentId` is nullable because the view keeps only root posts, so every row in
+ *  it has a null parentId; declaring it `.notNull()` was a type-level lie. The
+ *  counts are `integer` because they are now plain columns on `Post`, not
+ *  `count(*)` aggregates — which is also why they no longer come back as strings. */
 export const feed = pgView("Feed", {
   id: text().notNull(),
   content: text().notNull(),
   userId: text().notNull(),
   createdAt: timestamp({ precision: 3, mode: "string" }).notNull(),
-  parentId: text().notNull(),
+  parentId: text(),
   createdBy: text().notNull(),
-  likeCount: bigint({ mode: "number" }).notNull(),
-  commentCount: bigint({ mode: "number" }).notNull(),
-})
-  .with({ securityInvoker: true })
-  .as(
-    sql`WITH flagged_posts AS ( SELECT "Flag"."postId" FROM "Flag" GROUP BY "Flag"."postId" HAVING count(*) > 3 ) SELECT p.id, p.content, p."userId", p."createdAt", p."parentId", p."createdBy", COALESCE(p."baseLikeCount", 0) + COALESCE(l.like_count, 0::bigint) AS "likeCount", COALESCE(c.comment_count, 0::bigint) AS "commentCount" FROM "Post" p LEFT JOIN ( SELECT "Like"."postId", count(*) AS like_count FROM "Like" GROUP BY "Like"."postId") l ON p.id = l."postId" LEFT JOIN ( SELECT "Post"."parentId", count(*) AS comment_count FROM "Post" GROUP BY "Post"."parentId") c ON p.id = c."parentId" WHERE NOT (p.id IN ( SELECT flagged_posts."postId" FROM flagged_posts)) AND p."createdAt" >= (CURRENT_DATE - '21 days'::interval) ORDER BY p."createdAt" DESC`,
-  );
+  likeCount: integer().notNull(),
+  commentCount: integer().notNull(),
+}).existing();
 
-export const userStats = pgView("UserStats", {
-  userId: text().notNull(),
-  displayName: text(),
-  totalPostCount: bigint({ mode: "number" }).notNull(),
-  totalLikeCount: bigint({ mode: "number" }).notNull(),
-  longestPostStreak: bigint({ mode: "number" }).notNull(),
-  currentPostStreak: bigint({ mode: "number" }).notNull(),
-})
-  .with({ securityInvoker: true })
-  .as(
-    sql`WITH daily_posts AS ( SELECT "Post"."userId", date("Post"."createdAt") AS post_date FROM "Post" GROUP BY "Post"."userId", (date("Post"."createdAt")) ), streaks AS ( SELECT daily_posts."userId", daily_posts.post_date, daily_posts.post_date - row_number() OVER (PARTITION BY daily_posts."userId" ORDER BY daily_posts.post_date)::integer AS streak_group FROM daily_posts ), streak_lengths AS ( SELECT streaks."userId", streaks.streak_group, count(*) AS streak_length, max(streaks.post_date) AS streak_end FROM streaks GROUP BY streaks."userId", streaks.streak_group ), post_likes AS ( SELECT p.id AS "postId", p."userId", COALESCE(p."baseLikeCount", 0) + count(l."userId") AS total_likes FROM "Post" p LEFT JOIN "Like" l ON p.id = l."postId" GROUP BY p.id, p."userId", p."baseLikeCount" ) SELECT u.id AS "userId", u."displayName", COALESCE(post_count.total_posts, 0::bigint) AS "totalPostCount", COALESCE(like_count.total_likes, 0::numeric) AS "totalLikeCount", COALESCE(max(sl.streak_length), 0::bigint) AS "longestPostStreak", COALESCE(( SELECT sl2.streak_length FROM streak_lengths sl2 WHERE sl2."userId" = u.id AND sl2.streak_end = (( SELECT max(sl3.streak_end) AS max FROM streak_lengths sl3 WHERE sl3."userId" = u.id))), 0::bigint) AS "currentPostStreak" FROM "User" u LEFT JOIN ( SELECT "Post"."userId", count(*) AS total_posts FROM "Post" GROUP BY "Post"."userId") post_count ON u.id = post_count."userId" LEFT JOIN ( SELECT post_likes."userId", sum(post_likes.total_likes) AS total_likes FROM post_likes GROUP BY post_likes."userId") like_count ON u.id = like_count."userId" LEFT JOIN streak_lengths sl ON u.id = sl."userId" GROUP BY u.id, u."displayName", post_count.total_posts, like_count.total_likes`,
-  );
+// NOTE: the `UserStats` VIEW is gone. It computed streaks for EVERY user with a
+// window function over every post in the table, and only then filtered to the one
+// caller asked for — and it is fired on profile-link HOVER. It is now the
+// `public."getUserStats"(text)` FUNCTION in `sql/040-user-stats.sql`, which pushes
+// the userId into the CTEs so the work is proportional to one user's posts. The
+// streak logic is a verbatim port; `packages/api/src/user/user-router.ts` calls it.
+//
+// Its absence from this file is what makes push drop it — unlike `Feed` above,
+// which push would have silently left alone. Removing a view here works; changing
+// one does not.

@@ -17,28 +17,59 @@ import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
 import { themes, useTheme } from "@/components/theme";
 import { toast } from "@repo/ui/components/sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleHelpIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import type { UpdateUserInput } from "@repo/contracts/user";
+import {
+  refreshPostContent,
+  refreshProfileData,
+  refreshWorkspaceIdentity,
+} from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
 
 export const SettingsForm = () => {
   const trpc = useTRPC();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
   const user = useWorkspaceUser();
-  const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
+
+  const updateUser = useMutation(
+    trpc.user.updateUser.mutationOptions({
+      onSuccess: () =>
+        Promise.all([
+          refreshProfileData(queryClient, trpc),
+          refreshWorkspaceIdentity(queryClient, trpc),
+        ]),
+    }),
+  );
+
+  // No invalidation policy: this only sends an email. It changes nothing that
+  // is held in the query cache.
   const requestPasswordReset = useMutation(trpc.auth.requestPasswordReset.mutationOptions());
+
   const signOut = useMutation(
     trpc.auth.signOut.mutationOptions({
-      onSuccess: () => router.replace("/"),
+      onSuccess: async () => {
+        // Identity, and every identity-scoped field on the feed (isLiked, block
+        // filtering), are now stale. Refresh before navigating so the home page
+        // does not render as the signed-out user's predecessor.
+        await Promise.all([
+          refreshWorkspaceIdentity(queryClient, trpc),
+          refreshPostContent(queryClient, trpc),
+        ]);
+        router.replace("/");
+      },
       onError: (error) => toast.error(error.message),
     }),
   );
+
+  // No invalidation policy needed: this does a full document load, which throws
+  // the whole query cache away.
   const deleteUser = useMutation(
     trpc.user.deleteUser.mutationOptions({
       onSuccess: () => window.location.assign("/"),

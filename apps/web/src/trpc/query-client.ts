@@ -9,12 +9,11 @@ export const createQueryClient = () => {
         // above 0 to avoid refetching immediately on the client
         staleTime: 30 * 1000,
       },
-      mutations: {
-        onSuccess: async () => {
-          // Invalidate all queries in the react-query cache:
-          await queryClient.invalidateQueries();
-        },
-      },
+      // No `mutations.onSuccess` default here on purpose. TanStack merges
+      // mutation options by spread, so a per-mutation `onSuccess` replaces the
+      // default rather than chaining with it — a blanket default silently does
+      // nothing for every mutation that defines its own. Each mutation calls an
+      // explicit policy from `@/lib/query-policies` instead.
       dehydrate: {
         serializeData: SuperJSON.serialize,
         shouldDehydrateQuery: (query) =>

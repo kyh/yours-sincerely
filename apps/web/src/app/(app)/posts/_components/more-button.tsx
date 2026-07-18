@@ -21,10 +21,11 @@ import {
 import { drawerItemClass } from "@/lib/drawer-item";
 import { toast } from "@repo/ui/components/sonner";
 import { useMediaQuery } from "@repo/ui/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@repo/api";
+import { refreshPostContent, refreshProfileData } from "@/lib/query-policies";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
@@ -35,26 +36,36 @@ type Props = {
 
 export const MoreButton = ({ post }: Props) => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const user = useWorkspaceUser();
   const isDesktop = useMediaQuery();
 
   const deleteMutation = useMutation(
     trpc.post.deletePost.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        // The post leaves the feed and the author's post count changes.
+        await Promise.all([
+          refreshPostContent(queryClient, trpc),
+          refreshProfileData(queryClient, trpc),
+        ]);
         toast.success("You have deleted this post");
       },
     }),
   );
   const createMutation = useMutation(
     trpc.flag.createFlag.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        // Enough flags hides the post, so the feed can change.
+        await refreshPostContent(queryClient, trpc);
         toast.success("You have flagged this post, we will be reviewing it shortly");
       },
     }),
   );
   const blockMutation = useMutation(
     trpc.block.createBlock.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        // Every post by the blocked author drops out of the feed.
+        await refreshPostContent(queryClient, trpc);
         toast.success("You have blocked this user");
       },
     }),

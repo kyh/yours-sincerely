@@ -10,30 +10,28 @@
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.test.json && tsx --test --test-reporter=spec 'src/**/*.test.ts'",
     "supabase": "pnpm with-env supabase",
     "drizzle:kit": "pnpm with-env drizzle-kit",
     "seed": "pnpm with-env tsx src/seed/initial.ts",
     "start": "supabase status || supabase start",
     "stop": "supabase stop",
-    "reset": "supabase db reset",
+    "reset": "supabase db reset && pnpm push && pnpm seed",
     "status": "supabase status",
-    "test": "supabase db test",
-    "push": "pnpm with-env drizzle-kit push",
-    "push:remote": "dotenv -e ../../.env.production.local -- drizzle-kit push",
-    "generate": "pnpm with-env drizzle-kit generate",
-    "migrate": "pnpm with-env drizzle-kit migrate",
+    "push": "pnpm with-env sh -c 'drizzle-kit push && tsx src/apply-sql.ts'",
+    "push:remote": "dotenv -e ../../.env.production.local -- sh -c 'drizzle-kit push && tsx src/apply-sql.ts'",
+    "apply-sql": "pnpm with-env tsx src/apply-sql.ts",
     "studio": "pnpm with-env drizzle-kit studio",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "catalog:",
     "postgres": "^3.4.9",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
     "drizzle-kit": "^0.31.10",
     "supabase": "^2.109.1",
     "typescript": "catalog:"

@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
 import NumberFlow from "@number-flow/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { m } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
+import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
 import { useTRPC } from "@/trpc/react";
 
 const CircleAnimation = () => {
@@ -145,13 +146,24 @@ type Props = {
 
 export const LikeButton = ({ post }: Props) => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [isAnimating, setIsAnimating] = useState(false);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
 
-  // No onSuccess/onSettled invalidation: the query client's default mutation
-  // onSuccess already invalidates every query.
-  const createMutate = useMutation(trpc.like.createLike.mutationOptions());
-  const deleteMutate = useMutation(trpc.like.deleteLike.mutationOptions());
+  // Liking refreshes the post content it changed, and the workspace identity
+  // only when the like is what mints the anonymous user.
+  const refreshAfterLike = () =>
+    Promise.all([
+      refreshPostContent(queryClient, trpc),
+      refreshWorkspaceIdentityIfAnonymous(queryClient, trpc),
+    ]);
+
+  const createMutate = useMutation(
+    trpc.like.createLike.mutationOptions({ onSuccess: refreshAfterLike }),
+  );
+  const deleteMutate = useMutation(
+    trpc.like.deleteLike.mutationOptions({ onSuccess: refreshAfterLike }),
+  );
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
   const isLiked = createMutate.isPending ? true : deleteMutate.isPending ? false : post.isLiked;
   const likeCount = createMutate.isPending

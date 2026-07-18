@@ -3,10 +3,11 @@ import { NotFoundError } from "@knocklabs/node";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 import { z } from "zod";
 
+import type { TRPCContext } from "../trpc";
 import { createKnockUserToken, getKnockClient } from "../knock";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
@@ -41,6 +42,41 @@ const sanitizeUser = <T extends { passwordHash?: string | null }>(
   const { passwordHash: _, ...safeUser } = user;
   return safeUser;
 };
+
+/**
+ * Revoke every session this user holds, anywhere, and return the new epoch.
+ * The bump invalidates all cookies already issued; the caller decides whether
+ * to hand the current device a fresh one.
+ */
+const revokeUserSessions = async (ctx: TRPCContext, userId: string) => {
+  const [updated] = await ctx.db
+    .update(user)
+    .set({ sessionEpoch: sql`${user.sessionEpoch} + 1` })
+    .where(eq(user.id, userId))
+    .returning({ sessionEpoch: user.sessionEpoch });
+
+  if (!updated) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Unable to revoke sessions",
+    });
+  }
+
+  return updated.sessionEpoch;
+};
+
+/** A reset link must be single-use, and issuing a new one must burn the old ones. */
+const invalidateResetTokens = async (ctx: TRPCContext, userId: string) =>
+  ctx.db
+    .update(tokenTable)
+    .set({ usedAt: new Date().toISOString() })
+    .where(
+      and(
+        eq(tokenTable.userId, userId),
+        eq(tokenTable.type, "RESET_PASSWORD"),
+        isNull(tokenTable.usedAt),
+      ),
+    );
 
 export const authRouter = createTRPCRouter({
   workspace: publicProcedure.query(async ({ ctx }) => {
@@ -132,7 +168,7 @@ export const authRouter = createTRPCRouter({
       });
     }
 
-    await setSession(newUser.id);
+    await setSession(newUser.id, newUser.sessionEpoch);
 
     return {
       user: sanitizeUser(newUser),
@@ -161,13 +197,24 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      await setSession(existingUser.id);
+      await setSession(existingUser.id, existingUser.sessionEpoch);
 
       return {
         user: sanitizeUser(existingUser),
       };
     }),
+  /** Normal sign-out: clears this device's cookie only. Correct semantic. */
   signOut: protectedProcedure.mutation(async () => {
+    await clearSession();
+
+    return { user: null };
+  }),
+  /**
+   * Revoke every session for this account, on every device — including any
+   * cookie an attacker captured. Logs out the calling device too.
+   */
+  signOutEverywhere: protectedProcedure.mutation(async ({ ctx }) => {
+    await revokeUserSessions(ctx, ctx.user.id);
     await clearSession();
 
     return { user: null };
@@ -186,6 +233,9 @@ export const authRouter = createTRPCRouter({
 
       const resetToken = randomBytes(32).toString("hex");
       const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+      // Issuing a new link burns every unused one, so only the latest email works.
+      await invalidateResetTokens(ctx, existingUser.id);
 
       await ctx.db.insert(tokenTable).values({
         ...getDefaultValues(),
@@ -232,13 +282,16 @@ export const authRouter = createTRPCRouter({
 
     await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
 
-    // Mark token as used
-    await ctx.db
-      .update(tokenTable)
-      .set({ usedAt: new Date().toISOString() })
-      .where(eq(tokenTable.id, resetToken.id));
+    // Order matters. Revoke FIRST — a password reset is the remediation a user
+    // reaches for after "someone got into my account", so every session an
+    // attacker already holds must die here...
+    const sessionEpoch = await revokeUserSessions(ctx, resetToken.userId);
 
-    await setSession(resetToken.userId);
+    // ...then burn this token and any other outstanding link...
+    await invalidateResetTokens(ctx, resetToken.userId);
+
+    // ...and only then re-admit the person who actually did the reset.
+    await setSession(resetToken.userId, sessionEpoch);
 
     return { success: true };
   }),

@@ -13,10 +13,31 @@ catalog:
   "@types/node": ^26.1.1
   "@types/react": ^19.2.17
   "@types/react-dom": ^19.2.3
+  class-variance-authority: ^0.7.1
+  date-fns: ^4.4.0
+  dotenv-cli: ^11.0.0
+  # Shared by packages/api (which queries) and packages/db (which defines the schema).
+  # A version desync between those two produces baffling type errors rather than clean
+  # failures — which is exactly why it goes through the catalog.
+  drizzle-orm: ^0.45.2
+  lucide-react: ^1.24.0
   next: ^16.2.10
+  next-themes: ^0.4.6
   react: 19.2.3
   react-dom: 19.2.3
   superjson: ^2.2.6
   tailwindcss: ^4.3.2
+  tsx: ^4.23.0
+  # Held at v6: TS 7 removed the JS Compiler API that Next's type-check step needs,
+  # which breaks `next build`. See CLAUDE.md "Tracked constraints". Do not bump.
   typescript: ^6.0.3
   zod: ^4.4.3
+
+catalogs:
+  # Expo must hold an SDK-blessed React, which may diverge from web's. Pinning it in a
+  # NAMED catalog keeps that constraint explicit and separately bumpable, instead of an
+  # unexplained version literal in apps/expo/package.json that looks like drift.
+  # Bump only alongside an Expo SDK upgrade.
+  expo:
+    react: 19.2.3
+    react-dom: 19.2.3

@@ -1,25 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
+import { getExpiryProgress } from "@repo/contracts/content";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
-import { addDays, formatDistance } from "date-fns";
+import { formatDistance } from "date-fns";
 
 import type { RouterOutputs } from "@repo/api";
-
-const getPercentage = (createdAt: Date) => {
-  const now = new Date();
-  const start = createdAt;
-  const end = addDays(createdAt, POST_EXPIRY_DAYS);
-  return {
-    now,
-    start,
-    end,
-    percentage: Math.round(
-      ((now.getTime() - start.getTime()) / (end.getTime() - start.getTime())) * 100,
-    ),
-  };
-};
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
@@ -30,9 +16,8 @@ export const TimerButton = ({ post }: Props) => {
 
   if (!post.createdAt) return null;
 
-  const start = new Date(post.createdAt);
-  const { percentage, now, end } = getPercentage(start);
-  const formattedTime = formatDistance(now, end);
+  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
+  const formattedTime = isExpired ? "Expired" : `Dissapears in ${formatDistance(new Date(), end)}`;
 
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
@@ -53,10 +38,10 @@ export const TimerButton = ({ post }: Props) => {
           }}
           data-percentage={percentage}
         >
-          <span className="sr-only">Content dissapears in {formattedTime}</span>
+          <span className="sr-only">{formattedTime}</span>
         </div>
       </TooltipTrigger>
-      <TooltipContent>Dissapears in {formattedTime}</TooltipContent>
+      <TooltipContent>{formattedTime}</TooltipContent>
     </Tooltip>
   );
 };

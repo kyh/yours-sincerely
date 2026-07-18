@@ -12,6 +12,8 @@ import {
   subWeeks,
 } from "date-fns";
 
+import { parseServerDate } from "./content";
+
 export type CalendarLevel = 0 | 1 | 2 | 3 | 4;
 
 export type CalendarDay = {
@@ -78,13 +80,6 @@ export const DEFAULT_CALENDAR_LABELS = {
 };
 
 export const MIN_DISTANCE_MONTH_LABELS = 2;
-const HAS_EXPLICIT_ZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
-
-const parseServerDate = (value: string): Date => {
-  const iso = value.replace(" ", "T");
-  if (!iso.includes("T") || HAS_EXPLICIT_ZONE.test(iso)) return new Date(iso);
-  return new Date(`${iso}Z`);
-};
 
 export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): string => {
   switch (level) {

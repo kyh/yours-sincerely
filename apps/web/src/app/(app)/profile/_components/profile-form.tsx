@@ -6,11 +6,12 @@ import { ProfileAvatar } from "@/components/profile-avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { Input } from "@repo/ui/components/input";
 import { toast } from "@repo/ui/components/sonner";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
 import type { UpdateUserInput } from "@repo/contracts/user";
 import { getAvatarUrl } from "@/lib/avatars";
+import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { useTRPC } from "@/trpc/react";
 
 type ProfileFormProps = {
@@ -20,10 +21,21 @@ type ProfileFormProps = {
 
 export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const {
     data: { user },
   } = useSuspenseQuery(trpc.user.getUser.queryOptions({ userId }));
-  const updateUser = useMutation(trpc.user.updateUser.mutationOptions());
+
+  // The display name shows on the profile and in the workspace identity.
+  const updateUser = useMutation(
+    trpc.user.updateUser.mutationOptions({
+      onSuccess: () =>
+        Promise.all([
+          refreshProfileData(queryClient, trpc),
+          refreshWorkspaceIdentity(queryClient, trpc),
+        ]),
+    }),
+  );
 
   const form = useForm({
     resolver: zodResolver(updateUserInput),

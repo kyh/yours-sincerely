@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "@/lib/css-interop";
 import { toast } from "sonner-native";
 
+import { BlockedWriters } from "@/components/settings/blocked-writers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -156,6 +157,8 @@ export default function SettingsScreen() {
             </View>
           </>
         )}
+
+        {user !== null && <BlockedWriters />}
 
         <View className="gap-3">
           <Text className="text-sm font-medium">Appearance</Text>
