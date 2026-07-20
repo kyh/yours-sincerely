@@ -18,9 +18,9 @@ import { useTRPC } from "@/trpc/react";
 
 type AuthFormProps = {
   type: "signin" | "signup";
-  /** Where to land after a successful sign-in/sign-up. Resolved and guarded on
-      the server (see `next-path.ts`), so this is always a safe same-origin
-      path — mirrors the expo form's `next` prop. */
+  /** Where to land after a successful sign-in/sign-up. Guarded on the server by
+      `safeNextPath` (@repo/contracts/navigation), so this is always a path that
+      resolves same-origin — never an attacker-supplied redirect target. */
   nextPath: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 

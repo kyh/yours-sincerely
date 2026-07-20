@@ -1,5 +1,11 @@
 {
   "extends": "@kyh/tsconfig/base.json",
+  "compilerOptions": {
+    // Only for the WHATWG `URL` global that `navigation.ts` needs: the base lib
+    // is ES2022, which has no `URL`, and pulling in `dom` would let modules that
+    // also run on the server reach for `window`. Matches packages/db.
+    "types": ["node"]
+  },
   "include": ["src"],
   "exclude": ["node_modules", "src/**/*.test.ts"]
 }

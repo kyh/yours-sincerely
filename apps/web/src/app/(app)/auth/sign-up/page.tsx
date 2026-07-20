@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { safeNextPath } from "@repo/contracts/navigation";
+
 import { AuthForm } from "../_components/auth-form";
-import { safeNextPath } from "../_components/next-path";
 
 export const metadata: Metadata = {
   title: "Sign Up",
