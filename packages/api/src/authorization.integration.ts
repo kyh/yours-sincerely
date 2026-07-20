@@ -7,6 +7,7 @@ import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
 import { appRouter } from "./root-router";
+import { updateUserInput } from "./user/user-schema";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -77,10 +78,15 @@ const createFixture = async () => {
 integrationTest("profile updates derive the actor from the authenticated context", async () => {
   const fixture = await createFixture();
   try {
-    await fixture.caller.user.updateUser({
-      userId: fixture.victimId,
-      displayName: "Updated actor",
-    });
+    // A hostile payload naming someone else, parsed the way a real request is:
+    // the retired `userId` field is stripped at the boundary, so the router only
+    // ever sees the display name and writes it to the authenticated actor.
+    await fixture.caller.user.updateUser(
+      updateUserInput.parse({
+        userId: fixture.victimId,
+        displayName: "Updated actor",
+      }),
+    );
 
     const rows = await db
       .select({ id: user.id, displayName: user.displayName })

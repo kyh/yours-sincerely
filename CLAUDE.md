@@ -3,6 +3,15 @@
 Anonymous love letters app with disappearing ink. T3 Turbo stack + Supabase (as the
 Postgres host — see "Architecture decisions" before assuming anything else about it).
 
+## Agent-driven development
+
+`AGENTS.md` is the tool-agnostic guide: provisioning that actually works from a fresh
+clone, how to verify a change end-to-end (`pnpm verify` plus a browser recipe against the
+real UI), and which surfaces an agent can check at runtime at all. **Read it before
+starting work**; it is meant to be run, not skimmed. This file stays the Claude-facing
+reference for conventions and for the architecture decisions below — the two do not
+duplicate each other.
+
 ## Stack
 
 - **Monorepo**: pnpm + Turborepo
@@ -46,7 +55,9 @@ pnpm db:stop          # Stop Supabase
 pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
-pnpm lint             # oxlint (NOT ESLint)
+pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
+pnpm verify           # typecheck + lint + format + test — mirrors CI, run before commit
+pnpm lint             # oxlint (NOT ESLint), warnings are errors
 pnpm format           # oxfmt --check (use format:fix to write)
 pnpm typecheck        # TypeScript
 pnpm test             # node:test suites (turbo run test)
@@ -72,6 +83,11 @@ and `pnpm db:push` applies both, in this order:
 `pnpm db:push` is therefore the whole deploy, and `pnpm db:reset` is
 `supabase db reset && push && seed`. Nothing is replayed, so no migration history can
 drift from the schema.
+
+The LOCAL `push` runs `drizzle-kit push --force` so a headless run cannot hang on the TTY
+confirmation prompt. `--force` accepts data-loss statements without asking, which is fine
+against a disposable local database and is why `push:remote` deliberately does **not** carry
+it — production stays interactive.
 
 **`drizzle-kit push` does NOT diff a view's body.** This is the trap. It creates a view
 that is missing and drops one deleted from the schema file, but when the name already

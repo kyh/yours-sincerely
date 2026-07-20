@@ -25,7 +25,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@repo/api";
-import { refreshPostContent, refreshProfileData } from "@/lib/query-policies";
+import { refreshBlocks, refreshPostContent, refreshProfileData } from "@/lib/query-policies";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTRPC } from "@/trpc/react";
@@ -64,8 +64,9 @@ export const MoreButton = ({ post }: Props) => {
   const blockMutation = useMutation(
     trpc.block.createBlock.mutationOptions({
       onSuccess: async () => {
-        // Every post by the blocked author drops out of the feed.
-        await refreshPostContent(queryClient, trpc);
+        // Every post by the blocked author drops out of the feed, and the
+        // author joins the viewer's blocked list — refreshBlocks covers both.
+        await refreshBlocks(queryClient, trpc);
         toast.success("You have blocked this user");
       },
     }),

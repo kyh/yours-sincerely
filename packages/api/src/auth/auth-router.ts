@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 
 import type { TRPCContext } from "../trpc";
+import { env } from "../env";
 import { createKnockUserToken, getKnockClient } from "../knock";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
@@ -94,7 +95,7 @@ export const authRouter = createTRPCRouter({
     if (userId === null) throw new TRPCError({ code: "UNAUTHORIZED" });
 
     const knock = getKnockClient();
-    const channelId = process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
+    const channelId = env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
     if (knock === null || channelId === undefined) {
       throw new TRPCError({
         code: "PRECONDITION_FAILED",
@@ -222,6 +223,18 @@ export const authRouter = createTRPCRouter({
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
     .mutation(async ({ ctx, input }) => {
+      // Checked before the lookup: a deployment with no email provider can
+      // never deliver the link, and burning the account's outstanding reset
+      // tokens on the way to a failed send is worse than refusing outright. The
+      // answer does not depend on `input.email`, so it leaks no enumeration.
+      const resendApiKey = env.RESEND_API_KEY;
+      if (resendApiKey === undefined) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Password reset email is not configured",
+        });
+      }
+
       const existingUser = await ctx.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.email, input.email),
       });
@@ -249,7 +262,7 @@ export const authRouter = createTRPCRouter({
       // One HTTPS link serves every client. Associated domains open the
       // installed app; browsers remain the universal fallback.
       const resetUrl = `${APP_URL}/auth/password-update?token=${resetToken}`;
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      const resend = new Resend(resendApiKey);
 
       await resend.emails.send({
         from: "Yours Sincerely <noreply@yourssincerely.org>",

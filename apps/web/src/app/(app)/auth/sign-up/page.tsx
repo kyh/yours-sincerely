@@ -3,17 +3,22 @@ import Link from "next/link";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { AuthForm } from "../_components/auth-form";
+import { safeNextPath } from "../_components/next-path";
 
 export const metadata: Metadata = {
   title: "Sign Up",
 };
 
-const Page = () => {
+type Props = { searchParams: Promise<{ next?: string | string[] }> };
+
+const Page = async ({ searchParams }: Props) => {
+  const { next } = await searchParams;
+
   return (
     <>
       <PageHeader title="Sign up" />
       <PageContent className="flex flex-col gap-5">
-        <AuthForm type="signup" className="mt-2" />
+        <AuthForm type="signup" className="mt-2" nextPath={safeNextPath(next)} />
         <p className="px-8 text-center text-xs text-muted-foreground">
           By clicking continue, you agree to our{" "}
           <Link

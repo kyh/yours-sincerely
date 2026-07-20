@@ -44,8 +44,8 @@ packages
 ### Local Development
 
 ```sh
-# Rename .env.example to .env and update variables
-mv .env.example .env
+# Copy .env.example to .env and update variables
+cp .env.example .env
 
 # Set COOKIE_SECRET in .env — sessions are signed with it. The server throws
 # without it in production, and falls back to an insecure dev constant locally.
@@ -55,6 +55,10 @@ pnpm install
 
 # To start the database
 pnpm db:start
+
+# To create the schema — `supabase start` brings up an EMPTY database and there
+# are no migrations to replay, so this step is not optional
+pnpm db:push
 
 # To start the web app
 pnpm dev:web
@@ -68,11 +72,16 @@ You'll be able to view the website at `http://localhost:3000`
 ### Checks
 
 ```sh
+pnpm verify      # typecheck + lint + format + test — exactly what CI runs
+
+# …or individually
 pnpm typecheck
 pnpm lint        # oxlint
 pnpm format      # oxfmt --check
 pnpm test        # node:test
 ```
+
+Coding agents should start from [AGENTS.md](./AGENTS.md).
 
 ## Stack
 

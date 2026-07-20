@@ -40,7 +40,6 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const form = useForm({
     resolver: zodResolver(updateUserInput),
     defaultValues: {
-      userId: user?.id,
       displayName: user?.displayName || "Anonymous",
     },
     mode: "onBlur",

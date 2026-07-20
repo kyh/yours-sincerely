@@ -86,7 +86,7 @@ export default function SettingsScreen() {
 
   const handleEmailBlur = () => {
     if (user === null || email === (user.email ?? "")) return;
-    updateUser.mutate({ userId: user.id, email });
+    updateUser.mutate({ email });
   };
 
   const signOut = () => {
