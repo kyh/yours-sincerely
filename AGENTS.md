@@ -131,7 +131,7 @@ is as far as an agent gets; a runtime check needs a human with a device.
 - **Every mutation calls an invalidation policy.** There is no global `MutationCache` and no
   default `mutations.onSuccess` — TanStack merges mutation options by spread, so a default
   would be silently replaced by any per-mutation handler. Add a `useMutation`, add its policy:
-  `@/lib/query-policies` (web) or `~/lib/query-policies` (expo). Mutations go through tRPC,
+  `@/lib/query-policies` (both web and expo). Mutations go through tRPC,
   never a Next Server Action.
 - **Shared domain logic lives in `packages/contracts`**, used by both web and expo — not
   duplicated per platform.
