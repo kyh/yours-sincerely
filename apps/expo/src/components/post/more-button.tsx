@@ -10,6 +10,7 @@ import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { trpc } from "@/lib/api";
 import {
+  refreshBlocks,
   refreshPostContent,
   refreshProfileData,
   refreshWorkspaceIdentityIfAnonymous,
@@ -70,7 +71,9 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     trpc.block.createBlock.mutationOptions({
       onSuccess: () => {
         toast.success("You have blocked this user");
-        refreshPostContent().catch(() => undefined);
+        // The blocked author's letters leave the feed AND the author joins the
+        // viewer's blocked list — refreshBlocks covers both.
+        refreshBlocks().catch(() => undefined);
       },
     }),
   );

@@ -24,14 +24,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Format
-        run: pnpm format
-
-      - name: Test
-        run: pnpm test
+      # Same command developers and agents run locally, so the gate cannot drift.
+      - name: Verify
+        run: pnpm verify

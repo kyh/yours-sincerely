@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithPasswordInput } from "@repo/contracts/auth";
 import { Button } from "@repo/ui/components/button";
@@ -18,11 +18,14 @@ import { useTRPC } from "@/trpc/react";
 
 type AuthFormProps = {
   type: "signin" | "signup";
+  /** Where to land after a successful sign-in/sign-up. Guarded on the server by
+      `safeNextPath` (@repo/contracts/navigation), so this is always a path that
+      resolves same-origin — never an attacker-supplied redirect target. */
+  nextPath: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const AuthForm = ({ className, type }: AuthFormProps) => {
+export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   const router = useRouter();
-  const params = useParams<{ nextPath?: string }>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -31,7 +34,7 @@ export const AuthForm = ({ className, type }: AuthFormProps) => {
   // page still looking signed-out.
   const enterApp = async () => {
     await refreshWorkspaceIdentity(queryClient, trpc);
-    router.replace(params.nextPath ?? `/`);
+    router.replace(nextPath);
   };
 
   const signInWithPassword = useMutation(

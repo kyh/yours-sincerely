@@ -18,7 +18,7 @@
     "stop": "supabase stop",
     "reset": "supabase db reset && pnpm push && pnpm seed",
     "status": "supabase status",
-    "push": "pnpm with-env sh -c 'drizzle-kit push && tsx src/apply-sql.ts'",
+    "push": "pnpm with-env sh -c 'drizzle-kit push --force && tsx src/apply-sql.ts'",
     "push:remote": "dotenv -e ../../.env.production.local -- sh -c 'drizzle-kit push && tsx src/apply-sql.ts'",
     "apply-sql": "pnpm with-env tsx src/apply-sql.ts",
     "studio": "pnpm with-env drizzle-kit studio",

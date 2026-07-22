@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "prompt": "This repo is driven by coding agents — read AGENTS.md first. If .env is missing, copy .env.example to .env, then run `pnpm db:start` (needs Docker) and `pnpm db:push`; `supabase start` brings up an EMPTY database, so the push is not optional. Gate every change with `pnpm verify`.",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm verify)",
+      "Bash(pnpm db:start)",
+      "Bash(pnpm db:stop)",
+      "Bash(pnpm db:push)",
+      "Bash(pnpm db:reset)",
+      "Bash(pnpm db:seed)",
+      "Bash(pnpm dev:web)",
+      "Bash(agent-browser:*)"
+    ]
+  }
+}

@@ -50,7 +50,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
       setError(null);
       return;
     }
-    const parsed = updateUserInput.safeParse({ userId, displayName });
+    const parsed = updateUserInput.safeParse({ displayName });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid name");
       return;

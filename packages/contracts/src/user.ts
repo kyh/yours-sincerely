@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+// The retired `userId` rollout field is deliberately absent rather than
+// `.optional()`. The server has always derived ownership from the session and
+// ignored it, and `z.object` strips unknown keys — so binaries in the wild that
+// still send it keep working, and the value they send can never name a
+// different account. See `packages/api/src/security-contracts.test.ts`.
 export const updateUserInput = z
   .object({
-    /** Deprecated rollout field. New servers always derive ownership from the session. */
-    userId: z.string().optional(),
     email: z.string().email().optional(),
     displayName: z.string().trim().min(1).max(50).optional(),
   })

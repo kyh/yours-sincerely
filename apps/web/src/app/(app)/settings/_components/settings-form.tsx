@@ -80,7 +80,6 @@ export const SettingsForm = () => {
   const form = useForm({
     resolver: zodResolver(updateUserInput),
     defaultValues: {
-      userId: user?.id,
       email: user?.email ?? "",
     },
     mode: "onBlur",
