@@ -4,9 +4,9 @@ packages:
 
 catalog:
   "@base-ui/react": ^1.6.0
-  "@kyh/tsconfig": ^1.1.14
-  "@tailwindcss/postcss": ^4.3.2
-  "@tanstack/react-query": ^5.101.2
+  "@kyh/tsconfig": ^1.2.0
+  "@tailwindcss/postcss": ^4.3.3
+  "@tanstack/react-query": ^5.101.4
   "@trpc/client": ^11.18.0
   "@trpc/server": ^11.18.0
   "@trpc/tanstack-react-query": ^11.18.0
@@ -20,14 +20,14 @@ catalog:
   # A version desync between those two produces baffling type errors rather than clean
   # failures — which is exactly why it goes through the catalog.
   drizzle-orm: ^0.45.2
-  lucide-react: ^1.24.0
-  next: ^16.2.10
+  lucide-react: ^1.26.0
+  next: ^16.2.11
   next-themes: ^0.4.6
-  react: 19.2.3
-  react-dom: 19.2.3
+  react: 19.2.8
+  react-dom: 19.2.8
   superjson: ^2.2.6
-  tailwindcss: ^4.3.2
-  tsx: ^4.23.0
+  tailwindcss: ^4.3.3
+  tsx: ^4.23.1
   # Held at v6: TS 7 removed the JS Compiler API that Next's type-check step needs,
   # which breaks `next build`. See CLAUDE.md "Tracked constraints". Do not bump.
   typescript: ^6.0.3
@@ -39,5 +39,5 @@ catalogs:
   # unexplained version literal in apps/expo/package.json that looks like drift.
   # Bump only alongside an Expo SDK upgrade.
   expo:
-    react: 19.2.3
-    react-dom: 19.2.3
+    react: 19.2.8
+    react-dom: 19.2.8
