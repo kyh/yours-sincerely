@@ -39,5 +39,5 @@ catalogs:
   # unexplained version literal in apps/expo/package.json that looks like drift.
   # Bump only alongside an Expo SDK upgrade.
   expo:
-    react: 19.2.8
-    react-dom: 19.2.8
+    react: 19.2.3
+    react-dom: 19.2.3
