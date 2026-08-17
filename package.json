@@ -31,9 +31,9 @@
   "devDependencies": {
     "dotenv-cli": "catalog:",
     "oxfmt": "^0.60.0",
-    "oxlint": "^1.75.0",
+    "oxlint": "^1.78.0",
     "tsx": "catalog:",
-    "turbo": "^2.10.6",
+    "turbo": "^2.10.10",
     "typescript": "catalog:"
   },
   "engines": {
