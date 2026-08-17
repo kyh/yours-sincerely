@@ -9,9 +9,10 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
     these wrappers instead of the originals when styling with classes. */
 type Styled<P> = ComponentType<P & { className?: string }>;
 
-export const SafeAreaView: Styled<ComponentProps<typeof RNSafeAreaView>> = styled(RNSafeAreaView, {
-  className: "style",
-});
+export const SafeAreaView: Styled<ComponentProps<typeof RNSafeAreaView>> =
+  // @ts-expect-error TS2590 — same explosion as AnimatedView below, reached by
+  // react-native-safe-area-context 5.8.1; the export is typed explicitly above.
+  styled(RNSafeAreaView, { className: "style" });
 
 export const GestureHandlerRootView: Styled<ComponentProps<typeof RNGestureHandlerRootView>> =
   styled(RNGestureHandlerRootView, { className: "style" });
