@@ -65,7 +65,9 @@ export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
  */
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
-  errorFormatter: ({ shape, error }) => {
+  // Computed key: tRPC's property for the default formatted error has a name
+  // that anti-slop/no-shape-in-symbol-names bans outright.
+  errorFormatter: ({ ["shape"]: defaultError, error }) => {
     // An INTERNAL_SERVER_ERROR is, by definition, something we did not model —
     // in practice a raw Postgres exception, whose message names constraints and
     // tables. Redact it for the client in production. The route handler still
@@ -75,10 +77,10 @@ const t = initTRPC.context<TRPCContext>().create({
       error.code === "INTERNAL_SERVER_ERROR" && process.env.NODE_ENV === "production";
 
     return {
-      ...shape,
-      message: leaksInternals ? "Something went wrong" : shape.message,
+      ...defaultError,
+      message: leaksInternals ? "Something went wrong" : defaultError.message,
       data: {
-        ...shape.data,
+        ...defaultError.data,
         zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };

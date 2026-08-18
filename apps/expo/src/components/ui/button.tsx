@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { PressableProps } from "react-native";
 import { ActivityIndicator, Pressable } from "react-native";
 import { cva, type VariantProps } from "class-variance-authority";
+import { z } from "zod";
 
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,8 @@ type ButtonProps = Omit<PressableProps, "children"> &
     className?: string;
   };
 
+const buttonLabel = z.string();
+
 export const Button = ({
   className,
   textClassName,
@@ -69,22 +72,25 @@ export const Button = ({
   disabled,
   children,
   ...props
-}: ButtonProps) => (
-  <Pressable
-    accessibilityRole="button"
-    className={cn(
-      buttonVariants({ variant, size }),
-      (loading === true || disabled === true) && "opacity-50",
-      className,
-    )}
-    disabled={loading === true || disabled === true}
-    {...props}
-  >
-    {loading === true ? <ActivityIndicator size="small" /> : null}
-    {typeof children === "string" ? (
-      <Text className={cn(buttonTextVariants({ variant }), textClassName)}>{children}</Text>
-    ) : (
-      children
-    )}
-  </Pressable>
-);
+}: ButtonProps) => {
+  const label = buttonLabel.safeParse(children);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      className={cn(
+        buttonVariants({ variant, size }),
+        (loading === true || disabled === true) && "opacity-50",
+        className,
+      )}
+      disabled={loading === true || disabled === true}
+      {...props}
+    >
+      {loading === true ? <ActivityIndicator size="small" /> : null}
+      {label.success ? (
+        <Text className={cn(buttonTextVariants({ variant }), textClassName)}>{label.data}</Text>
+      ) : (
+        children
+      )}
+    </Pressable>
+  );
+};

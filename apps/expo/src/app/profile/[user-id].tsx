@@ -10,7 +10,7 @@ import { ProfileContent } from "@/components/profile/profile-content";
 export default function ProfileScreen() {
   const params = useLocalSearchParams();
   const userIdParam = params["user-id"];
-  const userId = typeof userIdParam === "string" ? userIdParam : null;
+  const userId = Array.isArray(userIdParam) ? null : (userIdParam ?? null);
   const router = useRouter();
   const colors = useThemeColors();
 

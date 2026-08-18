@@ -149,6 +149,9 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   };
 
   const getEventHandlers = (data: Day): SVGRectEventHandler => {
+    // SAFETY: `eventHandlers` is an `EventHandlerMap`, so its runtime keys are
+    // exactly the `keyof SVGRectEventHandler` names — `Object.keys` merely
+    // widens them to `string[]`.
     return (
       Object.keys(eventHandlers) as (keyof SVGRectEventHandler)[]
     ).reduce<SVGRectEventHandler>(

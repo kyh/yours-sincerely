@@ -21,8 +21,8 @@ const SESSION_COOKIE = "__session";
 
 type MigrationResult = MigrateLegacySessionResult | "unavailable" | "failed";
 
-const reportFailure = (phase: "copy" | "clear", error: unknown) => {
-  const message = error instanceof Error ? error.message : "Unknown error";
+const reportFailure = (phase: "copy" | "clear", cause: unknown) => {
+  const message = cause instanceof Error ? cause.message : "Unknown error";
   console.warn(`[legacy-session-migration] ${phase} failed: ${message}`);
 };
 
@@ -49,8 +49,8 @@ export const ensureLegacySessionMigrated = (): Promise<MigrationResult> => {
     });
     migrationProvenanceEstablished = legacyProvenance;
     return result;
-  })().catch((error: unknown) => {
-    reportFailure("copy", error);
+  })().catch((cause: unknown) => {
+    reportFailure("copy", cause);
     return "failed";
   });
   return migration;
@@ -81,9 +81,9 @@ export const finalizeLegacySessionMigration = (authenticated: boolean): Promise<
       }
       return undefined;
     })
-    .catch((error: unknown) => {
+    .catch((cause: unknown) => {
       finalization = null;
-      reportFailure("clear", error);
+      reportFailure("clear", cause);
     });
 
   return finalization;

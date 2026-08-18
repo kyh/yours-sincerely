@@ -11,7 +11,7 @@ import { useThemeColors } from "@/components/theme-colors";
 /** Only known, parameterless routes are accepted as a post-signin
     destination — keeps the redirect typed without an `as` cast. */
 const resolveNextRoute = (value: string | string[] | undefined): Href => {
-  if (typeof value !== "string") return "/";
+  if (value === undefined || Array.isArray(value)) return "/";
   switch (value) {
     case "/":
     case "/settings":

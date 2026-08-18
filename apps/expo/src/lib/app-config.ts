@@ -1,10 +1,11 @@
 import Constants from "expo-constants";
 import { z } from "zod";
 
-const optionalConfigString = z.preprocess(
-  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
-  z.string().min(1).optional(),
-);
+/** A blank value means "not configured" — same as the key being absent. */
+const optionalConfigString = z
+  .string()
+  .transform((value) => (value.trim() === "" ? undefined : value))
+  .optional();
 
 /** Typed access to the `extra` values defined in app.config.ts. */
 const extraSchema = z.object({

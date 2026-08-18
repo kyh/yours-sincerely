@@ -32,7 +32,7 @@ export default function PasswordUpdateScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const tokenParam = params.token;
-  const token = typeof tokenParam === "string" ? tokenParam : undefined;
+  const token = Array.isArray(tokenParam) ? undefined : tokenParam;
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});

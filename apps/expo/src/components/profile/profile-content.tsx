@@ -91,7 +91,7 @@ export const ProfileContent = ({ userId }: Props) => {
   const dailyData = createPostsDailyActivity(posts);
   const heatmapData = createPostsHeatmap(posts, 120);
   const theme = isDarkTheme(resolvedTheme) ? darkTheme : lightTheme;
-  const favoriteDay = FULL_DAY_LABELS[dailyData.max.day];
+  const favoriteDay = dailyData.max.day === "none" ? null : FULL_DAY_LABELS[dailyData.max.day];
 
   return (
     <ScrollView

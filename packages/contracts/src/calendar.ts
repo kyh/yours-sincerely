@@ -60,9 +60,11 @@ export const DEFAULT_MONTH_LABELS = [
   "Dec",
 ];
 
-export const DEFAULT_WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const DEFAULT_WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
-export const FULL_DAY_LABELS: Record<string, string> = {
+export type WeekdayLabel = (typeof DEFAULT_WEEKDAY_LABELS)[number];
+
+export const FULL_DAY_LABELS = {
   Sun: "Sunday",
   Mon: "Monday",
   Tue: "Tuesday",
@@ -70,7 +72,7 @@ export const FULL_DAY_LABELS: Record<string, string> = {
   Thu: "Thursday",
   Fri: "Friday",
   Sat: "Saturday",
-};
+} satisfies Record<WeekdayLabel, string>;
 
 export const DEFAULT_CALENDAR_LABELS = {
   months: DEFAULT_MONTH_LABELS,
@@ -181,18 +183,19 @@ export const createPostsHeatmap = (posts: CalendarPost[], lastNDays: number) => 
 };
 
 export const createPostsDailyActivity = (posts: CalendarPost[]) => {
-  const counts = new Map(DEFAULT_WEEKDAY_LABELS.map((day) => [day, 0]));
+  const counts = new Map<WeekdayLabel, number>(DEFAULT_WEEKDAY_LABELS.map((day) => [day, 0]));
   for (const post of posts) {
-    const day = format(parseServerDate(post.createdAt), "eee");
-    if (counts.has(day)) counts.set(day, (counts.get(day) ?? 0) + 1);
+    const formatted = format(parseServerDate(post.createdAt), "eee");
+    const day = DEFAULT_WEEKDAY_LABELS.find((label) => label === formatted);
+    if (day !== undefined) counts.set(day, (counts.get(day) ?? 0) + 1);
   }
 
-  const maximum = [...counts].reduce(
+  const maximum = [...counts].reduce<{ max: number; day: WeekdayLabel | "none" }>(
     (current, [day, count]) => (count > current.max ? { max: count, day } : current),
     { max: 0, day: "none" },
   );
   const stats = Object.fromEntries(
-    [...counts].map(([day, count]): [string, { count: number; level: CalendarLevel }] => [
+    [...counts].map(([day, count]): [WeekdayLabel, { count: number; level: CalendarLevel }] => [
       day,
       { count, level: getPostLevel(count, maximum.max) },
     ]),

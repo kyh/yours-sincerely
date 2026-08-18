@@ -46,7 +46,7 @@ const assertNoDrift = async (label: string) => {
     a Next request scope. Every database effect runs BEFORE that write, so the
     mutation is driven for real and only that one specific error is absorbed.
     Same helper as `auth/session-revocation.integration.ts`. */
-const runWithoutCookieScope = async (operation: () => Promise<unknown>) => {
+const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
   try {
     await operation();
   } catch (error) {

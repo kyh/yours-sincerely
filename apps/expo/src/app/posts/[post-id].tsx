@@ -20,7 +20,7 @@ import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 export default function PostScreen() {
   const params = useLocalSearchParams();
   const postIdParam = params["post-id"];
-  const postId = typeof postIdParam === "string" ? postIdParam : "";
+  const postId = Array.isArray(postIdParam) ? "" : (postIdParam ?? "");
   const router = useRouter();
   const colors = useThemeColors();
   const { user } = useWorkspaceUser();

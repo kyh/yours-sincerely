@@ -13,12 +13,15 @@ import { useExpoPushNotifications } from "@knocklabs/expo";
 import * as Notifications from "expo-notifications";
 import { onlineManager } from "@tanstack/react-query";
 import { toast } from "sonner-native";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { appConfig } from "@/lib/app-config";
 import { getRegisteredPushDevice, setRegisteredPushDevice } from "@/lib/push-token-store";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
+
+const tappedPostId = z.string().min(1);
 
 type PushRegistrationContextValue = {
   permission: Notifications.PermissionStatus | null;
@@ -200,9 +203,11 @@ export const PushNotificationCoordinator = ({
     let disposed = false;
 
     const openNotification = (response: Notifications.NotificationResponse) => {
-      const postId = response.notification.request.content.data?.parentPostId;
-      if (typeof postId === "string" && postId.length > 0) {
-        router.push({ pathname: "/posts/[post-id]", params: { "post-id": postId } });
+      const postId = tappedPostId.safeParse(
+        response.notification.request.content.data?.parentPostId,
+      );
+      if (postId.success) {
+        router.push({ pathname: "/posts/[post-id]", params: { "post-id": postId.data } });
       }
     };
 

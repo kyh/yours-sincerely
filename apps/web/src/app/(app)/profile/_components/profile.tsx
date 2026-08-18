@@ -88,9 +88,7 @@ export const Profile = ({ userId }: ProfileProps) => {
             ) : (
               <>
                 Favorite day to write is on{" "}
-                <span className="text-primary">
-                  {FULL_DAY_LABELS[dailyData.max.day as keyof typeof FULL_DAY_LABELS]}s
-                </span>
+                <span className="text-primary">{FULL_DAY_LABELS[dailyData.max.day]}s</span>
               </>
             )}
           </h2>

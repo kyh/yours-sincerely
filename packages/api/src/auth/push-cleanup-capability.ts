@@ -1,6 +1,19 @@
 import cookieSignature from "cookie-signature";
+import { z } from "zod";
 
 const PUSH_CLEANUP_SCOPE = "push-cleanup";
+
+const capabilityPayloadSchema = z.object({
+  scope: z.literal(PUSH_CLEANUP_SCOPE),
+  userId: z.string(),
+  // MIGRATION WINDOW: capabilities minted before expiry existed have no
+  // `exp`, and the Expo app keeps one in SecureStore precisely so it can
+  // clean up its push device AFTER signing out — the one moment it cannot
+  // re-mint. Rejecting `exp`-less tokens would strand those devices, so
+  // they are still accepted. Once the fleet has cycled (every signed-in
+  // `auth.workspace` query re-mints), tighten this to require `exp`.
+  exp: z.number().nullable().catch(null),
+});
 
 /**
  * 30 days. A capability is a narrow, single-purpose bearer token — NOT a
@@ -36,26 +49,15 @@ export const parsePushCleanupCapability = (
     if (!unsigned) continue;
 
     try {
-      const parsed: unknown = JSON.parse(Buffer.from(unsigned, "base64url").toString("utf8"));
-      if (
-        typeof parsed === "object" &&
-        parsed !== null &&
-        "scope" in parsed &&
-        parsed.scope === PUSH_CLEANUP_SCOPE &&
-        "userId" in parsed &&
-        typeof parsed.userId === "string"
-      ) {
-        // MIGRATION WINDOW: capabilities minted before expiry existed have no
-        // `exp`, and the Expo app keeps one in SecureStore precisely so it can
-        // clean up its push device AFTER signing out — the one moment it cannot
-        // re-mint. Rejecting `exp`-less tokens would strand those devices, so
-        // they are still accepted. Once the fleet has cycled (every signed-in
-        // `auth.workspace` query re-mints), tighten this to require `exp`.
-        const exp = "exp" in parsed && typeof parsed.exp === "number" ? parsed.exp : null;
+      const parsed = capabilityPayloadSchema.safeParse(
+        JSON.parse(Buffer.from(unsigned, "base64url").toString("utf8")),
+      );
+      if (parsed.success) {
+        const { userId, exp } = parsed.data;
         if (exp !== null && exp <= nowSeconds) {
           return null;
         }
-        return parsed.userId;
+        return userId;
       }
     } catch {
       // A malformed payload must not abort verification against the remaining

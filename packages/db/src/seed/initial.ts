@@ -44,10 +44,10 @@ const pick = <T>(items: T[]): T => {
 const now = Date.now();
 const at = (msAgo: number) => new Date(now - msAgo).toISOString();
 
-/** Streak shapes `getUserStats` must get right. Index 0..5 of the user list
+/** Streak patterns `getUserStats` must get right. Index 0..5 of the user list
     gets one of these; everyone else gets scattered posts. */
-type StreakShape = "none" | "single" | "current-run" | "broken" | "past-run" | "same-day";
-const STREAK_SHAPES: StreakShape[] = [
+type StreakPattern = "none" | "single" | "current-run" | "broken" | "past-run" | "same-day";
+const STREAK_PATTERNS: StreakPattern[] = [
   "none", // no posts at all
   "single", // exactly one post
   "current-run", // 10 consecutive days ending today → current streak = longest = 10
@@ -86,14 +86,14 @@ const seed = async () => {
     return row;
   };
 
-  // Deliberate streak shapes.
-  STREAK_SHAPES.forEach((shape, index) => {
-    const shaped = users[index];
-    if (shaped === undefined) return;
+  // Deliberate streak patterns.
+  STREAK_PATTERNS.forEach((pattern, index) => {
+    const author = users[index];
+    if (author === undefined) return;
     const write = (daysAgo: number) =>
-      addPost(shaped.id, shaped.displayName, daysAgo * DAY_MS + 12 * HOUR_MS);
+      addPost(author.id, author.displayName, daysAgo * DAY_MS + 12 * HOUR_MS);
 
-    switch (shape) {
+    switch (pattern) {
       case "none":
         break;
       case "single":
@@ -111,13 +111,13 @@ const seed = async () => {
         break;
       case "same-day":
         for (let n = 0; n < 5; n += 1)
-          addPost(shaped.id, shaped.displayName, 5 * DAY_MS + n * 1000);
+          addPost(author.id, author.displayName, 5 * DAY_MS + n * 1000);
         break;
     }
   });
 
   // Everyone else writes scattered letters across the history window.
-  const activeUsers = users.slice(STREAK_SHAPES.length);
+  const activeUsers = users.slice(STREAK_PATTERNS.length);
   for (const author of activeUsers) {
     for (let n = 0; n < ROOT_POSTS_PER_ACTIVE_USER; n += 1) {
       addPost(author.id, author.displayName, Math.floor(random() * HISTORY_DAYS * DAY_MS));
@@ -191,7 +191,7 @@ const seed = async () => {
   await db.$client.end();
 };
 
-seed().catch((error: unknown) => {
-  console.error(error);
+seed().catch((cause: unknown) => {
+  console.error(cause);
   process.exit(1);
 });

@@ -1,14 +1,16 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 
+import type { CalendarLevel } from "@repo/contracts/calendar";
 import type { Theme } from "./calendar-types";
 import {
+  calendarLevelColor,
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
   getCalendarTheme as getTheme,
 } from "@repo/contracts/calendar";
 
 type Props = {
-  data: Record<string, { count: number; level: number }>;
+  data: Record<string, { count: number; level: CalendarLevel }>;
   theme?: Theme;
 };
 
@@ -28,13 +30,14 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
       />
       <g style={{ transform: "translateX(5.5%)" }}>
         {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
+          const dayStats = data[day];
           const ellipseProps = {
             className: "block",
             cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
             cy: "50px",
-            rx: data[day] ? `${(data[day].level ?? 0) * 4}` : "0",
-            ry: data[day] ? `${(data[day].level ?? 0) * 4}` : "0",
-            fill: theme[`level${data[day]?.level}` as keyof typeof theme],
+            rx: dayStats ? `${dayStats.level * 4}` : "0",
+            ry: dayStats ? `${dayStats.level * 4}` : "0",
+            fill: dayStats ? calendarLevelColor(theme, dayStats.level) : undefined,
             strokeWidth: 1,
             stroke: theme.stroke,
           };
@@ -43,9 +46,7 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
             <Tooltip key={day}>
               <TooltipTrigger render={<ellipse {...ellipseProps} />} />
               <TooltipContent>
-                {`${data[day]?.count} posts written on ${
-                  FULL_DAY_LABELS[day as keyof typeof FULL_DAY_LABELS]
-                }s`}
+                {`${dayStats?.count} posts written on ${FULL_DAY_LABELS[day]}s`}
               </TooltipContent>
             </Tooltip>
           );

@@ -12,11 +12,14 @@ type DefaultValues<O extends DefaultValuesOptions> = {
   ? { [K in keyof T as T[K] extends never ? never : K]: T[K] }
   : never;
 
-export const getDefaultValues = <O extends DefaultValuesOptions>(
-  { withId = true, withUpdatedAt = true }: O = {} as O,
-): DefaultValues<O> => {
-  return {
-    ...(withId ? { id: randomUUID() } : {}),
-    ...(withUpdatedAt ? { updatedAt: new Date().toISOString() } : {}),
-  } as DefaultValues<O>;
+type DefaultValueFields = { id?: string; updatedAt?: string };
+
+export const getDefaultValues = <O extends DefaultValuesOptions>(options?: O): DefaultValues<O> => {
+  const values: DefaultValueFields = {};
+  if (options?.withId !== false) values.id = randomUUID();
+  if (options?.withUpdatedAt !== false) values.updatedAt = new Date().toISOString();
+  // SAFETY: a key is present exactly when its option is not `false`, which is
+  // the mapping `DefaultValues<O>` encodes; TypeScript cannot connect the
+  // runtime branches to the conditional type.
+  return values as DefaultValues<O>;
 };

@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { NotificationFeed } from "@knocklabs/react-native";
+import { z } from "zod";
 import { SafeAreaView } from "@/lib/css-interop";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { Text } from "@/components/ui/text";
 import { PushNotificationRegistration } from "@/components/notifications/push-notification-registration";
 import { appConfig } from "@/lib/app-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+
+const tappedPostId = z.string().min(1);
 
 export default function NotificationsScreen() {
   const router = useRouter();
@@ -44,9 +47,9 @@ export default function NotificationsScreen() {
           {appConfig.knockExpoChannelId !== undefined && <PushNotificationRegistration />}
           <NotificationFeed
             onRowTap={(item) => {
-              const postId = item.data?.parentPostId;
-              if (typeof postId === "string" && postId.length > 0) {
-                router.push({ pathname: "/posts/[post-id]", params: { "post-id": postId } });
+              const postId = tappedPostId.safeParse(item.data?.parentPostId);
+              if (postId.success) {
+                router.push({ pathname: "/posts/[post-id]", params: { "post-id": postId.data } });
               }
             }}
           />

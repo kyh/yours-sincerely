@@ -78,12 +78,12 @@ const darkPurple: ThemeColors = {
   border: "hsl(215, 25%, 27%)",
 };
 
-const palettes: Record<Exclude<ThemeId, "system">, ThemeColors> = {
+const palettes = {
   light,
   dark,
   "light-purple": lightPurple,
   "dark-purple": darkPurple,
-};
+} satisfies Record<Exclude<ThemeId, "system">, ThemeColors>;
 
 export const useThemeColors = (): ThemeColors => {
   const { resolvedTheme } = useTheme();

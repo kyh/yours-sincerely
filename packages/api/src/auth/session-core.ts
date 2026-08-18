@@ -1,5 +1,6 @@
 import { hkdfSync } from "node:crypto";
 import cookieSignature from "cookie-signature";
+import { z } from "zod";
 
 /**
  * The pure half of session handling: everything that does NOT need
@@ -99,26 +100,22 @@ export const unsignSession = (value: string, verifySecrets: readonly string[]): 
   return null;
 };
 
-/** Parses attacker-supplied bytes. Tolerates every payload shape ever issued. */
+const sessionPayloadSchema = z.object({
+  user: z.string(),
+  // Legacy payloads (pre sliding renewal) have no `iat`.
+  iat: z.number().nullable().catch(null),
+  // Legacy payloads (pre revocation) have no `epoch`. The `User.sessionEpoch`
+  // column defaults to 0, so reading a missing epoch as 0 keeps every cookie
+  // already in the wild valid. THIS IS THE MASS-LOGOUT GUARD — do not tighten
+  // it into a rejection.
+  epoch: z.number().catch(LEGACY_SESSION_EPOCH),
+});
+
+/** Parses attacker-supplied bytes. Tolerates every payload variant ever issued. */
 export const parseSessionPayload = (unsignedCookie: string): SessionPayload | null => {
   try {
-    const parsed: unknown = JSON.parse(atob(unsignedCookie));
-    if (typeof parsed !== "object" || parsed === null || !("user" in parsed)) {
-      return null;
-    }
-    const { user } = parsed;
-    if (typeof user !== "string") {
-      return null;
-    }
-    // Legacy payloads (pre sliding renewal) have no `iat`.
-    const iat = "iat" in parsed && typeof parsed.iat === "number" ? parsed.iat : null;
-    // Legacy payloads (pre revocation) have no `epoch`. The `User.sessionEpoch`
-    // column defaults to 0, so reading a missing epoch as 0 keeps every cookie
-    // already in the wild valid. THIS IS THE MASS-LOGOUT GUARD — do not tighten
-    // it into a rejection.
-    const epoch =
-      "epoch" in parsed && typeof parsed.epoch === "number" ? parsed.epoch : LEGACY_SESSION_EPOCH;
-    return { user, iat, epoch };
+    const parsed = sessionPayloadSchema.safeParse(JSON.parse(atob(unsignedCookie)));
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }
@@ -190,6 +187,8 @@ export const resolveSessionUser = async <TUser extends { sessionEpoch: number }>
 
 export type RenewalDecision = "no-session" | "invalid" | "fresh" | "renew";
 
+export type RenewalOutcome = { decision: RenewalDecision; payload: SessionPayload | null };
+
 export type RenewalInput = {
   sessionValue: string | null | undefined;
   verifySecrets: readonly string[];
@@ -209,7 +208,7 @@ export const decideRenewal = ({
   activeSecret,
   nowSeconds,
   renewAfterSeconds,
-}: RenewalInput): { decision: RenewalDecision; payload: SessionPayload | null } => {
+}: RenewalInput): RenewalOutcome => {
   if (!sessionValue) {
     return { decision: "no-session", payload: null };
   }

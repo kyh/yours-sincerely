@@ -67,7 +67,7 @@ const readSessionEpoch = async (userId: string) => {
  * mutation is driven for real and only that one specific error is absorbed.
  * Anything else rethrows.
  */
-const runWithoutCookieScope = async (operation: () => Promise<unknown>) => {
+const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
   try {
     await operation();
     return "completed";

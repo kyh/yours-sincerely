@@ -73,7 +73,7 @@ type BalloonConfig = {
   blur: boolean;
 };
 
-const BalloonShape = ({
+const BalloonGraphic = ({
   width,
   lightColor,
   balloonColor,
@@ -233,7 +233,7 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
     <Animated.View
       style={[{ position: "absolute", top: screenHeight, left: -config.width / 2 }, style]}
     >
-      <BalloonShape
+      <BalloonGraphic
         width={config.width}
         lightColor={config.lightColor}
         balloonColor={config.balloonColor}

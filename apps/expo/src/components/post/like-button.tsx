@@ -17,6 +17,9 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle, Path } from "react-native-svg";
 
+import type { TRPCClientErrorLike } from "@trpc/client";
+import type { AppRouter } from "@repo/api";
+
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
@@ -275,7 +278,11 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
       );
       return { previousFeed, previousPosts };
     },
-    onError: (_error: unknown, _variables: unknown, snapshot: LikeSnapshot | undefined) => {
+    onError: (
+      _error: TRPCClientErrorLike<AppRouter>,
+      _variables: { postId: string },
+      snapshot: LikeSnapshot | undefined,
+    ) => {
       if (snapshot === undefined) return;
       for (const [queryKey, data] of [...snapshot.previousFeed, ...snapshot.previousPosts]) {
         queryClient.setQueryData(queryKey, data);

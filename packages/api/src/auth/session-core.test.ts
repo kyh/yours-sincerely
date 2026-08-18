@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { z } from "zod";
 
 import {
   decideRenewal,
@@ -29,7 +30,10 @@ const signLegacyPayloadCookie = (userId: string, secret: string) =>
 
 const flipLastByte = (value: string) => `${value.slice(0, -1)}${value.endsWith("a") ? "b" : "a"}`;
 
-const base64 = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64");
+const jsonValue = z.json();
+
+const base64 = (value: z.infer<typeof jsonValue>) =>
+  Buffer.from(JSON.stringify(value)).toString("base64");
 
 const decide = (sessionValue: string | null | undefined, nowSeconds = NOW) =>
   decideRenewal({
