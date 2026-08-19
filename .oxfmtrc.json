@@ -10,8 +10,7 @@
     ".expo",
     ".wxt",
     ".output",
-    "out",
-    "tools/oxlint/anti-slop"
+    "out"
   ],
   "experimentalSortPackageJson": {}
 }

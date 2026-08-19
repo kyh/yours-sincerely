@@ -29,7 +29,7 @@
     "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
   },
   "devDependencies": {
-    "@oxlint/plugins": "1.78.0",
+    "@kyh/oxlint": "^0.1.2",
     "dotenv-cli": "catalog:",
     "oxfmt": "^0.63.0",
     "oxlint": "^1.78.0",

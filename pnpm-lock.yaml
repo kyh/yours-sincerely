@@ -91,9 +91,9 @@ importers:
 
   .:
     devDependencies:
-      '@oxlint/plugins':
-        specifier: 1.78.0
-        version: 1.78.0
+      '@kyh/oxlint':
+        specifier: ^0.1.2
+        version: 0.1.2
       dotenv-cli:
         specifier: 'catalog:'
         version: 11.0.0
@@ -2073,6 +2073,9 @@ packages:
 
   '@knocklabs/types@0.1.5':
     resolution: {integrity: sha512-Wu/0XsrTKBM2JO2eoazhz6MWpnmm6uCUsozPyg4aeJS7vndtqLPwniW6fzVn1gSrR7upWkWThrv5ZzokZ6BAHQ==}
+
+  '@kyh/oxlint@0.1.2':
+    resolution: {integrity: sha512-jaIXZ+9nE8mk+e7VYSPyGC7akDqD8NG/eQKzQv5Xv7RzPsakf3WCZk8TIgJeC/qLRqOGbcI0gtaDI5blMIZHvg==}
 
   '@kyh/tsconfig@1.2.0':
     resolution: {integrity: sha512-jfpNtU4CKHQr/Hv1NkTJXtOldyJbXx1bWydhVwEjMkWazqv3VKvtJDgv0z1hXLwJpCtY8xuhFNJpd0PtjQc6zg==}
@@ -8108,6 +8111,10 @@ snapshots:
 
   '@knocklabs/types@0.1.5': {}
 
+  '@kyh/oxlint@0.1.2':
+    dependencies:
+      '@oxlint/plugins': 1.78.0
+
   '@kyh/tsconfig@1.2.0': {}
 
   '@legendapp/list@3.3.5(react-dom@19.2.3(react@19.2.3))(react-native@0.86.2(@babel/core@7.29.7)(@react-native/metro-config@0.86.2(@babel/core@7.29.7))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3)':
@@ -8863,9 +8870,7 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.86.2': {}
 
