@@ -82,12 +82,14 @@ const Particle = ({
   const angle = (index / totalParticles) * 360 + 45;
   const radians = (angle * Math.PI) / 180;
 
+  // Both randoms are drawn once per mount — a particle is remounted for every
+  // burst — so a re-render mid-flight cannot retarget the animation.
   // Add randomness to the burst distance (±15%)
-  const randomFactor = 0.85 + Math.random() * 0.3;
+  const [randomFactor] = useState(() => 0.85 + Math.random() * 0.3);
   const burstDistance = BURST_RADIUS * randomFactor;
 
   // Randomize duration between 500-700ms
-  const duration = 500 + Math.random() * 200;
+  const [duration] = useState(() => 500 + Math.random() * 200);
 
   // Calculate the degree shift (13 degrees in radians)
   const degreeShift = (13 * Math.PI) / 180;

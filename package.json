@@ -29,12 +29,12 @@
     "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
   },
   "devDependencies": {
-    "@kyh/oxlint": "^0.1.2",
+    "@kyh/oxlint": "^0.2.0",
     "dotenv-cli": "catalog:",
-    "oxfmt": "^0.63.0",
-    "oxlint": "^1.78.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
     "tsx": "catalog:",
-    "turbo": "^2.10.10",
+    "turbo": "^2.10.11",
     "typescript": "catalog:"
   },
   "engines": {

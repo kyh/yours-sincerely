@@ -184,26 +184,19 @@ export const CardStack = <T extends { id: string }>({
   // this, no card satisfies `index === currentIndex` and the stack goes dead.
   const safeIndex = total > 0 ? wrap(0, total, currentIndex) : 0;
 
-  // The handlers are handed to a memoized Card, so they must not change identity
-  // on every swipe. Read the moving parts from a ref instead of closing over them.
-  const latest = useRef({ total, safeIndex, hasNextPage, onLoadMore });
-  latest.current = { total, safeIndex, hasNextPage, onLoadMore };
-
   const handleSetNextPost = useCallback(() => {
-    const { total, safeIndex, hasNextPage, onLoadMore } = latest.current;
     if (total === 0) return;
     // Unchanged by windowing: this is derived from the full data length, not
     // from how many cards happen to be mounted.
     const postsLeft = total - safeIndex - 1;
     if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
     setCurrentIndex(wrap(0, total, safeIndex + 1));
-  }, [setCurrentIndex]);
+  }, [total, safeIndex, hasNextPage, onLoadMore, setCurrentIndex]);
 
   const handleSetPreviousPost = useCallback(() => {
-    const { total, safeIndex } = latest.current;
     if (total === 0) return;
     setCurrentIndex(wrap(0, total, safeIndex - 1));
-  }, [setCurrentIndex]);
+  }, [total, safeIndex, setCurrentIndex]);
 
   // Same three bindings as before; the aliases are spelled as the literal
   // `event.key` values that @react-hook/hotkey resolved them to.

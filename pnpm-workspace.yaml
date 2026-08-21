@@ -20,7 +20,7 @@ catalog:
   # A version desync between those two produces baffling type errors rather than clean
   # failures — which is exactly why it goes through the catalog.
   drizzle-orm: ^0.45.2
-  lucide-react: ^1.31.0
+  lucide-react: ^1.33.0
   next: ^16.3.1
   next-themes: ^0.4.6
   react: 19.2.8
@@ -28,9 +28,7 @@ catalog:
   superjson: ^2.2.6
   tailwindcss: ^4.3.3
   tsx: ^4.23.12
-  # Held at v6: TS 7 removed the JS Compiler API that Next's type-check step needs,
-  # which breaks `next build`. See CLAUDE.md "Tracked constraints". Do not bump.
-  typescript: ^6.0.3
+  typescript: ^7.0.2
   zod: ^4.4.3
 
 catalogs:
@@ -41,3 +39,5 @@ catalogs:
   expo:
     react: 19.2.3
     react-dom: 19.2.3
+    # Expo SDK 57 blesses TS 6; the rest of the repo is on 7.
+    typescript: ~6.0.3

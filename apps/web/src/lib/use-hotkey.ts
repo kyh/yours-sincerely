@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent } from "react";
 
 /**
  * Replaces `@react-hook/hotkey` (unmaintained since 2022) with ~20 lines.
@@ -25,20 +25,20 @@ const hasModifier = (event: KeyboardEvent) =>
   event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
 export const useHotkeys = (hotkeys: Hotkey[]) => {
-  // Hold the latest bindings in a ref so a re-render with fresh handler
-  // identities does not tear down and re-attach the listener on every keystroke.
-  const hotkeysRef = useRef(hotkeys);
-  hotkeysRef.current = hotkeys;
+  // An Effect Event always sees the latest bindings without becoming a
+  // dependency, so a re-render with fresh handler identities does not tear down
+  // and re-attach the listener.
+  const dispatch = useEffectEvent((event: KeyboardEvent) => {
+    if (event.defaultPrevented || hasModifier(event)) return;
+
+    const pressed = event.key.toLowerCase();
+    for (const [key, handler] of hotkeys) {
+      if (key === pressed) handler();
+    }
+  });
 
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || hasModifier(event)) return;
-
-      const pressed = event.key.toLowerCase();
-      for (const [key, handler] of hotkeysRef.current) {
-        if (key === pressed) handler();
-      }
-    };
+    const onKeyDown = (event: KeyboardEvent) => dispatch(event);
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);

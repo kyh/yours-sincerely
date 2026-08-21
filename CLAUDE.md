@@ -201,13 +201,14 @@ the public store build, which would make deletion safe).
 
 ## Tracked constraints — do not "fix" these
 
-- **TypeScript is held at v6.** TS 7 removed the JS Compiler API that Next.js's type-check
-  step loads, so `next build` fails on TS 7. `pnpm.updateConfig.ignoreDependencies` keeps
-  update sweeps off it. Exit criterion: Next ships non-experimental `tsgo` support. Re-test
-  with `pnpm -F @repo/web build` on a scratch branch before lifting.
+- **TypeScript is split across two catalogs.** The default catalog is on v7; Expo sits on
+  `catalog:expo` (`~6.0.3`), the version Expo SDK 57 blesses. Next 16.3 shells out to the
+  local `tsc` CLI, so `next build` still type-checks on TS 7.
+  `pnpm.updateConfig.ignoreDependencies` keeps update sweeps from overshooting the Expo pin.
 - **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
   bump either without bumping both and running a real device build. Exit criterion:
   NativeWind 5.0.0 stable.
 - **`lightningcss` is pinned** via `pnpm.overrides` in the root `package.json`.
-- **Expo's `react`/`react-dom` are pinned via the `expo` named catalog**, not the default
-  one. Expo must hold an SDK-blessed React, which may diverge from web.
+- **Expo's `react`/`react-dom`/`typescript` are pinned via the `expo` named catalog**, not
+  the default one. Expo must hold SDK-blessed versions, which may diverge from web. Re-run
+  `npx expo install --check` in `apps/expo` after touching any mobile dependency.

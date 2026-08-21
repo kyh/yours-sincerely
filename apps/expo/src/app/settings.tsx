@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ import { queryClient, trpc } from "@/lib/api";
 import { refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { siteConfig } from "@/lib/site-config";
+import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of the web settings page: email (saved on blur), password reset,
@@ -29,13 +30,9 @@ export default function SettingsScreen() {
   const { user } = useWorkspaceUser();
   const releasePushIdentity = useReleasePushIdentity();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useSeededState(user?.email, "");
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isPreparingDelete, setIsPreparingDelete] = useState(false);
-
-  useEffect(() => {
-    if (user?.email !== undefined && user.email !== null) setEmail(user.email);
-  }, [user?.email]);
 
   const updateUser = useMutation(
     trpc.user.updateUser.mutationOptions({

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { GestureDetector } from "react-native-gesture-handler";
 import {
   interpolate,
   Extrapolation,
@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { AnimatedView } from "@/lib/css-interop";
+import { panGesture } from "@/lib/gesture";
 import { clamp01, easeIn, mix, progress, wrap } from "@/lib/motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
@@ -84,24 +85,24 @@ const Card = ({
     animatedScale.set(reduceMotionEnabled ? scale : withSpring(scale, STACK_SPRING));
   }, [opacity, scale, reduceMotionEnabled, animatedOpacity, animatedScale]);
 
-  const pan = Gesture.Pan()
+  const pan = panGesture()
     .enabled(isCurrent)
     .activeOffsetX([-10, 10])
     .onBegin(() => {
-      pressed.value = reduceMotionEnabled ? 1 : withSpring(0.98, STACK_SPRING);
+      pressed.set(reduceMotionEnabled ? 1 : withSpring(0.98, STACK_SPRING));
     })
     .onChange((event) => {
-      x.value = event.translationX;
+      x.set(event.translationX);
     })
     .onFinalize((event) => {
-      pressed.value = reduceMotionEnabled ? 1 : withSpring(1, STACK_SPRING);
+      pressed.set(reduceMotionEnabled ? 1 : withSpring(1, STACK_SPRING));
       const distance = Math.abs(event.translationX);
       const speed = Math.abs(event.velocityX);
       if (distance > minDistance || speed > minSpeed) {
         runOnJS(setNextPost)();
-        x.value = reduceMotionEnabled ? 0 : withSpring(0, ADVANCE_SPRING);
+        x.set(reduceMotionEnabled ? 0 : withSpring(0, ADVANCE_SPRING));
       } else {
-        x.value = reduceMotionEnabled ? 0 : withSpring(0, SNAP_BACK_SPRING);
+        x.set(reduceMotionEnabled ? 0 : withSpring(0, SNAP_BACK_SPRING));
       }
     });
 

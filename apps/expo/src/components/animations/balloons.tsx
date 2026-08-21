@@ -257,9 +257,9 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
   const [balloonBatch, setBalloonBatch] = useState<BalloonConfig[] | null>(null);
   const nextId = useRef(0);
 
-  useEffect(() => {
-    if (reduceMotionEnabled) setBalloonBatch(null);
-  }, [reduceMotionEnabled]);
+  // Turning reduce-motion on mid-flight pulls the balloons immediately; the
+  // batch itself is left to expire on its own timer.
+  const balloons = reduceMotionEnabled ? null : balloonBatch;
 
   const celebrate = useCallback(() => {
     if (reduceMotionEnabled) return;
@@ -311,7 +311,7 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
   return (
     <BalloonsContext.Provider value={contextValue}>
       {children}
-      {balloonBatch !== null && (
+      {balloons !== null && (
         <View
           pointerEvents="none"
           style={{
@@ -324,7 +324,7 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
             overflow: "hidden",
           }}
         >
-          {balloonBatch.map((config) => (
+          {balloons.map((config) => (
             <Balloon key={config.id} config={config} screenHeight={screenHeight} />
           ))}
         </View>

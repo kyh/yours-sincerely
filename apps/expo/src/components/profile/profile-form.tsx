@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TextInput, View } from "react-native";
 import { updateUserInput } from "@repo/contracts/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { trpc } from "@/lib/api";
 import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { useSeededState } from "@/lib/use-seeded-state";
 
 /** Avatar + editable display name (owner only), saved on blur —
     port of the web profile-form. */
@@ -22,14 +23,8 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   const { data } = useQuery(trpc.user.getUser.queryOptions({ userId }));
   const user = data?.user;
 
-  const [displayName, setDisplayName] = useState("Anonymous");
+  const [displayName, setDisplayName] = useSeededState(user?.displayName, "Anonymous");
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user?.displayName !== undefined && user.displayName !== null) {
-      setDisplayName(user.displayName);
-    }
-  }, [user?.displayName]);
 
   const updateUser = useMutation(
     trpc.user.updateUser.mutationOptions({

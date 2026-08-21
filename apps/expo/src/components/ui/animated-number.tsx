@@ -63,12 +63,13 @@ const DigitTile = ({
 
 const Digit = ({
   value,
-  direction,
+  whole,
   height,
   className,
 }: {
   value: number;
-  direction: number;
+  /** The whole number this column belongs to — every column rolls the way it moved. */
+  whole: number;
   height: number;
   className?: string;
 }) => {
@@ -78,8 +79,12 @@ const Digit = ({
   const position = useSharedValue(value);
   const target = useRef(value);
   const previous = useRef(value);
+  const previousWhole = useRef(whole);
 
   useEffect(() => {
+    const direction = whole >= previousWhole.current ? 1 : -1;
+    previousWhole.current = whole;
+
     const from = previous.current;
     if (from === value) return;
     previous.current = value;
@@ -89,7 +94,7 @@ const Digit = ({
     const steps = direction >= 0 ? (value - from + 10) % 10 : -((from - value + 10) % 10);
     target.current += steps;
     position.set(withSpring(target.current, SPRING));
-  }, [value, direction, position]);
+  }, [value, whole, position]);
 
   return (
     <View style={{ height, overflow: "hidden" }}>
@@ -119,14 +124,6 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   const text = String(safe);
   const chars = text.split("");
   const len = chars.length;
-
-  // Roll direction: recomputed each render against the value from the last
-  // committed change (updated in the effect below, after this render reads it).
-  const previous = useRef(safe);
-  const direction = safe >= previous.current ? 1 : -1;
-  useEffect(() => {
-    previous.current = safe;
-  }, [safe]);
 
   // Column height is derived from the rendered text so it tracks the font
   // size the className resolves to. Until measured we render the plain number.
@@ -169,12 +166,7 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
               entering={FadeIn.duration(200)}
               exiting={FadeOut.duration(150)}
             >
-              <Digit
-                value={Number(ch)}
-                direction={direction}
-                height={height}
-                className={className}
-              />
+              <Digit value={Number(ch)} whole={safe} height={height} className={className} />
             </Animated.View>
           );
         })

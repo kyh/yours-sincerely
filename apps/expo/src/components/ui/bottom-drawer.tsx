@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Dimensions, Modal, Pressable, View } from "react-native";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Extrapolation,
   interpolate,
@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AnimatedView } from "@/lib/css-interop";
+import { panGesture } from "@/lib/gesture";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Bottom sheet used where the web app opens a vaul Drawer
@@ -44,8 +45,18 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => {
   const insets = useSafeAreaInsets();
   const reduceMotionEnabled = useReducedMotion();
-  // Modal stays visible through the exit animation, then unmounts.
-  const [visible, setVisible] = useState(false);
+  // Modal stays mounted through the exit animation, then unmounts. Reduce
+  // motion has no exit animation, so there is nothing to stay mounted for.
+  const [closing, setClosing] = useState(false);
+  const [previousOpen, setPreviousOpen] = useState(open);
+  if (previousOpen !== open) {
+    setPreviousOpen(open);
+    setClosing(!open && !reduceMotionEnabled);
+  } else if (closing && reduceMotionEnabled) {
+    setClosing(false);
+  }
+  const visible = open || closing;
+
   const previousSettings = useRef({ open: false, reduceMotionEnabled });
   // translateY: 0 = fully open, sheetHeight = fully dismissed (offscreen).
   const translateY = useSharedValue(SCREEN_HEIGHT);
@@ -64,27 +75,25 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
 
     if (reduceMotionEnabled) {
       translateY.set(open ? 0 : sheetHeight.get());
-      setVisible(open);
       return;
     }
 
     if (open) {
-      // Fresh open starts offscreen; a reopen mid-exit springs back from
-      // wherever the sheet currently is.
-      if (!visible) translateY.set(SCREEN_HEIGHT);
-      setVisible(true);
+      // A sheet parked at its dismissed position is a fresh open and starts
+      // offscreen; a reopen mid-exit springs back from wherever the sheet is.
+      if (translateY.get() >= sheetHeight.get()) translateY.set(SCREEN_HEIGHT);
       translateY.set(withSpring(0, SETTLE_SPRING));
     } else {
       translateY.set(
         withSpring(sheetHeight.get(), SETTLE_SPRING, (finished) => {
-          // Skip hiding when the exit spring was cancelled by a reopen.
-          if (finished === true) runOnJS(setVisible)(false);
+          // Skip unmounting when the exit spring was cancelled by a reopen.
+          if (finished === true) runOnJS(setClosing)(false);
         }),
       );
     }
-  }, [open, reduceMotionEnabled, visible, sheetHeight, translateY]);
+  }, [open, reduceMotionEnabled, sheetHeight, translateY]);
 
-  const pan = Gesture.Pan()
+  const pan = panGesture()
     // Only while open — touches during the exit animation can't drag the
     // sheet back up or cancel a dismissal the user already asked for.
     .enabled(open)
@@ -94,12 +103,12 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     .onStart((event) => {
       // Baseline includes the finger travel already spent reaching the
       // activation threshold, so the first onChange doesn't snap the sheet.
-      dragStartY.value = translateY.value - event.translationY;
+      dragStartY.set(translateY.get() - event.translationY);
     })
     .onChange((event) => {
       // Downward follows the finger 1:1; upward is rubber-banded (vaul-style).
-      const offset = dragStartY.value + event.translationY;
-      translateY.value = offset < 0 ? -Math.sqrt(-offset) : offset;
+      const offset = dragStartY.get() + event.translationY;
+      translateY.set(offset < 0 ? -Math.sqrt(-offset) : offset);
     })
     // onEnd only fires for drags that actually activated, so taps and
     // sub-threshold flicks can never trigger the velocity dismiss.
@@ -109,7 +118,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
         // Flip the prop; the effect above runs the exit spring from here.
         runOnJS(onClose)();
       } else {
-        translateY.value = reduceMotionEnabled ? 0 : withSpring(0, SETTLE_SPRING);
+        translateY.set(reduceMotionEnabled ? 0 : withSpring(0, SETTLE_SPRING));
       }
     });
 

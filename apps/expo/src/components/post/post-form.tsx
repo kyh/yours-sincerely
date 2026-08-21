@@ -13,6 +13,7 @@ import { useBalloons } from "@/components/animations/balloons";
 import { trpc } from "@/lib/api";
 import { clearPostDraft, getPostDraft, setPostDraft } from "@/lib/post-draft";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
+import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of apps/web posts/_components/post-form.tsx. */
@@ -28,7 +29,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
   const { celebrate } = useBalloons();
 
   const [content, setContent] = useState("");
-  const [createdBy, setCreatedBy] = useState(user?.displayName ?? "Anonymous");
+  const [createdBy, setCreatedBy] = useSeededState(user?.displayName, "Anonymous");
   const [error, setError] = useState<string | null>(null);
 
   // Restore draft (feed form only — comment drafts aren't persisted on web either).
@@ -39,12 +40,6 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
       return undefined;
     });
   }, [parentId]);
-
-  useEffect(() => {
-    if (user?.displayName !== undefined && user.displayName !== null) {
-      setCreatedBy(user.displayName);
-    }
-  }, [user?.displayName]);
 
   const createPost = useMutation(
     trpc.post.createPost.mutationOptions({

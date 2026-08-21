@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { View } from "react-native";
-import { useKnockFeed } from "@knocklabs/react-native";
+import { useKnockFeed, useNotificationStore } from "@knocklabs/react-native";
 import { ZoomIn, ZoomOut } from "react-native-reanimated";
 
 import { LottieTabIcon } from "@/components/layout/lottie-tab-icon";
@@ -12,8 +12,8 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 /** Bell tab icon with an unread dot — mirrors the web sidebar badge. */
 const UnreadDot = () => {
   const reduceMotionEnabled = useReducedMotion();
-  const { feedClient, useFeedStore } = useKnockFeed();
-  const unreadCount = useFeedStore((state) => state.metadata.unread_count);
+  const { feedClient } = useKnockFeed();
+  const unreadCount = useNotificationStore(feedClient, (state) => state.metadata.unread_count);
 
   useEffect(() => {
     feedClient.fetch().catch(() => undefined);

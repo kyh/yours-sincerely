@@ -299,10 +299,7 @@ export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
   const reduceMotionEnabled = useReducedMotion();
   const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (reduceMotionEnabled) setIsAnimating(false);
-  }, [reduceMotionEnabled]);
+  const showBurst = isAnimating && !reduceMotionEnabled;
 
   const createMutate = useMutation(
     trpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
@@ -330,9 +327,9 @@ export const LikeButton = ({ post }: Props) => {
       onPress={toggleLike}
     >
       <View>
-        {isAnimating && !reduceMotionEnabled && <CircleAnimation />}
-        {isAnimating && !reduceMotionEnabled && <BurstAnimation />}
-        {isAnimating && !reduceMotionEnabled ? (
+        {showBurst && <CircleAnimation />}
+        {showBurst && <BurstAnimation />}
+        {showBurst ? (
           <AnimatingHeart onComplete={() => setIsAnimating(false)} />
         ) : (
           <Heart color={post.isLiked ? "#ef4444" : colors.mutedForeground} />
