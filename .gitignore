@@ -59,3 +59,4 @@ tooling/prettier/index.js
 .claude/scheduled_tasks.lock
 .claude/worktrees
 .playwright-mcp
+.vscode
