@@ -1,23 +1,23 @@
 import { and, eq } from "@repo/db";
 import { block } from "@repo/db/drizzle-schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../orpc";
 import { createBlockInput, deleteBlockInput } from "./block-schema";
 
-export const blockRouter = createTRPCRouter({
-  createBlock: publicProcedure.input(createBlockInput).mutation(async ({ ctx, input }) => {
-    const userId = await createUserIfNotExists(ctx);
+export const blockRouter = {
+  createBlock: publicProcedure.input(createBlockInput).handler(async ({ context, input }) => {
+    const userId = await createUserIfNotExists(context);
 
     // Blocking yourself would erase you from your own feed. It is never intended.
     if (input.blockingId === userId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot block yourself" });
+      throw new ORPCError("BAD_REQUEST", { message: "You cannot block yourself" });
     }
 
     // Block_pkey is (blockerId, blockingId). Blocking the same author from a
     // second post is a no-op, not a unique-violation 500.
-    const [created] = await ctx.db
+    const [created] = await context.db
       .insert(block)
       .values({
         blockerId: userId,
@@ -30,7 +30,7 @@ export const blockRouter = createTRPCRouter({
     // existed, so read it back rather than handing the client an `undefined`.
     const existing =
       created ??
-      (await ctx.db.query.block.findFirst({
+      (await context.db.query.block.findFirst({
         where: (row, { and, eq }) =>
           and(eq(row.blockerId, userId), eq(row.blockingId, input.blockingId)),
       }));
@@ -41,10 +41,10 @@ export const blockRouter = createTRPCRouter({
   }),
 
   /** The blocker's own inventory of blocks. `protectedProcedure` + a `blockerId`
-      scoped to `ctx.user.id`: the actor never comes from client input. */
-  listBlocks: protectedProcedure.query(async ({ ctx }) => {
-    const blocks = await ctx.db.query.block.findMany({
-      where: (row, { eq }) => eq(row.blockerId, ctx.user.id),
+      scoped to `context.user.id`: the actor never comes from client input. */
+  listBlocks: protectedProcedure.handler(async ({ context }) => {
+    const blocks = await context.db.query.block.findMany({
+      where: (row, { eq }) => eq(row.blockerId, context.user.id),
       with: {
         user_blockingId: {
           columns: { id: true, displayName: true, displayImage: true },
@@ -66,16 +66,16 @@ export const blockRouter = createTRPCRouter({
     };
   }),
 
-  deleteBlock: protectedProcedure.input(deleteBlockInput).mutation(async ({ ctx, input }) => {
-    // SECURITY: the `where` is scoped to ctx.user.id. Without that clause any
+  deleteBlock: protectedProcedure.input(deleteBlockInput).handler(async ({ context, input }) => {
+    // SECURITY: the `where` is scoped to context.user.id. Without that clause any
     // caller could delete anyone else's blocks by guessing ids — an IDOR.
-    const [deleted] = await ctx.db
+    const [deleted] = await context.db
       .delete(block)
-      .where(and(eq(block.blockerId, ctx.user.id), eq(block.blockingId, input.blockingId)))
+      .where(and(eq(block.blockerId, context.user.id), eq(block.blockingId, input.blockingId)))
       .returning();
 
     return {
       block: deleted,
     };
   }),
-});
+};

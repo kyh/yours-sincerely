@@ -32,7 +32,7 @@ import type { CreatePostInput } from "@repo/contracts/post";
 import { balloons } from "@/components/animations/balloons";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 const postFormKey = "post-form";
 
@@ -44,7 +44,6 @@ type PostFormProps = {
 };
 
 export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFormProps) => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
 
@@ -58,9 +57,9 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
   });
 
   const createPost = useMutation(
-    trpc.post.createPost.mutationOptions({
+    orpc.post.createPost.mutationOptions({
       onSuccess: (_data, variables) => {
-        refreshAfterPostCreated(queryClient, trpc).catch(() => undefined);
+        refreshAfterPostCreated(queryClient, orpc).catch(() => undefined);
         localStorage.removeItem(postFormKey);
         form.reset({
           parentId,

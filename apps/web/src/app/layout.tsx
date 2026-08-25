@@ -9,7 +9,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { CapacitorProvider } from "@/components/providers/capacitor-provider";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { siteConfig } from "@/lib/site-config";
-import { TRPCReactProvider } from "@/trpc/react";
+import { ORPCReactProvider } from "@/orpc/react";
 
 import "@knocklabs/react/dist/index.css";
 import "./styles/globals.css";
@@ -112,7 +112,7 @@ const RootLayout = (props: LayoutProps) => {
           <MotionProvider>
             <ThemeProvider>
               <TooltipProvider>
-                <TRPCReactProvider>{props.children}</TRPCReactProvider>
+                <ORPCReactProvider>{props.children}</ORPCReactProvider>
                 <Toaster />
               </TooltipProvider>
             </ThemeProvider>

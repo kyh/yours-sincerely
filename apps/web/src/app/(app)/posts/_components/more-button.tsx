@@ -28,45 +28,44 @@ import type { RouterOutputs } from "@repo/api";
 import { refreshBlocks, refreshPostContent, refreshProfileData } from "@/lib/query-policies";
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 type Props = {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
 };
 
 export const MoreButton = ({ post }: Props) => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
   const isDesktop = useMediaQuery();
 
   const deleteMutation = useMutation(
-    trpc.post.deletePost.mutationOptions({
+    orpc.post.deletePost.mutationOptions({
       onSuccess: async () => {
         // The post leaves the feed and the author's post count changes.
         await Promise.all([
-          refreshPostContent(queryClient, trpc),
-          refreshProfileData(queryClient, trpc),
+          refreshPostContent(queryClient, orpc),
+          refreshProfileData(queryClient, orpc),
         ]);
         toast.success("You have deleted this post");
       },
     }),
   );
   const createMutation = useMutation(
-    trpc.flag.createFlag.mutationOptions({
+    orpc.flag.createFlag.mutationOptions({
       onSuccess: async () => {
         // Enough flags hides the post, so the feed can change.
-        await refreshPostContent(queryClient, trpc);
+        await refreshPostContent(queryClient, orpc);
         toast.success("You have flagged this post, we will be reviewing it shortly");
       },
     }),
   );
   const blockMutation = useMutation(
-    trpc.block.createBlock.mutationOptions({
+    orpc.block.createBlock.mutationOptions({
       onSuccess: async () => {
         // Every post by the blocked author drops out of the feed, and the
         // author joins the viewer's blocked list — refreshBlocks covers both.
-        await refreshBlocks(queryClient, trpc);
+        await refreshBlocks(queryClient, orpc);
         toast.success("You have blocked this user");
       },
     }),

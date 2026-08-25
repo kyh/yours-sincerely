@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { trpc } from "./api";
+import { orpc } from "./api";
 import { finalizeLegacySessionMigration } from "./legacy-session-migration";
 import { deleteSessionCookie, getSessionCookie } from "./session-store";
 
 /** Current user (null when browsing anonymously) — mirrors
     apps/web/src/lib/use-workspace-user.ts. */
 export const useWorkspaceUser = () => {
-  const { data, isPending } = useQuery(trpc.auth.workspace.queryOptions());
+  const { data, isPending } = useQuery(orpc.auth.workspace.queryOptions());
   const user = data?.user ?? null;
 
   // A stored cookie that no longer resolves to a user is dead (account

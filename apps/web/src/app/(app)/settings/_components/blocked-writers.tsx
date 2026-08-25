@@ -9,7 +9,7 @@ import { ProfileAvatar } from "@/components/profile-avatar";
 import { getAvatarUrl } from "@/lib/avatars";
 import { refreshBlocks } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 /**
  * Blocking used to be a one-way door: one tap from a post's "..." menu, permanent,
@@ -25,21 +25,20 @@ import { useTRPC } from "@/trpc/react";
  * not to see them is exactly the thing they asked us not to do.
  */
 export const BlockedWriters = () => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
 
   const blocks = useQuery({
-    ...trpc.block.listBlocks.queryOptions(),
+    ...orpc.block.listBlocks.queryOptions(),
     // listBlocks is a protectedProcedure; an anonymous visitor has nothing to list.
     enabled: !!user,
   });
 
   const deleteBlock = useMutation(
-    trpc.block.deleteBlock.mutationOptions({
+    orpc.block.deleteBlock.mutationOptions({
       onSuccess: async () => {
         // The author's letters return to the feed immediately — no reload.
-        await refreshBlocks(queryClient, trpc);
+        await refreshBlocks(queryClient, orpc);
         toast.success("You will see content from this writer again");
       },
       onError: () => toast.error("Could not unblock this writer. Please try again."),

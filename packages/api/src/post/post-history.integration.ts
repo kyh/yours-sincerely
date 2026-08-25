@@ -6,6 +6,8 @@ import { inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
+import { createRouterClient } from "@orpc/server";
+
 import { appRouter } from "../root-router";
 import { POST_HISTORY_WINDOW_DAYS } from "./post-utils";
 
@@ -56,7 +58,9 @@ const createFixture = async () => {
   ]);
 
   // An unauthenticated caller — this is exactly the caller the endpoint exposes.
-  const caller = appRouter.createCaller({ headers: new Headers(), user: null, db });
+  const caller = createRouterClient(appRouter, {
+    context: { headers: new Headers(), user: null, db },
+  });
 
   const cleanup = async () => {
     await db.delete(like).where(inArray(like.postId, postIds));

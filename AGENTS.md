@@ -1,7 +1,7 @@
 # AGENTS.md
 
 **Yours Sincerely** is an anonymous love-letter app — letters written in disappearing ink.
-One typed stack (tRPC · Drizzle · Postgres) behind a Next.js web app (`apps/web`) and an
+One typed stack (oRPC · Drizzle · Postgres) behind a Next.js web app (`apps/web`) and an
 Expo native app (`apps/expo`). This is the tool-agnostic guide for coding agents: it is
 meant to be **run**, not just read. Claude also reads `CLAUDE.md` — that file holds the
 architecture decisions you must not reverse; this one holds the workflow.
@@ -75,9 +75,10 @@ agent-browser find text 'Sign Up' click
 The session comes back as a signed `Set-Cookie` and the browser keeps it. `/auth/sign-in`
 takes an optional `?next=<same-origin path>` to land somewhere other than `/`.
 
-The HTTP API is tRPC with a **superjson-transformed** body at `/api/trpc/<router>.<procedure>`
-(e.g. `auth.signInWithPassword`) — there is no REST `/api/auth/*` endpoint, so a plain
-`curl -d '{"email":…}'` will not sign you in. Drive the UI instead.
+The HTTP API is oRPC at `/api/orpc/<router>/<procedure>` (e.g. `auth/signInWithPassword`),
+POST-only, and every request needs the `x-csrf-token` header the link plugin sends — a bare
+`curl -d '{"email":…}'` gets a 403, and there is no REST `/api/auth/*` endpoint. Drive the
+UI instead.
 
 ## Verify a change end-to-end
 
@@ -131,7 +132,7 @@ is as far as an agent gets; a runtime check needs a human with a device.
 - **Every mutation calls an invalidation policy.** There is no global `MutationCache` and no
   default `mutations.onSuccess` — TanStack merges mutation options by spread, so a default
   would be silently replaced by any per-mutation handler. Add a `useMutation`, add its policy:
-  `@/lib/query-policies` (both web and expo). Mutations go through tRPC,
+  `@/lib/query-policies` (both web and expo). Mutations go through oRPC,
   never a Next Server Action.
 - **Shared domain logic lives in `packages/contracts`**, used by both web and expo — not
   duplicated per platform.
@@ -147,7 +148,7 @@ is as far as an agent gets; a runtime check needs a human with a device.
 ## Map
 
 - `apps/web` (Next.js) · `apps/expo` (React Native) · `apps/mobile` (legacy Capacitor)
-- `packages/api` — tRPC routers, sessions, `env.ts` · `packages/contracts` — shared zod
+- `packages/api` — oRPC routers, sessions, `env.ts` · `packages/contracts` — shared zod
   schemas and pure rules · `packages/db` — Drizzle schema + `sql/` · `packages/ui` — shadcn
 - `CLAUDE.md` — architecture decisions and tracked constraints (read before changing anything
   structural) · `README.md` — human-facing setup · `docs/` — phone testing, release inputs,

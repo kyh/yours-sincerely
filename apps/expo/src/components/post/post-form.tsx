@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { useBalloons } from "@/components/animations/balloons";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { clearPostDraft, getPostDraft, setPostDraft } from "@/lib/post-draft";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useSeededState } from "@/lib/use-seeded-state";
@@ -42,7 +42,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
   }, [parentId]);
 
   const createPost = useMutation(
-    trpc.post.createPost.mutationOptions({
+    orpc.post.createPost.mutationOptions({
       onSuccess: () => {
         if (parentId === undefined) clearPostDraft().catch(() => undefined);
         setContent("");

@@ -6,6 +6,8 @@ import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 
+import { createRouterClient } from "@orpc/server";
+
 import { appRouter } from "../root-router";
 import { authenticateSessionValue } from "./session";
 import {
@@ -42,7 +44,7 @@ const mintSessionCookie = (userId: string, sessionEpoch: number, iat = NOW_SECON
 const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
   signSession(Buffer.from(JSON.stringify({ user: userId, iat })).toString("base64"), SESSION_KEY);
 
-/** The lookup `createTRPCContext` performs — same columns, same exclusions. */
+/** The lookup `createORPCContext` performs — same columns, same exclusions. */
 const findDbUser = async (userId: string) => {
   const found = await db.query.user.findFirst({
     where: (row, { eq: equals }) => equals(row.id, userId),
@@ -93,7 +95,7 @@ const createFixture = async () => {
 
   return {
     userId,
-    caller: appRouter.createCaller({ headers: new Headers(), user: actor, db }),
+    caller: createRouterClient(appRouter, { context: { headers: new Headers(), user: actor, db } }),
     cleanup,
   };
 };
@@ -203,7 +205,7 @@ integrationTest("sliding renewal cannot resurrect a revoked session", async () =
     await runWithoutCookieScope(() => fixture.caller.auth.signOutEverywhere());
     assert.equal(await readSessionEpoch(fixture.userId), 1);
 
-    // ...but the epoch gate runs BEFORE renewal in `createTRPCContext`, so the
+    // ...but the epoch gate runs BEFORE renewal in `createORPCContext`, so the
     // request is rejected and the cookie is never re-signed.
     assert.equal(
       await authenticates(staleCookie),

@@ -1,32 +1,35 @@
 import { cache } from "react";
 import { headers } from "next/headers";
-import { appRouter, createTRPCContext } from "@repo/api";
+import { appRouter, createORPCContext } from "@repo/api";
+import { createRouterClient } from "@orpc/server";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { FetchInfiniteQueryOptions, FetchQueryOptions, QueryKey } from "@tanstack/react-query";
-import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
-import type { AppRouter } from "@repo/api";
 import { createQueryClient } from "./query-client";
 
 /**
- * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
- * handling a tRPC call from a React Server Component.
+ * Wraps `createORPCContext` and provides the required context when a React
+ * Server Component calls a procedure.
  */
 const createContext = cache(async () => {
   const heads = new Headers(await headers());
 
-  return createTRPCContext({
+  return createORPCContext({
     headers: heads,
   });
 });
 
 const getQueryClient = cache(createQueryClient);
 
-export const trpc = createTRPCOptionsProxy<AppRouter>({
-  router: appRouter,
-  ctx: createContext,
-  queryClient: getQueryClient,
-});
+/**
+ * Calls procedures in-process, with no HTTP round trip — so SSR never asks the
+ * server to fetch from itself. Use directly for server-only rendering; use
+ * `orpc` + `prefetch` when a client component will take the query over.
+ */
+export const caller = createRouterClient(appRouter, { context: createContext });
+
+export const orpc = createTanstackQueryUtils(caller);
 
 export const HydrateClient = (props: { children: React.ReactNode }) => {
   const queryClient = getQueryClient();
@@ -50,5 +53,3 @@ export function prefetchInfinite<
   const queryClient = getQueryClient();
   void queryClient.prefetchInfiniteQuery(queryOptions);
 }
-
-export const caller = appRouter.createCaller(createContext);

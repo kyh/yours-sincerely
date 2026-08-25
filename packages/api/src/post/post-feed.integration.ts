@@ -6,6 +6,8 @@ import { inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
+import { createRouterClient } from "@orpc/server";
+
 import { appRouter } from "../root-router";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
@@ -49,7 +51,9 @@ const createFixture = async () => {
   });
   assert.ok(reader);
 
-  const caller = appRouter.createCaller({ headers: new Headers(), user: reader, db });
+  const caller = createRouterClient(appRouter, {
+    context: { headers: new Headers(), user: reader, db },
+  });
 
   const cleanup = async () => {
     await db.delete(like).where(inArray(like.postId, postIds));

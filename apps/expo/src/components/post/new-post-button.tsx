@@ -5,7 +5,7 @@ import { Plus } from "lucide-react-native";
 
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { PostForm } from "./post-form";
 
 /** FAB + bottom-sheet post form — port of the web NewPostButton (drawer mode). */
@@ -13,7 +13,7 @@ export const NewPostButton = () => {
   const { width } = useWindowDimensions();
   const colors = useThemeColors();
   const [open, setOpen] = useState(false);
-  const { data: placeholder } = useQuery(trpc.prompt.getRandomPrompt.queryOptions());
+  const { data: placeholder } = useQuery(orpc.prompt.getRandomPrompt.queryOptions());
 
   return (
     <>

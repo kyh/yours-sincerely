@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 
 /** Port of the web auth-form — email + password sign in/up. The session
     cookie from the response is captured by the fetch wrapper. */
@@ -39,10 +39,10 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
     router.replace(next);
   };
   const signIn = useMutation(
-    trpc.auth.signInWithPassword.mutationOptions({ onSuccess, onError: showMutationError }),
+    orpc.auth.signInWithPassword.mutationOptions({ onSuccess, onError: showMutationError }),
   );
   const signUp = useMutation(
-    trpc.auth.signUp.mutationOptions({ onSuccess, onError: showMutationError }),
+    orpc.auth.signUp.mutationOptions({ onSuccess, onError: showMutationError }),
   );
 
   const handleSubmit = () => {

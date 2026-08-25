@@ -8,7 +8,7 @@ import type { FeedPost } from "@/lib/post-types";
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import {
   refreshBlocks,
   refreshPostContent,
@@ -48,7 +48,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const deleteMutation = useMutation(
-    trpc.post.deletePost.mutationOptions({
+    orpc.post.deletePost.mutationOptions({
       onSuccess: () => {
         toast.success("You have deleted this post");
         refreshPostContent().catch(() => undefined);
@@ -59,7 +59,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     }),
   );
   const flagMutation = useMutation(
-    trpc.flag.createFlag.mutationOptions({
+    orpc.flag.createFlag.mutationOptions({
       onSuccess: () => {
         toast.success("You have flagged this post, we will be reviewing it shortly");
         refreshPostContent().catch(() => undefined);
@@ -68,7 +68,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     }),
   );
   const blockMutation = useMutation(
-    trpc.block.createBlock.mutationOptions({
+    orpc.block.createBlock.mutationOptions({
       onSuccess: () => {
         toast.success("You have blocked this user");
         // The blocked author's letters leave the feed AND the author joins the
