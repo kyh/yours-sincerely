@@ -15,6 +15,7 @@ import {
   resolveCookieSecret,
   resolveSessionUser,
   SESSION_PURPOSE,
+  sessionCookieOptions,
   signSession,
 } from "./session-core";
 
@@ -51,10 +52,6 @@ const PUSH_CLEANUP_VERIFY_SECRETS = buildVerifySecrets({
   purpose: PUSH_CLEANUP_PURPOSE,
 });
 
-// 400 days is the max lifetime browsers honor for a cookie; sliding renewal
-// (renewSessionIfStale) resets it on every visit, so an active web user never
-// expires, and the native app persists the value in SecureStore indefinitely.
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // 400 days (browser cap)
 const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7; // renew if older than 7 days
 
 export const createPushCleanupCapability = (userId: string) => {
@@ -93,15 +90,7 @@ export const setSession = async (userId: string, sessionEpoch: number) => {
   const payload = encodeSessionPayload(userId, Math.floor(Date.now() / 1000), sessionEpoch);
   const signedCookie = signSession(payload, SESSION_KEY);
 
-  cookieStore.set(SESSION_COOKIE_NAME, signedCookie, {
-    httpOnly: true,
-    // Every non-local environment is HTTPS. A session cookie sent in the clear
-    // from a staging box is interceptable, and the cookie IS the identity.
-    secure: !IS_LOCAL_ENV,
-    sameSite: "lax",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    path: "/",
-  });
+  cookieStore.set(SESSION_COOKIE_NAME, signedCookie, sessionCookieOptions(IS_LOCAL_ENV));
 };
 
 /**

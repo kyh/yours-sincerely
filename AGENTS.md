@@ -76,9 +76,9 @@ The session comes back as a signed `Set-Cookie` and the browser keeps it. `/auth
 takes an optional `?next=<same-origin path>` to land somewhere other than `/`.
 
 The HTTP API is oRPC at `/api/orpc/<router>/<procedure>` (e.g. `auth/signInWithPassword`),
-POST-only, and every request needs the `x-csrf-token` header the link plugin sends — a bare
-`curl -d '{"email":…}'` gets a 403, and there is no REST `/api/auth/*` endpoint. Drive the
-UI instead.
+POST-only — a GET gets a 404 — and the body is the RPC envelope `{"json":{…}}`, not a bare
+payload. There is no REST `/api/auth/*` endpoint, and a `curl` carries no session cookie, so
+anything behind a login answers `UNAUTHORIZED`. Drive the UI instead.
 
 ## Verify a change end-to-end
 

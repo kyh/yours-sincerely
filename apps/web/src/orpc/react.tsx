@@ -2,7 +2,6 @@
 
 import { createORPCClient, onError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
-import { SimpleCsrfProtectionLinkPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 
@@ -23,8 +22,10 @@ const getQueryClient = () => {
 };
 
 const link = new RPCLink({
-  url: () => `${getBaseUrl()}/api/orpc`,
-  plugins: [new SimpleCsrfProtectionLinkPlugin()],
+  // Resolved per call, not at module load: this module is evaluated during SSR
+  // too, where `window` is absent and the deploy URL comes from the environment.
+  origin: () => getBaseUrl(),
+  url: "/api/orpc",
   headers: () => ({ "x-orpc-source": "nextjs-react" }),
   interceptors: [
     onError((error) => {

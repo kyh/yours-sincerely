@@ -1,46 +1,28 @@
 import type { NextRequest } from "next/server";
 import { appRouter, createORPCContext } from "@repo/api";
-import { onError, ORPCError } from "@orpc/server";
+import { COMMON_ERROR_STATUS_MAP, onError, ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { SimpleCsrfProtectionHandlerPlugin } from "@orpc/server/plugins";
 
-// No CORS headers: every client reaches this route same-origin. The web app is
-// served from it, the legacy Capacitor app is a remote WebView of the
-// production origin (it runs this very bundle), and React Native does not
-// enforce CORS.
+// No CORS headers, and none belong here: every client reaches this route
+// same-origin. The web app is served from it, the legacy Capacitor app is a
+// remote WebView of the production origin (it runs this very bundle), and
+// React Native does not enforce CORS.
 //
-// SimpleCsrfProtection requires an `x-csrf-token` header, which the paired link
-// plugin sends and an HTML form cannot set. The session cookie is SameSite=lax
-// (see packages/api/src/auth/session.ts), so a cross-origin form POST cannot
-// carry it anyway — the plugin is defense-in-depth, not load-bearing. Adding
-// permissive CORS headers here would still be the wrong move: paired with
-// Allow-Credentials they would reopen the cross-origin path the plugin closes.
-
-// Codes the routers throw as ordinary control flow, not as faults: every
-// anonymous hit on a `protectedProcedure` is an UNAUTHORIZED, every failed
-// sign-in is one too, and a duplicate signup email is a CONFLICT. The transport
-// plugins produce the last two (header-less CSRF probes, GETs on POST-only
-// procedures). Logging them buries the errors that actually mean something.
-//
-// INTERNAL_SERVER_ERROR is deliberately NOT here: oRPC never serializes an
-// unmodeled thrown error to the client (it becomes a generic
-// INTERNAL_SERVER_ERROR), so this log is the only place the real cause — in
-// practice a raw Postgres exception — survives.
-const EXPECTED_ERROR_CODES = new Set([
-  "UNAUTHORIZED",
-  "FORBIDDEN",
-  "NOT_FOUND",
-  "BAD_REQUEST",
-  "CONFLICT",
-  "CSRF_TOKEN_MISMATCH",
-  "METHOD_NOT_SUPPORTED",
-]);
-
+// Cross-site protection is the session cookie's SameSite=lax (see
+// `sessionCookieOptions` in packages/api/src/auth/session-core.ts): a forged
+// cross-site POST reaches the handler carrying no session and does nothing.
+// CORS headers paired with Allow-Credentials would hand a cross-origin page an
+// authenticated path in and undo that. GET — the one method a cookie-bearing
+// navigation can reach — is refused by the handler's default `allowMethods`.
 const handler = new RPCHandler(appRouter, {
-  plugins: [new SimpleCsrfProtectionHandlerPlugin()],
-  interceptors: [
+  clientInterceptors: [
     onError((error) => {
-      if (error instanceof ORPCError && EXPECTED_ERROR_CODES.has(error.code)) return;
+      // An ORPCError is a router answering deliberately: an anonymous hit on a
+      // `protectedProcedure`, a failed sign-in, a duplicate signup email.
+      // Everything else is a fault, and this log is the only place its cause —
+      // in practice a raw Postgres exception — survives, because oRPC hands the
+      // client a generic INTERNAL_SERVER_ERROR in its place.
+      if (error instanceof ORPCError) return;
       console.error(">>> oRPC Error", error);
     }),
   ],
@@ -60,7 +42,10 @@ const handleRequest = async (req: NextRequest) => {
     console.error(">>> oRPC Error", error);
     const failure = new ORPCError("INTERNAL_SERVER_ERROR");
 
-    return Response.json({ json: failure.toJSON() }, { status: failure.status });
+    return Response.json(
+      { json: failure.toJSON() },
+      { status: COMMON_ERROR_STATUS_MAP[failure.code] },
+    );
   }
 };
 
