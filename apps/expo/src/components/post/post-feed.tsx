@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { orpc } from "@/lib/api";
-
-type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 import { CardStack } from "./card-stack";
 import { PostContent } from "./post-content";
+
+type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
 /** Mirrors apps/web posts/_components/post-feed.tsx. */
 type Props = {
