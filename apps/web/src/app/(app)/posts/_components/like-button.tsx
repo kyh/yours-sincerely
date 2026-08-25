@@ -155,8 +155,8 @@ export const LikeButton = ({ post }: Props) => {
   // only when the like is what mints the anonymous user.
   const refreshAfterLike = () =>
     Promise.all([
-      refreshPostContent(queryClient, orpc),
-      refreshWorkspaceIdentityIfAnonymous(queryClient, orpc),
+      refreshPostContent(queryClient),
+      refreshWorkspaceIdentityIfAnonymous(queryClient),
     ]);
 
   const createMutate = useMutation(

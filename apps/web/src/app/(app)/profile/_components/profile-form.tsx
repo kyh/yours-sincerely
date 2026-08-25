@@ -29,10 +29,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
-        Promise.all([
-          refreshProfileData(queryClient, orpc),
-          refreshWorkspaceIdentity(queryClient, orpc),
-        ]),
+        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 

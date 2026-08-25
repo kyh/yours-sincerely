@@ -1,11 +1,3 @@
-/**
- * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
- * 1. You want to modify request context (see Part 1)
- * 2. You want to create a new middleware or type of procedure (see Part 3)
- *
- * tl;dr - this is where all the oRPC server stuff is created and plugged in.
- * The pieces you will need to use are documented accordingly near the end
- */
 import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
 import { db } from "@repo/db/drizzle-client";
 import { ORPCError, os } from "@orpc/server";
@@ -14,15 +6,12 @@ import { getCookie } from "@orpc/server/helpers";
 import { authenticateSessionValue, renewSessionIfStale } from "./auth/session";
 
 /**
- * 1. CONTEXT
- *
- * This section defines the "contexts" that are available in the backend API.
- *
- * These allow you to access things when processing a request, like the database, the session, etc.
+ * Builds the per-request context: the database, plus the caller's user when a
+ * session cookie resolves to one.
  *
  * Callers supply headers rather than having them read here, so the same code
- * serves the route handler, the in-process RSC router client, and tests, which
- * have no shared request object.
+ * serves the route handler and the in-process RSC router client, which have no
+ * shared request object.
  *
  * @see https://orpc.dev/docs/context
  */
@@ -41,11 +30,7 @@ export const createORPCContext = async (opts: { headers: Headers }) => {
     await renewSessionIfStale(sessionValue, user.sessionEpoch);
   }
 
-  return {
-    headers: opts.headers,
-    user,
-    db,
-  };
+  return { user, db };
 };
 
 /** Excludes only `passwordHash`, so `sessionEpoch` comes through. */
@@ -60,14 +45,6 @@ const findDbUser = async (userId: string) => {
 
 export type ORPCContext = Awaited<ReturnType<typeof createORPCContext>>;
 
-/**
- * 2. INITIALIZATION
- *
- * This is where the oRPC api is initialized, connecting the context. Errors
- * thrown as plain `Error` (a raw Postgres exception, say) are never serialized
- * to the client — oRPC turns them into a generic INTERNAL_SERVER_ERROR — so
- * the route handler's log is the only place the real cause survives.
- */
 const o = os.$context<ORPCContext>();
 
 /**

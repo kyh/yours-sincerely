@@ -32,7 +32,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   // destination against the stale `auth.workspace`, so the user lands on the
   // page still looking signed-out.
   const enterApp = async () => {
-    await refreshWorkspaceIdentity(queryClient, orpc);
+    await refreshWorkspaceIdentity(queryClient);
     router.replace(nextPath);
   };
 
@@ -210,7 +210,7 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
       onSuccess: async () => {
         // A successful reset re-admits the user with a fresh session, so the
         // identity changes. Await it before navigating, as with sign-in.
-        await refreshWorkspaceIdentity(queryClient, orpc);
+        await refreshWorkspaceIdentity(queryClient);
         toast.success("Password set successfully!");
         router.push("/");
       },

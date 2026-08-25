@@ -6,9 +6,7 @@ import { and, eq, inArray, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, flag, like, post, user } from "@repo/db/drizzle-schema";
 
-import { createRouterClient } from "@orpc/server";
-
-import { appRouter } from "../root-router";
+import { createCaller } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -96,12 +94,8 @@ const createFixture = async () => {
   assert.ok(owner);
   assert.ok(flagger);
 
-  const ownerCaller = createRouterClient(appRouter, {
-    context: { headers: new Headers(), user: owner, db },
-  });
-  const flaggerCaller = createRouterClient(appRouter, {
-    context: { headers: new Headers(), user: flagger, db },
-  });
+  const ownerCaller = createCaller(owner);
+  const flaggerCaller = createCaller(flagger);
 
   const cleanup = async () => {
     const ids = await db
@@ -161,9 +155,7 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
       columns: { passwordHash: false },
     });
     assert.ok(fresh);
-    const freshCaller = createRouterClient(appRouter, {
-      context: { headers: new Headers(), user: fresh, db },
-    });
+    const freshCaller = createCaller(fresh);
 
     await freshCaller.flag.createFlag({ postId: fixture.rootId });
 

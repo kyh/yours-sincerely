@@ -43,10 +43,7 @@ export const MoreButton = ({ post }: Props) => {
     orpc.post.deletePost.mutationOptions({
       onSuccess: async () => {
         // The post leaves the feed and the author's post count changes.
-        await Promise.all([
-          refreshPostContent(queryClient, orpc),
-          refreshProfileData(queryClient, orpc),
-        ]);
+        await Promise.all([refreshPostContent(queryClient), refreshProfileData(queryClient)]);
         toast.success("You have deleted this post");
       },
     }),
@@ -55,7 +52,7 @@ export const MoreButton = ({ post }: Props) => {
     orpc.flag.createFlag.mutationOptions({
       onSuccess: async () => {
         // Enough flags hides the post, so the feed can change.
-        await refreshPostContent(queryClient, orpc);
+        await refreshPostContent(queryClient);
         toast.success("You have flagged this post, we will be reviewing it shortly");
       },
     }),
@@ -65,7 +62,7 @@ export const MoreButton = ({ post }: Props) => {
       onSuccess: async () => {
         // Every post by the blocked author drops out of the feed, and the
         // author joins the viewer's blocked list — refreshBlocks covers both.
-        await refreshBlocks(queryClient, orpc);
+        await refreshBlocks(queryClient);
         toast.success("You have blocked this user");
       },
     }),

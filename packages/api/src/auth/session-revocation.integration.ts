@@ -6,9 +6,7 @@ import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 
-import { createRouterClient } from "@orpc/server";
-
-import { appRouter } from "../root-router";
+import { createCaller } from "../test-utils";
 import { authenticateSessionValue } from "./session";
 import {
   deriveKey,
@@ -95,7 +93,7 @@ const createFixture = async () => {
 
   return {
     userId,
-    caller: createRouterClient(appRouter, { context: { headers: new Headers(), user: actor, db } }),
+    caller: createCaller(actor),
     cleanup,
   };
 };

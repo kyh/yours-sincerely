@@ -59,7 +59,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
       onSuccess: (_data, variables) => {
-        refreshAfterPostCreated(queryClient, orpc).catch(() => undefined);
+        refreshAfterPostCreated(queryClient).catch(() => undefined);
         localStorage.removeItem(postFormKey);
         form.reset({
           parentId,

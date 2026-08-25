@@ -136,9 +136,6 @@ importers:
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.15.0
-      '@orpc/server':
-        specifier: 'catalog:'
-        version: 1.15.0(ws@8.21.3)
       '@orpc/tanstack-query':
         specifier: 'catalog:'
         version: 1.15.0(@orpc/client@1.15.0)(@tanstack/query-core@5.101.4)
@@ -263,6 +260,9 @@ importers:
       '@kyh/tsconfig':
         specifier: 'catalog:'
         version: 1.2.0
+      '@orpc/server':
+        specifier: 'catalog:'
+        version: 1.15.0(ws@8.21.3)
       '@tailwindcss/postcss':
         specifier: 'catalog:'
         version: 4.3.3
@@ -9066,7 +9066,9 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.86.2': {}
 

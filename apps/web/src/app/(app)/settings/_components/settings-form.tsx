@@ -40,10 +40,7 @@ export const SettingsForm = () => {
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
-        Promise.all([
-          refreshProfileData(queryClient, orpc),
-          refreshWorkspaceIdentity(queryClient, orpc),
-        ]),
+        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 
@@ -57,10 +54,7 @@ export const SettingsForm = () => {
         // Identity, and every identity-scoped field on the feed (isLiked, block
         // filtering), are now stale. Refresh before navigating so the home page
         // does not render as the signed-out user's predecessor.
-        await Promise.all([
-          refreshWorkspaceIdentity(queryClient, orpc),
-          refreshPostContent(queryClient, orpc),
-        ]);
+        await Promise.all([refreshWorkspaceIdentity(queryClient), refreshPostContent(queryClient)]);
         router.replace("/");
       },
       onError: (error) => toast.error(error.message),

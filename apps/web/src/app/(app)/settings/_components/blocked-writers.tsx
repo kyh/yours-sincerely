@@ -38,7 +38,7 @@ export const BlockedWriters = () => {
     orpc.block.deleteBlock.mutationOptions({
       onSuccess: async () => {
         // The author's letters return to the feed immediately — no reload.
-        await refreshBlocks(queryClient, orpc);
+        await refreshBlocks(queryClient);
         toast.success("You will see content from this writer again");
       },
       onError: () => toast.error("Could not unblock this writer. Please try again."),

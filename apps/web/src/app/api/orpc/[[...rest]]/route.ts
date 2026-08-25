@@ -47,12 +47,21 @@ const handler = new RPCHandler(appRouter, {
 });
 
 const handleRequest = async (req: NextRequest) => {
-  const { response } = await handler.handle(req, {
-    prefix: "/api/orpc",
-    context: await createORPCContext({ headers: req.headers }),
-  });
+  try {
+    const context = await createORPCContext({ headers: req.headers });
+    const { response } = await handler.handle(req, { prefix: "/api/orpc", context });
 
-  return response ?? new Response("Not found", { status: 404 });
+    return response ?? new Response("Not found", { status: 404 });
+  } catch (error) {
+    // Context construction runs before `handle`, so the interceptors above
+    // never see a failing session lookup. Log it on the same path and answer
+    // in the RPC error shape the client can parse — a bare Next 500 reaches
+    // the link as an unparseable body instead.
+    console.error(">>> oRPC Error", error);
+    const failure = new ORPCError("INTERNAL_SERVER_ERROR");
+
+    return Response.json({ json: failure.toJSON() }, { status: failure.status });
+  }
 };
 
 export { handleRequest as GET, handleRequest as POST };

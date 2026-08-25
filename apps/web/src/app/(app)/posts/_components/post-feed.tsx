@@ -4,34 +4,23 @@ import { Spinner } from "@repo/ui/components/spinner";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
-import type { RouterOutputs } from "@repo/api";
+import type { FeedFilters } from "@/lib/feed-query";
 import type { FeedLayout } from "@/lib/feed-layout-actions";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
+import { feedInfiniteArgs } from "@/lib/feed-query";
 import { orpc } from "@/orpc/react";
-
-type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
 type Props = {
   layout?: FeedLayout;
-  filters?: {
-    userId?: string;
-    parentId?: string;
-    limit?: number;
-  };
+  filters?: FeedFilters;
 };
 
-const EMPTY_FILTERS: NonNullable<Props["filters"]> = {};
+const EMPTY_FILTERS: FeedFilters = {};
 
 export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) => {
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
-    // The key embeds the input at `initialPageParam`, so this must stay
-    // identical to the home page's `prefetchInfinite` or hydration misses.
-    orpc.post.getFeed.infiniteOptions({
-      input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
-      initialPageParam: undefined,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }),
+    orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(filters)),
   );
 
   const [ref] = useInfiniteScroll({
