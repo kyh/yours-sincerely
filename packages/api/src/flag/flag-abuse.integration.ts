@@ -6,7 +6,7 @@ import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
-import { appRouter } from "../root-router";
+import { callerFor, createCaller } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -17,15 +17,6 @@ after(async () => {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type Flagger = { id: string; kind: "fresh" | "registered" | "aged" };
-
-const callerFor = async (userId: string) => {
-  const row = await db.query.user.findFirst({
-    where: (candidate, { eq }) => eq(candidate.id, userId),
-    columns: { passwordHash: false },
-  });
-  assert.ok(row);
-  return appRouter.createCaller({ headers: new Headers(), user: row, db });
-};
 
 /** A post by one author, plus a pool of flaggers of a given kind.
  *
@@ -77,7 +68,7 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
   }
 
   // A reader with no session at all — the caller the permalink actually serves.
-  const reader = appRouter.createCaller({ headers: new Headers(), user: null, db });
+  const reader = createCaller(null);
 
   const cleanup = async () => {
     const userIds = [authorId, ...flaggers.map((flagger) => flagger.id)];

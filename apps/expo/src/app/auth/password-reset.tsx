@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 
 export default function PasswordResetScreen() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function PasswordResetScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const requestReset = useMutation(
-    trpc.auth.requestPasswordReset.mutationOptions({
+    orpc.auth.requestPasswordReset.mutationOptions({
       onSuccess: () => toast.success("Password reset email sent"),
       onError: (mutationError) => toast.error(mutationError.message),
     }),

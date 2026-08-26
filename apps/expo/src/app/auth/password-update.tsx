@@ -10,7 +10,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 
 /** Mirrors the web SetPasswordForm's client-side confirm-password check;
     the token/password shape sent to the mutation still comes from
@@ -42,7 +42,7 @@ export default function PasswordUpdateScreen() {
   }, [token, router]);
 
   const setPasswordMutation = useMutation(
-    trpc.auth.setPassword.mutationOptions({
+    orpc.auth.setPassword.mutationOptions({
       onSuccess: () => {
         toast.success("Password updated");
         queryClient.clear();

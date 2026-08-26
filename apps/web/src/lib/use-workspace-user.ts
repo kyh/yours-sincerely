@@ -2,11 +2,10 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 export const useWorkspace = () => {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.auth.workspace.queryOptions());
+  const { data } = useSuspenseQuery(orpc.auth.workspace.queryOptions());
   return data;
 };
 

@@ -1,12 +1,12 @@
-import type { TRPCContext } from "../trpc";
+import type { ORPCContext } from "../orpc";
 import { and, desc, eq, inArray, lt, notExists, or, sql } from "@repo/db";
 import { block, feed, flag, like, post } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { getKnockClient } from "../knock";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../orpc";
 import {
   convertDbPostToFeedPost,
   createPostInput,
@@ -19,11 +19,11 @@ import { collectDescendantPostIds, getPostHistoryFloor, isFlaggedIntoHiding } fr
 
 /** Which of these posts the viewer has liked. One indexed lookup over the ids on
     the page, instead of loading every `Like` row of every post to find out. */
-const findMyLikes = async (ctx: TRPCContext, postIds: string[]): Promise<Set<string>> => {
-  const viewerId = ctx.user?.id;
+const findMyLikes = async (context: ORPCContext, postIds: string[]): Promise<Set<string>> => {
+  const viewerId = context.user?.id;
   if (!viewerId || postIds.length === 0) return new Set();
 
-  const rows = await ctx.db.query.like.findMany({
+  const rows = await context.db.query.like.findMany({
     where: (row, { and, eq, inArray }) =>
       and(eq(row.userId, viewerId), inArray(row.postId, postIds)),
     columns: { postId: true },
@@ -32,17 +32,17 @@ const findMyLikes = async (ctx: TRPCContext, postIds: string[]): Promise<Set<str
   return new Set(rows.map((row) => row.postId));
 };
 
-export const postRouter = createTRPCRouter({
-  getFeed: publicProcedure.input(getFeedInput).query(async ({ ctx, input }) => {
+export const postRouter = {
+  getFeed: publicProcedure.input(getFeedInput).handler(async ({ context, input }) => {
     const limit = input.limit ?? 5;
-    const viewerId = ctx.user?.id;
+    const viewerId = context.user?.id;
 
     // Blocked authors are excluded inside the query as a correlated NOT EXISTS,
     // rather than fetching the viewer's whole block list on a separate round-trip
     // and passing it back down as a literal array.
     const notBlocked = viewerId
       ? notExists(
-          ctx.db
+          context.db
             .select({ blocked: sql`1` })
             .from(block)
             .where(and(eq(block.blockerId, viewerId), eq(block.blockingId, feed.userId))),
@@ -52,7 +52,7 @@ export const postRouter = createTRPCRouter({
     // One extra row is the sentinel that tells us a next page exists. It is
     // sliced off BEFORE anything else is derived from the page — deriving first
     // and popping later is what made every page return `limit + 1` posts.
-    const feedPosts = await ctx.db
+    const feedPosts = await context.db
       .select()
       .from(feed)
       .where(
@@ -74,7 +74,7 @@ export const postRouter = createTRPCRouter({
     const pageItems = hasMore ? feedPosts.slice(0, limit) : feedPosts;
 
     const myLikes = await findMyLikes(
-      ctx,
+      context,
       pageItems.map((item) => item.id),
     );
 
@@ -99,8 +99,8 @@ export const postRouter = createTRPCRouter({
       only dates. It is public and takes an arbitrary `userId`, so it must not
       hand out post IDs: that turned any author into an enumerable archive of
       every letter they ever wrote, permalink by permalink. Dates only. */
-  getPostsByUser: publicProcedure.input(getPostsByUserInput).query(async ({ ctx, input }) => {
-    const posts = await ctx.db.query.post.findMany({
+  getPostsByUser: publicProcedure.input(getPostsByUserInput).handler(async ({ context, input }) => {
+    const posts = await context.db.query.post.findMany({
       where: (post, { and, eq, gte }) =>
         and(eq(post.userId, input.userId), gte(post.createdAt, getPostHistoryFloor())),
       orderBy: (post, { desc }) => desc(post.createdAt),
@@ -112,15 +112,15 @@ export const postRouter = createTRPCRouter({
     return { posts };
   }),
 
-  getPost: publicProcedure.input(getPostInput).query(async ({ ctx, input }) => {
-    const blockedUsers = await ctx.db.query.block.findMany({
-      where: (block, { eq }) => eq(block.blockerId, ctx.user?.id ?? ""),
+  getPost: publicProcedure.input(getPostInput).handler(async ({ context, input }) => {
+    const blockedUsers = await context.db.query.block.findMany({
+      where: (block, { eq }) => eq(block.blockerId, context.user?.id ?? ""),
     });
     const blockingUserIds = new Set(blockedUsers.map((user) => user.blockingId));
 
     // No `likes`/`flags` relations are loaded any more: the counters on Post
     // answer both questions, and `isLiked` is one small lookup below.
-    const dbPost = await ctx.db.query.post.findFirst({
+    const dbPost = await context.db.query.post.findFirst({
       where: (post, { eq }) => eq(post.id, input.postId),
       with: { posts: true },
     });
@@ -137,14 +137,11 @@ export const postRouter = createTRPCRouter({
       blockingUserIds.has(item.userId) || isFlaggedIntoHiding(item.flagCount);
 
     if (!dbPost || isHidden(dbPost)) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Post not found",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Post not found" });
     }
 
     const comments = dbPost.posts.filter((comment) => !isHidden(comment));
-    const myLikes = await findMyLikes(ctx, [dbPost.id, ...comments.map((row) => row.id)]);
+    const myLikes = await findMyLikes(context, [dbPost.id, ...comments.map((row) => row.id)]);
 
     return {
       post: {
@@ -165,10 +162,10 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  createPost: publicProcedure.input(createPostInput).mutation(async ({ ctx, input }) => {
-    const userId = await createUserIfNotExists(ctx, input.createdBy);
+  createPost: publicProcedure.input(createPostInput).handler(async ({ context, input }) => {
+    const userId = await createUserIfNotExists(context, input.createdBy);
 
-    const [created] = await ctx.db
+    const [created] = await context.db
       .insert(post)
       .values({
         ...getDefaultValues(),
@@ -181,7 +178,7 @@ export const postRouter = createTRPCRouter({
 
     const knock = getKnockClient();
     if (created?.parentId && knock !== null) {
-      const parentPost = await ctx.db.query.post.findFirst({
+      const parentPost = await context.db.query.post.findFirst({
         where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
         with: {
           user: true,
@@ -214,17 +211,18 @@ export const postRouter = createTRPCRouter({
     };
   }),
 
-  deletePost: protectedProcedure.input(deletePostInput).mutation(async ({ ctx, input }) => {
-    const ownedPost = await ctx.db.query.post.findFirst({
-      where: (post, { and, eq }) => and(eq(post.id, input.postId), eq(post.userId, ctx.user.id)),
+  deletePost: protectedProcedure.input(deletePostInput).handler(async ({ context, input }) => {
+    const ownedPost = await context.db.query.post.findFirst({
+      where: (post, { and, eq }) =>
+        and(eq(post.id, input.postId), eq(post.userId, context.user.id)),
       columns: { id: true },
     });
 
     if (ownedPost === undefined) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
+      throw new ORPCError("NOT_FOUND", { message: "Post not found" });
     }
 
-    const deleted = await ctx.db.transaction(async (tx) => {
+    const deleted = await context.db.transaction(async (tx) => {
       const postIds = await collectDescendantPostIds(tx, [input.postId]);
 
       await tx.delete(like).where(inArray(like.postId, postIds));
@@ -240,4 +238,4 @@ export const postRouter = createTRPCRouter({
       post: deleted,
     };
   }),
-});
+};

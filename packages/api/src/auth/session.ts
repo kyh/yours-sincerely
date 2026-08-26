@@ -15,6 +15,7 @@ import {
   resolveCookieSecret,
   resolveSessionUser,
   SESSION_PURPOSE,
+  sessionCookieOptions,
   signSession,
 } from "./session-core";
 
@@ -51,10 +52,6 @@ const PUSH_CLEANUP_VERIFY_SECRETS = buildVerifySecrets({
   purpose: PUSH_CLEANUP_PURPOSE,
 });
 
-// 400 days is the max lifetime browsers honor for a cookie; sliding renewal
-// (renewSessionIfStale) resets it on every visit, so an active web user never
-// expires, and the native app persists the value in SecureStore indefinitely.
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // 400 days (browser cap)
 const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7; // renew if older than 7 days
 
 export const createPushCleanupCapability = (userId: string) => {
@@ -65,21 +62,12 @@ export const verifyPushCleanupCapability = (capability: string) =>
   parsePushCleanupCapability(capability, PUSH_CLEANUP_VERIFY_SECRETS);
 
 /**
- * Verify the session cookie and resolve it to a user, rejecting revoked
+ * Verify a session cookie value and resolve it to a user, rejecting revoked
  * sessions. `findUser` is the lookup the request context already performs, so
- * the epoch check costs no extra query.
- */
-export const getSessionUser = async <TUser extends { sessionEpoch: number }>(
-  findUser: (userId: string) => Promise<TUser | null>,
-): Promise<TUser | null> => {
-  const cookieStore = await cookies();
-  return authenticateSessionValue(cookieStore.get(SESSION_COOKIE_NAME)?.value, findUser);
-};
-
-/**
- * `getSessionUser` without the cookie store. Production reaches it through
- * `getSessionUser`; `session-revocation.integration.ts` calls it directly with
- * the real database, so the tested path and the shipped path cannot diverge.
+ * the epoch check costs no extra query. `createORPCContext` calls it with the
+ * cookie read from the request headers; `session-revocation.integration.ts`
+ * calls it with the real database, so the tested path and the shipped path
+ * cannot diverge.
  */
 export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>(
   sessionValue: string | null | undefined,
@@ -102,15 +90,7 @@ export const setSession = async (userId: string, sessionEpoch: number) => {
   const payload = encodeSessionPayload(userId, Math.floor(Date.now() / 1000), sessionEpoch);
   const signedCookie = signSession(payload, SESSION_KEY);
 
-  cookieStore.set(SESSION_COOKIE_NAME, signedCookie, {
-    httpOnly: true,
-    // Every non-local environment is HTTPS. A session cookie sent in the clear
-    // from a staging box is interceptable, and the cookie IS the identity.
-    secure: !IS_LOCAL_ENV,
-    sameSite: "lax",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    path: "/",
-  });
+  cookieStore.set(SESSION_COOKIE_NAME, signedCookie, sessionCookieOptions(IS_LOCAL_ENV));
 };
 
 /**
@@ -123,15 +103,16 @@ export const setSession = async (userId: string, sessionEpoch: number) => {
  * `sessionEpoch` MUST be the user's live value from the database — the caller
  * has already loaded the user row. The epoch inside the old cookie is
  * deliberately never read here: re-signing with it would let a revoked session
- * renew itself back into validity. (The caller also only reaches this after the
- * epoch gate in `getSessionUser` has passed, so a revoked session never gets
- * this far in the first place.)
+ * renew itself back into validity. (The caller also only reaches this after
+ * the epoch gate in `authenticateSessionValue` has passed, so a revoked
+ * session never gets this far in the first place.)
  */
-export const renewSessionIfStale = async (sessionEpoch: number) => {
-  const cookieStore = await cookies();
-
+export const renewSessionIfStale = async (
+  sessionValue: string | undefined,
+  sessionEpoch: number,
+) => {
   const { decision, payload } = decideRenewal({
-    sessionValue: cookieStore.get(SESSION_COOKIE_NAME)?.value,
+    sessionValue,
     verifySecrets: SESSION_VERIFY_SECRETS,
     activeSecret: SESSION_KEY,
     nowSeconds: Math.floor(Date.now() / 1000),

@@ -1,5 +1,17 @@
+import { RPCSerializer } from "@orpc/client";
 import { defaultShouldDehydrateQuery, QueryClient } from "@tanstack/react-query";
-import SuperJSON from "superjson";
+
+// oRPC's own serializer, so dehydrated data round-trips every type the RPC
+// protocol supports (Date, Map, Set, BigInt, URL, RegExp) — plain JSON would
+// hand the client a string where the server had a Date.
+//
+// Query KEYS get TanStack's default hash, which is exact only while every
+// procedure input stays plain JSON — it encodes a Map or Set as "{}", so two
+// distinct inputs share one cache entry, and it throws on a BigInt. Today they
+// are all plain (ids, a limit, and a feed cursor whose `createdAt` is a
+// string). Put a rich value in an input and keys have to hash through this
+// serializer too, with the meta sorted so property order cannot split them.
+const serializer = new RPCSerializer();
 
 export const createQueryClient = () => {
   const queryClient = new QueryClient({
@@ -15,7 +27,9 @@ export const createQueryClient = () => {
       // nothing for every mutation that defines its own. Each mutation calls an
       // explicit policy from `@/lib/query-policies` instead.
       dehydrate: {
-        serializeData: SuperJSON.serialize,
+        // FormData cannot ride the hydration payload into the browser, so blobs
+        // stay inline in the JSON.
+        serializeData: (data) => serializer.serialize(data, { useFormDataForBlobFields: false }),
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) || query.state.status === "pending",
         shouldRedactErrors: () => {
@@ -28,7 +42,7 @@ export const createQueryClient = () => {
         },
       },
       hydrate: {
-        deserializeData: SuperJSON.deserialize,
+        deserializeData: (data) => serializer.deserialize(data),
       },
     },
   });

@@ -14,7 +14,7 @@ import { themes, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { deleteSessionCookie } from "@/lib/session-store";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 import { refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { siteConfig } from "@/lib/site-config";
@@ -35,7 +35,7 @@ export default function SettingsScreen() {
   const [isPreparingDelete, setIsPreparingDelete] = useState(false);
 
   const updateUser = useMutation(
-    trpc.user.updateUser.mutationOptions({
+    orpc.user.updateUser.mutationOptions({
       onSuccess: () => {
         toast.success("Settings successfully updated");
         refreshWorkspaceIdentity().catch(() => undefined);
@@ -44,13 +44,13 @@ export default function SettingsScreen() {
     }),
   );
   const requestPasswordReset = useMutation(
-    trpc.auth.requestPasswordReset.mutationOptions({
+    orpc.auth.requestPasswordReset.mutationOptions({
       onSuccess: () => toast.success("Password reset email sent"),
       onError: () => toast.error("Could not send password reset email. Please try again."),
     }),
   );
   const deleteAccount = useMutation(
-    trpc.user.deleteUser.mutationOptions({
+    orpc.user.deleteUser.mutationOptions({
       onSuccess: async () => {
         await deleteSessionCookie();
         queryClient.clear();
@@ -72,7 +72,7 @@ export default function SettingsScreen() {
           onPress: () => {
             setIsPreparingDelete(true);
             releasePushIdentity()
-              .then(() => deleteAccount.mutate())
+              .then(() => deleteAccount.mutate(undefined))
               .catch(() => toast.error("Could not disconnect notifications. Please try again."))
               .finally(() => setIsPreparingDelete(false));
           },

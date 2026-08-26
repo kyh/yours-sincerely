@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/too
 import { useQuery } from "@tanstack/react-query";
 
 import { getAvatarUrl } from "@/lib/avatars";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 import { ActivityStats } from "./activity-stats";
 
 type Props = {
@@ -15,12 +15,7 @@ type Props = {
 };
 
 const ProfileTooltipContent = ({ userId, displayName }: Props) => {
-  const trpc = useTRPC();
-  const { data, isLoading } = useQuery(
-    trpc.user.getUserStats.queryOptions({
-      userId: userId,
-    }),
-  );
+  const { data, isLoading } = useQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
 
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">

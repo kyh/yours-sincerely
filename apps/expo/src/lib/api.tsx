@@ -1,9 +1,10 @@
 import { AppState, Platform } from "react-native";
+import { createORPCClient, onError } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { focusManager, QueryClient } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
-import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import superjson from "superjson";
 
+import type { RouterClient } from "@orpc/server";
 import type { AppRouter } from "@repo/api";
 
 import { fetchWithSession } from "./api-fetch";
@@ -25,31 +26,28 @@ if (Platform.OS !== "web") {
   });
 }
 
-/**
- * Typesafe tRPC option builders — use with TanStack Query hooks:
- * `useQuery(trpc.post.getFeed.queryOptions({ limit: 5 }))`.
- *
- * NOTE: keep `httpBatchLink` (not the streaming variant) — session
- * `Set-Cookie` headers are only visible on buffered responses.
- */
-export const trpc = createTRPCOptionsProxy<AppRouter>({
-  client: createTRPCClient({
-    links: [
-      loggerLink({
-        enabled: (opts) => __DEV__ || (opts.direction === "down" && opts.result instanceof Error),
-        colorMode: "ansi",
-      }),
-      httpBatchLink({
-        transformer: superjson,
-        url: `${getBaseUrl()}/api/trpc`,
-        fetch: fetchWithSession,
-        headers() {
-          return { "x-trpc-source": "expo" };
-        },
-      }),
-    ],
-  }),
-  queryClient,
+// RPCLink buffers each response, so the session `Set-Cookie` header stays
+// visible to `fetchWithSession`'s cookie jar — a streaming transport would
+// deliver the body before the wrapper could read it.
+const link = new RPCLink({
+  // No SSR on React Native, so the origin is stable for the process.
+  origin: getBaseUrl(),
+  url: "/api/orpc",
+  fetch: fetchWithSession,
+  headers: () => ({ "x-orpc-source": "expo" }),
+  interceptors: [
+    onError((error) => {
+      if (__DEV__) console.error(error);
+    }),
+  ],
 });
+
+const client: RouterClient<AppRouter> = createORPCClient(link);
+
+/**
+ * Typesafe query/mutation option builders — use with TanStack Query hooks:
+ * `useQuery(orpc.post.getFeed.queryOptions({ input: { limit: 5 } }))`.
+ */
+export const orpc = createTanstackQueryUtils(client);
 
 export type { RouterOutputs } from "@repo/api";

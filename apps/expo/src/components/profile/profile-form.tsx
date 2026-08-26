@@ -7,7 +7,7 @@ import { toast } from "sonner-native";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { useSeededState } from "@/lib/use-seeded-state";
 
@@ -20,14 +20,14 @@ type Props = {
 
 export const ProfileForm = ({ userId, readonly = false }: Props) => {
   const colors = useThemeColors();
-  const { data } = useQuery(trpc.user.getUser.queryOptions({ userId }));
+  const { data } = useQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
   const user = data?.user;
 
   const [displayName, setDisplayName] = useSeededState(user?.displayName, "Anonymous");
   const [error, setError] = useState<string | null>(null);
 
   const updateUser = useMutation(
-    trpc.user.updateUser.mutationOptions({
+    orpc.user.updateUser.mutationOptions({
       onSuccess: () => {
         toast.success("Profile successfully updated");
         refreshProfileData().catch(() => undefined);

@@ -5,7 +5,7 @@ import { toast } from "sonner-native";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { refreshBlocks } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
@@ -23,13 +23,13 @@ export const BlockedWriters = () => {
   const { user } = useWorkspaceUser();
 
   const blocks = useQuery({
-    ...trpc.block.listBlocks.queryOptions(),
+    ...orpc.block.listBlocks.queryOptions(),
     // listBlocks is a protectedProcedure; an anonymous visitor has nothing to list.
     enabled: user !== null,
   });
 
   const deleteBlock = useMutation(
-    trpc.block.deleteBlock.mutationOptions({
+    orpc.block.deleteBlock.mutationOptions({
       onSuccess: async () => {
         // The writer's letters return to the feed immediately — no restart.
         await refreshBlocks();

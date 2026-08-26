@@ -57,6 +57,33 @@ export const resolveCookieSecret = (env: SecretEnv): string => {
   return configured;
 };
 
+// 400 days is the max lifetime browsers honor for a cookie; sliding renewal
+// (`renewSessionIfStale`) resets it on every visit, so an active web user never
+// expires, and the native app persists the value in SecureStore indefinitely.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
+
+/**
+ * Attributes for the session cookie.
+ *
+ * `sameSite: "lax"` is half the cross-site defense for `/api/orpc`: the RPC
+ * handler carries no CSRF token, so a forged cross-SITE POST is harmless only
+ * because the browser withholds this cookie from it. Widening it to `"none"`
+ * silently un-guards every mutation — `security-contracts.test.ts` pins it.
+ * `SameSite` keys on site, not origin, so it withholds nothing from a same-site
+ * cross-ORIGIN page; the route's own origin check covers that half.
+ *
+ * `secure` follows the environment: every non-local deployment is HTTPS, and a
+ * session cookie sent in the clear is interceptable — the cookie IS the identity.
+ */
+export const sessionCookieOptions = (isLocal: boolean) =>
+  ({
+    httpOnly: true,
+    secure: !isLocal,
+    sameSite: "lax",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    path: "/",
+  }) as const;
+
 /** The two things the root secret is allowed to sign. Keys never cross purposes. */
 export const SESSION_PURPOSE = "session";
 export const PUSH_CLEANUP_PURPOSE = "push-cleanup";

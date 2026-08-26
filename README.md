@@ -27,7 +27,7 @@ apps
 
 packages
   ├─ api
-  |  └─ tRPC router definitions and session/auth
+  |  └─ oRPC router definitions and session/auth
   ├─ contracts
   |  └─ Shared domain: zod schemas and pure rules used by both web and expo
   ├─ db
@@ -89,7 +89,7 @@ This project uses the following libraries and services:
 
 - Framework - [Next.js](https://nextjs.org/)
 - Native - [Expo](https://expo.dev/) / React Native
-- API - [tRPC](https://trpc.io)
+- API - [oRPC](https://orpc.dev)
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [Postgres (Supabase)](https://supabase.com) + [Drizzle](https://orm.drizzle.team)
 - Hosting - [Vercel](https://vercel.com)

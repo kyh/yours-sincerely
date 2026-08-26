@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { HydrateClient, prefetch, orpc } from "@/orpc/server";
 import { PostPage } from "./post-page";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ type Props = {
 const Page = async (props: Props) => {
   const params = await props.params;
 
-  prefetch(trpc.post.getPost.queryOptions({ postId: params.postId }));
+  prefetch(orpc.post.getPost.queryOptions({ input: { postId: params.postId } }));
 
   return (
     <HydrateClient>

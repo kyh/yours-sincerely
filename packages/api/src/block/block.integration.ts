@@ -6,22 +6,15 @@ import { and, eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, post, user } from "@repo/db/drizzle-schema";
 
-import { appRouter } from "../root-router";
+import { ORPCError } from "@orpc/server";
+
+import { callerFor, createCaller } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
 after(async () => {
   await db.$client.end();
 });
-
-const callerFor = async (userId: string) => {
-  const actor = await db.query.user.findFirst({
-    where: (row, { eq: equals }) => equals(row.id, userId),
-    columns: { passwordHash: false },
-  });
-  assert.ok(actor);
-  return appRouter.createCaller({ headers: new Headers(), user: actor, db });
-};
 
 /** Two blockers (A, B) and two authors (C, D). C has a post, so the feed can be
     checked before and after an unblock. */
@@ -93,8 +86,11 @@ integrationTest("listBlocks returns only the caller's own blocks", async () => {
 });
 
 integrationTest("listBlocks requires an authenticated caller", async () => {
-  const anonymous = appRouter.createCaller({ headers: new Headers(), user: null, db });
-  await assert.rejects(anonymous.block.listBlocks(), /UNAUTHORIZED/);
+  const anonymous = createCaller(null);
+  await assert.rejects(
+    anonymous.block.listBlocks(),
+    (error) => error instanceof ORPCError && error.code === "UNAUTHORIZED",
+  );
 });
 
 integrationTest("deleteBlock cannot delete another user's block", async () => {
@@ -121,8 +117,11 @@ integrationTest("deleteBlock cannot delete another user's block", async () => {
 });
 
 integrationTest("deleteBlock requires an authenticated caller", async () => {
-  const anonymous = appRouter.createCaller({ headers: new Headers(), user: null, db });
-  await assert.rejects(anonymous.block.deleteBlock({ blockingId: randomUUID() }), /UNAUTHORIZED/);
+  const anonymous = createCaller(null);
+  await assert.rejects(
+    anonymous.block.deleteBlock({ blockingId: randomUUID() }),
+    (error) => error instanceof ORPCError && error.code === "UNAUTHORIZED",
+  );
 });
 
 integrationTest("unblocking makes the author's posts reappear in the feed", async () => {

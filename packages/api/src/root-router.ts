@@ -4,10 +4,9 @@ import { flagRouter } from "./flag/flag-router";
 import { likeRouter } from "./like/like-router";
 import { postRouter } from "./post/post-router";
 import { promptRouter } from "./prompt/prompt-router";
-import { createTRPCRouter } from "./trpc";
 import { userRouter } from "./user/user-router";
 
-export const appRouter = createTRPCRouter({
+export const appRouter = {
   auth: authRouter,
   block: blockRouter,
   flag: flagRouter,
@@ -15,7 +14,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   prompt: promptRouter,
   user: userRouter,
-});
+};
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

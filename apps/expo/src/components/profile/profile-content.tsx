@@ -12,7 +12,7 @@ import {
   createPostsHeatmap,
   FULL_DAY_LABELS,
 } from "@repo/contracts/calendar";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { cn } from "@/lib/utils";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
@@ -50,9 +50,9 @@ export const ProfileContent = ({ userId }: Props) => {
   const { resolvedTheme } = useTheme();
   const { user: currentUser } = useWorkspaceUser();
 
-  const userQuery = useQuery(trpc.user.getUser.queryOptions({ userId }));
-  const statsQuery = useQuery(trpc.user.getUserStats.queryOptions({ userId }));
-  const postsQuery = useQuery(trpc.post.getPostsByUser.queryOptions({ userId }));
+  const userQuery = useQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
+  const statsQuery = useQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
+  const postsQuery = useQuery(orpc.post.getPostsByUser.queryOptions({ input: { userId } }));
 
   if (userQuery.isPending || statsQuery.isPending || postsQuery.isPending) {
     return (
