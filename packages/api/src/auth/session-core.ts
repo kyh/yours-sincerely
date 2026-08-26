@@ -65,10 +65,12 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
 /**
  * Attributes for the session cookie.
  *
- * `sameSite: "lax"` is the whole cross-site defense for `/api/orpc`: the RPC
- * handler carries no CSRF token, so a forged cross-site POST is harmless only
+ * `sameSite: "lax"` is half the cross-site defense for `/api/orpc`: the RPC
+ * handler carries no CSRF token, so a forged cross-SITE POST is harmless only
  * because the browser withholds this cookie from it. Widening it to `"none"`
  * silently un-guards every mutation — `security-contracts.test.ts` pins it.
+ * `SameSite` keys on site, not origin, so it withholds nothing from a same-site
+ * cross-ORIGIN page; the route's own origin check covers that half.
  *
  * `secure` follows the environment: every non-local deployment is HTTPS, and a
  * session cookie sent in the clear is interceptable — the cookie IS the identity.

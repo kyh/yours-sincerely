@@ -8,12 +8,13 @@ import { RPCHandler } from "@orpc/server/fetch";
 // remote WebView of the production origin (it runs this very bundle), and
 // React Native does not enforce CORS.
 //
-// Cross-site protection is the session cookie's SameSite=lax (see
-// `sessionCookieOptions` in packages/api/src/auth/session-core.ts): a forged
-// cross-site POST reaches the handler carrying no session and does nothing.
-// CORS headers paired with Allow-Credentials would hand a cross-origin page an
-// authenticated path in and undo that. GET — the one method a cookie-bearing
-// navigation can reach — is refused by the handler's default `allowMethods`.
+// The session cookie's SameSite=lax (see `sessionCookieOptions` in
+// packages/api/src/auth/session-core.ts) covers the cross-SITE half: a forged
+// POST from another site reaches the handler carrying no session and does
+// nothing. `isCrossOrigin` below covers the rest. CORS headers paired with
+// Allow-Credentials would hand a cross-origin page an authenticated path in and
+// undo both. GET — the one method a cookie-bearing navigation can reach — is
+// refused by the handler's default `allowMethods`.
 const handler = new RPCHandler(appRouter, {
   clientInterceptors: [
     onError((error) => {
@@ -28,7 +29,35 @@ const handler = new RPCHandler(appRouter, {
   ],
 });
 
+/**
+ * `SameSite` keys on *site*, not origin, so it stops none of the origins that
+ * share this registrable domain: a sibling `*.yourssincerely.org` host, or
+ * another port in development, is cross-ORIGIN but same-SITE, and the browser
+ * attaches the session cookie to a plain `<form method=POST>` from there. That
+ * form needs no preflight, so CORS never gets a say. Browsers set `Origin` on
+ * every POST and page script cannot forge it, so an `Origin` that isn't ours is
+ * the signal.
+ *
+ * Absent `Origin` passes: that is the Expo app, whose React Native `fetch`
+ * sends none and attaches the session from its own store
+ * (`apps/expo/src/lib/api-fetch.ts`), so there is no ambient cookie for another
+ * page to ride.
+ *
+ * Checked at the route boundary rather than in a handler plugin, so it runs
+ * once on the real request rather than on sub-requests a client authored, were
+ * batching ever added.
+ */
+const isCrossOrigin = (req: NextRequest) => {
+  const origin = req.headers.get("origin");
+
+  return origin !== null && origin !== new URL(req.url).origin;
+};
+
 const handleRequest = async (req: NextRequest) => {
+  if (isCrossOrigin(req)) {
+    return new Response("Cross-origin request blocked.", { status: 403 });
+  }
+
   try {
     const context = await createORPCContext({ headers: req.headers });
     const { response } = await handler.handle(req, { prefix: "/api/orpc", context });

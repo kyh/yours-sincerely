@@ -77,8 +77,10 @@ takes an optional `?next=<same-origin path>` to land somewhere other than `/`.
 
 The HTTP API is oRPC at `/api/orpc/<router>/<procedure>` (e.g. `auth/signInWithPassword`),
 POST-only — a GET gets a 404 — and the body is the RPC envelope `{"json":{…}}`, not a bare
-payload. There is no REST `/api/auth/*` endpoint, and a `curl` carries no session cookie, so
-anything behind a login answers `UNAUTHORIZED`. Drive the UI instead.
+payload. An `Origin` header naming anything but the server's own origin gets a 403; `curl`
+and React Native send none, so neither is affected. There is no REST `/api/auth/*` endpoint,
+and a `curl` carries no session cookie, so anything behind a login answers `UNAUTHORIZED`.
+Drive the UI instead.
 
 ## Verify a change end-to-end
 
