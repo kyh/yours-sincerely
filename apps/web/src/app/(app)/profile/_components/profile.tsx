@@ -6,7 +6,7 @@ import { useMediaQuery } from "@repo/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
@@ -40,22 +40,17 @@ type ProfileProps = {
 };
 
 export const Profile = ({ userId }: ProfileProps) => {
-  const trpc = useTRPC();
   const { resolvedTheme } = useTheme();
   const currentUser = useWorkspaceUser();
   const {
     data: { user },
-  } = useSuspenseQuery(trpc.user.getUser.queryOptions({ userId }));
+  } = useSuspenseQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
   const {
     data: { userStats },
-  } = useSuspenseQuery(
-    trpc.user.getUserStats.queryOptions({
-      userId,
-    }),
-  );
+  } = useSuspenseQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
   const {
     data: { posts },
-  } = useSuspenseQuery(trpc.post.getPostsByUser.queryOptions({ userId }));
+  } = useSuspenseQuery(orpc.post.getPostsByUser.queryOptions({ input: { userId } }));
   const isDesktop = useMediaQuery();
 
   if (!user) {

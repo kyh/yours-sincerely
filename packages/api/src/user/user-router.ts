@@ -14,16 +14,16 @@ import {
 import { clearSession } from "../auth/session";
 import { getKnockClient } from "../knock";
 import { collectDescendantPostIds } from "../post/post-utils";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../orpc";
 import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
 
 /** `public."getUserStats"(text)` — see `sql/040-user-stats.sql`. Quoted because the name is
     camelCase; `sql.raw` would invite injection, an identifier cannot. */
 const getUserStatsFn = sql.identifier("getUserStats");
 
-export const userRouter = createTRPCRouter({
-  getUser: publicProcedure.input(getUserInput).query(async ({ ctx, input }) => {
-    const response = await ctx.db.query.user.findFirst({
+export const userRouter = {
+  getUser: publicProcedure.input(getUserInput).handler(async ({ context, input }) => {
+    const response = await context.db.query.user.findFirst({
       where: (user, { eq }) => eq(user.id, input.userId),
       columns: {
         id: true,
@@ -44,8 +44,8 @@ export const userRouter = createTRPCRouter({
    *  to the one asked for — the predicate could not be pushed down. It now calls
    *  the `getUserStats(text)` function, which pushes the userId into the CTEs.
    *  Same columns, same numbers (characterized against the view for all users). */
-  getUserStats: publicProcedure.input(getUserStatsInput).query(async ({ ctx, input }) => {
-    const rows = await ctx.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
+  getUserStats: publicProcedure.input(getUserStatsInput).handler(async ({ context, input }) => {
+    const rows = await context.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
 
     const parsed = userStatsRow.safeParse(rows[0]);
 
@@ -56,7 +56,7 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  updateUser: protectedProcedure.input(updateUserInput).mutation(async ({ ctx, input }) => {
+  updateUser: protectedProcedure.input(updateUserInput).handler(async ({ context, input }) => {
     const updates: Partial<typeof user.$inferInsert> = {};
 
     if (input.email !== undefined) {
@@ -67,10 +67,10 @@ export const userRouter = createTRPCRouter({
       updates.displayName = input.displayName;
     }
 
-    const [response] = await ctx.db
+    const [response] = await context.db
       .update(user)
       .set(updates)
-      .where(eq(user.id, ctx.user.id))
+      .where(eq(user.id, context.user.id))
       .returning({
         id: user.id,
         email: user.email,
@@ -83,8 +83,8 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  deleteUser: protectedProcedure.mutation(async ({ ctx }) => {
-    const userId = ctx.user.id;
+  deleteUser: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.user.id;
     const knock = getKnockClient();
 
     if (knock !== null) {
@@ -95,7 +95,7 @@ export const userRouter = createTRPCRouter({
       }
     }
 
-    await ctx.db.transaction(async (tx) => {
+    await context.db.transaction(async (tx) => {
       const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
       const userPostIds = userPosts.map((row) => row.id);
 
@@ -125,4 +125,4 @@ export const userRouter = createTRPCRouter({
 
     return { user: null };
   }),
-});
+};

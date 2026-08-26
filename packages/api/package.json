@@ -15,15 +15,14 @@
   },
   "dependencies": {
     "@knocklabs/node": "^1.34.0",
+    "@orpc/server": "catalog:",
     "@repo/contracts": "workspace:^",
     "@repo/db": "workspace:^",
-    "@trpc/server": "catalog:",
     "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
     "drizzle-orm": "catalog:",
     "next": "catalog:",
     "resend": "^6.21.0",
-    "superjson": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import type { UpdateUserInput } from "@repo/contracts/user";
 import { getAvatarUrl } from "@/lib/avatars";
 import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 type ProfileFormProps = {
   userId: string;
@@ -20,20 +20,16 @@ type ProfileFormProps = {
 };
 
 export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
   const {
     data: { user },
-  } = useSuspenseQuery(trpc.user.getUser.queryOptions({ userId }));
+  } = useSuspenseQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
 
   // The display name shows on the profile and in the workspace identity.
   const updateUser = useMutation(
-    trpc.user.updateUser.mutationOptions({
+    orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
-        Promise.all([
-          refreshProfileData(queryClient, trpc),
-          refreshWorkspaceIdentity(queryClient, trpc),
-        ]),
+        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 

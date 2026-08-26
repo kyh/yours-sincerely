@@ -2,15 +2,15 @@ import { randomBytes } from "crypto";
 import { NotFoundError } from "@knocklabs/node";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 import { z } from "zod";
 
-import type { TRPCContext } from "../trpc";
+import type { ORPCContext } from "../orpc";
 import { env } from "../env";
 import { createKnockUserToken, getKnockClient } from "../knock";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../orpc";
 import {
   requestPasswordResetInput,
   setPasswordInput,
@@ -49,26 +49,23 @@ const sanitizeUser = <T extends { passwordHash?: string | null }>(
  * The bump invalidates all cookies already issued; the caller decides whether
  * to hand the current device a fresh one.
  */
-const revokeUserSessions = async (ctx: TRPCContext, userId: string) => {
-  const [updated] = await ctx.db
+const revokeUserSessions = async (context: ORPCContext, userId: string) => {
+  const [updated] = await context.db
     .update(user)
     .set({ sessionEpoch: sql`${user.sessionEpoch} + 1` })
     .where(eq(user.id, userId))
     .returning({ sessionEpoch: user.sessionEpoch });
 
   if (!updated) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Unable to revoke sessions",
-    });
+    throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Unable to revoke sessions" });
   }
 
   return updated.sessionEpoch;
 };
 
 /** A reset link must be single-use, and issuing a new one must burn the old ones. */
-const invalidateResetTokens = async (ctx: TRPCContext, userId: string) =>
-  ctx.db
+const invalidateResetTokens = async (context: ORPCContext, userId: string) =>
+  context.db
     .update(tokenTable)
     .set({ usedAt: new Date().toISOString() })
     .where(
@@ -79,38 +76,33 @@ const invalidateResetTokens = async (ctx: TRPCContext, userId: string) =>
       ),
     );
 
-export const authRouter = createTRPCRouter({
-  workspace: publicProcedure.query(async ({ ctx }) => {
+export const authRouter = {
+  workspace: publicProcedure.handler(async ({ context }) => {
     return {
-      user: ctx.user,
-      knockUserToken: ctx.user === null ? null : await createKnockUserToken(ctx.user.id),
-      pushCleanupCapability: ctx.user === null ? null : createPushCleanupCapability(ctx.user.id),
+      user: context.user,
+      knockUserToken: context.user === null ? null : await createKnockUserToken(context.user.id),
+      pushCleanupCapability:
+        context.user === null ? null : createPushCleanupCapability(context.user.id),
     };
   }),
-  knockUserToken: protectedProcedure.query(async ({ ctx }) => ({
-    token: await createKnockUserToken(ctx.user.id),
+  knockUserToken: protectedProcedure.handler(async ({ context }) => ({
+    token: await createKnockUserToken(context.user.id),
   })),
-  cleanupPushDevice: publicProcedure.input(cleanupPushDeviceInput).mutation(async ({ input }) => {
+  cleanupPushDevice: publicProcedure.input(cleanupPushDeviceInput).handler(async ({ input }) => {
     const userId = verifyPushCleanupCapability(input.capability);
-    if (userId === null) throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (userId === null) throw new ORPCError("UNAUTHORIZED");
 
     const knock = getKnockClient();
     const channelId = env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
     if (knock === null || channelId === undefined) {
-      throw new TRPCError({
-        code: "PRECONDITION_FAILED",
-        message: "Push cleanup is not configured",
-      });
+      throw new ORPCError("PRECONDITION_FAILED", { message: "Push cleanup is not configured" });
     }
 
     try {
       const channelData = await knock.users.getChannelData(userId, channelId);
       const parsed = knockPushChannelData.safeParse(channelData.data);
       if (!parsed.success) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Invalid push channel data",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Invalid push channel data" });
       }
 
       await knock.users.setChannelData(userId, channelId, {
@@ -124,35 +116,29 @@ export const authRouter = createTRPCRouter({
 
     return { success: true };
   }),
-  signUp: publicProcedure.input(signUpInput).mutation(async ({ ctx, input }) => {
+  signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
     // Check if email already exists
-    const existingUser = await ctx.db.query.user.findFirst({
+    const existingUser = await context.db.query.user.findFirst({
       where: (u, { eq }) => eq(u.email, input.email),
     });
 
     if (existingUser) {
-      throw new TRPCError({
-        code: "CONFLICT",
-        message: "User already registered",
-      });
+      throw new ORPCError("CONFLICT", { message: "User already registered" });
     }
 
-    if (ctx.user?.email !== null && ctx.user?.email !== undefined) {
-      throw new TRPCError({
-        code: "CONFLICT",
-        message: "Current user is already registered",
-      });
+    if (context.user?.email !== null && context.user?.email !== undefined) {
+      throw new ORPCError("CONFLICT", { message: "Current user is already registered" });
     }
 
     const passwordHash = await createPasswordHash(input.password);
 
-    const [newUser] = ctx.user
-      ? await ctx.db
+    const [newUser] = context.user
+      ? await context.db
           .update(user)
           .set({ email: input.email, passwordHash })
-          .where(eq(user.id, ctx.user.id))
+          .where(eq(user.id, context.user.id))
           .returning()
-      : await ctx.db
+      : await context.db
           .insert(user)
           .values({
             ...getDefaultValues(),
@@ -163,10 +149,7 @@ export const authRouter = createTRPCRouter({
           .returning();
 
     if (!newUser) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Unable to create user",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Unable to create user" });
     }
 
     await setSession(newUser.id, newUser.sessionEpoch);
@@ -177,25 +160,19 @@ export const authRouter = createTRPCRouter({
   }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
-    .mutation(async ({ ctx, input }) => {
-      const existingUser = await ctx.db.query.user.findFirst({
+    .handler(async ({ context, input }) => {
+      const existingUser = await context.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.email, input.email),
       });
 
       if (!existingUser?.passwordHash) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Invalid email or password",
-        });
+        throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
       }
 
       const isValid = await validatePassword(input.password, existingUser.passwordHash);
 
       if (!isValid) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Invalid email or password",
-        });
+        throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
       }
 
       await setSession(existingUser.id, existingUser.sessionEpoch);
@@ -205,7 +182,7 @@ export const authRouter = createTRPCRouter({
       };
     }),
   /** Normal sign-out: clears this device's cookie only. Correct semantic. */
-  signOut: protectedProcedure.mutation(async () => {
+  signOut: protectedProcedure.handler(async () => {
     await clearSession();
 
     return { user: null };
@@ -214,28 +191,27 @@ export const authRouter = createTRPCRouter({
    * Revoke every session for this account, on every device — including any
    * cookie an attacker captured. Logs out the calling device too.
    */
-  signOutEverywhere: protectedProcedure.mutation(async ({ ctx }) => {
-    await revokeUserSessions(ctx, ctx.user.id);
+  signOutEverywhere: protectedProcedure.handler(async ({ context }) => {
+    await revokeUserSessions(context, context.user.id);
     await clearSession();
 
     return { user: null };
   }),
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
-    .mutation(async ({ ctx, input }) => {
+    .handler(async ({ context, input }) => {
       // Checked before the lookup: a deployment with no email provider can
       // never deliver the link, and burning the account's outstanding reset
       // tokens on the way to a failed send is worse than refusing outright. The
       // answer does not depend on `input.email`, so it leaks no enumeration.
       const resendApiKey = env.RESEND_API_KEY;
       if (resendApiKey === undefined) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
+        throw new ORPCError("PRECONDITION_FAILED", {
           message: "Password reset email is not configured",
         });
       }
 
-      const existingUser = await ctx.db.query.user.findFirst({
+      const existingUser = await context.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.email, input.email),
       });
 
@@ -248,9 +224,9 @@ export const authRouter = createTRPCRouter({
       const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
 
       // Issuing a new link burns every unused one, so only the latest email works.
-      await invalidateResetTokens(ctx, existingUser.id);
+      await invalidateResetTokens(context, existingUser.id);
 
-      await ctx.db.insert(tokenTable).values({
+      await context.db.insert(tokenTable).values({
         ...getDefaultValues(),
         token: resetToken,
         type: "RESET_PASSWORD",
@@ -273,8 +249,8 @@ export const authRouter = createTRPCRouter({
 
       return { success: true };
     }),
-  setPassword: publicProcedure.input(setPasswordInput).mutation(async ({ ctx, input }) => {
-    const resetToken = await ctx.db.query.token.findFirst({
+  setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
+    const resetToken = await context.db.query.token.findFirst({
       where: (t, { and, eq, gt, isNull }) =>
         and(
           eq(t.token, input.token),
@@ -285,27 +261,24 @@ export const authRouter = createTRPCRouter({
     });
 
     if (!resetToken) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Invalid or expired reset token",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
     }
 
     const passwordHash = await createPasswordHash(input.password);
 
-    await ctx.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
+    await context.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
 
     // Order matters. Revoke FIRST — a password reset is the remediation a user
     // reaches for after "someone got into my account", so every session an
     // attacker already holds must die here...
-    const sessionEpoch = await revokeUserSessions(ctx, resetToken.userId);
+    const sessionEpoch = await revokeUserSessions(context, resetToken.userId);
 
     // ...then burn this token and any other outstanding link...
-    await invalidateResetTokens(ctx, resetToken.userId);
+    await invalidateResetTokens(context, resetToken.userId);
 
     // ...and only then re-admit the person who actually did the reset.
     await setSession(resetToken.userId, sessionEpoch);
 
     return { success: true };
   }),
-});
+};

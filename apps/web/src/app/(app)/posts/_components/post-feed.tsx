@@ -4,28 +4,23 @@ import { Spinner } from "@repo/ui/components/spinner";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
+import type { FeedFilters } from "@/lib/feed-query";
 import type { FeedLayout } from "@/lib/feed-layout-actions";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
-import { useTRPC } from "@/trpc/react";
+import { feedInfiniteArgs } from "@/lib/feed-query";
+import { orpc } from "@/orpc/react";
 
 type Props = {
   layout?: FeedLayout;
-  filters?: {
-    userId?: string;
-    parentId?: string;
-    limit?: number;
-  };
+  filters?: FeedFilters;
 };
 
-const EMPTY_FILTERS: NonNullable<Props["filters"]> = {};
+const EMPTY_FILTERS: FeedFilters = {};
 
 export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) => {
-  const trpc = useTRPC();
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
-    trpc.post.getFeed.infiniteQueryOptions(filters, {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }),
+    orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(filters)),
   );
 
   const [ref] = useInfiniteScroll({

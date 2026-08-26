@@ -29,39 +29,32 @@ import {
   refreshWorkspaceIdentity,
 } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 export const SettingsForm = () => {
-  const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
   const user = useWorkspaceUser();
 
   const updateUser = useMutation(
-    trpc.user.updateUser.mutationOptions({
+    orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
-        Promise.all([
-          refreshProfileData(queryClient, trpc),
-          refreshWorkspaceIdentity(queryClient, trpc),
-        ]),
+        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 
   // No invalidation policy: this only sends an email. It changes nothing that
   // is held in the query cache.
-  const requestPasswordReset = useMutation(trpc.auth.requestPasswordReset.mutationOptions());
+  const requestPasswordReset = useMutation(orpc.auth.requestPasswordReset.mutationOptions());
 
   const signOut = useMutation(
-    trpc.auth.signOut.mutationOptions({
+    orpc.auth.signOut.mutationOptions({
       onSuccess: async () => {
         // Identity, and every identity-scoped field on the feed (isLiked, block
         // filtering), are now stale. Refresh before navigating so the home page
         // does not render as the signed-out user's predecessor.
-        await Promise.all([
-          refreshWorkspaceIdentity(queryClient, trpc),
-          refreshPostContent(queryClient, trpc),
-        ]);
+        await Promise.all([refreshWorkspaceIdentity(queryClient), refreshPostContent(queryClient)]);
         router.replace("/");
       },
       onError: (error) => toast.error(error.message),
@@ -71,7 +64,7 @@ export const SettingsForm = () => {
   // No invalidation policy needed: this does a full document load, which throws
   // the whole query cache away.
   const deleteUser = useMutation(
-    trpc.user.deleteUser.mutationOptions({
+    orpc.user.deleteUser.mutationOptions({
       onSuccess: () => window.location.assign("/"),
       onError: () => toast.error("Could not delete account. Please try again."),
     }),
@@ -173,7 +166,7 @@ export const SettingsForm = () => {
           type="button"
           variant="outline"
           loading={signOut.isPending}
-          onClick={() => signOut.mutate()}
+          onClick={() => signOut.mutate(undefined)}
         >
           Log out
         </Button>
@@ -192,7 +185,7 @@ export const SettingsForm = () => {
               type="button"
               variant="destructive"
               loading={deleteUser.isPending}
-              onClick={() => deleteUser.mutate()}
+              onClick={() => deleteUser.mutate(undefined)}
             >
               Delete my account
             </Button>

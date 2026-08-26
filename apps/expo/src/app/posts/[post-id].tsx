@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "@/lib/css-interop";
@@ -11,7 +12,7 @@ import { QueryErrorState } from "@/components/ui/query-error-state";
 import { useThemeColors } from "@/components/theme-colors";
 import { PostContent } from "@/components/post/post-content";
 import { PostForm } from "@/components/post/post-form";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 import { getReadingTime } from "@repo/contracts/content";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
@@ -26,7 +27,7 @@ export default function PostScreen() {
   const { user } = useWorkspaceUser();
 
   const { data, error, isPending, isError, refetch } = useQuery({
-    ...trpc.post.getPost.queryOptions({ postId }),
+    ...orpc.post.getPost.queryOptions({ input: { postId } }),
     enabled: postId.length > 0,
   });
   const post = data?.post;
@@ -50,7 +51,8 @@ export default function PostScreen() {
         {post !== undefined && <Text className="text-xs">{getReadingTime(post.content).text}</Text>}
       </View>
 
-      {postId.length === 0 || (isError && error.data?.code === "NOT_FOUND") ? (
+      {postId.length === 0 ||
+      (isError && error instanceof ORPCError && error.code === "NOT_FOUND") ? (
         <View className="flex-1 items-center justify-center px-5">
           <Text className="text-sm">This letter is gone</Text>
         </View>
@@ -82,7 +84,7 @@ export default function PostScreen() {
               placeholder="Comment on this love letter..."
               onSuccess={() => {
                 queryClient
-                  .invalidateQueries(trpc.post.getPost.queryFilter({ postId }))
+                  .invalidateQueries({ queryKey: orpc.post.getPost.key({ input: { postId } }) })
                   .catch(() => undefined);
               }}
             />

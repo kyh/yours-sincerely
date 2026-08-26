@@ -3,7 +3,21 @@ import test from "node:test";
 
 import { createPostInput } from "./post/post-schema.ts";
 import { requestPasswordResetInput } from "./auth/auth-schema.ts";
+import { sessionCookieOptions } from "./auth/session-core.ts";
 import { updateUserInput } from "./user/user-schema.ts";
+
+test("the session cookie is withheld from cross-site requests", () => {
+  // `/api/orpc` carries no CSRF token, so cross-site protection is the cookie:
+  // at `sameSite: "none"` any page could POST a mutation on behalf of a
+  // signed-in visitor. It stops only cross-SITE senders — `SameSite` keys on
+  // site, not origin — so the route's origin check handles a same-site
+  // cross-origin page (`apps/web/src/app/api/orpc/[[...rest]]/route.test.ts`).
+  const options = sessionCookieOptions(false);
+
+  assert.equal(options.sameSite, "lax");
+  assert.equal(options.httpOnly, true);
+  assert.equal(options.secure, true);
+});
 
 test("the retired userId field is stripped, not rejected and not honored", () => {
   // Shipped Expo binaries still send it. Accepting the payload keeps them

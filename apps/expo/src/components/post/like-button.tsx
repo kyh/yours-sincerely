@@ -17,14 +17,11 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle, Path } from "react-native-svg";
 
-import type { TRPCClientErrorLike } from "@trpc/client";
-import type { AppRouter } from "@repo/api";
-
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
 import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -238,8 +235,8 @@ const likePatch = (item: { likeCount: number }, liked: boolean) => ({
 /** Optimistically toggles a like across the feed and post-detail caches so
     remounted rows (list virtualization, screen re-entry) stay in sync. */
 const likeMutationHandlers = (postId: string, liked: boolean) => {
-  const feedFilter = trpc.post.getFeed.infiniteQueryFilter();
-  const postFilter = trpc.post.getPost.queryFilter();
+  const feedFilter = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
+  const postFilter = { queryKey: orpc.post.getPost.key() };
 
   return {
     onMutate: async (): Promise<LikeSnapshot> => {
@@ -279,7 +276,7 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
       return { previousFeed, previousPosts };
     },
     onError: (
-      _error: TRPCClientErrorLike<AppRouter>,
+      _error: Error,
       _variables: { postId: string },
       snapshot: LikeSnapshot | undefined,
     ) => {
@@ -302,10 +299,10 @@ export const LikeButton = ({ post }: Props) => {
   const showBurst = isAnimating && !reduceMotionEnabled;
 
   const createMutate = useMutation(
-    trpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
+    orpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
   );
   const deleteMutate = useMutation(
-    trpc.like.deleteLike.mutationOptions(likeMutationHandlers(post.id, false)),
+    orpc.like.deleteLike.mutationOptions(likeMutationHandlers(post.id, false)),
   );
 
   const toggleLike = () => {

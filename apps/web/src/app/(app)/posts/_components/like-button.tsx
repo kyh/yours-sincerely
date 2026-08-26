@@ -8,7 +8,7 @@ import { m } from "motion/react";
 
 import type { RouterOutputs } from "@repo/api";
 import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 const CircleAnimation = () => {
   const CIRCLE_RADIUS = 20;
@@ -147,7 +147,6 @@ type Props = {
 };
 
 export const LikeButton = ({ post }: Props) => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [isAnimating, setIsAnimating] = useState(false);
   const iconButtonRef = useRef<null | HTMLButtonElement>(null);
@@ -156,15 +155,15 @@ export const LikeButton = ({ post }: Props) => {
   // only when the like is what mints the anonymous user.
   const refreshAfterLike = () =>
     Promise.all([
-      refreshPostContent(queryClient, trpc),
-      refreshWorkspaceIdentityIfAnonymous(queryClient, trpc),
+      refreshPostContent(queryClient),
+      refreshWorkspaceIdentityIfAnonymous(queryClient),
     ]);
 
   const createMutate = useMutation(
-    trpc.like.createLike.mutationOptions({ onSuccess: refreshAfterLike }),
+    orpc.like.createLike.mutationOptions({ onSuccess: refreshAfterLike }),
   );
   const deleteMutate = useMutation(
-    trpc.like.deleteLike.mutationOptions({ onSuccess: refreshAfterLike }),
+    orpc.like.deleteLike.mutationOptions({ onSuccess: refreshAfterLike }),
   );
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
   const isLiked = createMutate.isPending ? true : deleteMutate.isPending ? false : post.isLiked;

@@ -14,7 +14,7 @@ import { z } from "zod";
 
 import type { SignInWithPasswordInput } from "@repo/contracts/auth";
 import { refreshWorkspaceIdentity } from "@/lib/query-policies";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 
 type AuthFormProps = {
   type: "signin" | "signup";
@@ -26,25 +26,24 @@ type AuthFormProps = {
 
 export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   const router = useRouter();
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   // Await the identity refresh BEFORE navigating: redirecting first renders the
   // destination against the stale `auth.workspace`, so the user lands on the
   // page still looking signed-out.
   const enterApp = async () => {
-    await refreshWorkspaceIdentity(queryClient, trpc);
+    await refreshWorkspaceIdentity(queryClient);
     router.replace(nextPath);
   };
 
   const signInWithPassword = useMutation(
-    trpc.auth.signInWithPassword.mutationOptions({
+    orpc.auth.signInWithPassword.mutationOptions({
       onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
     }),
   );
   const signUp = useMutation(
-    trpc.auth.signUp.mutationOptions({
+    orpc.auth.signUp.mutationOptions({
       onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
     }),
@@ -128,13 +127,12 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
 };
 
 export const RequestPasswordResetForm = () => {
-  const trpc = useTRPC();
   const [isSuccess, setIsSuccess] = useState(false);
 
   // No invalidation policy: this only sends an email. It changes nothing that
   // is held in the query cache.
   const requestPasswordReset = useMutation(
-    trpc.auth.requestPasswordReset.mutationOptions({
+    orpc.auth.requestPasswordReset.mutationOptions({
       onSuccess: () => {
         setIsSuccess(true);
         toast.success("Password reset email sent successfully!");
@@ -204,16 +202,15 @@ export const RequestPasswordResetForm = () => {
 };
 
 export const SetPasswordForm = ({ token }: { token: string }) => {
-  const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const setPassword = useMutation(
-    trpc.auth.setPassword.mutationOptions({
+    orpc.auth.setPassword.mutationOptions({
       onSuccess: async () => {
         // A successful reset re-admits the user with a fresh session, so the
         // identity changes. Await it before navigating, as with sign-in.
-        await refreshWorkspaceIdentity(queryClient, trpc);
+        await refreshWorkspaceIdentity(queryClient);
         toast.success("Password set successfully!");
         router.push("/");
       },

@@ -8,7 +8,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { getReadingTime } from "@repo/contracts/content";
 
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { useTRPC } from "@/trpc/react";
+import { orpc } from "@/orpc/react";
 import { PostContent } from "../_components/post-content";
 import { PostForm } from "../_components/post-form";
 
@@ -17,12 +17,11 @@ type Props = {
 };
 
 export const PostPage = ({ postId }: Props) => {
-  const trpc = useTRPC();
   const router = useRouter();
   const user = useWorkspaceUser();
   const {
     data: { post },
-  } = useSuspenseQuery(trpc.post.getPost.queryOptions({ postId }));
+  } = useSuspenseQuery(orpc.post.getPost.queryOptions({ input: { postId } }));
 
   const goBack = () => router.back();
 

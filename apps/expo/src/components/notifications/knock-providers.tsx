@@ -6,7 +6,7 @@ import { AppState } from "react-native";
 import { onlineManager } from "@tanstack/react-query";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
-import { queryClient, trpc } from "@/lib/api";
+import { queryClient, orpc } from "@/lib/api";
 import { appConfig } from "@/lib/app-config";
 import { getRegisteredPushDevice } from "@/lib/push-token-store";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
@@ -15,7 +15,7 @@ import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
 const refreshUserToken = async () => {
   const { token } = await queryClient.fetchQuery({
-    ...trpc.auth.knockUserToken.queryOptions(),
+    ...orpc.auth.knockUserToken.queryOptions(),
     staleTime: 0,
   });
   return token ?? undefined;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { HydrateClient, prefetch, orpc } from "@/orpc/server";
 import { Profile } from "../_components/profile";
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ type Props = {
 const Page = async (props: Props) => {
   const params = await props.params;
 
-  prefetch(trpc.user.getUser.queryOptions({ userId: params.userId }));
-  prefetch(trpc.user.getUserStats.queryOptions({ userId: params.userId }));
-  prefetch(trpc.post.getPostsByUser.queryOptions({ userId: params.userId }));
+  prefetch(orpc.user.getUser.queryOptions({ input: { userId: params.userId } }));
+  prefetch(orpc.user.getUserStats.queryOptions({ input: { userId: params.userId } }));
+  prefetch(orpc.post.getPostsByUser.queryOptions({ input: { userId: params.userId } }));
 
   return (
     <HydrateClient>

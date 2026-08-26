@@ -2,13 +2,16 @@ import { View } from "react-native";
 import { LegendList } from "@legendapp/list/react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
+import type { RouterOutputs } from "@/lib/api";
 import type { FeedLayout } from "@/lib/feed-layout";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
-import { trpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
 import { CardStack } from "./card-stack";
 import { PostContent } from "./post-content";
+
+type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
 /** Mirrors apps/web posts/_components/post-feed.tsx. */
 type Props = {
@@ -33,7 +36,9 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
     refetch,
     isRefetching,
   } = useInfiniteQuery(
-    trpc.post.getFeed.infiniteQueryOptions(filters, {
+    orpc.post.getFeed.infiniteOptions({
+      input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
+      initialPageParam: undefined,
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }),
   );

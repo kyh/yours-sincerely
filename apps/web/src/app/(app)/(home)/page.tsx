@@ -1,13 +1,15 @@
 import { cookies } from "next/headers";
 import { cn } from "@repo/ui/lib/utils";
 
+import type { FeedFilters } from "@/lib/feed-query";
 import { PostFeed } from "@/app/(app)/posts/_components/post-feed";
 import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form";
 import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";
+import { feedInfiniteArgs } from "@/lib/feed-query";
 import { getFeedLayout } from "@/lib/feed-layout-actions";
-import { caller, HydrateClient, prefetchInfinite, trpc } from "@/trpc/server";
+import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
 
-const feedFilters = {
+const feedFilters: FeedFilters = {
   limit: 5,
 };
 
@@ -18,11 +20,7 @@ const Page = async () => {
   ]);
   const feedLayout = await getFeedLayout(cookieStore);
 
-  prefetchInfinite(
-    trpc.post.getFeed.infiniteQueryOptions(feedFilters, {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }),
-  );
+  prefetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters)));
 
   return (
     <HydrateClient>

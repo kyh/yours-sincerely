@@ -15,7 +15,7 @@ duplicate each other.
 ## Stack
 
 - **Monorepo**: pnpm + Turborepo
-- **Web**: Next.js (App Router, Turbopack), Tailwind v4, tRPC
+- **Web**: Next.js (App Router, Turbopack), Tailwind v4, oRPC
 - **Mobile**: Expo / React Native (`apps/expo`) — the shipping native app
 - **Legacy mobile**: Capacitor (`apps/mobile`) — superseded WebView shell, plus the
   `@capacitor/*` runtime inside `apps/web` (see "Architecture decisions"). Do not add
@@ -37,7 +37,7 @@ apps/
                # applicationId still matches the live Play Store package, so it is
                # the only source that can rebuild the legacy Android artifact.
 packages/
-  api/         # tRPC routers + auth/session
+  api/         # oRPC routers + auth/session
   contracts/   # SHARED domain: zod schemas + pure rules used by BOTH web and expo.
                # Shared domain logic belongs HERE, not duplicated per-platform.
   db/          # Drizzle schema, Postgres client
@@ -167,7 +167,7 @@ tables except `packages/api`, which holds the Postgres connection directly.
 
 **If anyone re-enables the Data API (PostgREST), every table in `public` becomes directly
 readable and writable with the anon key, bypassing all of `packages/api`** — every
-authorization check, rate limit, and input cap in the tRPC layer becomes optional. Turning
+authorization check, rate limit, and input cap in the oRPC layer becomes optional. Turning
 it on without first writing RLS policies for every table is a full data breach, not a
 config change.
 
