@@ -31,23 +31,14 @@
   "devDependencies": {
     "@kyh/oxlint": "^0.2.0",
     "dotenv-cli": "catalog:",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
+    "oxfmt": "^0.65.0",
+    "oxlint": "^1.80.0",
     "tsx": "catalog:",
-    "turbo": "^2.10.11",
+    "turbo": "^2.10.12",
     "typescript": "catalog:"
   },
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   },
-  "packageManager": "pnpm@10.33.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "supabase"
-    ],
-    "overrides": {
-      "lightningcss": "1.30.1",
-      "lucide-react": "catalog:"
-    }
-  }
+  "packageManager": "pnpm@12.1.0"
 }

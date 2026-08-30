@@ -9,10 +9,10 @@ catalog:
   "@orpc/server": 2.0.0-beta.31
   "@orpc/tanstack-query": 2.0.0-beta.31
   "@tailwindcss/postcss": ^4.3.3
-  "@tanstack/react-query": ^5.101.4
-  "@types/node": ^26.2.0
+  "@tanstack/react-query": ^5.102.8
+  "@types/node": ^26.4.0
   "@types/react": ^19.2.18
-  "@types/react-dom": ^19.2.4
+  "@types/react-dom": ^19.2.5
   class-variance-authority: ^0.7.1
   date-fns: ^4.4.0
   dotenv-cli: ^11.0.0
@@ -20,15 +20,15 @@ catalog:
   # A version desync between those two produces baffling type errors rather than clean
   # failures — which is exactly why it goes through the catalog.
   drizzle-orm: ^0.45.2
-  lucide-react: ^1.33.0
-  next: ^16.3.1
+  lucide-react: ^1.35.0
+  next: ^16.3.3
   next-themes: ^0.4.6
   react: 19.2.8
   react-dom: 19.2.8
   tailwindcss: ^4.3.3
   tsx: ^4.23.12
   typescript: ^7.0.2
-  zod: ^4.4.3
+  zod: ^4.5.2
 
 catalogs:
   # Expo must hold an SDK-blessed React, which may diverge from web's. Pinning it in a
@@ -40,3 +40,11 @@ catalogs:
     react-dom: 19.2.3
     # Expo SDK 57 blesses TS 6; the rest of the repo is on 7.
     typescript: ~6.0.3
+
+allowBuilds:
+  esbuild: true
+  supabase: true
+
+overrides:
+  lightningcss: "1.30.1"
+  lucide-react: "catalog:"
