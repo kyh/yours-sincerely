@@ -26,9 +26,9 @@ catalog:
   react: 19.2.8
   react-dom: 19.2.8
   tailwindcss: ^4.3.3
-  tsx: ^4.23.12
+  tsx: ^4.23.13
   typescript: ^7.0.2
-  zod: ^4.5.2
+  zod: ^4.5.4
 
 catalogs:
   # Expo must hold an SDK-blessed React, which may diverge from web's. Pinning it in a

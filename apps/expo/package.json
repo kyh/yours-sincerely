@@ -46,7 +46,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.3",
     "lottie-react-native": "~7.3.8",
-    "lucide-react-native": "^1.35.0",
+    "lucide-react-native": "^1.37.0",
     "nativewind": "5.0.0-preview.3",
     "react": "catalog:expo",
     "react-dom": "catalog:expo",
