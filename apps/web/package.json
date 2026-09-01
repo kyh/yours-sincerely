@@ -36,7 +36,7 @@
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-hook-form": "^7.86.0",
+    "react-hook-form": "^7.87.0",
     "react-infinite-scroll-hook": "^6.0.1",
     "zod": "catalog:"
   },
