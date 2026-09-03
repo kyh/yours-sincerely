@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export { cn } from "cnfast";
+export { cn } from "cn";
 
 export function useMediaQuery(query = "(min-width: 640px)") {
   const subscribe = React.useCallback(
