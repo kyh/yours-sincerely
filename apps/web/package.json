@@ -29,6 +29,7 @@
     "@repo/ui": "workspace:^",
     "@tanstack/react-query": "catalog:",
     "@vercel/analytics": "^2.0.1",
+    "cn": "catalog:",
     "date-fns": "catalog:",
     "lucide-react": "catalog:",
     "motion": "^13.1.1",

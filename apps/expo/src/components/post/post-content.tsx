@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import type { FeedLayout } from "@/lib/feed-layout";
 import type { FeedPost } from "@/lib/post-types";
 import { Text } from "@/components/ui/text";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 import { CommentButton } from "./comment-button";
 import { LikeButton } from "./like-button";
 import { MoreButton } from "./more-button";

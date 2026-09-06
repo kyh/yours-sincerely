@@ -7,7 +7,7 @@ import { signInWithPasswordInput } from "@repo/contracts/auth";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "cn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

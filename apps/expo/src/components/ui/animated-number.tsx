@@ -12,7 +12,7 @@ import Animated, {
 
 import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 /** NumberFlow substitute — a per-digit odometer. Each digit lives in a
     fixed-height, overflow-clipped column and rolls vertically when it
