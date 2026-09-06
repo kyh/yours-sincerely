@@ -29,29 +29,6 @@ EAS.
 
 Then use physical devices to opt in, receive a notification, and open its exact post.
 
-### Knock cutover
-
-The `Notification` table starts empty. `pnpm -F db knock-backfill:remote` copies Knock's
-`new-comment` feed into it (read state included) and is idempotent on (recipient,
-comment). It reads the production `POSTGRES_URL` from `.env.production.local` — the file
-`pnpm db:push-remote` already uses — and `KNOCK_API_KEY` from that file or the shell.
-Never put production values in `.env`: it feeds `pnpm dev`, `db:push --force` and the
-non-idempotent seed.
-
-1. `pnpm db:push-remote` — creates `Notification` and `PushToken` on production. Deployed
-   without them, the new API rolls back every reply to someone else's letter.
-2. `pnpm -F db knock-backfill:remote`.
-3. Deploy the build that writes `Notification` and no longer calls Knock.
-4. `pnpm -F db knock-backfill:remote` again to catch replies that landed in between.
-5. `pnpm -F db knock-backfill:remote --check` — exits non-zero if any recipient has fewer
-   rows than Knock; prints every skipped message with its reason (archived, comment or
-   letter deleted, malformed payload). Rows the table has beyond Knock are expected: new
-   replies never reach Knock.
-
-`--from-posts` is the fallback if Knock is unreachable: one unread row per existing
-comment on someone else's letter, never touching a row that exists. Drop `KNOCK_API_KEY`
-from `.env.production.local` after the check passes.
-
 ## Validate
 
 Put local test values in `.env`, then run:

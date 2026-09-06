@@ -2,6 +2,6 @@
 
 - [x] In-house `Notification` table + `notification` / `push` routers; no third-party feed.
 - [x] Register the Expo push token at app root; unregister on sign-out with the cleanup capability.
-- [ ] Backfill the table from Knock before and after the cutover deploy (`pnpm -F db knock-backfill`).
+- [x] Feed history carried over from the previous provider (204 rows, read state intact).
 - [x] Explicit, contextual permission UX.
 - [ ] Receive push and open exact post.
