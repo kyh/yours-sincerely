@@ -93,4 +93,4 @@ This project uses the following libraries and services:
 - Styling - [Tailwind](https://tailwindcss.com)
 - Database - [Postgres (Supabase)](https://supabase.com) + [Drizzle](https://orm.drizzle.team)
 - Hosting - [Vercel](https://vercel.com)
-- Notifications - [Knock](https://knock.app)
+- Notifications - in-house feed + [Expo push](https://docs.expo.dev/push-notifications/overview/)

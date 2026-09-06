@@ -9,15 +9,15 @@ import { deleteRegisteredPushDevice, type RegisteredPushDevice } from "@/lib/pus
     survives for a later retry. Native unregistration stays with callers
     (logout wants it even when the server is unreachable). */
 export const usePushDeviceCleanup = () => {
-  const { mutateAsync: cleanupPushDevice } = useMutation(
-    orpc.auth.cleanupPushDevice.mutationOptions({ networkMode: "always" }),
+  const { mutateAsync: unregisterPushToken } = useMutation(
+    orpc.push.unregister.mutationOptions({ networkMode: "always" }),
   );
 
   return useCallback(
     async (device: RegisteredPushDevice) => {
-      await cleanupPushDevice({ capability: device.cleanupCapability, token: device.token });
+      await unregisterPushToken({ capability: device.cleanupCapability, token: device.token });
       await deleteRegisteredPushDevice();
     },
-    [cleanupPushDevice],
+    [unregisterPushToken],
   );
 };

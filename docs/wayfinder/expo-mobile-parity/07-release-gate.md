@@ -5,5 +5,5 @@
 - [x] Expo-tested native dependency versions.
 - [x] Signed iOS Hermes build and route smoke.
 - [x] Android Release APK build and cold launch.
-- [ ] Android legacy-session upgrade journey.
-- [ ] Automated Capacitor-to-Expo upgrade fixture.
+- [x] Android legacy-session upgrade journey (emulator; Play-delivered phone still pending).
+- [x] Automated Capacitor-to-Expo upgrade fixture (docs/phone-testing.md §3).

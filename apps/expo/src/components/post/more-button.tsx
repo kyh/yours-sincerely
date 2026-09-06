@@ -5,8 +5,7 @@ import { Ban, Flag, MoreVertical, Trash2, TriangleAlert } from "lucide-react-nat
 import { toast } from "sonner-native";
 
 import type { FeedPost } from "@/lib/post-types";
-import { BottomDrawer } from "@/components/ui/bottom-drawer";
-import { Text } from "@/components/ui/text";
+import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
 import { orpc } from "@/lib/api";
 import {
@@ -22,25 +21,6 @@ type Props = {
   post: FeedPost;
   onDeleted?: () => void;
 };
-
-const DrawerItem = ({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onPress: () => void;
-}) => (
-  <Pressable
-    accessibilityRole="button"
-    className="active:bg-accent flex-row items-center gap-3 rounded-lg p-4"
-    onPress={onPress}
-  >
-    {icon}
-    <Text className="text-sm font-medium">{label}</Text>
-  </Pressable>
-);
 
 export const MoreButton = ({ post, onDeleted }: Props) => {
   const colors = useThemeColors();

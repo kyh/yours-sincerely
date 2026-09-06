@@ -11,7 +11,6 @@ import { MotionProvider } from "@/components/providers/motion-provider";
 import { siteConfig } from "@/lib/site-config";
 import { ORPCReactProvider } from "@/orpc/react";
 
-import "@knocklabs/react/dist/index.css";
 import "./styles/globals.css";
 
 export const metadata: Metadata = {

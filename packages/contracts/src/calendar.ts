@@ -45,6 +45,27 @@ export const DEFAULT_CALENDAR_THEME: CalendarTheme = {
   stroke: "#ddd6fe",
 };
 
+/** Indigo ramps for the profile heatmap, keyed by resolved appearance —
+    the one place both platforms read them from. */
+export const PROFILE_CALENDAR_THEMES = {
+  light: {
+    level4: "#312e81",
+    level3: "#4338ca",
+    level2: "#6366f1",
+    level1: "#a5b4fc",
+    level0: "#e0e7ff",
+    stroke: "#ddd6fe",
+  },
+  dark: {
+    level4: "#6366f1",
+    level3: "#4f46e5",
+    level2: "#4338ca",
+    level1: "#3730a3",
+    level0: "#272567",
+    stroke: "#312e81",
+  },
+} satisfies Record<"light" | "dark", CalendarTheme>;
+
 export const DEFAULT_MONTH_LABELS = [
   "Jan",
   "Feb",

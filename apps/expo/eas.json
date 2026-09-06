@@ -1,12 +1,12 @@
 {
   "cli": {
-    "version": ">= 4.1.2",
+    "version": ">= 18.4.0",
     "appVersionSource": "remote"
   },
   "build": {
     "base": {
       "node": "24.18.0",
-      "pnpm": "12.1.0",
+      "pnpm": "12.3.4",
       "ios": {
         "resourceClass": "m-medium"
       }
@@ -15,7 +15,10 @@
       "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "environment": "development"
+      "environment": "development",
+      "env": {
+        "APP_VARIANT": "preview"
+      }
     },
     "preview": {
       "extends": "base",
@@ -23,6 +26,9 @@
       "environment": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "preview"
       }
     },
     "simulator": {
@@ -31,12 +37,18 @@
       "environment": "preview",
       "ios": {
         "simulator": true
+      },
+      "env": {
+        "APP_VARIANT": "preview"
       }
     },
     "production": {
       "extends": "base",
       "autoIncrement": true,
-      "environment": "production"
+      "environment": "production",
+      "env": {
+        "APP_VARIANT": "production"
+      }
     }
   },
   "submit": {

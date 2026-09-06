@@ -1,30 +1,15 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { orpc } from "./api";
-import { finalizeLegacySessionMigration } from "./legacy-session-migration";
-import { deleteSessionCookie, getSessionCookie } from "./session-store";
 
 /** Current user (null when browsing anonymously) — mirrors
-    apps/web/src/lib/use-workspace-user.ts. */
+    apps/web/src/lib/use-workspace-user.ts. Read-only: session side effects
+    live in `components/session-reconciler.tsx`, mounted once. */
 export const useWorkspaceUser = () => {
   const { data, isPending } = useQuery(orpc.auth.workspace.queryOptions());
-  const user = data?.user ?? null;
-
-  // A stored cookie that no longer resolves to a user is dead (account
-  // deleted elsewhere, or signature rejected) — drop it so the app settles
-  // into a clean signed-out state instead of replaying it forever.
-  useEffect(() => {
-    if (data !== undefined && data.user !== null) {
-      finalizeLegacySessionMigration(true).catch(() => undefined);
-    } else if (data !== undefined && data.user === null && getSessionCookie() !== null) {
-      deleteSessionCookie().catch(() => undefined);
-    }
-  }, [data]);
 
   return {
-    user,
-    knockUserToken: data?.knockUserToken ?? null,
+    user: data?.user ?? null,
     pushCleanupCapability: data?.pushCleanupCapability ?? null,
     isPending,
   };

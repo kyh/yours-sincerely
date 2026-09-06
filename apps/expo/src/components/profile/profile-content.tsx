@@ -1,7 +1,6 @@
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 
-import type { CalendarTheme as Theme } from "@repo/contracts/calendar";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
@@ -11,6 +10,7 @@ import {
   createPostsDailyActivity,
   createPostsHeatmap,
   FULL_DAY_LABELS,
+  PROFILE_CALENDAR_THEMES,
 } from "@repo/contracts/calendar";
 import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
@@ -21,26 +21,7 @@ import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
 import { ProfileForm } from "./profile-form";
 
-/** Port of apps/web (app)/profile/_components/profile.tsx —
-    same indigo palettes. */
-const lightTheme: Theme = {
-  level4: "#312e81",
-  level3: "#4338ca",
-  level2: "#6366f1",
-  level1: "#a5b4fc",
-  level0: "#e0e7ff",
-  stroke: "#ddd6fe",
-};
-
-const darkTheme: Theme = {
-  level4: "#6366f1",
-  level3: "#4f46e5",
-  level2: "#4338ca",
-  level1: "#3730a3",
-  level0: "#272567",
-  stroke: "#312e81",
-};
-
+/** Port of apps/web (app)/profile/_components/profile.tsx. */
 type Props = {
   userId: string;
 };
@@ -90,7 +71,7 @@ export const ProfileContent = ({ userId }: Props) => {
   const allowEdit = currentUser !== null && currentUser.id === user.id;
   const dailyData = createPostsDailyActivity(posts);
   const heatmapData = createPostsHeatmap(posts, 120);
-  const theme = isDarkTheme(resolvedTheme) ? darkTheme : lightTheme;
+  const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
   const favoriteDay = dailyData.max.day === "none" ? null : FULL_DAY_LABELS[dailyData.max.day];
 
   return (

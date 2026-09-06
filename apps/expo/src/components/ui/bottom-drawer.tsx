@@ -1,17 +1,18 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { Dimensions, Modal, Pressable, View } from "react-native";
+import { Modal, Pressable, useWindowDimensions, View } from "react-native";
 import { GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Extrapolation,
   interpolate,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scheduleOnRN } from "react-native-worklets";
 
+import { Text } from "@/components/ui/text";
 import { AnimatedView } from "@/lib/css-interop";
 import { panGesture } from "@/lib/gesture";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -40,10 +41,31 @@ const DISMISS_DISTANCE_RATIO = 0.4;
 const DISMISS_VELOCITY = 800;
 // Generous grab area around the handle pill.
 const HANDLE_HIT_SLOP = { top: 8, bottom: 16, left: 48, right: 48 };
-const SCREEN_HEIGHT = Dimensions.get("window").height;
+
+/** One row of a drawer menu: icon, label, tap. */
+export const DrawerItem = ({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: ReactNode;
+  label: string;
+  onPress: () => void;
+}) => (
+  <Pressable
+    accessibilityRole="button"
+    className="active:bg-accent flex-row items-center gap-3 rounded-lg p-4"
+    onPress={onPress}
+  >
+    {icon}
+    <Text className="text-sm font-medium">{label}</Text>
+  </Pressable>
+);
 
 export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => {
   const insets = useSafeAreaInsets();
+  // Window, not screen: iPad split view and multitasking resize the window.
+  const { height: windowHeight } = useWindowDimensions();
   const reduceMotionEnabled = useReducedMotion();
   // Modal stays mounted through the exit animation, then unmounts. Reduce
   // motion has no exit animation, so there is nothing to stay mounted for.
@@ -59,12 +81,12 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
 
   const previousSettings = useRef({ open: false, reduceMotionEnabled });
   // translateY: 0 = fully open, sheetHeight = fully dismissed (offscreen).
-  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const translateY = useSharedValue(windowHeight);
   // Where the sheet sat when a drag started, so drags that begin mid-spring
   // don't teleport it.
   const dragStartY = useSharedValue(0);
-  // Measured sheet height; falls back to the screen height until first layout.
-  const sheetHeight = useSharedValue(SCREEN_HEIGHT);
+  // Measured sheet height; falls back to the window height until first layout.
+  const sheetHeight = useSharedValue(windowHeight);
 
   // Drive enter/exit from the `open` prop so every close path (item select,
   // scrim tap, hardware back, drag) animates out before the Modal unmounts.
@@ -81,17 +103,17 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     if (open) {
       // A sheet parked at its dismissed position is a fresh open and starts
       // offscreen; a reopen mid-exit springs back from wherever the sheet is.
-      if (translateY.get() >= sheetHeight.get()) translateY.set(SCREEN_HEIGHT);
+      if (translateY.get() >= sheetHeight.get()) translateY.set(windowHeight);
       translateY.set(withSpring(0, SETTLE_SPRING));
     } else {
       translateY.set(
         withSpring(sheetHeight.get(), SETTLE_SPRING, (finished) => {
           // Skip unmounting when the exit spring was cancelled by a reopen.
-          if (finished === true) runOnJS(setClosing)(false);
+          if (finished === true) scheduleOnRN(setClosing, false);
         }),
       );
     }
-  }, [open, reduceMotionEnabled, sheetHeight, translateY]);
+  }, [open, reduceMotionEnabled, sheetHeight, translateY, windowHeight]);
 
   const pan = panGesture()
     // Only while open — touches during the exit animation can't drag the
@@ -113,21 +135,21 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     // onEnd only fires for drags that actually activated, so taps and
     // sub-threshold flicks can never trigger the velocity dismiss.
     .onEnd((event) => {
-      const dismissDistance = sheetHeight.value * DISMISS_DISTANCE_RATIO;
-      if (translateY.value > dismissDistance || event.velocityY > DISMISS_VELOCITY) {
+      const dismissDistance = sheetHeight.get() * DISMISS_DISTANCE_RATIO;
+      if (translateY.get() > dismissDistance || event.velocityY > DISMISS_VELOCITY) {
         // Flip the prop; the effect above runs the exit spring from here.
-        runOnJS(onClose)();
+        scheduleOnRN(onClose);
       } else {
         translateY.set(reduceMotionEnabled ? 0 : withSpring(0, SETTLE_SPRING));
       }
     });
 
   const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
+    transform: [{ translateY: translateY.get() }],
   }));
 
   const scrimStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateY.value, [0, sheetHeight.value], [1, 0], Extrapolation.CLAMP),
+    opacity: interpolate(translateY.get(), [0, sheetHeight.get()], [1, 0], Extrapolation.CLAMP),
   }));
 
   return (

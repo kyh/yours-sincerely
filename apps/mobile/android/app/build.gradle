@@ -32,6 +32,9 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // Capacitor 8 and the AndroidX stack disagree on kotlin-stdlib-jdk7/jdk8
+    // versions; without one BOM the debug build fails on duplicate classes.
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"

@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  FEED_PREVIEW_MAX_CHARS,
+  FEED_PREVIEW_MAX_LINES,
   getExpiryProgress,
   getLegacyAvatarIndex,
   getReadingTime,
+  needsFeedPreview,
   parseServerDate,
   POST_EXPIRY_DAYS,
 } from "./content.ts";
@@ -150,4 +153,13 @@ test("expiry is exclusive at the exact boundary instant", () => {
   const progress = getExpiryProgress("2026-07-09 00:00:00.000", new Date("2026-07-30T00:00:00Z"));
   assert.equal(progress.isExpired, true);
   assert.equal(progress.percentage, 100);
+});
+
+// --- Feed preview -----------------------------------------------------------
+
+test("feed preview trips on either the character or the line bound", () => {
+  assert.equal(needsFeedPreview("x".repeat(FEED_PREVIEW_MAX_CHARS)), false);
+  assert.equal(needsFeedPreview("x".repeat(FEED_PREVIEW_MAX_CHARS + 1)), true);
+  assert.equal(needsFeedPreview("x\n".repeat(FEED_PREVIEW_MAX_LINES - 1).trim()), false);
+  assert.equal(needsFeedPreview("x\n".repeat(FEED_PREVIEW_MAX_LINES)), true);
 });

@@ -3,20 +3,13 @@ import { readFileSync } from "node:fs";
 // Node 22.18+ strips types, so the canonical identity constants import directly.
 import { MOBILE_ANDROID_PACKAGE } from "../packages/contracts/src/mobile-identity.ts";
 
-const webRequired = [
-  "COOKIE_SECRET",
-  "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
-  "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
-  "KNOCK_API_KEY",
-  "RESEND_API_KEY",
-];
+const webRequired = ["COOKIE_SECRET", "RESEND_API_KEY"];
 
-const easRequired = [
-  "NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY",
-  "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID",
-  "NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID",
-  "GOOGLE_SERVICES_JSON",
-];
+const easRequired = ["GOOGLE_SERVICES_JSON"];
+
+// Inlined into the bundle by apps/expo/src/lib/base-url.ts, where they repoint
+// a store build at another API. Development-only escape hatches.
+const easForbidden = ["EXPO_PUBLIC_API_URL", "EXPO_PUBLIC_API_PORT"];
 
 const targetFlagIndex = process.argv.indexOf("--target");
 const target = targetFlagIndex === -1 ? "all" : process.argv[targetFlagIndex + 1];
@@ -27,7 +20,7 @@ if (!target || !validTargets.has(target)) {
   process.exit(2);
 }
 
-if (process.argv.includes("--if-production") && process.env.EAS_BUILD_PROFILE !== "production") {
+if (process.argv.includes("--if-production") && process.env.APP_VARIANT !== "production") {
   console.log("Skipping production release validation for a non-production EAS build.");
   process.exit(0);
 }
@@ -37,17 +30,8 @@ const required = [
 ];
 
 const missing = required.filter((name) => !process.env[name]?.trim());
+const forbidden = target === "web" ? [] : easForbidden.filter((name) => process.env[name]?.trim());
 const invalid = [];
-const knockPublicKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
-const knockSecretKey = process.env.KNOCK_API_KEY;
-
-if (knockPublicKey?.includes("_test_")) {
-  invalid.push("NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY", "NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID");
-}
-
-if (target !== "eas" && knockSecretKey?.includes("_test_")) {
-  invalid.push("KNOCK_API_KEY");
-}
 
 const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
 if (target !== "web" && googleServicesFile) {
@@ -64,9 +48,12 @@ if (target !== "web" && googleServicesFile) {
   }
 }
 
-if (missing.length > 0 || invalid.length > 0) {
+if (missing.length > 0 || invalid.length > 0 || forbidden.length > 0) {
   if (missing.length > 0) console.error(`Missing: ${missing.join(", ")}`);
   if (invalid.length > 0) console.error(`Invalid: ${[...new Set(invalid)].join(", ")}`);
+  if (forbidden.length > 0) {
+    console.error(`Must be unset for a store build: ${forbidden.join(", ")}`);
+  }
   process.exitCode = 1;
 } else {
   console.log(`Mobile ${target} release configuration is complete.`);

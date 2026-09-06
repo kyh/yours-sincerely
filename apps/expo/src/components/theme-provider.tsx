@@ -31,12 +31,16 @@ type ThemeContextValue = {
   theme: ThemeId;
   /** The concrete theme in effect ("system" resolved via OS color scheme). */
   resolvedTheme: ResolvedThemeId;
+  /** False until the stored choice has been read, so the splash screen can
+      stay up instead of flashing the default theme first. */
+  isReady: boolean;
   setTheme: (theme: ThemeId) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "system",
   resolvedTheme: "light",
+  isReady: false,
   setTheme: () => undefined,
 });
 
@@ -45,12 +49,16 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const colorScheme = useColorScheme();
   const [theme, setThemeState] = useState<ThemeId>("system");
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(THEME_STORAGE_KEY).then((stored) => {
-      if (stored !== null && isThemeId(stored)) setThemeState(stored);
-      return undefined;
-    });
+    AsyncStorage.getItem(THEME_STORAGE_KEY)
+      .then((stored) => {
+        if (stored !== null && isThemeId(stored)) setThemeState(stored);
+        return undefined;
+      })
+      .catch(() => undefined)
+      .finally(() => setIsReady(true));
   }, []);
 
   const setTheme = useCallback((next: ThemeId) => {
@@ -61,8 +69,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const resolvedTheme = theme === "system" ? (colorScheme === "dark" ? "dark" : "light") : theme;
 
   const value = useMemo(
-    () => ({ theme, resolvedTheme, setTheme }),
-    [theme, resolvedTheme, setTheme],
+    () => ({ theme, resolvedTheme, isReady, setTheme }),
+    [theme, resolvedTheme, isReady, setTheme],
   );
 
   return (

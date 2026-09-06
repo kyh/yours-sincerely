@@ -5,11 +5,11 @@ import { GestureDetector } from "react-native-gesture-handler";
 import {
   interpolate,
   Extrapolation,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { Button } from "@/components/ui/button";
 import { AnimatedView } from "@/lib/css-interop";
@@ -44,6 +44,13 @@ export const useCardStack = () => {
 const ADVANCE_SPRING = { stiffness: 600, damping: 50 };
 const SNAP_BACK_SPRING = { stiffness: 300, damping: 50 };
 const STACK_SPRING = { stiffness: 600, damping: 30 };
+
+// Cards deeper than this are scaled and rotated fully behind the top card, so
+// mounting them (each with its own ScrollView) only costs memory as the feed
+// pages in. One card behind stays mounted so Previous springs back from where
+// the stack left it.
+const MOUNTED_AHEAD = 8;
+const MOUNTED_BEHIND = 1;
 
 type CardProps = {
   index: number;
@@ -99,7 +106,7 @@ const Card = ({
       const distance = Math.abs(event.translationX);
       const speed = Math.abs(event.velocityX);
       if (distance > minDistance || speed > minSpeed) {
-        runOnJS(setNextPost)();
+        scheduleOnRN(setNextPost);
         x.set(reduceMotionEnabled ? 0 : withSpring(0, ADVANCE_SPRING));
       } else {
         x.set(reduceMotionEnabled ? 0 : withSpring(0, SNAP_BACK_SPRING));
@@ -109,13 +116,13 @@ const Card = ({
   const animatedStyle = useAnimatedStyle(() => {
     const rotate = reduceMotionEnabled
       ? baseRotation
-      : interpolate(x.value, [0, 400], [baseRotation, baseRotation + 10], Extrapolation.EXTEND);
+      : interpolate(x.get(), [0, 400], [baseRotation, baseRotation + 10], Extrapolation.EXTEND);
     return {
-      opacity: animatedOpacity.value,
+      opacity: animatedOpacity.get(),
       transform: [
-        { translateX: x.value },
+        { translateX: x.get() },
         { rotate: `${rotate}deg` },
-        { scale: animatedScale.value * pressed.value },
+        { scale: animatedScale.get() * pressed.get() },
       ],
     };
   });
@@ -173,25 +180,32 @@ export const CardStack = <T extends { id: string }>({
     setCurrentIndex(wrap(0, data.length, safeIndex - 1));
   };
 
+  const isMounted = (index: number) => {
+    const ahead = wrap(0, data.length, index - safeIndex);
+    return ahead <= MOUNTED_AHEAD || data.length - ahead <= MOUNTED_BEHIND;
+  };
+
   return (
     <View className="flex-1 items-center gap-3 px-5 pb-4">
       <View
         className="relative h-full w-full flex-1"
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
-        {data.map((item, index) => (
-          <Card
-            key={item.id}
-            minDistance={width * 0.5}
-            maxRotate={3}
-            index={index}
-            currentIndex={safeIndex}
-            total={data.length}
-            setNextPost={handleSetNextPost}
-          >
-            {render(item)}
-          </Card>
-        ))}
+        {data.map((item, index) =>
+          isMounted(index) ? (
+            <Card
+              key={item.id}
+              minDistance={width * 0.5}
+              maxRotate={3}
+              index={index}
+              currentIndex={safeIndex}
+              total={data.length}
+              setNextPost={handleSetNextPost}
+            >
+              {render(item)}
+            </Card>
+          ) : null,
+        )}
       </View>
       <View className="flex-row items-center justify-center gap-2">
         <Button size="sm" variant="ghost" onPress={handleSetPreviousPost}>

@@ -576,11 +576,11 @@ export function balloons(): Promise<void> {
     let currentZIndex = 1;
 
     const animations = balloonPositions.map((pos, index) => {
-      const colorPair = colorPairs[index % colorPairs.length]!;
+      const colorPair = colorPairs[index % colorPairs.length];
 
       const balloon = createBallonElement({
-        balloonColor: colorPair[1] ?? defaultBalloonColor,
-        lightColor: colorPair[0] ?? defaultBalloonColor,
+        balloonColor: colorPair?.[1] ?? defaultBalloonColor,
+        lightColor: colorPair?.[0] ?? defaultBalloonColor,
         width: balloonWidth,
       });
       balloonsContainer.appendChild(balloon);

@@ -1,4 +1,3 @@
-import { NotFoundError } from "@knocklabs/node";
 import { eq, inArray, or, sql } from "@repo/db";
 import {
   account,
@@ -12,7 +11,6 @@ import {
 } from "@repo/db/drizzle-schema";
 
 import { clearSession } from "../auth/session";
-import { getKnockClient } from "../knock";
 import { collectDescendantPostIds } from "../post/post-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
 import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
@@ -85,16 +83,8 @@ export const userRouter = {
 
   deleteUser: protectedProcedure.handler(async ({ context }) => {
     const userId = context.user.id;
-    const knock = getKnockClient();
 
-    if (knock !== null) {
-      try {
-        await knock.users.delete(userId);
-      } catch (error) {
-        if (!(error instanceof NotFoundError)) throw error;
-      }
-    }
-
+    // Notification and PushToken rows go with the user row via ON DELETE CASCADE.
     await context.db.transaction(async (tx) => {
       const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
       const userPostIds = userPosts.map((row) => row.id);

@@ -13,6 +13,13 @@ import { deleteSessionCookie, getSessionCookie, setSessionCookie } from "./sessi
  *
  * Values are kept verbatim (`decodeValues: false`) — the signed value must
  * round-trip byte-for-byte or signature verification fails server-side.
+ *
+ * `credentials: "omit"` switches off React Native's own cookie handling so
+ * SecureStore stays the only source of truth. With it on, iOS appends any
+ * cookie in `HTTPCookieStorage.shared` to the explicit header (the server then
+ * sees `__session=a,__session=b` and rejects the signature) and Android's
+ * OkHttp jar replaces the header outright with whatever the legacy WebView
+ * jar still holds — both would let a stale native cookie shadow the stored one.
  */
 export const fetchWithSession: typeof fetch = async (input, init) => {
   await ensureLegacySessionMigrated();
@@ -23,7 +30,7 @@ export const fetchWithSession: typeof fetch = async (input, init) => {
     headers.set("cookie", `${SESSION_COOKIE}=${session}`);
   }
 
-  const response = await fetch(input, { ...init, headers });
+  const response = await fetch(input, { ...init, headers, credentials: "omit" });
 
   const rawSetCookie = response.headers.get("set-cookie");
   if (rawSetCookie !== null) {

@@ -9,10 +9,12 @@ export const FeedLayoutProvider = ({ children }: { children: ReactNode }) => {
   const [layout, setLayout] = useState<FeedLayout>("list");
 
   useEffect(() => {
-    AsyncStorage.getItem(FEED_LAYOUT_STORAGE_KEY).then((stored) => {
-      setLayout(parseFeedLayout(stored ?? undefined));
-      return undefined;
-    });
+    AsyncStorage.getItem(FEED_LAYOUT_STORAGE_KEY)
+      .then((stored) => {
+        setLayout(parseFeedLayout(stored ?? undefined));
+        return undefined;
+      })
+      .catch(() => undefined);
   }, []);
 
   const value = useMemo(

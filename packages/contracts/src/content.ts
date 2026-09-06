@@ -1,6 +1,15 @@
 export const POST_EXPIRY_DAYS = 21;
 const LEGACY_AVATAR_COUNT = 20;
 
+/** A feed row shows at most this much of a letter before deferring to the
+    detail screen; a single 50,000-character letter would otherwise be the
+    whole scroll. Either bound trips the preview. */
+export const FEED_PREVIEW_MAX_CHARS = 500;
+export const FEED_PREVIEW_MAX_LINES = 12;
+
+export const needsFeedPreview = (content: string): boolean =>
+  content.length > FEED_PREVIEW_MAX_CHARS || content.split("\n").length > FEED_PREVIEW_MAX_LINES;
+
 /** Server timestamps come from Postgres `timestamp without time zone` columns
     (drizzle mode "string") as UTC wall time like "2026-07-09 18:23:45.123".
     They are zone-less, so `new Date()` would parse them as LOCAL time and skew

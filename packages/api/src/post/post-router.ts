@@ -1,12 +1,17 @@
 import type { ORPCContext } from "../orpc";
 import { and, desc, eq, inArray, lt, notExists, or, sql } from "@repo/db";
-import { block, feed, flag, like, post } from "@repo/db/drizzle-schema";
+import { block, feed, flag, like, notification, post } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
+import {
+  describeNotification,
+  type NewCommentNotificationData,
+} from "@repo/contracts/notifications";
 import { ORPCError } from "@orpc/server";
 
+import { afterResponse } from "../after-response";
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { getKnockClient } from "../knock";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { sendPushToUser } from "../push/expo-push";
 import {
   convertDbPostToFeedPost,
   createPostInput,
@@ -165,45 +170,81 @@ export const postRouter = {
   createPost: publicProcedure.input(createPostInput).handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context, input.createdBy);
 
-    const [created] = await context.db
-      .insert(post)
-      .values({
-        ...getDefaultValues(),
-        userId: userId,
-        content: input.content,
-        createdBy: input.createdBy || "Anonymous",
-        parentId: input.parentId,
-      })
-      .returning();
+    // The comment and its notification commit together: a letter author is
+    // never told about a reply that failed to save, and never misses one that did.
+    const { created, reply } = await context.db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(post)
+        .values({
+          ...getDefaultValues(),
+          userId: userId,
+          content: input.content,
+          createdBy: input.createdBy || "Anonymous",
+          parentId: input.parentId,
+        })
+        .returning();
 
-    const knock = getKnockClient();
-    if (created?.parentId && knock !== null) {
-      const parentPost = await context.db.query.post.findFirst({
-        where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
-        with: {
-          user: true,
-        },
-      });
-      const recipient = parentPost?.user;
+      const parent = created?.parentId
+        ? await tx.query.post.findFirst({
+            where: (post, { eq }) => eq(post.id, created.parentId ?? ""),
+            columns: { id: true, userId: true },
+          })
+        : undefined;
 
-      if (recipient) {
-        await knock.workflows.trigger("new-comment", {
-          data: {
-            parentPostId: parentPost.id,
-            commentPostId: created.id,
-          },
-          actor: {
-            id: created.userId,
-            displayName: created.createdBy,
-          },
-          recipients: [
-            {
-              id: recipient.id,
-              displayName: recipient.displayName,
-            },
-          ],
-        });
+      if (!created || !parent || parent.userId === created.userId) {
+        return { created, reply: null };
       }
+
+      // A blocked commenter's words must never reach the person who blocked
+      // them: `getPost` hides the reply, so the row would point at nothing and
+      // the push would be the one channel the block did not cover.
+      const blocked = await tx.query.block.findFirst({
+        where: (block, { and, eq }) =>
+          and(eq(block.blockerId, parent.userId), eq(block.blockingId, created.userId)),
+        columns: { blockerId: true },
+      });
+      if (blocked) return { created, reply: null };
+
+      const actorName = created.createdBy ?? "Anonymous";
+
+      await tx
+        .insert(notification)
+        .values({
+          ...getDefaultValues({ withUpdatedAt: false }),
+          userId: parent.userId,
+          kind: "COMMENT",
+          postId: parent.id,
+          commentId: created.id,
+          actorName,
+        })
+        .onConflictDoNothing({ target: [notification.userId, notification.commentId] });
+
+      return {
+        created,
+        reply: {
+          recipientId: parent.userId,
+          parentPostId: parent.id,
+          commentPostId: created.id,
+          actorName,
+        },
+      };
+    });
+
+    // After commit, best-effort, and off the response path: the comment is
+    // saved, so a push Expo is slow to accept must neither fail it nor hold the
+    // reply open until the client times out and posts the same comment twice.
+    if (reply) {
+      await afterResponse(async () => {
+        await sendPushToUser({
+          userId: reply.recipientId,
+          title: "Yours Sincerely",
+          body: describeNotification({ kind: "COMMENT", actorName: reply.actorName }),
+          data: {
+            parentPostId: reply.parentPostId,
+            commentPostId: reply.commentPostId,
+          } satisfies NewCommentNotificationData,
+        });
+      });
     }
 
     return {

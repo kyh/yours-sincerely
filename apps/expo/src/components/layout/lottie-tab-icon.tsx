@@ -39,7 +39,10 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
         height: size,
         opacity: focused ? 1 : 0.5,
       }}
-      colorFilters={isDarkTheme(resolvedTheme) ? [{ keypath: "**", color: "#FAFAFA" }] : undefined}
+      // lottie-react-native appends ".**.Color" to the keypath, so "**" here
+      // becomes "**.**.Color", which matches nothing; "*" (any top-level layer)
+      // is the glob that recolors every stroke and fill.
+      colorFilters={isDarkTheme(resolvedTheme) ? [{ keypath: "*", color: "#FAFAFA" }] : undefined}
     />
   );
 };

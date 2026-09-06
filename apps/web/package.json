@@ -17,7 +17,6 @@
     "@capacitor/core": "^8.5.0",
     "@capacitor/splash-screen": "^8.0.2",
     "@hookform/resolvers": "^5.9.1",
-    "@knocklabs/react": "^0.13.1",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.6.2",
     "@orpc/client": "catalog:",

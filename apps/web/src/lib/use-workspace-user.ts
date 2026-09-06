@@ -4,9 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { orpc } from "@/orpc/react";
 
-export const useWorkspace = () => {
+export const useWorkspaceUser = () => {
   const { data } = useSuspenseQuery(orpc.auth.workspace.queryOptions());
-  return data;
+  return data.user;
 };
-
-export const useWorkspaceUser = () => useWorkspace().user;

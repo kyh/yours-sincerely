@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
-import type { InfiniteData, QueryKey } from "@tanstack/react-query";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
+import type { InfiniteData } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import Animated, {
   Easing,
   interpolateColor,
-  runOnJS,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
@@ -16,13 +16,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Circle, Path } from "react-native-svg";
+import { scheduleOnRN } from "react-native-worklets";
 
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, orpc } from "@/lib/api";
-import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
+import { createLikeMutationHandlers } from "@/lib/like-cache";
 import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
@@ -52,12 +53,12 @@ const CircleAnimation = () => {
   }, [progress]);
 
   const animatedProps = useAnimatedProps(() => ({
-    stroke: interpolateColor(progress.value, [0, 1], ["#E5214A", "#CC8EF5"]),
-    strokeWidth: (1 - progress.value) * CIRCLE_RADIUS * 2,
+    stroke: interpolateColor(progress.get(), [0, 1], ["#E5214A", "#CC8EF5"]),
+    strokeWidth: (1 - progress.get()) * CIRCLE_RADIUS * 2,
   }));
 
   const style = useAnimatedStyle(() => ({
-    transform: [{ scale: progress.value }],
+    transform: [{ scale: progress.get() }],
   }));
 
   return (
@@ -135,10 +136,10 @@ const Particle = ({
   const style = useAnimatedStyle(() => {
     // Scale uses quad-in on the same 0→1 clock as the (quint-out) movement:
     // recover linear time from the movement curve, then apply quad-in.
-    const easedOutT = progress.value;
+    const easedOutT = progress.get();
     const scale = 1 - Easing.bezier(0.55, 0.085, 0.68, 0.53).factory()(easedOutT);
     return {
-      opacity: opacity.value,
+      opacity: opacity.get(),
       backgroundColor: interpolateColor(easedOutT, [0, 1], [fromColor, toColor]),
       transform: [
         { translateX: config.startX + (config.targetX - config.startX) * easedOutT },
@@ -198,14 +199,14 @@ const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
       withDelay(
         300,
         withSpring(1, { stiffness: 300, damping: 10 }, (finished) => {
-          if (finished === true) runOnJS(onComplete)();
+          if (finished === true) scheduleOnRN(onComplete);
         }),
       ),
     );
   }, [scale, onComplete]);
 
   const style = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: scale.get() }],
   }));
 
   return (
@@ -222,75 +223,31 @@ type Props = {
 type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
 type PostQueryData = RouterOutputs["post"]["getPost"];
 
-type LikeSnapshot = {
-  previousFeed: [QueryKey, unknown][];
-  previousPosts: [QueryKey, unknown][];
-};
+const FEED_FILTER = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
+const POST_FILTER = { queryKey: orpc.post.getPost.key() };
 
-const likePatch = (item: { likeCount: number }, liked: boolean) => ({
-  isLiked: liked,
-  likeCount: item.likeCount + (liked ? 1 : -1),
-});
-
-/** Optimistically toggles a like across the feed and post-detail caches so
-    remounted rows (list virtualization, screen re-entry) stay in sync. */
-const likeMutationHandlers = (postId: string, liked: boolean) => {
-  const feedFilter = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
-  const postFilter = { queryKey: orpc.post.getPost.key() };
-
-  return {
-    onMutate: async (): Promise<LikeSnapshot> => {
-      await Promise.all([
-        queryClient.cancelQueries(feedFilter),
-        queryClient.cancelQueries(postFilter),
-      ]);
-      const previousFeed = queryClient.getQueriesData(feedFilter);
-      const previousPosts = queryClient.getQueriesData(postFilter);
-      queryClient.setQueriesData<FeedQueryData>(feedFilter, (data) =>
-        data === undefined
-          ? undefined
-          : {
-              ...data,
-              pages: data.pages.map((page) => ({
-                ...page,
-                posts: page.posts.map((item) =>
-                  item.id === postId ? { ...item, ...likePatch(item, liked) } : item,
-                ),
-              })),
-            },
-      );
-      queryClient.setQueriesData<PostQueryData>(postFilter, (data) =>
-        data === undefined
-          ? undefined
-          : {
-              ...data,
-              post: {
-                ...data.post,
-                ...(data.post.id === postId ? likePatch(data.post, liked) : undefined),
-                comments: data.post.comments?.map((comment) =>
-                  comment.id === postId ? { ...comment, ...likePatch(comment, liked) } : comment,
-                ),
-              },
-            },
-      );
-      return { previousFeed, previousPosts };
+/** Binds the pure like bookkeeping to the real feed and post-detail caches. */
+const likeMutationHandlers = (postId: string, liked: boolean) =>
+  createLikeMutationHandlers<FeedQueryData, PostQueryData>(
+    {
+      cancel: async () => {
+        await Promise.all([
+          queryClient.cancelQueries(FEED_FILTER),
+          queryClient.cancelQueries(POST_FILTER),
+        ]);
+      },
+      readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
+      readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
+      writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+      writePost: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+      refresh: () => {
+        refreshPostContent().catch(() => undefined);
+        refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
+      },
     },
-    onError: (
-      _error: Error,
-      _variables: { postId: string },
-      snapshot: LikeSnapshot | undefined,
-    ) => {
-      if (snapshot === undefined) return;
-      for (const [queryKey, data] of [...snapshot.previousFeed, ...snapshot.previousPosts]) {
-        queryClient.setQueryData(queryKey, data);
-      }
-    },
-    onSettled: () => {
-      refreshPostContent().catch(() => undefined);
-      refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
-    },
-  };
-};
+    postId,
+    liked,
+  );
 
 export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
@@ -319,6 +276,7 @@ export const LikeButton = ({ post }: Props) => {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${post.likeCount} likes, tap to ${post.isLiked ? "unlike" : "like"}`}
+      accessibilityState={{ selected: post.isLiked }}
       hitSlop={6}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
       onPress={toggleLike}

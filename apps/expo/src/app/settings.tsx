@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
+import { updateUserInput } from "@repo/contracts/user";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react-native";
 import { SafeAreaView } from "@/lib/css-interop";
 import { toast } from "sonner-native";
 
+import { BackButton } from "@/components/layout/back-button";
 import { BlockedWriters } from "@/components/settings/blocked-writers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { themes, useTheme } from "@/components/theme-provider";
-import { useThemeColors } from "@/components/theme-colors";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
+import { retireLegacySessionMigration } from "@/lib/legacy-session-migration";
 import { deleteSessionCookie } from "@/lib/session-store";
 import { queryClient, orpc } from "@/lib/api";
 import { refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
-import { siteConfig } from "@/lib/site-config";
+import { siteConfig, supportMailto } from "@/lib/site-config";
 import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
@@ -25,12 +26,12 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
     theme picker, sign out, account deletion, legal links. */
 export default function SettingsScreen() {
   const router = useRouter();
-  const colors = useThemeColors();
   const { theme, setTheme } = useTheme();
   const { user } = useWorkspaceUser();
   const releasePushIdentity = useReleasePushIdentity();
 
   const [email, setEmail] = useSeededState(user?.email, "");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isPreparingDelete, setIsPreparingDelete] = useState(false);
 
@@ -49,13 +50,17 @@ export default function SettingsScreen() {
       onError: () => toast.error("Could not send password reset email. Please try again."),
     }),
   );
+  const endLocalSession = async () => {
+    await deleteSessionCookie();
+    await retireLegacySessionMigration();
+    queryClient.clear();
+    router.replace("/");
+  };
+
+  const signOutOnServer = useMutation(orpc.auth.signOut.mutationOptions());
   const deleteAccount = useMutation(
     orpc.user.deleteUser.mutationOptions({
-      onSuccess: async () => {
-        await deleteSessionCookie();
-        queryClient.clear();
-        router.replace("/");
-      },
+      onSuccess: endLocalSession,
       onError: () => toast.error("Could not delete account. Please try again."),
     }),
   );
@@ -83,18 +88,22 @@ export default function SettingsScreen() {
 
   const handleEmailBlur = () => {
     if (user === null || email === (user.email ?? "")) return;
-    updateUser.mutate({ email });
+    const parsed = updateUserInput.safeParse({ email });
+    if (!parsed.success) {
+      setEmailError(parsed.error.issues[0]?.message ?? "Invalid email");
+      return;
+    }
+    setEmailError(null);
+    updateUser.mutate(parsed.data);
   };
 
   const signOut = () => {
     setIsSigningOut(true);
     releasePushIdentity()
-      .then(() => deleteSessionCookie())
-      .then(() => {
-        queryClient.clear();
-        router.replace("/");
-        return undefined;
-      })
+      // The server only clears its cookie; the local wipe below is what signs
+      // out, so an offline device must not be stuck signed in.
+      .then(() => signOutOnServer.mutateAsync(undefined).catch(() => undefined))
+      .then(endLocalSession)
       .catch(() => toast.error("Could not clear this session. Please try again."))
       .finally(() => setIsSigningOut(false));
   };
@@ -102,17 +111,8 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
       <View className="flex-row items-center gap-2 px-5 py-3">
-        <Pressable
-          accessibilityRole="button"
-          className="active:bg-accent -ml-2 h-8 flex-row items-center gap-1 rounded-lg px-2"
-          onPress={() => {
-            if (router.canGoBack()) router.back();
-            else router.replace("/");
-          }}
-        >
-          <ArrowLeft size={16} color={colors.foreground} />
-        </Pressable>
-        <Text className="text-xl font-bold">Settings</Text>
+        <BackButton fallback="/" />
+        <Text className="text-2xl font-bold tracking-tight">Settings</Text>
       </View>
 
       <ScrollView
@@ -128,12 +128,20 @@ export default function SettingsScreen() {
               </Text>
               <Input
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  setEmailError(null);
+                }}
                 onBlur={handleEmailBlur}
                 placeholder="Your email"
                 autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect={false}
                 keyboardType="email-address"
               />
+              {emailError !== null && (
+                <Text className="text-destructive text-xs">{emailError}</Text>
+              )}
             </View>
 
             <View className="gap-2">
@@ -214,7 +222,7 @@ export default function SettingsScreen() {
             { label: "About", url: `${siteConfig.url}/about` },
             { label: "Privacy", url: `${siteConfig.url}/privacy` },
             { label: "Terms", url: `${siteConfig.url}/terms` },
-            { label: "Support", url: `mailto:${siteConfig.supportEmail}` },
+            { label: "Support", url: supportMailto(user?.id) },
           ].map((link) => (
             <Pressable
               key={link.label}

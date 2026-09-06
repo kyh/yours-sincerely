@@ -68,7 +68,7 @@ export default function ThemeGallery() {
           <Text className="font-bold">Bold 700</Text>
         </View>
 
-        <View className="bg-primary rounded-radius p-3">
+        <View className="bg-primary rounded-lg p-3">
           <Text className="text-primary-foreground text-center font-medium">Primary surface</Text>
         </View>
       </ScrollView>

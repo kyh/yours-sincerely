@@ -15,7 +15,7 @@ export default function ProfileTabScreen() {
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
       <View className="flex-row items-center justify-between px-5 py-3">
-        <Text className="text-xl font-bold">Profile</Text>
+        <Text className="text-2xl font-bold tracking-tight">Profile</Text>
       </View>
       {isPending ? (
         <View className="flex-1 items-center justify-center">

@@ -22,6 +22,13 @@ type MigrateLegacySessionDependencies = CopyLegacySessionDependencies & {
   setCheckpoint: (checkpoint: Exclude<LegacySessionMigrationCheckpoint, null>) => void;
 };
 
+type RetireLegacySessionDependencies = Pick<
+  MigrateLegacySessionDependencies,
+  "getCheckpoint" | "setCheckpoint"
+> & {
+  clearLegacy: () => Promise<void>;
+};
+
 const isPresent = (value: string | null): value is string => value !== null && value.length > 0;
 
 const setCheckpointVerified = (
@@ -106,4 +113,24 @@ export const finalizeLegacySession = async ({
   setCheckpointVerified({ getCheckpoint, setCheckpoint }, "complete");
 
   return "cleared";
+};
+
+/** The user ended their session on this device (sign-out, account deletion).
+    Until finalization has run, the next cold start would copy the legacy
+    cookie again and silently sign them back in — so reach the terminal
+    checkpoint now. Clearing the jar is best-effort: the checkpoint alone is
+    what stops the resurrection, and a cookie nothing reads is harmless. */
+export const retireLegacySession = async (
+  deps: RetireLegacySessionDependencies,
+): Promise<"retired" | "already-complete"> => {
+  if (deps.getCheckpoint() === "complete") return "already-complete";
+
+  try {
+    await deps.clearLegacy();
+  } catch {
+    // Fall through to the checkpoint.
+  }
+
+  setCheckpointVerified(deps, "complete");
+  return "retired";
 };

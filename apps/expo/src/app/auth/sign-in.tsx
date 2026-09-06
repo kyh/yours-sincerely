@@ -1,47 +1,19 @@
-import { Pressable, View } from "react-native";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import type { Href } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { View } from "react-native";
+import { Link, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "@/lib/css-interop";
 
 import { AuthForm } from "@/components/auth/auth-form";
+import { BackButton } from "@/components/layout/back-button";
 import { Text } from "@/components/ui/text";
-import { useThemeColors } from "@/components/theme-colors";
-
-/** Only known, parameterless routes are accepted as a post-signin
-    destination — keeps the redirect typed without an `as` cast. */
-const resolveNextRoute = (value: string | string[] | undefined): Href => {
-  if (value === undefined || Array.isArray(value)) return "/";
-  switch (value) {
-    case "/":
-    case "/settings":
-    case "/notifications":
-    case "/profile":
-      return value;
-    default:
-      return "/";
-  }
-};
+import { resolveNextRoute } from "@/lib/next-route";
 
 export default function SignInScreen() {
-  const router = useRouter();
-  const colors = useThemeColors();
   const { next } = useLocalSearchParams<{ next?: string }>();
 
   return (
     <SafeAreaView className="bg-background flex-1">
       <View className="px-5 py-3">
-        <Pressable
-          accessibilityRole="button"
-          className="active:bg-accent -ml-2 h-8 w-16 flex-row items-center gap-1 rounded-lg px-2"
-          onPress={() => {
-            if (router.canGoBack()) router.back();
-            else router.replace("/");
-          }}
-        >
-          <ArrowLeft size={16} color={colors.foreground} />
-          <Text className="text-sm font-medium">Back</Text>
-        </Pressable>
+        <BackButton fallback="/" label="Back" />
       </View>
       <View className="flex-1 justify-center gap-6 px-6">
         <Text className="text-center text-2xl font-bold">Welcome back</Text>

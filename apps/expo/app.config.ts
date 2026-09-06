@@ -8,7 +8,11 @@ import {
 } from "@repo/contracts/mobile-identity";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const isStoreBuild = process.env.EAS_BUILD_PROFILE === "production";
+  // Set per build profile in eas.json. eas-cli applies a profile's `env` when
+  // it evaluates this file locally, which is where it picks credentials and
+  // remote versions by app id; `EAS_BUILD_PROFILE` only exists on the build
+  // server, so keying on it would hand a production build the preview identity.
+  const isStoreBuild = process.env.APP_VARIANT === "production";
   const notificationsMode = isStoreBuild ? "production" : "development";
   const appName = isStoreBuild ? "Yours Sincerely" : "Yours Sincerely Preview";
   const scheme = isStoreBuild ? "yourssincerely" : "yourssincerely-preview";
@@ -30,10 +34,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     orientation: "portrait",
     icon: "./assets/icon-light.png",
     userInterfaceStyle: "automatic",
-    updates: {
-      fallbackToCacheTimeout: 0,
-    },
-    assetBundlePatterns: ["**/*"],
     ios: {
       // Production must match the live Capacitor app so the update inherits
       // its app container (WebView cookies → session migration).
@@ -47,7 +47,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        UISupportedInterfaceOrientations: ["UIInterfaceOrientationPortrait"],
+        // `orientation` alone leaves iPad rotatable; requireFullScreen plus this
+        // key is what keeps it portrait there too.
         "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"],
       },
       icon: {
@@ -71,26 +72,35 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
       adaptiveIcon: {
-        foregroundImage: "./assets/icon-light.png",
-        backgroundColor: "#FBF8EF",
+        foregroundImage: "./assets/adaptive-icon.png",
+        monochromeImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#000000",
       },
+      blockedPermissions: [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+      ],
     },
     extra: {
       eas: {
         projectId: "289e7cea-2c1b-487c-8ab4-ec91572dfb86",
       },
-      knockPublicApiKey: process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY,
-      knockFeedChannelId: process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID,
-      knockExpoChannelId: process.env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID,
     },
     experiments: {
-      tsconfigPaths: true,
       typedRoutes: true,
       reactCompiler: true,
     },
     plugins: [
       "expo-router",
-      ["expo-notifications", { mode: notificationsMode }],
+      [
+        "expo-notifications",
+        {
+          mode: notificationsMode,
+          icon: "./assets/notification-icon.png",
+          color: "#000000",
+        },
+      ],
       "expo-secure-store",
       "expo-image",
       "expo-font",

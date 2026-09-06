@@ -1,19 +1,20 @@
 import Constants from "expo-constants";
 import { z } from "zod";
 
-/** A blank value means "not configured" — same as the key being absent. */
-const optionalConfigString = z
-  .string()
-  .transform((value) => (value.trim() === "" ? undefined : value))
-  .optional();
-
 /** Typed access to the `extra` values defined in app.config.ts. */
 const extraSchema = z.object({
-  knockPublicApiKey: optionalConfigString,
-  knockFeedChannelId: optionalConfigString,
-  knockExpoChannelId: optionalConfigString,
+  eas: z.object({ projectId: z.string().min(1) }),
 });
 
 const parsed = extraSchema.safeParse(Constants.expoConfig?.extra ?? {});
 
-export const appConfig = parsed.success ? parsed.data : {};
+// Without the project id `getExpoPushTokenAsync` rejects with a message that
+// points nowhere near app.config.ts.
+if (!parsed.success && __DEV__) {
+  console.error("[app-config] Invalid `extra` in app.config.ts", z.prettifyError(parsed.error));
+}
+
+export const appConfig = {
+  /** What Expo's push service attributes this build's tokens to. */
+  easProjectId: parsed.success ? parsed.data.eas.projectId : undefined,
+};

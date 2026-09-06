@@ -1,25 +1,25 @@
-import { useEffect } from "react";
 import { View } from "react-native";
-import { useKnockFeed, useNotificationStore } from "@knocklabs/react-native";
+import { useQuery } from "@tanstack/react-query";
 import { ZoomIn, ZoomOut } from "react-native-reanimated";
 
 import { LottieTabIcon } from "@/components/layout/lottie-tab-icon";
-import { appConfig } from "@/lib/app-config";
+import { orpc } from "@/lib/api";
 import { AnimatedView } from "@/lib/css-interop";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
+/** Foreground pushes and app-focus refetches cover the usual paths; polling
+    only catches a reply that lands while the app sits open on another tab. */
+const UNREAD_POLL_INTERVAL_MS = 60_000;
+
 /** Bell tab icon with an unread dot — mirrors the web sidebar badge. */
 const UnreadDot = () => {
   const reduceMotionEnabled = useReducedMotion();
-  const { feedClient } = useKnockFeed();
-  const unreadCount = useNotificationStore(feedClient, (state) => state.metadata.unread_count);
+  const { data } = useQuery(
+    orpc.notification.unreadCount.queryOptions({ refetchInterval: UNREAD_POLL_INTERVAL_MS }),
+  );
 
-  useEffect(() => {
-    feedClient.fetch().catch(() => undefined);
-  }, [feedClient]);
-
-  if (unreadCount === 0) return null;
+  if (data === undefined || data.count === 0) return null;
 
   // Mirrors the web badge's `animate-in fade-in zoom-in`: scale + fade in on
   // 0→n, matching scale + fade out on n→0.
@@ -38,13 +38,11 @@ type Props = {
 
 export const NotificationsTabIcon = ({ focused }: Props) => {
   const { user } = useWorkspaceUser();
-  const apiKey = appConfig.knockPublicApiKey;
-  const feedId = appConfig.knockFeedChannelId;
 
   return (
     <View>
       <LottieTabIcon name="bell" focused={focused} />
-      {user !== null && apiKey !== undefined && feedId !== undefined ? <UnreadDot /> : null}
+      {user !== null ? <UnreadDot /> : null}
     </View>
   );
 };

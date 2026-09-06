@@ -26,6 +26,11 @@ if (Platform.OS !== "web") {
   });
 }
 
+// TanStack aborts an in-flight fetch whenever it invalidates the same query,
+// so a cancelled request is routine, not a failure worth a red box.
+const isCancelledFetch = (error: Error) =>
+  error.name === "AbortError" || /cancel/i.test(error.message);
+
 // RPCLink buffers each response, so the session `Set-Cookie` header stays
 // visible to `fetchWithSession`'s cookie jar — a streaming transport would
 // deliver the body before the wrapper could read it.
@@ -37,7 +42,7 @@ const link = new RPCLink({
   headers: () => ({ "x-orpc-source": "expo" }),
   interceptors: [
     onError((error) => {
-      if (__DEV__) console.error(error);
+      if (__DEV__ && !(error instanceof Error && isCancelledFetch(error))) console.error(error);
     }),
   ],
 });

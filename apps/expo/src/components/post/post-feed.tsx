@@ -1,10 +1,11 @@
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { LegendList } from "@legendapp/list/react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedLayout } from "@/lib/feed-layout";
-import { Button } from "@/components/ui/button";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { orpc } from "@/lib/api";
@@ -26,22 +27,29 @@ type Props = {
 const EMPTY_FILTERS: NonNullable<Props["filters"]> = {};
 
 export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) => {
-  const {
-    data,
-    isPending,
-    isError,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-    isRefetching,
-  } = useInfiniteQuery(
-    orpc.post.getFeed.infiniteOptions({
-      input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
-      initialPageParam: undefined,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }),
-  );
+  const { data, isPending, isError, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery(
+      orpc.post.getFeed.infiniteOptions({
+        input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
+        initialPageParam: undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }),
+    );
+  // Only an explicit pull shows the refresh spinner; `isRefetching` would also
+  // flash it on every background invalidation after a like or flag.
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Web's load-more sentinel is an IntersectionObserver, so it fires as soon as
+  // it is on screen. `onEndReached` only fires on scroll: a first page shorter
+  // than the viewport (iPad, short letters) would never grow without this.
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const underfilled = viewportHeight > 0 && contentHeight > 0 && contentHeight <= viewportHeight;
+  useEffect(() => {
+    if (underfilled && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage().catch(() => undefined);
+    }
+  }, [underfilled, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
@@ -55,18 +63,12 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 py-10">
-        <Text className="text-sm">Couldn't load posts</Text>
-        <Button
-          size="sm"
-          variant="outline"
-          onPress={() => {
-            refetch().catch(() => undefined);
-          }}
-        >
-          Retry
-        </Button>
-      </View>
+      <QueryErrorState
+        message="Couldn't load posts"
+        onRetry={() => {
+          refetch().catch(() => undefined);
+        }}
+      />
     );
   }
 
@@ -102,10 +104,15 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
         if (hasNextPage && !isFetchingNextPage) fetchNextPage().catch(() => undefined);
       }}
       onEndReachedThreshold={0.5}
+      onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
+      onContentSizeChange={(_width, height) => setContentHeight(height)}
       onRefresh={() => {
-        refetch().catch(() => undefined);
+        setRefreshing(true);
+        refetch()
+          .catch(() => undefined)
+          .finally(() => setRefreshing(false));
       }}
-      refreshing={isRefetching}
+      refreshing={refreshing}
       contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 96 }}
       renderItem={({ item }) => (
         <View className="border-border border-b pt-5 pb-3">

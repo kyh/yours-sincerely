@@ -34,6 +34,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
               const level = entry?.level ?? 0;
               const radius = entry !== undefined ? entry.level * 4 : 0;
               const count = entry?.count ?? 0;
+              const summary = `${count} posts written on ${FULL_DAY_LABELS[day] ?? day}s`;
               return (
                 <Ellipse
                   key={day}
@@ -44,7 +45,9 @@ export const ActivityWeek = ({ data, theme }: Props) => {
                   fill={levelColor(theme, level)}
                   strokeWidth={1}
                   stroke={theme.stroke}
-                  onPress={() => toast(`${count} posts written on ${FULL_DAY_LABELS[day] ?? day}s`)}
+                  accessible
+                  accessibilityLabel={summary}
+                  onPress={() => toast(summary)}
                 />
               );
             })}

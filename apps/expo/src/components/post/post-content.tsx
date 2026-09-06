@@ -1,4 +1,5 @@
 import { Pressable, View } from "react-native";
+import { FEED_PREVIEW_MAX_LINES, needsFeedPreview } from "@repo/contracts/content";
 import { useRouter } from "expo-router";
 
 import type { FeedLayout } from "@/lib/feed-layout";
@@ -42,16 +43,13 @@ export const PostContent = ({
     router.push({ pathname: "/profile/[user-id]", params: { "user-id": post.userId } });
   };
 
-  const truncateInFeed =
-    asLink &&
-    layout === "list" &&
-    (post.content.length > 500 || post.content.split("\n").length > 12);
+  const truncateInFeed = asLink && layout === "list" && needsFeedPreview(post.content);
 
   const content = (
     <>
       <Text
         className={cn("text-base leading-6", minHeight && "min-h-72")}
-        numberOfLines={truncateInFeed ? 12 : undefined}
+        numberOfLines={truncateInFeed ? FEED_PREVIEW_MAX_LINES : undefined}
       >
         {post.content}
       </Text>
@@ -63,12 +61,22 @@ export const PostContent = ({
 
   return (
     <View className={cn(layout === "stack" && "h-full w-full flex-col")}>
-      {asLink ? <Pressable onPress={openPost}>{content}</Pressable> : content}
+      {asLink ? (
+        <Pressable accessibilityRole="link" accessibilityLabel="Open letter" onPress={openPost}>
+          {content}
+        </Pressable>
+      ) : (
+        content
+      )}
       <View className={cn(layout === "stack" ? "mt-auto pt-3" : "mt-5")}>
         <View className="flex-row items-center gap-1">
           <Text className="text-sm italic">Yours Sincerely,</Text>
           {post.userId !== null ? (
-            <Pressable onPress={openProfile}>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={`Open ${post.createdBy}'s profile`}
+              onPress={openProfile}
+            >
               <Text className="text-sm font-medium italic underline">{post.createdBy}</Text>
             </Pressable>
           ) : (
