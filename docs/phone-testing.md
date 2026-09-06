@@ -176,8 +176,7 @@ These cannot safely be invented or recovered from source code.
 - Preview push is optional. It needs a separate Firebase app/file for `com.kyh.yourssincerely.preview`.
 
 Nothing else: the server sends through Expo's push service without a token, and the
-in-app feed is the `Notification` table. Backfilling it from Knock is in
-[mobile release inputs](./mobile-release-inputs.md#knock-cutover).
+in-app feed is the `Notification` table.
 
 ### Session signer
 

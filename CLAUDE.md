@@ -70,7 +70,6 @@ pnpm build            # Build all
 ```bash
 pnpm -F db studio     # Drizzle Studio
 pnpm -F db seed       # Run seed script
-pnpm -F db knock-backfill [--check | --from-posts]   # One-off Knock → Notification copy (`:remote` for production)
 pnpm -F db apply-sql  # Re-apply sql/ only (push already does this)
 ```
 
