@@ -18,8 +18,13 @@ import { orpc } from "@/orpc/react";
  * Filters are built from `.key()`, which prefix-matches: `key({ input })` hits
  * every query whose input starts with that shape, and `key()` hits every input.
  */
-export const refreshWorkspaceIdentity = (queryClient: QueryClient) =>
-  queryClient.invalidateQueries({ queryKey: orpc.auth.workspace.key() });
+export const refreshWorkspaceIdentity = async (queryClient: QueryClient) => {
+  await queryClient.invalidateQueries({ queryKey: orpc.auth.workspace.key() });
+  // The inbox belongs to the identity. Removed, not invalidated: an invalidated
+  // badge query would refetch with the dead cookie before `user` flips, and a
+  // cached count would otherwise survive into the next sign-in.
+  queryClient.removeQueries({ queryKey: orpc.notification.key() });
+};
 
 /** Content mutations (like/flag/post) only change identity when they mint the
     anonymous user — skip the workspace roundtrip once a user exists. */
@@ -52,6 +57,15 @@ export const refreshBlocks = (queryClient: QueryClient) =>
   Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.block.listBlocks.key() }),
     refreshPostContent(queryClient),
+  ]);
+
+/** Reading changes the row and the sidebar badge together. */
+export const refreshNotifications = (queryClient: QueryClient) =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: orpc.notification.list.key({ type: "infinite" }),
+    }),
+    queryClient.invalidateQueries({ queryKey: orpc.notification.unreadCount.key() }),
   ]);
 
 export const refreshAfterPostCreated = (queryClient: QueryClient) =>

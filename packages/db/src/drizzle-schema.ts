@@ -16,6 +16,8 @@ import { relations } from "drizzle-orm/relations";
 
 export const tokenType = pgEnum("TokenType", ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"]);
 export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
+export const notificationKind = pgEnum("NotificationKind", ["COMMENT"]);
+export const pushPlatform = pgEnum("PushPlatform", ["ios", "android"]);
 
 export const prompt = pgTable("Prompt", {
   id: text().primaryKey().notNull(),
@@ -404,6 +406,95 @@ export const flag = pgTable(
   },
 );
 
+/** One row per thing a user should hear about. Today that is only a comment on
+    a letter they wrote. Every FK cascades: a deleted comment, letter or account
+    takes its notifications with it, so a row can never point at nothing. */
+export const notification = pgTable(
+  "Notification",
+  {
+    id: text().primaryKey().notNull(),
+    /** Recipient. */
+    userId: text().notNull(),
+    kind: notificationKind().notNull(),
+    /** The letter the notification is about. */
+    postId: text().notNull(),
+    /** The comment that caused it. */
+    commentId: text().notNull(),
+    /** The commenter's display name at the time, so the row survives renames. */
+    actorName: text().notNull(),
+    readAt: timestamp({ precision: 3, mode: "string" }),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userIdCreatedAtIdx: index("Notification_userId_createdAt_idx").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+        table.createdAt.desc().nullsFirst().op("timestamp_ops"),
+      ),
+      userIdReadAtIdx: index("Notification_userId_readAt_idx").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+        table.readAt.asc().nullsLast().op("timestamp_ops"),
+      ),
+      // One notification per (recipient, comment): the backfill and any retry
+      // of the write path are idempotent because of this, not by convention.
+      userIdCommentIdKey: uniqueIndex("Notification_userId_commentId_key").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+        table.commentId.asc().nullsLast().op("text_ops"),
+      ),
+      notificationUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "Notification_userId_fkey",
+      }).onDelete("cascade"),
+      notificationPostIdFkey: foreignKey({
+        columns: [table.postId],
+        foreignColumns: [post.id],
+        name: "Notification_postId_fkey",
+      }).onDelete("cascade"),
+      notificationCommentIdFkey: foreignKey({
+        columns: [table.commentId],
+        foreignColumns: [post.id],
+        name: "Notification_commentId_fkey",
+      }).onDelete("cascade"),
+    };
+  },
+);
+
+/** Expo push tokens, one row per device. The token is the identity: a device
+    that changes hands moves to its new user on the next register call. */
+export const pushToken = pgTable(
+  "PushToken",
+  {
+    token: text().primaryKey().notNull(),
+    userId: text().notNull(),
+    platform: pushPlatform().notNull(),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    lastSeenAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index("PushToken_userId_idx").using(
+        "btree",
+        table.userId.asc().nullsLast().op("text_ops"),
+      ),
+      pushTokenUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "PushToken_userId_fkey",
+      }).onDelete("cascade"),
+    };
+  },
+);
+
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
@@ -424,6 +515,32 @@ export const userRelations = relations(user, ({ many }) => ({
   }),
   likes: many(like),
   flags: many(flag),
+  notifications: many(notification),
+  pushTokens: many(pushToken),
+}));
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  user: one(user, {
+    fields: [notification.userId],
+    references: [user.id],
+  }),
+  post: one(post, {
+    fields: [notification.postId],
+    references: [post.id],
+    relationName: "notification_post",
+  }),
+  comment: one(post, {
+    fields: [notification.commentId],
+    references: [post.id],
+    relationName: "notification_comment",
+  }),
+}));
+
+export const pushTokenRelations = relations(pushToken, ({ one }) => ({
+  user: one(user, {
+    fields: [pushToken.userId],
+    references: [user.id],
+  }),
 }));
 
 export const enrolledEventRelations = relations(enrolledEvent, ({ one }) => ({

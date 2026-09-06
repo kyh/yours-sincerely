@@ -7,3 +7,8 @@ export const siteConfig = {
   twitter: "@kaiyuhsu",
   supportEmail: "kai@kyh.io",
 };
+
+/** Same subject line the web menu uses, so support mail can be traced to an
+    account; percent-encoded because `Linking.openURL` rejects raw spaces. */
+export const supportMailto = (userId: string | undefined) =>
+  `mailto:${siteConfig.supportEmail}?subject=${encodeURIComponent(`Support: ${userId ?? "anonymous"}`)}`;

@@ -16,7 +16,7 @@ export default function HomeScreen() {
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
       <View style={[CONTENT_COLUMN_STYLE, { flex: 1 }]}>
         <View className="flex-row items-center justify-between px-5 py-3">
-          <Text className="text-xl font-bold">Home</Text>
+          <Text className="text-2xl font-bold tracking-tight">Home</Text>
           <AvatarMenu />
         </View>
         <CardStackProvider key={layout}>

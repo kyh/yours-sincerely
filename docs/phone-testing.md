@@ -6,6 +6,11 @@ There are two different phone tests. Run both. A preview build tests the app. On
 
 Preview builds use `Yours Sincerely Preview` and separate app IDs. They can live beside the App Store or Play build without replacing it. They use the live API, but cannot prove legacy-cookie migration, verified universal links, store signing, or production push delivery.
 
+`apps/expo/eas.json` requires eas-cli 18.4 or newer; `eas --version` shows what is
+installed and `npm i -g eas-cli` updates it. `build.base.pnpm` must equal the root
+`packageManager` version: EAS ignores that field, and `corepack: true` without a `pnpm`
+pin installs the image's default pnpm and fails on Corepack's shim.
+
 From `apps/expo`:
 
 ```sh
@@ -67,6 +72,81 @@ On each phone:
 
 Failure evidence to capture: platform, old/new build numbers, exact screen, whether the old app was ever uninstalled, and a screen recording from before update through first Expo launch.
 
+## 3. Automated upgrade fixture (simulator + emulator)
+
+Proves the Capacitor→Expo session hand-off without a store build: stage a legacy cookie
+where the old app left it, install the Expo build over the same app id, and confirm the
+Settings screen shows the staged account. It does not replace the physical-phone gate, but
+it catches regressions in `apps/expo/modules/legacy-cookie` and the migration code on
+every change. Both legs passed on 2026-09-05 (iOS 18.6 simulator, Pixel 6 API 35 emulator).
+
+Prerequisites: `pnpm db:start && pnpm db:push`, `pnpm dev:web`, and a signed cookie for a
+local account — sign up with curl and keep the `Set-Cookie` value:
+
+```sh
+curl -s -D - -o /dev/null -X POST http://localhost:3000/api/orpc/auth/signUp \
+  -H 'content-type: application/json' \
+  -d '{"json":{"email":"legacy@test.local","password":"password123"}}' | grep -i '^set-cookie'
+```
+
+Native projects must be regenerated first: `apps/expo/ios` and `apps/expo/android` are
+gitignored prebuild output and go stale. From `apps/expo`:
+
+```sh
+APP_VARIANT=production pnpm with-env expo prebuild --clean --no-install
+(cd ios && pod install)
+CI=1 pnpm with-env expo start --dev-client --localhost   # separate terminal
+```
+
+### iOS
+
+`expo run:ios` refuses to build a simulator app without a signing certificate because of
+the associated-domains entitlement; call xcodebuild directly. `DEVELOPMENT_TEAM` matters:
+without it the simulator build has no keychain entitlement and SecureStore throws.
+
+```sh
+xcodebuild -workspace ios/YoursSincerely.xcworkspace -scheme YoursSincerely \
+  -configuration Debug -sdk iphonesimulator -destination "id=$SIM" \
+  -derivedDataPath /tmp/ys-ios DEVELOPMENT_TEAM=N89P364V32 CODE_SIGN_IDENTITY=- build
+APP=/tmp/ys-ios/Build/Products/Debug-iphonesimulator/YoursSincerely.app
+xcrun simctl install "$SIM" "$APP"
+C=$(xcrun simctl get_app_container "$SIM" com.tehkaiyu.yourssincerely data)
+mkdir -p "$C/Library/Cookies"
+python3 scripts/legacy-session-fixture/write-binarycookies.py \
+  "$C/Library/Cookies/Cookies.binarycookies" yourssincerely.org __session "$COOKIE"
+xcrun simctl launch "$SIM" com.tehkaiyu.yourssincerely --initialUrl http://localhost:8081
+```
+
+Pass: `Cookies.binarycookies` disappears after the first launch (cleanup only runs once the
+server accepted the copied session), and after `simctl terminate` + relaunch the Settings
+screen (`xcrun simctl openurl "$SIM" yourssincerely://settings`) shows the staged email.
+
+### Android
+
+The legacy shell in `apps/mobile` builds with `./gradlew assembleDebug`; enable WebView
+debugging for the run by adding `"android": {"webContentsDebuggingEnabled": true}` to the
+generated (gitignored) `android/app/src/main/assets/capacitor.config.json`. Sign both APKs
+with the same key — Expo's prebuild ships its own `android/app/debug.keystore`, so re-sign
+its APK with `~/.android/debug.keystore` via `apksigner` or the update is refused.
+
+```sh
+adb install apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n com.kyh.yourssincerely/.MainActivity
+adb forward tcp:9333 "localabstract:$(adb shell cat /proc/net/unix | grep -o 'webview_devtools_remote_[0-9]*' | head -1)"
+node scripts/legacy-session-fixture/seed-webview-cookie.mjs http://localhost:9333/json \
+  yourssincerely.org __session "$COOKIE"
+sleep 35 && adb shell input keyevent KEYCODE_HOME && sleep 5   # let Chromium flush the jar
+adb shell am force-stop com.kyh.yourssincerely
+adb install -r <expo apk re-signed with ~/.android/debug.keystore>
+adb reverse tcp:8081 tcp:8081 && adb reverse tcp:3000 tcp:3000
+adb shell am start -a android.intent.action.VIEW \
+  -d "yourssincerely://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081"
+```
+
+Pass: the WebView jar (`app_webview/Default/Cookies`, readable on a rooted emulator) has no
+`__session` row after the first launch, and `adb shell am start -d yourssincerely://settings`
+shows the staged email before and after `am force-stop` + relaunch.
+
 ## Inputs still needed
 
 These cannot safely be invented or recovered from source code.
@@ -95,14 +175,9 @@ These cannot safely be invented or recovered from source code.
 - Let EAS configure the Apple APNs key while setting up production iOS credentials.
 - Preview push is optional. It needs a separate Firebase app/file for `com.kyh.yourssincerely.preview`.
 
-### Knock
-
-- Already present: Vercel production `KNOCK_API_KEY`, public key, and feed channel. The public key and feed channel are synced to EAS preview/production.
-- Still needed: production `NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID`.
-- Configure the Knock Expo channel with project `@kaiyuhsu/yours-sincerely` and an Expo access token only if Expo Enhanced Push Security is enabled.
-- Optional hardening: add `KNOCK_SIGNING_KEY` to Vercel and enable Knock Enhanced Security.
-
-All configured Knock values must come from the same environment. Explicitly marked test keys are rejected by the release gate.
+Nothing else: the server sends through Expo's push service without a token, and the
+in-app feed is the `Notification` table. Backfilling it from Knock is in
+[mobile release inputs](./mobile-release-inputs.md#knock-cutover).
 
 ### Session signer
 

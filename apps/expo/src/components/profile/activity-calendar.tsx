@@ -76,6 +76,8 @@ export const ActivityCalendar = ({ data, theme }: Props) => {
                   fill={levelColor(theme, day.level)}
                   strokeWidth={1}
                   stroke={theme.stroke}
+                  accessible
+                  accessibilityLabel={getTooltipMessage(day)}
                   onPress={() => toast(getTooltipMessage(day))}
                 />
               ) : null,

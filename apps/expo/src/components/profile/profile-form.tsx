@@ -40,7 +40,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   );
 
   const handleBlur = () => {
-    if (readonly || user === undefined || user === null) return;
+    if (user === undefined || user === null) return;
     if (displayName === (user.displayName ?? "Anonymous")) {
       setError(null);
       return;
@@ -54,14 +54,23 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     updateUser.mutate(parsed.data);
   };
 
+  if (readonly) {
+    return (
+      <View className="items-center gap-2">
+        <ProfileAvatar name={user?.displayName ?? user?.id} />
+        <Text className="px-3 py-1 text-center text-xl font-bold">{displayName}</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="items-center gap-2">
       <ProfileAvatar name={user?.displayName ?? user?.id} />
       <TextInput
         accessibilityLabel="Display name"
-        accessibilityState={{ disabled: readonly, busy: updateUser.isPending }}
+        accessibilityState={{ busy: updateUser.isPending }}
         value={displayName}
-        editable={!readonly && !updateUser.isPending}
+        editable={!updateUser.isPending}
         onChangeText={(value) => {
           setDisplayName(value);
           setError(null);

@@ -14,26 +14,9 @@ import {
   createPostsDailyActivity,
   createPostsHeatmap,
   FULL_DAY_LABELS,
+  PROFILE_CALENDAR_THEMES,
 } from "@repo/contracts/calendar";
 import { ProfileForm } from "./profile-form";
-
-const lightTheme = {
-  level4: "#312e81",
-  level3: "#4338ca",
-  level2: "#6366f1",
-  level1: "#a5b4fc",
-  level0: "#e0e7ff",
-  stroke: "#ddd6fe",
-};
-
-const darkTheme = {
-  level4: "#6366f1",
-  level3: "#4f46e5",
-  level2: "#4338ca",
-  level1: "#3730a3",
-  level0: "#272567",
-  stroke: "#312e81",
-};
 
 type ProfileProps = {
   userId: string;
@@ -60,7 +43,7 @@ export const Profile = ({ userId }: ProfileProps) => {
   const allowEdit = currentUser ? currentUser.id === user.id : false;
   const dailyData = createPostsDailyActivity(posts);
   const heatmapData = createPostsHeatmap(posts, isDesktop ? 200 : 120);
-  const isDarkMode = isDarkTheme(resolvedTheme);
+  const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
 
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-6 lg:grid-rows-2">
@@ -68,10 +51,7 @@ export const Profile = ({ userId }: ProfileProps) => {
         <Card className="lg:rounded-t-[calc(2rem+1px)]">
           <ProfileForm userId={userId} readonly={!allowEdit} />
           <div className="mx-auto">
-            <ActivityCalendar
-              data={heatmapData.stats}
-              theme={isDarkMode ? darkTheme : lightTheme}
-            />
+            <ActivityCalendar data={heatmapData.stats} theme={theme} />
           </div>
         </Card>
       </div>
@@ -87,7 +67,7 @@ export const Profile = ({ userId }: ProfileProps) => {
               </>
             )}
           </h2>
-          <ActivityWeek data={dailyData.stats} theme={isDarkMode ? darkTheme : lightTheme} />
+          <ActivityWeek data={dailyData.stats} theme={theme} />
         </Card>
       </div>
       <div className="lg:col-span-3">

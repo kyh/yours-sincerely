@@ -6,6 +6,7 @@ import { Plus } from "lucide-react-native";
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
 import { orpc } from "@/lib/api";
+import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { PostForm } from "./post-form";
 
 /** FAB + bottom-sheet post form — port of the web NewPostButton (drawer mode). */
@@ -23,7 +24,7 @@ export const NewPostButton = () => {
         className="bg-primary size-12 items-center justify-center rounded-full"
         style={{
           position: "absolute",
-          right: Math.max(20, (width - 760) / 2 + 20),
+          right: Math.max(20, (width - CONTENT_COLUMN_STYLE.maxWidth) / 2 + 20),
           bottom: 20,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },

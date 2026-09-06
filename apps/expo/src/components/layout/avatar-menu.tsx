@@ -13,38 +13,18 @@ import {
   User,
 } from "lucide-react-native";
 
-import { BottomDrawer } from "@/components/ui/bottom-drawer";
-import { Text } from "@/components/ui/text";
+import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { themes, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { useFeedLayout } from "@/lib/feed-layout";
-import { siteConfig } from "@/lib/site-config";
+import { siteConfig, supportMailto } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-
-/** Port of the web aside-header avatar menu. */
-const MenuItem = ({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onPress: () => void;
-}) => (
-  <Pressable
-    accessibilityRole="button"
-    className="active:bg-accent flex-row items-center gap-3 rounded-lg p-4"
-    onPress={onPress}
-  >
-    {icon}
-    <Text className="text-sm font-medium">{label}</Text>
-  </Pressable>
-);
 
 /** Mirrors the web menu's grouping separators. */
 const MenuSeparator = () => <View className="bg-border my-1 h-px" />;
 
+/** Port of the web aside-header avatar menu. */
 export const AvatarMenu = () => {
   const router = useRouter();
   const colors = useThemeColors();
@@ -77,7 +57,7 @@ export const AvatarMenu = () => {
       </Pressable>
       <BottomDrawer open={isOpen} onClose={() => setIsOpen(false)}>
         {user !== null ? (
-          <MenuItem
+          <DrawerItem
             icon={<User size={iconSize} color={colors.foreground} />}
             label="Profile"
             onPress={() => {
@@ -86,7 +66,7 @@ export const AvatarMenu = () => {
             }}
           />
         ) : (
-          <MenuItem
+          <DrawerItem
             icon={<LogIn size={iconSize} color={colors.foreground} />}
             label="Login"
             onPress={() => {
@@ -95,7 +75,7 @@ export const AvatarMenu = () => {
             }}
           />
         )}
-        <MenuItem
+        <DrawerItem
           icon={<Settings size={iconSize} color={colors.foreground} />}
           label="Settings"
           onPress={() => {
@@ -104,33 +84,33 @@ export const AvatarMenu = () => {
           }}
         />
         <MenuSeparator />
-        <MenuItem
+        <DrawerItem
           icon={<Palette size={iconSize} color={colors.foreground} />}
           label={`Theme: ${themes.find((option) => option.id === theme)?.label ?? "System"}`}
           onPress={cycleTheme}
         />
-        <MenuItem
+        <DrawerItem
           icon={<Layout size={iconSize} color={colors.foreground} />}
           label={`Layout: ${layout === "list" ? "List" : "Stack"}`}
           onPress={toggleLayout}
         />
         <MenuSeparator />
-        <MenuItem
+        <DrawerItem
           icon={<HelpCircle size={iconSize} color={colors.foreground} />}
           label="Support"
-          onPress={() => openUrl(`mailto:${siteConfig.supportEmail}`)}
+          onPress={() => openUrl(supportMailto(user?.id))}
         />
-        <MenuItem
+        <DrawerItem
           icon={<BookCheck size={iconSize} color={colors.foreground} />}
           label="About"
           onPress={() => openUrl(`${siteConfig.url}/about`)}
         />
-        <MenuItem
+        <DrawerItem
           icon={<GlobeLock size={iconSize} color={colors.foreground} />}
           label="Privacy"
           onPress={() => openUrl(`${siteConfig.url}/privacy`)}
         />
-        <MenuItem
+        <DrawerItem
           icon={<Handshake size={iconSize} color={colors.foreground} />}
           label="Terms"
           onPress={() => openUrl(`${siteConfig.url}/terms`)}

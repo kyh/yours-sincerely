@@ -11,26 +11,30 @@ import type { ErrorBoundaryProps } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Pressable, Text as NativeText, View } from "react-native";
+import { Pressable, Text as NativeText, useColorScheme, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Toaster } from "sonner-native";
 
 import { BalloonsProvider } from "@/components/animations/balloons";
 import { ConnectivityBanner } from "@/components/connectivity-banner";
 import { FeedLayoutProvider } from "@/components/feed-layout-provider";
-import { KnockProviders } from "@/components/notifications/knock-providers";
+import { PushNotificationProvider } from "@/components/notifications/push-notification-provider";
+import { SessionReconciler } from "@/components/session-reconciler";
 import { GestureHandlerRootView } from "@/lib/css-interop";
 import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient } from "@/lib/api";
 import { subscribeToNativeConnectivity } from "@/lib/connectivity";
+import { palettes } from "@/lib/theme-palette";
 
 import "../styles.css";
-import "@/lib/css-interop";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+// Rendered above every provider, so it can only follow the OS scheme and
+// must style itself without NativeWind.
 export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+  const colors = palettes[useColorScheme() === "dark" ? "dark" : "light"];
   return (
     <View
       style={{
@@ -39,13 +43,13 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
         justifyContent: "center",
         gap: 16,
         paddingHorizontal: 32,
-        backgroundColor: "#FBF8EF",
+        backgroundColor: colors.background,
       }}
     >
-      <NativeText style={{ color: "#171717", fontSize: 24, fontWeight: "700" }}>
+      <NativeText style={{ color: colors.foreground, fontSize: 24, fontWeight: "700" }}>
         This letter hit a snag
       </NativeText>
-      <NativeText style={{ color: "#66615A", fontSize: 14, textAlign: "center" }}>
+      <NativeText style={{ color: colors.mutedForeground, fontSize: 14, textAlign: "center" }}>
         Your session is safe. Try opening the page again.
       </NativeText>
       <Pressable
@@ -53,7 +57,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
         onPress={retry}
         style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 20 }}
       >
-        <NativeText style={{ color: "#4F46E5", fontSize: 16, fontWeight: "600" }}>
+        <NativeText style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>
           Try again
         </NativeText>
       </Pressable>
@@ -62,8 +66,15 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 }
 
 const RootStack = () => {
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, isReady } = useTheme();
   const colors = useThemeColors();
+
+  // Fonts are already loaded by the time this mounts (RootLayout gates on
+  // them), so the stored theme is the last thing the splash waits for.
+  useEffect(() => {
+    if (isReady) SplashScreen.hideAsync().catch(() => undefined);
+  }, [isReady]);
+
   return (
     <>
       <Stack
@@ -89,10 +100,6 @@ function RootLayout() {
   // On font failure, proceed with system fonts rather than hang on the splash.
   const fontsReady = fontsLoaded || fontError !== null;
 
-  useEffect(() => {
-    if (fontsReady) SplashScreen.hideAsync().catch(() => undefined);
-  }, [fontsReady]);
-
   // The probe feeds onlineManager, which query pausing, push retry, and the
   // connectivity banner all consume — it belongs beside the query client.
   useEffect(() => subscribeToNativeConnectivity(), []);
@@ -103,14 +110,15 @@ function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
+          <SessionReconciler />
           <ThemeProvider>
-            <KnockProviders>
+            <PushNotificationProvider>
               <FeedLayoutProvider>
                 <BalloonsProvider>
                   <RootStack />
                 </BalloonsProvider>
               </FeedLayoutProvider>
-            </KnockProviders>
+            </PushNotificationProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

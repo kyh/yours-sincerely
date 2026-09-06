@@ -1,4 +1,4 @@
-import LegacyCookie from "../../modules/legacy-cookie/src/LegacyCookieModule";
+import LegacyCookie from "../../modules/legacy-cookie/src/legacy-cookie-module";
 import {
   getLegacySessionMigrationCheckpoint,
   getSessionCookie,
@@ -8,6 +8,7 @@ import {
 import {
   finalizeLegacySession,
   migrateLegacySession,
+  retireLegacySession,
   type MigrateLegacySessionResult,
 } from "./legacy-session-migration-core";
 
@@ -21,7 +22,7 @@ const SESSION_COOKIE = "__session";
 
 type MigrationResult = MigrateLegacySessionResult | "unavailable" | "failed";
 
-const reportFailure = (phase: "copy" | "clear", cause: unknown) => {
+const reportFailure = (phase: "copy" | "clear" | "retire", cause: unknown) => {
   const message = cause instanceof Error ? cause.message : "Unknown error";
   console.warn(`[legacy-session-migration] ${phase} failed: ${message}`);
 };
@@ -87,4 +88,23 @@ export const finalizeLegacySessionMigration = (authenticated: boolean): Promise<
     });
 
   return finalization;
+};
+
+/** Call when the user ends their session here (sign-out, account deletion) so
+    the legacy jar can never sign them back in on the next cold start. */
+export const retireLegacySessionMigration = async (): Promise<void> => {
+  const legacyCookie = LegacyCookie;
+  if (legacyCookie === null) return;
+
+  try {
+    await retireLegacySession({
+      getCheckpoint: getLegacySessionMigrationCheckpoint,
+      setCheckpoint: setLegacySessionMigrationCheckpoint,
+      clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
+    });
+    finalized = true;
+    migrationProvenanceEstablished = false;
+  } catch (cause: unknown) {
+    reportFailure("retire", cause);
+  }
 };

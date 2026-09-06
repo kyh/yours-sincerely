@@ -17,7 +17,7 @@ export const TimerButton = ({ post }: Props) => {
   if (!post.createdAt) return null;
 
   const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
-  const formattedTime = isExpired ? "Expired" : `Dissapears in ${formatDistance(new Date(), end)}`;
+  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
 
   return (
     <Tooltip open={open} onOpenChange={setOpen}>

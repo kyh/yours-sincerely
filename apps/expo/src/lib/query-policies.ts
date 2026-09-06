@@ -46,3 +46,12 @@ export const refreshBlocks = () =>
 
 export const refreshAfterPostCreated = () =>
   Promise.all([refreshWorkspaceIdentityIfAnonymous(), refreshPostContent(), refreshProfileData()]);
+
+/** A reply read or received changes both the list and the tab badge. */
+export const refreshNotifications = () =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: orpc.notification.list.key({ type: "infinite" }),
+    }),
+    queryClient.invalidateQueries({ queryKey: orpc.notification.unreadCount.key() }),
+  ]);

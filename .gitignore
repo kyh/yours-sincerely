@@ -59,3 +59,11 @@ tooling/prettier/index.js
 .claude/scheduled_tasks.lock
 .claude/worktrees
 .playwright-mcp
+
+# Store credentials handed to EAS locally; never committed.
+google-services.json
+credentials.json
+*.p8
+*.jks
+*.keystore
+!apps/expo/android/app/debug.keystore

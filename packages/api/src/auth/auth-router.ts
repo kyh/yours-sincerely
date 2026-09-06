@@ -1,15 +1,12 @@
 import { randomBytes } from "crypto";
-import { NotFoundError } from "@knocklabs/node";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { ORPCError } from "@orpc/server";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
-import { z } from "zod";
 
 import type { ORPCContext } from "../orpc";
 import { env } from "../env";
-import { createKnockUserToken, getKnockClient } from "../knock";
 import { protectedProcedure, publicProcedure } from "../orpc";
 import {
   requestPasswordResetInput,
@@ -23,17 +20,9 @@ import {
   createPushCleanupCapability,
   setSession,
   validatePassword,
-  verifyPushCleanupCapability,
 } from "./session";
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;
-const cleanupPushDeviceInput = z.object({
-  capability: z.string().min(1),
-  token: z.string().min(1),
-});
-const knockPushChannelData = z.object({
-  devices: z.array(z.looseObject({ token: z.string() })),
-});
 const APP_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://yourssincerely.org";
 
@@ -80,41 +69,9 @@ export const authRouter = {
   workspace: publicProcedure.handler(async ({ context }) => {
     return {
       user: context.user,
-      knockUserToken: context.user === null ? null : await createKnockUserToken(context.user.id),
       pushCleanupCapability:
         context.user === null ? null : createPushCleanupCapability(context.user.id),
     };
-  }),
-  knockUserToken: protectedProcedure.handler(async ({ context }) => ({
-    token: await createKnockUserToken(context.user.id),
-  })),
-  cleanupPushDevice: publicProcedure.input(cleanupPushDeviceInput).handler(async ({ input }) => {
-    const userId = verifyPushCleanupCapability(input.capability);
-    if (userId === null) throw new ORPCError("UNAUTHORIZED");
-
-    const knock = getKnockClient();
-    const channelId = env.NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID;
-    if (knock === null || channelId === undefined) {
-      throw new ORPCError("PRECONDITION_FAILED", { message: "Push cleanup is not configured" });
-    }
-
-    try {
-      const channelData = await knock.users.getChannelData(userId, channelId);
-      const parsed = knockPushChannelData.safeParse(channelData.data);
-      if (!parsed.success) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Invalid push channel data" });
-      }
-
-      await knock.users.setChannelData(userId, channelId, {
-        data: {
-          devices: parsed.data.devices.filter((device) => device.token !== input.token),
-        },
-      });
-    } catch (error) {
-      if (!(error instanceof NotFoundError)) throw error;
-    }
-
-    return { success: true };
   }),
   signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
     // Check if email already exists

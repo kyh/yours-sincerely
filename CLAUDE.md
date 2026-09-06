@@ -24,7 +24,8 @@ duplicate each other.
 - **Auth**: hand-rolled signed-cookie sessions (`packages/api/src/auth/session.ts`).
   **Not Supabase Auth.** Supabase is the Postgres host and local CLI only.
   Read "Architecture decisions" before changing anything here.
-- **Notifications**: Knock
+- **Notifications**: in-house feed (`Notification` table, `packages/api/src/notification`)
+  - Expo push (`packages/api/src/push`). No third-party service.
 - **Hosting**: Vercel
 
 ## Structure
@@ -69,6 +70,7 @@ pnpm build            # Build all
 ```bash
 pnpm -F db studio     # Drizzle Studio
 pnpm -F db seed       # Run seed script
+pnpm -F db knock-backfill [--check | --from-posts]   # One-off Knock → Notification copy (`:remote` for production)
 pnpm -F db apply-sql  # Re-apply sql/ only (push already does this)
 ```
 
@@ -208,7 +210,12 @@ the public store build, which would make deletion safe).
 - **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
   bump either without bumping both and running a real device build. Exit criterion:
   NativeWind 5.0.0 stable.
-- **`lightningcss` is pinned** via `pnpm.overrides` in the root `package.json`.
+- **`lightningcss` is pinned** via `overrides` in `pnpm-workspace.yaml` (pnpm 12 reads
+  overrides there, not from `package.json`). **`react-native-svg` is an exact pin** in
+  `apps/expo/package.json` — the Expo SDK 57-blessed patch; move it with the Expo SDK.
+- **`apps/expo/eas.json` `build.base.pnpm` must match the root `packageManager`.** EAS does
+  not read `packageManager`, and `corepack: true` without the pin installs the image's default
+  pnpm and dies on the Corepack shim (verified on a real build). Bump both together.
 - **Expo's `react`/`react-dom`/`typescript` are pinned via the `expo` named catalog**, not
   the default one. Expo must hold SDK-blessed versions, which may diverge from web. Re-run
   `npx expo install --check` in `apps/expo` after touching any mobile dependency.

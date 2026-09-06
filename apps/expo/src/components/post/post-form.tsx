@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
-import { POST_EXPIRY_DAYS, createPostInput, type CreatePostInput } from "@repo/contracts";
+import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
+import { createPostInput, type CreatePostInput } from "@repo/contracts/post";
 import { useMutation } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import * as Haptics from "expo-haptics";
@@ -35,10 +36,12 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
   // Restore draft (feed form only — comment drafts aren't persisted on web either).
   useEffect(() => {
     if (parentId !== undefined) return;
-    getPostDraft().then((draft) => {
-      if (draft !== null) setContent(draft);
-      return undefined;
-    });
+    getPostDraft()
+      .then((draft) => {
+        if (draft !== null) setContent(draft);
+        return undefined;
+      })
+      .catch(() => undefined);
   }, [parentId]);
 
   const createPost = useMutation(
@@ -101,6 +104,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
           <View className="flex-row flex-wrap items-center gap-1">
             <Text className="text-xs">Publishing as</Text>
             <TextInput
+              accessibilityLabel="Publishing as"
               value={createdBy}
               onChangeText={setCreatedBy}
               className="text-foreground p-0 font-sans text-xs underline"

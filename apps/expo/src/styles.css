@@ -22,8 +22,6 @@
   --border: hsl(60 6% 85%);
   --input: hsl(60 6% 85%);
   --ring: hsl(60 6% 13%);
-
-  --radius: 8px;
 }
 
 @theme inline {
@@ -54,8 +52,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  --radius-radius: var(--radius);
 }
 
 /* Map font utilities to the Inter faces loaded in src/app/_layout.tsx —

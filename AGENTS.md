@@ -50,8 +50,9 @@ that is deliberate (`packages/api/src/auth/session-core.ts`). Generate one with
 `openssl rand -base64 32` (32-character minimum).
 
 Every other key in `.env.example` may stay empty. A missing one disables its feature rather
-than crashing boot: no `KNOCK_*` means no notifications, no `RESEND_API_KEY` means
-`auth.requestPasswordReset` returns `PRECONDITION_FAILED` instead of sending mail.
+than crashing boot: no `RESEND_API_KEY` means `auth.requestPasswordReset` returns
+`PRECONDITION_FAILED` instead of sending mail. Notifications need no key at all — the feed
+is the `Notification` table and push goes through Expo's service unauthenticated.
 
 ## Login
 
@@ -121,13 +122,16 @@ Don't stop at typecheck and tests. Exercise the flow and look at the result.
 | Surface                  | Dev command           | Agent-verifiable at runtime?         |
 | ------------------------ | --------------------- | ------------------------------------ |
 | Web (Next.js)            | `pnpm dev:web`        | **Yes** — headless via agent-browser |
-| Native (Expo)            | `pnpm dev:expo`       | No — needs a simulator or device     |
+| Native (Expo)            | `pnpm dev:expo`       | With a local simulator/emulator only |
 | Legacy shell (Capacitor) | `pnpm dev:mobile-ios` | No — and it has no JS of its own     |
 
 `apps/mobile` is `android/`, `ios/` and a Capacitor config; it has no `src/`, no typecheck and
 no tests, so `pnpm verify` structurally cannot cover it. It is **not** dead code — see
 `CLAUDE.md` → "Architecture decisions". For Expo, `pnpm typecheck` plus `pnpm -F @repo/expo test`
-is as far as an agent gets; a runtime check needs a human with a device.
+is the static gate; a runtime check needs Xcode simulators or an Android emulator on the
+machine. `docs/phone-testing.md` §3 is the recipe that works headlessly (direct `xcodebuild`
+with `CODE_SIGN_IDENTITY=-`, `simctl` deep links, `adb` on the emulator) and doubles as the
+Capacitor→Expo session-migration fixture.
 
 ## Rules that matter
 

@@ -5,6 +5,7 @@ import {
   copyLegacySession,
   finalizeLegacySession,
   migrateLegacySession,
+  retireLegacySession,
   type LegacySessionMigrationCheckpoint,
 } from "./legacy-session-migration-core.ts";
 
@@ -307,6 +308,76 @@ describe("finalizeLegacySession", () => {
         authenticated: true,
         getStored: () => "stored",
         getCheckpoint: () => "cleanup-pending",
+        setCheckpoint: () => undefined,
+        clearLegacy: () => Promise.resolve(),
+      }),
+      /checkpoint could not be verified/,
+    );
+  });
+});
+
+describe("retireLegacySession", () => {
+  it("clears the jar and reaches the terminal checkpoint so a cold start cannot re-copy", async () => {
+    const harness = createMigrationHarness({
+      stored: null,
+      legacy: "legacy",
+      checkpoint: "cleanup-pending",
+    });
+    let clearCount = 0;
+
+    assert.equal(
+      await retireLegacySession({
+        ...harness.deps,
+        clearLegacy: () => {
+          clearCount += 1;
+          return Promise.resolve();
+        },
+      }),
+      "retired",
+    );
+    assert.equal(clearCount, 1);
+    assert.equal(harness.checkpoint, "complete");
+
+    const { result } = await migrateLegacySession(harness.deps);
+    assert.equal(result, "complete");
+    assert.equal(harness.stored, null);
+    assert.equal(harness.readCount, 0);
+  });
+
+  it("still reaches the terminal checkpoint when native clearing fails", async () => {
+    const harness = createMigrationHarness({ checkpoint: null, legacy: "legacy" });
+
+    assert.equal(
+      await retireLegacySession({
+        ...harness.deps,
+        clearLegacy: () => Promise.reject(new Error("jar locked")),
+      }),
+      "retired",
+    );
+    assert.equal(harness.checkpoint, "complete");
+  });
+
+  it("skips the native call once migration is already complete", async () => {
+    const harness = createMigrationHarness({ checkpoint: "complete" });
+    let clearCount = 0;
+
+    assert.equal(
+      await retireLegacySession({
+        ...harness.deps,
+        clearLegacy: () => {
+          clearCount += 1;
+          return Promise.resolve();
+        },
+      }),
+      "already-complete",
+    );
+    assert.equal(clearCount, 0);
+  });
+
+  it("rejects when the completion checkpoint cannot be verified", async () => {
+    await assert.rejects(
+      retireLegacySession({
+        getCheckpoint: () => null,
         setCheckpoint: () => undefined,
         clearLegacy: () => Promise.resolve(),
       }),

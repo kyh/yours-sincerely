@@ -17,17 +17,40 @@ The existing store identity is committed in `packages/contracts/src/mobile-ident
 
 ## Notifications
 
-- `NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY`: Knock public API key.
-- `NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID`: Knock in-app feed channel ID.
-- `NEXT_PUBLIC_KNOCK_EXPO_CHANNEL_ID`: Knock Expo push channel ID.
-- `KNOCK_API_KEY`: Knock server API key. Web/server only.
-- `KNOCK_SIGNING_KEY`: optional base64 application signing key from Knock. Add it server-side only if enabling Knock Enhanced Security.
+Notifications are rows in the `Notification` table, written by the API when someone
+replies to a letter, and pushed to phones through Expo's push service. No server-side
+key: the server posts to `exp.host` unauthenticated and the device credentials live in
+EAS.
+
 - `RESEND_API_KEY`: Resend server API key for transactional email. Web/server only.
 - `GOOGLE_SERVICES_JSON`: EAS file variable containing the Firebase Android app config for `com.kyh.yourssincerely`.
+- iOS: APNs key, created and stored by EAS during `eas credentials` for production.
+- Android: FCM V1 service-account key, uploaded to EAS as the production push credential, plus the file above.
 
-The existing public key and feed channel were copied from Vercel production into EAS preview and production. All Knock keys and channel IDs must come from that same Knock environment. The release check rejects explicitly marked `_test_` API keys.
+Then use physical devices to opt in, receive a notification, and open its exact post.
 
-Configure APNs and FCM V1 credentials in EAS. Configure the Knock Expo channel with Expo project `@kaiyuhsu/yours-sincerely` and, only when Expo Enhanced Push Security is enabled, an Expo access token. Then use physical devices to opt in, receive a notification, and open its exact post.
+### Knock cutover
+
+The `Notification` table starts empty. `pnpm -F db knock-backfill:remote` copies Knock's
+`new-comment` feed into it (read state included) and is idempotent on (recipient,
+comment). It reads the production `POSTGRES_URL` from `.env.production.local` — the file
+`pnpm db:push-remote` already uses — and `KNOCK_API_KEY` from that file or the shell.
+Never put production values in `.env`: it feeds `pnpm dev`, `db:push --force` and the
+non-idempotent seed.
+
+1. `pnpm db:push-remote` — creates `Notification` and `PushToken` on production. Deployed
+   without them, the new API rolls back every reply to someone else's letter.
+2. `pnpm -F db knock-backfill:remote`.
+3. Deploy the build that writes `Notification` and no longer calls Knock.
+4. `pnpm -F db knock-backfill:remote` again to catch replies that landed in between.
+5. `pnpm -F db knock-backfill:remote --check` — exits non-zero if any recipient has fewer
+   rows than Knock; prints every skipped message with its reason (archived, comment or
+   letter deleted, malformed payload). Rows the table has beyond Knock are expected: new
+   replies never reach Knock.
+
+`--from-posts` is the fallback if Knock is unreachable: one unread row per existing
+comment on someone else's letter, never touching a row that exists. Drop `KNOCK_API_KEY`
+from `.env.production.local` after the check passes.
 
 ## Validate
 
@@ -36,6 +59,14 @@ Put local test values in `.env`, then run:
 ```sh
 pnpm release:mobile:check
 ```
+
+The check also refuses `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_API_PORT`: they are inlined
+into the bundle and would repoint a store build at another API. Keep them out of the
+production EAS environment.
+
+The `GOOGLE_SERVICES_JSON` file variable is still unset in the production EAS
+environment, so every `eas build --profile production` fails at `eas-build-post-install`
+until it is.
 
 ## Preserve store identity
 
@@ -46,6 +77,12 @@ Before the first production build:
 - Check/import credentials with `pnpm exec eas credentials`. Set remote versions with `pnpm exec eas build:version:set`.
 
 `apps/expo/eas.json` uses remote versions and auto-increments production builds after the initial seed.
+
+Screenshots: the live iOS app supports iPad, and an update cannot drop that, so App Store
+Connect needs 13" iPad screenshots (2064×2752) alongside the 6.9" iPhone frames in
+`apps/expo/store-screenshots/`. `store-screenshots/ipad/` holds five raw iPad Pro 13" (M4)
+captures (feed, letter, profile, dark feed, dark letter) taken from the simulator against
+the seeded local API; upload them as-is or re-frame them to match the iPhone set.
 
 After values pass, create production builds from `apps/expo`. Production EAS builds also run the EAS-only release check remotely and fail before compilation if mobile keys are missing:
 

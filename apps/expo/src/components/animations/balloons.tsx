@@ -222,9 +222,9 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
 
   const style = useAnimatedStyle(() => ({
     transform: [
-      { translateX: x.value },
-      { translateY: y.value },
-      { rotate: `${rotate.value}deg` },
+      { translateX: x.get() },
+      { translateY: y.get() },
+      { rotate: `${rotate.get()}deg` },
       { scale: config.scale },
     ],
   }));

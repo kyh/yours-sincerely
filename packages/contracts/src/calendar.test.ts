@@ -14,6 +14,7 @@ import {
   getCalendarTheme,
   groupCalendarDaysByWeeks,
   MIN_DISTANCE_MONTH_LABELS,
+  PROFILE_CALENDAR_THEMES,
 } from "./calendar.ts";
 
 // 2026-06-01 is a Monday. All fixed dates below anchor to that week.
@@ -262,4 +263,13 @@ test("generateEmptyCalendarData covers a whole year", () => {
   assert.ok(days.every((day) => day.count === 0 && day.level === 0));
 
   assert.equal(generateEmptyCalendarData(2028).length, 366, "leap year");
+});
+
+test("profile calendar themes are complete hex ramps in both appearances", () => {
+  const HEX = /^#[0-9a-f]{6}$/;
+  for (const theme of [PROFILE_CALENDAR_THEMES.light, PROFILE_CALENDAR_THEMES.dark]) {
+    const levels = ([0, 1, 2, 3, 4] as const).map((level) => calendarLevelColor(theme, level));
+    for (const color of [...levels, theme.stroke]) assert.match(color, HEX);
+    assert.equal(new Set(levels).size, levels.length);
+  }
 });

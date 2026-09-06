@@ -44,7 +44,7 @@ const DigitTile = ({
 }) => {
   const tileStyle = useAnimatedStyle(() => {
     // Wrapped distance from the dial position, centered into (-5, 5].
-    let offset = (((digit - position.value) % 10) + 10) % 10;
+    let offset = (((digit - position.get()) % 10) + 10) % 10;
     if (offset > 5) offset -= 10;
     return { transform: [{ translateY: offset * height }] };
   });

@@ -194,35 +194,3 @@ input::placeholder,
 textarea::placeholder {
   color: var(--muted-foreground);
 }
-
-/* Knock overrides */
-.rnf-notification-feed {
-  background-color: var(--background);
-}
-
-.rnf-notification-feed__type {
-  display: none;
-}
-
-.rnf-dropdown select {
-  text-align: left;
-}
-
-.rnf-notification-feed__knock-branding {
-  display: none;
-}
-
-.rnf-notification-cell {
-  transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow,
-    transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-  border-radius: var(--radius);
-}
-
-:root {
-  --rnf-notification-cell-active-bg-color: var(--accent);
-  --rnf-notification-cell-unread-dot-bg-color: var(--destructive);
-  --rnf-notification-cell-unread-dot-border-color: var(--destructive);
-}

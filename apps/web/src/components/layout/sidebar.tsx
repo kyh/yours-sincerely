@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import {
-  useAuthenticatedKnockClient,
-  useNotifications,
-  useNotificationStore,
-} from "@knocklabs/react";
 import { buttonVariants } from "@repo/ui/components/button";
+import { useQuery } from "@tanstack/react-query";
 
-import { useKnockTokenRefresh } from "@/lib/use-knock-token-refresh";
-import { useWorkspace } from "@/lib/use-workspace-user";
+import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { orpc } from "@/orpc/react";
 
 const LottiePlayer = dynamic(
   () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
@@ -34,29 +30,21 @@ const useIconAnimation = () => {
 };
 
 export const Sidebar = () => {
-  const { user, knockUserToken } = useWorkspace();
-  const refreshUserToken = useKnockTokenRefresh();
-
-  const knock = useAuthenticatedKnockClient(
-    process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY ?? "",
-    user?.id,
-    knockUserToken ?? undefined,
-    { onUserTokenExpiring: refreshUserToken },
-  );
-  const notificationFeed = useNotifications(
-    knock,
-    process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID ?? "",
-  );
-  const { metadata } = useNotificationStore(notificationFeed);
+  const user = useWorkspaceUser();
+  const unread = useQuery({
+    ...orpc.notification.unreadCount.queryOptions(),
+    enabled: user !== null,
+    refetchInterval: 60_000,
+    // "always", not the default: a badge must be right the moment the tab is
+    // looked at again, and the 30s SSR staleTime would skip that refetch.
+    refetchOnWindowFocus: "always",
+  });
+  const unreadCount = user === null ? 0 : (unread.data?.count ?? 0);
 
   const iconClassName = "size-6 dark:invert dark-purple:invert";
   const { setDotLottie: homeSetDotLottie, ...homeControlProps } = useIconAnimation();
   const { setDotLottie: bellSetDotLottie, ...bellControlProps } = useIconAnimation();
   const { setDotLottie: userSetDotLottie, ...userControlProps } = useIconAnimation();
-
-  useEffect(() => {
-    void notificationFeed.fetch();
-  }, [notificationFeed]);
 
   return (
     <section className="area-nav">
@@ -82,7 +70,7 @@ export const Sidebar = () => {
               aria-hidden="true"
               lottieRef={bellSetDotLottie}
             />
-            {metadata.unread_count > 0 && (
+            {unreadCount > 0 && (
               <span className="bg-destructive animate-in fade-in zoom-in absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
             )}
           </span>
