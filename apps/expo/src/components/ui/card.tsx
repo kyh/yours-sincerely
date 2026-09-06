@@ -1,7 +1,7 @@
 import type { ViewProps } from "react-native";
 import { View } from "react-native";
 
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 /* Mirrors packages/ui card: bg-card, rounded-xl, padded, soft shadow. */
 export const Card = ({ className, ...props }: ViewProps) => (

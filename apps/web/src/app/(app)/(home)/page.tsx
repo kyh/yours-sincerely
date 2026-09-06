@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "cn";
 
 import type { FeedFilters } from "@/lib/feed-query";
 import { PostFeed } from "@/app/(app)/posts/_components/post-feed";

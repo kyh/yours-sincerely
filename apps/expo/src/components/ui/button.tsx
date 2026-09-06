@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { z } from "zod";
 
 import { Text } from "@/components/ui/text";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 /* Mirrors packages/ui button variants (pill buttons). */
 const buttonVariants = cva(

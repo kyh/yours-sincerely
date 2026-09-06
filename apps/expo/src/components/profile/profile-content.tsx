@@ -14,7 +14,7 @@ import {
 } from "@repo/contracts/calendar";
 import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";

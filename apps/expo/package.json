@@ -28,7 +28,7 @@
     "@repo/contracts": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "class-variance-authority": "catalog:",
-    "cn": "^0.2.3",
+    "cn": "catalog:",
     "date-fns": "catalog:",
     "expo": "~57.0.18",
     "expo-clipboard": "~57.0.1",

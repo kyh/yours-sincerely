@@ -1,7 +1,7 @@
 import type { TextInputProps } from "react-native";
 import { TextInput } from "react-native";
 
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 import { useThemeColors } from "@/components/theme-colors";
 
 export const Input = ({ className, ...props }: TextInputProps) => {

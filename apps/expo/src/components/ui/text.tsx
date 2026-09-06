@@ -1,7 +1,7 @@
 import type { TextProps } from "react-native";
 import { Text as RNText } from "react-native";
 
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 /** Base text — applies the app font + foreground color so ported web
     components can rely on the same defaults the web body styles provide. */
