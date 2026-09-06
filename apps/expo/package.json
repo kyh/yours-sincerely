@@ -28,7 +28,7 @@
     "@repo/contracts": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "class-variance-authority": "catalog:",
-    "clsx": "^2.1.1",
+    "cn": "^0.2.3",
     "date-fns": "catalog:",
     "expo": "~57.0.18",
     "expo-clipboard": "~57.0.1",
@@ -60,7 +60,6 @@
     "react-native-worklets": "0.10.1",
     "set-cookie-parser": "^3.1.2",
     "sonner-native": "^0.27.0",
-    "tailwind-merge": "^3.6.0",
     "zod": "catalog:"
   },
   "devDependencies": {
