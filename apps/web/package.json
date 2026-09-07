@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
-    "@capacitor/core": "^8.5.0",
+    "@capacitor/core": "^8.5.1",
     "@capacitor/splash-screen": "^8.0.2",
     "@hookform/resolvers": "^5.9.1",
     "@lottiefiles/react-lottie-player": "^3.6.0",
@@ -31,12 +31,12 @@
     "cn": "catalog:",
     "date-fns": "catalog:",
     "lucide-react": "catalog:",
-    "motion": "^13.1.1",
+    "motion": "^13.2.0",
     "next": "catalog:",
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-hook-form": "^7.86.0",
+    "react-hook-form": "^7.87.0",
     "react-infinite-scroll-hook": "^6.0.1",
     "zod": "catalog:"
   },
@@ -47,7 +47,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "postcss": "^8.5.26",
+    "postcss": "^8.5.28",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
