@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
 import { compare, hash } from "bcryptjs";
@@ -52,11 +52,11 @@ const PUSH_CLEANUP_VERIFY_SECRETS = buildVerifySecrets({
   purpose: PUSH_CLEANUP_PURPOSE,
 });
 
-const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7; // renew if older than 7 days
+// Renew if older than 7 days.
+const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7;
 
-export const createPushCleanupCapability = (userId: string) => {
-  return signPushCleanupCapability(userId, PUSH_CLEANUP_KEY);
-};
+export const createPushCleanupCapability = (userId: string) =>
+  signPushCleanupCapability(userId, PUSH_CLEANUP_KEY);
 
 export const verifyPushCleanupCapability = (capability: string) =>
   parsePushCleanupCapability(capability, PUSH_CLEANUP_VERIFY_SECRETS);
@@ -73,7 +73,7 @@ export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>
   sessionValue: string | null | undefined,
   findUser: (userId: string) => Promise<TUser | null>,
 ): Promise<TUser | null> =>
-  resolveSessionUser({ sessionValue, verifySecrets: SESSION_VERIFY_SECRETS, findUser });
+  resolveSessionUser({ findUser, sessionValue, verifySecrets: SESSION_VERIFY_SECRETS });
 
 /**
  * Issue a session cookie for `userId` at the user's CURRENT `sessionEpoch`.
@@ -112,11 +112,11 @@ export const renewSessionIfStale = async (
   sessionEpoch: number,
 ) => {
   const { decision, payload } = decideRenewal({
-    sessionValue,
-    verifySecrets: SESSION_VERIFY_SECRETS,
     activeSecret: SESSION_KEY,
     nowSeconds: Math.floor(Date.now() / 1000),
     renewAfterSeconds: SESSION_RENEW_AFTER_SECONDS,
+    sessionValue,
+    verifySecrets: SESSION_VERIFY_SECRETS,
   });
 
   if (decision !== "renew" || payload === null) {
@@ -145,11 +145,6 @@ export const clearSession = async () => {
   }
 };
 
-export const createTempPassword = async () => {
-  const tempPassword = generateToken();
-  return await createPasswordHash(tempPassword);
-};
-
 const SALT_ROUNDS = 10;
 
 export const createPasswordHash = async (password: string) => {
@@ -162,6 +157,9 @@ export const validatePassword = async (password: string, passwordHash: string) =
   return isMatchingPassword;
 };
 
-const generateToken = () => {
-  return randomBytes(20).toString("hex");
+const generateToken = () => randomBytes(20).toString("hex");
+
+export const createTempPassword = async () => {
+  const tempPassword = generateToken();
+  return await createPasswordHash(tempPassword);
 };

@@ -1,5 +1,5 @@
 import { inArray } from "@repo/db";
-import { db } from "@repo/db/drizzle-client";
+import type { db } from "@repo/db/drizzle-client";
 import { post } from "@repo/db/drizzle-schema";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -52,7 +52,9 @@ export const collectDescendantPostIds = async (tx: Tx, rootIds: string[]) => {
       .from(post)
       .where(inArray(post.parentId, parentIds));
     parentIds = children.map((child) => child.id).filter((childId) => !collected.has(childId));
-    parentIds.forEach((childId) => collected.add(childId));
+    for (const childId of parentIds) {
+      collected.add(childId);
+    }
   }
 
   return [...collected];

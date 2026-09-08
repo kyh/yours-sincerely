@@ -1,3 +1,4 @@
+// oxlint-disable-next-line oxc/no-barrel-file -- package entry point
 export * from "./auth";
 export * from "./calendar";
 export * from "./content";

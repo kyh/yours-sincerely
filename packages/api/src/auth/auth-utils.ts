@@ -14,8 +14,8 @@ export const createUserIfNotExists = async (context: ORPCContext, displayName?: 
       .insert(user)
       .values({
         ...getDefaultValues(),
-        passwordHash: await createTempPassword(),
         displayName: displayName ?? "Anonymous",
+        passwordHash: await createTempPassword(),
       })
       .returning();
 

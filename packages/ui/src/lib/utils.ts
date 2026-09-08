@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export function useMediaQuery(query = "(min-width: 640px)") {
+export const useMediaQuery = (query = "(min-width: 640px)") => {
   const subscribe = React.useCallback(
     (onStoreChange: () => void) => {
       const result = matchMedia(query);
@@ -17,4 +17,4 @@ export function useMediaQuery(query = "(min-width: 640px)") {
     () => matchMedia(query).matches,
     () => false,
   );
-}
+};

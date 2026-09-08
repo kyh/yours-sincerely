@@ -50,6 +50,7 @@ export const SettingsForm = () => {
 
   const signOut = useMutation(
     orpc.auth.signOut.mutationOptions({
+      onError: (error) => toast.error(error.message),
       onSuccess: async () => {
         // Identity, and every identity-scoped field on the feed (isLiked, block
         // filtering), are now stale. Refresh before navigating so the home page
@@ -57,7 +58,6 @@ export const SettingsForm = () => {
         await Promise.all([refreshWorkspaceIdentity(queryClient), refreshPostContent(queryClient)]);
         router.replace("/");
       },
-      onError: (error) => toast.error(error.message),
     }),
   );
 
@@ -65,25 +65,25 @@ export const SettingsForm = () => {
   // the whole query cache away.
   const deleteUser = useMutation(
     orpc.user.deleteUser.mutationOptions({
-      onSuccess: () => window.location.assign("/"),
       onError: () => toast.error("Could not delete account. Please try again."),
+      onSuccess: () => window.location.assign("/"),
     }),
   );
 
   const form = useForm({
-    resolver: zodResolver(updateUserInput),
     defaultValues: {
       email: user?.email ?? "",
     },
     mode: "onBlur",
+    resolver: zodResolver(updateUserInput),
   });
 
   const onSubmit = (data: UpdateUserInput) => {
     const promise = updateUser.mutateAsync(data);
     toast.promise(promise, {
+      error: "Could not update Settings. Please try again.",
       loading: "Updating Settings...",
       success: "Settings successfully updated",
-      error: "Could not update Settings. Please try again.",
     });
   };
 
@@ -92,9 +92,9 @@ export const SettingsForm = () => {
       email: user?.email ?? "",
     });
     toast.promise(promise, {
+      error: "Could not send password reset email. Please try again.",
       loading: "Requesting password reset...",
       success: "Password reset email sent",
-      error: "Could not send password reset email. Please try again.",
     });
   };
 
@@ -105,6 +105,7 @@ export const SettingsForm = () => {
   return (
     <div className="-space-y-px">
       <Form {...form}>
+        {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- saves on blur of any field, no interaction added */}
         <form onBlur={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
@@ -143,19 +144,19 @@ export const SettingsForm = () => {
           onValueChange={onChangeTheme}
           value={theme}
         >
-          {themes.map((theme) => (
-            <label className="flex flex-col items-center gap-1" key={theme.id}>
+          {themes.map((option) => (
+            <label className="flex flex-col items-center gap-1" key={option.id}>
               <RadioGroupItem
-                id={theme.id}
-                value={theme.value}
+                id={option.id}
+                value={option.value}
                 className="peer sr-only after:absolute after:inset-0"
               />
               <div
-                style={{ background: theme.color }}
+                style={{ background: option.color }}
                 className="border-border peer-data-checked:border-ring size-10 cursor-pointer rounded-full border shadow-xs transition-colors"
               />
               <span className="peer-data-unchecked:text-muted-foreground text-center text-xs">
-                {theme.label}
+                {option.label}
               </span>
             </label>
           ))}
@@ -166,7 +167,7 @@ export const SettingsForm = () => {
           type="button"
           variant="outline"
           loading={signOut.isPending}
-          onClick={() => signOut.mutate(undefined)}
+          onClick={() => signOut.mutate()}
         >
           Log out
         </Button>
@@ -185,7 +186,7 @@ export const SettingsForm = () => {
               type="button"
               variant="destructive"
               loading={deleteUser.isPending}
-              onClick={() => deleteUser.mutate(undefined)}
+              onClick={() => deleteUser.mutate()}
             >
               Delete my account
             </Button>

@@ -6,8 +6,8 @@ import {
   finalizeLegacySession,
   migrateLegacySession,
   retireLegacySession,
-  type LegacySessionMigrationCheckpoint,
 } from "./legacy-session-migration-core.ts";
+import type { LegacySessionMigrationCheckpoint } from "./legacy-session-migration-core.ts";
 
 /** In-memory stand-ins for SecureStore + the native cookie module. */
 const createMigrationHarness = (initial: {
@@ -20,28 +20,28 @@ const createMigrationHarness = (initial: {
   let readCount = 0;
 
   return {
-    get stored() {
-      return stored;
-    },
     get checkpoint() {
       return checkpoint;
     },
-    get readCount() {
-      return readCount;
-    },
     deps: {
+      getCheckpoint: () => checkpoint,
       getStored: () => stored,
-      setStored: (value: string) => {
-        stored = value;
-      },
       readLegacy: () => {
         readCount += 1;
         return Promise.resolve(initial.legacy ?? null);
       },
-      getCheckpoint: () => checkpoint,
       setCheckpoint: (value: Exclude<LegacySessionMigrationCheckpoint, null>) => {
         checkpoint = value;
       },
+      setStored: (value: string) => {
+        stored = value;
+      },
+    },
+    get readCount() {
+      return readCount;
+    },
+    get stored() {
+      return stored;
     },
   };
 };
@@ -49,15 +49,15 @@ const createMigrationHarness = (initial: {
 describe("copyLegacySession", () => {
   it("copies the legacy cookie byte-for-byte without clearing it", async () => {
     let stored: string | null = null;
-    let clearCount = 0;
+    const clearCount = 0;
     const legacy = "signed%2Evalue%3D%3D";
 
     const result = await copyLegacySession({
       getStored: () => stored,
+      readLegacy: () => Promise.resolve(legacy),
       setStored: (value) => {
         stored = value;
       },
-      readLegacy: () => Promise.resolve(legacy),
     });
 
     assert.equal(result, "copied");
@@ -70,10 +70,10 @@ describe("copyLegacySession", () => {
 
     const result = await copyLegacySession({
       getStored: () => stored,
+      readLegacy: () => Promise.resolve(null),
       setStored: (value) => {
         stored = value;
       },
-      readLegacy: () => Promise.resolve(null),
     });
 
     assert.equal(result, "absent");
@@ -84,12 +84,12 @@ describe("copyLegacySession", () => {
     await assert.rejects(
       copyLegacySession({
         getStored: () => null,
+        readLegacy: () => Promise.resolve("legacy"),
         setStored: () => {
           throw new Error("keychain unavailable");
         },
-        readLegacy: () => Promise.resolve("legacy"),
       }),
-      /keychain unavailable/,
+      /keychain unavailable/u,
     );
   });
 
@@ -97,10 +97,10 @@ describe("copyLegacySession", () => {
     await assert.rejects(
       copyLegacySession({
         getStored: () => null,
-        setStored: () => undefined,
         readLegacy: () => Promise.resolve("legacy"),
+        setStored: () => {},
       }),
-      /could not be verified/,
+      /could not be verified/u,
     );
   });
 
@@ -109,11 +109,11 @@ describe("copyLegacySession", () => {
 
     const result = await copyLegacySession({
       getStored: () => "stored",
-      setStored: () => undefined,
       readLegacy: () => {
         readCount += 1;
         return Promise.resolve("legacy");
       },
+      setStored: () => {},
     });
 
     assert.equal(result, "already-stored");
@@ -127,35 +127,35 @@ describe("migrateLegacySession", () => {
 
     const outcome = await migrateLegacySession(harness.deps);
 
-    assert.deepEqual(outcome, { result: "copied", legacyProvenance: true });
+    assert.deepEqual(outcome, { legacyProvenance: true, result: "copied" });
     assert.equal(harness.stored, "signed%2Evalue");
     assert.equal(harness.checkpoint, "cleanup-pending");
   });
 
   it("short-circuits without a native read once migration is complete", async () => {
-    const harness = createMigrationHarness({ stored: "session", checkpoint: "complete" });
+    const harness = createMigrationHarness({ checkpoint: "complete", stored: "session" });
 
     const outcome = await migrateLegacySession(harness.deps);
 
-    assert.deepEqual(outcome, { result: "complete", legacyProvenance: false });
+    assert.deepEqual(outcome, { legacyProvenance: false, result: "complete" });
     assert.equal(harness.readCount, 0);
   });
 
   it("re-establishes provenance for a pending cleanup without a native read", async () => {
-    const harness = createMigrationHarness({ stored: "session", checkpoint: "cleanup-pending" });
+    const harness = createMigrationHarness({ checkpoint: "cleanup-pending", stored: "session" });
 
     const outcome = await migrateLegacySession(harness.deps);
 
-    assert.deepEqual(outcome, { result: "cleanup-pending", legacyProvenance: true });
+    assert.deepEqual(outcome, { legacyProvenance: true, result: "cleanup-pending" });
     assert.equal(harness.readCount, 0);
   });
 
   it("recovers a crash between persisting the copy and checkpointing it", async () => {
-    const harness = createMigrationHarness({ stored: "copied-value", legacy: "copied-value" });
+    const harness = createMigrationHarness({ legacy: "copied-value", stored: "copied-value" });
 
     const outcome = await migrateLegacySession(harness.deps);
 
-    assert.deepEqual(outcome, { result: "cleanup-pending", legacyProvenance: true });
+    assert.deepEqual(outcome, { legacyProvenance: true, result: "cleanup-pending" });
     assert.equal(harness.checkpoint, "cleanup-pending");
   });
 
@@ -163,13 +163,13 @@ describe("migrateLegacySession", () => {
     const harness = createMigrationHarness({ stored: "fresh-signup" });
 
     const first = await migrateLegacySession(harness.deps);
-    assert.deepEqual(first, { result: "already-stored", legacyProvenance: false });
+    assert.deepEqual(first, { legacyProvenance: false, result: "already-stored" });
     assert.equal(harness.checkpoint, "complete");
     assert.equal(harness.readCount, 1);
 
     // The next cold start must not pay for another native read.
     const second = await migrateLegacySession(harness.deps);
-    assert.deepEqual(second, { result: "complete", legacyProvenance: false });
+    assert.deepEqual(second, { legacyProvenance: false, result: "complete" });
     assert.equal(harness.readCount, 1);
   });
 
@@ -179,7 +179,7 @@ describe("migrateLegacySession", () => {
     const outcome = await migrateLegacySession(harness.deps);
 
     // No checkpoint: a transient empty jar must never be mistaken for terminal.
-    assert.deepEqual(outcome, { result: "absent", legacyProvenance: false });
+    assert.deepEqual(outcome, { legacyProvenance: false, result: "absent" });
     assert.equal(harness.checkpoint, null);
     assert.equal(harness.stored, null);
   });
@@ -190,9 +190,9 @@ describe("migrateLegacySession", () => {
     await assert.rejects(
       migrateLegacySession({
         ...harness.deps,
-        setCheckpoint: () => undefined,
+        setCheckpoint: () => {},
       }),
-      /checkpoint could not be verified/,
+      /checkpoint could not be verified/u,
     );
   });
 });
@@ -209,37 +209,37 @@ describe("finalizeLegacySession", () => {
     assert.equal(
       await finalizeLegacySession({
         authenticated: false,
+        clearLegacy,
+        getCheckpoint: () => checkpoint,
         getStored: () => "stored",
-        getCheckpoint: () => checkpoint,
         setCheckpoint: (value) => {
           checkpoint = value;
         },
-        clearLegacy,
       }),
       "deferred",
     );
     assert.equal(
       await finalizeLegacySession({
         authenticated: true,
+        clearLegacy,
+        getCheckpoint: () => checkpoint,
         getStored: () => null,
-        getCheckpoint: () => checkpoint,
         setCheckpoint: (value) => {
           checkpoint = value;
         },
-        clearLegacy,
       }),
       "deferred",
     );
     assert.equal(
       await finalizeLegacySession({
         authenticated: true,
+        clearLegacy,
+        getCheckpoint: () => null,
         // The server may renew the copied legacy cookie before finalization.
         getStored: () => "new-session",
-        getCheckpoint: () => null,
         setCheckpoint: (value) => {
           checkpoint = value;
         },
-        clearLegacy,
       }),
       "deferred",
     );
@@ -248,12 +248,12 @@ describe("finalizeLegacySession", () => {
     assert.equal(
       await finalizeLegacySession({
         authenticated: true,
-        getStored: () => "renewed-session",
+        clearLegacy,
         getCheckpoint: () => checkpoint,
+        getStored: () => "renewed-session",
         setCheckpoint: (value) => {
           checkpoint = value;
         },
-        clearLegacy,
       }),
       "cleared",
     );
@@ -268,17 +268,17 @@ describe("finalizeLegacySession", () => {
     await assert.rejects(
       finalizeLegacySession({
         authenticated: true,
-        getStored: () => "renewed-session",
-        getCheckpoint: () => checkpoint,
-        setCheckpoint: (value) => {
-          checkpoint = value;
-        },
         clearLegacy: () => {
           clearCount += 1;
           return Promise.reject(new Error("native clear failed"));
         },
+        getCheckpoint: () => checkpoint,
+        getStored: () => "renewed-session",
+        setCheckpoint: (value) => {
+          checkpoint = value;
+        },
       }),
-      /native clear failed/,
+      /native clear failed/u,
     );
     assert.equal(checkpoint, "cleanup-pending");
     assert.equal(clearCount, 1);
@@ -286,14 +286,14 @@ describe("finalizeLegacySession", () => {
     assert.equal(
       await finalizeLegacySession({
         authenticated: true,
-        getStored: () => "renewed-session",
-        getCheckpoint: () => checkpoint,
-        setCheckpoint: (value) => {
-          checkpoint = value;
-        },
         clearLegacy: () => {
           clearCount += 1;
           return Promise.resolve();
+        },
+        getCheckpoint: () => checkpoint,
+        getStored: () => "renewed-session",
+        setCheckpoint: (value) => {
+          checkpoint = value;
         },
       }),
       "cleared",
@@ -306,12 +306,12 @@ describe("finalizeLegacySession", () => {
     await assert.rejects(
       finalizeLegacySession({
         authenticated: true,
-        getStored: () => "stored",
-        getCheckpoint: () => "cleanup-pending",
-        setCheckpoint: () => undefined,
         clearLegacy: () => Promise.resolve(),
+        getCheckpoint: () => "cleanup-pending",
+        getStored: () => "stored",
+        setCheckpoint: () => {},
       }),
-      /checkpoint could not be verified/,
+      /checkpoint could not be verified/u,
     );
   });
 });
@@ -319,9 +319,9 @@ describe("finalizeLegacySession", () => {
 describe("retireLegacySession", () => {
   it("clears the jar and reaches the terminal checkpoint so a cold start cannot re-copy", async () => {
     const harness = createMigrationHarness({
-      stored: null,
-      legacy: "legacy",
       checkpoint: "cleanup-pending",
+      legacy: "legacy",
+      stored: null,
     });
     let clearCount = 0;
 
@@ -377,11 +377,11 @@ describe("retireLegacySession", () => {
   it("rejects when the completion checkpoint cannot be verified", async () => {
     await assert.rejects(
       retireLegacySession({
-        getCheckpoint: () => null,
-        setCheckpoint: () => undefined,
         clearLegacy: () => Promise.resolve(),
+        getCheckpoint: () => null,
+        setCheckpoint: () => {},
       }),
-      /checkpoint could not be verified/,
+      /checkpoint could not be verified/u,
     );
   });
 });

@@ -17,8 +17,8 @@ const CircleAnimation = () => {
     <svg
       className="pointer-events-none absolute -top-3 -left-3"
       style={{
-        width: CIRCLE_RADIUS * 2,
         height: CIRCLE_RADIUS * 2,
+        width: CIRCLE_RADIUS * 2,
       }}
     >
       <m.circle
@@ -38,27 +38,11 @@ const CircleAnimation = () => {
         }}
         transition={{
           duration: 0.4,
-          ease: [0.33, 1, 0.68, 1], // cubic-out
+          // cubic-out
+          ease: [0.33, 1, 0.68, 1],
         }}
       />
     </svg>
-  );
-};
-
-// Burst animation with particles
-const BurstAnimation = () => {
-  return (
-    <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
-      {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
-        <Particle
-          key={colors.id}
-          fromColor={colors.from}
-          toColor={colors.to}
-          index={index}
-          totalParticles={LIKE_BURST_COLOR_PAIRS.length}
-        />
-      ))}
-    </div>
   );
 };
 
@@ -85,10 +69,12 @@ const Particle = ({
   // Both randoms are drawn once per mount — a particle is remounted for every
   // burst — so a re-render mid-flight cannot retarget the animation.
   // Add randomness to the burst distance (±15%)
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [randomFactor] = useState(() => 0.85 + Math.random() * 0.3);
   const burstDistance = BURST_RADIUS * randomFactor;
 
   // Randomize duration between 500-700ms
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [duration] = useState(() => 500 + Math.random() * 200);
 
   // Calculate the degree shift (13 degrees in radians)
@@ -99,52 +85,70 @@ const Particle = ({
       className="pointer-events-none absolute size-1.5 rounded-full"
       style={{ backgroundColor: fromColor, opacity: 0 }}
       initial={{
+        backgroundColor: fromColor,
         opacity: 0,
         scale: 1,
         x: Math.cos(radians) * START_RADIUS * PATH_SCALE_FACTOR,
         y: Math.sin(radians) * START_RADIUS * PATH_SCALE_FACTOR,
-        backgroundColor: fromColor,
       }}
       animate={{
+        backgroundColor: toColor,
         opacity: [0, 1, 1, 0],
+        scale: 0,
         x: Math.cos(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
         y: Math.sin(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
-        scale: 0,
-        backgroundColor: toColor,
       }}
       transition={{
+        backgroundColor: {
+          delay: 0.3,
+          duration: duration / 1000,
+        },
         opacity: {
-          times: [0, 0.01, 0.99, 1],
-          duration: duration / 1000,
           delay: 0.4,
-        },
-        x: {
           duration: duration / 1000,
-          ease: [0.23, 1, 0.32, 1], // quint.out for movement
-          delay: 0.3,
-        },
-        y: {
-          duration: duration / 1000,
-          ease: [0.23, 1, 0.32, 1], // quint.out for movement
-          delay: 0.3,
+          times: [0, 0.01, 0.99, 1],
         },
         scale: {
-          duration: duration / 1000,
-          ease: [0.55, 0.085, 0.68, 0.53], // quad.in for scaling
           delay: 0.3,
+          duration: duration / 1000,
+          // quad.in for scaling
+          ease: [0.55, 0.085, 0.68, 0.53],
         },
-        backgroundColor: {
-          duration: duration / 1000,
+        x: {
           delay: 0.3,
+          duration: duration / 1000,
+          // quint.out for movement
+          ease: [0.23, 1, 0.32, 1],
+        },
+        y: {
+          delay: 0.3,
+          duration: duration / 1000,
+          // quint.out for movement
+          ease: [0.23, 1, 0.32, 1],
         },
       }}
     />
   );
 };
 
-type Props = {
+// Burst animation with particles
+const BurstAnimation = () => (
+  <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
+    {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
+      <Particle
+        key={colors.id}
+        fromColor={colors.from}
+        toColor={colors.to}
+        index={index}
+        totalParticles={LIKE_BURST_COLOR_PAIRS.length}
+      />
+    ))}
+  </div>
+);
+
+interface Props {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
-};
+}
 
 export const LikeButton = ({ post }: Props) => {
   const queryClient = useQueryClient();
@@ -166,15 +170,21 @@ export const LikeButton = ({ post }: Props) => {
     orpc.like.deleteLike.mutationOptions({ onSuccess: refreshAfterLike }),
   );
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
-  const isLiked = createMutate.isPending ? true : deleteMutate.isPending ? false : post.isLiked;
-  const likeCount = createMutate.isPending
-    ? post.likeCount + Number(!post.isLiked)
-    : deleteMutate.isPending
-      ? Math.max(0, post.likeCount - Number(post.isLiked))
-      : post.likeCount;
+  const getOptimisticLike = () => {
+    if (createMutate.isPending) {
+      return { isLiked: true, likeCount: post.likeCount + Number(!post.isLiked) };
+    }
+    if (deleteMutate.isPending) {
+      return { isLiked: false, likeCount: Math.max(0, post.likeCount - Number(post.isLiked)) };
+    }
+    return { isLiked: post.isLiked, likeCount: post.likeCount };
+  };
+  const { isLiked, likeCount } = getOptimisticLike();
 
   const toggleLike = () => {
-    if (!post.id) return;
+    if (!post.id) {
+      return;
+    }
 
     if (isLiked) {
       deleteMutate.mutate({ postId: post.id });
@@ -201,10 +211,10 @@ export const LikeButton = ({ post }: Props) => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{
-              type: "spring",
-              stiffness: 300,
               damping: 10,
               delay: 0.3,
+              stiffness: 300,
+              type: "spring",
             }}
             onAnimationComplete={() => setIsAnimating(false)}
             className="text-red-500"

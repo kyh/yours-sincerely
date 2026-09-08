@@ -24,10 +24,10 @@ const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
     commented out by hand. `push` never had the bug: verified against a
     production-shaped database, it emits no `auth` DDL at all. */
 export default {
-  schema: "./src/drizzle-schema.ts",
-  dialect: "postgresql",
   dbCredentials: {
     url: nonPoolingUrl,
   },
+  dialect: "postgresql",
+  schema: "./src/drizzle-schema.ts",
   schemaFilter: ["public"],
 } satisfies Config;

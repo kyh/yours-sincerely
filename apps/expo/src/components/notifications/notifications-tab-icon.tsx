@@ -19,7 +19,9 @@ const UnreadDot = () => {
     orpc.notification.unreadCount.queryOptions({ refetchInterval: UNREAD_POLL_INTERVAL_MS }),
   );
 
-  if (data === undefined || data.count === 0) return null;
+  if (data === undefined || data.count === 0) {
+    return null;
+  }
 
   // Mirrors the web badge's `animate-in fade-in zoom-in`: scale + fade in on
   // 0→n, matching scale + fade out on n→0.
@@ -32,9 +34,9 @@ const UnreadDot = () => {
   );
 };
 
-type Props = {
+interface Props {
   focused: boolean;
-};
+}
 
 export const NotificationsTabIcon = ({ focused }: Props) => {
   const { user } = useWorkspaceUser();
@@ -42,7 +44,7 @@ export const NotificationsTabIcon = ({ focused }: Props) => {
   return (
     <View>
       <LottieTabIcon name="bell" focused={focused} />
-      {user !== null ? <UnreadDot /> : null}
+      {user === null ? null : <UnreadDot />}
     </View>
   );
 };

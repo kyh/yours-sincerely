@@ -7,8 +7,8 @@ import { z } from "zod";
 // different account. See `packages/api/src/security-contracts.test.ts`.
 export const updateUserInput = z
   .object({
-    email: z.string().email().optional(),
     displayName: z.string().trim().min(1).max(50).optional(),
+    email: z.string().email().optional(),
   })
   .refine((input) => input.email !== undefined || input.displayName !== undefined, {
     message: "At least one profile field is required",

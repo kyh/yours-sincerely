@@ -12,6 +12,7 @@ import {
   FULL_DAY_LABELS,
   PROFILE_CALENDAR_THEMES,
 } from "@repo/contracts/calendar";
+import type { RouterOutputs } from "@/lib/api";
 import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { cn } from "cn";
@@ -20,11 +21,25 @@ import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
 import { ProfileForm } from "./profile-form";
+import { ignoreRejection } from "@/lib/ignore-rejection";
+
+type UserStats = RouterOutputs["user"]["getUserStats"]["userStats"];
+
+const StatsCard = ({ userStats }: { userStats: UserStats | undefined }) => (
+  <Card className="min-h-60 flex-1 items-center justify-center py-8">
+    <ActivityStats
+      posts={userStats?.totalPostCount ?? 0}
+      likes={userStats?.totalLikeCount ?? 0}
+      currentStreak={userStats?.currentPostStreak ?? 0}
+      longestStreak={userStats?.longestPostStreak ?? 0}
+    />
+  </Card>
+);
 
 /** Port of apps/web (app)/profile/_components/profile.tsx. */
-type Props = {
+interface Props {
   userId: string;
-};
+}
 
 export const ProfileContent = ({ userId }: Props) => {
   const { width } = useWindowDimensions();
@@ -48,8 +63,8 @@ export const ProfileContent = ({ userId }: Props) => {
       <QueryErrorState
         message="Couldn't load this profile. Check your connection and try again."
         onRetry={() => {
-          Promise.all([userQuery.refetch(), statsQuery.refetch(), postsQuery.refetch()]).catch(
-            () => undefined,
+          void ignoreRejection(
+            Promise.all([userQuery.refetch(), statsQuery.refetch(), postsQuery.refetch()]),
           );
         }}
       />
@@ -60,7 +75,9 @@ export const ProfileContent = ({ userId }: Props) => {
   if (user === undefined || user === null) {
     return (
       <View className="flex-1 items-center justify-center px-5">
-        <Text className="text-center">Hmm, can't seem to find the person you're looking for</Text>
+        <Text className="text-center">
+          Hmm, can&apos;t seem to find the person you&apos;re looking for
+        </Text>
       </View>
     );
   }
@@ -97,14 +114,7 @@ export const ProfileContent = ({ userId }: Props) => {
           </Text>
           <ActivityWeek data={dailyData.stats} theme={theme} />
         </Card>
-        <Card className="min-h-60 flex-1 items-center justify-center py-8">
-          <ActivityStats
-            posts={userStats?.totalPostCount ?? 0}
-            likes={userStats?.totalLikeCount ?? 0}
-            currentStreak={userStats?.currentPostStreak ?? 0}
-            longestStreak={userStats?.longestPostStreak ?? 0}
-          />
-        </Card>
+        <StatsCard userStats={userStats} />
       </View>
     </ScrollView>
   );

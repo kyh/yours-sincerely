@@ -19,7 +19,9 @@ export const useSeededState = (
 
   if (seed !== seenSeed) {
     setSeenSeed(seed);
-    if (seed !== null && seed !== undefined) setValue(seed);
+    if (seed !== null && seed !== undefined) {
+      setValue(seed);
+    }
   }
 
   return [value, setValue];

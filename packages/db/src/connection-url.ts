@@ -28,7 +28,7 @@ const DIRECT_PORT = 5432;
  *  equivalent if the driver percent-decodes the password, and a deploy is not the
  *  place to discover it does not. This rewrite is byte-identical everywhere except
  *  the four characters of the port. */
-const POOLER_PORT_AT_END_OF_AUTHORITY = new RegExp(`:${POOLER_PORT}(?=[/?]|$)`);
+const POOLER_PORT_AT_END_OF_AUTHORITY = new RegExp(`:${POOLER_PORT}(?=[/?]|$)`, "u");
 
 /** Rewrites a Supabase transaction-pooler URL to its direct-connection
     equivalent. Any other URL — including local Supabase on 54322 — is returned

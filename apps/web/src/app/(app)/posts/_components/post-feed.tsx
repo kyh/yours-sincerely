@@ -11,10 +11,10 @@ import { PostContent } from "@/app/(app)/posts/_components/post-content";
 import { feedInfiniteArgs } from "@/lib/feed-query";
 import { orpc } from "@/orpc/react";
 
-type Props = {
+interface Props {
   layout?: FeedLayout;
   filters?: FeedFilters;
-};
+}
 
 const EMPTY_FILTERS: FeedFilters = {};
 
@@ -24,8 +24,8 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
   );
 
   const [ref] = useInfiniteScroll({
-    loading: isFetchingNextPage,
     hasNextPage,
+    loading: isFetchingNextPage,
     onLoadMore: fetchNextPage,
   });
 

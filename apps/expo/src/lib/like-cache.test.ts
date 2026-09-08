@@ -7,10 +7,8 @@ import {
   likePatch,
   patchFeedPages,
   patchPostDetail,
-  type CacheEntries,
-  type FeedPages,
-  type PostDetail,
 } from "./like-cache.ts";
+import type { CacheEntries, FeedPages, PostDetail } from "./like-cache.ts";
 
 const post = (id: string, likeCount = 0, isLiked = false) => ({ id, isLiked, likeCount });
 
@@ -74,7 +72,7 @@ describe("patchFeedPages / patchPostDetail", () => {
 /** In-memory stand-in for the query client: one typed slot per query. */
 const createCacheHarness = () => {
   const feedKey: QueryKey = ["post", "getFeed", { type: "infinite" }];
-  const emptyFeedKey: QueryKey = ["post", "getFeed", { type: "infinite", input: { userId: "u" } }];
+  const emptyFeedKey: QueryKey = ["post", "getFeed", { input: { userId: "u" }, type: "infinite" }];
   const postKey: QueryKey = ["post", "getPost", { input: { postId: "a" } }];
   const feeds = new Map<string, FeedPages | undefined>([
     [JSON.stringify(feedKey), feed()],
@@ -85,21 +83,6 @@ const createCacheHarness = () => {
   let refreshCount = 0;
 
   return {
-    feedKey,
-    emptyFeedKey,
-    postKey,
-    get feed() {
-      return feeds.get(JSON.stringify(feedKey));
-    },
-    get post() {
-      return posts.get(JSON.stringify(postKey));
-    },
-    get cancelCount() {
-      return cancelCount;
-    },
-    get refreshCount() {
-      return refreshCount;
-    },
     cache: {
       cancel: () => {
         cancelCount += 1;
@@ -108,15 +91,30 @@ const createCacheHarness = () => {
       readFeeds: (): CacheEntries<FeedPages> =>
         [feedKey, emptyFeedKey].map((key) => [key, feeds.get(JSON.stringify(key))]),
       readPosts: (): CacheEntries<PostDetail> => [[postKey, posts.get(JSON.stringify(postKey))]],
+      refresh: () => {
+        refreshCount += 1;
+      },
       writeFeed: (queryKey: QueryKey, data: FeedPages | undefined) => {
         feeds.set(JSON.stringify(queryKey), data);
       },
       writePost: (queryKey: QueryKey, data: PostDetail | undefined) => {
         posts.set(JSON.stringify(queryKey), data);
       },
-      refresh: () => {
-        refreshCount += 1;
-      },
+    },
+    get cancelCount() {
+      return cancelCount;
+    },
+    emptyFeedKey,
+    get feed() {
+      return feeds.get(JSON.stringify(feedKey));
+    },
+    feedKey,
+    get post() {
+      return posts.get(JSON.stringify(postKey));
+    },
+    postKey,
+    get refreshCount() {
+      return refreshCount;
     },
   };
 };
@@ -158,6 +156,7 @@ describe("createLikeMutationHandlers", () => {
   it("does nothing on error without a snapshot", () => {
     const harness = createCacheHarness();
     const handlers = createLikeMutationHandlers(harness.cache, "a", true);
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- the snapshot parameter is required, mirroring TanStack's onError
     handlers.onError(new Error("offline"), { postId: "a" }, undefined);
     assert.deepEqual(harness.feed, feed());
   });

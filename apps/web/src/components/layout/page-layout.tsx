@@ -1,9 +1,9 @@
 import { cn } from "cn";
 
-type PageLayoutProps = {
+interface PageLayoutProps {
   children?: React.ReactNode;
   className?: string;
-};
+}
 
 export const PageHeader = ({
   title,

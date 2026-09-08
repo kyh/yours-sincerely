@@ -11,7 +11,7 @@ describe("resolveNextRoute", () => {
   });
 
   it("falls back to home for anything else", () => {
-    assert.equal(resolveNextRoute(undefined), "/");
+    assert.equal(resolveNextRoute(), "/");
     assert.equal(resolveNextRoute(""), "/");
     assert.equal(resolveNextRoute("/settings?x=1"), "/");
     assert.equal(resolveNextRoute("/posts/abc"), "/");

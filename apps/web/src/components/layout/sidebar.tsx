@@ -10,22 +10,27 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
 const LottiePlayer = dynamic(
-  () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
+  async () => {
+    const mod = await import("@lottiefiles/react-lottie-player");
+    return mod.Player;
+  },
   {
     ssr: false,
   },
 );
 
-type DotLottie = { play: () => void };
+interface DotLottie {
+  play: () => void;
+}
 
 const useIconAnimation = () => {
   const dotLottieRef = useRef<DotLottie>(null);
   return {
+    onMouseEnter: () => dotLottieRef.current?.play(),
+    onTouchStart: () => dotLottieRef.current?.play(),
     setDotLottie: (dotLottie: DotLottie) => {
       dotLottieRef.current = dotLottie;
     },
-    onMouseEnter: () => dotLottieRef.current?.play(),
-    onTouchStart: () => dotLottieRef.current?.play(),
   };
 };
 

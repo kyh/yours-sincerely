@@ -1,3 +1,4 @@
+/* oxlint-disable unicorn/prefer-module, node/global-require -- Metro resolves static assets through require() */
 import { useEffect, useRef } from "react";
 import LottieView from "lottie-react-native";
 
@@ -7,16 +8,16 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 /** Animated nav icons — same Lottie JSON files the web sidebar uses,
     played when the tab becomes focused. */
 const icons = {
-  home: require("../../../assets/icons/home-icon.json"),
   bell: require("../../../assets/icons/bell-icon.json"),
+  home: require("../../../assets/icons/home-icon.json"),
   user: require("../../../assets/icons/user-icon.json"),
 };
 
-type Props = {
+interface Props {
   name: keyof typeof icons;
   focused: boolean;
   size?: number;
-};
+}
 
 export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
   const ref = useRef<LottieView>(null);
@@ -24,7 +25,9 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
   const reduceMotionEnabled = useReducedMotion();
 
   useEffect(() => {
-    if (focused && !reduceMotionEnabled) ref.current?.play();
+    if (focused && !reduceMotionEnabled) {
+      ref.current?.play();
+    }
   }, [focused, reduceMotionEnabled]);
 
   return (
@@ -35,14 +38,14 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
       autoPlay={false}
       progress={reduceMotionEnabled ? 1 : undefined}
       style={{
-        width: size,
         height: size,
         opacity: focused ? 1 : 0.5,
+        width: size,
       }}
       // lottie-react-native appends ".**.Color" to the keypath, so "**" here
       // becomes "**.**.Color", which matches nothing; "*" (any top-level layer)
       // is the glob that recolors every stroke and fill.
-      colorFilters={isDarkTheme(resolvedTheme) ? [{ keypath: "*", color: "#FAFAFA" }] : undefined}
+      colorFilters={isDarkTheme(resolvedTheme) ? [{ color: "#FAFAFA", keypath: "*" }] : undefined}
     />
   );
 };

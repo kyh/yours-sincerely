@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { TextInput, View } from "react-native";
 import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
-import { createPostInput, type CreatePostInput } from "@repo/contracts/post";
+import { createPostInput } from "@repo/contracts/post";
+import type { CreatePostInput } from "@repo/contracts/post";
 import { useMutation } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import * as Haptics from "expo-haptics";
@@ -12,17 +13,18 @@ import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { useBalloons } from "@/components/animations/balloons";
 import { orpc } from "@/lib/api";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { clearPostDraft, getPostDraft, setPostDraft } from "@/lib/post-draft";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of apps/web posts/_components/post-form.tsx. */
-type PostFormProps = {
+interface PostFormProps {
   placeholder?: string;
   parentId?: string;
   onSuccess?: () => void;
-};
+}
 
 export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) => {
   const colors = useThemeColors();
@@ -35,33 +37,38 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
 
   // Restore draft (feed form only — comment drafts aren't persisted on web either).
   useEffect(() => {
-    if (parentId !== undefined) return;
-    getPostDraft()
-      .then((draft) => {
-        if (draft !== null) setContent(draft);
-        return undefined;
-      })
-      .catch(() => undefined);
+    if (parentId !== undefined) {
+      return;
+    }
+    const restoreDraft = async () => {
+      const draft = await getPostDraft();
+      if (draft !== null) {
+        setContent(draft);
+      }
+    };
+    void ignoreRejection(restoreDraft());
   }, [parentId]);
 
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
+      onError: (err) => {
+        toast.error(err.message);
+      },
       onSuccess: () => {
-        if (parentId === undefined) clearPostDraft().catch(() => undefined);
+        if (parentId === undefined) {
+          void ignoreRejection(clearPostDraft());
+        }
         setContent("");
         setError(null);
-        refreshAfterPostCreated().catch(() => undefined);
+        void ignoreRejection(refreshAfterPostCreated());
         onSuccess?.();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+        void ignoreRejection(Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success));
         setTimeout(() => {
           toast.success("Your love letter has been published");
         }, 500);
         setTimeout(() => {
           celebrate();
         }, 600);
-      },
-      onError: (err) => {
-        toast.error(err.message);
       },
     }),
   );
@@ -71,7 +78,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
       toast.error("Your account has been disabled");
       return;
     }
-    const input: CreatePostInput = { parentId, content, createdBy };
+    const input: CreatePostInput = { content, createdBy, parentId };
     const parsed = createPostInput.safeParse(input);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid post");
@@ -93,7 +100,9 @@ export const PostForm = ({ placeholder, parentId, onSuccess }: PostFormProps) =>
         value={content}
         onChangeText={(value) => {
           setContent(value);
-          if (parentId === undefined) setPostDraft(value).catch(() => undefined);
+          if (parentId === undefined) {
+            void ignoreRejection(setPostDraft(value));
+          }
         }}
         className="text-foreground min-h-32 max-h-80 font-sans text-base leading-6"
         style={{ textAlignVertical: "top" }}

@@ -21,20 +21,20 @@ const createFixture = async () => {
   const updatedAt = new Date().toISOString();
 
   await db.insert(user).values([
-    { id: actorId, displayName: "Actor" },
-    { id: authorId, displayName: "Author" },
+    { displayName: "Actor", id: actorId },
+    { displayName: "Author", id: authorId },
   ]);
   await db.insert(post).values({
-    id: postId,
     content: "A letter worth double-tapping",
     createdBy: "Author",
-    userId: authorId,
+    id: postId,
     updatedAt,
+    userId: authorId,
   });
 
   const actor = await db.query.user.findFirst({
-    where: (row, { eq }) => eq(row.id, actorId),
     columns: { passwordHash: false },
+    where: eq(user.id, actorId),
   });
   assert.ok(actor);
 
@@ -48,7 +48,7 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, [actorId, authorId]));
   };
 
-  return { actorId, authorId, postId, caller, cleanup };
+  return { actorId, authorId, caller, cleanup, postId };
 };
 
 integrationTest("liking the same post twice is a no-op, not a 500", async () => {
@@ -118,7 +118,7 @@ integrationTest("blocking yourself is rejected", async () => {
   try {
     await assert.rejects(
       fixture.caller.block.createBlock({ blockingId: fixture.actorId }),
-      /You cannot block yourself/,
+      /You cannot block yourself/u,
     );
 
     const rows = await db.select().from(block).where(eq(block.blockerId, fixture.actorId));

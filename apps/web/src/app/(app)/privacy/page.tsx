@@ -76,7 +76,7 @@ const Page = () => (
         <li>Export your data</li>
       </ul>
 
-      <h4>Children's Privacy</h4>
+      <h4>Children&apos;s Privacy</h4>
       <p>
         Our services are not intended for users under the age of 13. We do not knowingly collect
         information from children under 13 years of age.

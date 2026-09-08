@@ -10,9 +10,9 @@ import { sectorPath } from "@/lib/timer-geometry";
 const SIZE = 16;
 const RADIUS = SIZE / 2;
 
-type Props = {
+interface Props {
   post: FeedPost;
-};
+}
 
 export const TimerButton = ({ post }: Props) => {
   const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);

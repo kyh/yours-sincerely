@@ -3,12 +3,12 @@ import { View } from "react-native";
 import { Text } from "@/components/ui/text";
 
 /** Port of the web activity-stats grid. */
-type Props = {
+interface Props {
   posts: number;
   likes: number;
   currentStreak: number;
   longestStreak: number;
-};
+}
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
   <View className="w-[45%] items-center gap-1">

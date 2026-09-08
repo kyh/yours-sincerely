@@ -5,11 +5,15 @@
 // Usage: node seed-webview-cookie.mjs <devtools-json-url> <domain> <name> <value>
 const [jsonUrl, domain, name, value] = process.argv.slice(2);
 
-const targets = await (await fetch(jsonUrl)).json();
+const targetsResponse = await fetch(jsonUrl);
+const targets = await targetsResponse.json();
 const page = targets.find((t) => t.type === "page" && t.webSocketDebuggerUrl);
-if (!page) throw new Error(`no page target in ${JSON.stringify(targets)}`);
+if (!page) {
+  throw new Error(`no page target in ${JSON.stringify(targets)}`);
+}
 
 const ws = new WebSocket(page.webSocketDebuggerUrl);
+// oxlint-disable-next-line promise/avoid-new -- WebSocket open is event-based
 await new Promise((resolve, reject) => {
   ws.addEventListener("open", resolve, { once: true });
   ws.addEventListener("error", reject, { once: true });
@@ -17,11 +21,15 @@ await new Promise((resolve, reject) => {
 
 let nextId = 1;
 const call = (method, params) =>
+  // oxlint-disable-next-line promise/avoid-new -- DevTools replies arrive as socket messages
   new Promise((resolve, reject) => {
-    const id = nextId++;
+    const id = nextId;
+    nextId += 1;
     const onMessage = (event) => {
       const msg = JSON.parse(event.data);
-      if (msg.id !== id) return;
+      if (msg.id !== id) {
+        return;
+      }
       ws.removeEventListener("message", onMessage);
       if (msg.error) {
         reject(new Error(JSON.stringify(msg.error)));
@@ -36,14 +44,14 @@ const call = (method, params) =>
 await call("Network.enable", {});
 const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 400;
 const result = await call("Network.setCookie", {
-  name,
-  value,
   domain,
-  path: "/",
-  secure: true,
-  httpOnly: true,
-  sameSite: "Lax",
   expires,
+  httpOnly: true,
+  name,
+  path: "/",
+  sameSite: "Lax",
+  secure: true,
+  value,
 });
 console.log("setCookie", JSON.stringify(result));
 const { cookies } = await call("Network.getCookies", { urls: [`https://${domain}/`] });

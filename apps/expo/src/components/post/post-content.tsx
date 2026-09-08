@@ -13,7 +13,7 @@ import { ShareButton } from "./share-button";
 import { TimerButton } from "./timer-button";
 
 /** Mirrors apps/web posts/_components/post-content.tsx. */
-type Props = {
+interface Props {
   post: FeedPost;
   layout?: FeedLayout;
   minHeight?: boolean;
@@ -22,7 +22,7 @@ type Props = {
   showTimer?: boolean;
   showMore?: boolean;
   onDeleted?: () => void;
-};
+}
 
 export const PostContent = ({
   post,
@@ -37,10 +37,12 @@ export const PostContent = ({
   const router = useRouter();
 
   const openPost = () =>
-    router.push({ pathname: "/posts/[post-id]", params: { "post-id": post.id } });
+    router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" });
   const openProfile = () => {
-    if (post.userId === null) return;
-    router.push({ pathname: "/profile/[user-id]", params: { "user-id": post.userId } });
+    if (post.userId === null) {
+      return;
+    }
+    router.push({ params: { "user-id": post.userId }, pathname: "/profile/[user-id]" });
   };
 
   const truncateInFeed = asLink && layout === "list" && needsFeedPreview(post.content);
@@ -71,7 +73,9 @@ export const PostContent = ({
       <View className={cn(layout === "stack" ? "mt-auto pt-3" : "mt-5")}>
         <View className="flex-row items-center gap-1">
           <Text className="text-sm italic">Yours Sincerely,</Text>
-          {post.userId !== null ? (
+          {post.userId === null ? (
+            <Text className="text-sm italic">{post.createdBy}</Text>
+          ) : (
             <Pressable
               accessibilityRole="link"
               accessibilityLabel={`Open ${post.createdBy}'s profile`}
@@ -79,8 +83,6 @@ export const PostContent = ({
             >
               <Text className="text-sm font-medium italic underline">{post.createdBy}</Text>
             </Pressable>
-          ) : (
-            <Text className="text-sm italic">{post.createdBy}</Text>
           )}
         </View>
         <View className="mt-3 flex-row items-center justify-between">

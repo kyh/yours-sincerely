@@ -18,9 +18,13 @@ import {
 } from "@repo/contracts/calendar";
 import { ProfileForm } from "./profile-form";
 
-type ProfileProps = {
+interface ProfileProps {
   userId: string;
-};
+}
+
+const ProfileNotFound = () => (
+  <h1>Hmm, can&apos;t seem to find the person you&apos;re looking for</h1>
+);
 
 export const Profile = ({ userId }: ProfileProps) => {
   const { resolvedTheme } = useTheme();
@@ -82,8 +86,4 @@ export const Profile = ({ userId }: ProfileProps) => {
       </div>
     </section>
   );
-};
-
-const ProfileNotFound = () => {
-  return <h1>Hmm, can't seem to find the person you're looking for</h1>;
 };

@@ -40,13 +40,13 @@ const mintSessionCookie = (userId: string, sessionEpoch: number, iat = NOW_SECON
  * app's SecureStore right now.
  */
 const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
-  signSession(Buffer.from(JSON.stringify({ user: userId, iat })).toString("base64"), SESSION_KEY);
+  signSession(Buffer.from(JSON.stringify({ iat, user: userId })).toString("base64"), SESSION_KEY);
 
 /** The lookup `createORPCContext` performs — same columns, same exclusions. */
 const findDbUser = async (userId: string) => {
   const found = await db.query.user.findFirst({
-    where: (row, { eq: equals }) => equals(row.id, userId),
     columns: { passwordHash: false },
+    where: (row, { eq: equals }) => equals(row.id, userId),
   });
   return found ?? null;
 };
@@ -81,7 +81,7 @@ const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
 
 const createFixture = async () => {
   const userId = randomUUID();
-  await db.insert(user).values({ id: userId, displayName: "Session Owner" });
+  await db.insert(user).values({ displayName: "Session Owner", id: userId });
 
   const actor = await findDbUser(userId);
   assert.ok(actor);
@@ -92,22 +92,22 @@ const createFixture = async () => {
   };
 
   return {
-    userId,
     caller: createCaller(actor),
     cleanup,
+    userId,
   };
 };
 
 const createResetToken = async (userId: string) => {
   const tokenValue = randomUUID();
   await db.insert(tokenTable).values({
+    expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     id: randomUUID(),
+    sentTo: `${userId}@example.com`,
     token: tokenValue,
     type: "RESET_PASSWORD",
-    expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-    sentTo: `${userId}@example.com`,
-    userId,
     updatedAt: new Date().toISOString(),
+    userId,
   });
   return tokenValue;
 };
@@ -122,7 +122,7 @@ integrationTest(
       // Prove the payload really has no epoch — otherwise this tests nothing.
       const [payload] = inTheWild.split(".");
       assert.equal(
-        JSON.stringify(JSON.parse(Buffer.from(payload ?? "", "base64").toString("utf8"))).includes(
+        JSON.stringify(JSON.parse(Buffer.from(payload ?? "", "base64").toString("utf-8"))).includes(
           "epoch",
         ),
         false,
@@ -150,7 +150,7 @@ integrationTest("a password reset revokes sessions captured beforehand", async (
 
     const resetToken = await createResetToken(fixture.userId);
     await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ token: resetToken, password: "a-new-password-123" }),
+      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: resetToken }),
     );
 
     assert.equal(await readSessionEpoch(fixture.userId), 1);
@@ -174,7 +174,7 @@ integrationTest("the person who reset the password stays signed in", async () =>
   try {
     const resetToken = await createResetToken(fixture.userId);
     await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ token: resetToken, password: "a-new-password-123" }),
+      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: resetToken }),
     );
 
     // The cookie `setPassword` issues carries the epoch it just bumped to.
@@ -248,7 +248,7 @@ integrationTest("issuing a new reset link burns the outstanding ones", async () 
 
     // Consuming one burns every other unused RESET_PASSWORD token for this user.
     await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ token: secondToken, password: "a-new-password-123" }),
+      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: secondToken }),
     );
 
     const rows = await db
@@ -262,8 +262,8 @@ integrationTest("issuing a new reset link burns the outstanding ones", async () 
 
     // ...and the burned one can no longer be redeemed.
     await assert.rejects(
-      fixture.caller.auth.setPassword({ token: firstToken, password: "another-password-123" }),
-      /Invalid or expired reset token/,
+      fixture.caller.auth.setPassword({ password: "another-password-123", token: firstToken }),
+      /Invalid or expired reset token/u,
     );
   } finally {
     await fixture.cleanup();

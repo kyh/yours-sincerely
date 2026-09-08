@@ -14,9 +14,9 @@ import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
 import type { RouterOutputs } from "@repo/api";
 
-type Props = {
+interface Props {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
-};
+}
 
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);

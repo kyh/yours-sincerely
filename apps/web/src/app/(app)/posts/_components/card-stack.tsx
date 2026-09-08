@@ -24,10 +24,10 @@ import {
 
 import { useHotkeys } from "@/lib/use-hotkey";
 
-type CardStackContextType = {
+interface CardStackContextType {
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
-};
+}
 
 const CardStackContext = createContext<CardStackContextType | undefined>(undefined);
 
@@ -69,7 +69,7 @@ const useCardStackStrict = (): CardStackContextType => {
   return context;
 };
 
-type CardProps = {
+interface CardProps {
   index: number;
   currentIndex: number;
   total: number;
@@ -78,9 +78,9 @@ type CardProps = {
   minSpeed?: number;
   setNextPost: () => void;
   children: React.ReactNode;
-};
+}
 
-const Card = memo(function Card({
+const CardComponent = ({
   index,
   currentIndex,
   total,
@@ -89,7 +89,7 @@ const Card = memo(function Card({
   minDistance = 400,
   minSpeed = 50,
   children,
-}: CardProps) {
+}: CardProps) => {
   const baseRotation = mix(0, maxRotate, Math.sin(index));
   const x = useMotionValue(0);
   const rotate = useTransform(x, [0, 400], [baseRotation, baseRotation + 10], {
@@ -105,15 +105,15 @@ const Card = memo(function Card({
       setNextPost();
 
       animate(x, 0, {
-        type: "spring",
-        stiffness: 600,
         damping: 50,
+        stiffness: 600,
+        type: "spring",
       });
     } else {
       animate(x, 0, {
-        type: "spring",
-        stiffness: 300,
         damping: 50,
+        stiffness: 300,
+        type: "spring",
       });
     }
   };
@@ -127,17 +127,17 @@ const Card = memo(function Card({
     <m.div
       className="absolute top-0 h-full w-full cursor-grab overflow-auto rounded-2xl"
       style={{
-        zIndex,
         rotate,
         x,
+        zIndex,
       }}
       initial={{ opacity: 0, scale: 0.3 }}
       animate={{ opacity, scale }}
       whileTap={index === currentIndex ? { scale: 0.98 } : {}}
       transition={{
-        type: "spring",
-        stiffness: 600,
         damping: 30,
+        stiffness: 600,
+        type: "spring",
       }}
       drag={index === currentIndex ? "x" : false}
       onDragEnd={onDragEnd}
@@ -145,14 +145,16 @@ const Card = memo(function Card({
       <m.div className="bg-card h-fit w-full rounded-2xl p-5 shadow-sm">{children}</m.div>
     </m.div>
   );
-});
+};
 
-type Props<T> = {
+const Card = memo(CardComponent);
+
+interface Props<T> {
   data: T[];
   render: (d: T) => React.ReactNode;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
-};
+}
 
 /** Only a handful of cards are ever visible: the current one, the two behind it,
     and the one you land on going backwards. Mounting the rest gains nothing and
@@ -171,7 +173,9 @@ export const CardStack = <T extends { id: string }>({
   const [width, setWidth] = useState(400);
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current) {
+      return;
+    }
     setWidth(ref.current.offsetWidth);
   }, []);
 
@@ -185,16 +189,22 @@ export const CardStack = <T extends { id: string }>({
   const safeIndex = total > 0 ? wrap(0, total, currentIndex) : 0;
 
   const handleSetNextPost = useCallback(() => {
-    if (total === 0) return;
+    if (total === 0) {
+      return;
+    }
     // Unchanged by windowing: this is derived from the full data length, not
     // from how many cards happen to be mounted.
     const postsLeft = total - safeIndex - 1;
-    if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
+    if (postsLeft <= 1 && hasNextPage && onLoadMore) {
+      onLoadMore();
+    }
     setCurrentIndex(wrap(0, total, safeIndex + 1));
   }, [total, safeIndex, hasNextPage, onLoadMore, setCurrentIndex]);
 
   const handleSetPreviousPost = useCallback(() => {
-    if (total === 0) return;
+    if (total === 0) {
+      return;
+    }
     setCurrentIndex(wrap(0, total, safeIndex - 1));
   }, [total, safeIndex, setCurrentIndex]);
 
@@ -213,20 +223,26 @@ export const CardStack = <T extends { id: string }>({
   // The window wraps at both ends (the stack cycles). A Set keeps it correct when
   // the feed is shorter than the window and offsets would collide.
   const windowed = useMemo(() => {
-    if (total === 0) return [];
+    if (total === 0) {
+      return [];
+    }
     const seen = new Set<number>();
     const cards: { item: T; node: React.ReactNode; index: number }[] = [];
 
-    for (let offset = -WINDOW_BEFORE; offset <= WINDOW_AFTER; offset++) {
+    for (let offset = -WINDOW_BEFORE; offset <= WINDOW_AFTER; offset += 1) {
       const index = wrap(0, total, safeIndex + offset);
-      if (seen.has(index)) continue;
+      if (seen.has(index)) {
+        continue;
+      }
       seen.add(index);
 
       const item = data[index];
       const node = rendered[index];
-      if (item === undefined) continue;
+      if (item === undefined) {
+        continue;
+      }
 
-      cards.push({ item, node, index });
+      cards.push({ index, item, node });
     }
 
     return cards;

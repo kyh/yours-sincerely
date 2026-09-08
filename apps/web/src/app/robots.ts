@@ -4,8 +4,8 @@ import { siteConfig } from "@/lib/site-config";
 
 const robots = (): MetadataRoute.Robots => ({
   rules: {
-    userAgent: "*",
     allow: "/",
+    userAgent: "*",
   },
   sitemap: `${siteConfig.url}/sitemap.xml`,
 });

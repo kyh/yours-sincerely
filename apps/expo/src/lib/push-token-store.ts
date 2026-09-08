@@ -4,7 +4,11 @@ const PUSH_TOKEN_KEY = "registered-push-token";
 const PUSH_TOKEN_USER_KEY = "registered-push-token-user";
 const PUSH_CLEANUP_CAPABILITY_KEY = "registered-push-cleanup-capability";
 
-export type RegisteredPushDevice = { cleanupCapability: string; token: string; userId: string };
+export interface RegisteredPushDevice {
+  cleanupCapability: string;
+  token: string;
+  userId: string;
+}
 
 export const getRegisteredPushDevice = (): RegisteredPushDevice | null => {
   const token = SecureStore.getItem(PUSH_TOKEN_KEY);

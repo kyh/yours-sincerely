@@ -36,21 +36,27 @@ const invalid = [];
 const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
 if (target !== "web" && googleServicesFile) {
   try {
-    const googleServices = JSON.parse(readFileSync(googleServicesFile, "utf8"));
+    const googleServices = JSON.parse(readFileSync(googleServicesFile, "utf-8"));
     const clients = Array.isArray(googleServices.client) ? googleServices.client : [];
     const hasProductionAndroidApp = clients.some(
       (client) => client?.client_info?.android_client_info?.package_name === MOBILE_ANDROID_PACKAGE,
     );
 
-    if (!hasProductionAndroidApp) invalid.push("GOOGLE_SERVICES_JSON");
+    if (!hasProductionAndroidApp) {
+      invalid.push("GOOGLE_SERVICES_JSON");
+    }
   } catch {
     invalid.push("GOOGLE_SERVICES_JSON");
   }
 }
 
 if (missing.length > 0 || invalid.length > 0 || forbidden.length > 0) {
-  if (missing.length > 0) console.error(`Missing: ${missing.join(", ")}`);
-  if (invalid.length > 0) console.error(`Invalid: ${[...new Set(invalid)].join(", ")}`);
+  if (missing.length > 0) {
+    console.error(`Missing: ${missing.join(", ")}`);
+  }
+  if (invalid.length > 0) {
+    console.error(`Invalid: ${[...new Set(invalid)].join(", ")}`);
+  }
   if (forbidden.length > 0) {
     console.error(`Must be unset for a store build: ${forbidden.join(", ")}`);
   }

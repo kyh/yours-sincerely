@@ -42,20 +42,19 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 const BALLOON_VIEWBOX_WIDTH = 223;
 const BALLOON_ASPECT = 609 / BALLOON_VIEWBOX_WIDTH;
 
+// Light and body colors: yellow, red, blue, green, purple.
 const colorPairs: [string, string][] = [
-  ["#ffec37ee", "#f8b13dff"], // yellow
-  ["#f89640ee", "#c03940ff"], // red
-  ["#3bc0f0ee", "#0075bcff"], // blue
-  ["#b0cb47ee", "#3d954bff"], // green
-  ["#cf85b8ee", "#a3509dff"], // purple
+  ["#ffec37ee", "#f8b13dff"],
+  ["#f89640ee", "#c03940ff"],
+  ["#3bc0f0ee", "#0075bcff"],
+  ["#b0cb47ee", "#3d954bff"],
+  ["#cf85b8ee", "#a3509dff"],
 ];
 
-const easings = [
-  Easing.bezier(0.22, 1, 0.36, 1), // easeOutQuint
-  Easing.bezier(0.33, 1, 0.68, 1), // easeOutCubic
-];
+// easeOutQuint, easeOutCubic.
+const easings = [Easing.bezier(0.22, 1, 0.36, 1), Easing.bezier(0.33, 1, 0.68, 1)];
 
-type BalloonConfig = {
+interface BalloonConfig {
   id: number;
   lightColor: string;
   balloonColor: string;
@@ -71,7 +70,7 @@ type BalloonConfig = {
   // paint order + bokeh, mirroring web's z-index sort (nearest on top/blurred).
   zIndex: number;
   blur: boolean;
-};
+}
 
 const BalloonGraphic = ({
   width,
@@ -201,7 +200,8 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
   const rotate = useSharedValue(-config.tiltDirection * config.tiltAngle);
 
   // Kick off on mount — float up with sway + alternating tilt. Runs in an
-  // effect (not the render body) so re-renders never restart the flight.
+  // effect (not the render body) so re-renders never restart the flight; the
+  // config is stable for a mounted balloon (unique id per batch).
   useEffect(() => {
     const easing = easings[config.easingIndex] ?? Easing.linear;
     y.set(withDelay(config.delay, withTiming(-travel, { duration: config.duration, easing })));
@@ -217,8 +217,7 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
         ),
       ),
     );
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- one-shot flight per mounted balloon
-  }, []);
+  }, [config, rotate, travel, x, y]);
 
   const style = useAnimatedStyle(() => ({
     transform: [
@@ -231,7 +230,7 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
 
   return (
     <Animated.View
-      style={[{ position: "absolute", top: screenHeight, left: -config.width / 2 }, style]}
+      style={[{ left: -config.width / 2, position: "absolute", top: screenHeight }, style]}
     >
       <BalloonGraphic
         width={config.width}
@@ -243,11 +242,15 @@ const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight
   );
 };
 
-type BalloonsContextValue = {
+interface BalloonsContextValue {
   celebrate: () => void;
-};
+}
 
-const BalloonsContext = createContext<BalloonsContextValue>({ celebrate: () => undefined });
+const BalloonsContext = createContext<BalloonsContextValue>({
+  celebrate: () => {
+    /* empty */
+  },
+});
 
 export const useBalloons = () => useContext(BalloonsContext);
 
@@ -262,31 +265,35 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
   const balloons = reduceMotionEnabled ? null : balloonBatch;
 
   const celebrate = useCallback(() => {
-    if (reduceMotionEnabled) return;
+    if (reduceMotionEnabled) {
+      return;
+    }
 
     const balloonWidth = Math.min(screenWidth, screenHeight) * 0.4;
     const amount = Math.max(7, Math.round(screenWidth / (balloonWidth / 2)));
 
     type BaseConfig = Omit<BalloonConfig, "zIndex" | "blur">;
     const base: BaseConfig[] = [];
-    for (let i = 0; i < amount; i++) {
+    for (let i = 0; i < amount; i += 1) {
       const colorPair = colorPairs[i % colorPairs.length] ?? colorPairs[0];
-      if (colorPair === undefined) continue;
+      if (colorPair === undefined) {
+        continue;
+      }
       base.push({
-        id: nextId.current++,
-        lightColor: colorPair[0],
         balloonColor: colorPair[1],
-        x: Math.round(screenWidth * Math.random()),
+        delay: i * 200,
+        duration: (Math.random() * 1000 + 5000) * 2,
+        easingIndex: Math.floor(Math.random() * easings.length),
+        id: (nextId.current += 1),
+        lightColor: colorPair[0],
+        scale: 0.4 + Math.random() * 0.6,
         targetX: Math.round(
           screenWidth * Math.random() + balloonWidth * 2 * (Math.random() > 0.5 ? 1 : -1),
         ),
-        scale: 0.4 + Math.random() * 0.6,
-        width: balloonWidth,
-        duration: (Math.random() * 1000 + 5000) * 2,
-        delay: i * 200,
         tiltAngle: Math.random() * (15 - 8) + 8,
         tiltDirection: Math.random() < 0.5 ? 1 : -1,
-        easingIndex: Math.floor(Math.random() * easings.length),
+        width: balloonWidth,
+        x: Math.round(screenWidth * Math.random()),
       });
     }
 
@@ -295,9 +302,9 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
     const configs: BalloonConfig[] = [...base]
       // oxlint-disable-next-line unicorn/no-array-sort -- toSorted needs an ES2023 lib; the copy makes this non-mutating
       .sort((a, b) => a.scale - b.scale)
-      .map((c, index) => Object.assign(c, { zIndex: index + 1, blur: index + 1 > 7 }));
+      .map((c, index) => Object.assign(c, { blur: index + 1 > 7, zIndex: index + 1 }));
 
-    const maxLifetime = configs.reduce((max, c) => Math.max(max, c.duration + c.delay), 0);
+    const maxLifetime = Math.max(0, ...configs.map((c) => c.duration + c.delay));
 
     setBalloonBatch(configs);
     // Only clear our own batch — a later celebrate() may have replaced it.
@@ -315,13 +322,13 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
         <View
           pointerEvents="none"
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
             bottom: 0,
-            zIndex: 999,
+            left: 0,
             overflow: "hidden",
+            position: "absolute",
+            right: 0,
+            top: 0,
+            zIndex: 999,
           }}
         >
           {balloons.map((config) => (

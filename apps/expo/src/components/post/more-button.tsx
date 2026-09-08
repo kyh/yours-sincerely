@@ -8,6 +8,7 @@ import type { FeedPost } from "@/lib/post-types";
 import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
 import { orpc } from "@/lib/api";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import {
   refreshBlocks,
   refreshPostContent,
@@ -17,10 +18,10 @@ import {
 import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
-type Props = {
+interface Props {
   post: FeedPost;
   onDeleted?: () => void;
-};
+}
 
 export const MoreButton = ({ post, onDeleted }: Props) => {
   const colors = useThemeColors();
@@ -29,21 +30,21 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
 
   const deleteMutation = useMutation(
     orpc.post.deletePost.mutationOptions({
+      onError: () => toast.error("Could not delete this post. Please try again."),
       onSuccess: () => {
         toast.success("You have deleted this post");
-        refreshPostContent().catch(() => undefined);
-        refreshProfileData().catch(() => undefined);
+        void ignoreRejection(refreshPostContent());
+        void ignoreRejection(refreshProfileData());
         onDeleted?.();
       },
-      onError: () => toast.error("Could not delete this post. Please try again."),
     }),
   );
   const flagMutation = useMutation(
     orpc.flag.createFlag.mutationOptions({
       onSuccess: () => {
         toast.success("You have flagged this post, we will be reviewing it shortly");
-        refreshPostContent().catch(() => undefined);
-        refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
+        void ignoreRejection(refreshPostContent());
+        void ignoreRejection(refreshWorkspaceIdentityIfAnonymous());
       },
     }),
   );
@@ -53,7 +54,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
         toast.success("You have blocked this user");
         // The blocked author's letters leave the feed AND the author joins the
         // viewer's blocked list — refreshBlocks covers both.
-        refreshBlocks().catch(() => undefined);
+        void ignoreRejection(refreshBlocks());
       },
     }),
   );
@@ -67,11 +68,11 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
       "Delete this letter?",
       "This permanently removes the letter and its comments. This cannot be undone.",
       [
-        { text: "Cancel", style: "cancel" },
+        { style: "cancel", text: "Cancel" },
         {
-          text: "Delete",
-          style: "destructive",
           onPress: () => deleteMutation.mutate({ postId: post.id }),
+          style: "destructive",
+          text: "Delete",
         },
       ],
     );
@@ -92,15 +93,17 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
         <DrawerItem
           icon={<Flag size={iconSize} color={colors.foreground} />}
           label="Report Post"
-          onPress={() => {
+          onPress={async () => {
             setIsOpen(false);
-            Linking.openURL(
-              `mailto:${siteConfig.supportEmail}?subject=Report YS Post: ${post.id}`,
-            ).catch(() => {
+            try {
+              await Linking.openURL(
+                `mailto:${siteConfig.supportEmail}?subject=Report YS Post: ${post.id}`,
+              );
+            } catch {
               toast.error(
                 `Could not open your mail app. Report this post to ${siteConfig.supportEmail}`,
               );
-            });
+            }
           }}
         />
         {user !== null && isPostOwner ? (
@@ -110,7 +113,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
             onPress={confirmDelete}
           />
         ) : null}
-        {!isPostOwner ? (
+        {isPostOwner ? null : (
           <DrawerItem
             icon={<TriangleAlert size={iconSize} color={colors.foreground} />}
             label="Mark as inappropriate"
@@ -119,7 +122,7 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
               flagMutation.mutate({ postId: post.id });
             }}
           />
-        ) : null}
+        )}
         {user !== null && !isPostOwner && post.userId !== null ? (
           <DrawerItem
             icon={<Ban size={iconSize} color={colors.foreground} />}
@@ -127,7 +130,9 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
             onPress={() => {
               setIsOpen(false);
               const blockingId = post.userId;
-              if (blockingId === null) return;
+              if (blockingId === null) {
+                return;
+              }
               blockMutation.mutate({ blockingId });
             }}
           />

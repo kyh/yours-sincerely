@@ -12,15 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { orpc } from "@/lib/api";
 
-export default function PasswordResetScreen() {
+const PasswordResetScreen = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const requestReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({
-      onSuccess: () => toast.success("Password reset email sent"),
       onError: (mutationError) => toast.error(mutationError.message),
+      onSuccess: () => toast.success("Password reset email sent"),
     }),
   );
 
@@ -75,4 +75,6 @@ export default function PasswordResetScreen() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default PasswordResetScreen;

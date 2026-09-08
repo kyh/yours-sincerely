@@ -1,15 +1,9 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { AppState, Linking, Platform, View } from "react-native";
 import { useRouter } from "expo-router";
-import { notificationTargetData, type PushPlatform } from "@repo/contracts/notifications";
+import { notificationTargetData } from "@repo/contracts/notifications";
+import type { PushPlatform } from "@repo/contracts/notifications";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { onlineManager, useMutation } from "@tanstack/react-query";
@@ -19,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { orpc } from "@/lib/api";
 import { appConfig } from "@/lib/app-config";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { resolveNotificationTarget } from "@/lib/notification-target";
 import {
   deleteRegisteredPushDevice,
@@ -33,30 +28,35 @@ import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 Notifications.setNotificationHandler({
   handleNotification: () =>
     Promise.resolve({
-      shouldShowBanner: true,
-      shouldShowList: true,
       shouldPlaySound: false,
       shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
     }),
 });
 
 /** Expo's push service delivers to this channel when a message names none. */
 const ANDROID_CHANNEL_ID = "default";
 
-const pushPlatform = Platform.select<PushPlatform>({ ios: "ios", android: "android" });
+const pushPlatform = Platform.select<PushPlatform>({ android: "android", ios: "ios" });
 
-type AcquiredPushToken = { token: string; platform: PushPlatform };
+interface AcquiredPushToken {
+  token: string;
+  platform: PushPlatform;
+}
 
 /** Null when this device cannot hold a token: simulators and unsupported
     platforms never prompt, a refused permission ends here, and a failed
     token fetch is reported through the permission state, not thrown. */
 const acquireExpoPushToken = async (): Promise<AcquiredPushToken | null> => {
-  if (!Device.isDevice || pushPlatform === undefined) return null;
+  if (!Device.isDevice || pushPlatform === undefined) {
+    return null;
+  }
 
   if (pushPlatform === "android") {
     await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
-      name: "Replies",
       importance: Notifications.AndroidImportance.DEFAULT,
+      name: "Replies",
     });
   }
 
@@ -65,25 +65,29 @@ const acquireExpoPushToken = async (): Promise<AcquiredPushToken | null> => {
     current.status === Notifications.PermissionStatus.GRANTED
       ? current
       : await Notifications.requestPermissionsAsync();
-  if (status !== Notifications.PermissionStatus.GRANTED) return null;
+  if (status !== Notifications.PermissionStatus.GRANTED) {
+    return null;
+  }
 
   try {
     const { data } = await Notifications.getExpoPushTokenAsync({
       projectId: appConfig.easProjectId,
     });
-    return { token: data, platform: pushPlatform };
+    return { platform: pushPlatform, token: data };
   } catch (error) {
-    if (__DEV__) console.error("[push] Could not fetch an Expo push token", error);
+    if (__DEV__) {
+      console.error("[push] Could not fetch an Expo push token", error);
+    }
     return null;
   }
 };
 
-type PushRegistrationContextValue = {
+interface PushRegistrationContextValue {
   permission: Notifications.PermissionStatus | null;
   registrationFailed: boolean;
   registering: boolean;
   register: () => Promise<void>;
-};
+}
 
 const PushRegistrationContext = createContext<PushRegistrationContextValue | null>(null);
 const ReleasePushIdentityContext = createContext<() => Promise<void>>(() => Promise.resolve());
@@ -92,18 +96,22 @@ export const useReleasePushIdentity = () => useContext(ReleasePushIdentityContex
 
 export const PushNotificationRegistration = () => {
   const registration = useContext(PushRegistrationContext);
-  if (registration === null) return null;
+  if (registration === null) {
+    return null;
+  }
   const { permission, register, registrationFailed, registering } = registration;
 
   if (
     permission === null ||
     (permission === Notifications.PermissionStatus.GRANTED && !registrationFailed)
-  )
+  ) {
     return null;
+  }
 
   const denied = permission === Notifications.PermissionStatus.DENIED;
   const retryRegistration =
     permission === Notifications.PermissionStatus.GRANTED && registrationFailed;
+  const registerLabel = retryRegistration ? "Retry" : "Enable notifications";
 
   return (
     <View className="bg-card border-border mx-5 mb-3 gap-3 rounded-xl border p-4">
@@ -118,13 +126,16 @@ export const PushNotificationRegistration = () => {
       <Button
         size="sm"
         variant="outline"
-        onPress={() => {
-          const action = denied ? Linking.openSettings() : register();
-          action.catch(() => toast.error("Could not enable notifications. Please try again."));
+        onPress={async () => {
+          try {
+            await (denied ? Linking.openSettings() : register());
+          } catch {
+            toast.error("Could not enable notifications. Please try again.");
+          }
         }}
         loading={registering}
       >
-        {denied ? "Open Settings" : retryRegistration ? "Retry" : "Enable notifications"}
+        {denied ? "Open Settings" : registerLabel}
       </Button>
     </View>
   );
@@ -180,44 +191,50 @@ export const PushNotificationCoordinator = ({
         const { status } = await Notifications.getPermissionsAsync();
         setPermission(status);
         setRegistrationFailed(status === Notifications.PermissionStatus.GRANTED);
-        return;
+      } else {
+        // The server row IS the registration: remember it locally only once it
+        // exists, or a failed upsert is skipped as "already registered" forever.
+        await registerPushToken(acquired);
+        setRegisteredPushDevice({
+          cleanupCapability: pushCleanupCapability,
+          token: acquired.token,
+          userId,
+        });
+        setExpoPushToken(acquired.token);
+        setPermission(Notifications.PermissionStatus.GRANTED);
+        setRegistrationFailed(false);
       }
-
-      // The server row IS the registration: remember it locally only once it
-      // exists, or a failed upsert is skipped as "already registered" forever.
-      await registerPushToken(acquired);
-      setRegisteredPushDevice({
-        cleanupCapability: pushCleanupCapability,
-        token: acquired.token,
-        userId,
-      });
-      setExpoPushToken(acquired.token);
-      setPermission(Notifications.PermissionStatus.GRANTED);
-      setRegistrationFailed(false);
     } catch (error) {
       setRegistrationFailed(true);
-      throw error;
-    } finally {
       setRegistering(false);
+      throw error;
     }
+    setRegistering(false);
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, registerPushToken, userId]);
 
   useEffect(() => {
-    const refreshPermission = () =>
-      Notifications.getPermissionsAsync()
-        .then(async ({ status }) => {
-          setPermission(status);
-          if (status === Notifications.PermissionStatus.GRANTED) await register();
-          return undefined;
-        })
-        .catch(() => setRegistrationFailed(true));
+    const refreshPermission = async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        setPermission(status);
+        if (status === Notifications.PermissionStatus.GRANTED) {
+          await register();
+        }
+      } catch {
+        setRegistrationFailed(true);
+      }
+    };
 
-    refreshPermission().catch(() => undefined);
+    void refreshPermission();
     const subscription = AppState.addEventListener("change", (status) => {
-      if (status === "active") refreshPermission().catch(() => undefined);
+      if (status === "active") {
+        void refreshPermission();
+      }
     });
     const onlineSubscription = onlineManager.subscribe((online) => {
-      if (online) refreshPermission().catch(() => undefined);
+      if (online) {
+        void refreshPermission();
+      }
     });
     return () => {
       subscription.remove();
@@ -228,7 +245,9 @@ export const PushNotificationCoordinator = ({
   const releasePushIdentity = useCallback(async () => {
     const storedDevice = getRegisteredPushDevice();
     const token = expoPushToken ?? (storedDevice?.userId === userId ? storedDevice.token : null);
-    if (token === null) return;
+    if (token === null) {
+      return;
+    }
 
     const device =
       storedDevice?.userId === userId
@@ -247,7 +266,7 @@ export const PushNotificationCoordinator = ({
     }
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, userId]);
   const registrationContext = useMemo(
-    () => ({ permission, register, registrationFailed, registering }),
+    () => ({ permission, register, registering, registrationFailed }),
     [permission, register, registrationFailed, registering],
   );
 
@@ -258,17 +277,21 @@ export const PushNotificationCoordinator = ({
       // routed once must not route again from the mount-time read below.
       Notifications.clearLastNotificationResponse();
       const target = notificationTargetData.safeParse(response.notification.request.content.data);
-      if (target.success) router.push(resolveNotificationTarget(target.data));
+      if (target.success) {
+        router.push(resolveNotificationTarget(target.data));
+      }
     };
 
     const received = Notifications.addNotificationReceivedListener(() => {
-      refreshNotifications().catch(() => undefined);
+      void ignoreRejection(refreshNotifications());
     });
     const responded = Notifications.addNotificationResponseReceivedListener(openNotification);
 
     // A tap that cold-started the app happened before any listener existed.
     const launchResponse = Notifications.getLastNotificationResponse();
-    if (launchResponse !== null) openNotification(launchResponse);
+    if (launchResponse !== null) {
+      openNotification(launchResponse);
+    }
 
     return () => {
       received.remove();

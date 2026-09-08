@@ -64,7 +64,7 @@ export const AsideHeader = () => {
         kind: "action";
         id: string;
         condition: boolean;
-        onClick: () => void | Promise<void>;
+        handleClick: () => void | Promise<void>;
         icon: React.ReactNode;
         label: string;
       }
@@ -72,35 +72,33 @@ export const AsideHeader = () => {
 
   const menuItems: MenuEntry[] = [
     {
-      kind: "link",
-      id: "profile",
       condition: !!user,
       href: `/profile/${user?.id}`,
       icon: <UserIcon aria-hidden="true" className="size-4" />,
+      id: "profile",
+      kind: "link",
       label: "Profile",
     },
     {
-      kind: "link",
-      id: "settings",
       condition: !!user,
       href: "/settings",
       icon: <SettingsIcon aria-hidden="true" className="size-4" />,
+      id: "settings",
+      kind: "link",
       label: "Settings",
     },
     {
-      kind: "link",
-      id: "login",
       condition: !user,
       href: "/auth/sign-in",
       icon: <UserIcon aria-hidden="true" className="size-4" />,
+      id: "login",
+      kind: "link",
       label: "Login",
     },
-    { kind: "separator", id: "separator-1", condition: true },
+    { condition: true, id: "separator-1", kind: "separator" },
     {
-      kind: "action",
-      id: "theme",
       condition: true,
-      onClick: () => {
+      handleClick: () => {
         setOpen(false);
         const nextThemeIndex = (currentThemeIndex + 1) % themes.length;
         const nextTheme = themes[nextThemeIndex];
@@ -111,13 +109,13 @@ export const AsideHeader = () => {
           <span className="size-3 rounded-full ring" style={{ background: currentTheme?.color }} />
         </span>
       ),
+      id: "theme",
+      kind: "action",
       label: "Theme",
     },
     {
-      kind: "action",
-      id: "layout",
       condition: true,
-      onClick: async () => {
+      handleClick: async () => {
         await toggleFeedLayout();
         setTimeout(() => {
           setOpen(false);
@@ -125,40 +123,42 @@ export const AsideHeader = () => {
         }, 50);
       },
       icon: <LayoutDashboardIcon aria-hidden="true" className="size-4" />,
+      id: "layout",
+      kind: "action",
       label: "Layout",
     },
-    { kind: "separator", id: "separator-2", condition: true },
+    { condition: true, id: "separator-2", kind: "separator" },
     {
-      kind: "link",
-      id: "support",
       condition: true,
       href: `mailto:${siteConfig.supportEmail}?subject=Support: ${user?.id}`,
-      target: "_blank",
       icon: <HelpCircleIcon aria-hidden="true" className="size-4" />,
+      id: "support",
+      kind: "link",
       label: "Support",
+      target: "_blank",
     },
     {
-      kind: "link",
-      id: "about",
       condition: !isDesktop,
       href: "/about",
       icon: <BookCheckIcon aria-hidden="true" className="size-4" />,
+      id: "about",
+      kind: "link",
       label: "About",
     },
     {
-      kind: "link",
-      id: "privacy",
       condition: !isDesktop,
       href: "/privacy",
       icon: <GlobeLockIcon aria-hidden="true" className="size-4" />,
+      id: "privacy",
+      kind: "link",
       label: "Privacy",
     },
     {
-      kind: "link",
-      id: "terms",
       condition: !isDesktop,
       href: "/terms",
       icon: <HandshakeIcon aria-hidden="true" className="size-4" />,
+      id: "terms",
+      kind: "link",
       label: "Terms",
     },
   ];
@@ -178,8 +178,12 @@ export const AsideHeader = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="end">
             {menuItems.map((item) => {
-              if (!item.condition) return null;
-              if (item.kind === "separator") return <DropdownMenuSeparator key={item.id} />;
+              if (!item.condition) {
+                return null;
+              }
+              if (item.kind === "separator") {
+                return <DropdownMenuSeparator key={item.id} />;
+              }
               if (item.kind === "link") {
                 return (
                   <DropdownMenuItem
@@ -193,7 +197,7 @@ export const AsideHeader = () => {
                 );
               }
               return (
-                <DropdownMenuItem key={item.id} onClick={item.onClick}>
+                <DropdownMenuItem key={item.id} onClick={item.handleClick}>
                   {item.icon}
                   {item.label}
                 </DropdownMenuItem>
@@ -223,8 +227,12 @@ export const AsideHeader = () => {
             <DrawerDescription>Settings options</DrawerDescription>
           </DrawerHeader>
           {menuItems.map((item) => {
-            if (!item.condition) return null;
-            if (item.kind === "separator") return <Separator key={item.id} className="my-1" />;
+            if (!item.condition) {
+              return null;
+            }
+            if (item.kind === "separator") {
+              return <Separator key={item.id} className="my-1" />;
+            }
             if (item.kind === "link") {
               return (
                 <Link
@@ -244,7 +252,7 @@ export const AsideHeader = () => {
                 key={item.id}
                 type="button"
                 className={drawerItemClass}
-                onClick={() => void item.onClick()}
+                onClick={item.handleClick}
               >
                 {item.icon}
                 {item.label}

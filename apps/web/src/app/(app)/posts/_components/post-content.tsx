@@ -12,7 +12,7 @@ import { MoreButton } from "./more-button";
 import { ShareButton } from "./share-button";
 import { TimerButton } from "./timer-button";
 
-type Props = {
+interface Props {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
   layout?: FeedLayout;
   minHeight?: boolean;
@@ -20,7 +20,7 @@ type Props = {
   showComment?: boolean;
   showTimer?: boolean;
   showMore?: boolean;
-};
+}
 
 export const PostContent = ({
   post,

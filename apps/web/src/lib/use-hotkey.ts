@@ -29,11 +29,15 @@ export const useHotkeys = (hotkeys: Hotkey[]) => {
   // dependency, so a re-render with fresh handler identities does not tear down
   // and re-attach the listener.
   const dispatch = useEffectEvent((event: KeyboardEvent) => {
-    if (event.defaultPrevented || hasModifier(event)) return;
+    if (event.defaultPrevented || hasModifier(event)) {
+      return;
+    }
 
     const pressed = event.key.toLowerCase();
     for (const [key, handler] of hotkeys) {
-      if (key === pressed) handler();
+      if (key === pressed) {
+        handler();
+      }
     }
   });
 

@@ -46,7 +46,7 @@ const Page = async () => {
         </div>
       </PageContent>
       <PageAside>
-        <section className="my-6 overflow-auto"></section>
+        <section className="my-6 overflow-auto" />
       </PageAside>
     </HydrateClient>
   );

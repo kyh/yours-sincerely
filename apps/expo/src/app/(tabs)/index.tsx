@@ -9,7 +9,7 @@ import { PostFeed } from "@/components/post/post-feed";
 import { useFeedLayout } from "@/lib/feed-layout";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 
-export default function HomeScreen() {
+const HomeScreen = () => {
   const { layout } = useFeedLayout();
 
   return (
@@ -26,4 +26,6 @@ export default function HomeScreen() {
       <NewPostButton />
     </SafeAreaView>
   );
-}
+};
+
+export default HomeScreen;

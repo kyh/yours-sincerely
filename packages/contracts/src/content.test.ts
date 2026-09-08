@@ -53,34 +53,34 @@ test("avatar index is always within range", () => {
 test("reading time counts spaced words", () => {
   assert.deepEqual(getReadingTime("hello world"), {
     minutes: 0.01,
-    words: 2,
     text: "1 min read",
+    words: 2,
   });
 });
 
 test("reading time counts each CJK character as a word", () => {
-  assert.deepEqual(getReadingTime("日本語"), { minutes: 0.015, words: 3, text: "1 min read" });
+  assert.deepEqual(getReadingTime("日本語"), { minutes: 0.015, text: "1 min read", words: 3 });
 });
 
 test("reading time mixes CJK and spaced words", () => {
   // "hello" + "world" (2 spaced) + 3 CJK characters = 5 words.
   assert.deepEqual(getReadingTime("hello 日本語 world"), {
     minutes: 0.025,
-    words: 5,
     text: "1 min read",
+    words: 5,
   });
 });
 
 test("empty and whitespace-only text read as zero", () => {
-  assert.deepEqual(getReadingTime(""), { minutes: 0, words: 0, text: "0 min read" });
-  assert.deepEqual(getReadingTime("   "), { minutes: 0, words: 0, text: "0 min read" });
+  assert.deepEqual(getReadingTime(""), { minutes: 0, text: "0 min read", words: 0 });
+  assert.deepEqual(getReadingTime("   "), { minutes: 0, text: "0 min read", words: 0 });
 });
 
 test("reading time is words / 200 minutes, rounded up for display", () => {
   assert.deepEqual(getReadingTime("word ".repeat(200)), {
     minutes: 1,
-    words: 200,
     text: "1 min read",
+    words: 200,
   });
   assert.equal(getReadingTime("word ".repeat(201)).text, "2 min read");
 });
@@ -136,9 +136,11 @@ test("halfway through the window reads 50%", () => {
 });
 
 test("percentage is clamped and expiry is flagged past the window", () => {
-  const now = new Date("2026-08-30T00:00:00.000Z"); // well past 21 days
+  // well past 21 days
+  const now = new Date("2026-08-30T00:00:00.000Z");
   const progress = getExpiryProgress("2026-07-09 18:23:45.123", now);
-  assert.equal(progress.percentage, 100); // clamped, never 105
+  // clamped, never 105
+  assert.equal(progress.percentage, 100);
   assert.equal(progress.isExpired, true);
 });
 

@@ -1,19 +1,19 @@
 export type CopyLegacySessionResult = "already-stored" | "copied" | "absent";
 export type LegacySessionMigrationCheckpoint = "cleanup-pending" | "complete" | null;
 
-type CopyLegacySessionDependencies = {
+interface CopyLegacySessionDependencies {
   getStored: () => string | null;
   setStored: (value: string) => void;
   readLegacy: () => Promise<string | null>;
-};
+}
 
-type FinalizeLegacySessionDependencies = {
+interface FinalizeLegacySessionDependencies {
   authenticated: boolean;
   getStored: () => string | null;
   getCheckpoint: () => LegacySessionMigrationCheckpoint;
   setCheckpoint: (checkpoint: Exclude<LegacySessionMigrationCheckpoint, null>) => void;
   clearLegacy: () => Promise<void>;
-};
+}
 
 export type MigrateLegacySessionResult = CopyLegacySessionResult | "cleanup-pending" | "complete";
 
@@ -49,10 +49,14 @@ export const copyLegacySession = async ({
   setStored,
   readLegacy,
 }: CopyLegacySessionDependencies): Promise<CopyLegacySessionResult> => {
-  if (isPresent(getStored())) return "already-stored";
+  if (isPresent(getStored())) {
+    return "already-stored";
+  }
 
   const legacy = await readLegacy();
-  if (!isPresent(legacy)) return "absent";
+  if (!isPresent(legacy)) {
+    return "absent";
+  }
 
   setStored(legacy);
   if (getStored() !== legacy) {
@@ -69,11 +73,13 @@ export const migrateLegacySession = async (
 ): Promise<{ result: MigrateLegacySessionResult; legacyProvenance: boolean }> => {
   const { getStored, setStored, readLegacy, getCheckpoint } = deps;
 
-  if (getCheckpoint() === "complete") return { result: "complete", legacyProvenance: false };
+  if (getCheckpoint() === "complete") {
+    return { legacyProvenance: false, result: "complete" };
+  }
 
   const stored = getStored();
   if (getCheckpoint() === "cleanup-pending" && isPresent(stored)) {
-    return { result: "cleanup-pending", legacyProvenance: true };
+    return { legacyProvenance: true, result: "cleanup-pending" };
   }
 
   if (getCheckpoint() === null && isPresent(stored)) {
@@ -83,18 +89,20 @@ export const migrateLegacySession = async (
     const legacy = await readLegacy();
     if (isPresent(legacy) && legacy === stored) {
       setCheckpointVerified(deps, "cleanup-pending");
-      return { result: "cleanup-pending", legacyProvenance: true };
+      return { legacyProvenance: true, result: "cleanup-pending" };
     }
     // The stored session provably did not come from the legacy jar (e.g. a
     // sign-up on this app), so there is nothing to migrate now or ever —
     // reach the terminal state so cold starts stop paying for a native read.
     setCheckpointVerified(deps, "complete");
-    return { result: "already-stored", legacyProvenance: false };
+    return { legacyProvenance: false, result: "already-stored" };
   }
 
-  const result = await copyLegacySession({ getStored, setStored, readLegacy });
-  if (result === "copied") setCheckpointVerified(deps, "cleanup-pending");
-  return { result, legacyProvenance: result === "copied" };
+  const result = await copyLegacySession({ getStored, readLegacy, setStored });
+  if (result === "copied") {
+    setCheckpointVerified(deps, "cleanup-pending");
+  }
+  return { legacyProvenance: result === "copied", result };
 };
 
 export const finalizeLegacySession = async ({
@@ -123,7 +131,9 @@ export const finalizeLegacySession = async ({
 export const retireLegacySession = async (
   deps: RetireLegacySessionDependencies,
 ): Promise<"retired" | "already-complete"> => {
-  if (deps.getCheckpoint() === "complete") return "already-complete";
+  if (deps.getCheckpoint() === "complete") {
+    return "already-complete";
+  }
 
   try {
     await deps.clearLegacy();

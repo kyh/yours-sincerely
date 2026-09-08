@@ -16,10 +16,10 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
     pixel — reproduces the same result as inverting a pure-black source.
     Shows initials on a muted circle until the avatar image loads, mirroring
     the web AvatarFallback. */
-type Props = {
+interface Props {
   name?: string;
   size?: number;
-};
+}
 
 export const ProfileAvatar = ({ name, size = 80 }: Props) => {
   const { resolvedTheme } = useTheme();
@@ -29,7 +29,7 @@ export const ProfileAvatar = ({ name, size = 80 }: Props) => {
   const initial = label.slice(0, 1) || "?";
 
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, overflow: "hidden" }}>
+    <View style={{ borderRadius: size / 2, height: size, overflow: "hidden", width: size }}>
       {!loaded && (
         <AnimatedView
           exiting={reduceMotionEnabled ? undefined : FadeOut}
@@ -40,7 +40,7 @@ export const ProfileAvatar = ({ name, size = 80 }: Props) => {
       )}
       <Image
         source={getAvatarSource(label)}
-        style={{ width: size, height: size }}
+        style={{ height: size, width: size }}
         contentFit="cover"
         tintColor={isDarkTheme(resolvedTheme) ? "#fff" : undefined}
         transition={reduceMotionEnabled ? 0 : 200}

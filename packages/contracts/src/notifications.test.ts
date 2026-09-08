@@ -14,19 +14,19 @@ import {
 
 test("newCommentNotificationData requires both post ids", () => {
   assert.equal(
-    newCommentNotificationData.safeParse({ parentPostId: "p1", commentPostId: "c1" }).success,
+    newCommentNotificationData.safeParse({ commentPostId: "c1", parentPostId: "p1" }).success,
     true,
   );
   assert.equal(newCommentNotificationData.safeParse({ parentPostId: "p1" }).success, false);
   assert.equal(
-    newCommentNotificationData.safeParse({ parentPostId: "", commentPostId: "c1" }).success,
+    newCommentNotificationData.safeParse({ commentPostId: "c1", parentPostId: "" }).success,
     false,
   );
 });
 
 test("notificationTargetData needs only the parent letter", () => {
   assert.deepEqual(
-    notificationTargetData.parse({ parentPostId: "p1", commentPostId: "c1", extra: 1 }),
+    notificationTargetData.parse({ commentPostId: "c1", extra: 1, parentPostId: "p1" }),
     { parentPostId: "p1" },
   );
   assert.deepEqual(notificationTargetData.parse({ parentPostId: "p1" }), { parentPostId: "p1" });
@@ -60,14 +60,14 @@ test("expoPushToken rejects anything that is not a bracketed Expo token", () => 
 
 test("registerPushTokenInput binds a token to a known platform", () => {
   assert.equal(
-    registerPushTokenInput.safeParse({ token: "ExponentPushToken[abc]", platform: "ios" }).success,
+    registerPushTokenInput.safeParse({ platform: "ios", token: "ExponentPushToken[abc]" }).success,
     true,
   );
   assert.equal(
-    registerPushTokenInput.safeParse({ token: "ExponentPushToken[abc]", platform: "web" }).success,
+    registerPushTokenInput.safeParse({ platform: "web", token: "ExponentPushToken[abc]" }).success,
     false,
   );
-  assert.equal(registerPushTokenInput.safeParse({ token: "junk", platform: "ios" }).success, false);
+  assert.equal(registerPushTokenInput.safeParse({ platform: "ios", token: "junk" }).success, false);
 });
 
 test("unregisterPushTokenInput needs a capability and a real token", () => {
@@ -88,15 +88,15 @@ test("unregisterPushTokenInput needs a capability and a real token", () => {
 
 test("markNotificationsReadInput is either everything or a bounded list of ids", () => {
   assert.deepEqual(markNotificationsReadInput.parse({ scope: "all" }), { scope: "all" });
-  assert.deepEqual(markNotificationsReadInput.parse({ scope: "ids", ids: ["n1", "n2"] }), {
-    scope: "ids",
+  assert.deepEqual(markNotificationsReadInput.parse({ ids: ["n1", "n2"], scope: "ids" }), {
     ids: ["n1", "n2"],
+    scope: "ids",
   });
   for (const payload of [
-    { scope: "ids", ids: [] },
+    { ids: [], scope: "ids" },
     { scope: "ids" },
-    { scope: "ids", ids: [""] },
-    { scope: "ids", ids: Array.from({ length: 101 }, (_, index) => `n${index}`) },
+    { ids: [""], scope: "ids" },
+    { ids: Array.from({ length: 101 }, (_, index) => `n${index}`), scope: "ids" },
     { scope: "some" },
     {},
   ]) {
@@ -123,11 +123,11 @@ test("listNotificationsInput bounds the page and needs a whole cursor", () => {
 
 test("describeNotification is the one sentence both the row and the push use", () => {
   assert.equal(
-    describeNotification({ kind: "COMMENT", actorName: "Kai" }),
+    describeNotification({ actorName: "Kai", kind: "COMMENT" }),
     "Kai replied to your letter",
   );
   assert.equal(
-    describeNotification({ kind: "COMMENT", actorName: "Anonymous" }),
+    describeNotification({ actorName: "Anonymous", kind: "COMMENT" }),
     "Anonymous replied to your letter",
   );
 });

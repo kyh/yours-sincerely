@@ -20,141 +20,146 @@ export const notificationKind = pgEnum("NotificationKind", ["COMMENT"]);
 export const pushPlatform = pgEnum("PushPlatform", ["ios", "android"]);
 
 export const prompt = pgTable("Prompt", {
-  id: text().primaryKey().notNull(),
   content: text().notNull(),
+  id: text().primaryKey().notNull(),
 });
 
 export const user = pgTable(
   "User",
   {
-    id: text().primaryKey().notNull(),
-    email: text(),
-    emailVerified: timestamp({ precision: 3, mode: "string" }),
-    passwordHash: text(),
-    displayName: text(),
-    displayImage: text(),
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
     disabled: boolean(),
-    weeklyDigestEmail: boolean().default(false).notNull(),
+    displayImage: text(),
+    displayName: text(),
+    email: text(),
+    emailVerified: timestamp({ mode: "string", precision: 3 }),
+    id: text().primaryKey().notNull(),
+    passwordHash: text(),
     role: userRole().default("USER").notNull(),
     // Revocation, NOT expiry. Bumping this invalidates every session cookie
     // already issued for this user (password reset, "sign out everywhere").
     // Cookies minted before this column existed carry no `epoch` and are read as
     // 0, which matches the default — so no existing session is logged out.
     sessionEpoch: integer().default(0).notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    weeklyDigestEmail: boolean().default(false).notNull(),
   },
-  (table) => {
-    return {
-      emailKey: uniqueIndex("User_email_key").using(
-        "btree",
-        table.email.asc().nullsLast().op("text_ops"),
-      ),
-    };
-  },
+  (table) => ({
+    emailKey: uniqueIndex("User_email_key").using(
+      "btree",
+      table.email.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const account = pgTable(
   "Account",
   {
+    accessToken: text(),
+    expiresAt: integer(),
     id: text().primaryKey().notNull(),
     provider: text().notNull(),
     providerAccountId: text().notNull(),
     refreshToken: text(),
-    accessToken: text(),
-    expiresAt: integer(),
     userId: text().notNull(),
   },
-  (table) => {
-    return {
-      providerProviderAccountIdKey: uniqueIndex("Account_provider_providerAccountId_key").using(
-        "btree",
-        table.provider.asc().nullsLast().op("text_ops"),
-        table.providerAccountId.asc().nullsLast().op("text_ops"),
-      ),
-      userIdIdx: index("Account_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      accountUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Account_userId_fkey",
-      }),
-    };
-  },
+  (table) => ({
+    accountUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Account_userId_fkey",
+    }),
+    providerProviderAccountIdKey: uniqueIndex("Account_provider_providerAccountId_key").using(
+      "btree",
+      table.provider.asc().nullsLast().op("text_ops"),
+      table.providerAccountId.asc().nullsLast().op("text_ops"),
+    ),
+    userIdIdx: index("Account_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const enrolledEvent = pgTable(
   "EnrolledEvent",
   {
+    end: timestamp({ mode: "string", precision: 3 }).notNull(),
     id: text().primaryKey().notNull(),
     name: text().notNull(),
     slug: text().notNull(),
-    start: timestamp({ precision: 3, mode: "string" })
+    start: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    end: timestamp({ precision: 3, mode: "string" }).notNull(),
     userId: text().notNull(),
   },
-  (table) => {
-    return {
-      userIdIdx: index("EnrolledEvent_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      enrolledEventUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "EnrolledEvent_userId_fkey",
-      }),
-    };
-  },
+  (table) => ({
+    enrolledEventUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "EnrolledEvent_userId_fkey",
+    }),
+    userIdIdx: index("EnrolledEvent_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const post = pgTable(
   "Post",
   {
-    id: text().primaryKey().notNull(),
-    content: text().notNull(),
-    createdBy: text(),
     /** A SEEDED OFFSET, not a count of rows. The feed shows
         `baseLikeCount + likeCount`. Conflating the two silently rewrites the
         like count of every seeded post. */
     baseLikeCount: integer(),
-    // Denormalized counters, maintained by the triggers in `sql/085-triggers.sql`.
-    // They exist because the Feed view used to re-aggregate all of "Like", all of
-    // "Post" and all of "Flag" on EVERY page of EVERY feed request.
+    // `commentCount`, `flagCount` and `likeCount` are denormalized counters,
+    // maintained by the triggers in `sql/085-triggers.sql`. They exist because
+    // the Feed view used to re-aggregate all of "Like", all of "Post" and all of
+    // "Flag" on EVERY page of EVERY feed request.
     //
     // Any new write path touching Like / Flag / child-Post must go through those
     // triggers, or these numbers drift. Drift is the failure mode of
     // denormalization and nobody notices it for weeks — so `sql/080-reconcile.sql`
     // recomputes all three from ground truth on every push. Repairing drift is
     // `pnpm db:push`; there is no separate script to remember.
-    /** Real `Like` rows for this post. NOT including `baseLikeCount`. */
-    likeCount: integer().default(0).notNull(),
     /** Direct child posts. */
     commentCount: integer().default(0).notNull(),
+    content: text().notNull(),
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    createdBy: text(),
     /** Flags that COUNT toward auto-hide — i.e. `Flag."countsTowardHide"` only,
         never a raw count of `Flag` rows. A raw count here would silently undo the
         censorship fix in `sql/010-flagger.sql` and let four cookieless requests
         hide any post again. */
     flagCount: integer().default(0).notNull(),
+    id: text().primaryKey().notNull(),
+    /** Real `Like` rows for this post. NOT including `baseLikeCount`. */
+    likeCount: integer().default(0).notNull(),
     parentId: text(),
+    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
     userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
   },
-  (table) => {
-    return {
-      createdAtIdx: index("Post_createdAt_idx").using(
+  (table) => ({
+    createdAtIdx: index("Post_createdAt_idx").using(
+      "btree",
+      table.createdAt.asc().nullsLast().op("timestamp_ops"),
+    ),
+    /** Supports the feed's keyset seek. Ascending, because the feed's
+          `ORDER BY createdAt DESC, id DESC` reverses BOTH columns uniformly, and
+          Postgres serves that with a backward scan of this index. Partial,
+          because the feed never looks at comments. */
+    feedIdx: index("Post_feed_idx")
+      .using(
         "btree",
         table.createdAt.asc().nullsLast().op("timestamp_ops"),
-      ),
-      /** DO NOT DROP. This looks like textbook dead weight — it is led by `id`,
+        table.id.asc().nullsLast().op("text_ops"),
+      )
+      .where(sql`"parentId" IS NULL`),
+    /** DO NOT DROP. This looks like textbook dead weight — it is led by `id`,
           the primary key, so it can never be more selective than `Post_pkey` — and
           that reasoning has already been raised once as "pure write overhead".
           It is wrong, and the argument is seductive enough to be worth writing down.
@@ -169,68 +174,55 @@ export const post = pgTable(
           Never judge this one locally: on a fresh database every index reports
           `idx_scan = 0`, which proves nothing at all. Only `pg_stat_user_indexes`
           on production can answer it, and it already has. */
-      idUserIdIdx: index("Post_id_userId_idx").using(
-        "btree",
-        table.id.asc().nullsLast().op("text_ops"),
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      parentIdIdx: index("Post_parentId_idx").using(
-        "btree",
-        table.parentId.asc().nullsLast().op("text_ops"),
-      ),
-      userIdIdx: index("Post_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      /** Supports the feed's keyset seek. Ascending, because the feed's
-          `ORDER BY createdAt DESC, id DESC` reverses BOTH columns uniformly, and
-          Postgres serves that with a backward scan of this index. Partial,
-          because the feed never looks at comments. */
-      feedIdx: index("Post_feed_idx")
-        .using(
-          "btree",
-          table.createdAt.asc().nullsLast().op("timestamp_ops"),
-          table.id.asc().nullsLast().op("text_ops"),
-        )
-        .where(sql`"parentId" IS NULL`),
-      /** Supports getPostsByUser and the parameterized getUserStats. */
-      userIdCreatedAtIdx: index("Post_userId_createdAt_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-        table.createdAt.asc().nullsLast().op("timestamp_ops"),
-      ),
-      postParentIdFkey: foreignKey({
-        columns: [table.parentId],
-        foreignColumns: [table.id],
-        name: "Post_parentId_fkey",
-      }),
-      postUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Post_userId_fkey",
-      }),
-    };
-  },
+    idUserIdIdx: index("Post_id_userId_idx").using(
+      "btree",
+      table.id.asc().nullsLast().op("text_ops"),
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+    parentIdIdx: index("Post_parentId_idx").using(
+      "btree",
+      table.parentId.asc().nullsLast().op("text_ops"),
+    ),
+    postParentIdFkey: foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+      name: "Post_parentId_fkey",
+    }),
+    postUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Post_userId_fkey",
+    }),
+    /** Supports getPostsByUser and the parameterized getUserStats. */
+    userIdCreatedAtIdx: index("Post_userId_createdAt_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+      table.createdAt.asc().nullsLast().op("timestamp_ops"),
+    ),
+    userIdIdx: index("Post_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const token = pgTable(
   "Token",
   {
-    id: text().primaryKey().notNull(),
-    token: text().notNull(),
-    type: tokenType().notNull(),
-    expiresAt: timestamp({ precision: 3, mode: "string" }),
-    sentTo: text(),
-    usedAt: timestamp({ precision: 3, mode: "string" }),
-    userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
+    createdAt: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    expiresAt: timestamp({ mode: "string", precision: 3 }),
+    id: text().primaryKey().notNull(),
+    sentTo: text(),
+    token: text().notNull(),
+    type: tokenType().notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    usedAt: timestamp({ mode: "string", precision: 3 }),
+    userId: text().notNull(),
   },
-  (table) => {
-    return {
-      /** `type` is the `TokenType` enum, so its btree opclass is `enum_ops`.
+  (table) => ({
+    /** `type` is the `TokenType` enum, so its btree opclass is `enum_ops`.
           drizzle-kit's introspection wrote `text_ops` here for every column
           regardless of type, and Postgres rejects that for an enum:
           `operator class "text_ops" does not accept data type "TokenType"` (42804).
@@ -241,22 +233,21 @@ export const token = pgTable(
           aborted the run and silently skipped every index after it, including the
           UNIQUE `User_email_key`. A schema that permits duplicate emails, from a
           push that reported success. */
-      tokenTypeKey: uniqueIndex("Token_token_type_key").using(
-        "btree",
-        table.token.asc().nullsLast().op("text_ops"),
-        table.type.asc().nullsLast().op("enum_ops"),
-      ),
-      userIdIdx: index("Token_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      tokenUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Token_userId_fkey",
-      }),
-    };
-  },
+    tokenTypeKey: uniqueIndex("Token_token_type_key").using(
+      "btree",
+      table.token.asc().nullsLast().op("text_ops"),
+      table.type.asc().nullsLast().op("enum_ops"),
+    ),
+    tokenUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Token_userId_fkey",
+    }),
+    userIdIdx: index("Token_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const block = pgTable(
@@ -265,82 +256,77 @@ export const block = pgTable(
     blockerId: text().notNull(),
     blockingId: text().notNull(),
   },
-  (table) => {
-    return {
-      blockerIdIdx: index("Block_blockerId_idx").using(
-        "btree",
-        table.blockerId.asc().nullsLast().op("text_ops"),
-      ),
-      blockingIdIdx: index("Block_blockingId_idx").using(
-        "btree",
-        table.blockingId.asc().nullsLast().op("text_ops"),
-      ),
-      blockBlockerIdFkey: foreignKey({
-        columns: [table.blockerId],
-        foreignColumns: [user.id],
-        name: "Block_blockerId_fkey",
-      }).onDelete("restrict"),
-      blockBlockingIdFkey: foreignKey({
-        columns: [table.blockingId],
-        foreignColumns: [user.id],
-        name: "Block_blockingId_fkey",
-      }).onDelete("restrict"),
-      blockPkey: primaryKey({
-        columns: [table.blockerId, table.blockingId],
-        name: "Block_pkey",
-      }),
-    };
-  },
+  (table) => ({
+    blockBlockerIdFkey: foreignKey({
+      columns: [table.blockerId],
+      foreignColumns: [user.id],
+      name: "Block_blockerId_fkey",
+    }).onDelete("restrict"),
+    blockBlockingIdFkey: foreignKey({
+      columns: [table.blockingId],
+      foreignColumns: [user.id],
+      name: "Block_blockingId_fkey",
+    }).onDelete("restrict"),
+    blockPkey: primaryKey({
+      columns: [table.blockerId, table.blockingId],
+      name: "Block_pkey",
+    }),
+    blockerIdIdx: index("Block_blockerId_idx").using(
+      "btree",
+      table.blockerId.asc().nullsLast().op("text_ops"),
+    ),
+    blockingIdIdx: index("Block_blockingId_idx").using(
+      "btree",
+      table.blockingId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const like = pgTable(
   "Like",
   {
-    postId: text().notNull(),
-    userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
+    createdAt: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    postId: text().notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    userId: text().notNull(),
   },
-  (table) => {
-    return {
-      postIdIdx: index("Like_postId_idx").using(
-        "btree",
-        table.postId.asc().nullsLast().op("text_ops"),
-      ),
-      postIdUserIdIdx: index("Like_postId_userId_idx").using(
-        "btree",
-        table.postId.asc().nullsLast().op("text_ops"),
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      userIdIdx: index("Like_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      likePostIdFkey: foreignKey({
-        columns: [table.postId],
-        foreignColumns: [post.id],
-        name: "Like_postId_fkey",
-      }),
-      likeUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Like_userId_fkey",
-      }),
-      likePkey: primaryKey({
-        columns: [table.postId, table.userId],
-        name: "Like_pkey",
-      }),
-    };
-  },
+  (table) => ({
+    likePkey: primaryKey({
+      columns: [table.postId, table.userId],
+      name: "Like_pkey",
+    }),
+    likePostIdFkey: foreignKey({
+      columns: [table.postId],
+      foreignColumns: [post.id],
+      name: "Like_postId_fkey",
+    }),
+    likeUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Like_userId_fkey",
+    }),
+    postIdIdx: index("Like_postId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+    ),
+    postIdUserIdIdx: index("Like_postId_userId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+    userIdIdx: index("Like_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const flag = pgTable(
   "Flag",
   {
     comment: text(),
-    resolved: boolean().default(false).notNull(),
     // Whether this flag carries moderation AUTHORITY, i.e. counts toward the
     // auto-hide threshold. Anyone may submit a flag — a brand-new cookieless
     // identity costs one request, so counting every flag let four requests hide
@@ -366,44 +352,43 @@ export const flag = pgTable(
     // a frozen false to true — hiding a post because someone deployed. The NULL
     // is what keeps the freeze honest. Read the note in that file before touching.
     countsTowardHide: boolean(),
-    postId: text().notNull(),
-    userId: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
+    createdAt: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+    postId: text().notNull(),
+    resolved: boolean().default(false).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    userId: text().notNull(),
   },
-  (table) => {
-    return {
-      postIdIdx: index("Flag_postId_idx").using(
-        "btree",
-        table.postId.asc().nullsLast().op("text_ops"),
-      ),
-      postIdUserIdIdx: index("Flag_postId_userId_idx").using(
-        "btree",
-        table.postId.asc().nullsLast().op("text_ops"),
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      userIdIdx: index("Flag_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      flagPostIdFkey: foreignKey({
-        columns: [table.postId],
-        foreignColumns: [post.id],
-        name: "Flag_postId_fkey",
-      }),
-      flagUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Flag_userId_fkey",
-      }),
-      flagPkey: primaryKey({
-        columns: [table.postId, table.userId],
-        name: "Flag_pkey",
-      }),
-    };
-  },
+  (table) => ({
+    flagPkey: primaryKey({
+      columns: [table.postId, table.userId],
+      name: "Flag_pkey",
+    }),
+    flagPostIdFkey: foreignKey({
+      columns: [table.postId],
+      foreignColumns: [post.id],
+      name: "Flag_postId_fkey",
+    }),
+    flagUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Flag_userId_fkey",
+    }),
+    postIdIdx: index("Flag_postId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+    ),
+    postIdUserIdIdx: index("Flag_postId_userId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+    userIdIdx: index("Flag_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 /** One row per thing a user should hear about. Today that is only a comment on
@@ -412,57 +397,55 @@ export const flag = pgTable(
 export const notification = pgTable(
   "Notification",
   {
+    /** The commenter's display name at the time, so the row survives renames. */
+    actorName: text().notNull(),
+    /** The comment that caused it. */
+    commentId: text().notNull(),
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
     id: text().primaryKey().notNull(),
-    /** Recipient. */
-    userId: text().notNull(),
     kind: notificationKind().notNull(),
     /** The letter the notification is about. */
     postId: text().notNull(),
-    /** The comment that caused it. */
-    commentId: text().notNull(),
-    /** The commenter's display name at the time, so the row survives renames. */
-    actorName: text().notNull(),
-    readAt: timestamp({ precision: 3, mode: "string" }),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    readAt: timestamp({ mode: "string", precision: 3 }),
+    /** Recipient. */
+    userId: text().notNull(),
   },
-  (table) => {
-    return {
-      userIdCreatedAtIdx: index("Notification_userId_createdAt_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-        table.createdAt.desc().nullsFirst().op("timestamp_ops"),
-      ),
-      userIdReadAtIdx: index("Notification_userId_readAt_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-        table.readAt.asc().nullsLast().op("timestamp_ops"),
-      ),
-      // One notification per (recipient, comment): the backfill and any retry
-      // of the write path are idempotent because of this, not by convention.
-      userIdCommentIdKey: uniqueIndex("Notification_userId_commentId_key").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-        table.commentId.asc().nullsLast().op("text_ops"),
-      ),
-      notificationUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "Notification_userId_fkey",
-      }).onDelete("cascade"),
-      notificationPostIdFkey: foreignKey({
-        columns: [table.postId],
-        foreignColumns: [post.id],
-        name: "Notification_postId_fkey",
-      }).onDelete("cascade"),
-      notificationCommentIdFkey: foreignKey({
-        columns: [table.commentId],
-        foreignColumns: [post.id],
-        name: "Notification_commentId_fkey",
-      }).onDelete("cascade"),
-    };
-  },
+  (table) => ({
+    notificationCommentIdFkey: foreignKey({
+      columns: [table.commentId],
+      foreignColumns: [post.id],
+      name: "Notification_commentId_fkey",
+    }).onDelete("cascade"),
+    notificationPostIdFkey: foreignKey({
+      columns: [table.postId],
+      foreignColumns: [post.id],
+      name: "Notification_postId_fkey",
+    }).onDelete("cascade"),
+    notificationUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "Notification_userId_fkey",
+    }).onDelete("cascade"),
+    // One notification per (recipient, comment): the backfill and any retry
+    // of the write path are idempotent because of this, not by convention.
+    userIdCommentIdKey: uniqueIndex("Notification_userId_commentId_key").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+      table.commentId.asc().nullsLast().op("text_ops"),
+    ),
+    userIdCreatedAtIdx: index("Notification_userId_createdAt_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+      table.createdAt.desc().nullsFirst().op("timestamp_ops"),
+    ),
+    userIdReadAtIdx: index("Notification_userId_readAt_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+      table.readAt.asc().nullsLast().op("timestamp_ops"),
+    ),
+  }),
 );
 
 /** Expo push tokens, one row per device. The token is the identity: a device
@@ -470,29 +453,27 @@ export const notification = pgTable(
 export const pushToken = pgTable(
   "PushToken",
   {
+    createdAt: timestamp({ mode: "string", precision: 3 })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    lastSeenAt: timestamp({ mode: "string", precision: 3 })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    platform: pushPlatform().notNull(),
     token: text().primaryKey().notNull(),
     userId: text().notNull(),
-    platform: pushPlatform().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    lastSeenAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
   },
-  (table) => {
-    return {
-      userIdIdx: index("PushToken_userId_idx").using(
-        "btree",
-        table.userId.asc().nullsLast().op("text_ops"),
-      ),
-      pushTokenUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [user.id],
-        name: "PushToken_userId_fkey",
-      }).onDelete("cascade"),
-    };
-  },
+  (table) => ({
+    pushTokenUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "PushToken_userId_fkey",
+    }).onDelete("cascade"),
+    userIdIdx: index("PushToken_userId_idx").using(
+      "btree",
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
+  }),
 );
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -504,35 +485,35 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
-  enrolledEvents: many(enrolledEvent),
-  posts: many(post),
-  tokens: many(token),
   blocks_blockerId: many(block, {
     relationName: "block_blockerId_user_id",
   }),
   blocks_blockingId: many(block, {
     relationName: "block_blockingId_user_id",
   }),
-  likes: many(like),
+  enrolledEvents: many(enrolledEvent),
   flags: many(flag),
+  likes: many(like),
   notifications: many(notification),
+  posts: many(post),
   pushTokens: many(pushToken),
+  tokens: many(token),
 }));
 
 export const notificationRelations = relations(notification, ({ one }) => ({
-  user: one(user, {
-    fields: [notification.userId],
-    references: [user.id],
+  comment: one(post, {
+    fields: [notification.commentId],
+    references: [post.id],
+    relationName: "notification_comment",
   }),
   post: one(post, {
     fields: [notification.postId],
     references: [post.id],
     relationName: "notification_post",
   }),
-  comment: one(post, {
-    fields: [notification.commentId],
-    references: [post.id],
-    relationName: "notification_comment",
+  user: one(user, {
+    fields: [notification.userId],
+    references: [user.id],
   }),
 }));
 
@@ -551,6 +532,8 @@ export const enrolledEventRelations = relations(enrolledEvent, ({ one }) => ({
 }));
 
 export const postRelations = relations(post, ({ one, many }) => ({
+  flags: many(flag),
+  likes: many(like),
   post: one(post, {
     fields: [post.parentId],
     references: [post.id],
@@ -563,8 +546,6 @@ export const postRelations = relations(post, ({ one, many }) => ({
     fields: [post.userId],
     references: [user.id],
   }),
-  likes: many(like),
-  flags: many(flag),
 }));
 
 export const tokenRelations = relations(token, ({ one }) => ({
@@ -636,14 +617,14 @@ export const flagRelations = relations(flag, ({ one }) => ({
  *  counts are `integer` because they are now plain columns on `Post`, not
  *  `count(*)` aggregates — which is also why they no longer come back as strings. */
 export const feed = pgView("Feed", {
-  id: text().notNull(),
-  content: text().notNull(),
-  userId: text().notNull(),
-  createdAt: timestamp({ precision: 3, mode: "string" }).notNull(),
-  parentId: text(),
-  createdBy: text().notNull(),
-  likeCount: integer().notNull(),
   commentCount: integer().notNull(),
+  content: text().notNull(),
+  createdAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+  createdBy: text().notNull(),
+  id: text().notNull(),
+  likeCount: integer().notNull(),
+  parentId: text(),
+  userId: text().notNull(),
 }).existing();
 
 // NOTE: the `UserStats` VIEW is gone. It computed streaks for EVERY user with a

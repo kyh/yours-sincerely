@@ -23,8 +23,8 @@ test("the retired userId field is stripped, not rejected and not honored", () =>
   // Shipped Expo binaries still send it. Accepting the payload keeps them
   // working; stripping the key is what stops it naming another account.
   const parsed = updateUserInput.parse({
-    userId: "another-user",
     displayName: "New name",
+    userId: "another-user",
   });
 
   assert.deepEqual(parsed, { displayName: "New name" });
@@ -36,8 +36,8 @@ test("profile updates require a mutable field", () => {
 
 test("post creation cannot set the server-owned base like count", () => {
   const parsed = createPostInput.parse({
-    content: "A complete little love letter",
     baseLikeCount: 1_000_000,
+    content: "A complete little love letter",
   });
 
   assert.deepEqual(parsed, { content: "A complete little love letter" });

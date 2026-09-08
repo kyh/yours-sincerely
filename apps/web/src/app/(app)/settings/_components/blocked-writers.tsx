@@ -36,58 +36,67 @@ export const BlockedWriters = () => {
 
   const deleteBlock = useMutation(
     orpc.block.deleteBlock.mutationOptions({
+      onError: () => toast.error("Could not unblock this writer. Please try again."),
       onSuccess: async () => {
         // The author's letters return to the feed immediately — no reload.
         await refreshBlocks(queryClient);
         toast.success("You will see content from this writer again");
       },
-      onError: () => toast.error("Could not unblock this writer. Please try again."),
     }),
   );
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const blocked = blocks.data?.blocks ?? [];
 
-  return (
-    <div className="outline-border space-y-4 rounded-md px-3 py-4 outline -outline-offset-1">
-      <Label>Blocked writers</Label>
-
-      {blocks.isPending ? (
-        <p className="text-muted-foreground text-sm">Loading…</p>
-      ) : blocked.length === 0 ? (
+  const renderBlocked = () => {
+    if (blocks.isPending) {
+      return <p className="text-muted-foreground text-sm">Loading…</p>;
+    }
+    if (blocked.length === 0) {
+      return (
         <p className="text-muted-foreground text-sm">
           You haven&apos;t blocked anyone. Blocking a writer hides all of their letters from your
           feed.
         </p>
-      ) : (
-        <ul className="divide-border -my-2 divide-y">
-          {blocked.map((writer) => {
-            const displayName = writer.displayName ?? "Anonymous";
-            return (
-              <li key={writer.blockingId} className="flex items-center gap-3 py-2">
-                <ProfileAvatar
-                  displayName={displayName}
-                  src={writer.displayImage ?? getAvatarUrl(displayName)}
-                  alt=""
-                />
-                <span className="min-w-0 flex-1 truncate text-sm">{displayName}</span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  loading={
-                    deleteBlock.isPending && deleteBlock.variables?.blockingId === writer.blockingId
-                  }
-                  onClick={() => deleteBlock.mutate({ blockingId: writer.blockingId })}
-                >
-                  Unblock
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      );
+    }
+    return (
+      <ul className="divide-border -my-2 divide-y">
+        {blocked.map((writer) => {
+          const displayName = writer.displayName ?? "Anonymous";
+          return (
+            <li key={writer.blockingId} className="flex items-center gap-3 py-2">
+              <ProfileAvatar
+                displayName={displayName}
+                src={writer.displayImage ?? getAvatarUrl(displayName)}
+                alt=""
+              />
+              <span className="min-w-0 flex-1 truncate text-sm">{displayName}</span>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                loading={
+                  deleteBlock.isPending && deleteBlock.variables?.blockingId === writer.blockingId
+                }
+                onClick={() => deleteBlock.mutate({ blockingId: writer.blockingId })}
+              >
+                Unblock
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  return (
+    <div className="outline-border space-y-4 rounded-md px-3 py-4 outline -outline-offset-1">
+      <Label>Blocked writers</Label>
+      {renderBlocked()}
     </div>
   );
 };

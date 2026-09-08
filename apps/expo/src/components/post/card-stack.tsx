@@ -20,10 +20,10 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 /** Port of apps/web posts/_components/card-stack.tsx (motion → reanimated).
     Spring constants match the web version exactly. */
 
-type CardStackContextType = {
+interface CardStackContextType {
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
-};
+}
 
 const CardStackContext = createContext<CardStackContextType | undefined>(undefined);
 
@@ -41,9 +41,9 @@ export const useCardStack = () => {
   return context;
 };
 
-const ADVANCE_SPRING = { stiffness: 600, damping: 50 };
-const SNAP_BACK_SPRING = { stiffness: 300, damping: 50 };
-const STACK_SPRING = { stiffness: 600, damping: 30 };
+const ADVANCE_SPRING = { damping: 50, stiffness: 600 };
+const SNAP_BACK_SPRING = { damping: 50, stiffness: 300 };
+const STACK_SPRING = { damping: 30, stiffness: 600 };
 
 // Cards deeper than this are scaled and rotated fully behind the top card, so
 // mounting them (each with its own ScrollView) only costs memory as the feed
@@ -52,7 +52,7 @@ const STACK_SPRING = { stiffness: 600, damping: 30 };
 const MOUNTED_AHEAD = 8;
 const MOUNTED_BEHIND = 1;
 
-type CardProps = {
+interface CardProps {
   index: number;
   currentIndex: number;
   total: number;
@@ -61,7 +61,7 @@ type CardProps = {
   minSpeed?: number;
   setNextPost: () => void;
   children: ReactNode;
-};
+}
 
 const Card = ({
   index,
@@ -131,16 +131,16 @@ const Card = ({
     <GestureDetector gesture={pan}>
       <AnimatedView
         className="absolute inset-0 rounded-2xl"
-        style={[{ zIndex, elevation: zIndex }, animatedStyle]}
+        style={[{ elevation: zIndex, zIndex }, animatedStyle]}
       >
         <View
           className="bg-card rounded-2xl p-5"
           style={{
+            elevation: 2,
             shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
+            shadowOffset: { height: 1, width: 0 },
             shadowOpacity: 0.08,
             shadowRadius: 4,
-            elevation: 2,
           }}
         >
           <ScrollView showsVerticalScrollIndicator={false}>{children}</ScrollView>
@@ -150,12 +150,12 @@ const Card = ({
   );
 };
 
-type Props<T> = {
+interface Props<T> {
   data: T[];
   render: (d: T) => ReactNode;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
-};
+}
 
 export const CardStack = <T extends { id: string }>({
   data,
@@ -172,7 +172,9 @@ export const CardStack = <T extends { id: string }>({
 
   const handleSetNextPost = () => {
     const postsLeft = data.length - safeIndex - 1;
-    if (postsLeft <= 1 && hasNextPage && onLoadMore) onLoadMore();
+    if (postsLeft <= 1 && hasNextPage && onLoadMore) {
+      onLoadMore();
+    }
     setCurrentIndex(wrap(0, data.length, safeIndex + 1));
   };
 

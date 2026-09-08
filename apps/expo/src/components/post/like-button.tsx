@@ -5,6 +5,7 @@ import type { InfiniteData } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import Animated, {
+  createAnimatedComponent,
   Easing,
   interpolateColor,
   useAnimatedProps,
@@ -23,6 +24,7 @@ import type { FeedPost } from "@/lib/post-types";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, orpc } from "@/lib/api";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { createLikeMutationHandlers } from "@/lib/like-cache";
 import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -30,7 +32,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 /** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
     ring, and 14-particle burst with the same timings/easings/colors. */
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedCircle = createAnimatedComponent(Circle);
 
 const HEART_PATH =
   "m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z";
@@ -64,7 +66,7 @@ const CircleAnimation = () => {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[{ position: "absolute", top: -12, left: -12 }, style]}
+      style={[{ left: -12, position: "absolute", top: -12 }, style]}
     >
       <Svg width={CIRCLE_RADIUS * 2} height={CIRCLE_RADIUS * 2}>
         <AnimatedCircle
@@ -83,55 +85,70 @@ const BURST_RADIUS = 32;
 const START_RADIUS = 4;
 const PATH_SCALE_FACTOR = 0.8;
 
+interface ParticleFlight {
+  duration: number;
+  startX: number;
+  startY: number;
+  targetX: number;
+  targetY: number;
+}
+
+const planParticleFlight = (index: number, totalParticles: number): ParticleFlight => {
+  const angle = (index / totalParticles) * 360 + 45;
+  const radians = (angle * Math.PI) / 180;
+  const randomFactor = 0.85 + Math.random() * 0.3;
+  const burstDistance = BURST_RADIUS * randomFactor;
+  const duration = 500 + Math.random() * 200;
+  const degreeShift = (13 * Math.PI) / 180;
+  return {
+    duration,
+    startX: Math.cos(radians) * START_RADIUS * PATH_SCALE_FACTOR,
+    startY: Math.sin(radians) * START_RADIUS * PATH_SCALE_FACTOR,
+    targetX: Math.cos(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
+    targetY: Math.sin(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
+  };
+};
+
+type BurstPlan = { color: (typeof LIKE_BURST_COLOR_PAIRS)[number]; flight: ParticleFlight }[];
+
+/** Rolled once per tap, in the handler: render must stay pure. */
+const planBurst = (): BurstPlan =>
+  LIKE_BURST_COLOR_PAIRS.map((color, index) => ({
+    color,
+    flight: planParticleFlight(index, LIKE_BURST_COLOR_PAIRS.length),
+  }));
+
 const Particle = ({
   fromColor,
   toColor,
-  index,
-  totalParticles,
+  flight,
 }: {
   fromColor: string;
   toColor: string;
-  index: number;
-  totalParticles: number;
+  flight: ParticleFlight;
 }) => {
   const progress = useSharedValue(0);
   const opacity = useSharedValue(0);
-
-  const [config] = useState(() => {
-    const angle = (index / totalParticles) * 360 + 45;
-    const radians = (angle * Math.PI) / 180;
-    const randomFactor = 0.85 + Math.random() * 0.3;
-    const burstDistance = BURST_RADIUS * randomFactor;
-    const duration = 500 + Math.random() * 200;
-    const degreeShift = (13 * Math.PI) / 180;
-    return {
-      duration,
-      startX: Math.cos(radians) * START_RADIUS * PATH_SCALE_FACTOR,
-      startY: Math.sin(radians) * START_RADIUS * PATH_SCALE_FACTOR,
-      targetX: Math.cos(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
-      targetY: Math.sin(radians + degreeShift) * burstDistance * PATH_SCALE_FACTOR,
-    };
-  });
 
   useEffect(() => {
     // Movement/scale/color start at +300ms; opacity keyframes [0,1,1,0] at +400ms.
     progress.set(
       withDelay(
         300,
-        withTiming(1, { duration: config.duration, easing: Easing.bezier(0.23, 1, 0.32, 1) }),
+        withTiming(1, { duration: flight.duration, easing: Easing.bezier(0.23, 1, 0.32, 1) }),
       ),
     );
     opacity.set(
       withDelay(
         400,
         withSequence(
-          withTiming(1, { duration: config.duration * 0.01 }),
-          withTiming(1, { duration: config.duration * 0.98 }),
-          withTiming(0, { duration: config.duration * 0.01 }),
+          withTiming(1, { duration: flight.duration * 0.01 }),
+          withTiming(1, { duration: flight.duration * 0.98 }),
+          withTiming(0, { duration: flight.duration * 0.01 }),
         ),
       ),
     );
-  }, [progress, opacity, config]);
+  }, [progress, opacity, flight]);
 
   const style = useAnimatedStyle(() => {
     // Scale uses quad-in on the same 0→1 clock as the (quint-out) movement:
@@ -139,11 +156,11 @@ const Particle = ({
     const easedOutT = progress.get();
     const scale = 1 - Easing.bezier(0.55, 0.085, 0.68, 0.53).factory()(easedOutT);
     return {
-      opacity: opacity.get(),
       backgroundColor: interpolateColor(easedOutT, [0, 1], [fromColor, toColor]),
+      opacity: opacity.get(),
       transform: [
-        { translateX: config.startX + (config.targetX - config.startX) * easedOutT },
-        { translateY: config.startY + (config.targetY - config.startY) * easedOutT },
+        { translateX: flight.startX + (flight.targetX - flight.startX) * easedOutT },
+        { translateY: flight.startY + (flight.targetY - flight.startY) * easedOutT },
         { scale },
       ],
     };
@@ -154,10 +171,10 @@ const Particle = ({
       pointerEvents="none"
       style={[
         {
+          borderRadius: 3,
+          height: 6,
           position: "absolute",
           width: 6,
-          height: 6,
-          borderRadius: 3,
         },
         style,
       ]}
@@ -165,27 +182,21 @@ const Particle = ({
   );
 };
 
-const BurstAnimation = () => (
+const BurstAnimation = ({ burst }: { burst: BurstPlan }) => (
   <View
     pointerEvents="none"
     style={{
+      alignItems: "center",
+      height: 40,
+      justifyContent: "center",
+      left: -12,
       position: "absolute",
       top: -12,
-      left: -12,
       width: 40,
-      height: 40,
-      alignItems: "center",
-      justifyContent: "center",
     }}
   >
-    {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
-      <Particle
-        key={colors.id}
-        fromColor={colors.from}
-        toColor={colors.to}
-        index={index}
-        totalParticles={LIKE_BURST_COLOR_PAIRS.length}
-      />
+    {burst.map(({ color, flight }) => (
+      <Particle key={color.id} fromColor={color.from} toColor={color.to} flight={flight} />
     ))}
   </View>
 );
@@ -198,8 +209,10 @@ const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
     scale.set(
       withDelay(
         300,
-        withSpring(1, { stiffness: 300, damping: 10 }, (finished) => {
-          if (finished === true) scheduleOnRN(onComplete);
+        withSpring(1, { damping: 10, stiffness: 300 }, (finished) => {
+          if (finished === true) {
+            scheduleOnRN(onComplete);
+          }
         }),
       ),
     );
@@ -216,9 +229,9 @@ const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-type Props = {
+interface Props {
   post: FeedPost;
-};
+}
 
 type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
 type PostQueryData = RouterOutputs["post"]["getPost"];
@@ -238,12 +251,12 @@ const likeMutationHandlers = (postId: string, liked: boolean) =>
       },
       readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
       readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
+      refresh: () => {
+        void ignoreRejection(refreshPostContent());
+        void ignoreRejection(refreshWorkspaceIdentityIfAnonymous());
+      },
       writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
       writePost: (queryKey, data) => queryClient.setQueryData(queryKey, data),
-      refresh: () => {
-        refreshPostContent().catch(() => undefined);
-        refreshWorkspaceIdentityIfAnonymous().catch(() => undefined);
-      },
     },
     postId,
     liked,
@@ -252,8 +265,8 @@ const likeMutationHandlers = (postId: string, liked: boolean) =>
 export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
   const reduceMotionEnabled = useReducedMotion();
-  const [isAnimating, setIsAnimating] = useState(false);
-  const showBurst = isAnimating && !reduceMotionEnabled;
+  const [burst, setBurst] = useState<BurstPlan | null>(null);
+  const activeBurst = reduceMotionEnabled ? null : burst;
 
   const createMutate = useMutation(
     orpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
@@ -266,8 +279,8 @@ export const LikeButton = ({ post }: Props) => {
     if (post.isLiked) {
       deleteMutate.mutate({ postId: post.id });
     } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
-      setIsAnimating(!reduceMotionEnabled);
+      void ignoreRejection(Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light));
+      setBurst(reduceMotionEnabled ? null : planBurst());
       createMutate.mutate({ postId: post.id });
     }
   };
@@ -282,12 +295,12 @@ export const LikeButton = ({ post }: Props) => {
       onPress={toggleLike}
     >
       <View>
-        {showBurst && <CircleAnimation />}
-        {showBurst && <BurstAnimation />}
-        {showBurst ? (
-          <AnimatingHeart onComplete={() => setIsAnimating(false)} />
-        ) : (
+        {activeBurst !== null && <CircleAnimation />}
+        {activeBurst !== null && <BurstAnimation burst={activeBurst} />}
+        {activeBurst === null ? (
           <Heart color={post.isLiked ? "#ef4444" : colors.mutedForeground} />
+        ) : (
+          <AnimatingHeart onComplete={() => setBurst(null)} />
         )}
       </View>
       <AnimatedNumber value={post.likeCount} />

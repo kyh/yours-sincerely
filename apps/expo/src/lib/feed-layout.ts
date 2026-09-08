@@ -7,14 +7,16 @@ export type { FeedLayout } from "@repo/contracts/preferences";
 
 export const FEED_LAYOUT_STORAGE_KEY = "postView";
 
-type FeedLayoutContextValue = {
+interface FeedLayoutContextValue {
   layout: FeedLayout;
   toggleLayout: () => void;
-};
+}
 
 export const FeedLayoutContext = createContext<FeedLayoutContextValue>({
   layout: "list",
-  toggleLayout: () => undefined,
+  toggleLayout: () => {
+    /* empty */
+  },
 });
 
 export const useFeedLayout = () => useContext(FeedLayoutContext);

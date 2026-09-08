@@ -36,20 +36,22 @@ export const HydrateClient = (props: { children: React.ReactNode }) => {
   return <HydrationBoundary state={dehydrate(queryClient)}>{props.children}</HydrationBoundary>;
 };
 
-export function prefetch<TQueryFnData, TError, TData, TQueryKey extends QueryKey>(
+export const prefetch = <TQueryFnData, TError, TData, TQueryKey extends QueryKey>(
   queryOptions: FetchQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-) {
+) => {
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(queryOptions);
-}
+};
 
-export function prefetchInfinite<
+export const prefetchInfinite = <
   TQueryFnData,
   TError,
   TData,
   TQueryKey extends QueryKey,
   TPageParam,
->(queryOptions: FetchInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>) {
+>(
+  queryOptions: FetchInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
+) => {
   const queryClient = getQueryClient();
   void queryClient.prefetchInfiniteQuery(queryOptions);
-}
+};

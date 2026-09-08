@@ -37,7 +37,7 @@ describe("resolveCookieSecret", () => {
     for (const NODE_ENV of [undefined, "", "production", "preview", "staging", "Production"]) {
       assert.throws(
         () => resolveCookieSecret({ NODE_ENV }),
-        /COOKIE_SECRET must be set/,
+        /COOKIE_SECRET must be set/u,
         `NODE_ENV=${String(NODE_ENV)} must not silently use the public dev constant`,
       );
     }
@@ -47,31 +47,32 @@ describe("resolveCookieSecret", () => {
     assert.equal(resolveCookieSecret({ NODE_ENV: "development" }), DEV_SIGNING_SECRET);
     assert.equal(resolveCookieSecret({ NODE_ENV: "test" }), DEV_SIGNING_SECRET);
     assert.equal(
-      resolveCookieSecret({ NODE_ENV: "development", COOKIE_SECRET: "" }),
+      resolveCookieSecret({ COOKIE_SECRET: "", NODE_ENV: "development" }),
       DEV_SIGNING_SECRET,
     );
     assert.equal(isLocalEnv("production"), false);
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- an unset NODE_ENV is the case under test
     assert.equal(isLocalEnv(undefined), false);
   });
 
   it("rejects a secret with too little entropy", () => {
     assert.throws(
-      () => resolveCookieSecret({ NODE_ENV: "production", COOKIE_SECRET: "x" }),
-      /at least 32 characters/,
+      () => resolveCookieSecret({ COOKIE_SECRET: "x", NODE_ENV: "production" }),
+      /at least 32 characters/u,
     );
     assert.throws(
       () =>
         resolveCookieSecret({
-          NODE_ENV: "development",
           COOKIE_SECRET: "31-chars-is-one-short-of-enough",
+          NODE_ENV: "development",
         }),
-      /at least 32 characters/,
+      /at least 32 characters/u,
     );
   });
 
   it("accepts a configured secret of sufficient length in any environment", () => {
     assert.equal(
-      resolveCookieSecret({ NODE_ENV: "production", COOKIE_SECRET: REAL_SECRET }),
+      resolveCookieSecret({ COOKIE_SECRET: REAL_SECRET, NODE_ENV: "production" }),
       REAL_SECRET,
     );
     assert.equal(resolveCookieSecret({ COOKIE_SECRET: REAL_SECRET }), REAL_SECRET);
@@ -101,7 +102,7 @@ describe("the mass-logout guard", () => {
 
     const unsigned = unsignSession(inTheWild, sessionVerifySecrets(REAL_SECRET));
     assert.notEqual(unsigned, null);
-    assert.deepEqual(parseSessionPayload(unsigned ?? ""), { user: "user-1", iat: NOW, epoch: 0 });
+    assert.deepEqual(parseSessionPayload(unsigned ?? ""), { epoch: 0, iat: NOW, user: "user-1" });
   });
 
   it("still verifies a session cookie signed with a raw LEGACY secret", () => {
@@ -185,8 +186,9 @@ describe("key separation", () => {
       rawSignedCapability,
       sessionVerifySecrets(REAL_SECRET),
     );
-    assert.notEqual(unsignedCapability, null); // the signature does verify...
-    assert.equal(parseSessionPayload(unsignedCapability ?? ""), null); // ...but it is not a session
+    // The signature does verify, but it is not a session.
+    assert.notEqual(unsignedCapability, null);
+    assert.equal(parseSessionPayload(unsignedCapability ?? ""), null);
 
     assert.equal(
       parsePushCleanupCapability(rawSignedSession, pushCleanupVerifySecrets(REAL_SECRET)),

@@ -27,31 +27,31 @@ const createFixture = async () => {
   const ancientId = randomUUID();
   const postIds = [recentId, expiredId, ancientId];
 
-  await db.insert(user).values({ id: authorId, displayName: "Historian" });
+  await db.insert(user).values({ displayName: "Historian", id: authorId });
   await db.insert(post).values([
     {
-      id: recentId,
       content: "A letter written this week",
-      createdBy: "Historian",
-      userId: authorId,
       createdAt: daysAgo(1),
+      createdBy: "Historian",
+      id: recentId,
       updatedAt,
+      userId: authorId,
     },
     {
-      id: expiredId,
       content: "A letter past the 21-day window",
-      createdBy: "Historian",
-      userId: authorId,
       createdAt: daysAgo(30),
+      createdBy: "Historian",
+      id: expiredId,
       updatedAt,
+      userId: authorId,
     },
     {
-      id: ancientId,
       content: "A letter older than the profile history window",
-      createdBy: "Historian",
-      userId: authorId,
       createdAt: daysAgo(POST_HISTORY_WINDOW_DAYS + 10),
+      createdBy: "Historian",
+      id: ancientId,
       updatedAt,
+      userId: authorId,
     },
   ]);
 
@@ -65,7 +65,7 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, [authorId]));
   };
 
-  return { authorId, recentId, expiredId, ancientId, caller, cleanup };
+  return { ancientId, authorId, caller, cleanup, expiredId, recentId };
 };
 
 integrationTest("getPostsByUser hands out dates, never post ids", async () => {

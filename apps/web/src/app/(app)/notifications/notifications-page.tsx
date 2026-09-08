@@ -38,7 +38,9 @@ const MarkAllReadButtonInner = () => {
   const { data } = useSuspenseQuery(orpc.notification.unreadCount.queryOptions());
   const markRead = useMarkRead();
 
-  if (data.count === 0) return null;
+  if (data.count === 0) {
+    return null;
+  }
 
   return (
     <Button
@@ -54,14 +56,16 @@ const MarkAllReadButtonInner = () => {
 
 export const MarkAllReadButton = () => {
   const user = useWorkspaceUser();
-  if (user === null) return null;
+  if (user === null) {
+    return null;
+  }
   return <MarkAllReadButtonInner />;
 };
 
-type RowProps = {
+interface RowProps {
   notification: Notification;
   onOpen: () => void;
-};
+}
 
 const NotificationRow = ({ notification, onOpen }: RowProps) => {
   const isUnread = notification.readAt === null;
@@ -108,8 +112,8 @@ const NotificationList = () => {
   const markRead = useMarkRead();
 
   const [ref] = useInfiniteScroll({
-    loading: isFetchingNextPage,
     hasNextPage,
+    loading: isFetchingNextPage,
     onLoadMore: fetchNextPage,
   });
 
@@ -127,7 +131,7 @@ const NotificationList = () => {
             notification={notification}
             onOpen={() => {
               if (notification.readAt === null) {
-                markRead.mutate({ scope: "ids", ids: [notification.id] });
+                markRead.mutate({ ids: [notification.id], scope: "ids" });
               }
             }}
           />
@@ -144,6 +148,8 @@ const NotificationList = () => {
 
 export const NotificationsPage = () => {
   const user = useWorkspaceUser();
-  if (user === null) return null;
+  if (user === null) {
+    return null;
+  }
   return <NotificationList />;
 };

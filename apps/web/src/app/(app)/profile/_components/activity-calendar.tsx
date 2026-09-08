@@ -1,7 +1,16 @@
 import type { Day as WeekDay } from "date-fns";
 import type { CSSProperties, FunctionComponent } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
-import { calendarLevelColor } from "@repo/contracts/calendar";
+import {
+  calendarLevelColor,
+  DEFAULT_CALENDAR_LABELS as DEFAULT_LABELS,
+  DEFAULT_WEEKDAY_LABELS,
+  generateEmptyCalendarData as generateEmptyData,
+  getCalendarMonthLabels as getMonthLabels,
+  getCalendarTheme as getTheme,
+  groupCalendarDaysByWeeks as groupByWeeks,
+  MIN_DISTANCE_MONTH_LABELS,
+} from "@repo/contracts/calendar";
 import { format, getDay, parseISO } from "date-fns";
 
 import type {
@@ -13,22 +22,13 @@ import type {
   SVGRectEventHandler,
   Theme,
 } from "./calendar-types";
-import {
-  DEFAULT_CALENDAR_LABELS as DEFAULT_LABELS,
-  DEFAULT_WEEKDAY_LABELS,
-  generateEmptyCalendarData as generateEmptyData,
-  getCalendarMonthLabels as getMonthLabels,
-  getCalendarTheme as getTheme,
-  groupCalendarDaysByWeeks as groupByWeeks,
-  MIN_DISTANCE_MONTH_LABELS,
-} from "@repo/contracts/calendar";
 
 type CalendarData = Day[];
 const EMPTY_EVENT_HANDLERS: EventHandlerMap = {};
 const EMPTY_STYLE: CSSProperties = {};
 const LEGEND_LEVELS: Level[] = [0, 1, 2, 3, 4];
 
-export type Props = {
+export interface Props {
   /**
    * List of calendar entries. Every `Day` object requires an ISO 8601 `date`
    * property in the format `yyyy-MM-dd`, a `count` property with the amount
@@ -106,7 +106,7 @@ export type Props = {
    * Index of day to be used as start of week. 0 represents Sunday.
    */
   weekStart?: WeekDay;
-};
+}
 
 export const ActivityCalendar: FunctionComponent<Props> = ({
   data,
@@ -124,47 +124,48 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
   showWeekdayLabels = false,
   style = EMPTY_STYLE,
   theme: themeProp,
-  weekStart = 0, // Sunday
+  // Sunday
+  weekStart = 0,
 }: Props) => {
-  if (loading) data = generateEmptyData();
-  if (data.length === 0) return null;
+  const days = loading ? generateEmptyData() : data;
+  if (days.length === 0) {
+    return null;
+  }
 
-  const weeks = groupByWeeks(data, weekStart);
+  const weeks = groupByWeeks(days, weekStart);
 
   const theme = getTheme(themeProp);
-  const labels = Object.assign({}, DEFAULT_LABELS, labelsProp);
+  const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const textHeight = hideMonthLabels ? 0 : fontSize + 2 * blockMargin;
 
-  const getDimensions = () => {
-    return {
-      width: weeks.length * (blockSize + blockMargin) - blockMargin,
-      height: textHeight + (blockSize + blockMargin) * 7 - blockMargin,
-    };
-  };
+  const getDimensions = () => ({
+    height: textHeight + (blockSize + blockMargin) * 7 - blockMargin,
+    width: weeks.length * (blockSize + blockMargin) - blockMargin,
+  });
 
   const getTooltipMessage = (contribution: Day) => {
     const date = format(parseISO(contribution.date), dateFormat);
-    if (!contribution.count) return `No posts on ${date}`;
+    if (!contribution.count) {
+      return `No posts on ${date}`;
+    }
     return `${contribution.count} post${contribution.count > 1 ? "s" : ""} on ${date}`;
   };
 
-  const getEventHandlers = (data: Day): SVGRectEventHandler => {
+  const getEventHandlers = (day: Day): SVGRectEventHandler => {
+    const handlers: SVGRectEventHandler = {};
     // SAFETY: `eventHandlers` is an `EventHandlerMap`, so its runtime keys are
     // exactly the `keyof SVGRectEventHandler` names — `Object.keys` merely
     // widens them to `string[]`.
-    return (
-      Object.keys(eventHandlers) as (keyof SVGRectEventHandler)[]
-    ).reduce<SVGRectEventHandler>(
-      (handlers, key) =>
-        Object.assign(handlers, {
-          [key]: (event: ReactEvent<SVGRectElement>) => eventHandlers[key]?.(event)(data),
-        }),
-      {},
-    );
+    for (const key of Object.keys(eventHandlers) as (keyof SVGRectEventHandler)[]) {
+      Object.assign(handlers, {
+        [key]: (event: ReactEvent<SVGRectElement>) => eventHandlers[key]?.(event)(day),
+      });
+    }
+    return handlers;
   };
 
   const renderLabels = () => {
-    const style = {
+    const labelStyle = {
       fontSize,
     };
 
@@ -175,7 +176,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     return (
       <>
         {showWeekdayLabels && (
-          <g className="legend-weekday" style={style}>
+          <g className="legend-weekday" style={labelStyle}>
             {weeks[1]?.map((day, y) => {
               if (!day || y % 2 === 0) {
                 return null;
@@ -197,10 +198,14 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
           </g>
         )}
         {!hideMonthLabels && (
-          <g className="legend-month fill-foreground" style={style}>
-            {getMonthLabels(weeks, labels.months).map(({ text, x }, index, labels) => {
+          <g className="legend-month fill-foreground" style={labelStyle}>
+            {getMonthLabels(weeks, labels.months).map(({ text, x }, index, monthLabels) => {
               // Skip the first month label if there's not enough space to the next one
-              if (index === 0 && labels[1] && labels[1].x - x <= MIN_DISTANCE_MONTH_LABELS) {
+              if (
+                index === 0 &&
+                monthLabels[1] &&
+                monthLabels[1].x - x <= MIN_DISTANCE_MONTH_LABELS
+              ) {
                 return null;
               }
 
@@ -216,15 +221,15 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     );
   };
 
-  const renderBlocks = () => {
-    return weeks
+  const renderBlocks = () =>
+    weeks
       .map((week, weekIndex) =>
         week.map((day, dayIndex) => {
           if (!day) {
             return null;
           }
 
-          const style = loading
+          const blockStyle = loading
             ? {
                 animation: `loadingAnimation 1.5s ease-in-out infinite`,
                 animationDelay: `${weekIndex * 20 + dayIndex * 20}ms`,
@@ -233,16 +238,16 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
           const rectProps = {
             ...getEventHandlers(day),
-            x: 0,
-            y: textHeight + (blockSize + blockMargin) * dayIndex,
-            width: blockSize,
-            height: blockSize,
             fill: calendarLevelColor(theme, day.level),
+            height: blockSize,
             rx: blockRadius,
             ry: blockRadius,
-            strokeWidth: 1,
             stroke: theme.stroke,
-            style: style,
+            strokeWidth: 1,
+            style: blockStyle,
+            width: blockSize,
+            x: 0,
+            y: textHeight + (blockSize + blockMargin) * dayIndex,
           };
 
           return (
@@ -261,7 +266,6 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
           {week}
         </g>
       ));
-  };
 
   const renderFooter = () => {
     if (hideTotalCount && hideColorLegend) {
@@ -269,7 +273,7 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
     }
 
     return (
-      <footer className="flex" style={{ marginTop: 2 * blockMargin, fontSize }}>
+      <footer className="flex" style={{ fontSize, marginTop: 2 * blockMargin }}>
         {/* Placeholder */}
         {loading && <div>&nbsp;</div>}
         {!loading && !hideColorLegend && (
@@ -295,9 +299,9 @@ export const ActivityCalendar: FunctionComponent<Props> = ({
 
   const { width, height } = getDimensions();
   const additionalStyles = {
-    maxWidth: width,
     [`--activity-calendar-loading`]: theme.level0,
     [`--activity-calendar-loading-active`]: theme.level4,
+    maxWidth: width,
   };
 
   return (

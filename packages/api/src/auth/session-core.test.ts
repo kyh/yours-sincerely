@@ -37,11 +37,11 @@ const base64 = (value: z.infer<typeof jsonValue>) =>
 
 const decide = (sessionValue: string | null | undefined, nowSeconds = NOW) =>
   decideRenewal({
-    sessionValue,
-    verifySecrets: VERIFY_SECRETS,
     activeSecret: ACTIVE_SECRET,
     nowSeconds,
     renewAfterSeconds: RENEW_AFTER_SECONDS,
+    sessionValue,
+    verifySecrets: VERIFY_SECRETS,
   });
 
 describe("unsignSession", () => {
@@ -73,6 +73,7 @@ describe("unsignSession", () => {
 
 describe("parseLegacySecrets", () => {
   it("handles the shapes COOKIE_SECRET_LEGACY actually takes", () => {
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- an unset env var is the case under test
     assert.deepEqual(parseLegacySecrets(undefined), []);
     assert.deepEqual(parseLegacySecrets(""), []);
     assert.deepEqual(parseLegacySecrets("one"), ["one"]);
@@ -86,20 +87,20 @@ describe("parseLegacySecrets", () => {
 describe("parseSessionPayload", () => {
   it("parses a current payload", () => {
     assert.deepEqual(parseSessionPayload(encodeSessionPayload("user-1", NOW, 3)), {
-      user: "user-1",
-      iat: NOW,
       epoch: 3,
+      iat: NOW,
+      user: "user-1",
     });
   });
 
   it("parses a legacy payload with no `iat` — these are in the wild", () => {
     const legacy = Buffer.from(JSON.stringify({ user: "user-1" })).toString("base64");
-    assert.deepEqual(parseSessionPayload(legacy), { user: "user-1", iat: null, epoch: 0 });
+    assert.deepEqual(parseSessionPayload(legacy), { epoch: 0, iat: null, user: "user-1" });
   });
 
   it("ignores a non-numeric `iat` rather than rejecting the session", () => {
-    const payload = Buffer.from(JSON.stringify({ user: "user-1", iat: "nope" })).toString("base64");
-    assert.deepEqual(parseSessionPayload(payload), { user: "user-1", iat: null, epoch: 0 });
+    const payload = Buffer.from(JSON.stringify({ iat: "nope", user: "user-1" })).toString("base64");
+    assert.deepEqual(parseSessionPayload(payload), { epoch: 0, iat: null, user: "user-1" });
   });
 
   it("rejects attacker-supplied garbage", () => {
@@ -120,6 +121,7 @@ describe("parseSessionPayload", () => {
 
 describe("decideRenewal", () => {
   it("reports no session when the cookie is absent", () => {
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- an absent cookie is the case under test
     assert.deepEqual(decide(undefined), { decision: "no-session", payload: null });
     assert.deepEqual(decide(null), { decision: "no-session", payload: null });
     assert.deepEqual(decide(""), { decision: "no-session", payload: null });
@@ -141,16 +143,16 @@ describe("decideRenewal", () => {
   it("leaves a fresh cookie signed by the active secret alone", () => {
     const result = decide(signCookie("user-1", NOW - 60, ACTIVE_SECRET));
     assert.equal(result.decision, "fresh");
-    assert.deepEqual(result.payload, { user: "user-1", iat: NOW - 60, epoch: 0 });
+    assert.deepEqual(result.payload, { epoch: 0, iat: NOW - 60, user: "user-1" });
   });
 
   it("renews a stale cookie signed by the active secret", () => {
     const result = decide(signCookie("user-1", NOW - RENEW_AFTER_SECONDS - 1, ACTIVE_SECRET));
     assert.equal(result.decision, "renew");
     assert.deepEqual(result.payload, {
-      user: "user-1",
-      iat: NOW - RENEW_AFTER_SECONDS - 1,
       epoch: 0,
+      iat: NOW - RENEW_AFTER_SECONDS - 1,
+      user: "user-1",
     });
   });
 
@@ -160,13 +162,13 @@ describe("decideRenewal", () => {
     // COOKIE_SECRET_LEGACY would log out the entire user base.
     const result = decide(signCookie("user-1", NOW - 60, LEGACY_SECRET));
     assert.equal(result.decision, "renew");
-    assert.deepEqual(result.payload, { user: "user-1", iat: NOW - 60, epoch: 0 });
+    assert.deepEqual(result.payload, { epoch: 0, iat: NOW - 60, user: "user-1" });
   });
 
   it("renews a legacy payload with no `iat` (age computes from epoch 0)", () => {
     const result = decide(signLegacyPayloadCookie("user-1", ACTIVE_SECRET));
     assert.equal(result.decision, "renew");
-    assert.deepEqual(result.payload, { user: "user-1", iat: null, epoch: 0 });
+    assert.deepEqual(result.payload, { epoch: 0, iat: null, user: "user-1" });
   });
 
   it("renews at exactly renewAfterSeconds old (the boundary is inclusive of renewal)", () => {
@@ -195,13 +197,13 @@ describe("decideRenewal", () => {
 const createUserStore = (users: Record<string, number>) => {
   let lookups = 0;
   return {
-    get lookups() {
-      return lookups;
-    },
     findUser: (userId: string) => {
       lookups += 1;
       const sessionEpoch = users[userId];
       return Promise.resolve(sessionEpoch === undefined ? null : { id: userId, sessionEpoch });
+    },
+    get lookups() {
+      return lookups;
     },
   };
 };
@@ -212,13 +214,14 @@ describe("resolveSessionUser", () => {
     const cookie = signCookie("user-1", NOW, ACTIVE_SECRET, 4);
 
     const user = await resolveSessionUser({
+      findUser: store.findUser,
       sessionValue: cookie,
       verifySecrets: VERIFY_SECRETS,
-      findUser: store.findUser,
     });
 
     assert.deepEqual(user, { id: "user-1", sessionEpoch: 4 });
-    assert.equal(store.lookups, 1); // exactly the query the context already makes
+    // Exactly the query the context already makes.
+    assert.equal(store.lookups, 1);
   });
 
   it("THE MASS-LOGOUT GUARD: a cookie with NO `epoch` field still authenticates", async () => {
@@ -227,15 +230,15 @@ describe("resolveSessionUser", () => {
     // fails, shipping logs out the entire user base.
     const store = createUserStore({ "user-1": 0 });
     const noEpochCookie = signSession(
-      Buffer.from(JSON.stringify({ user: "user-1", iat: NOW })).toString("base64"),
+      Buffer.from(JSON.stringify({ iat: NOW, user: "user-1" })).toString("base64"),
       ACTIVE_SECRET,
     );
     assert.equal(noEpochCookie.includes("epoch"), false);
 
     const user = await resolveSessionUser({
+      findUser: store.findUser,
       sessionValue: noEpochCookie,
       verifySecrets: VERIFY_SECRETS,
-      findUser: store.findUser,
     });
 
     assert.deepEqual(user, { id: "user-1", sessionEpoch: 0 });
@@ -245,23 +248,24 @@ describe("resolveSessionUser", () => {
     const store = createUserStore({ "user-1": 0 });
 
     const user = await resolveSessionUser({
+      findUser: store.findUser,
       sessionValue: signLegacyPayloadCookie("user-1", LEGACY_SECRET),
       verifySecrets: VERIFY_SECRETS,
-      findUser: store.findUser,
     });
 
     assert.deepEqual(user, { id: "user-1", sessionEpoch: 0 });
   });
 
   it("REVOCATION: rejects a cookie whose epoch is behind the user's", async () => {
-    const store = createUserStore({ "user-1": 1 }); // the epoch was bumped
-    const captured = signCookie("user-1", NOW, ACTIVE_SECRET, 0); // an attacker's copy
+    // The epoch was bumped; `captured` is an attacker's copy from before.
+    const store = createUserStore({ "user-1": 1 });
+    const captured = signCookie("user-1", NOW, ACTIVE_SECRET, 0);
 
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: captured,
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
       null,
     );
@@ -272,9 +276,9 @@ describe("resolveSessionUser", () => {
 
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: signCookie("user-1", NOW, ACTIVE_SECRET, 99),
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
       null,
     );
@@ -285,17 +289,17 @@ describe("resolveSessionUser", () => {
 
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: undefined,
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
       null,
     );
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: signCookie("user-1", NOW, UNKNOWN_SECRET),
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
       null,
     );
@@ -303,9 +307,9 @@ describe("resolveSessionUser", () => {
 
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: signCookie("deleted-user", NOW, ACTIVE_SECRET),
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
       null,
     );
@@ -318,14 +322,15 @@ describe("resolveSessionUser", () => {
     const store = createUserStore({ "user-1": 1 });
     const staleRevoked = signCookie("user-1", NOW - RENEW_AFTER_SECONDS - 1, ACTIVE_SECRET, 0);
 
-    assert.equal(decide(staleRevoked).decision, "renew"); // renewable in principle...
+    // Renewable in principle, but never authenticated, so renewal is unreachable.
+    assert.equal(decide(staleRevoked).decision, "renew");
     assert.equal(
       await resolveSessionUser({
+        findUser: store.findUser,
         sessionValue: staleRevoked,
         verifySecrets: VERIFY_SECRETS,
-        findUser: store.findUser,
       }),
-      null, // ...but never authenticated, so renewal is unreachable
+      null,
     );
   });
 });

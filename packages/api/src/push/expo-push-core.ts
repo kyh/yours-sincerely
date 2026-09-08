@@ -11,14 +11,14 @@ import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
     back into one of the contracts shapes rather than a loose dictionary. */
 export type PushData = NewCommentNotificationData;
 
-export type PushMessage = {
+export interface PushMessage {
   userId: string;
   title: string;
   body: string;
   data: PushData;
-};
+}
 
-export type PushDependencies = {
+export interface PushDependencies {
   findTokens: (userId: string) => Promise<string[]>;
   deleteToken: (token: string) => Promise<void>;
   isExpoPushToken: (token: string) => boolean;
@@ -26,17 +26,17 @@ export type PushDependencies = {
   /** Expo rejects a request carrying more messages than this. */
   chunkSize: number;
   logError: (message: string) => void;
-};
+}
 
-export type PushOutcome = {
+export interface PushOutcome {
   sent: number;
   /** Tokens Expo reported as `DeviceNotRegistered`, now deleted. */
   pruned: string[];
   failed: number;
-};
+}
 
 /** A token is a device credential; a log line must not carry it whole. */
-export const redactPushToken = (token: string) => token.replace(/\[.*\]$/, "[…]");
+export const redactPushToken = (token: string) => token.replace(/\[.*\]$/u, "[…]");
 
 /** A device that has not launched the app in this long is treated as gone.
     Expo reports an uninstalled device as `DeviceNotRegistered` only in the
@@ -70,18 +70,19 @@ export const sendPushToUserCore = async (
   message: PushMessage,
   deps: PushDependencies,
 ): Promise<PushOutcome> => {
-  const outcome: PushOutcome = { sent: 0, pruned: [], failed: 0 };
+  const outcome: PushOutcome = { failed: 0, pruned: [], sent: 0 };
 
   try {
-    const tokens = (await deps.findTokens(message.userId)).filter(deps.isExpoPushToken);
+    const allTokens = await deps.findTokens(message.userId);
+    const tokens = allTokens.filter(deps.isExpoPushToken);
 
     for (const batch of chunk(tokens, deps.chunkSize)) {
       const messages = batch.map((to): ExpoPushMessage => ({
-        to,
-        title: message.title,
         body: message.body,
         data: message.data,
         sound: "default",
+        title: message.title,
+        to,
       }));
 
       let tickets: ExpoPushTicket[];

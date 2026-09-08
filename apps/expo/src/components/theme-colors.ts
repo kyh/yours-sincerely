@@ -1,5 +1,6 @@
 import { useTheme } from "@/components/theme-provider";
-import { palettes, type ThemeColors } from "@/lib/theme-palette";
+import { palettes } from "@/lib/theme-palette";
+import type { ThemeColors } from "@/lib/theme-palette";
 
 export type { ThemeColors } from "@/lib/theme-palette";
 

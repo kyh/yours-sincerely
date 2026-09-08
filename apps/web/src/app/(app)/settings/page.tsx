@@ -8,16 +8,14 @@ export const metadata: Metadata = {
   title: "Settings",
 };
 
-const Page = () => {
-  return (
-    <>
-      <PageHeader title="Settings" />
-      <PageContent className="flex flex-col gap-8">
-        <SettingsForm />
-        <BlockedWriters />
-      </PageContent>
-    </>
-  );
-};
+const Page = () => (
+  <>
+    <PageHeader title="Settings" />
+    <PageContent className="flex flex-col gap-8">
+      <SettingsForm />
+      <BlockedWriters />
+    </PageContent>
+  </>
+);
 
 export default Page;

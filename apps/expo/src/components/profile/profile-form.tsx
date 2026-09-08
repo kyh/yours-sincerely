@@ -10,13 +10,14 @@ import { useThemeColors } from "@/components/theme-colors";
 import { orpc } from "@/lib/api";
 import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { useSeededState } from "@/lib/use-seeded-state";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Avatar + editable display name (owner only), saved on blur —
     port of the web profile-form. */
-type Props = {
+interface Props {
   userId: string;
   readonly?: boolean;
-};
+}
 
 export const ProfileForm = ({ userId, readonly = false }: Props) => {
   const colors = useThemeColors();
@@ -28,19 +29,21 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
 
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
-      onSuccess: () => {
-        toast.success("Profile successfully updated");
-        refreshProfileData().catch(() => undefined);
-        refreshWorkspaceIdentity().catch(() => undefined);
-      },
       onError: () => {
         toast.error("Could not update profile. Please try again.");
+      },
+      onSuccess: () => {
+        toast.success("Profile successfully updated");
+        void ignoreRejection(refreshProfileData());
+        void ignoreRejection(refreshWorkspaceIdentity());
       },
     }),
   );
 
   const handleBlur = () => {
-    if (user === undefined || user === null) return;
+    if (user === undefined || user === null) {
+      return;
+    }
     if (displayName === (user.displayName ?? "Anonymous")) {
       setError(null);
       return;

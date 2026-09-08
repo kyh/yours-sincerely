@@ -25,25 +25,26 @@ import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provide
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient } from "@/lib/api";
 import { subscribeToNativeConnectivity } from "@/lib/connectivity";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { palettes } from "@/lib/theme-palette";
 
 import "../styles.css";
 
-SplashScreen.preventAutoHideAsync().catch(() => undefined);
+void ignoreRejection(SplashScreen.preventAutoHideAsync());
 
 // Rendered above every provider, so it can only follow the OS scheme and
 // must style itself without NativeWind.
-export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
   const colors = palettes[useColorScheme() === "dark" ? "dark" : "light"];
   return (
     <View
       style={{
-        flex: 1,
         alignItems: "center",
-        justifyContent: "center",
-        gap: 16,
-        paddingHorizontal: 32,
         backgroundColor: colors.background,
+        flex: 1,
+        gap: 16,
+        justifyContent: "center",
+        paddingHorizontal: 32,
       }}
     >
       <NativeText style={{ color: colors.foreground, fontSize: 24, fontWeight: "700" }}>
@@ -55,7 +56,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
       <Pressable
         accessibilityRole="button"
         onPress={retry}
-        style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 20 }}
+        style={{ justifyContent: "center", minHeight: 44, paddingHorizontal: 20 }}
       >
         <NativeText style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>
           Try again
@@ -63,7 +64,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
       </Pressable>
     </View>
   );
-}
+};
 
 const RootStack = () => {
   const { resolvedTheme, isReady } = useTheme();
@@ -72,15 +73,17 @@ const RootStack = () => {
   // Fonts are already loaded by the time this mounts (RootLayout gates on
   // them), so the stored theme is the last thing the splash waits for.
   useEffect(() => {
-    if (isReady) SplashScreen.hideAsync().catch(() => undefined);
+    if (isReady) {
+      void ignoreRejection(SplashScreen.hideAsync());
+    }
   }, [isReady]);
 
   return (
     <>
       <Stack
         screenOptions={{
-          headerShown: false,
           contentStyle: { backgroundColor: colors.background },
+          headerShown: false,
         }}
       />
       <Toaster />
@@ -90,7 +93,7 @@ const RootStack = () => {
   );
 };
 
-function RootLayout() {
+const RootLayout = () => {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -104,7 +107,9 @@ function RootLayout() {
   // connectivity banner all consume — it belongs beside the query client.
   useEffect(() => subscribeToNativeConnectivity(), []);
 
-  if (!fontsReady) return null;
+  if (!fontsReady) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView className="flex-1">
@@ -124,6 +129,6 @@ function RootLayout() {
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
-}
+};
 
 export default RootLayout;

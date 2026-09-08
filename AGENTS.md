@@ -97,6 +97,12 @@ pnpm verify   # typecheck · lint · format · test
 deliberately outside CI — run them yourself with `pnpm -F @repo/api test:db` when you touch a
 router, a query or the schema.
 
+**Lint is a clean gate.** `oxlint.config.ts` extends the ultracite presets (`ultracite/oxlint/core`,
+`react`, `anti-slop`, with `next` scoped to `apps/web` and `packages/api`); every rule is an error
+and `lint` fails on the first one. `no-await-in-loop` is the one deliberate override (sequential
+awaits are intentional). Prefer fixing code over `oxlint-disable` comments; when a rule is genuinely
+wrong for a line, disable that line with a `-- reason`.
+
 Runtime — drive the real web UI with [agent-browser](https://github.com/vercel-labs/agent-browser).
 The core flow needs no login:
 

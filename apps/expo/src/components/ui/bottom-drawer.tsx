@@ -26,21 +26,21 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
     Every close path goes through `onClose` — the sheet keeps its Modal
     mounted until the exit spring finishes, so item-select closes animate
     out just like drag/scrim/back closes. */
-type BottomDrawerProps = {
+interface BottomDrawerProps {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
-};
+}
 
 // Near-critically damped, overshoot-clamped so the sheet never springs past
 // its rest position (an upward overshoot would flash the background below it).
-const SETTLE_SPRING = { stiffness: 300, damping: 30, overshootClamping: true };
+const SETTLE_SPRING = { damping: 30, overshootClamping: true, stiffness: 300 };
 // Fraction of sheet height a downward drag must pass to dismiss on release.
 const DISMISS_DISTANCE_RATIO = 0.4;
 // Downward velocity (px/s) that dismisses regardless of distance.
 const DISMISS_VELOCITY = 800;
 // Generous grab area around the handle pill.
-const HANDLE_HIT_SLOP = { top: 8, bottom: 16, left: 48, right: 48 };
+const HANDLE_HIT_SLOP = { bottom: 16, left: 48, right: 48, top: 8 };
 
 /** One row of a drawer menu: icon, label, tap. */
 export const DrawerItem = ({
@@ -92,7 +92,9 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
   // scrim tap, hardware back, drag) animates out before the Modal unmounts.
   useEffect(() => {
     const previous = previousSettings.current;
-    if (open === previous.open && reduceMotionEnabled === previous.reduceMotionEnabled) return;
+    if (open === previous.open && reduceMotionEnabled === previous.reduceMotionEnabled) {
+      return;
+    }
     previousSettings.current = { open, reduceMotionEnabled };
 
     if (reduceMotionEnabled) {
@@ -103,13 +105,17 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     if (open) {
       // A sheet parked at its dismissed position is a fresh open and starts
       // offscreen; a reopen mid-exit springs back from wherever the sheet is.
-      if (translateY.get() >= sheetHeight.get()) translateY.set(windowHeight);
+      if (translateY.get() >= sheetHeight.get()) {
+        translateY.set(windowHeight);
+      }
       translateY.set(withSpring(0, SETTLE_SPRING));
     } else {
       translateY.set(
         withSpring(sheetHeight.get(), SETTLE_SPRING, (finished) => {
           // Skip unmounting when the exit spring was cancelled by a reopen.
-          if (finished === true) scheduleOnRN(setClosing, false);
+          if (finished === true) {
+            scheduleOnRN(setClosing, false);
+          }
         }),
       );
     }

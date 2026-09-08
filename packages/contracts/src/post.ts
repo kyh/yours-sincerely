@@ -29,12 +29,12 @@ export const MAX_POST_LENGTH = 10_000;
 export const MAX_DISPLAY_NAME_LENGTH = 50;
 
 export const createPostInput = z.object({
-  parentId: z.string().optional(),
   content: z
     .string()
     .trim()
     .min(10, "You'll need to write a bit more than that")
     .max(MAX_POST_LENGTH, "That's a bit too long for a letter"),
   createdBy: z.string().trim().max(MAX_DISPLAY_NAME_LENGTH).optional(),
+  parentId: z.string().optional(),
 });
 export type CreatePostInput = z.infer<typeof createPostInput>;

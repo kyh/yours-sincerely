@@ -16,9 +16,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { dirname, join } from "node:path";
+import path from "node:path";
 import { after, test } from "node:test";
-import { fileURLToPath } from "node:url";
 
 import { eq, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
@@ -27,10 +26,7 @@ import { compare, hash } from "bcryptjs";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
-const RESCUE_SQL = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../db/sql/070-legacy-password-rescue.sql",
-);
+const RESCUE_SQL = path.join(import.meta.dirname, "../../../db/sql/070-legacy-password-rescue.sql");
 
 const ORIGINAL_PASSWORD = "the password they chose in 2025";
 const RESET_PASSWORD = "the password they chose after resetting";
@@ -42,11 +38,13 @@ after(async () => {
 /** `$2a$` is what production's stranded rows actually carry (measured: 485 rows,
     all `$2a$10$`, length 60). bcryptjs emits `$2b$`, so force the prefix — the
     point of the test is that the GoTrue-shaped hash survives the move. */
-const gotrueHash = async (password: string) =>
-  (await hash(password, 10)).replace(/^\$2[aby]\$/, "$2a$");
+const gotrueHash = async (password: string) => {
+  const hashed = await hash(password, 10);
+  return hashed.replace(/^\$2[aby]\$/u, "$2a$");
+};
 
 const runRescue = async () => {
-  await db.execute(sql.raw(await readFile(RESCUE_SQL, "utf8")));
+  await db.execute(sql.raw(await readFile(RESCUE_SQL, "utf-8")));
 };
 
 /** An identity that signed up through Supabase Auth before the cutover: a row in
@@ -66,7 +64,7 @@ const createStrandedAccount = async () => {
     sql`INSERT INTO auth.users (id, email, encrypted_password)
         VALUES (${id}::uuid, ${email}, ${encrypted})`,
   );
-  await db.insert(user).values({ id, email, displayName: "Stranded", passwordHash: null });
+  await db.insert(user).values({ displayName: "Stranded", email, id, passwordHash: null });
   return id;
 };
 
@@ -112,11 +110,11 @@ integrationTest("a password set since the cutover is never reverted", async () =
     await runRescue();
     await runRescue();
 
-    const after = await passwordHashOf(id);
-    assert.ok(after);
-    assert.ok(await compare(RESET_PASSWORD, after), "the reset password must still work");
+    const stored = await passwordHashOf(id);
+    assert.ok(stored);
+    assert.ok(await compare(RESET_PASSWORD, stored), "the reset password must still work");
     assert.equal(
-      await compare(ORIGINAL_PASSWORD, after),
+      await compare(ORIGINAL_PASSWORD, stored),
       false,
       "the pre-cutover password must NOT be resurrected",
     );
@@ -149,7 +147,7 @@ integrationTest("an identity with no real password is left alone, not half-rescu
       sql`INSERT INTO auth.users (id, email, encrypted_password)
           VALUES (${id}::uuid, ${`${id}@example.com`}, '')`,
     );
-    await db.insert(user).values({ id, displayName: "No password", passwordHash: null });
+    await db.insert(user).values({ displayName: "No password", id, passwordHash: null });
 
     await runRescue();
 

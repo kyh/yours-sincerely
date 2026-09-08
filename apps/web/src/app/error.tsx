@@ -9,9 +9,9 @@ import { AsideHeader } from "@/components/layout/aside-header";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { Sidebar } from "@/components/layout/sidebar";
 
-type ErrorProps = {
+interface ErrorProps {
   error: Error;
-};
+}
 
 const Page = ({ error }: ErrorProps) => {
   useEffect(() => {
@@ -35,7 +35,7 @@ const Page = ({ error }: ErrorProps) => {
           </a>{" "}
           if it persists.
         </h1>
-        <Link href="/" className={buttonVariants({ variant: "outline", className: "self-start" })}>
+        <Link href="/" className={buttonVariants({ className: "self-start", variant: "outline" })}>
           Return Home
         </Link>
       </PageContent>

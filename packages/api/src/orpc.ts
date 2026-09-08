@@ -1,9 +1,21 @@
 import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
+import { eq } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
+import { user } from "@repo/db/drizzle-schema";
 import { ORPCError, os } from "@orpc/server";
 import { getCookie } from "@orpc/server/helpers";
 
 import { authenticateSessionValue, renewSessionIfStale } from "./auth/session";
+
+/** Excludes only `passwordHash`, so `sessionEpoch` comes through. */
+const findDbUser = async (userId: string) => {
+  const dbUser = await db.query.user.findFirst({
+    columns: { passwordHash: false },
+    where: eq(user.id, userId),
+  });
+
+  return dbUser ?? null;
+};
 
 /**
  * Builds the per-request context: the database, plus the caller's user when a
@@ -21,26 +33,16 @@ export const createORPCContext = async (opts: { headers: Headers }) => {
   // Resolves the cookie AND enforces the session epoch: a session revoked by a
   // password reset or "sign out everywhere" yields no user. Reuses the user row
   // the context loads anyway, so the check costs zero extra queries.
-  const user = await authenticateSessionValue(sessionValue, findDbUser);
+  const sessionUser = await authenticateSessionValue(sessionValue, findDbUser);
 
   // Renewal is gated behind a valid session and re-signs with the epoch from
   // the DATABASE, so a revoked session can never renew itself back into
   // validity. The cookie write inside is a no-op outside a Next request scope.
-  if (user) {
-    await renewSessionIfStale(sessionValue, user.sessionEpoch);
+  if (sessionUser) {
+    await renewSessionIfStale(sessionValue, sessionUser.sessionEpoch);
   }
 
-  return { user, db };
-};
-
-/** Excludes only `passwordHash`, so `sessionEpoch` comes through. */
-const findDbUser = async (userId: string) => {
-  const user = await db.query.user.findFirst({
-    where: (user, { eq }) => eq(user.id, userId),
-    columns: { passwordHash: false },
-  });
-
-  return user ?? null;
+  return { db, user: sessionUser };
 };
 
 export type ORPCContext = Awaited<ReturnType<typeof createORPCContext>>;

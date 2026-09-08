@@ -7,14 +7,16 @@ import { formatDistance } from "date-fns";
 
 import type { RouterOutputs } from "@repo/api";
 
-type Props = {
+interface Props {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
-};
+}
 
 export const TimerButton = ({ post }: Props) => {
   const [open, setOpen] = useState(false);
 
-  if (!post.createdAt) return null;
+  if (!post.createdAt) {
+    return null;
+  }
 
   const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
   const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;

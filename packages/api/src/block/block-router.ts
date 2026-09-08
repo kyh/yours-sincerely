@@ -31,38 +31,11 @@ export const blockRouter = {
     const existing =
       created ??
       (await context.db.query.block.findFirst({
-        where: (row, { and, eq }) =>
-          and(eq(row.blockerId, userId), eq(row.blockingId, input.blockingId)),
+        where: and(eq(block.blockerId, userId), eq(block.blockingId, input.blockingId)),
       }));
 
     return {
       block: existing,
-    };
-  }),
-
-  /** The blocker's own inventory of blocks. `protectedProcedure` + a `blockerId`
-      scoped to `context.user.id`: the actor never comes from client input. */
-  listBlocks: protectedProcedure.handler(async ({ context }) => {
-    const blocks = await context.db.query.block.findMany({
-      where: (row, { eq }) => eq(row.blockerId, context.user.id),
-      with: {
-        user_blockingId: {
-          columns: { id: true, displayName: true, displayImage: true },
-        },
-      },
-    });
-
-    // Blocked authors are usually just "Anonymous", so the deterministic avatar
-    // (derived from displayName) is the only stable identity the list can show.
-    // We deliberately do NOT surface an excerpt of their letters: showing a
-    // blocked author's words back to the person who blocked them is precisely
-    // what they asked not to see.
-    return {
-      blocks: blocks.map((row) => ({
-        blockingId: row.blockingId,
-        displayName: row.user_blockingId.displayName,
-        displayImage: row.user_blockingId.displayImage,
-      })),
     };
   }),
 
@@ -76,6 +49,32 @@ export const blockRouter = {
 
     return {
       block: deleted,
+    };
+  }),
+
+  /** The blocker's own inventory of blocks. `protectedProcedure` + a `blockerId`
+      scoped to `context.user.id`: the actor never comes from client input. */
+  listBlocks: protectedProcedure.handler(async ({ context }) => {
+    const blocks = await context.db.query.block.findMany({
+      where: eq(block.blockerId, context.user.id),
+      with: {
+        user_blockingId: {
+          columns: { displayImage: true, displayName: true, id: true },
+        },
+      },
+    });
+
+    // Blocked authors are usually just "Anonymous", so the deterministic avatar
+    // (derived from displayName) is the only stable identity the list can show.
+    // We deliberately do NOT surface an excerpt of their letters: showing a
+    // blocked author's words back to the person who blocked them is precisely
+    // what they asked not to see.
+    return {
+      blocks: blocks.map((row) => ({
+        blockingId: row.blockingId,
+        displayImage: row.user_blockingId.displayImage,
+        displayName: row.user_blockingId.displayName,
+      })),
     };
   }),
 };

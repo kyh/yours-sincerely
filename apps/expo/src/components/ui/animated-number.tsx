@@ -21,7 +21,7 @@ import { cn } from "cn";
     never shift horizontally. */
 
 // ~600ms settle, subtle overshoot — matches NumberFlow's feel.
-const SPRING = { damping: 20, stiffness: 170, mass: 1 };
+const SPRING = { damping: 20, mass: 1, stiffness: 170 };
 
 const TABULAR: TextStyle = { fontVariant: ["tabular-nums"] };
 
@@ -45,12 +45,14 @@ const DigitTile = ({
   const tileStyle = useAnimatedStyle(() => {
     // Wrapped distance from the dial position, centered into (-5, 5].
     let offset = (((digit - position.get()) % 10) + 10) % 10;
-    if (offset > 5) offset -= 10;
+    if (offset > 5) {
+      offset -= 10;
+    }
     return { transform: [{ translateY: offset * height }] };
   });
 
   return (
-    <Animated.View style={[{ position: "absolute", top: 0, left: 0, right: 0 }, tileStyle]}>
+    <Animated.View style={[{ left: 0, position: "absolute", right: 0, top: 0 }, tileStyle]}>
       <Text
         style={[TABULAR, { height, lineHeight: height, textAlign: "center" }]}
         className={cn("text-muted-foreground text-sm", className)}
@@ -86,7 +88,9 @@ const Digit = ({
     previousWhole.current = whole;
 
     const from = previous.current;
-    if (from === value) return;
+    if (from === value) {
+      return;
+    }
     previous.current = value;
 
     // Steps to the new digit rolling in the direction the whole number
@@ -122,7 +126,7 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   const reduceMotionEnabled = useReducedMotion();
   const safe = Math.max(0, Math.trunc(value));
   const text = String(safe);
-  const chars = text.split("");
+  const chars = [...text];
   const len = chars.length;
 
   // Column height is derived from the rendered text so it tracks the font
@@ -145,7 +149,7 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
     <View accessible accessibilityLabel={text} style={{ flexDirection: "row" }}>
       <Text
         onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
-        style={[TABULAR, { position: "absolute", opacity: 0 }]}
+        style={[TABULAR, { opacity: 0, position: "absolute" }]}
         className={cn("text-muted-foreground text-sm", className)}
       >
         0

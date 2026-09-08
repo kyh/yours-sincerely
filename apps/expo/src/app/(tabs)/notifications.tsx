@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { LegendList } from "@legendapp/list/react-native";
@@ -15,6 +16,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { PushNotificationRegistration } from "@/components/notifications/push-notification-registration";
 import { orpc } from "@/lib/api";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { resolveNotificationTarget } from "@/lib/notification-target";
 import { refreshNotifications } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
@@ -24,7 +26,7 @@ type NotificationCursor = NotificationPage["nextCursor"];
 type NotificationRow = NotificationPage["notifications"][number];
 
 const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress: () => void }) => {
-  const description = describeNotification({ kind: item.kind, actorName: item.actorName });
+  const description = describeNotification({ actorName: item.actorName, kind: item.kind });
 
   return (
     <Pressable
@@ -57,9 +59,9 @@ const NotificationFeed = () => {
   const { data, isPending, isError, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
     useInfiniteQuery(
       orpc.notification.list.infiniteOptions({
-        input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
-        initialPageParam: undefined,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        initialPageParam: undefined,
+        input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
       }),
     );
   const [refreshing, setRefreshing] = useState(false);
@@ -69,14 +71,14 @@ const NotificationFeed = () => {
   const underfilled = viewportHeight > 0 && contentHeight > 0 && contentHeight <= viewportHeight;
   useEffect(() => {
     if (underfilled && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage().catch(() => undefined);
+      void ignoreRejection(fetchNextPage());
     }
   }, [underfilled, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const markRead = useMutation(
     orpc.notification.markRead.mutationOptions({
       onSuccess: () => {
-        refreshNotifications().catch(() => undefined);
+        void ignoreRejection(refreshNotifications());
       },
     }),
   );
@@ -84,7 +86,9 @@ const NotificationFeed = () => {
   const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
 
   const openNotification = (item: NotificationRow) => {
-    if (item.readAt === null) markRead.mutate({ scope: "ids", ids: [item.id] });
+    if (item.readAt === null) {
+      markRead.mutate({ ids: [item.id], scope: "ids" });
+    }
     router.push(resolveNotificationTarget({ parentPostId: item.postId }));
   };
 
@@ -101,7 +105,7 @@ const NotificationFeed = () => {
       <QueryErrorState
         message="Couldn't load notifications"
         onRetry={() => {
-          refetch().catch(() => undefined);
+          void ignoreRejection(refetch());
         }}
       />
     );
@@ -121,19 +125,20 @@ const NotificationFeed = () => {
       data={notifications}
       keyExtractor={(item) => item.id}
       onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) fetchNextPage().catch(() => undefined);
+        if (hasNextPage && !isFetchingNextPage) {
+          void ignoreRejection(fetchNextPage());
+        }
       }}
       onEndReachedThreshold={0.5}
       onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
       onContentSizeChange={(_width, height) => setContentHeight(height)}
-      onRefresh={() => {
+      onRefresh={async () => {
         setRefreshing(true);
-        refetch()
-          .catch(() => undefined)
-          .finally(() => setRefreshing(false));
+        await ignoreRejection(refetch());
+        setRefreshing(false);
       }}
       refreshing={refreshing}
-      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 96 }}
+      contentContainerStyle={{ paddingBottom: 96, paddingHorizontal: 20 }}
       renderItem={({ item }) => (
         <NotificationRowItem item={item} onPress={() => openNotification(item)} />
       )}
@@ -148,7 +153,7 @@ const NotificationFeed = () => {
   );
 };
 
-export default function NotificationsScreen() {
+const NotificationsScreen = () => {
   const router = useRouter();
   const { user, isPending } = useWorkspaceUser();
   const { data: unread } = useQuery(
@@ -157,7 +162,7 @@ export default function NotificationsScreen() {
   const markAllRead = useMutation(
     orpc.notification.markRead.mutationOptions({
       onSuccess: () => {
-        refreshNotifications().catch(() => undefined);
+        void ignoreRejection(refreshNotifications());
       },
     }),
   );
@@ -169,10 +174,37 @@ export default function NotificationsScreen() {
   const focusedBefore = useRef(false);
   useFocusEffect(
     useCallback(() => {
-      if (focusedBefore.current) refreshNotifications().catch(() => undefined);
+      if (focusedBefore.current) {
+        void ignoreRejection(refreshNotifications());
+      }
       focusedBefore.current = true;
     }, []),
   );
+
+  let content: ReactNode;
+  if (isPending) {
+    content = (
+      <View className="flex-1 items-center justify-center">
+        <Spinner />
+      </View>
+    );
+  } else if (user === null) {
+    content = (
+      <View className="flex-1 items-center justify-center gap-4 px-5">
+        <Text className="text-muted-foreground text-center text-sm">
+          Sign in to see replies to your love letters.
+        </Text>
+        <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
+      </View>
+    );
+  } else {
+    content = (
+      <View className="flex-1">
+        <PushNotificationRegistration />
+        <NotificationFeed />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
@@ -189,23 +221,9 @@ export default function NotificationsScreen() {
           </Button>
         ) : null}
       </View>
-      {isPending ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : user === null ? (
-        <View className="flex-1 items-center justify-center gap-4 px-5">
-          <Text className="text-muted-foreground text-center text-sm">
-            Sign in to see replies to your love letters.
-          </Text>
-          <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
-        </View>
-      ) : (
-        <View className="flex-1">
-          <PushNotificationRegistration />
-          <NotificationFeed />
-        </View>
-      )}
+      {content}
     </SafeAreaView>
   );
-}
+};
+
+export default NotificationsScreen;
