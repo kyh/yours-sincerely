@@ -8,11 +8,12 @@ import { toast } from "sonner-native";
 import type { FeedPost } from "@/lib/post-types";
 import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { siteConfig } from "@/lib/site-config";
 
-type Props = {
+interface Props {
   post: FeedPost;
-};
+}
 
 export const ShareButton = ({ post }: Props) => {
   const colors = useThemeColors();
@@ -23,18 +24,23 @@ export const ShareButton = ({ post }: Props) => {
 
   // Native share is web parity (the web button prefers navigator.share too);
   // fall back to the curated drawer only when the OS sheet fails to present.
-  const share = () => {
-    Share.share({ title: "A tiny beautiful letter", url: postUrl, message: postUrl }).catch(() => {
+  const share = async () => {
+    try {
+      await Share.share({ message: postUrl, title: "A tiny beautiful letter", url: postUrl });
+    } catch {
       setIsOpen(true);
-    });
+    }
   };
 
-  const copyLink = () => {
+  const copyLink = async () => {
     setIsOpen(false);
-    Clipboard.setStringAsync(postUrl).then(
-      () => toast.success("📝 Copied to Clipboard"),
-      () => undefined,
-    );
+    try {
+      await Clipboard.setStringAsync(postUrl);
+    } catch {
+      // A copy the OS refused has nothing to confirm.
+      return;
+    }
+    toast.success("📝 Copied to Clipboard");
   };
 
   return (
@@ -58,8 +64,8 @@ export const ShareButton = ({ post }: Props) => {
           label="Share on Facebook"
           onPress={() => {
             setIsOpen(false);
-            Linking.openURL(`https://www.facebook.com/sharer/sharer.php?u=${encodedPostUrl}`).catch(
-              () => undefined,
+            void ignoreRejection(
+              Linking.openURL(`https://www.facebook.com/sharer/sharer.php?u=${encodedPostUrl}`),
             );
           }}
         />
@@ -72,8 +78,8 @@ export const ShareButton = ({ post }: Props) => {
           label="Share on X"
           onPress={() => {
             setIsOpen(false);
-            Linking.openURL(`https://x.com/intent/post?url=${encodedPostUrl}`).catch(
-              () => undefined,
+            void ignoreRejection(
+              Linking.openURL(`https://x.com/intent/post?url=${encodedPostUrl}`),
             );
           }}
         />

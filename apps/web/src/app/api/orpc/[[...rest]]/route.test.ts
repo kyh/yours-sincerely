@@ -15,17 +15,22 @@ import * as route from "./route";
  * `packages/api/src/security-contracts.test.ts`.
  */
 
-type PostOptions = { url?: string; origin?: string };
+interface PostOptions {
+  url?: string;
+  origin?: string;
+}
 
 const post = ({
   url = "http://localhost:3000/api/orpc/block/listBlocks",
   origin,
 }: PostOptions = {}) => {
   const headers = new Headers({ "content-type": "application/json" });
-  if (origin !== undefined) headers.set("origin", origin);
+  if (origin !== undefined) {
+    headers.set("origin", origin);
+  }
 
   return route.POST(
-    new NextRequest(url, { method: "POST", headers, body: JSON.stringify({ json: {} }) }),
+    new NextRequest(url, { body: JSON.stringify({ json: {} }), headers, method: "POST" }),
   );
 };
 
@@ -33,7 +38,7 @@ describe("rpc endpoint", () => {
   test("runs a POST against the procedure, which answers without a session", async () => {
     const response = await post();
     assert.strictEqual(response.status, 401);
-    assert.match(await response.text(), /UNAUTHORIZED/);
+    assert.match(await response.text(), /UNAUTHORIZED/u);
   });
 
   test("refuses GET, the one method a cross-site navigation can reach", async () => {
@@ -47,19 +52,19 @@ describe("rpc endpoint", () => {
   // SITE, so SameSite=lax attaches the session cookie to a form POST from it.
   test("refuses a POST whose Origin is another origin, even a same-site one", async () => {
     const response = await post({
-      url: "https://yourssincerely.org/api/orpc/block/listBlocks",
       origin: "https://evil.yourssincerely.org",
+      url: "https://yourssincerely.org/api/orpc/block/listBlocks",
     });
     assert.strictEqual(response.status, 403);
   });
 
   test("allows a POST whose Origin is the app itself", async () => {
     const response = await post({
-      url: "https://yourssincerely.org/api/orpc/block/listBlocks",
       origin: "https://yourssincerely.org",
+      url: "https://yourssincerely.org/api/orpc/block/listBlocks",
     });
     assert.strictEqual(response.status, 401);
-    assert.match(await response.text(), /UNAUTHORIZED/);
+    assert.match(await response.text(), /UNAUTHORIZED/u);
   });
 
   // React Native sends no Origin and carries the session from its own store, so
@@ -67,7 +72,7 @@ describe("rpc endpoint", () => {
   test("allows a POST with no Origin at all, so the Expo app still reaches it", async () => {
     const response = await post();
     assert.strictEqual(response.status, 401);
-    assert.match(await response.text(), /UNAUTHORIZED/);
+    assert.match(await response.text(), /UNAUTHORIZED/u);
   });
 
   test("serves no CORS headers, so a cross-origin fetch cannot read a response", async () => {

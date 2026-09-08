@@ -8,6 +8,7 @@ const feedLayoutKey = "postView";
 
 export type { FeedLayout } from "@repo/contracts/preferences";
 
+// oxlint-disable-next-line require-await -- "use server" modules may only export async functions
 export const getFeedLayout = async (cookieStore: ReadonlyRequestCookies) => {
   const feedLayout = cookieStore.get(feedLayoutKey);
   return parseFeedLayout(feedLayout?.value);

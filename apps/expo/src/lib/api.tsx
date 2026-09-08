@@ -29,22 +29,25 @@ if (Platform.OS !== "web") {
 // TanStack aborts an in-flight fetch whenever it invalidates the same query,
 // so a cancelled request is routine, not a failure worth a red box.
 const isCancelledFetch = (error: Error) =>
-  error.name === "AbortError" || /cancel/i.test(error.message);
+  error.name === "AbortError" || /cancel/iu.test(error.message);
 
 // RPCLink buffers each response, so the session `Set-Cookie` header stays
 // visible to `fetchWithSession`'s cookie jar — a streaming transport would
 // deliver the body before the wrapper could read it.
 const link = new RPCLink({
-  // No SSR on React Native, so the origin is stable for the process.
-  origin: getBaseUrl(),
-  url: "/api/orpc",
   fetch: fetchWithSession,
   headers: () => ({ "x-orpc-source": "expo" }),
   interceptors: [
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
-      if (__DEV__ && !(error instanceof Error && isCancelledFetch(error))) console.error(error);
+      if (__DEV__ && !(error instanceof Error && isCancelledFetch(error))) {
+        console.error(error);
+      }
     }),
   ],
+  // No SSR on React Native, so the origin is stable for the process.
+  origin: getBaseUrl(),
+  url: "/api/orpc",
 });
 
 const client: RouterClient<AppRouter> = createORPCClient(link);

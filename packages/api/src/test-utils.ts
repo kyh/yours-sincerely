@@ -14,7 +14,7 @@ import { appRouter } from "./root-router";
  * `createORPCContext` is added here, not in every integration suite.
  */
 export const createCaller = (user: ORPCContext["user"]) =>
-  createRouterClient(appRouter, { context: { user, db } });
+  createRouterClient(appRouter, { context: { db, user } });
 
 /**
  * Loads a user and calls as them. Excludes `passwordHash` exactly as the
@@ -23,8 +23,8 @@ export const createCaller = (user: ORPCContext["user"]) =>
  */
 export const callerFor = async (userId: string) => {
   const actor = await db.query.user.findFirst({
-    where: (user, { eq }) => eq(user.id, userId),
     columns: { passwordHash: false },
+    where: (user, { eq }) => eq(user.id, userId),
   });
   assert.ok(actor);
 

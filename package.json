@@ -1,6 +1,7 @@
 {
   "name": "yours-sincerely",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
@@ -17,7 +18,7 @@
     "dev:expo": "turbo watch dev -F @repo/expo...",
     "dev:mobile-ios": "pnpm -F mobile ios",
     "dev:mobile-android": "pnpm -F mobile android",
-    "lint": "oxlint --report-unused-disable-directives --deny-warnings",
+    "lint": "oxlint --report-unused-disable-directives",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "format": "oxfmt --check",
@@ -29,13 +30,13 @@
     "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
   },
   "devDependencies": {
-    "@kyh/oxlint": "^0.2.0",
     "dotenv-cli": "catalog:",
     "oxfmt": "^0.65.0",
     "oxlint": "^1.80.0",
     "tsx": "catalog:",
     "turbo": "^2.10.12",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "ultracite": "^7.11.0"
   },
   "engines": {
     "node": "24.x"

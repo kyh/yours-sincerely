@@ -1,12 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
 import { cn } from "cn";
 
-type ProfileAvatarProps = {
+interface ProfileAvatarProps {
   className?: string;
   displayName?: string | null;
   src?: string | null;
   alt?: string;
-};
+}
 
 export const ProfileAvatar = ({ className, displayName, src, alt = "" }: ProfileAvatarProps) => {
   const initials = displayName?.slice(0, 1) || "?";

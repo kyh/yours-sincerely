@@ -7,31 +7,42 @@ import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { RouterClient } from "@orpc/server";
 import type { AppRouter } from "@repo/api";
-import type { QueryClient } from "@tanstack/react-query";
 import { createQueryClient } from "./query-client";
 
-let clientQueryClientSingleton: QueryClient | undefined = undefined;
+let clientQueryClientSingleton;
 const getQueryClient = () => {
   if (typeof window === "undefined") {
     // Server: always make a new query client
     return createQueryClient();
-  } else {
-    // Browser: use singleton pattern to keep the same query client
-    return (clientQueryClientSingleton ??= createQueryClient());
   }
+  // Browser: use singleton pattern to keep the same query client
+  return (clientQueryClientSingleton ??= createQueryClient());
+};
+
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return `http://localhost:${process.env.PORT ?? 3000}`;
 };
 
 const link = new RPCLink({
+  headers: () => ({ "x-orpc-source": "nextjs-react" }),
+  interceptors: [
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
+    onError((error) => {
+      if (process.env.NODE_ENV === "development") {
+        console.error(error);
+      }
+    }),
+  ],
   // Resolved per call, not at module load: this module is evaluated during SSR
   // too, where `window` is absent and the deploy URL comes from the environment.
   origin: () => getBaseUrl(),
   url: "/api/orpc",
-  headers: () => ({ "x-orpc-source": "nextjs-react" }),
-  interceptors: [
-    onError((error) => {
-      if (process.env.NODE_ENV === "development") console.error(error);
-    }),
-  ],
 });
 
 const client: RouterClient<AppRouter> = createORPCClient(link);
@@ -49,10 +60,4 @@ export const ORPCReactProvider = (props: { children: React.ReactNode }) => {
   const queryClient = getQueryClient();
 
   return <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>;
-};
-
-const getBaseUrl = () => {
-  if (typeof window !== "undefined") return window.location.origin;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return `http://localhost:${process.env.PORT ?? 3000}`;
 };

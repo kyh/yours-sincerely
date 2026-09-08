@@ -26,26 +26,26 @@ const createFixture = async () => {
   const now = Date.now();
 
   await db.insert(user).values([
-    { id: authorId, displayName: "Feed author" },
-    { id: readerId, displayName: "Feed reader" },
+    { displayName: "Feed author", id: authorId },
+    { displayName: "Feed reader", id: readerId },
   ]);
 
   // Newest first: index 0 is the most recent.
   const posts = Array.from({ length: SEEDED_POST_COUNT }, (_, index) => ({
-    id: randomUUID(),
     content: `Feed letter number ${index}`,
-    createdBy: "Feed author",
-    userId: authorId,
     createdAt: new Date(now - index * 60 * 60 * 1000).toISOString(),
+    createdBy: "Feed author",
+    id: randomUUID(),
     updatedAt,
+    userId: authorId,
   }));
   await db.insert(post).values(posts);
 
   const postIds = posts.map((row) => row.id);
 
   const reader = await db.query.user.findFirst({
-    where: (row, { eq }) => eq(row.id, readerId),
     columns: { passwordHash: false },
+    where: (row, { eq }) => eq(row.id, readerId),
   });
   assert.ok(reader);
 
@@ -58,13 +58,13 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, [authorId, readerId]));
   };
 
-  return { authorId, readerId, posts, postIds, caller, cleanup, updatedAt, now };
+  return { authorId, caller, cleanup, now, postIds, posts, readerId, updatedAt };
 };
 
 integrationTest("getFeed returns exactly the requested page size", async () => {
   const fixture = await createFixture();
   try {
-    const page = await fixture.caller.post.getFeed({ userId: fixture.authorId, limit: 5 });
+    const page = await fixture.caller.post.getFeed({ limit: 5, userId: fixture.authorId });
 
     // The sentinel row used to detect a next page must not be served.
     assert.equal(page.posts.length, 5);
@@ -77,7 +77,7 @@ integrationTest("getFeed returns exactly the requested page size", async () => {
 integrationTest("getFeed pages through the cursor without duplicates or gaps", async () => {
   const fixture = await createFixture();
   try {
-    const first = await fixture.caller.post.getFeed({ userId: fixture.authorId, limit: 5 });
+    const first = await fixture.caller.post.getFeed({ limit: 5, userId: fixture.authorId });
     assert.ok(first.nextCursor);
 
     const lastOfFirst = first.posts.at(-1);
@@ -86,9 +86,9 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
     assert.equal(first.nextCursor.postId, lastOfFirst.id);
 
     const second = await fixture.caller.post.getFeed({
-      userId: fixture.authorId,
-      limit: 5,
       cursor: first.nextCursor,
+      limit: 5,
+      userId: fixture.authorId,
     });
 
     assert.equal(second.posts.length, SEEDED_POST_COUNT - 5);
@@ -105,21 +105,21 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
 
 integrationTest("getFeed only serves root posts, never comments", async () => {
   const fixture = await createFixture();
-  const parent = fixture.posts[0];
+  const [parent] = fixture.posts;
   assert.ok(parent);
   const commentId = randomUUID();
   try {
     await db.insert(post).values({
-      id: commentId,
       content: "A comment that must never reach the feed",
-      createdBy: "Feed author",
-      parentId: parent.id,
-      userId: fixture.authorId,
       createdAt: new Date(fixture.now).toISOString(),
+      createdBy: "Feed author",
+      id: commentId,
+      parentId: parent.id,
       updatedAt: fixture.updatedAt,
+      userId: fixture.authorId,
     });
 
-    const page = await fixture.caller.post.getFeed({ userId: fixture.authorId, limit: 50 });
+    const page = await fixture.caller.post.getFeed({ limit: 50, userId: fixture.authorId });
     assert.equal(page.posts.length, SEEDED_POST_COUNT);
     assert.equal(
       page.posts.some((row) => row.id === commentId),
@@ -135,29 +135,28 @@ integrationTest("getFeed only serves root posts, never comments", async () => {
     the denormalization of `likeCount`/`commentCount` onto `Post`. */
 integrationTest("getFeed reports like, comment and isLiked exactly", async () => {
   const fixture = await createFixture();
-  const liked = fixture.posts[0];
-  const commented = fixture.posts[1];
+  const [liked, commented] = fixture.posts;
   assert.ok(liked);
   assert.ok(commented);
   const commentIds = [randomUUID(), randomUUID()];
   try {
     await db.insert(post).values(
       commentIds.map((id, index) => ({
-        id,
         content: `Reply number ${index}`,
-        createdBy: "Feed reader",
-        parentId: commented.id,
-        userId: fixture.readerId,
         createdAt: new Date(fixture.now - DAY_MS).toISOString(),
+        createdBy: "Feed reader",
+        id,
+        parentId: commented.id,
         updatedAt: fixture.updatedAt,
+        userId: fixture.readerId,
       })),
     );
     await db.insert(like).values([
-      { postId: liked.id, userId: fixture.readerId, updatedAt: fixture.updatedAt },
-      { postId: liked.id, userId: fixture.authorId, updatedAt: fixture.updatedAt },
+      { postId: liked.id, updatedAt: fixture.updatedAt, userId: fixture.readerId },
+      { postId: liked.id, updatedAt: fixture.updatedAt, userId: fixture.authorId },
     ]);
 
-    const page = await fixture.caller.post.getFeed({ userId: fixture.authorId, limit: 50 });
+    const page = await fixture.caller.post.getFeed({ limit: 50, userId: fixture.authorId });
     const byId = new Map(page.posts.map((row) => [row.id, row]));
 
     const likedRow = byId.get(liked.id);

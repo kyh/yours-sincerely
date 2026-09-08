@@ -76,7 +76,7 @@ pnpm verify      # typecheck + lint + format + test — exactly what CI runs
 
 # …or individually
 pnpm typecheck
-pnpm lint        # oxlint
+pnpm lint        # oxlint (ultracite presets)
 pnpm format      # oxfmt --check
 pnpm test        # node:test
 ```

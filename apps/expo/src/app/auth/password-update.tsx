@@ -17,8 +17,8 @@ import { queryClient, orpc } from "@/lib/api";
     setPasswordInput. */
 const setPasswordFormInput = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -28,7 +28,7 @@ const setPasswordFormInput = z
 type FieldErrors = Partial<Record<"password" | "confirmPassword", string>>;
 
 /** Deep-link target: yourssincerely://auth/password-update?token=... */
-export default function PasswordUpdateScreen() {
+const PasswordUpdateScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const tokenParam = params.token;
@@ -38,37 +38,43 @@ export default function PasswordUpdateScreen() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
-    if (token === undefined) router.replace("/auth/password-reset");
+    if (token === undefined) {
+      router.replace("/auth/password-reset");
+    }
   }, [token, router]);
 
   const setPasswordMutation = useMutation(
     orpc.auth.setPassword.mutationOptions({
+      onError: (mutationError) => toast.error(mutationError.message),
       onSuccess: () => {
         toast.success("Password updated");
         queryClient.clear();
         router.replace("/");
       },
-      onError: (mutationError) => toast.error(mutationError.message),
     }),
   );
 
   const handleSubmit = () => {
-    if (token === undefined) return;
+    if (token === undefined) {
+      return;
+    }
 
-    const parsed = setPasswordFormInput.safeParse({ password, confirmPassword });
+    const parsed = setPasswordFormInput.safeParse({ confirmPassword, password });
     if (!parsed.success) {
       const errors: FieldErrors = {};
       for (const issue of parsed.error.issues) {
-        const field = issue.path[0];
-        if (field === "password" && errors.password === undefined) errors.password = issue.message;
-        else if (field === "confirmPassword" && errors.confirmPassword === undefined)
+        const [field] = issue.path;
+        if (field === "password" && errors.password === undefined) {
+          errors.password = issue.message;
+        } else if (field === "confirmPassword" && errors.confirmPassword === undefined) {
           errors.confirmPassword = issue.message;
+        }
       }
       setFieldErrors(errors);
       return;
     }
 
-    const payload = setPasswordInput.safeParse({ token, password: parsed.data.password });
+    const payload = setPasswordInput.safeParse({ password: parsed.data.password, token });
     if (!payload.success) {
       setFieldErrors({ password: payload.error.issues[0]?.message ?? "Invalid password" });
       return;
@@ -78,7 +84,9 @@ export default function PasswordUpdateScreen() {
     setPasswordMutation.mutate(payload.data);
   };
 
-  if (token === undefined) return null;
+  if (token === undefined) {
+    return null;
+  }
 
   return (
     <SafeAreaView className="bg-background flex-1">
@@ -120,4 +128,6 @@ export default function PasswordUpdateScreen() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default PasswordUpdateScreen;

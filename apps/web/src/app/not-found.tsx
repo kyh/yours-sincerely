@@ -26,7 +26,7 @@ const Page = () => {
           <h1>Could not find the page you were looking for</h1>
           <Link
             href="/"
-            className={buttonVariants({ variant: "outline", className: "self-start" })}
+            className={buttonVariants({ className: "self-start", variant: "outline" })}
           >
             Return Home
           </Link>

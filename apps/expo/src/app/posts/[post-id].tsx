@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ORPCError } from "@orpc/client";
@@ -14,10 +15,11 @@ import { PostForm } from "@/components/post/post-form";
 import { queryClient, orpc } from "@/lib/api";
 import { getReadingTime } from "@repo/contracts/content";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
-export default function PostScreen() {
+const PostScreen = () => {
   const params = useLocalSearchParams();
   const postIdParam = params["post-id"];
   const postId = Array.isArray(postIdParam) ? "" : (postIdParam ?? "");
@@ -31,9 +33,80 @@ export default function PostScreen() {
   const post = data?.post;
 
   const goBack = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/");
+    }
   };
+
+  const isGone =
+    postId.length === 0 || (isError && error instanceof ORPCError && error.code === "NOT_FOUND");
+  let content: ReactNode;
+  if (isGone) {
+    content = (
+      <View className="flex-1 items-center justify-center px-5">
+        <Text className="text-sm">This letter is gone</Text>
+      </View>
+    );
+  } else if (isError) {
+    content = (
+      <QueryErrorState
+        message="Couldn't load this letter. Check your connection and try again."
+        onRetry={() => {
+          void ignoreRejection(refetch());
+        }}
+      />
+    );
+  } else if (isPending || post === undefined) {
+    content = (
+      <View className="flex-1 items-center justify-center">
+        <Spinner />
+      </View>
+    );
+  } else {
+    content = (
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="gap-5 px-5 pb-10"
+        contentContainerStyle={CONTENT_COLUMN_STYLE}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Card>
+          <PostContent post={post} asLink={false} showComment={false} onDeleted={goBack} />
+        </Card>
+
+        {user !== null && (
+          <PostForm
+            parentId={post.id}
+            placeholder="Comment on this love letter..."
+            onSuccess={() => {
+              void ignoreRejection(
+                queryClient.invalidateQueries({
+                  queryKey: orpc.post.getPost.key({ input: { postId } }),
+                }),
+              );
+            }}
+          />
+        )}
+
+        <View>
+          <View className="flex-row items-center gap-2 py-3">
+            <Text className="text-muted-foreground text-sm">Comments ({post.commentCount})</Text>
+            <View className="bg-border h-px flex-1" />
+          </View>
+          {(post.comments === undefined || post.comments.length === 0) && (
+            <Text className="py-5 text-center text-sm">No comments</Text>
+          )}
+          {post.comments?.map((comment) => (
+            <View key={comment.id} className="border-border border-b pt-5 pb-3">
+              <PostContent post={comment} showTimer={false} showComment={false} asLink={false} />
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    );
+  }
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
@@ -42,61 +115,9 @@ export default function PostScreen() {
         {post !== undefined && <Text className="text-xs">{getReadingTime(post.content).text}</Text>}
       </View>
 
-      {postId.length === 0 ||
-      (isError && error instanceof ORPCError && error.code === "NOT_FOUND") ? (
-        <View className="flex-1 items-center justify-center px-5">
-          <Text className="text-sm">This letter is gone</Text>
-        </View>
-      ) : isError ? (
-        <QueryErrorState
-          message="Couldn't load this letter. Check your connection and try again."
-          onRetry={() => {
-            refetch().catch(() => undefined);
-          }}
-        />
-      ) : isPending || post === undefined ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="gap-5 px-5 pb-10"
-          contentContainerStyle={CONTENT_COLUMN_STYLE}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Card>
-            <PostContent post={post} asLink={false} showComment={false} onDeleted={goBack} />
-          </Card>
-
-          {user !== null && (
-            <PostForm
-              parentId={post.id}
-              placeholder="Comment on this love letter..."
-              onSuccess={() => {
-                queryClient
-                  .invalidateQueries({ queryKey: orpc.post.getPost.key({ input: { postId } }) })
-                  .catch(() => undefined);
-              }}
-            />
-          )}
-
-          <View>
-            <View className="flex-row items-center gap-2 py-3">
-              <Text className="text-muted-foreground text-sm">Comments ({post.commentCount})</Text>
-              <View className="bg-border h-px flex-1" />
-            </View>
-            {(post.comments === undefined || post.comments.length === 0) && (
-              <Text className="py-5 text-center text-sm">No comments</Text>
-            )}
-            {post.comments?.map((comment) => (
-              <View key={comment.id} className="border-border border-b pt-5 pb-3">
-                <PostContent post={comment} showTimer={false} showComment={false} asLink={false} />
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-      )}
+      {content}
     </SafeAreaView>
   );
-}
+};
+
+export default PostScreen;

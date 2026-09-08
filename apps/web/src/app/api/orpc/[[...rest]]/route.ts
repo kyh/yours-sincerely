@@ -17,13 +17,16 @@ import { RPCHandler } from "@orpc/server/fetch";
 // refused by the handler's default `allowMethods`.
 const handler = new RPCHandler(appRouter, {
   clientInterceptors: [
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
       // An ORPCError is a router answering deliberately: an anonymous hit on a
       // `protectedProcedure`, a failed sign-in, a duplicate signup email.
       // Everything else is a fault, and this log is the only place its cause —
       // in practice a raw Postgres exception — survives, because oRPC hands the
       // client a generic INTERNAL_SERVER_ERROR in its place.
-      if (error instanceof ORPCError) return;
+      if (error instanceof ORPCError) {
+        return;
+      }
       console.error(">>> oRPC Error", error);
     }),
   ],
@@ -60,7 +63,7 @@ const handleRequest = async (req: NextRequest) => {
 
   try {
     const context = await createORPCContext({ headers: req.headers });
-    const { response } = await handler.handle(req, { prefix: "/api/orpc", context });
+    const { response } = await handler.handle(req, { context, prefix: "/api/orpc" });
 
     return response ?? new Response("Not found", { status: 404 });
   } catch (error) {

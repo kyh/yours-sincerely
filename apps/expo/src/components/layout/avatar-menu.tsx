@@ -20,6 +20,7 @@ import { useThemeColors } from "@/components/theme-colors";
 import { useFeedLayout } from "@/lib/feed-layout";
 import { siteConfig, supportMailto } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Mirrors the web menu's grouping separators. */
 const MenuSeparator = () => <View className="bg-border my-1 h-px" />;
@@ -36,14 +37,16 @@ export const AvatarMenu = () => {
   const cycleTheme = () => {
     const index = themes.findIndex((option) => option.id === theme);
     const next = themes[(index + 1) % themes.length];
-    if (next !== undefined) setTheme(next.id);
+    if (next !== undefined) {
+      setTheme(next.id);
+    }
   };
 
   const iconSize = 16;
 
   const openUrl = (url: string) => {
     setIsOpen(false);
-    Linking.openURL(url).catch(() => undefined);
+    void ignoreRejection(Linking.openURL(url));
   };
 
   return (
@@ -56,22 +59,22 @@ export const AvatarMenu = () => {
         <ProfileAvatar name={user?.displayName ?? user?.id} size={32} />
       </Pressable>
       <BottomDrawer open={isOpen} onClose={() => setIsOpen(false)}>
-        {user !== null ? (
-          <DrawerItem
-            icon={<User size={iconSize} color={colors.foreground} />}
-            label="Profile"
-            onPress={() => {
-              setIsOpen(false);
-              router.push({ pathname: "/profile/[user-id]", params: { "user-id": user.id } });
-            }}
-          />
-        ) : (
+        {user === null ? (
           <DrawerItem
             icon={<LogIn size={iconSize} color={colors.foreground} />}
             label="Login"
             onPress={() => {
               setIsOpen(false);
               router.push("/auth/sign-in");
+            }}
+          />
+        ) : (
+          <DrawerItem
+            icon={<User size={iconSize} color={colors.foreground} />}
+            label="Profile"
+            onPress={() => {
+              setIsOpen(false);
+              router.push({ params: { "user-id": user.id }, pathname: "/profile/[user-id]" });
             }}
           />
         )}

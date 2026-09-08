@@ -31,7 +31,9 @@ const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
   try {
     await operation();
   } catch (error) {
-    if (!(error instanceof Error && error.message.includes("outside a request scope"))) throw error;
+    if (!(error instanceof Error && error.message.includes("outside a request scope"))) {
+      throw error;
+    }
   }
 };
 
@@ -45,15 +47,15 @@ const createFixture = async () => {
   const updatedAt = new Date().toISOString();
 
   await db.insert(user).values([
-    { id: authorId, displayName: "Author" },
-    { id: commenterId, displayName: "Commenter" },
+    { displayName: "Author", id: authorId },
+    { displayName: "Commenter", id: commenterId },
   ]);
   await db.insert(post).values({
-    id: letterId,
     content: "A letter that will be replied to",
     createdBy: "Author",
-    userId: authorId,
+    id: letterId,
     updatedAt,
+    userId: authorId,
   });
 
   const cleanup = async () => {
@@ -67,13 +69,13 @@ const createFixture = async () => {
   };
 
   return {
+    author: await callerFor(authorId),
     authorId,
+    cleanup,
+    commenter: await callerFor(commenterId),
     commenterId,
     letterId,
     updatedAt,
-    author: await callerFor(authorId),
-    commenter: await callerFor(commenterId),
-    cleanup,
   };
 };
 
@@ -85,24 +87,24 @@ const seedNotifications = async (
 ) => {
   const now = Date.now();
   const comments = Array.from({ length: count }, (_, index) => ({
-    id: randomUUID(),
     content: `Reply number ${index}`,
     createdBy: "Commenter",
+    id: randomUUID(),
     parentId: fixture.letterId,
-    userId: fixture.commenterId,
     updatedAt: fixture.updatedAt,
+    userId: fixture.commenterId,
   }));
   await db.insert(post).values(comments);
 
   // Newest first: index 0 is the most recent.
   const rows = comments.map((comment, index) => ({
+    actorName: "Commenter",
+    commentId: comment.id,
+    createdAt: new Date(now - index * MINUTE_MS).toISOString(),
     id: randomUUID(),
-    userId: fixture.authorId,
     kind: "COMMENT" as const,
     postId: fixture.letterId,
-    commentId: comment.id,
-    actorName: "Commenter",
-    createdAt: new Date(now - index * MINUTE_MS).toISOString(),
+    userId: fixture.authorId,
   }));
   await db.insert(notification).values(rows);
 
@@ -115,8 +117,8 @@ integrationTest("a reply notifies the letter's author with a preview", async () 
     const content = `${"x".repeat(NOTIFICATION_PREVIEW_MAX_CHARS)} and the rest of the reply`;
     const { post: reply } = await fixture.commenter.post.createPost({
       content,
-      parentId: fixture.letterId,
       createdBy: "Commenter",
+      parentId: fixture.letterId,
     });
     assert.ok(reply);
 
@@ -167,17 +169,14 @@ integrationTest("a reply from someone the author blocked is never stored", async
     assert.ok(reply);
 
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 0 });
-    assert.equal((await fixture.author.notification.list({})).notifications.length, 0);
+    const listed = await fixture.author.notification.list({});
+    assert.equal(listed.notifications.length, 0);
     // No row at all, not merely a hidden one: nothing to push from either.
-    assert.equal(
-      (
-        await db
-          .select({ id: notification.id })
-          .from(notification)
-          .where(eq(notification.commentId, reply.id))
-      ).length,
-      0,
-    );
+    const stored = await db
+      .select({ id: notification.id })
+      .from(notification)
+      .where(eq(notification.commentId, reply.id));
+    assert.equal(stored.length, 0);
   } finally {
     await fixture.cleanup();
   }
@@ -196,11 +195,13 @@ integrationTest(
 
       await fixture.author.block.createBlock({ blockingId: fixture.commenterId });
       assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 0 });
-      assert.equal((await fixture.author.notification.list({})).notifications.length, 0);
+      const whileBlocked = await fixture.author.notification.list({});
+      assert.equal(whileBlocked.notifications.length, 0);
 
       await fixture.author.block.deleteBlock({ blockingId: fixture.commenterId });
       assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 1 });
-      assert.equal((await fixture.author.notification.list({})).notifications.length, 1);
+      const afterUnblock = await fixture.author.notification.list({});
+      assert.equal(afterUnblock.notifications.length, 1);
     } finally {
       await fixture.cleanup();
     }
@@ -223,7 +224,8 @@ integrationTest("a reply flagged into hiding leaves list and badge", async () =>
       .where(eq(post.id, reply.id));
 
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 0 });
-    assert.equal((await fixture.author.notification.list({})).notifications.length, 0);
+    const listed = await fixture.author.notification.list({});
+    assert.equal(listed.notifications.length, 0);
   } finally {
     await fixture.cleanup();
   }
@@ -243,14 +245,14 @@ integrationTest("list is newest first and the cursor pages without gaps", async 
     assert.ok(first.nextCursor);
     assert.equal(first.nextCursor.notificationId, expectedIds[1]);
 
-    const second = await fixture.author.notification.list({ limit: 2, cursor: first.nextCursor });
+    const second = await fixture.author.notification.list({ cursor: first.nextCursor, limit: 2 });
     assert.deepEqual(
       second.notifications.map((row) => row.id),
       expectedIds.slice(2, 4),
     );
     assert.ok(second.nextCursor);
 
-    const third = await fixture.author.notification.list({ limit: 2, cursor: second.nextCursor });
+    const third = await fixture.author.notification.list({ cursor: second.nextCursor, limit: 2 });
     assert.deepEqual(
       third.notifications.map((row) => row.id),
       expectedIds.slice(4),
@@ -276,12 +278,12 @@ integrationTest("markRead by ids touches only those rows, and only mine", async 
 
     // Someone else naming my notification ids marks nothing.
     assert.deepEqual(
-      await fixture.commenter.notification.markRead({ scope: "ids", ids: [target.id] }),
+      await fixture.commenter.notification.markRead({ ids: [target.id], scope: "ids" }),
       { updated: 0 },
     );
 
     assert.deepEqual(
-      await fixture.author.notification.markRead({ scope: "ids", ids: [target.id] }),
+      await fixture.author.notification.markRead({ ids: [target.id], scope: "ids" }),
       { updated: 1 },
     );
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 2 });
@@ -294,7 +296,7 @@ integrationTest("markRead by ids touches only those rows, and only mine", async 
 
     // Already read: a repeat is a no-op, not a second timestamp.
     assert.deepEqual(
-      await fixture.author.notification.markRead({ scope: "ids", ids: [target.id] }),
+      await fixture.author.notification.markRead({ ids: [target.id], scope: "ids" }),
       { updated: 0 },
     );
   } finally {
@@ -348,25 +350,26 @@ integrationTest("push.register upserts, and a token follows its latest user", as
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
   try {
-    await fixture.author.push.register({ token, platform: "ios" });
+    await fixture.author.push.register({ platform: "ios", token });
     const [first] = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.ok(first);
     assert.equal(first.userId, fixture.authorId);
     assert.equal(first.platform, "ios");
 
-    await fixture.author.push.register({ token, platform: "android" });
+    await fixture.author.push.register({ platform: "android", token });
     const rows = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.equal(rows.length, 1);
     assert.equal(rows[0]?.platform, "android");
     assert.ok((rows[0]?.lastSeenAt ?? "") >= first.lastSeenAt);
 
-    await fixture.commenter.push.register({ token, platform: "android" });
+    await fixture.commenter.push.register({ platform: "android", token });
     const [moved] = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.equal(moved?.userId, fixture.commenterId);
-    assert.equal(
-      (await db.select().from(pushToken).where(eq(pushToken.userId, fixture.authorId))).length,
-      0,
-    );
+    const authorTokens = await db
+      .select()
+      .from(pushToken)
+      .where(eq(pushToken.userId, fixture.authorId));
+    assert.equal(authorTokens.length, 0);
   } finally {
     await db.delete(pushToken).where(eq(pushToken.token, token));
     await fixture.cleanup();
@@ -379,7 +382,7 @@ integrationTest(
     const fixture = await createFixture();
     const token = `ExponentPushToken[${randomUUID()}]`;
     try {
-      await fixture.author.push.register({ token, platform: "ios" });
+      await fixture.author.push.register({ platform: "ios", token });
       assert.deepEqual(await findLivePushTokens(fixture.authorId), [token]);
 
       const idleSince = new Date(
@@ -387,9 +390,10 @@ integrationTest(
       ).toISOString();
       await db.update(pushToken).set({ lastSeenAt: idleSince }).where(eq(pushToken.token, token));
       assert.deepEqual(await findLivePushTokens(fixture.authorId), []);
-      assert.equal((await db.select().from(pushToken).where(eq(pushToken.token, token))).length, 0);
+      const dropped = await db.select().from(pushToken).where(eq(pushToken.token, token));
+      assert.equal(dropped.length, 0);
 
-      await fixture.author.push.register({ token, platform: "ios" });
+      await fixture.author.push.register({ platform: "ios", token });
       assert.deepEqual(await findLivePushTokens(fixture.authorId), [token]);
     } finally {
       await db.delete(pushToken).where(eq(pushToken.token, token));
@@ -402,7 +406,7 @@ integrationTest("push.unregister honours only a genuine capability for my own to
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
   try {
-    await fixture.author.push.register({ token, platform: "ios" });
+    await fixture.author.push.register({ platform: "ios", token });
     const { pushCleanupCapability } = await fixture.author.auth.workspace();
     assert.ok(pushCleanupCapability);
 
@@ -416,10 +420,12 @@ integrationTest("push.unregister honours only a genuine capability for my own to
     const { pushCleanupCapability: otherCapability } = await fixture.commenter.auth.workspace();
     assert.ok(otherCapability);
     await fixture.commenter.push.unregister({ capability: otherCapability, token });
-    assert.equal((await db.select().from(pushToken).where(eq(pushToken.token, token))).length, 1);
+    const afterForeign = await db.select().from(pushToken).where(eq(pushToken.token, token));
+    assert.equal(afterForeign.length, 1);
 
     await fixture.commenter.push.unregister({ capability: pushCleanupCapability, token });
-    assert.equal((await db.select().from(pushToken).where(eq(pushToken.token, token))).length, 0);
+    const afterOwn = await db.select().from(pushToken).where(eq(pushToken.token, token));
+    assert.equal(afterOwn.length, 0);
   } finally {
     await db.delete(pushToken).where(eq(pushToken.token, token));
     await fixture.cleanup();
@@ -431,20 +437,17 @@ integrationTest("deleting the account cascades its notifications and tokens", as
   const token = `ExponentPushToken[${randomUUID()}]`;
   try {
     await seedNotifications(fixture, 2);
-    await fixture.author.push.register({ token, platform: "ios" });
+    await fixture.author.push.register({ platform: "ios", token });
 
     await runWithoutCookieScope(() => fixture.author.user.deleteUser());
 
-    assert.equal(
-      (
-        await db
-          .select({ id: notification.id })
-          .from(notification)
-          .where(eq(notification.userId, fixture.authorId))
-      ).length,
-      0,
-    );
-    assert.equal((await db.select().from(pushToken).where(eq(pushToken.token, token))).length, 0);
+    const remainingNotifications = await db
+      .select({ id: notification.id })
+      .from(notification)
+      .where(eq(notification.userId, fixture.authorId));
+    assert.equal(remainingNotifications.length, 0);
+    const remainingTokens = await db.select().from(pushToken).where(eq(pushToken.token, token));
+    assert.equal(remainingTokens.length, 0);
   } finally {
     await db.delete(pushToken).where(eq(pushToken.token, token));
     await fixture.cleanup();

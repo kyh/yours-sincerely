@@ -17,6 +17,7 @@ import { retireLegacySessionMigration } from "@/lib/legacy-session-migration";
 import { deleteSessionCookie } from "@/lib/session-store";
 import { queryClient, orpc } from "@/lib/api";
 import { refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { siteConfig, supportMailto } from "@/lib/site-config";
 import { useSeededState } from "@/lib/use-seeded-state";
@@ -24,7 +25,7 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 /** Port of the web settings page: email (saved on blur), password reset,
     theme picker, sign out, account deletion, legal links. */
-export default function SettingsScreen() {
+const SettingsScreen = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { user } = useWorkspaceUser();
@@ -37,17 +38,17 @@ export default function SettingsScreen() {
 
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
+      onError: () => toast.error("Could not update Settings. Please try again."),
       onSuccess: () => {
         toast.success("Settings successfully updated");
-        refreshWorkspaceIdentity().catch(() => undefined);
+        void ignoreRejection(refreshWorkspaceIdentity());
       },
-      onError: () => toast.error("Could not update Settings. Please try again."),
     }),
   );
   const requestPasswordReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({
-      onSuccess: () => toast.success("Password reset email sent"),
       onError: () => toast.error("Could not send password reset email. Please try again."),
+      onSuccess: () => toast.success("Password reset email sent"),
     }),
   );
   const endLocalSession = async () => {
@@ -60,8 +61,8 @@ export default function SettingsScreen() {
   const signOutOnServer = useMutation(orpc.auth.signOut.mutationOptions());
   const deleteAccount = useMutation(
     orpc.user.deleteUser.mutationOptions({
-      onSuccess: endLocalSession,
       onError: () => toast.error("Could not delete account. Please try again."),
+      onSuccess: endLocalSession,
     }),
   );
 
@@ -70,24 +71,29 @@ export default function SettingsScreen() {
       "Delete account?",
       "This permanently deletes your account, letters, and likes. This cannot be undone.",
       [
-        { text: "Cancel", style: "cancel" },
+        { style: "cancel", text: "Cancel" },
         {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
+          onPress: async () => {
             setIsPreparingDelete(true);
-            releasePushIdentity()
-              .then(() => deleteAccount.mutate(undefined))
-              .catch(() => toast.error("Could not disconnect notifications. Please try again."))
-              .finally(() => setIsPreparingDelete(false));
+            try {
+              await releasePushIdentity();
+              deleteAccount.mutate();
+            } catch {
+              toast.error("Could not disconnect notifications. Please try again.");
+            }
+            setIsPreparingDelete(false);
           },
+          style: "destructive",
+          text: "Delete",
         },
       ],
     );
   };
 
   const handleEmailBlur = () => {
-    if (user === null || email === (user.email ?? "")) return;
+    if (user === null || email === (user.email ?? "")) {
+      return;
+    }
     const parsed = updateUserInput.safeParse({ email });
     if (!parsed.success) {
       setEmailError(parsed.error.issues[0]?.message ?? "Invalid email");
@@ -97,15 +103,18 @@ export default function SettingsScreen() {
     updateUser.mutate(parsed.data);
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     setIsSigningOut(true);
-    releasePushIdentity()
+    try {
+      await releasePushIdentity();
       // The server only clears its cookie; the local wipe below is what signs
       // out, so an offline device must not be stuck signed in.
-      .then(() => signOutOnServer.mutateAsync(undefined).catch(() => undefined))
-      .then(endLocalSession)
-      .catch(() => toast.error("Could not clear this session. Please try again."))
-      .finally(() => setIsSigningOut(false));
+      await ignoreRejection(signOutOnServer.mutateAsync());
+      await endLocalSession();
+    } catch {
+      toast.error("Could not clear this session. Please try again.");
+    }
+    setIsSigningOut(false);
   };
 
   return (
@@ -199,7 +208,9 @@ export default function SettingsScreen() {
         </View>
 
         <View className="gap-2">
-          {user !== null ? (
+          {user === null ? (
+            <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
+          ) : (
             <>
               <Button variant="outline" onPress={signOut} loading={isSigningOut}>
                 Log out
@@ -212,8 +223,6 @@ export default function SettingsScreen() {
                 Delete account
               </Button>
             </>
-          ) : (
-            <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
           )}
         </View>
 
@@ -228,7 +237,7 @@ export default function SettingsScreen() {
               key={link.label}
               accessibilityRole="link"
               onPress={() => {
-                Linking.openURL(link.url).catch(() => undefined);
+                void ignoreRejection(Linking.openURL(link.url));
               }}
             >
               <Text className="text-muted-foreground text-sm underline">{link.label}</Text>
@@ -238,4 +247,6 @@ export default function SettingsScreen() {
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
+
+export default SettingsScreen;

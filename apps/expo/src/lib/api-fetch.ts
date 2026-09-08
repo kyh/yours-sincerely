@@ -30,13 +30,15 @@ export const fetchWithSession: typeof fetch = async (input, init) => {
     headers.set("cookie", `${SESSION_COOKIE}=${session}`);
   }
 
-  const response = await fetch(input, { ...init, headers, credentials: "omit" });
+  const response = await fetch(input, { ...init, credentials: "omit", headers });
 
   const rawSetCookie = response.headers.get("set-cookie");
   if (rawSetCookie !== null) {
     const cookies = parse(splitCookiesString(rawSetCookie), { decodeValues: false });
     for (const cookie of cookies) {
-      if (cookie.name !== SESSION_COOKIE) continue;
+      if (cookie.name !== SESSION_COOKIE) {
+        continue;
+      }
       const expired =
         cookie.maxAge === 0 ||
         (cookie.expires !== undefined && cookie.expires.getTime() <= Date.now());

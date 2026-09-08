@@ -20,14 +20,49 @@ import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "
 const getUserStatsFn = sql.identifier("getUserStats");
 
 export const userRouter = {
+  deleteUser: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.user.id;
+
+    // Notification and PushToken rows go with the user row via ON DELETE CASCADE.
+    await context.db.transaction(async (tx) => {
+      const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
+      const userPostIds = userPosts.map((row) => row.id);
+
+      if (userPostIds.length > 0) {
+        const deletedPostIds = await collectDescendantPostIds(tx, userPostIds);
+
+        await tx
+          .delete(like)
+          .where(or(eq(like.userId, userId), inArray(like.postId, deletedPostIds)));
+        await tx
+          .delete(flag)
+          .where(or(eq(flag.userId, userId), inArray(flag.postId, deletedPostIds)));
+        await tx.delete(post).where(inArray(post.id, deletedPostIds));
+      } else {
+        await tx.delete(like).where(eq(like.userId, userId));
+        await tx.delete(flag).where(eq(flag.userId, userId));
+      }
+
+      await tx.delete(token).where(eq(token.userId, userId));
+      await tx.delete(account).where(eq(account.userId, userId));
+      await tx.delete(enrolledEvent).where(eq(enrolledEvent.userId, userId));
+      await tx.delete(block).where(or(eq(block.blockerId, userId), eq(block.blockingId, userId)));
+      await tx.delete(user).where(eq(user.id, userId));
+    });
+
+    await clearSession();
+
+    return { user: null };
+  }),
+
   getUser: publicProcedure.input(getUserInput).handler(async ({ context, input }) => {
     const response = await context.db.query.user.findFirst({
-      where: (user, { eq }) => eq(user.id, input.userId),
       columns: {
-        id: true,
-        displayName: true,
         displayImage: true,
+        displayName: true,
+        id: true,
       },
+      where: eq(user.id, input.userId),
     });
 
     return {
@@ -70,49 +105,14 @@ export const userRouter = {
       .set(updates)
       .where(eq(user.id, context.user.id))
       .returning({
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
         displayImage: user.displayImage,
+        displayName: user.displayName,
+        email: user.email,
+        id: user.id,
       });
 
     return {
       user: response,
     };
-  }),
-
-  deleteUser: protectedProcedure.handler(async ({ context }) => {
-    const userId = context.user.id;
-
-    // Notification and PushToken rows go with the user row via ON DELETE CASCADE.
-    await context.db.transaction(async (tx) => {
-      const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
-      const userPostIds = userPosts.map((row) => row.id);
-
-      if (userPostIds.length > 0) {
-        const deletedPostIds = await collectDescendantPostIds(tx, userPostIds);
-
-        await tx
-          .delete(like)
-          .where(or(eq(like.userId, userId), inArray(like.postId, deletedPostIds)));
-        await tx
-          .delete(flag)
-          .where(or(eq(flag.userId, userId), inArray(flag.postId, deletedPostIds)));
-        await tx.delete(post).where(inArray(post.id, deletedPostIds));
-      } else {
-        await tx.delete(like).where(eq(like.userId, userId));
-        await tx.delete(flag).where(eq(flag.userId, userId));
-      }
-
-      await tx.delete(token).where(eq(token.userId, userId));
-      await tx.delete(account).where(eq(account.userId, userId));
-      await tx.delete(enrolledEvent).where(eq(enrolledEvent.userId, userId));
-      await tx.delete(block).where(or(eq(block.blockerId, userId), eq(block.blockingId, userId)));
-      await tx.delete(user).where(eq(user.id, userId));
-    });
-
-    await clearSession();
-
-    return { user: null };
   }),
 };

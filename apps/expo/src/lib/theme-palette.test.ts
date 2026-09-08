@@ -3,9 +3,10 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 
-import { palettes, type ThemeColors } from "./theme-palette.ts";
+import { palettes } from "./theme-palette.ts";
+import type { ThemeColors } from "./theme-palette.ts";
 
-const css = readFileSync(path.join(import.meta.dirname, "..", "styles.css"), "utf8");
+const css = readFileSync(path.join(import.meta.dirname, "..", "styles.css"), "utf-8");
 
 const CSS_SELECTORS = [
   ["light", ":root"],
@@ -29,23 +30,25 @@ const CSS_VARIABLES = [
   ["border", "--border"],
 ] as const satisfies readonly (readonly [keyof ThemeColors, string])[];
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
 const readBlock = (selector: string): Map<string, string> => {
-  const match = new RegExp(`^${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`, "m").exec(css);
+  const match = new RegExp(`^${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`, "mu").exec(css);
   assert.ok(match?.[1] !== undefined, `styles.css has no ${selector} block`);
   const variables = new Map<string, string>();
   for (const line of match[1].split("\n")) {
-    const declaration = /^\s*(--[\w-]+):\s*([^;]+);/.exec(line);
-    if (declaration?.[1] !== undefined && declaration[2] !== undefined) {
-      variables.set(declaration[1], declaration[2]);
+    const declaration = /^\s*(?<name>--[\w-]+):\s*(?<value>[^;]+);/u.exec(line);
+    const name = declaration?.groups?.name;
+    const value = declaration?.groups?.value;
+    if (name !== undefined && value !== undefined) {
+      variables.set(name, value);
     }
   }
   return variables;
 };
 
 /** `hsl(45 60% 96%)` (CSS) and `hsl(45, 60%, 96%)` (RN) are the same color. */
-const normalize = (color: string) => color.replace(/[\s,]/g, "").toLowerCase();
+const normalize = (color: string) => color.replaceAll(/[\s,]/gu, "").toLowerCase();
 
 describe("theme palette", () => {
   for (const [themeId, selector] of CSS_SELECTORS) {

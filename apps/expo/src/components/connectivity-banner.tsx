@@ -6,6 +6,7 @@ import { RefreshCw } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { refreshConnectivity } from "@/lib/connectivity";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 
 export const ConnectivityBanner = () => {
   const colors = useThemeColors();
@@ -22,7 +23,9 @@ export const ConnectivityBanner = () => {
     }
   }, [online]);
 
-  if (online) return null;
+  if (online) {
+    return null;
+  }
 
   return (
     <View
@@ -32,7 +35,7 @@ export const ConnectivityBanner = () => {
     >
       <View className="flex-1 gap-0.5">
         <Text className="text-sm font-semibold text-white dark:text-neutral-900">
-          You're offline
+          You&apos;re offline
         </Text>
         <Text className="text-xs text-neutral-300 dark:text-neutral-600">
           Already loaded letters remain available. New activity will load when you reconnect.
@@ -44,9 +47,10 @@ export const ConnectivityBanner = () => {
         disabled={checking}
         hitSlop={8}
         className="h-11 w-11 items-center justify-center rounded-full bg-white/10 active:bg-white/20 dark:bg-black/10 dark:active:bg-black/20"
-        onPress={() => {
+        onPress={async () => {
           setChecking(true);
-          refreshConnectivity().finally(() => setChecking(false));
+          await ignoreRejection(refreshConnectivity());
+          setChecking(false);
         }}
       >
         <RefreshCw size={18} color={colors.background} />

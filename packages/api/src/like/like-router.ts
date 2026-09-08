@@ -27,7 +27,7 @@ export const likeRouter = {
     const existing =
       created ??
       (await context.db.query.like.findFirst({
-        where: (row, { and, eq }) => and(eq(row.postId, input.postId), eq(row.userId, userId)),
+        where: and(eq(like.postId, input.postId), eq(like.userId, userId)),
       }));
 
     return {

@@ -12,10 +12,16 @@ export const getBaseUrl = () => {
   // e.g. a local server for screenshots or a staging host. Inlined at build
   // time, which is why the production release check refuses it.
   const override = process.env.EXPO_PUBLIC_API_URL;
-  if (override) return override;
-  if (!__DEV__) return PROD_URL;
+  if (override) {
+    return override;
+  }
+  if (!__DEV__) {
+    return PROD_URL;
+  }
   const host = Constants.expoConfig?.hostUri?.split(":")[0];
-  if (!host) return PROD_URL;
+  if (!host) {
+    return PROD_URL;
+  }
   const port = process.env.EXPO_PUBLIC_API_PORT ?? "3000";
   return `http://${host}:${port}`;
 };

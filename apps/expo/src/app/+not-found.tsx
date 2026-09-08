@@ -5,7 +5,7 @@ import { SafeAreaView } from "@/lib/css-interop";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 
-export default function NotFoundScreen() {
+const NotFoundScreen = () => {
   const router = useRouter();
 
   return (
@@ -19,4 +19,6 @@ export default function NotFoundScreen() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default NotFoundScreen;

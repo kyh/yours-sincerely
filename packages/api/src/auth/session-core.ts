@@ -14,19 +14,24 @@ import { z } from "zod";
  * `iat` is absent on pre-sliding-renewal cookies; `epoch` is absent on every
  * cookie minted before session revocation existed. Both are in the wild.
  */
-export type SessionPayload = { user: string; iat: number | null; epoch: number };
+export interface SessionPayload {
+  user: string;
+  iat: number | null;
+  epoch: number;
+}
 
 /** Cookies minted before the `sessionEpoch` column existed carry no epoch. */
 export const LEGACY_SESSION_EPOCH = 0;
 
-export const DEV_SIGNING_SECRET = "dev-insecure-signing-secret"; // local dev only
+// Local dev only.
+export const DEV_SIGNING_SECRET = "dev-insecure-signing-secret";
 export const MIN_SECRET_LENGTH = 32;
 
-export type SecretEnv = {
+export interface SecretEnv {
   COOKIE_SECRET?: string | undefined;
   COOKIE_SECRET_LEGACY?: string | undefined;
   NODE_ENV?: string | undefined;
-};
+}
 
 /** Only an explicitly local environment may fall back to the public dev constant. */
 export const isLocalEnv = (nodeEnv: string | undefined): boolean =>
@@ -78,10 +83,10 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
 export const sessionCookieOptions = (isLocal: boolean) =>
   ({
     httpOnly: true,
-    secure: !isLocal,
-    sameSite: "lax",
     maxAge: SESSION_MAX_AGE_SECONDS,
     path: "/",
+    sameSite: "lax",
+    secure: !isLocal,
   }) as const;
 
 /** The two things the root secret is allowed to sign. Keys never cross purposes. */
@@ -128,14 +133,16 @@ export const unsignSession = (value: string, verifySecrets: readonly string[]): 
 };
 
 const sessionPayloadSchema = z.object({
-  user: z.string(),
-  // Legacy payloads (pre sliding renewal) have no `iat`.
-  iat: z.number().nullable().catch(null),
   // Legacy payloads (pre revocation) have no `epoch`. The `User.sessionEpoch`
   // column defaults to 0, so reading a missing epoch as 0 keeps every cookie
   // already in the wild valid. THIS IS THE MASS-LOGOUT GUARD — do not tighten
   // it into a rejection.
+  // oxlint-disable-next-line promise/prefer-await-to-then -- zod's `.catch()` is a schema fallback, not a promise
   epoch: z.number().catch(LEGACY_SESSION_EPOCH),
+  // Legacy payloads (pre sliding renewal) have no `iat`.
+  // oxlint-disable-next-line promise/prefer-await-to-then -- zod's `.catch()` is a schema fallback, not a promise
+  iat: z.number().nullable().catch(null),
+  user: z.string(),
 });
 
 /** Parses attacker-supplied bytes. Tolerates every payload variant ever issued. */
@@ -153,7 +160,7 @@ export const encodeSessionPayload = (
   issuedAtSeconds: number,
   sessionEpoch: number,
 ): string =>
-  Buffer.from(JSON.stringify({ user: userId, iat: issuedAtSeconds, epoch: sessionEpoch })).toString(
+  Buffer.from(JSON.stringify({ epoch: sessionEpoch, iat: issuedAtSeconds, user: userId })).toString(
     "base64",
   );
 
@@ -214,15 +221,18 @@ export const resolveSessionUser = async <TUser extends { sessionEpoch: number }>
 
 export type RenewalDecision = "no-session" | "invalid" | "fresh" | "renew";
 
-export type RenewalOutcome = { decision: RenewalDecision; payload: SessionPayload | null };
+export interface RenewalOutcome {
+  decision: RenewalDecision;
+  payload: SessionPayload | null;
+}
 
-export type RenewalInput = {
+export interface RenewalInput {
   sessionValue: string | null | undefined;
   verifySecrets: readonly string[];
   activeSecret: string;
   nowSeconds: number;
   renewAfterSeconds: number;
-};
+}
 
 /**
  * The branch the whole rotation promise rests on: a cookie that is still signed

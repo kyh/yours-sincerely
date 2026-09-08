@@ -15,9 +15,9 @@ test("dehydrated query data survives the JSON boundary with its rich types", () 
   const key = ["post", "getFeed", { input: { limit: 5 } }];
   const data = {
     at: new Date("2020-01-01T00:00:00.000Z"),
-    tags: new Set(["a", "b"]),
-    lookup: new Map([[1, "one"]]),
     big: 123n,
+    lookup: new Map([[1, "one"]]),
+    tags: new Set(["a", "b"]),
     url: new URL("https://example.com/path?q=1"),
   };
 
@@ -25,7 +25,7 @@ test("dehydrated query data survives the JSON boundary with its rich types", () 
   server.setQueryData(key, data);
 
   const client = createQueryClient();
-  hydrate(client, JSON.parse(JSON.stringify(dehydrate(server))));
+  hydrate(client, structuredClone(dehydrate(server)));
 
   // Same key, not just same value: the server's hash has to be the one the
   // browser looks the entry up under, or the page refetches what it prefetched.

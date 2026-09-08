@@ -8,11 +8,11 @@ export const metadata: Metadata = {
   title: "A love letter",
 };
 
-type Props = {
+interface Props {
   params: Promise<{
     postId: string;
   }>;
-};
+}
 
 const Page = async (props: Props) => {
   const params = await props.params;

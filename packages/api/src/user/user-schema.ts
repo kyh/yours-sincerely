@@ -20,10 +20,10 @@ export const getUserStatsInput = z.object({
  *  byte-identical to what both clients already consume — and parsing at the
  *  boundary is what lets `db.execute` be typed without a single `as`. */
 export const userStatsRow = z.object({
-  userId: z.string(),
-  displayName: z.string().nullable(),
-  totalPostCount: z.coerce.number(),
-  totalLikeCount: z.coerce.number(),
-  longestPostStreak: z.coerce.number(),
   currentPostStreak: z.coerce.number(),
+  displayName: z.string().nullable(),
+  longestPostStreak: z.coerce.number(),
+  totalLikeCount: z.coerce.number(),
+  totalPostCount: z.coerce.number(),
+  userId: z.string(),
 });

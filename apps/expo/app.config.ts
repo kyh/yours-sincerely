@@ -7,7 +7,7 @@ import {
   WEB_HOST,
 } from "@repo/contracts/mobile-identity";
 
-export default ({ config }: ConfigContext): ExpoConfig => {
+const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
   // Set per build profile in eas.json. eas-cli applies a profile's `env` when
   // it evaluates this file locally, which is where it picks credentials and
   // remote versions by app id; `EAS_BUILD_PROFILE` only exists on the build
@@ -25,39 +25,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
-    name: appName,
-    slug: "yours-sincerely",
-    owner: "kaiyuhsu",
-    scheme,
-    // Native rewrite replacing the live Capacitor apps.
-    version: "2.0.0",
-    orientation: "portrait",
-    icon: "./assets/icon-light.png",
-    userInterfaceStyle: "automatic",
-    ios: {
-      // Production must match the live Capacitor app so the update inherits
-      // its app container (WebView cookies → session migration).
-      bundleIdentifier: iosBundleIdentifier,
-      appleTeamId: MOBILE_APPLE_TEAM_ID,
-      associatedDomains: [`applinks:${WEB_HOST}`],
-      supportsTablet: true,
-      requireFullScreen: true,
-      entitlements: {
-        "aps-environment": notificationsMode,
-      },
-      infoPlist: {
-        ITSAppUsesNonExemptEncryption: false,
-        // `orientation` alone leaves iPad rotatable; requireFullScreen plus this
-        // key is what keeps it portrait there too.
-        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"],
-      },
-      icon: {
-        light: "./assets/icon-light.png",
-        dark: "./assets/icon-dark.png",
-      },
-    },
     android: {
-      package: androidPackage,
+      adaptiveIcon: {
+        backgroundColor: "#000000",
+        foregroundImage: "./assets/adaptive-icon.png",
+        monochromeImage: "./assets/adaptive-icon.png",
+      },
+      blockedPermissions: [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+      ],
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       intentFilters: [
         {
@@ -65,40 +43,57 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           autoVerify: true,
           category: ["BROWSABLE", "DEFAULT"],
           data: MOBILE_DEEP_LINK_PATH_PREFIXES.map((pathPrefix) => ({
-            scheme: "https",
             host: WEB_HOST,
             pathPrefix,
+            scheme: "https",
           })),
         },
       ],
-      adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        monochromeImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#000000",
-      },
-      blockedPermissions: [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.SYSTEM_ALERT_WINDOW",
-      ],
+      package: androidPackage,
+    },
+    experiments: {
+      reactCompiler: true,
+      typedRoutes: true,
     },
     extra: {
       eas: {
         projectId: "289e7cea-2c1b-487c-8ab4-ec91572dfb86",
       },
     },
-    experiments: {
-      typedRoutes: true,
-      reactCompiler: true,
+    icon: "./assets/icon-light.png",
+    ios: {
+      appleTeamId: MOBILE_APPLE_TEAM_ID,
+      associatedDomains: [`applinks:${WEB_HOST}`],
+      // Production must match the live Capacitor app so the update inherits
+      // its app container (WebView cookies → session migration).
+      bundleIdentifier: iosBundleIdentifier,
+      entitlements: {
+        "aps-environment": notificationsMode,
+      },
+      icon: {
+        dark: "./assets/icon-dark.png",
+        light: "./assets/icon-light.png",
+      },
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+        // `orientation` alone leaves iPad rotatable; requireFullScreen plus this
+        // key is what keeps it portrait there too.
+        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"],
+      },
+      requireFullScreen: true,
+      supportsTablet: true,
     },
+    name: appName,
+    orientation: "portrait",
+    owner: "kaiyuhsu",
     plugins: [
       "expo-router",
       [
         "expo-notifications",
         {
-          mode: notificationsMode,
-          icon: "./assets/notification-icon.png",
           color: "#000000",
+          icon: "./assets/notification-icon.png",
+          mode: notificationsMode,
         },
       ],
       "expo-secure-store",
@@ -108,13 +103,20 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "expo-splash-screen",
         {
           backgroundColor: "#FBF8EF",
-          image: "./assets/icon-light.png",
           dark: {
             backgroundColor: "#0E0E0C",
             image: "./assets/icon-dark.png",
           },
+          image: "./assets/icon-light.png",
         },
       ],
     ],
+    scheme,
+    slug: "yours-sincerely",
+    userInterfaceStyle: "automatic",
+    // Native rewrite replacing the live Capacitor apps.
+    version: "2.0.0",
   };
 };
+
+export default defineConfig;

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { View } from "react-native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
@@ -30,53 +31,62 @@ export const BlockedWriters = () => {
 
   const deleteBlock = useMutation(
     orpc.block.deleteBlock.mutationOptions({
+      onError: () => toast.error("Could not unblock this writer. Please try again."),
       onSuccess: async () => {
         // The writer's letters return to the feed immediately — no restart.
         await refreshBlocks();
         toast.success("You will see content from this writer again");
       },
-      onError: () => toast.error("Could not unblock this writer. Please try again."),
     }),
   );
 
-  if (user === null) return null;
+  if (user === null) {
+    return null;
+  }
 
   const blocked = blocks.data?.blocks ?? [];
+
+  let list: ReactNode;
+  if (blocks.isPending) {
+    list = <Text className="text-muted-foreground text-xs">Loading…</Text>;
+  } else if (blocked.length === 0) {
+    list = (
+      <Text className="text-muted-foreground text-xs">
+        You haven&apos;t blocked anyone. Blocking a writer hides all of their letters from your
+        feed.
+      </Text>
+    );
+  } else {
+    list = (
+      <View className="gap-2">
+        {blocked.map((writer) => {
+          const displayName = writer.displayName ?? "Anonymous";
+          return (
+            <View key={writer.blockingId} className="flex-row items-center gap-3">
+              <ProfileAvatar name={displayName} size={36} />
+              <Text className="flex-1 text-sm" numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Button
+                variant="secondary"
+                loading={
+                  deleteBlock.isPending && deleteBlock.variables.blockingId === writer.blockingId
+                }
+                onPress={() => deleteBlock.mutate({ blockingId: writer.blockingId })}
+              >
+                Unblock
+              </Button>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
 
   return (
     <View className="gap-3">
       <Text className="text-sm font-medium">Blocked writers</Text>
-
-      {blocks.isPending ? (
-        <Text className="text-muted-foreground text-xs">Loading…</Text>
-      ) : blocked.length === 0 ? (
-        <Text className="text-muted-foreground text-xs">
-          You haven't blocked anyone. Blocking a writer hides all of their letters from your feed.
-        </Text>
-      ) : (
-        <View className="gap-2">
-          {blocked.map((writer) => {
-            const displayName = writer.displayName ?? "Anonymous";
-            return (
-              <View key={writer.blockingId} className="flex-row items-center gap-3">
-                <ProfileAvatar name={displayName} size={36} />
-                <Text className="flex-1 text-sm" numberOfLines={1}>
-                  {displayName}
-                </Text>
-                <Button
-                  variant="secondary"
-                  loading={
-                    deleteBlock.isPending && deleteBlock.variables.blockingId === writer.blockingId
-                  }
-                  onPress={() => deleteBlock.mutate({ blockingId: writer.blockingId })}
-                >
-                  Unblock
-                </Button>
-              </View>
-            );
-          })}
-        </View>
-      )}
+      {list}
     </View>
   );
 };

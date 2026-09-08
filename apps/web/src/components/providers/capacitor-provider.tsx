@@ -14,19 +14,21 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
 
     let disposed = false;
     let listener: PluginListenerHandle | undefined;
-    void App.addListener("backButton", ({ canGoBack }) => {
-      if (!canGoBack) {
-        App.exitApp();
-      } else {
-        router.back();
-      }
-    }).then((handle) => {
+    const listen = async () => {
+      const handle = await App.addListener("backButton", ({ canGoBack }) => {
+        if (canGoBack) {
+          router.back();
+        } else {
+          App.exitApp();
+        }
+      });
       if (disposed) {
-        return handle.remove();
+        await handle.remove();
+        return;
       }
       listener = handle;
-      return undefined;
-    });
+    };
+    void listen();
 
     return () => {
       disposed = true;
@@ -34,5 +36,5 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
     };
   }, [router]);
 
-  return <>{children}</>;
+  return children;
 };

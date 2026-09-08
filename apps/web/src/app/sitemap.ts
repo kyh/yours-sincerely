@@ -4,28 +4,28 @@ import { siteConfig } from "@/lib/site-config";
 
 const sitemap = (): MetadataRoute.Sitemap => [
   {
-    url: siteConfig.url,
-    lastModified: new Date(),
     changeFrequency: "daily",
+    lastModified: new Date(),
     priority: 1,
+    url: siteConfig.url,
   },
   {
-    url: `${siteConfig.url}/about`,
-    lastModified: new Date(),
     changeFrequency: "monthly",
+    lastModified: new Date(),
     priority: 0.9,
+    url: `${siteConfig.url}/about`,
   },
   {
+    changeFrequency: "monthly",
+    lastModified: new Date(),
+    priority: 0.8,
     url: `${siteConfig.url}/terms`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.8,
   },
   {
-    url: `${siteConfig.url}/privacy`,
-    lastModified: new Date(),
     changeFrequency: "monthly",
+    lastModified: new Date(),
     priority: 0.8,
+    url: `${siteConfig.url}/privacy`,
   },
 ];
 

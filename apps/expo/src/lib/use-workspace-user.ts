@@ -9,8 +9,8 @@ export const useWorkspaceUser = () => {
   const { data, isPending } = useQuery(orpc.auth.workspace.queryOptions());
 
   return {
-    user: data?.user ?? null,
-    pushCleanupCapability: data?.pushCleanupCapability ?? null,
     isPending,
+    pushCleanupCapability: data?.pushCleanupCapability ?? null,
+    user: data?.user ?? null,
   };
 };

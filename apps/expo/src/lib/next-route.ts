@@ -4,15 +4,19 @@ import type { Href } from "expo-router";
     destination. An exact-match allowlist is stricter than the web's
     `safeNextPath` origin check and is what keeps the result typed as `Href`
     without a cast. */
-export const resolveNextRoute = (value: string | string[] | undefined): Href => {
-  if (value === undefined || Array.isArray(value)) return "/";
+export const resolveNextRoute = (value?: string | string[]): Href => {
+  if (value === undefined || Array.isArray(value)) {
+    return "/";
+  }
   switch (value) {
     case "/":
     case "/settings":
     case "/notifications":
-    case "/profile":
+    case "/profile": {
       return value;
-    default:
+    }
+    default: {
       return "/";
+    }
   }
 };

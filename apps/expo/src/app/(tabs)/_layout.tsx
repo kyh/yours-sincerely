@@ -4,7 +4,9 @@ import { LottieTabIcon } from "@/components/layout/lottie-tab-icon";
 import { NotificationsTabIcon } from "@/components/notifications/notifications-tab-icon";
 import { useThemeColors } from "@/components/theme-colors";
 
-type TabIconProps = { focused: boolean };
+interface TabIconProps {
+  focused: boolean;
+}
 
 const HomeTabIcon = ({ focused }: TabIconProps) => <LottieTabIcon name="home" focused={focused} />;
 const NotificationIcon = ({ focused }: TabIconProps) => <NotificationsTabIcon focused={focused} />;
@@ -12,44 +14,46 @@ const ProfileTabIcon = ({ focused }: TabIconProps) => (
   <LottieTabIcon name="user" focused={focused} />
 );
 
-export default function TabsLayout() {
+const TabsLayout = () => {
   const colors = useThemeColors();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
+        sceneStyle: { backgroundColor: colors.background },
         tabBarActiveTintColor: colors.foreground,
         tabBarInactiveTintColor: colors.mutedForeground,
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
         },
-        sceneStyle: { backgroundColor: colors.background },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
           tabBarIcon: HomeTabIcon,
+          title: "Home",
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
-          title: "Notifications",
           tabBarIcon: NotificationIcon,
+          title: "Notifications",
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
           tabBarIcon: ProfileTabIcon,
+          title: "Profile",
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default TabsLayout;

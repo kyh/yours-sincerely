@@ -31,12 +31,16 @@ const isSameOrigin = (candidate: string): boolean => {
  * in that case, so it falls back too.
  */
 export const safeNextPath = (nextPath: string | string[] | undefined): string => {
-  if (nextPath === undefined || Array.isArray(nextPath)) return "/";
+  if (nextPath === undefined || Array.isArray(nextPath)) {
+    return "/";
+  }
 
   let resolved: string;
   try {
     const url = new URL(nextPath, GUARD_ORIGIN);
-    if (url.origin !== GUARD_ORIGIN) return "/";
+    if (url.origin !== GUARD_ORIGIN) {
+      return "/";
+    }
     resolved = `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return "/";

@@ -1,11 +1,11 @@
 /** Mirrors apps/web/src/lib/site-config.ts. */
 export const siteConfig = {
+  description: "Anonymous love letters written in disappearing ink.",
   name: "Yours Sincerely",
   shortName: "Yours Sincerely",
-  description: "Anonymous love letters written in disappearing ink.",
-  url: "https://yourssincerely.org",
-  twitter: "@kaiyuhsu",
   supportEmail: "kai@kyh.io",
+  twitter: "@kaiyuhsu",
+  url: "https://yourssincerely.org",
 };
 
 /** Same subject line the web menu uses, so support mail can be traced to an

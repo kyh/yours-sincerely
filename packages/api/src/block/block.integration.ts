@@ -28,18 +28,18 @@ const createFixture = async () => {
   const updatedAt = new Date().toISOString();
 
   await db.insert(user).values([
-    { id: blockerAId, displayName: "Blocker A" },
-    { id: blockerBId, displayName: "Blocker B" },
-    { id: authorCId, displayName: "Author C" },
-    { id: authorDId, displayName: "Author D" },
+    { displayName: "Blocker A", id: blockerAId },
+    { displayName: "Blocker B", id: blockerBId },
+    { displayName: "Author C", id: authorCId },
+    { displayName: "Author D", id: authorDId },
   ]);
   await db.insert(post).values([
     {
-      id: postByCId,
       content: "A letter written by author C, long enough to satisfy the content floor.",
       createdBy: "Author C",
-      userId: authorCId,
+      id: postByCId,
       updatedAt,
+      userId: authorCId,
     },
   ]);
 
@@ -51,7 +51,7 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, userIds));
   };
 
-  return { blockerAId, blockerBId, authorCId, authorDId, postByCId, callerA, callerB, cleanup };
+  return { authorCId, authorDId, blockerAId, blockerBId, callerA, callerB, cleanup, postByCId };
 };
 
 const feedContainsPost = async (
@@ -140,7 +140,8 @@ integrationTest("unblocking makes the author's posts reappear in the feed", asyn
     assert.equal(deleted.block?.blockingId, fixture.authorCId);
 
     assert.equal(await feedContainsPost(fixture.callerA, fixture.postByCId), true);
-    assert.deepEqual((await fixture.callerA.block.listBlocks()).blocks, []);
+    const listed = await fixture.callerA.block.listBlocks();
+    assert.deepEqual(listed.blocks, []);
   } finally {
     await fixture.cleanup();
   }

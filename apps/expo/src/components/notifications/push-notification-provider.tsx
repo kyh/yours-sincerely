@@ -1,8 +1,10 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 import * as Notifications from "expo-notifications";
 import { AppState } from "react-native";
 import { onlineManager } from "@tanstack/react-query";
 
+import { ignoreRejection } from "@/lib/ignore-rejection";
 import { getRegisteredPushDevice } from "@/lib/push-token-store";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { PushNotificationCoordinator } from "./push-notification-registration";
@@ -16,23 +18,33 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
   const cleanupPushDevice = usePushDeviceCleanup();
 
   useEffect(() => {
-    if (isPending || user !== null || getRegisteredPushDevice() === null) return;
+    if (isPending || user !== null || getRegisteredPushDevice() === null) {
+      return;
+    }
 
     const retryCleanup = () => {
       const device = getRegisteredPushDevice();
-      if (device === null) return;
+      if (device === null) {
+        return;
+      }
 
-      cleanupPushDevice(device)
-        .then(() => Notifications.unregisterForNotificationsAsync())
-        .catch(() => undefined);
+      const releaseDevice = async () => {
+        await cleanupPushDevice(device);
+        await Notifications.unregisterForNotificationsAsync();
+      };
+      void ignoreRejection(releaseDevice());
     };
 
     retryCleanup();
     const appStateSubscription = AppState.addEventListener("change", (status) => {
-      if (status === "active") retryCleanup();
+      if (status === "active") {
+        retryCleanup();
+      }
     });
     const onlineSubscription = onlineManager.subscribe((online) => {
-      if (online) retryCleanup();
+      if (online) {
+        retryCleanup();
+      }
     });
 
     return () => {
@@ -41,7 +53,9 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
     };
   }, [cleanupPushDevice, isPending, user]);
 
-  if (user === null || pushCleanupCapability === null) return children;
+  if (user === null || pushCleanupCapability === null) {
+    return children;
+  }
 
   return (
     <PushNotificationCoordinator pushCleanupCapability={pushCleanupCapability} userId={user.id}>

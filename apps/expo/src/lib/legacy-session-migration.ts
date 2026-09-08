@@ -9,8 +9,8 @@ import {
   finalizeLegacySession,
   migrateLegacySession,
   retireLegacySession,
-  type MigrateLegacySessionResult,
 } from "./legacy-session-migration-core";
+import type { MigrateLegacySessionResult } from "./legacy-session-migration-core";
 
 /** The old Capacitor app was a WebView onto production, so its `__session`
     cookie lives in the native WebView jars for this host. Same bundle id =
@@ -34,26 +34,31 @@ let finalized = false;
 
 /** One-shot per cold start; safe to await before every request. */
 export const ensureLegacySessionMigrated = (): Promise<MigrationResult> => {
-  migration ??= (async (): Promise<MigrationResult> => {
+  const copyLegacySession = async (): Promise<MigrationResult> => {
     // Null in builds compiled before the native module existed — nothing to do.
     const legacyCookie = LegacyCookie;
-    if (legacyCookie === null) return "unavailable";
+    if (legacyCookie === null) {
+      return "unavailable";
+    }
 
-    const { result, legacyProvenance } = await migrateLegacySession({
-      getStored: getSessionCookie,
-      setStored: setSessionCookie,
-      // Keep the value verbatim (still percent-encoded) — the signed cookie
-      // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
-      readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
-      getCheckpoint: getLegacySessionMigrationCheckpoint,
-      setCheckpoint: setLegacySessionMigrationCheckpoint,
-    });
-    migrationProvenanceEstablished = legacyProvenance;
-    return result;
-  })().catch((cause: unknown) => {
-    reportFailure("copy", cause);
-    return "failed";
-  });
+    try {
+      const { result, legacyProvenance } = await migrateLegacySession({
+        getCheckpoint: getLegacySessionMigrationCheckpoint,
+        getStored: getSessionCookie,
+        // Keep the value verbatim (still percent-encoded) — the signed cookie
+        // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
+        readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
+        setCheckpoint: setLegacySessionMigrationCheckpoint,
+        setStored: setSessionCookie,
+      });
+      migrationProvenanceEstablished = legacyProvenance;
+      return result;
+    } catch (error: unknown) {
+      reportFailure("copy", error);
+      return "failed";
+    }
+  };
+  migration ??= copyLegacySession();
   return migration;
 };
 
@@ -66,26 +71,27 @@ export const finalizeLegacySessionMigration = (authenticated: boolean): Promise<
     return Promise.resolve();
   }
 
-  finalization ??= finalizeLegacySession({
-    authenticated,
-    getStored: getSessionCookie,
-    getCheckpoint: getLegacySessionMigrationCheckpoint,
-    setCheckpoint: setLegacySessionMigrationCheckpoint,
-    clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
-  })
-    .then((result) => {
+  const clearLegacySession = async (): Promise<void> => {
+    try {
+      const result = await finalizeLegacySession({
+        authenticated,
+        clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
+        getCheckpoint: getLegacySessionMigrationCheckpoint,
+        getStored: getSessionCookie,
+        setCheckpoint: setLegacySessionMigrationCheckpoint,
+      });
       if (result === "cleared") {
         finalized = true;
         migrationProvenanceEstablished = false;
       } else {
         finalization = null;
       }
-      return undefined;
-    })
-    .catch((cause: unknown) => {
+    } catch (error: unknown) {
       finalization = null;
-      reportFailure("clear", cause);
-    });
+      reportFailure("clear", error);
+    }
+  };
+  finalization ??= clearLegacySession();
 
   return finalization;
 };
@@ -94,17 +100,19 @@ export const finalizeLegacySessionMigration = (authenticated: boolean): Promise<
     the legacy jar can never sign them back in on the next cold start. */
 export const retireLegacySessionMigration = async (): Promise<void> => {
   const legacyCookie = LegacyCookie;
-  if (legacyCookie === null) return;
+  if (legacyCookie === null) {
+    return;
+  }
 
   try {
     await retireLegacySession({
+      clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
       getCheckpoint: getLegacySessionMigrationCheckpoint,
       setCheckpoint: setLegacySessionMigrationCheckpoint,
-      clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
     });
     finalized = true;
     migrationProvenanceEstablished = false;
-  } catch (cause: unknown) {
-    reportFailure("retire", cause);
+  } catch (error: unknown) {
+    reportFailure("retire", error);
   }
 };

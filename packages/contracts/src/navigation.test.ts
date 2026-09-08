@@ -37,12 +37,14 @@ test("safeNextPath rejects absolute cross-origin URLs", () => {
 });
 
 test("safeNextPath rejects non-http schemes", () => {
+  // oxlint-disable-next-line no-script-url -- the hostile input under test
   assert.equal(safeNextPath("javascript:alert(1)"), "/");
   assert.equal(safeNextPath("data:text/html,<script>alert(1)</script>"), "/");
   assert.equal(safeNextPath("mailto:someone@evil.example"), "/");
 });
 
 test("safeNextPath rejects anything that is not a single string", () => {
+  // oxlint-disable-next-line unicorn/no-useless-undefined -- the parameter is required; this is the absent-query-param case
   assert.equal(safeNextPath(undefined), "/");
   assert.equal(safeNextPath(["/settings", "//evil.example"]), "/");
   assert.equal(safeNextPath([]), "/");
@@ -54,6 +56,7 @@ test("safeNextPath never returns a value that resolves off-origin", () => {
     "/\\evil.example",
     "/.//evil.example",
     "https://evil.example",
+    // oxlint-disable-next-line no-script-url -- the hostile input under test
     "javascript:alert(1)",
     "",
     "///evil.example",

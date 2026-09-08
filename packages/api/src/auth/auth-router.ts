@@ -1,8 +1,8 @@
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { ORPCError } from "@orpc/server";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 
 import type { ORPCContext } from "../orpc";
@@ -27,9 +27,9 @@ const APP_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://yourssincerely.org";
 
 const sanitizeUser = <T extends { passwordHash?: string | null }>(
-  user: T,
+  record: T,
 ): Omit<T, "passwordHash"> => {
-  const { passwordHash: _, ...safeUser } = user;
+  const { passwordHash: _, ...safeUser } = record;
   return safeUser;
 };
 
@@ -53,7 +53,7 @@ const revokeUserSessions = async (context: ORPCContext, userId: string) => {
 };
 
 /** A reset link must be single-use, and issuing a new one must burn the old ones. */
-const invalidateResetTokens = async (context: ORPCContext, userId: string) =>
+const invalidateResetTokens = (context: ORPCContext, userId: string) =>
   context.db
     .update(tokenTable)
     .set({ usedAt: new Date().toISOString() })
@@ -66,60 +66,94 @@ const invalidateResetTokens = async (context: ORPCContext, userId: string) =>
     );
 
 export const authRouter = {
-  workspace: publicProcedure.handler(async ({ context }) => {
-    return {
-      user: context.user,
-      pushCleanupCapability:
-        context.user === null ? null : createPushCleanupCapability(context.user.id),
-    };
-  }),
-  signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
-    // Check if email already exists
-    const existingUser = await context.db.query.user.findFirst({
-      where: (u, { eq }) => eq(u.email, input.email),
+  requestPasswordReset: publicProcedure
+    .input(requestPasswordResetInput)
+    .handler(async ({ context, input }) => {
+      // Checked before the lookup: a deployment with no email provider can
+      // never deliver the link, and burning the account's outstanding reset
+      // tokens on the way to a failed send is worse than refusing outright. The
+      // answer does not depend on `input.email`, so it leaks no enumeration.
+      const resendApiKey = env.RESEND_API_KEY;
+      if (resendApiKey === undefined) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "Password reset email is not configured",
+        });
+      }
+
+      const existingUser = await context.db.query.user.findFirst({
+        where: eq(user.email, input.email),
+      });
+
+      // Always return success to prevent email enumeration
+      if (!existingUser) {
+        return { success: true };
+      }
+
+      const resetToken = randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+      // Issuing a new link burns every unused one, so only the latest email works.
+      await invalidateResetTokens(context, existingUser.id);
+
+      await context.db.insert(tokenTable).values({
+        ...getDefaultValues(),
+        expiresAt: expiresAt.toISOString(),
+        sentTo: input.email,
+        token: resetToken,
+        type: "RESET_PASSWORD",
+        userId: existingUser.id,
+      });
+
+      // One HTTPS link serves every client. Associated domains open the
+      // installed app; browsers remain the universal fallback.
+      const resetUrl = `${APP_URL}/auth/password-update?token=${resetToken}`;
+      const resend = new Resend(resendApiKey);
+
+      await resend.emails.send({
+        from: "Yours Sincerely <noreply@yourssincerely.org>",
+        html: `<p>Click the link below to reset your password. This link expires in ${RESET_TOKEN_EXPIRY_HOURS} hour.</p><p><a href="${resetUrl}">Reset password</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
+        subject: "Reset your password",
+        to: input.email,
+      });
+
+      return { success: true };
+    }),
+  setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
+    const resetToken = await context.db.query.token.findFirst({
+      where: and(
+        eq(tokenTable.token, input.token),
+        eq(tokenTable.type, "RESET_PASSWORD"),
+        gt(tokenTable.expiresAt, new Date().toISOString()),
+        isNull(tokenTable.usedAt),
+      ),
     });
 
-    if (existingUser) {
-      throw new ORPCError("CONFLICT", { message: "User already registered" });
-    }
-
-    if (context.user?.email !== null && context.user?.email !== undefined) {
-      throw new ORPCError("CONFLICT", { message: "Current user is already registered" });
+    if (!resetToken) {
+      throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
     }
 
     const passwordHash = await createPasswordHash(input.password);
 
-    const [newUser] = context.user
-      ? await context.db
-          .update(user)
-          .set({ email: input.email, passwordHash })
-          .where(eq(user.id, context.user.id))
-          .returning()
-      : await context.db
-          .insert(user)
-          .values({
-            ...getDefaultValues(),
-            email: input.email,
-            passwordHash,
-            displayName: "Anonymous",
-          })
-          .returning();
+    await context.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
 
-    if (!newUser) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Unable to create user" });
-    }
+    // Order matters. Revoke FIRST — a password reset is the remediation a user
+    // reaches for after "someone got into my account", so every session an
+    // attacker already holds must die here...
+    const sessionEpoch = await revokeUserSessions(context, resetToken.userId);
 
-    await setSession(newUser.id, newUser.sessionEpoch);
+    // ...then burn this token and any other outstanding link...
+    await invalidateResetTokens(context, resetToken.userId);
 
-    return {
-      user: sanitizeUser(newUser),
-    };
+    // ...and only then re-admit the person who actually did the reset.
+    await setSession(resetToken.userId, sessionEpoch);
+
+    return { success: true };
   }),
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .handler(async ({ context, input }) => {
       const existingUser = await context.db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.email, input.email),
+        where: eq(user.email, input.email),
       });
 
       if (!existingUser?.passwordHash) {
@@ -154,88 +188,51 @@ export const authRouter = {
 
     return { user: null };
   }),
-  requestPasswordReset: publicProcedure
-    .input(requestPasswordResetInput)
-    .handler(async ({ context, input }) => {
-      // Checked before the lookup: a deployment with no email provider can
-      // never deliver the link, and burning the account's outstanding reset
-      // tokens on the way to a failed send is worse than refusing outright. The
-      // answer does not depend on `input.email`, so it leaks no enumeration.
-      const resendApiKey = env.RESEND_API_KEY;
-      if (resendApiKey === undefined) {
-        throw new ORPCError("PRECONDITION_FAILED", {
-          message: "Password reset email is not configured",
-        });
-      }
-
-      const existingUser = await context.db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.email, input.email),
-      });
-
-      // Always return success to prevent email enumeration
-      if (!existingUser) {
-        return { success: true };
-      }
-
-      const resetToken = randomBytes(32).toString("hex");
-      const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
-
-      // Issuing a new link burns every unused one, so only the latest email works.
-      await invalidateResetTokens(context, existingUser.id);
-
-      await context.db.insert(tokenTable).values({
-        ...getDefaultValues(),
-        token: resetToken,
-        type: "RESET_PASSWORD",
-        expiresAt: expiresAt.toISOString(),
-        sentTo: input.email,
-        userId: existingUser.id,
-      });
-
-      // One HTTPS link serves every client. Associated domains open the
-      // installed app; browsers remain the universal fallback.
-      const resetUrl = `${APP_URL}/auth/password-update?token=${resetToken}`;
-      const resend = new Resend(resendApiKey);
-
-      await resend.emails.send({
-        from: "Yours Sincerely <noreply@yourssincerely.org>",
-        to: input.email,
-        subject: "Reset your password",
-        html: `<p>Click the link below to reset your password. This link expires in ${RESET_TOKEN_EXPIRY_HOURS} hour.</p><p><a href="${resetUrl}">Reset password</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
-      });
-
-      return { success: true };
-    }),
-  setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
-    const resetToken = await context.db.query.token.findFirst({
-      where: (t, { and, eq, gt, isNull }) =>
-        and(
-          eq(t.token, input.token),
-          eq(t.type, "RESET_PASSWORD"),
-          gt(t.expiresAt, new Date().toISOString()),
-          isNull(t.usedAt),
-        ),
+  signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
+    // Check if email already exists
+    const existingUser = await context.db.query.user.findFirst({
+      where: eq(user.email, input.email),
     });
 
-    if (!resetToken) {
-      throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
+    if (existingUser) {
+      throw new ORPCError("CONFLICT", { message: "User already registered" });
+    }
+
+    if (context.user?.email !== null && context.user?.email !== undefined) {
+      throw new ORPCError("CONFLICT", { message: "Current user is already registered" });
     }
 
     const passwordHash = await createPasswordHash(input.password);
 
-    await context.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
+    const [newUser] = context.user
+      ? await context.db
+          .update(user)
+          .set({ email: input.email, passwordHash })
+          .where(eq(user.id, context.user.id))
+          .returning()
+      : await context.db
+          .insert(user)
+          .values({
+            ...getDefaultValues(),
+            displayName: "Anonymous",
+            email: input.email,
+            passwordHash,
+          })
+          .returning();
 
-    // Order matters. Revoke FIRST — a password reset is the remediation a user
-    // reaches for after "someone got into my account", so every session an
-    // attacker already holds must die here...
-    const sessionEpoch = await revokeUserSessions(context, resetToken.userId);
+    if (!newUser) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Unable to create user" });
+    }
 
-    // ...then burn this token and any other outstanding link...
-    await invalidateResetTokens(context, resetToken.userId);
+    await setSession(newUser.id, newUser.sessionEpoch);
 
-    // ...and only then re-admit the person who actually did the reset.
-    await setSession(resetToken.userId, sessionEpoch);
-
-    return { success: true };
+    return {
+      user: sanitizeUser(newUser),
+    };
   }),
+  workspace: publicProcedure.handler(({ context }) => ({
+    pushCleanupCapability:
+      context.user === null ? null : createPushCleanupCapability(context.user.id),
+    user: context.user,
+  })),
 };

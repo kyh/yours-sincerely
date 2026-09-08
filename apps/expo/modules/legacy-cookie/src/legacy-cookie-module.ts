@@ -1,4 +1,5 @@
-import { NativeModule, requireOptionalNativeModule } from "expo";
+import type { NativeModule } from "expo";
+import { requireOptionalNativeModule } from "expo";
 
 declare class LegacyCookieModule extends NativeModule {
   /** Resolves the raw (still percent-encoded) value of cookie `name` for `host`, or null. */

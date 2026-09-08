@@ -25,37 +25,37 @@ const createFixture = async () => {
   const updatedAt = new Date().toISOString();
 
   await db.insert(user).values([
-    { id: actorId, displayName: "Actor" },
-    { id: victimId, displayName: "Victim" },
+    { displayName: "Actor", id: actorId },
+    { displayName: "Victim", id: victimId },
   ]);
   await db.insert(post).values([
     {
-      id: parentId,
       content: "Actor-owned parent post",
       createdBy: "Actor",
-      userId: actorId,
+      id: parentId,
       updatedAt,
+      userId: actorId,
     },
     {
-      id: childId,
       content: "Victim-authored child post",
       createdBy: "Victim",
+      id: childId,
       parentId,
-      userId: victimId,
       updatedAt,
+      userId: victimId,
     },
     {
-      id: outsiderPostId,
       content: "Victim-owned independent post",
       createdBy: "Victim",
-      userId: victimId,
+      id: outsiderPostId,
       updatedAt,
+      userId: victimId,
     },
   ]);
 
   const actor = await db.query.user.findFirst({
-    where: (row, operators) => operators.eq(row.id, actorId),
     columns: { passwordHash: false },
+    where: (row, operators) => operators.eq(row.id, actorId),
   });
   assert.ok(actor);
 
@@ -72,7 +72,7 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, [actorId, victimId]));
   };
 
-  return { actorId, victimId, parentId, childId, outsiderPostId, caller, cleanup, updatedAt };
+  return { actorId, caller, childId, cleanup, outsiderPostId, parentId, updatedAt, victimId };
 };
 
 integrationTest("profile updates derive the actor from the authenticated context", async () => {
@@ -83,13 +83,13 @@ integrationTest("profile updates derive the actor from the authenticated context
     // ever sees the display name and writes it to the authenticated actor.
     await fixture.caller.user.updateUser(
       updateUserInput.parse({
-        userId: fixture.victimId,
         displayName: "Updated actor",
+        userId: fixture.victimId,
       }),
     );
 
     const rows = await db
-      .select({ id: user.id, displayName: user.displayName })
+      .select({ displayName: user.displayName, id: user.id })
       .from(user)
       .where(inArray(user.id, [fixture.actorId, fixture.victimId]));
     const names = new Map(rows.map((row) => [row.id, row.displayName]));
@@ -105,7 +105,7 @@ integrationTest("post deletion rejects a different owner", async () => {
   try {
     await assert.rejects(
       fixture.caller.post.deletePost({ postId: fixture.outsiderPostId }),
-      /Post not found/,
+      /Post not found/u,
     );
     const remaining = await db
       .select({ id: post.id })
@@ -121,12 +121,12 @@ integrationTest("owner deletion cascades through descendants, likes, and flags",
   const fixture = await createFixture();
   try {
     await db.insert(like).values([
-      { postId: fixture.parentId, userId: fixture.victimId, updatedAt: fixture.updatedAt },
-      { postId: fixture.childId, userId: fixture.actorId, updatedAt: fixture.updatedAt },
+      { postId: fixture.parentId, updatedAt: fixture.updatedAt, userId: fixture.victimId },
+      { postId: fixture.childId, updatedAt: fixture.updatedAt, userId: fixture.actorId },
     ]);
     await db.insert(flag).values([
-      { postId: fixture.parentId, userId: fixture.actorId, updatedAt: fixture.updatedAt },
-      { postId: fixture.childId, userId: fixture.victimId, updatedAt: fixture.updatedAt },
+      { postId: fixture.parentId, updatedAt: fixture.updatedAt, userId: fixture.actorId },
+      { postId: fixture.childId, updatedAt: fixture.updatedAt, userId: fixture.victimId },
     ]);
 
     await fixture.caller.post.deletePost({ postId: fixture.parentId });

@@ -9,10 +9,10 @@ import { getAvatarUrl } from "@/lib/avatars";
 import { orpc } from "@/orpc/react";
 import { ActivityStats } from "./activity-stats";
 
-type Props = {
+interface Props {
   userId: string;
   displayName?: string | null;
-};
+}
 
 const ProfileTooltipContent = ({ userId, displayName }: Props) => {
   const { data, isLoading } = useQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
@@ -40,23 +40,21 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
   );
 };
 
-export const ProfileLink = ({ userId, displayName }: Props) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        className="inline-flex underline decoration-dotted underline-offset-2"
-        render={<Link href={`/profile/${userId}`} />}
-      >
-        {displayName || "Anonymous"}
-      </TooltipTrigger>
-      <TooltipContent
-        className="bg-popover text-popover-foreground shadow-md"
-        arrowClassName="bg-popover fill-popover"
-      >
-        <Link href={`/profile/${userId}`}>
-          <ProfileTooltipContent userId={userId} displayName={displayName} />
-        </Link>
-      </TooltipContent>
-    </Tooltip>
-  );
-};
+export const ProfileLink = ({ userId, displayName }: Props) => (
+  <Tooltip>
+    <TooltipTrigger
+      className="inline-flex underline decoration-dotted underline-offset-2"
+      render={<Link href={`/profile/${userId}`} />}
+    >
+      {displayName || "Anonymous"}
+    </TooltipTrigger>
+    <TooltipContent
+      className="bg-popover text-popover-foreground shadow-md"
+      arrowClassName="bg-popover fill-popover"
+    >
+      <Link href={`/profile/${userId}`}>
+        <ProfileTooltipContent userId={userId} displayName={displayName} />
+      </Link>
+    </TooltipContent>
+  </Tooltip>
+);

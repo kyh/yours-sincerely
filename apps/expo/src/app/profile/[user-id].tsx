@@ -6,7 +6,7 @@ import { BackButton } from "@/components/layout/back-button";
 import { Text } from "@/components/ui/text";
 import { ProfileContent } from "@/components/profile/profile-content";
 
-export default function ProfileScreen() {
+const ProfileScreen = () => {
   const params = useLocalSearchParams();
   const userIdParam = params["user-id"];
   const userId = Array.isArray(userIdParam) ? null : (userIdParam ?? null);
@@ -18,11 +18,15 @@ export default function ProfileScreen() {
       </View>
       {userId === null ? (
         <View className="flex-1 items-center justify-center px-5">
-          <Text className="text-center">Hmm, can't seem to find the person you're looking for</Text>
+          <Text className="text-center">
+            Hmm, can&apos;t seem to find the person you&apos;re looking for
+          </Text>
         </View>
       ) : (
         <ProfileContent userId={userId} />
       )}
     </SafeAreaView>
   );
-}
+};
+
+export default ProfileScreen;

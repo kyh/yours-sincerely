@@ -25,6 +25,7 @@ import { toast } from "@repo/ui/components/sonner";
 import { cn } from "cn";
 import { useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -37,52 +38,67 @@ import { orpc } from "@/orpc/react";
 
 const postFormKey = "post-form";
 
-type PostFormProps = {
+// The post is already published; a failed refetch is not the writer's problem.
+const refreshQuietly = async (queryClient: QueryClient) => {
+  try {
+    await refreshAfterPostCreated(queryClient);
+  } catch {
+    /* the queries refetch on their own next focus */
+  }
+};
+
+interface PostFormProps {
   placeholder?: string;
   parentId?: string;
   onSuccess?: () => void;
   contained?: boolean;
-};
+}
 
 export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFormProps) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
 
   const form = useForm({
-    resolver: zodResolver(createPostInput),
     defaultValues: {
-      parentId,
-      content: typeof window !== "undefined" ? localStorage.getItem(postFormKey) || "" : "",
+      content: typeof window === "undefined" ? "" : localStorage.getItem(postFormKey) || "",
       createdBy: user?.displayName || "Anonymous",
+      parentId,
     },
+    resolver: zodResolver(createPostInput),
   });
 
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
+      onError: (err) => {
+        toast.error(err.message);
+      },
       onSuccess: (_data, variables) => {
-        refreshAfterPostCreated(queryClient).catch(() => undefined);
+        void refreshQuietly(queryClient);
         localStorage.removeItem(postFormKey);
         form.reset({
-          parentId,
           content: "",
           createdBy: variables.createdBy,
+          parentId,
         });
         onSuccess?.();
         setTimeout(() => {
           toast.success("Your love letter has been published");
         }, 500);
-        setTimeout(() => {
-          balloons().catch(console.error);
+        setTimeout(async () => {
+          try {
+            await balloons();
+          } catch (error) {
+            console.error(error);
+          }
         }, 600);
-      },
-      onError: (err) => {
-        toast.error(err.message);
       },
     }),
   );
 
   const handlePostForm = (formData: CreatePostInput) => {
-    if (user?.disabled) return toast.error("Your account has been disabled");
+    if (user?.disabled) {
+      return toast.error("Your account has been disabled");
+    }
     createPost.mutate(formData);
   };
 
@@ -185,12 +201,14 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
     <Drawer
       open={open}
       onOpenChange={setOpen}
-      onAnimationEnd={(open) => {
-        if (open) {
+      onAnimationEnd={(opened) => {
+        if (opened) {
           const textareaEl: HTMLTextAreaElement | null = document.querySelector(
             "#drawer-post-form #post-input",
           );
-          if (!textareaEl) return;
+          if (!textareaEl) {
+            return;
+          }
           textareaEl.focus();
         }
       }}

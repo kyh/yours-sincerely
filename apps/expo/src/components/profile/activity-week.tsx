@@ -12,10 +12,10 @@ import {
 import { useThemeColors } from "@/components/theme-colors";
 
 /** Weekly activity bubbles — RN port of the web activity-week chart. */
-type Props = {
+interface Props {
   data: Record<string, { count: number; level: CalendarLevel }>;
   theme: Theme;
-};
+}
 
 export const ActivityWeek = ({ data, theme }: Props) => {
   const colors = useThemeColors();
@@ -32,7 +32,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
             {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
               const entry = data[day];
               const level = entry?.level ?? 0;
-              const radius = entry !== undefined ? entry.level * 4 : 0;
+              const radius = entry === undefined ? 0 : entry.level * 4;
               const count = entry?.count ?? 0;
               const summary = `${count} posts written on ${FULL_DAY_LABELS[day] ?? day}s`;
               return (

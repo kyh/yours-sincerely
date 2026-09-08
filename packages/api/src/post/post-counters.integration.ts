@@ -29,15 +29,15 @@ const assertNoDrift = async (label: string) => {
         WHERE p."commentCount" <> (SELECT COUNT(*) FROM "Post" c WHERE c."parentId" = p."id")) AS comment_drift
   `);
 
-  const drift = rows[0];
+  const [drift] = rows;
   assert.ok(drift);
   assert.deepEqual(
     {
-      like: Number(drift.like_drift),
-      flag: Number(drift.flag_drift),
       comment: Number(drift.comment_drift),
+      flag: Number(drift.flag_drift),
+      like: Number(drift.like_drift),
     },
-    { like: 0, flag: 0, comment: 0 },
+    { comment: 0, flag: 0, like: 0 },
     `counter drift after ${label}`,
   );
 };
@@ -50,14 +50,16 @@ const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
   try {
     await operation();
   } catch (error) {
-    if (!(error instanceof Error && error.message.includes("outside a request scope"))) throw error;
+    if (!(error instanceof Error && error.message.includes("outside a request scope"))) {
+      throw error;
+    }
   }
 };
 
 const counters = async (postId: string) => {
   const row = await db.query.post.findFirst({
-    where: (candidate, { eq }) => eq(candidate.id, postId),
-    columns: { likeCount: true, commentCount: true, flagCount: true },
+    columns: { commentCount: true, flagCount: true, likeCount: true },
+    where: eq(post.id, postId),
   });
   return row;
 };
@@ -71,25 +73,25 @@ const createFixture = async () => {
   const aged = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
   await db.insert(user).values([
-    { id: ownerId, displayName: "Owner", createdAt: aged },
-    { id: flaggerId, displayName: "Flagger", email: `${flaggerId}@example.com` },
+    { createdAt: aged, displayName: "Owner", id: ownerId },
+    { displayName: "Flagger", email: `${flaggerId}@example.com`, id: flaggerId },
   ]);
   await db.insert(post).values({
-    id: rootId,
     content: "A letter with counters to keep straight",
-    createdBy: "Owner",
-    userId: ownerId,
     createdAt: aged,
+    createdBy: "Owner",
+    id: rootId,
     updatedAt,
+    userId: ownerId,
   });
 
   const owner = await db.query.user.findFirst({
-    where: (row, { eq }) => eq(row.id, ownerId),
     columns: { passwordHash: false },
+    where: eq(user.id, ownerId),
   });
   const flagger = await db.query.user.findFirst({
-    where: (row, { eq }) => eq(row.id, flaggerId),
     columns: { passwordHash: false },
+    where: eq(user.id, flaggerId),
   });
   assert.ok(owner);
   assert.ok(flagger);
@@ -112,7 +114,7 @@ const createFixture = async () => {
     await db.delete(user).where(inArray(user.id, [ownerId, flaggerId]));
   };
 
-  return { ownerId, flaggerId, rootId, ownerCaller, flaggerCaller, cleanup };
+  return { cleanup, flaggerCaller, flaggerId, ownerCaller, ownerId, rootId };
 };
 
 integrationTest("counters survive like, unlike, flag and comment", async () => {
@@ -121,23 +123,27 @@ integrationTest("counters survive like, unlike, flag and comment", async () => {
     await assertNoDrift("seed");
 
     await fixture.flaggerCaller.like.createLike({ postId: fixture.rootId });
-    assert.equal((await counters(fixture.rootId))?.likeCount, 1);
+    const afterLike = await counters(fixture.rootId);
+    assert.equal(afterLike?.likeCount, 1);
     await assertNoDrift("like");
 
     await fixture.flaggerCaller.like.deleteLike({ postId: fixture.rootId });
-    assert.equal((await counters(fixture.rootId))?.likeCount, 0);
+    const afterUnlike = await counters(fixture.rootId);
+    assert.equal(afterUnlike?.likeCount, 0);
     await assertNoDrift("unlike");
 
     await fixture.flaggerCaller.flag.createFlag({ postId: fixture.rootId });
     // The flagger is registered, so this flag carries authority and IS counted.
-    assert.equal((await counters(fixture.rootId))?.flagCount, 1);
+    const afterFlag = await counters(fixture.rootId);
+    assert.equal(afterFlag?.flagCount, 1);
     await assertNoDrift("flag");
 
     await fixture.flaggerCaller.post.createPost({
-      parentId: fixture.rootId,
       content: "A comment on the letter",
+      parentId: fixture.rootId,
     });
-    assert.equal((await counters(fixture.rootId))?.commentCount, 1);
+    const afterComment = await counters(fixture.rootId);
+    assert.equal(afterComment?.commentCount, 1);
     await assertNoDrift("comment");
   } finally {
     await fixture.cleanup();
@@ -149,10 +155,10 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
   const freshId = randomUUID();
   try {
     // Brand new, no email, no posts — exactly what a cookieless request mints.
-    await db.insert(user).values({ id: freshId, displayName: "Fresh" });
+    await db.insert(user).values({ displayName: "Fresh", id: freshId });
     const fresh = await db.query.user.findFirst({
-      where: (row, { eq }) => eq(row.id, freshId),
       columns: { passwordHash: false },
+      where: eq(user.id, freshId),
     });
     assert.ok(fresh);
     const freshCaller = createCaller(fresh);
@@ -165,7 +171,8 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
       .from(flag)
       .where(and(eq(flag.postId, fixture.rootId), eq(flag.userId, freshId)));
     assert.equal(flags.length, 1);
-    assert.equal((await counters(fixture.rootId))?.flagCount, 0);
+    const afterFreshFlag = await counters(fixture.rootId);
+    assert.equal(afterFreshFlag?.flagCount, 0);
     await assertNoDrift("fresh flag");
   } finally {
     await db.delete(flag).where(eq(flag.userId, freshId));
@@ -178,8 +185,8 @@ integrationTest("counters survive the deletePost bulk cascade", async () => {
   const fixture = await createFixture();
   try {
     const comment = await fixture.flaggerCaller.post.createPost({
-      parentId: fixture.rootId,
       content: "A comment that will be cascaded away",
+      parentId: fixture.rootId,
     });
     const commentId = comment.post?.id;
     assert.ok(commentId);
@@ -211,26 +218,26 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
   try {
     // A post that OUTLIVES the deleted user, but that the deleted user has both
     // liked and commented on — its counters must come back down, not go stale.
-    await db.insert(user).values({ id: survivorId, displayName: "Survivor" });
+    await db.insert(user).values({ displayName: "Survivor", id: survivorId });
     await db.insert(post).values({
-      id: survivorPostId,
       content: "A letter by someone who is staying",
       createdBy: "Survivor",
-      userId: survivorId,
+      id: survivorPostId,
       updatedAt: new Date().toISOString(),
+      userId: survivorId,
     });
 
     await fixture.flaggerCaller.like.createLike({ postId: survivorPostId });
     await fixture.flaggerCaller.flag.createFlag({ postId: survivorPostId });
     await fixture.flaggerCaller.post.createPost({
-      parentId: survivorPostId,
       content: "A comment that leaves with its author",
+      parentId: survivorPostId,
     });
 
     const before = await counters(survivorPostId);
     assert.deepEqual(
-      { like: before?.likeCount, flag: before?.flagCount, comment: before?.commentCount },
-      { like: 1, flag: 1, comment: 1 },
+      { comment: before?.commentCount, flag: before?.flagCount, like: before?.likeCount },
+      { comment: 1, flag: 1, like: 1 },
     );
 
     await runWithoutCookieScope(() => fixture.flaggerCaller.user.deleteUser());
@@ -238,11 +245,11 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
     const afterDelete = await counters(survivorPostId);
     assert.deepEqual(
       {
-        like: afterDelete?.likeCount,
-        flag: afterDelete?.flagCount,
         comment: afterDelete?.commentCount,
+        flag: afterDelete?.flagCount,
+        like: afterDelete?.likeCount,
       },
-      { like: 0, flag: 0, comment: 0 },
+      { comment: 0, flag: 0, like: 0 },
     );
     await assertNoDrift("deleteUser cascade");
   } finally {

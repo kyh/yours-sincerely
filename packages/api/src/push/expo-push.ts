@@ -3,7 +3,8 @@ import { db } from "@repo/db/drizzle-client";
 import { pushToken } from "@repo/db/drizzle-schema";
 import { Expo } from "expo-server-sdk";
 
-import { getPushTokenIdleCutoff, type PushMessage, sendPushToUserCore } from "./expo-push-core";
+import { getPushTokenIdleCutoff, sendPushToUserCore } from "./expo-push-core";
+import type { PushMessage } from "./expo-push-core";
 
 // No access token: Expo's push service accepts unauthenticated sends, and the
 // device tokens are the only credential this side holds.
@@ -27,12 +28,12 @@ export const findLivePushTokens = async (userId: string): Promise<string[]> => {
 /** Best-effort, never throws. See `sendPushToUserCore`. */
 export const sendPushToUser = (message: PushMessage) =>
   sendPushToUserCore(message, {
-    findTokens: findLivePushTokens,
+    chunkSize: Expo.pushNotificationChunkSizeLimit,
     deleteToken: async (token) => {
       await db.delete(pushToken).where(eq(pushToken.token, token));
     },
+    findTokens: findLivePushTokens,
     isExpoPushToken: (token) => Expo.isExpoPushToken(token),
+    logError: (line) => console.error(line),
     sendChunk: (messages) => expo.sendPushNotificationsAsync(messages),
-    chunkSize: Expo.pushNotificationChunkSizeLimit,
-    logError: (message) => console.error(message),
   });

@@ -38,23 +38,23 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
 
   const signInWithPassword = useMutation(
     orpc.auth.signInWithPassword.mutationOptions({
-      onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
+      onSuccess: enterApp,
     }),
   );
   const signUp = useMutation(
     orpc.auth.signUp.mutationOptions({
-      onSuccess: enterApp,
       onError: (error) => toast.error(error.message),
+      onSuccess: enterApp,
     }),
   );
 
   const form = useForm({
-    resolver: zodResolver(signInWithPasswordInput),
     defaultValues: {
       email: "",
       password: "",
     },
+    resolver: zodResolver(signInWithPasswordInput),
   });
 
   const handleAuthWithPassword = (credentials: SignInWithPasswordInput) => {
@@ -133,23 +133,23 @@ export const RequestPasswordResetForm = () => {
   // is held in the query cache.
   const requestPasswordReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({
+      onError: (error) => toast.error(error.message),
       onSuccess: () => {
         setIsSuccess(true);
         toast.success("Password reset email sent successfully!");
       },
-      onError: (error) => toast.error(error.message),
     }),
   );
 
   const form = useForm({
+    defaultValues: {
+      email: "",
+    },
     resolver: zodResolver(
       z.object({
         email: z.email(),
       }),
     ),
-    defaultValues: {
-      email: "",
-    },
   });
 
   const handlePasswordReset = (data: { email: string }) => {
@@ -207,6 +207,7 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
 
   const setPassword = useMutation(
     orpc.auth.setPassword.mutationOptions({
+      onError: (error) => toast.error(error.message),
       onSuccess: async () => {
         // A successful reset re-admits the user with a fresh session, so the
         // identity changes. Await it before navigating, as with sign-in.
@@ -214,30 +215,29 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
         toast.success("Password set successfully!");
         router.push("/");
       },
-      onError: (error) => toast.error(error.message),
     }),
   );
 
   const form = useForm({
+    defaultValues: {
+      confirmPassword: "",
+      password: "",
+    },
     resolver: zodResolver(
       z
         .object({
-          password: z.string().min(8, "Password must be at least 8 characters"),
           confirmPassword: z.string(),
+          password: z.string().min(8, "Password must be at least 8 characters"),
         })
         .refine((data) => data.password === data.confirmPassword, {
           message: "Passwords don't match",
           path: ["confirmPassword"],
         }),
     ),
-    defaultValues: {
-      password: "",
-      confirmPassword: "",
-    },
   });
 
   const handleSetPassword = (data: { password: string; confirmPassword: string }) => {
-    setPassword.mutate({ token, password: data.password });
+    setPassword.mutate({ password: data.password, token });
   };
 
   return (

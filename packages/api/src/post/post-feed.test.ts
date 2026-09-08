@@ -20,9 +20,9 @@ test("feed input no longer accepts a parentId filter", () => {
 });
 
 test("feed input still accepts the filters clients actually send", () => {
-  assert.deepEqual(getFeedInput.parse({ userId: "a-user", limit: 5 }), {
-    userId: "a-user",
+  assert.deepEqual(getFeedInput.parse({ limit: 5, userId: "a-user" }), {
     limit: 5,
+    userId: "a-user",
   });
   assert.deepEqual(
     getFeedInput.parse({ cursor: { createdAt: "2026-07-12T00:00:00.000", postId: "a-post" } }),

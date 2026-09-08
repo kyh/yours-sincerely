@@ -23,14 +23,14 @@ export const NewPostButton = () => {
         accessibilityLabel="New post"
         className="bg-primary size-12 items-center justify-center rounded-full"
         style={{
+          bottom: 20,
+          elevation: 4,
           position: "absolute",
           right: Math.max(20, (width - CONTENT_COLUMN_STYLE.maxWidth) / 2 + 20),
-          bottom: 20,
           shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
+          shadowOffset: { height: 2, width: 0 },
           shadowOpacity: 0.2,
           shadowRadius: 4,
-          elevation: 4,
         }}
         onPress={() => setOpen(true)}
       >

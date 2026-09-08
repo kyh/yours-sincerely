@@ -65,7 +65,7 @@ const Page = () => (
           </div>
         </Card>
         <Card className="h-fit -rotate-2">
-          <p>I'm signing the cast of a popular kid at school</p>
+          <p>I&apos;m signing the cast of a popular kid at school</p>
           <footer className="flex items-center gap-1 text-sm italic">
             <span>Yours Sincerely,</span>
             <span>Anonymous</span>
@@ -82,8 +82,8 @@ const Page = () => (
         </Card>
         <Card className="ml-auto h-fit w-2/3 rotate-1">
           <p>
-            YS is a public art project with optional anonymity. It's a direct channel to the inner
-            lives of other humans who, in other contexts, rarely reveal such vulnerability
+            YS is a public art project with optional anonymity. It&apos;s a direct channel to the
+            inner lives of other humans who, in other contexts, rarely reveal such vulnerability
           </p>
           <footer className="flex items-center gap-1 text-sm italic">
             <span>Yours Sincerely,</span>

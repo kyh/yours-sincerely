@@ -7,7 +7,7 @@ import { BackButton } from "@/components/layout/back-button";
 import { Text } from "@/components/ui/text";
 import { resolveNextRoute } from "@/lib/next-route";
 
-export default function SignInScreen() {
+const SignInScreen = () => {
   const { next } = useLocalSearchParams<{ next?: string }>();
 
   return (
@@ -21,7 +21,8 @@ export default function SignInScreen() {
         <View className="items-center gap-2">
           <Link href="/auth/sign-up">
             <Text className="text-muted-foreground text-sm">
-              Don't have an account? <Text className="text-primary text-sm underline">Sign up</Text>
+              Don&apos;t have an account?{" "}
+              <Text className="text-primary text-sm underline">Sign up</Text>
             </Text>
           </Link>
           <Link href="/auth/password-reset">
@@ -31,4 +32,6 @@ export default function SignInScreen() {
       </View>
     </SafeAreaView>
   );
-}
+};
+
+export default SignInScreen;

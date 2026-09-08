@@ -30,9 +30,9 @@ import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
-type Props = {
+interface Props {
   post: RouterOutputs["post"]["getFeed"]["posts"][0];
-};
+}
 
 export const MoreButton = ({ post }: Props) => {
   const queryClient = useQueryClient();
@@ -75,26 +75,35 @@ export const MoreButton = ({ post }: Props) => {
   const blockerId = user?.id;
 
   const handleSubmit = (action: "delete" | "flag" | "block") => {
-    if (!post.id) return;
+    if (!post.id) {
+      return;
+    }
     switch (action) {
-      case "delete":
+      case "delete": {
         return deleteMutation.mutate({
           postId: post.id,
         });
-      case "flag":
+      }
+      case "flag": {
         if (!user) {
           return toast.error("You must be logged in to flag a post");
         }
         return createMutation.mutate({
           postId: post.id,
         });
-      case "block":
+      }
+      case "block": {
         if (!blockerId || !blockingId) {
           return toast.error("Invalid block");
         }
         return blockMutation.mutate({
           blockingId,
         });
+      }
+      default: {
+        const exhaustive: never = action;
+        throw new Error(`Unknown action ${String(exhaustive)}`);
+      }
     }
   };
 

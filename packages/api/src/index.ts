@@ -1,9 +1,7 @@
-import type { AppRouter } from "./root-router";
 import type { InferRouterOutputs } from "@orpc/server";
-import { appRouter } from "./root-router";
-import { createORPCContext } from "./orpc";
+import type { AppRouter } from "./root-router";
 
-type RouterOutputs = InferRouterOutputs<AppRouter>;
+export { createORPCContext } from "./orpc";
+export { type AppRouter, appRouter } from "./root-router";
 
-export { createORPCContext, appRouter };
-export type { AppRouter, RouterOutputs };
+export type RouterOutputs = InferRouterOutputs<AppRouter>;

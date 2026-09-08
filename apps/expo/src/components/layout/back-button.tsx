@@ -1,17 +1,18 @@
 import { Pressable } from "react-native";
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { cn } from "cn";
 
-type Props = {
+interface Props {
   /** Where to go when this screen was opened cold (deep link, push) and
       there is no history to pop. */
   fallback: Href;
   label?: string;
-};
+}
 
 export const BackButton = ({ fallback, label }: Props) => {
   const router = useRouter();
@@ -26,8 +27,11 @@ export const BackButton = ({ fallback, label }: Props) => {
         label !== undefined && "w-16",
       )}
       onPress={() => {
-        if (router.canGoBack()) router.back();
-        else router.replace(fallback);
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace(fallback);
+        }
       }}
     >
       <ArrowLeft size={16} color={colors.foreground} />

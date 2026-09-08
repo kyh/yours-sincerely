@@ -1,18 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  isDarkThemeId,
-  isThemeId,
-  nextFeedLayout,
-  parseFeedLayout,
-  type FeedLayout,
-  type ThemeId,
-} from "./preferences.ts";
+import { isDarkThemeId, isThemeId, nextFeedLayout, parseFeedLayout } from "./preferences.ts";
+import type { FeedLayout, ThemeId } from "./preferences.ts";
 
 test("parseFeedLayout only recognizes 'stack'; everything else is 'list'", () => {
   assert.equal(parseFeedLayout("stack"), "stack");
   assert.equal(parseFeedLayout("list"), "list");
+  // oxlint-disable-next-line unicorn/no-useless-undefined -- the parameter is required; this is the missing-cookie case
   assert.equal(parseFeedLayout(undefined), "list");
   assert.equal(parseFeedLayout(""), "list");
   assert.equal(parseFeedLayout("Stack"), "list", "matching is case-sensitive");
@@ -53,5 +48,6 @@ test("isDarkThemeId is true only for the dark variants", () => {
   // "system" is NOT dark — resolving it needs the OS preference, which this pure
   // predicate deliberately does not know about.
   assert.equal(isDarkThemeId("system"), false);
+  // oxlint-disable-next-line unicorn/no-useless-undefined -- the parameter is required; this is the unresolved-theme case
   assert.equal(isDarkThemeId(undefined), false);
 });

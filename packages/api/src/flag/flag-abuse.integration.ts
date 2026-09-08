@@ -16,7 +16,10 @@ after(async () => {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-type Flagger = { id: string; kind: "fresh" | "registered" | "aged" };
+interface Flagger {
+  id: string;
+  kind: "fresh" | "registered" | "aged";
+}
 
 /** A post by one author, plus a pool of flaggers of a given kind.
  *
@@ -29,13 +32,13 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
   const postId = randomUUID();
   const updatedAt = new Date().toISOString();
 
-  await db.insert(user).values({ id: authorId, displayName: "Author" });
+  await db.insert(user).values({ displayName: "Author", id: authorId });
   await db.insert(post).values({
-    id: postId,
     content: "A letter someone would rather nobody read",
     createdBy: "Author",
-    userId: authorId,
+    id: postId,
     updatedAt,
+    userId: authorId,
   });
 
   const flaggers: Flagger[] = flaggerKinds.map((kind) => ({ id: randomUUID(), kind }));
@@ -43,12 +46,12 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
 
   await db.insert(user).values(
     flaggers.map((flagger) => ({
-      id: flagger.id,
+      createdAt: flagger.kind === "aged" ? aged : new Date().toISOString(),
+      displayName: flagger.kind,
       // Registered: has an email. Aged: 24h+ old (and gets a post below).
       // Fresh: no email, created now, never wrote anything.
       email: flagger.kind === "registered" ? `${flagger.id}@example.com` : null,
-      displayName: flagger.kind,
-      createdAt: flagger.kind === "aged" ? aged : new Date().toISOString(),
+      id: flagger.id,
     })),
   );
 
@@ -57,12 +60,12 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
   if (agedFlaggers.length > 0) {
     await db.insert(post).values(
       agedFlaggers.map((flagger, index) => ({
-        id: agedPostIds[index] ?? randomUUID(),
         content: "An established member's own letter",
-        createdBy: flagger.kind,
-        userId: flagger.id,
         createdAt: aged,
+        createdBy: flagger.kind,
+        id: agedPostIds[index] ?? randomUUID(),
         updatedAt,
+        userId: flagger.id,
       })),
     );
   }
@@ -79,7 +82,7 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
     await db.delete(user).where(inArray(user.id, userIds));
   };
 
-  return { authorId, postId, flaggers, reader, cleanup };
+  return { authorId, cleanup, flaggers, postId, reader };
 };
 
 const flagWith = async (
@@ -93,7 +96,7 @@ const flagWith = async (
 };
 
 const isInFeed = async (fixture: Awaited<ReturnType<typeof createFixture>>): Promise<boolean> => {
-  const page = await fixture.reader.post.getFeed({ userId: fixture.authorId, limit: 50 });
+  const page = await fixture.reader.post.getFeed({ limit: 50, userId: fixture.authorId });
   return page.posts.some((row) => row.id === fixture.postId);
 };
 
@@ -134,7 +137,10 @@ integrationTest("four flags from established identities DO hide a post", async (
     );
 
     assert.equal(await isInFeed(fixture), false);
-    await assert.rejects(fixture.reader.post.getPost({ postId: fixture.postId }), /Post not found/);
+    await assert.rejects(
+      fixture.reader.post.getPost({ postId: fixture.postId }),
+      /Post not found/u,
+    );
   } finally {
     await fixture.cleanup();
   }
@@ -189,7 +195,7 @@ integrationTest("a flag's reason is persisted to Flag.comment", async () => {
     await flagWith(fixture, "  This is harassment  ");
 
     const rows = await db.select().from(flag).where(eq(flag.postId, fixture.postId));
-    const row = rows[0];
+    const [row] = rows;
     assert.ok(row);
     assert.equal(row.comment, "This is harassment");
   } finally {

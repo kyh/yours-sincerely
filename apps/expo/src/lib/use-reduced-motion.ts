@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { AccessibilityInfo } from "react-native";
 
+import { ignoreRejection } from "./ignore-rejection";
+
 type Listener = () => void;
 
 const listeners = new Set<Listener>();
@@ -8,9 +10,13 @@ let currentValue = false;
 let nativeSubscription: { remove: () => void } | undefined;
 
 const updateValue = (enabled: boolean) => {
-  if (enabled === currentValue) return;
+  if (enabled === currentValue) {
+    return;
+  }
   currentValue = enabled;
-  for (const listener of listeners) listener();
+  for (const listener of listeners) {
+    listener();
+  }
 };
 
 const subscribe = (listener: Listener) => {
@@ -18,9 +24,10 @@ const subscribe = (listener: Listener) => {
 
   if (nativeSubscription === undefined) {
     nativeSubscription = AccessibilityInfo.addEventListener("reduceMotionChanged", updateValue);
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then(updateValue)
-      .catch(() => undefined);
+    const readInitialValue = async () => {
+      updateValue(await AccessibilityInfo.isReduceMotionEnabled());
+    };
+    void ignoreRejection(readInitialValue());
   }
 
   return () => {

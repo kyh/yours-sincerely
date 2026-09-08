@@ -14,10 +14,10 @@ import { getAvatarUrl } from "@/lib/avatars";
 import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
 import { orpc } from "@/orpc/react";
 
-type ProfileFormProps = {
+interface ProfileFormProps {
   userId: string;
   readonly?: boolean;
-};
+}
 
 export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const queryClient = useQueryClient();
@@ -34,24 +34,25 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   );
 
   const form = useForm({
-    resolver: zodResolver(updateUserInput),
     defaultValues: {
       displayName: user?.displayName || "Anonymous",
     },
     mode: "onBlur",
+    resolver: zodResolver(updateUserInput),
   });
 
   const onSubmit = (data: UpdateUserInput) => {
     const promise = updateUser.mutateAsync(data);
     toast.promise(promise, {
+      error: "Could not update profile. Please try again.",
       loading: "Updating profile...",
       success: "Profile successfully updated",
-      error: "Could not update profile. Please try again.",
     });
   };
 
   return (
     <Form {...form}>
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- saves on blur of any field, no interaction added */}
       <form onBlur={form.handleSubmit(onSubmit)} className="flex flex-col items-center gap-2">
         <ProfileAvatar className="size-20" src={getAvatarUrl(user?.displayName || user?.id)} />
         <FormField

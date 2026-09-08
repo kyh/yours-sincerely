@@ -7,9 +7,15 @@ const RADIUS = 8;
 
 /** Arc endpoint from the path's `A … x y Z` tail. */
 const endpoint = (path: string) => {
-  const match = /A [\d.]+ [\d.]+ 0 (\d) 1 (-?[\d.e-]+) (-?[\d.e-]+) Z$/.exec(path);
-  assert.ok(match, `unexpected path: ${path}`);
-  return { largeArc: Number(match[1]), x: Number(match[2]), y: Number(match[3]) };
+  const match = /A [\d.]+ [\d.]+ 0 (?<largeArc>\d) 1 (?<x>-?[\d.e-]+) (?<y>-?[\d.e-]+) Z$/u.exec(
+    path,
+  );
+  assert.ok(match?.groups, `unexpected path: ${path}`);
+  return {
+    largeArc: Number(match.groups.largeArc),
+    x: Number(match.groups.x),
+    y: Number(match.groups.y),
+  };
 };
 
 describe("sectorPath", () => {

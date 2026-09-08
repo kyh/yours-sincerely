@@ -10,10 +10,12 @@ import { Text } from "@/components/ui/text";
 import { themes, useTheme } from "@/components/theme-provider";
 
 /** Dev screen: verifies every theme's tokens render correctly on native. */
-export default function ThemeGallery() {
+const ThemeGallery = () => {
   const { theme, setTheme } = useTheme();
 
-  if (!__DEV__) return <Redirect href="/" />;
+  if (!__DEV__) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <SafeAreaView className="bg-background flex-1">
@@ -74,4 +76,6 @@ export default function ThemeGallery() {
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
+
+export default ThemeGallery;

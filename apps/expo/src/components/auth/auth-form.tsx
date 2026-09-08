@@ -14,12 +14,12 @@ import { queryClient, orpc } from "@/lib/api";
 
 /** Port of the web auth-form — email + password sign in/up. The session
     cookie from the response is captured by the fetch wrapper. */
-type Props = {
+interface Props {
   type: "signin" | "signup";
   /** Where to land after a successful sign-in/sign-up. Mirrors the web
       form's `nextPath` redirect target. */
   next?: Href;
-};
+}
 
 type FieldErrors = Partial<Record<"email" | "password", string>>;
 
@@ -34,15 +34,17 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const onSuccess = async () => {
-    if (type === "signin") await releasePushIdentity();
+    if (type === "signin") {
+      await releasePushIdentity();
+    }
     queryClient.clear();
     router.replace(next);
   };
   const signIn = useMutation(
-    orpc.auth.signInWithPassword.mutationOptions({ onSuccess, onError: showMutationError }),
+    orpc.auth.signInWithPassword.mutationOptions({ onError: showMutationError, onSuccess }),
   );
   const signUp = useMutation(
-    orpc.auth.signUp.mutationOptions({ onSuccess, onError: showMutationError }),
+    orpc.auth.signUp.mutationOptions({ onError: showMutationError, onSuccess }),
   );
 
   const handleSubmit = () => {
@@ -51,17 +53,22 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
     if (!parsed.success) {
       const errors: FieldErrors = {};
       for (const issue of parsed.error.issues) {
-        const field = issue.path[0];
-        if (field === "email" && errors.email === undefined) errors.email = issue.message;
-        else if (field === "password" && errors.password === undefined)
+        const [field] = issue.path;
+        if (field === "email" && errors.email === undefined) {
+          errors.email = issue.message;
+        } else if (field === "password" && errors.password === undefined) {
           errors.password = issue.message;
+        }
       }
       setFieldErrors(errors);
       return;
     }
     setFieldErrors({});
-    if (type === "signup") signUp.mutate(parsed.data);
-    else signIn.mutate(parsed.data);
+    if (type === "signup") {
+      signUp.mutate(parsed.data);
+    } else {
+      signIn.mutate(parsed.data);
+    }
   };
 
   return (

@@ -26,14 +26,16 @@ const LEGEND_LEVELS: Level[] = [0, 1, 2, 3, 4];
 
 const getTooltipMessage = (day: Day) => {
   const date = format(parseISO(day.date), DATE_FORMAT);
-  if (!day.count) return `No posts on ${date}`;
+  if (!day.count) {
+    return `No posts on ${date}`;
+  }
   return `${day.count} post${day.count > 1 ? "s" : ""} on ${date}`;
 };
 
-type Props = {
+interface Props {
   data: Day[];
   theme: Theme;
-};
+}
 
 export const ActivityCalendar = ({ data, theme }: Props) => {
   const colors = useThemeColors();
@@ -66,7 +68,7 @@ export const ActivityCalendar = ({ data, theme }: Props) => {
             x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}
           >
             {week.map((day, dayIndex) =>
-              day !== undefined ? (
+              day === undefined ? null : (
                 <Rect
                   key={day.date}
                   y={textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * dayIndex}
@@ -80,7 +82,7 @@ export const ActivityCalendar = ({ data, theme }: Props) => {
                   accessibilityLabel={getTooltipMessage(day)}
                   onPress={() => toast(getTooltipMessage(day))}
                 />
-              ) : null,
+              ),
             )}
           </G>
         ))}

@@ -15,14 +15,13 @@
  * Run with: pnpm -F db apply-sql   (or, normally, via pnpm -F db push)
  */
 import { readFile, readdir } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 import postgres from "postgres";
 
 import { toDirectConnectionUrl } from "./connection-url";
 
-const SQL_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "sql");
+const SQL_DIR = path.join(import.meta.dirname, "..", "sql");
 
 const connectionUrl = process.env.POSTGRES_URL;
 if (!connectionUrl) {
@@ -40,7 +39,9 @@ const sql = postgres(nonPoolingUrl, {
       push that silently fixed thousands of rows cannot look like a push that did
       nothing. */
   onnotice: (notice) => {
-    if (notice.message) console.log(`  note: ${notice.message}`);
+    if (notice.message) {
+      console.log(`  note: ${notice.message}`);
+    }
   },
 });
 
@@ -48,8 +49,9 @@ const main = async () => {
   /** Filename order IS dependency order — see `sql/README.md`. Sorting in place is
       safe here (readdir hands back a fresh array, so there is nothing to mutate out
       from under anyone) and `toSorted` would need lib es2023. */
-  // oxlint-disable-next-line unicorn/no-array-sort
-  const files = (await readdir(SQL_DIR)).filter((name) => name.endsWith(".sql")).sort();
+  const entries = await readdir(SQL_DIR);
+  // oxlint-disable-next-line unicorn/no-array-sort -- fresh array from readdir; toSorted needs lib es2023
+  const files = entries.filter((name) => name.endsWith(".sql")).sort();
 
   if (files.length === 0) {
     throw new Error(`No .sql files found in ${SQL_DIR}`);
@@ -74,7 +76,7 @@ const main = async () => {
     await tx.unsafe("SET LOCAL lock_timeout = '5s'").simple();
 
     for (const file of files) {
-      const content = await readFile(join(SQL_DIR, file), "utf8");
+      const content = await readFile(path.join(SQL_DIR, file), "utf-8");
       try {
         /** `.simple()` because these files hold many statements each, and the
             extended protocol permits exactly one per message. */

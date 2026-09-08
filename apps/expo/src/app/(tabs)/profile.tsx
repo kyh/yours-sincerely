@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "@/lib/css-interop";
@@ -8,29 +9,38 @@ import { Spinner } from "@/components/ui/spinner";
 import { ProfileContent } from "@/components/profile/profile-content";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
-export default function ProfileTabScreen() {
+const ProfileTabScreen = () => {
   const router = useRouter();
   const { user, isPending } = useWorkspaceUser();
+
+  let content: ReactNode;
+  if (isPending) {
+    content = (
+      <View className="flex-1 items-center justify-center">
+        <Spinner />
+      </View>
+    );
+  } else if (user === null) {
+    content = (
+      <View className="flex-1 items-center justify-center gap-4 px-5">
+        <Text className="text-muted-foreground text-center text-sm">
+          Sign in to see your profile, stats, and writing streaks.
+        </Text>
+        <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
+      </View>
+    );
+  } else {
+    content = <ProfileContent userId={user.id} />;
+  }
 
   return (
     <SafeAreaView className="bg-background flex-1" edges={["top"]}>
       <View className="flex-row items-center justify-between px-5 py-3">
         <Text className="text-2xl font-bold tracking-tight">Profile</Text>
       </View>
-      {isPending ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : user === null ? (
-        <View className="flex-1 items-center justify-center gap-4 px-5">
-          <Text className="text-muted-foreground text-center text-sm">
-            Sign in to see your profile, stats, and writing streaks.
-          </Text>
-          <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
-        </View>
-      ) : (
-        <ProfileContent userId={user.id} />
-      )}
+      {content}
     </SafeAreaView>
   );
-}
+};
+
+export default ProfileTabScreen;

@@ -1,56 +1,59 @@
 "use client";
 
 import { ThemeProvider as NextThemeProvider } from "next-themes";
-import { isDarkThemeId, type ThemeId } from "@repo/contracts/preferences";
+import type { ThemeId } from "@repo/contracts/preferences";
 
-type ThemeOption = { id: ThemeId; value: ThemeId; label: string; color: string };
+export { isDarkThemeId as isDarkTheme } from "@repo/contracts/preferences";
+
+interface ThemeOption {
+  id: ThemeId;
+  value: ThemeId;
+  label: string;
+  color: string;
+}
 
 export { useTheme } from "next-themes";
 
 export const themes: readonly ThemeOption[] = [
   {
-    id: "system",
-    value: "system",
-    label: "System",
     color: "var(--background)",
+    id: "system",
+    label: "System",
+    value: "system",
   },
   {
-    id: "light",
-    value: "light",
-    label: "Light",
     color: "var(--theme-light)",
+    id: "light",
+    label: "Light",
+    value: "light",
   },
   {
-    id: "dark",
-    value: "dark",
-    label: "Dark",
     color: "var(--theme-dark)",
+    id: "dark",
+    label: "Dark",
+    value: "dark",
   },
   {
-    id: "light-purple",
-    value: "light-purple",
-    label: "Light Purple",
     color: "var(--theme-light-purple)",
+    id: "light-purple",
+    label: "Light Purple",
+    value: "light-purple",
   },
   {
-    id: "dark-purple",
-    value: "dark-purple",
-    label: "Dark Purple",
     color: "var(--theme-dark-purple)",
+    id: "dark-purple",
+    label: "Dark Purple",
+    value: "dark-purple",
   },
 ];
 
-export const isDarkTheme = isDarkThemeId;
-
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <NextThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      themes={themes.map((theme) => theme.value)}
-    >
-      {children}
-    </NextThemeProvider>
-  );
-};
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => (
+  <NextThemeProvider
+    attribute="class"
+    defaultTheme="system"
+    enableSystem
+    themes={themes.map((theme) => theme.value)}
+  >
+    {children}
+  </NextThemeProvider>
+);

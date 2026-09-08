@@ -2,7 +2,8 @@ import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 import { orpc } from "@/lib/api";
-import { deleteRegisteredPushDevice, type RegisteredPushDevice } from "@/lib/push-token-store";
+import { deleteRegisteredPushDevice } from "@/lib/push-token-store";
+import type { RegisteredPushDevice } from "@/lib/push-token-store";
 
 /** Releases a registered push device: server cleanup is authoritative — a
     failure throws before the local record is deleted, so the capability

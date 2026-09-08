@@ -15,14 +15,14 @@ export const pushRouter = {
     await context.db
       .insert(pushToken)
       .values({
+        lastSeenAt,
+        platform: input.platform,
         token: input.token,
         userId: context.user.id,
-        platform: input.platform,
-        lastSeenAt,
       })
       .onConflictDoUpdate({
+        set: { lastSeenAt, platform: input.platform, userId: context.user.id },
         target: pushToken.token,
-        set: { userId: context.user.id, platform: input.platform, lastSeenAt },
       });
 
     return { success: true };
@@ -34,7 +34,9 @@ export const pushRouter = {
     .input(unregisterPushTokenInput)
     .handler(async ({ context, input }) => {
       const userId = verifyPushCleanupCapability(input.capability);
-      if (userId === null) throw new ORPCError("UNAUTHORIZED");
+      if (userId === null) {
+        throw new ORPCError("UNAUTHORIZED");
+      }
 
       await context.db
         .delete(pushToken)

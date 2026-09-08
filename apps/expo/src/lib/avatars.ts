@@ -1,3 +1,4 @@
+/* oxlint-disable unicorn/prefer-module, node/global-require -- Metro resolves static assets through require() */
 import type { ImageSourcePropType } from "react-native";
 import { getLegacyAvatarIndex } from "@repo/contracts/content";
 

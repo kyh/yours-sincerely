@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   title: "Sign Up",
 };
 
-type Props = { searchParams: Promise<{ next?: string | string[] }> };
+interface Props {
+  searchParams: Promise<{ next?: string | string[] }>;
+}
 
 const Page = async ({ searchParams }: Props) => {
   const { next } = await searchParams;

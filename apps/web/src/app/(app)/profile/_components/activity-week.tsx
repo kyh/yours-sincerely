@@ -9,10 +9,10 @@ import {
   getCalendarTheme as getTheme,
 } from "@repo/contracts/calendar";
 
-type Props = {
+interface Props {
   data: Record<string, { count: number; level: CalendarLevel }>;
   theme?: Theme;
-};
+}
 
 export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
   const theme = getTheme(themeProp);
@@ -35,11 +35,11 @@ export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
             className: "block",
             cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
             cy: "50px",
+            fill: dayStats ? calendarLevelColor(theme, dayStats.level) : undefined,
             rx: dayStats ? `${dayStats.level * 4}` : "0",
             ry: dayStats ? `${dayStats.level * 4}` : "0",
-            fill: dayStats ? calendarLevelColor(theme, dayStats.level) : undefined,
-            strokeWidth: 1,
             stroke: theme.stroke,
+            strokeWidth: 1,
           };
 
           return (

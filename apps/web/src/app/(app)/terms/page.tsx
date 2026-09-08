@@ -15,8 +15,9 @@ const Page = () => (
       <p className="text-xs">Last Updated: February 2, 2025</p>
       <h4>Acceptance of Terms</h4>
       <p>
-        By accessing or using Yours Sincerely ("the Service"), you agree to be bound by these Terms
-        of Use. If you disagree with any part of these terms, you may not access the Service.
+        By accessing or using Yours Sincerely (&quot;the Service&quot;), you agree to be bound by
+        these Terms of Use. If you disagree with any part of these terms, you may not access the
+        Service.
       </p>
 
       <h4>Account Registration</h4>
@@ -36,7 +37,7 @@ const Page = () => (
         <li>Attempt to hack or disrupt the service</li>
         <li>Use the service for commercial purposes without authorization</li>
         <li>Share explicit or inappropriate content</li>
-        <li>Violate others' intellectual property rights</li>
+        <li>Violate others&apos; intellectual property rights</li>
       </ul>
 
       <h4>Content</h4>
@@ -50,7 +51,7 @@ const Page = () => (
       <p>Content must not:</p>
       <ul>
         <li>Violate laws or regulations</li>
-        <li>Infringe on others' rights</li>
+        <li>Infringe on others&apos; rights</li>
         <li>Contain malware or viruses</li>
         <li>Include hate speech or discrimination</li>
         <li>Promote illegal activities</li>
@@ -58,9 +59,11 @@ const Page = () => (
 
       <h4>Intellectual Property</h4>
       <ul>
-        <li>The Service's branding, design, and features are our property</li>
+        <li>The Service&apos;s branding, design, and features are our property</li>
         <li>You may not copy or modify our intellectual property without permission</li>
-        <li>We respect others' intellectual property rights and expect users to do the same</li>
+        <li>
+          We respect others&apos; intellectual property rights and expect users to do the same
+        </li>
       </ul>
 
       <h4>Privacy</h4>
@@ -78,7 +81,8 @@ const Page = () => (
 
       <h4>Disclaimers</h4>
       <p>
-        THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED.
+        THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+        IMPLIED.
       </p>
 
       <h4>Limitation of Liability</h4>

@@ -21,9 +21,9 @@ export const flagRouter = {
       .insert(flag)
       .values({
         ...getDefaultValues({ withId: false }),
+        comment: input.reason,
         postId: input.postId,
         userId,
-        comment: input.reason,
       })
       .onConflictDoNothing()
       .returning();

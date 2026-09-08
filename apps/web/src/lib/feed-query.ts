@@ -1,10 +1,10 @@
 import type { RouterOutputs } from "@repo/api";
 
-export type FeedFilters = {
+export interface FeedFilters {
   userId?: string;
   parentId?: string;
   limit?: number;
-};
+}
 
 type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
@@ -19,7 +19,7 @@ type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
  * caller vs. RPC link), so only the arguments can be shared, not the options.
  */
 export const feedInfiniteArgs = (filters: FeedFilters) => ({
-  input: (cursor: FeedCursor) => ({ ...filters, cursor }),
-  initialPageParam: undefined,
   getNextPageParam: (lastPage: RouterOutputs["post"]["getFeed"]) => lastPage.nextCursor,
+  initialPageParam: undefined,
+  input: (cursor: FeedCursor) => ({ ...filters, cursor }),
 });

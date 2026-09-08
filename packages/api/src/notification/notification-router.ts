@@ -13,7 +13,7 @@ import { FLAG_HIDE_THRESHOLD } from "../post/post-utils";
 
 /** Code points, not UTF-16 units, so a cut never lands inside an emoji. */
 const previewOf = (content: string) =>
-  Array.from(content).slice(0, NOTIFICATION_PREVIEW_MAX_CHARS).join("");
+  [...content].slice(0, NOTIFICATION_PREVIEW_MAX_CHARS).join("");
 
 /** The rules `post.getPost` applies before it shows a comment, on the joined
     `post` row: a preview must not carry words the recipient blocked or the
@@ -39,14 +39,14 @@ export const notificationRouter = {
     // derived from the page.
     const rows = await context.db
       .select({
+        actorName: notification.actorName,
+        commentId: notification.commentId,
+        content: post.content,
+        createdAt: notification.createdAt,
         id: notification.id,
         kind: notification.kind,
         postId: notification.postId,
-        commentId: notification.commentId,
-        actorName: notification.actorName,
         readAt: notification.readAt,
-        createdAt: notification.createdAt,
-        content: post.content,
       })
       .from(notification)
       // Inner: the comment FK cascades, so a notification without its comment
@@ -81,10 +81,10 @@ export const notificationRouter = {
     const lastItem = pageItems.at(-1);
     const nextCursor =
       hasMore && lastItem
-        ? { notificationId: lastItem.id, createdAt: lastItem.createdAt }
+        ? { createdAt: lastItem.createdAt, notificationId: lastItem.id }
         : undefined;
 
-    return { notifications, nextCursor };
+    return { nextCursor, notifications };
   }),
 
   markRead: protectedProcedure

@@ -12,9 +12,9 @@ import { orpc } from "@/orpc/react";
 import { PostContent } from "../_components/post-content";
 import { PostForm } from "../_components/post-form";
 
-type Props = {
+interface Props {
   postId: string;
-};
+}
 
 export const PostPage = ({ postId }: Props) => {
   const router = useRouter();

@@ -19,9 +19,9 @@ import {
 
 // 2026-06-01 is a Monday. All fixed dates below anchor to that week.
 const emptyDays = (from: string, to: string): CalendarDay[] =>
-  eachDayOfInterval({ start: parseISO(from), end: parseISO(to) }).map((day) => ({
-    date: format(day, "yyyy-MM-dd"),
+  eachDayOfInterval({ end: parseISO(to), start: parseISO(from) }).map((day) => ({
     count: 0,
+    date: format(day, "yyyy-MM-dd"),
     level: 0,
   }));
 
@@ -63,17 +63,17 @@ test("weekStart shifts the padding", () => {
 
 test("gaps between supplied days are filled with empty days", () => {
   const weeks = groupCalendarDaysByWeeks([
-    { date: "2026-06-01", count: 2, level: 4 },
-    { date: "2026-06-05", count: 1, level: 1 },
+    { count: 2, date: "2026-06-01", level: 4 },
+    { count: 1, date: "2026-06-05", level: 1 },
   ]);
 
   const days = weeks.flat();
   assert.equal(days[1]?.date, "2026-06-01");
   assert.equal(days[1]?.count, 2);
   // 06-02..06-04 were never supplied; they are materialized at zero.
-  assert.deepEqual(days[2], { date: "2026-06-02", count: 0, level: 0 });
-  assert.deepEqual(days[3], { date: "2026-06-03", count: 0, level: 0 });
-  assert.deepEqual(days[4], { date: "2026-06-04", count: 0, level: 0 });
+  assert.deepEqual(days[2], { count: 0, date: "2026-06-02", level: 0 });
+  assert.deepEqual(days[3], { count: 0, date: "2026-06-03", level: 0 });
+  assert.deepEqual(days[4], { count: 0, date: "2026-06-04", level: 0 });
   assert.equal(days[5]?.count, 1);
 });
 
@@ -87,10 +87,10 @@ test("month labels mark the first week of each month", () => {
   const weeks = groupCalendarDaysByWeeks(emptyDays("2026-06-01", "2026-09-15"));
 
   assert.deepEqual(getCalendarMonthLabels(weeks), [
-    { x: 0, y: 0, text: "Jun" },
-    { x: 5, y: 0, text: "Jul" },
-    { x: 9, y: 0, text: "Aug" },
-    { x: 14, y: 0, text: "Sep" },
+    { text: "Jun", x: 0, y: 0 },
+    { text: "Jul", x: 5, y: 0 },
+    { text: "Aug", x: 9, y: 0 },
+    { text: "Sep", x: 14, y: 0 },
   ]);
 });
 
@@ -102,9 +102,9 @@ test("a crowded first label is dropped", () => {
   const labels = getCalendarMonthLabels(weeks);
 
   assert.deepEqual(labels, [
-    { x: 2, y: 0, text: "Jul" },
-    { x: 6, y: 0, text: "Aug" },
-    { x: 11, y: 0, text: "Sep" },
+    { text: "Jul", x: 2, y: 0 },
+    { text: "Aug", x: 6, y: 0 },
+    { text: "Sep", x: 11, y: 0 },
   ]);
   const [first, second] = labels;
   assert.ok(first !== undefined && second !== undefined);
@@ -142,7 +142,8 @@ test("the heatmap counts posts per day and drops posts outside the window", () =
     atNoon(daysFromToday(-3)),
     atNoon(daysFromToday(-3)),
     atNoon(daysFromToday(-5)),
-    atNoon(daysFromToday(-400)), // far outside a 200-day window — must be discarded
+    // far outside a 200-day window — must be discarded
+    atNoon(daysFromToday(-400)),
   ];
 
   const { stats, max } = createPostsHeatmap(posts, 200);
@@ -167,12 +168,14 @@ test("the heatmap counts posts per day and drops posts outside the window", () =
 test("heatmap levels follow the 0.3 / 0.6 / 0.9 thresholds of the day's max", () => {
   // getPostLevel is private; it is exercised through the levels it produces here.
   // With max = 10: 0 → 0, <3 → 1, <6 → 2, <9 → 3, else 4.
+  // 10 → level 4; 1 → level 1; 3 → level 2 (0.3 is exclusive);
+  // 6 → level 3 (0.6 is exclusive); 9 → level 4 (0.9 is exclusive).
   const posts = [
-    ...Array.from({ length: 10 }, () => atNoon(daysFromToday(-1))), // 10 → level 4
-    ...Array.from({ length: 1 }, () => atNoon(daysFromToday(-2))), //   1 → level 1
-    ...Array.from({ length: 3 }, () => atNoon(daysFromToday(-3))), //   3 → level 2 (0.3 is exclusive)
-    ...Array.from({ length: 6 }, () => atNoon(daysFromToday(-4))), //   6 → level 3 (0.6 is exclusive)
-    ...Array.from({ length: 9 }, () => atNoon(daysFromToday(-5))), //   9 → level 4 (0.9 is exclusive)
+    ...Array.from({ length: 10 }, () => atNoon(daysFromToday(-1))),
+    ...Array.from({ length: 1 }, () => atNoon(daysFromToday(-2))),
+    ...Array.from({ length: 3 }, () => atNoon(daysFromToday(-3))),
+    ...Array.from({ length: 6 }, () => atNoon(daysFromToday(-4))),
+    ...Array.from({ length: 9 }, () => atNoon(daysFromToday(-5))),
   ];
 
   const { stats, max } = createPostsHeatmap(posts, 30);
@@ -199,19 +202,21 @@ test("an empty heatmap has a zero max and all-zero levels", () => {
 
 test("daily activity aggregates posts by weekday", () => {
   // 2026-06-01 is a Monday, so 06-01..06-07 is exactly Mon..Sun.
+  // Mon 10 → level 4, and the max; Tue 1 → level 1; Wed 4 → level 2;
+  // Thu 8 → level 3; Fri (06-05) left empty → level 0;
+  // Sat 3 → level 2 (0.3 exclusive); Sun 6 → level 3 (0.6 exclusive).
   const posts = [
-    ...Array.from({ length: 10 }, () => atNoon("2026-06-01")), // Mon → level 4, and the max
-    ...Array.from({ length: 1 }, () => atNoon("2026-06-02")), // Tue → level 1
-    ...Array.from({ length: 4 }, () => atNoon("2026-06-03")), // Wed → level 2
-    ...Array.from({ length: 8 }, () => atNoon("2026-06-04")), // Thu → level 3
-    // Fri (06-05) left empty  → level 0
-    ...Array.from({ length: 3 }, () => atNoon("2026-06-06")), // Sat → level 2 (0.3 exclusive)
-    ...Array.from({ length: 6 }, () => atNoon("2026-06-07")), // Sun → level 3 (0.6 exclusive)
+    ...Array.from({ length: 10 }, () => atNoon("2026-06-01")),
+    ...Array.from({ length: 1 }, () => atNoon("2026-06-02")),
+    ...Array.from({ length: 4 }, () => atNoon("2026-06-03")),
+    ...Array.from({ length: 8 }, () => atNoon("2026-06-04")),
+    ...Array.from({ length: 3 }, () => atNoon("2026-06-06")),
+    ...Array.from({ length: 6 }, () => atNoon("2026-06-07")),
   ];
 
   const { stats, max } = createPostsDailyActivity(posts);
 
-  assert.deepEqual(max, { max: 10, day: "Mon" });
+  assert.deepEqual(max, { day: "Mon", max: 10 });
   assert.deepEqual(stats.Mon, { count: 10, level: 4 });
   assert.deepEqual(stats.Tue, { count: 1, level: 1 });
   assert.deepEqual(stats.Wed, { count: 4, level: 2 });
@@ -224,7 +229,7 @@ test("daily activity aggregates posts by weekday", () => {
 test("daily activity with no posts reports no busiest day", () => {
   const { stats, max } = createPostsDailyActivity([]);
 
-  assert.deepEqual(max, { max: 0, day: "none" });
+  assert.deepEqual(max, { day: "none", max: 0 });
   assert.equal(Object.keys(stats).length, 7);
   assert.ok(Object.values(stats).every((day) => day.count === 0 && day.level === 0));
 });
@@ -233,7 +238,7 @@ test("daily activity buckets a zone-less timestamp by its UTC instant", () => {
   // Guards the shared parseServerDate: "2026-06-01 12:00:00.000" is noon UTC (Monday),
   // never noon local. A bare `new Date()` here would drift the weekday at the edges.
   const { max } = createPostsDailyActivity([atNoon("2026-06-01")]);
-  assert.deepEqual(max, { max: 1, day: "Mon" });
+  assert.deepEqual(max, { day: "Mon", max: 1 });
 });
 
 // --- theme + scaffolding ----------------------------------------------------
@@ -248,7 +253,7 @@ test("calendarLevelColor maps every level to its theme colour", () => {
 
 test("getCalendarTheme falls back to the default", () => {
   assert.equal(getCalendarTheme(), DEFAULT_CALENDAR_THEME);
-  assert.equal(getCalendarTheme(undefined), DEFAULT_CALENDAR_THEME);
+  assert.equal(getCalendarTheme(), DEFAULT_CALENDAR_THEME);
 
   const custom = { ...DEFAULT_CALENDAR_THEME, level0: "#000000" };
   assert.equal(getCalendarTheme(custom), custom);
@@ -259,17 +264,19 @@ test("generateEmptyCalendarData covers a whole year", () => {
 
   assert.equal(days.length, 365);
   assert.equal(days[0]?.date, "2026-01-01");
-  assert.equal(days[days.length - 1]?.date, "2026-12-31");
+  assert.equal(days.at(-1)?.date, "2026-12-31");
   assert.ok(days.every((day) => day.count === 0 && day.level === 0));
 
   assert.equal(generateEmptyCalendarData(2028).length, 366, "leap year");
 });
 
 test("profile calendar themes are complete hex ramps in both appearances", () => {
-  const HEX = /^#[0-9a-f]{6}$/;
+  const HEX = /^#[0-9a-f]{6}$/u;
   for (const theme of [PROFILE_CALENDAR_THEMES.light, PROFILE_CALENDAR_THEMES.dark]) {
     const levels = ([0, 1, 2, 3, 4] as const).map((level) => calendarLevelColor(theme, level));
-    for (const color of [...levels, theme.stroke]) assert.match(color, HEX);
+    for (const color of [...levels, theme.stroke]) {
+      assert.match(color, HEX);
+    }
     assert.equal(new Set(levels).size, levels.length);
   }
 });

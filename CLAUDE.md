@@ -58,7 +58,7 @@ pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
 pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
 pnpm verify           # typecheck + lint + format + test — mirrors CI, run before commit
-pnpm lint             # oxlint (NOT ESLint), warnings are errors
+pnpm lint             # oxlint (NOT ESLint) via ultracite presets, every rule an error
 pnpm format           # oxfmt --check (use format:fix to write)
 pnpm typecheck        # TypeScript
 pnpm test             # node:test suites (turbo run test)

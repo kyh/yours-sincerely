@@ -8,11 +8,11 @@ export const metadata: Metadata = {
   title: "Profile",
 };
 
-type Props = {
+interface Props {
   params: Promise<{
     userId: string;
   }>;
-};
+}
 
 const Page = async (props: Props) => {
   const params = await props.params;
