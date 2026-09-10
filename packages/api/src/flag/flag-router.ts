@@ -33,7 +33,7 @@ export const flagRouter = {
     const existing =
       created ??
       (await context.db.query.flag.findFirst({
-        where: (row, { and, eq }) => and(eq(row.postId, input.postId), eq(row.userId, userId)),
+        where: { postId: input.postId, userId },
       }));
 
     return {

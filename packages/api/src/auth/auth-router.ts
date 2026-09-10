@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { ORPCError } from "@orpc/server";
-import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 
 import type { ORPCContext } from "../orpc";
@@ -81,7 +81,7 @@ export const authRouter = {
       }
 
       const existingUser = await context.db.query.user.findFirst({
-        where: eq(user.email, input.email),
+        where: { email: input.email },
       });
 
       // Always return success to prevent email enumeration
@@ -120,12 +120,12 @@ export const authRouter = {
     }),
   setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
     const resetToken = await context.db.query.token.findFirst({
-      where: and(
-        eq(tokenTable.token, input.token),
-        eq(tokenTable.type, "RESET_PASSWORD"),
-        gt(tokenTable.expiresAt, new Date().toISOString()),
-        isNull(tokenTable.usedAt),
-      ),
+      where: {
+        expiresAt: { gt: new Date().toISOString() },
+        token: input.token,
+        type: "RESET_PASSWORD",
+        usedAt: { isNull: true },
+      },
     });
 
     if (!resetToken) {
@@ -153,7 +153,7 @@ export const authRouter = {
     .input(signInWithPasswordInput)
     .handler(async ({ context, input }) => {
       const existingUser = await context.db.query.user.findFirst({
-        where: eq(user.email, input.email),
+        where: { email: input.email },
       });
 
       if (!existingUser?.passwordHash) {
@@ -191,7 +191,7 @@ export const authRouter = {
   signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
     // Check if email already exists
     const existingUser = await context.db.query.user.findFirst({
-      where: eq(user.email, input.email),
+      where: { email: input.email },
     });
 
     if (existingUser) {
