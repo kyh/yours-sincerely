@@ -22,7 +22,7 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "format": "oxfmt --check",
-    "verify": "pnpm typecheck && pnpm lint && pnpm format && pnpm test",
+    "verify": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm build",
     "lint:fix": "oxlint --fix",
     "format:fix": "oxfmt --write",
     "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs",
