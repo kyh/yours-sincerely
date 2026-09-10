@@ -1,17 +1,23 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches: [main]
+  pull_request:
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check:
+  ci:
     runs-on: ubuntu-latest
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
+      # `next build` runs as NODE_ENV=production, where the session signer fails
+      # closed rather than fall back to the dev constant. Throwaway: CI never
+      # signs a cookie anyone holds.
+      COOKIE_SECRET: yours-sincerely-ci-only-cookie-secret-not-a-real-signer
     steps:
       - uses: actions/checkout@v6
 
@@ -20,6 +26,17 @@ jobs:
           runtime: node@24
           cache: true
 
-      # Same command developers and agents run locally, so the gate cannot drift.
-      - name: Verify
-        run: pnpm verify
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
