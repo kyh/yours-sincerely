@@ -9,7 +9,7 @@ const nextPackages = ["apps/web/**", "packages/api/**"];
 export default defineConfig({
   extends: [core, react, antiSlop],
   ignorePatterns: [
-    ...core.ignorePatterns,
+    ...(core.ignorePatterns ?? []),
     "dist-electron",
     ".expo",
     ".wxt",
