@@ -1,5 +1,5 @@
 import type { ORPCContext } from "../orpc";
-import { and, desc, eq, gte, inArray, lt, notExists, or, sql } from "@repo/db";
+import { and, desc, eq, inArray, lt, notExists, or, sql } from "@repo/db";
 import { block, feed, flag, like, notification, post } from "@repo/db/drizzle-schema";
 import { getDefaultValues } from "@repo/db/utils";
 import { describeNotification } from "@repo/contracts/notifications";
@@ -30,7 +30,7 @@ const findMyLikes = async (context: ORPCContext, postIds: string[]): Promise<Set
 
   const rows = await context.db.query.like.findMany({
     columns: { postId: true },
-    where: and(eq(like.userId, viewerId), inArray(like.postId, postIds)),
+    where: { postId: { in: postIds }, userId: viewerId },
   });
 
   return new Set(rows.map((row) => row.postId));
@@ -57,7 +57,7 @@ export const postRouter = {
       const parent = inserted?.parentId
         ? await tx.query.post.findFirst({
             columns: { id: true, userId: true },
-            where: eq(post.id, inserted.parentId ?? ""),
+            where: { id: inserted.parentId ?? "" },
           })
         : undefined;
 
@@ -70,7 +70,7 @@ export const postRouter = {
       // the push would be the one channel the block did not cover.
       const blocked = await tx.query.block.findFirst({
         columns: { blockerId: true },
-        where: and(eq(block.blockerId, parent.userId), eq(block.blockingId, inserted.userId)),
+        where: { blockerId: parent.userId, blockingId: inserted.userId },
       });
       if (blocked) {
         return { created: inserted, reply: null };
@@ -126,7 +126,7 @@ export const postRouter = {
   deletePost: protectedProcedure.input(deletePostInput).handler(async ({ context, input }) => {
     const ownedPost = await context.db.query.post.findFirst({
       columns: { id: true },
-      where: and(eq(post.id, input.postId), eq(post.userId, context.user.id)),
+      where: { id: input.postId, userId: context.user.id },
     });
 
     if (ownedPost === undefined) {
@@ -214,14 +214,14 @@ export const postRouter = {
 
   getPost: publicProcedure.input(getPostInput).handler(async ({ context, input }) => {
     const blockedUsers = await context.db.query.block.findMany({
-      where: eq(block.blockerId, context.user?.id ?? ""),
+      where: { blockerId: context.user?.id ?? "" },
     });
     const blockingUserIds = new Set(blockedUsers.map((user) => user.blockingId));
 
     // No `likes`/`flags` relations are loaded any more: the counters on Post
     // answer both questions, and `isLiked` is one small lookup below.
     const dbPost = await context.db.query.post.findFirst({
-      where: eq(post.id, input.postId),
+      where: { id: input.postId },
       with: { posts: true },
     });
 
@@ -271,8 +271,8 @@ export const postRouter = {
       columns: {
         createdAt: true,
       },
-      orderBy: desc(post.createdAt),
-      where: and(eq(post.userId, input.userId), gte(post.createdAt, getPostHistoryFloor())),
+      orderBy: { createdAt: "desc" },
+      where: { createdAt: { gte: getPostHistoryFloor() }, userId: input.userId },
     });
 
     return { posts };
