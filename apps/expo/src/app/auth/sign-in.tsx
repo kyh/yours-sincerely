@@ -1,36 +1,38 @@
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
-import { SafeAreaView } from "@/lib/css-interop";
+import { safeNextPath } from "@repo/contracts/navigation";
 
 import { AuthForm } from "@/components/auth/auth-form";
-import { BackButton } from "@/components/layout/back-button";
+import { AuthScreen } from "@/components/auth/auth-screen";
 import { Text } from "@/components/ui/text";
 import { resolveNextRoute } from "@/lib/next-route";
 
 const SignInScreen = () => {
-  const { next } = useLocalSearchParams<{ next?: string }>();
+  const { next } = useLocalSearchParams<{ next?: string | string[] }>();
+  const nextParam = safeNextPath(next);
 
   return (
-    <SafeAreaView className="bg-background flex-1">
-      <View className="px-5 py-3">
-        <BackButton fallback="/" label="Back" />
-      </View>
-      <View className="flex-1 justify-center gap-6 px-6">
-        <Text className="text-center text-2xl font-bold">Welcome back</Text>
+    <AuthScreen>
+      <View className="mt-2">
         <AuthForm type="signin" next={resolveNextRoute(next)} />
-        <View className="items-center gap-2">
-          <Link href="/auth/sign-up">
-            <Text className="text-muted-foreground text-sm">
-              Don&apos;t have an account?{" "}
-              <Text className="text-primary text-sm underline">Sign up</Text>
-            </Text>
-          </Link>
-          <Link href="/auth/password-reset">
-            <Text className="text-muted-foreground text-sm underline">Forgot your password?</Text>
-          </Link>
-        </View>
       </View>
-    </SafeAreaView>
+      <View className="flex-row items-center justify-center gap-1">
+        <Link href={{ params: { next: nextParam }, pathname: "/auth/sign-up" }} asChild>
+          <Pressable
+            accessibilityRole="link"
+            className="min-h-11 min-w-11 items-center justify-center"
+          >
+            <Text className="text-muted-foreground text-xs underline">Sign up</Text>
+          </Pressable>
+        </Link>
+        <Text className="text-muted-foreground text-xs">·</Text>
+        <Link href="/auth/password-reset" asChild>
+          <Pressable accessibilityRole="link" className="min-h-11 items-center justify-center">
+            <Text className="text-muted-foreground text-xs underline">Forgot password?</Text>
+          </Pressable>
+        </Link>
+      </View>
+    </AuthScreen>
   );
 };
 

@@ -71,9 +71,12 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
       <ProfileAvatar name={user?.displayName ?? user?.id} />
       <TextInput
         accessibilityLabel="Display name"
+        lineBreakModeIOS="clip"
         accessibilityState={{ busy: updateUser.isPending }}
         value={displayName}
         editable={!updateUser.isPending}
+        maxLength={50}
+        returnKeyType="done"
         onChangeText={(value) => {
           setDisplayName(value);
           setError(null);
@@ -81,11 +84,15 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
         onBlur={handleBlur}
         placeholder="Your name"
         placeholderTextColor={colors.mutedForeground}
-        className="text-foreground rounded px-3 py-1 font-sans text-xl font-bold"
+        className="text-foreground min-h-11 w-full rounded px-3 py-1 font-sans text-xl font-bold"
         style={{ textAlign: "center" }}
       />
       {updateUser.isPending && <Text className="text-muted-foreground text-xs">Saving…</Text>}
-      {error !== null && <Text className="text-destructive text-xs">{error}</Text>}
+      {error !== null && (
+        <Text accessibilityRole="alert" className="text-destructive text-xs">
+          {error}
+        </Text>
+      )}
     </View>
   );
 };

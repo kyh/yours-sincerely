@@ -5,6 +5,9 @@
     "dev": {
       "persistent": true,
       "interactive": true
+    },
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/app/styles/themes.css"]
     }
   }
 }

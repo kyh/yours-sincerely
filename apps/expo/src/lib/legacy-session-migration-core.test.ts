@@ -329,6 +329,7 @@ describe("retireLegacySession", () => {
       await retireLegacySession({
         ...harness.deps,
         clearLegacy: () => {
+          assert.equal(harness.checkpoint, "complete");
           clearCount += 1;
           return Promise.resolve();
         },

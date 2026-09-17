@@ -14,7 +14,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import Svg, {
@@ -29,14 +28,14 @@ import Svg, {
 } from "react-native-svg";
 
 import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { createBalloonScene, projectBalloon } from "./balloon-scene";
 
 /** Port of apps/web/src/components/animations/balloons.tsx (Web Animations
     API → reanimated). Same color pairs, easings, sway + alternating tilt.
     The balloon art mirrors the web SVG (viewBox 223x609): gradient string,
     body, knot, soft radial shadow for volume, and lighten glints — softened
-    with react-native-svg native Gaussian-blur filters. Web's CSS 3D
-    perspective is approximated with per-balloon scale + paint-order depth
-    sorting + a bokeh blur on the nearest balloons. */
+    with react-native-svg native Gaussian-blur filters. The web's perspective
+    projects each flight into native translation and scale. */
 
 // viewBox aspect of the source SVG (223 wide, 609 tall incl. string).
 const BALLOON_VIEWBOX_WIDTH = 223;
@@ -60,15 +59,13 @@ interface BalloonConfig {
   balloonColor: string;
   x: number;
   targetX: number;
-  scale: number;
+  depth: number;
   width: number;
   duration: number;
   delay: number;
   tiltAngle: number;
   tiltDirection: 1 | -1;
   easingIndex: number;
-  // paint order + bokeh, mirroring web's z-index sort (nearest on top/blurred).
-  zIndex: number;
   blur: boolean;
 }
 
@@ -191,46 +188,56 @@ const BalloonGraphic = ({
   );
 };
 
-const Balloon = ({ config, screenHeight }: { config: BalloonConfig; screenHeight: number }) => {
-  const balloonHeight = config.width * BALLOON_ASPECT;
-  const travel = screenHeight + balloonHeight * 2;
-
-  const y = useSharedValue(0);
-  const x = useSharedValue(config.x);
-  const rotate = useSharedValue(-config.tiltDirection * config.tiltAngle);
+const Balloon = ({
+  config,
+  screenWidth,
+  screenHeight,
+}: {
+  config: BalloonConfig;
+  screenWidth: number;
+  screenHeight: number;
+}) => {
+  const progress = useSharedValue(0);
 
   // Kick off on mount — float up with sway + alternating tilt. Runs in an
   // effect (not the render body) so re-renders never restart the flight; the
   // config is stable for a mounted balloon (unique id per batch).
   useEffect(() => {
     const easing = easings[config.easingIndex] ?? Easing.linear;
-    y.set(withDelay(config.delay, withTiming(-travel, { duration: config.duration, easing })));
-    x.set(
-      withDelay(config.delay, withTiming(config.targetX, { duration: config.duration, easing })),
-    );
-    rotate.set(
-      withDelay(
-        config.delay,
-        withSequence(
-          withTiming(config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
-          withTiming(-config.tiltDirection * config.tiltAngle, { duration: config.duration / 2 }),
-        ),
-      ),
-    );
-  }, [config, rotate, travel, x, y]);
+    progress.set(withDelay(config.delay, withTiming(1, { duration: config.duration, easing })));
+  }, [config, progress]);
 
-  const style = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: x.get() },
-      { translateY: y.get() },
-      { rotate: `${rotate.get()}deg` },
-      { scale: config.scale },
-    ],
-  }));
+  const style = useAnimatedStyle(() => {
+    const t = progress.get();
+    const position = projectBalloon(
+      config.x + (config.targetX - config.x) * t,
+      screenHeight - screenHeight * 5 * t + config.width / 2,
+      config.depth,
+      { height: screenHeight, width: screenWidth },
+    );
+    const tilt = (t <= 0.5 ? t * 2 : 2 - t * 2) * 2 - 1;
+    return {
+      opacity: t === 0 ? 0 : 1,
+      transform: [
+        { translateX: position.x },
+        { translateY: position.y },
+        { rotate: `${config.tiltDirection * config.tiltAngle * tilt}deg` },
+        { scale: position.scale },
+      ],
+    };
+  });
 
   return (
     <Animated.View
-      style={[{ left: -config.width / 2, position: "absolute", top: screenHeight }, style]}
+      style={[
+        {
+          left: -config.width / 2,
+          position: "absolute",
+          top: -config.width / 2,
+          transformOrigin: [config.width / 2, config.width / 2, 0],
+        },
+        style,
+      ]}
     >
       <BalloonGraphic
         width={config.width}
@@ -269,40 +276,22 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const balloonWidth = Math.min(screenWidth, screenHeight) * 0.4;
-    const amount = Math.max(7, Math.round(screenWidth / (balloonWidth / 2)));
-
-    type BaseConfig = Omit<BalloonConfig, "zIndex" | "blur">;
-    const base: BaseConfig[] = [];
-    for (let i = 0; i < amount; i += 1) {
-      const colorPair = colorPairs[i % colorPairs.length] ?? colorPairs[0];
-      if (colorPair === undefined) {
-        continue;
-      }
-      base.push({
-        balloonColor: colorPair[1],
-        delay: i * 200,
-        duration: (Math.random() * 1000 + 5000) * 2,
+    const configs: BalloonConfig[] = createBalloonScene({
+      height: screenHeight,
+      width: screenWidth,
+    }).map((position, index) => {
+      const colorPair = colorPairs[index % colorPairs.length];
+      return {
+        ...position,
+        balloonColor: colorPair?.[1] ?? "#84A332",
+        duration: (Math.random() * 1000 + 5000) * 5,
         easingIndex: Math.floor(Math.random() * easings.length),
         id: (nextId.current += 1),
-        lightColor: colorPair[0],
-        scale: 0.4 + Math.random() * 0.6,
-        targetX: Math.round(
-          screenWidth * Math.random() + balloonWidth * 2 * (Math.random() > 0.5 ? 1 : -1),
-        ),
+        lightColor: colorPair?.[0] ?? "#C0F381",
         tiltAngle: Math.random() * (15 - 8) + 8,
         tiltDirection: Math.random() < 0.5 ? 1 : -1,
-        width: balloonWidth,
-        x: Math.round(screenWidth * Math.random()),
-      });
-    }
-
-    // Depth sort: smallest (farthest) painted first, largest (nearest) on top.
-    // Web bokeh-blurs the closest balloons (z-index > 7); mirror that threshold.
-    const configs: BalloonConfig[] = [...base]
-      // oxlint-disable-next-line unicorn/no-array-sort -- toSorted needs an ES2023 lib; the copy makes this non-mutating
-      .sort((a, b) => a.scale - b.scale)
-      .map((c, index) => Object.assign(c, { blur: index + 1 > 7, zIndex: index + 1 }));
+      };
+    });
 
     const maxLifetime = Math.max(0, ...configs.map((c) => c.duration + c.delay));
 
@@ -332,7 +321,12 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
           }}
         >
           {balloons.map((config) => (
-            <Balloon key={config.id} config={config} screenHeight={screenHeight} />
+            <Balloon
+              key={config.id}
+              config={config}
+              screenHeight={screenHeight}
+              screenWidth={screenWidth}
+            />
           ))}
         </View>
       )}

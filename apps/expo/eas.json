@@ -46,6 +46,9 @@
       "extends": "base",
       "autoIncrement": true,
       "environment": "production",
+      "android": {
+        "credentialsSource": "local"
+      },
       "env": {
         "APP_VARIANT": "production"
       }

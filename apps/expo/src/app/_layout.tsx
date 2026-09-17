@@ -3,6 +3,7 @@ import {
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
+  Inter_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -20,6 +21,8 @@ import { ConnectivityBanner } from "@/components/connectivity-banner";
 import { FeedLayoutProvider } from "@/components/feed-layout-provider";
 import { PushNotificationProvider } from "@/components/notifications/push-notification-provider";
 import { SessionReconciler } from "@/components/session-reconciler";
+import { DrawerBackdropProvider } from "@/components/ui/bottom-drawer";
+import { AppShell } from "@/components/layout/app-shell";
 import { GestureHandlerRootView } from "@/lib/css-interop";
 import { isDarkTheme, ThemeProvider, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
@@ -51,7 +54,7 @@ export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
         This letter hit a snag
       </NativeText>
       <NativeText style={{ color: colors.mutedForeground, fontSize: 14, textAlign: "center" }}>
-        Your session is safe. Try opening the page again.
+        Try opening the page again. If the problem persists, please try again later.
       </NativeText>
       <Pressable
         accessibilityRole="button"
@@ -80,13 +83,22 @@ const RootStack = () => {
 
   return (
     <>
-      <Stack
-        screenOptions={{
-          contentStyle: { backgroundColor: colors.background },
-          headerShown: false,
+      <AppShell>
+        <Stack
+          screenOptions={{
+            contentStyle: { backgroundColor: colors.background },
+            headerShown: false,
+          }}
+        />
+      </AppShell>
+      <Toaster
+        theme={isDarkTheme(resolvedTheme) ? "dark" : "light"}
+        toastOptions={{
+          descriptionStyle: { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+          style: { backgroundColor: colors.card, borderColor: colors.border },
+          titleStyle: { color: colors.cardForeground, fontFamily: "Inter_500Medium" },
         }}
       />
-      <Toaster />
       <ConnectivityBanner />
       <StatusBar style={isDarkTheme(resolvedTheme) ? "light" : "dark"} />
     </>
@@ -99,6 +111,7 @@ const RootLayout = () => {
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
+    Inter_800ExtraBold,
   });
   // On font failure, proceed with system fonts rather than hang on the splash.
   const fontsReady = fontsLoaded || fontError !== null;
@@ -120,7 +133,9 @@ const RootLayout = () => {
             <PushNotificationProvider>
               <FeedLayoutProvider>
                 <BalloonsProvider>
-                  <RootStack />
+                  <DrawerBackdropProvider>
+                    <RootStack />
+                  </DrawerBackdropProvider>
                 </BalloonsProvider>
               </FeedLayoutProvider>
             </PushNotificationProvider>

@@ -6,20 +6,23 @@ Ship Expo as the Capacitor app update. Preserve identity. Match web features. Im
 
 ## Stop rule
 
-Signed Release passes the upgrade journey and critical native journeys on iOS. API authorization and public contracts have regression coverage. No known launch blocker remains.
+Store-delivered updates preserve the existing identity on physical iOS and Android phones.
+The current candidate passes critical native journeys, push delivery and verified HTTPS links
+on both platforms. API authorization and public contracts have regression coverage.
 
 ## Map
 
-| Slice                                                 | Status      | Proof                                                          |
-| ----------------------------------------------------- | ----------- | -------------------------------------------------------------- |
-| [01 API safety](./01-api-safety.md)                   | Verified    | Four schema tests + three database tests                       |
-| [02 identity continuity](./02-identity-continuity.md) | Verified    | Real Capacitor cookie, reinstall, cold restart                 |
-| [03 profile Release](./03-profile-release.md)         | Verified    | Signed Hermes Release + live profile persistence               |
-| [04 notifications](./04-notifications.md)             | In progress | In-house feed + Expo push; backfill and physical push pending  |
-| [05 deep links](./05-deep-links.md)                   | Implemented | Universal links + canonical HTTPS password reset               |
-| [06 shared domain](./06-shared-domain.md)             | Implemented | Contracts, calendar, content, preferences shared               |
-| [07 release gate](./07-release-gate.md)               | In progress | Upgrade fixture passes on both platforms; store inputs pending |
-| [08 polish](./08-polish.md)                           | Implemented | Native UX, offline state, reduced motion, error recovery       |
+| Slice                                                 | Status      | Proof                                                              |
+| ----------------------------------------------------- | ----------- | ------------------------------------------------------------------ |
+| [01 API safety](./01-api-safety.md)                   | Verified    | Four schema tests + three database tests                           |
+| [02 identity continuity](./02-identity-continuity.md) | In progress | Native fixtures passed; physical store updates pending             |
+| [03 profile Release](./03-profile-release.md)         | Verified    | Signed Hermes Release + live profile persistence                   |
+| [04 notifications](./04-notifications.md)             | In progress | Feed history carried over; physical push delivery pending          |
+| [05 deep links](./05-deep-links.md)                   | Implemented | Universal links + canonical HTTPS password reset                   |
+| [06 shared domain](./06-shared-domain.md)             | Implemented | Contracts, calendar, content, preferences shared                   |
+| [07 release gate](./07-release-gate.md)               | In progress | Local fixtures pass; current store builds and phone checks pending |
+| [08 polish](./08-polish.md)                           | In progress | Keyboard runtime and production crash reporting pending            |
+| [09 parity review](./09-parity-review.md)             | In progress | Source fixes verified; final native keyboard/UI pass pending       |
 
 ## Decisions
 

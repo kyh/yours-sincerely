@@ -19,7 +19,7 @@ interface Props {
   size?: number;
 }
 
-export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
+export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
   const ref = useRef<LottieView>(null);
   const { resolvedTheme } = useTheme();
   const reduceMotionEnabled = useReducedMotion();
@@ -39,7 +39,6 @@ export const LottieTabIcon = ({ name, focused, size = 26 }: Props) => {
       progress={reduceMotionEnabled ? 1 : undefined}
       style={{
         height: size,
-        opacity: focused ? 1 : 0.5,
         width: size,
       }}
       // lottie-react-native appends ".**.Color" to the keypath, so "**" here

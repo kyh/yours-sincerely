@@ -1,6 +1,16 @@
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, useWindowDimensions, View } from "react-native";
+import type { ReactNode, RefObject } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { BlurTargetView, BlurView } from "expo-blur";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Extrapolation,
@@ -42,6 +52,22 @@ const DISMISS_VELOCITY = 800;
 // Generous grab area around the handle pill.
 const HANDLE_HIT_SLOP = { bottom: 16, left: 48, right: 48, top: 8 };
 
+const DrawerBackdropContext = createContext<RefObject<View | null> | undefined>(undefined);
+
+export const useDrawerBackdrop = () => useContext(DrawerBackdropContext);
+
+/** Android blur needs an explicit target beneath the separate Modal view tree. */
+export const DrawerBackdropProvider = ({ children }: { children: ReactNode }) => {
+  const target = useRef<View | null>(null);
+  return (
+    <DrawerBackdropContext value={target}>
+      <BlurTargetView ref={target} style={{ flex: 1 }}>
+        {children}
+      </BlurTargetView>
+    </DrawerBackdropContext>
+  );
+};
+
 /** One row of a drawer menu: icon, label, tap. */
 export const DrawerItem = ({
   icon,
@@ -63,6 +89,7 @@ export const DrawerItem = ({
 );
 
 export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => {
+  const blurTarget = useDrawerBackdrop();
   const insets = useSafeAreaInsets();
   // Window, not screen: iPad split view and multitasking resize the window.
   const { height: windowHeight } = useWindowDimensions();
@@ -129,11 +156,13 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     // (e.g. scrolling the post-form input) still reach the children.
     .activeOffsetY([-10, 10])
     .onStart((event) => {
+      "worklet";
       // Baseline includes the finger travel already spent reaching the
       // activation threshold, so the first onChange doesn't snap the sheet.
       dragStartY.set(translateY.get() - event.translationY);
     })
     .onChange((event) => {
+      "worklet";
       // Downward follows the finger 1:1; upward is rubber-banded (vaul-style).
       const offset = dragStartY.get() + event.translationY;
       translateY.set(offset < 0 ? -Math.sqrt(-offset) : offset);
@@ -141,6 +170,7 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     // onEnd only fires for drags that actually activated, so taps and
     // sub-threshold flicks can never trigger the velocity dismiss.
     .onEnd((event) => {
+      "worklet";
       const dismissDistance = sheetHeight.get() * DISMISS_DISTANCE_RATIO;
       if (translateY.get() > dismissDistance || event.velocityY > DISMISS_VELOCITY) {
         // Flip the prop; the effect above runs the exit spring from here.
@@ -163,27 +193,60 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
       {/* Modal hosts a separate native view tree — Android needs its own
           gesture-handler root inside it. */}
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View className="flex-1 justify-end">
-          <AnimatedView className="absolute inset-0 bg-black/40" style={scrimStyle}>
-            <Pressable accessibilityLabel="Close drawer" className="flex-1" onPress={onClose} />
-          </AnimatedView>
-          <AnimatedView style={sheetStyle}>
-            <View
-              className="bg-popover rounded-t-2xl px-4"
-              style={{ paddingBottom: insets.bottom + 12 }}
-              onLayout={(event) => {
-                sheetHeight.set(event.nativeEvent.layout.height);
-              }}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <View style={{ flex: 1, justifyContent: "flex-end", paddingTop: insets.top + 12 }}>
+            <AnimatedView className="absolute inset-0 bg-black/10" style={scrimStyle}>
+              <BlurView
+                blurMethod="dimezisBlurViewSdk31Plus"
+                blurTarget={blurTarget}
+                intensity={16}
+                pointerEvents="none"
+                style={StyleSheet.absoluteFill}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close drawer"
+                className="flex-1"
+                onPress={onClose}
+              />
+            </AnimatedView>
+            <AnimatedView
+              style={[
+                {
+                  flexShrink: 1,
+                  maxHeight: Math.min(windowHeight * 0.8, windowHeight - insets.top - 12),
+                },
+                sheetStyle,
+              ]}
             >
-              <GestureDetector gesture={pan}>
-                <View className="items-center pt-3 pb-3" hitSlop={HANDLE_HIT_SLOP}>
-                  <View className="bg-muted h-1.5 w-12 rounded-full" />
-                </View>
-              </GestureDetector>
-              {children}
-            </View>
-          </AnimatedView>
-        </View>
+              <View
+                accessibilityViewIsModal
+                onAccessibilityEscape={onClose}
+                className="bg-popover border-border rounded-t-xl border-t px-4"
+                style={{ flexShrink: 1, paddingBottom: insets.bottom + 12 }}
+                onLayout={(event) => {
+                  sheetHeight.set(event.nativeEvent.layout.height);
+                }}
+              >
+                <GestureDetector gesture={pan}>
+                  <View className="items-center pt-4" hitSlop={HANDLE_HIT_SLOP}>
+                    <View className="bg-muted h-1.5 w-[100px] rounded-full" />
+                  </View>
+                </GestureDetector>
+                <ScrollView
+                  bounces={false}
+                  keyboardShouldPersistTaps="handled"
+                  style={{ flexGrow: 0, flexShrink: 1 }}
+                >
+                  {children}
+                </ScrollView>
+              </View>
+            </AnimatedView>
+          </View>
+        </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </Modal>
   );

@@ -16,7 +16,6 @@ import type { RouterOutputs } from "@/lib/api";
 import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { cn } from "cn";
-import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { ActivityCalendar } from "./activity-calendar";
 import { ActivityStats } from "./activity-stats";
 import { ActivityWeek } from "./activity-week";
@@ -52,29 +51,31 @@ export const ProfileContent = ({ userId }: Props) => {
 
   if (userQuery.isPending || statsQuery.isPending || postsQuery.isPending) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center py-5">
         <Spinner />
       </View>
     );
   }
 
-  if (userQuery.isError || statsQuery.isError || postsQuery.isError) {
+  if (userQuery.isLoadingError || statsQuery.isLoadingError || postsQuery.isLoadingError) {
     return (
-      <QueryErrorState
-        message="Couldn't load this profile. Check your connection and try again."
-        onRetry={() => {
-          void ignoreRejection(
-            Promise.all([userQuery.refetch(), statsQuery.refetch(), postsQuery.refetch()]),
-          );
-        }}
-      />
+      <View className="flex-1 py-5">
+        <QueryErrorState
+          message="Couldn't load this profile. Check your connection and try again."
+          onRetry={() => {
+            void ignoreRejection(
+              Promise.all([userQuery.refetch(), statsQuery.refetch(), postsQuery.refetch()]),
+            );
+          }}
+        />
+      </View>
     );
   }
 
   const user = userQuery.data?.user;
   if (user === undefined || user === null) {
     return (
-      <View className="flex-1 items-center justify-center px-5">
+      <View className="flex-1 items-center justify-center px-5 py-5">
         <Text className="text-center">
           Hmm, can&apos;t seem to find the person you&apos;re looking for
         </Text>
@@ -87,22 +88,22 @@ export const ProfileContent = ({ userId }: Props) => {
 
   const allowEdit = currentUser !== null && currentUser.id === user.id;
   const dailyData = createPostsDailyActivity(posts);
-  const heatmapData = createPostsHeatmap(posts, 120);
+  const heatmapData = createPostsHeatmap(posts, width >= 640 ? 200 : 120);
   const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
   const favoriteDay = dailyData.max.day === "none" ? null : FULL_DAY_LABELS[dailyData.max.day];
 
   return (
     <ScrollView
-      contentContainerClassName="gap-4 px-5 pb-10"
-      contentContainerStyle={CONTENT_COLUMN_STYLE}
+      contentContainerStyle={{ gap: 16, paddingVertical: 20 }}
+      keyboardDismissMode="on-drag"
     >
       <Card>
         <ProfileForm userId={userId} readonly={!allowEdit} />
         <ActivityCalendar data={heatmapData.stats} theme={theme} />
       </Card>
-      <View className={cn("gap-4", width >= 768 && "flex-row")}>
+      <View className={cn("gap-4", width >= 1024 && "flex-row")}>
         <Card className="min-h-60 flex-1 items-center justify-center py-8">
-          <Text className="text-sm font-bold">
+          <Text className="text-center text-sm font-bold">
             {dailyData.max.day === "none" ? (
               "No daily stats yet"
             ) : (

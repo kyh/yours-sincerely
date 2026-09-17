@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import Svg, { G, Rect, Text as SvgText } from "react-native-svg";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner-native";
@@ -47,64 +47,66 @@ export const ActivityCalendar = ({ data, theme }: Props) => {
   const height = textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * 7 - BLOCK_MARGIN;
 
   return (
-    <View className="items-center gap-2">
-      <Svg width={width} height={height}>
-        <G>
-          {monthLabels.map((label) => (
-            <SvgText
-              key={`${label.x}-${label.text}`}
-              x={(BLOCK_SIZE + BLOCK_MARGIN) * label.x}
-              y={FONT_SIZE}
-              fontSize={FONT_SIZE}
-              fill={colors.foreground}
-            >
-              {label.text}
-            </SvgText>
-          ))}
-        </G>
-        {weeks.map((week, weekIndex) => (
-          <G
-            key={week.map((day) => day?.date ?? "empty").join("|")}
-            x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}
-          >
-            {week.map((day, dayIndex) =>
-              day === undefined ? null : (
-                <Rect
-                  key={day.date}
-                  y={textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * dayIndex}
-                  width={BLOCK_SIZE}
-                  height={BLOCK_SIZE}
-                  rx={BLOCK_RADIUS}
-                  fill={levelColor(theme, day.level)}
-                  strokeWidth={1}
-                  stroke={theme.stroke}
-                  accessible
-                  accessibilityLabel={getTooltipMessage(day)}
-                  onPress={() => toast(getTooltipMessage(day))}
-                />
-              ),
-            )}
+    <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
+      <View className="items-center gap-2" style={{ width }}>
+        <Svg width={width} height={height}>
+          <G>
+            {monthLabels.map((label) => (
+              <SvgText
+                key={`${label.x}-${label.text}`}
+                x={Math.min((BLOCK_SIZE + BLOCK_MARGIN) * label.x, width - FONT_SIZE * 3)}
+                y={FONT_SIZE}
+                fontSize={FONT_SIZE}
+                fill={colors.foreground}
+              >
+                {label.text}
+              </SvgText>
+            ))}
           </G>
-        ))}
-      </Svg>
-      <View className="w-full flex-row items-center justify-end gap-1">
-        <Text className="text-muted-foreground text-xs">Less</Text>
-        <Svg width={(BLOCK_SIZE + BLOCK_MARGIN) * 5 - BLOCK_MARGIN} height={BLOCK_SIZE}>
-          {LEGEND_LEVELS.map((level) => (
-            <Rect
-              key={level}
-              x={(BLOCK_SIZE + BLOCK_MARGIN) * level}
-              width={BLOCK_SIZE}
-              height={BLOCK_SIZE}
-              rx={BLOCK_RADIUS}
-              fill={levelColor(theme, level)}
-              strokeWidth={1}
-              stroke={theme.stroke}
-            />
+          {weeks.map((week, weekIndex) => (
+            <G
+              key={week.map((day) => day?.date ?? "empty").join("|")}
+              x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}
+            >
+              {week.map((day, dayIndex) =>
+                day === undefined ? null : (
+                  <Rect
+                    key={day.date}
+                    y={textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * dayIndex}
+                    width={BLOCK_SIZE}
+                    height={BLOCK_SIZE}
+                    rx={BLOCK_RADIUS}
+                    fill={levelColor(theme, day.level)}
+                    strokeWidth={1}
+                    stroke={theme.stroke}
+                    accessible
+                    accessibilityLabel={getTooltipMessage(day)}
+                    onPress={() => toast(getTooltipMessage(day))}
+                  />
+                ),
+              )}
+            </G>
           ))}
         </Svg>
-        <Text className="text-muted-foreground text-xs">More</Text>
+        <View className="w-full flex-row items-center justify-end gap-1">
+          <Text className="text-muted-foreground text-xs">Less</Text>
+          <Svg width={(BLOCK_SIZE + BLOCK_MARGIN) * 5 - BLOCK_MARGIN} height={BLOCK_SIZE}>
+            {LEGEND_LEVELS.map((level) => (
+              <Rect
+                key={level}
+                x={(BLOCK_SIZE + BLOCK_MARGIN) * level}
+                width={BLOCK_SIZE}
+                height={BLOCK_SIZE}
+                rx={BLOCK_RADIUS}
+                fill={levelColor(theme, level)}
+                strokeWidth={1}
+                stroke={theme.stroke}
+              />
+            ))}
+          </Svg>
+          <Text className="text-muted-foreground text-xs">More</Text>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };

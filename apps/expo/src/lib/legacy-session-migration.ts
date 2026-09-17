@@ -4,13 +4,13 @@ import {
   getSessionCookie,
   setLegacySessionMigrationCheckpoint,
   setSessionCookie,
-} from "./session-store";
+} from "./session-store.ts";
 import {
   finalizeLegacySession,
   migrateLegacySession,
   retireLegacySession,
-} from "./legacy-session-migration-core";
-import type { MigrateLegacySessionResult } from "./legacy-session-migration-core";
+} from "./legacy-session-migration-core.ts";
+import type { MigrateLegacySessionResult } from "./legacy-session-migration-core.ts";
 
 /** The old Capacitor app was a WebView onto production, so its `__session`
     cookie lives in the native WebView jars for this host. Same bundle id =
@@ -20,7 +20,7 @@ import type { MigrateLegacySessionResult } from "./legacy-session-migration-core
 const HOST = "yourssincerely.org";
 const SESSION_COOKIE = "__session";
 
-type MigrationResult = MigrateLegacySessionResult | "unavailable" | "failed";
+type MigrationResult = MigrateLegacySessionResult | "unavailable";
 
 const reportFailure = (phase: "copy" | "clear" | "retire", cause: unknown) => {
   const message = cause instanceof Error ? cause.message : "Unknown error";
@@ -32,33 +32,42 @@ let migration: Promise<MigrationResult> | null = null;
 let finalization: Promise<void> | null = null;
 let finalized = false;
 
-/** One-shot per cold start; safe to await before every request. */
+/** Share startup work across requests. A failed import blocks requests and
+    remains retryable, so a temporary native error cannot replace the identity. */
 export const ensureLegacySessionMigrated = (): Promise<MigrationResult> => {
   const copyLegacySession = async (): Promise<MigrationResult> => {
-    // Null in builds compiled before the native module existed — nothing to do.
+    // Older development clients may predate the bridge. Store builds must
+    // include it: proceeding without it could strand the Capacitor identity.
     const legacyCookie = LegacyCookie;
     if (legacyCookie === null) {
-      return "unavailable";
+      if (__DEV__) {
+        return "unavailable";
+      }
+      throw new Error("Legacy session migration is unavailable. Rebuild the native app.");
     }
 
+    const { result, legacyProvenance } = await migrateLegacySession({
+      getCheckpoint: getLegacySessionMigrationCheckpoint,
+      getStored: getSessionCookie,
+      // Keep the value verbatim (still percent-encoded) — the signed cookie
+      // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
+      readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
+      setCheckpoint: setLegacySessionMigrationCheckpoint,
+      setStored: setSessionCookie,
+    });
+    migrationProvenanceEstablished = legacyProvenance;
+    return result;
+  };
+  const attemptMigration = async (): Promise<MigrationResult> => {
     try {
-      const { result, legacyProvenance } = await migrateLegacySession({
-        getCheckpoint: getLegacySessionMigrationCheckpoint,
-        getStored: getSessionCookie,
-        // Keep the value verbatim (still percent-encoded) — the signed cookie
-        // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
-        readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
-        setCheckpoint: setLegacySessionMigrationCheckpoint,
-        setStored: setSessionCookie,
-      });
-      migrationProvenanceEstablished = legacyProvenance;
-      return result;
+      return await copyLegacySession();
     } catch (error: unknown) {
+      migration = null;
       reportFailure("copy", error);
-      return "failed";
+      throw error;
     }
   };
-  migration ??= copyLegacySession();
+  migration ??= attemptMigration();
   return migration;
 };
 
@@ -114,5 +123,6 @@ export const retireLegacySessionMigration = async (): Promise<void> => {
     migrationProvenanceEstablished = false;
   } catch (error: unknown) {
     reportFailure("retire", error);
+    throw error;
   }
 };

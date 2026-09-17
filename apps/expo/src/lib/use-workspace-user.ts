@@ -6,11 +6,13 @@ import { orpc } from "./api";
     apps/web/src/lib/use-workspace-user.ts. Read-only: session side effects
     live in `components/session-reconciler.tsx`, mounted once. */
 export const useWorkspaceUser = () => {
-  const { data, isPending } = useQuery(orpc.auth.workspace.queryOptions());
+  const { data, isError, isPending, refetch } = useQuery(orpc.auth.workspace.queryOptions());
 
   return {
+    isError,
     isPending,
     pushCleanupCapability: data?.pushCleanupCapability ?? null,
+    refetch,
     user: data?.user ?? null,
   };
 };
