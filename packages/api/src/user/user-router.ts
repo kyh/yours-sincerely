@@ -62,7 +62,7 @@ export const userRouter = {
         displayName: true,
         id: true,
       },
-      where: eq(user.id, input.userId),
+      where: { id: input.userId },
     });
 
     return {

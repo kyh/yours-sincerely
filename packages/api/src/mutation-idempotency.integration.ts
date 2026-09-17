@@ -34,7 +34,7 @@ const createFixture = async () => {
 
   const actor = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: eq(user.id, actorId),
+    where: { id: actorId },
   });
   assert.ok(actor);
 

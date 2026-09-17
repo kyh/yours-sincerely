@@ -46,7 +46,7 @@ const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
 const findDbUser = async (userId: string) => {
   const found = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: (row, { eq: equals }) => equals(row.id, userId),
+    where: { id: userId },
   });
   return found ?? null;
 };

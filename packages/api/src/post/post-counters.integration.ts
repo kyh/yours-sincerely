@@ -59,7 +59,7 @@ const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
 const counters = async (postId: string) => {
   const row = await db.query.post.findFirst({
     columns: { commentCount: true, flagCount: true, likeCount: true },
-    where: eq(post.id, postId),
+    where: { id: postId },
   });
   return row;
 };
@@ -87,11 +87,11 @@ const createFixture = async () => {
 
   const owner = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: eq(user.id, ownerId),
+    where: { id: ownerId },
   });
   const flagger = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: eq(user.id, flaggerId),
+    where: { id: flaggerId },
   });
   assert.ok(owner);
   assert.ok(flagger);
@@ -158,7 +158,7 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
     await db.insert(user).values({ displayName: "Fresh", id: freshId });
     const fresh = await db.query.user.findFirst({
       columns: { passwordHash: false },
-      where: eq(user.id, freshId),
+      where: { id: freshId },
     });
     assert.ok(fresh);
     const freshCaller = createCaller(fresh);
