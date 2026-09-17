@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View } from "react-native";
+import type { TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { signInWithPasswordInput, signUpInput } from "@repo/contracts/auth";
@@ -7,8 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
+import { FormField } from "@/components/auth/form-field";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { queryClient, orpc } from "@/lib/api";
 
@@ -25,6 +25,9 @@ type FieldErrors = Partial<Record<"email" | "password", string>>;
 
 const showMutationError = (mutationError: { message: string }) =>
   toast.error(mutationError.message);
+const signInFormInput = signInWithPasswordInput.extend({
+  password: signInWithPasswordInput.shape.password.min(1, "Password is required"),
+});
 
 export const AuthForm = ({ type, next = "/" }: Props) => {
   const router = useRouter();
@@ -32,6 +35,9 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [submitted, setSubmitted] = useState(false);
+  const emailInput = useRef<TextInput>(null);
+  const passwordInput = useRef<TextInput>(null);
 
   const onSuccess = async () => {
     if (type === "signin") {
@@ -48,7 +54,11 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
   );
 
   const handleSubmit = () => {
-    const schema = type === "signup" ? signUpInput : signInWithPasswordInput;
+    if (signIn.isPending || signUp.isPending) {
+      return;
+    }
+    setSubmitted(true);
+    const schema = type === "signup" ? signUpInput : signInFormInput;
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) {
       const errors: FieldErrors = {};
@@ -61,6 +71,11 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
         }
       }
       setFieldErrors(errors);
+      if (errors.email === undefined) {
+        passwordInput.current?.focus();
+      } else {
+        emailInput.current?.focus();
+      }
       return;
     }
     setFieldErrors({});
@@ -73,36 +88,59 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
 
   return (
     <View className="gap-5">
-      <View className="gap-3">
-        <View className="gap-1">
-          <Text className="text-sm font-medium">Email</Text>
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="name@example.com"
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect={false}
-            keyboardType="email-address"
-          />
-          {fieldErrors.email !== undefined && (
-            <Text className="text-destructive text-xs">{fieldErrors.email}</Text>
-          )}
-        </View>
-        <View className="gap-1">
-          <Text className="text-sm font-medium">Password</Text>
-          <Input
-            value={password}
-            onChangeText={setPassword}
-            placeholder="******"
-            autoCapitalize="none"
-            autoComplete={type === "signup" ? "new-password" : "current-password"}
-            secureTextEntry
-          />
-          {fieldErrors.password !== undefined && (
-            <Text className="text-destructive text-xs">{fieldErrors.password}</Text>
-          )}
-        </View>
+      <View>
+        <FormField
+          inputRef={emailInput}
+          label="Email"
+          error={fieldErrors.email}
+          position="first"
+          testID="email-input"
+          value={email}
+          onChangeText={(value) => {
+            setEmail(value);
+            if (submitted) {
+              const parsed = signInWithPasswordInput.shape.email.safeParse(value);
+              setFieldErrors((errors) => ({
+                ...errors,
+                email: parsed.success ? undefined : parsed.error.issues[0]?.message,
+              }));
+            }
+          }}
+          placeholder="name@example.com"
+          autoCapitalize="none"
+          autoComplete="email"
+          autoCorrect={false}
+          keyboardType="email-address"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => passwordInput.current?.focus()}
+        />
+        <FormField
+          inputRef={passwordInput}
+          label="Password"
+          error={fieldErrors.password}
+          position="last"
+          testID="password-input"
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (submitted) {
+              const schema = type === "signup" ? signUpInput : signInFormInput;
+              const parsed = schema.shape.password.safeParse(value);
+              setFieldErrors((errors) => ({
+                ...errors,
+                password: parsed.success ? undefined : parsed.error.issues[0]?.message,
+              }));
+            }
+          }}
+          placeholder="******"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete={type === "signup" ? "new-password" : "current-password"}
+          returnKeyType="go"
+          onSubmitEditing={handleSubmit}
+          secureTextEntry
+        />
       </View>
       <Button onPress={handleSubmit} loading={signIn.isPending || signUp.isPending}>
         {type === "signin" ? "Login" : "Sign Up"}

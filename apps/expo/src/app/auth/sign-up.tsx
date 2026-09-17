@@ -1,28 +1,32 @@
 import { Linking, View } from "react-native";
-import { Link } from "expo-router";
-import { SafeAreaView } from "@/lib/css-interop";
+import { useLocalSearchParams } from "expo-router";
+import { toast } from "sonner-native";
 
 import { AuthForm } from "@/components/auth/auth-form";
-import { BackButton } from "@/components/layout/back-button";
+import { AuthScreen } from "@/components/auth/auth-screen";
 import { Text } from "@/components/ui/text";
-import { ignoreRejection } from "@/lib/ignore-rejection";
+import { resolveNextRoute } from "@/lib/next-route";
 import { siteConfig } from "@/lib/site-config";
 
-const SignUpScreen = () => (
-  <SafeAreaView className="bg-background flex-1">
-    <View className="px-5 py-3">
-      <BackButton fallback="/" label="Back" />
-    </View>
-    <View className="flex-1 justify-center gap-6 px-6">
-      <Text className="text-center text-2xl font-bold">Create your account</Text>
-      <AuthForm type="signup" />
+const SignUpScreen = () => {
+  const { next } = useLocalSearchParams<{ next?: string | string[] }>();
+
+  return (
+    <AuthScreen>
+      <View className="mt-2">
+        <AuthForm type="signup" next={resolveNextRoute(next)} />
+      </View>
       <Text className="text-muted-foreground px-8 text-center text-xs">
         By clicking continue, you agree to our{" "}
         <Text
           accessibilityRole="link"
           className="underline"
-          onPress={() => {
-            void ignoreRejection(Linking.openURL(`${siteConfig.url}/terms`));
+          onPress={async () => {
+            try {
+              await Linking.openURL(`${siteConfig.url}/terms`);
+            } catch {
+              toast.error("Could not open Terms of Service. Please try again.");
+            }
           }}
         >
           Terms of Service
@@ -31,23 +35,20 @@ const SignUpScreen = () => (
         <Text
           accessibilityRole="link"
           className="underline"
-          onPress={() => {
-            void ignoreRejection(Linking.openURL(`${siteConfig.url}/privacy`));
+          onPress={async () => {
+            try {
+              await Linking.openURL(`${siteConfig.url}/privacy`);
+            } catch {
+              toast.error("Could not open Privacy Policy. Please try again.");
+            }
           }}
         >
           Privacy Policy
         </Text>
         .
       </Text>
-      <View className="items-center">
-        <Link href="/auth/sign-in">
-          <Text className="text-muted-foreground text-sm">
-            Already have an account? <Text className="text-primary text-sm underline">Login</Text>
-          </Text>
-        </Link>
-      </View>
-    </View>
-  </SafeAreaView>
-);
+    </AuthScreen>
+  );
+};
 
 export default SignUpScreen;

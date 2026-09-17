@@ -37,6 +37,12 @@ Preview smoke test:
 
 Do not uninstall the existing store app. Uninstall/reinstall deletes the evidence this test needs.
 
+First inspect the installed Android artifact's version and runtime. The recovered 2023
+APK/AAB are PWABuilder Trusted Web Activity builds; whether they shipped is still unknown.
+The current importer covers Capacitor WebView cookies, not browser-owned TWA cookies.
+Check older released versions as well as the current Play release, because a phone can
+update directly from an old version. See [release inputs](./mobile-release-inputs.md#android-runtime-provenance).
+
 Before building:
 
 ```sh
@@ -80,6 +86,18 @@ Settings screen shows the staged account. It does not replace the physical-phone
 it catches regressions in `apps/expo/modules/legacy-cookie` and the migration code on
 every change. Both legs passed on 2026-09-05 (iOS 18.6 simulator, Pixel 6 API 35 emulator).
 
+Use an isolated simulator/emulator without an existing Expo checkpoint. Installing the
+legacy shell over an earlier Expo fixture retains SecureStore; a completed checkpoint then
+correctly prevents another import. Reset only disposable fixture data before installing the
+legacy shell. Never reset or uninstall the store app used for the physical upgrade gate.
+
+A standalone fixture can use `Release` on iOS and `assembleRelease` on Android, with
+`EXPO_PUBLIC_API_URL=http://localhost:<port>` embedded and local simulator/debug signing.
+It launches without Metro. Android Release blocks HTTP: a disposable, generated release
+manifest can reference a network-security config permitting only `localhost` (set
+`includeSubdomains="false"`), with cleartext disabled in its base config. Remove that
+fixture override afterward. Never upload this local-API artifact as a store candidate.
+
 Prerequisites: `pnpm db:start && pnpm db:push`, `pnpm dev:web`, and a signed cookie for a
 local account — sign up with curl and keep the `Set-Cookie` value:
 
@@ -117,11 +135,19 @@ python3 scripts/legacy-session-fixture/write-binarycookies.py \
 xcrun simctl launch "$SIM" com.tehkaiyu.yourssincerely --initialUrl http://localhost:8081
 ```
 
+Resolve the container after the final install; a simulator update can change its path.
+
 Pass: `Cookies.binarycookies` disappears after the first launch (cleanup only runs once the
 server accepted the copied session), and after `simctl terminate` + relaunch the Settings
 screen (`xcrun simctl openurl "$SIM" yourssincerely://settings`) shows the staged email.
 
 ### Android
+
+For Android Studio's embedded emulator, an externally launched disposable AVD needs
+`-qt-hide-window` as well as authenticated gRPC (`-grpc <port> -grpc-use-token`). The
+installed Studio checks that flag before attaching; gRPC alone is insufficient. Combining
+`-no-window -qt-hide-window` worked when the standalone Qt window stalled on crash-report
+consent. Use a read-only/no-snapshot overlay for fixture resets and preserve the base AVD.
 
 The legacy shell in `apps/mobile` builds with `./gradlew assembleDebug`; enable WebView
 debugging for the run by adding `"android": {"webContentsDebuggingEnabled": true}` to the
@@ -153,7 +179,8 @@ These cannot safely be invented or recovered from source code.
 
 ### Apple
 
-- Sign into the Apple Developer team in EAS. The linked EAS account currently reports no Apple team.
+- Verify access to the existing Apple Developer team in EAS. A production iOS build
+  finished on 2026-09-05; the earlier missing-team note is stale.
 - Register each physical iPhone UDID for preview builds.
 - Give EAS access to the existing App Store Connect app and its distribution credentials.
 - Look up the live Capacitor `CFBundleVersion`; seed EAS above it.

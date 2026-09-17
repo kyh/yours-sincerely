@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle, Path } from "react-native-svg";
 import { scheduleOnRN } from "react-native-worklets";
+import { toast } from "sonner-native";
 
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedPost } from "@/lib/post-types";
@@ -36,6 +37,8 @@ const AnimatedCircle = createAnimatedComponent(Circle);
 
 const HEART_PATH =
   "m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z";
+
+const HEART_COLOR = "#fb2c36";
 
 const Heart = ({ color }: { color: string }) => (
   <Svg width={16} height={16} viewBox="0 0 24 24" fill={color} stroke={color}>
@@ -133,10 +136,7 @@ const Particle = ({
   useEffect(() => {
     // Movement/scale/color start at +300ms; opacity keyframes [0,1,1,0] at +400ms.
     progress.set(
-      withDelay(
-        300,
-        withTiming(1, { duration: flight.duration, easing: Easing.bezier(0.23, 1, 0.32, 1) }),
-      ),
+      withDelay(300, withTiming(1, { duration: flight.duration, easing: Easing.linear })),
     );
     opacity.set(
       withDelay(
@@ -151,12 +151,12 @@ const Particle = ({
   }, [progress, opacity, flight]);
 
   const style = useAnimatedStyle(() => {
-    // Scale uses quad-in on the same 0→1 clock as the (quint-out) movement:
-    // recover linear time from the movement curve, then apply quad-in.
-    const easedOutT = progress.get();
-    const scale = 1 - Easing.bezier(0.55, 0.085, 0.68, 0.53).factory()(easedOutT);
+    const t = progress.get();
+    const easedOutT = Easing.bezier(0.23, 1, 0.32, 1).factory()(t);
+    const colorT = Easing.bezier(0.42, 0, 0.58, 1).factory()(t);
+    const scale = 1 - Easing.bezier(0.55, 0.085, 0.68, 0.53).factory()(t);
     return {
-      backgroundColor: interpolateColor(easedOutT, [0, 1], [fromColor, toColor]),
+      backgroundColor: interpolateColor(colorT, [0, 1], [fromColor, toColor]),
       opacity: opacity.get(),
       transform: [
         { translateX: flight.startX + (flight.targetX - flight.startX) * easedOutT },
@@ -224,7 +224,7 @@ const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <Animated.View style={style}>
-      <Heart color="#ef4444" />
+      <Heart color={HEART_COLOR} />
     </Animated.View>
   );
 };
@@ -240,8 +240,8 @@ const FEED_FILTER = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
 const POST_FILTER = { queryKey: orpc.post.getPost.key() };
 
 /** Binds the pure like bookkeeping to the real feed and post-detail caches. */
-const likeMutationHandlers = (postId: string, liked: boolean) =>
-  createLikeMutationHandlers<FeedQueryData, PostQueryData>(
+const likeMutationHandlers = (postId: string, liked: boolean) => {
+  const handlers = createLikeMutationHandlers<FeedQueryData, PostQueryData>(
     {
       cancel: async () => {
         await Promise.all([
@@ -261,12 +261,21 @@ const likeMutationHandlers = (postId: string, liked: boolean) =>
     postId,
     liked,
   );
+  return {
+    ...handlers,
+    onError: (...args: Parameters<typeof handlers.onError>) => {
+      handlers.onError(...args);
+      toast.error("Could not update this like. Please try again.");
+    },
+  };
+};
 
 export const LikeButton = ({ post }: Props) => {
   const colors = useThemeColors();
   const reduceMotionEnabled = useReducedMotion();
   const [burst, setBurst] = useState<BurstPlan | null>(null);
   const activeBurst = reduceMotionEnabled ? null : burst;
+  const finishBurst = useCallback(() => setBurst(null), []);
 
   const createMutate = useMutation(
     orpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
@@ -274,8 +283,12 @@ export const LikeButton = ({ post }: Props) => {
   const deleteMutate = useMutation(
     orpc.like.deleteLike.mutationOptions(likeMutationHandlers(post.id, false)),
   );
+  const mutationPending = createMutate.isPending || deleteMutate.isPending;
 
   const toggleLike = () => {
+    if (mutationPending) {
+      return;
+    }
     if (post.isLiked) {
       deleteMutate.mutate({ postId: post.id });
     } else {
@@ -289,7 +302,12 @@ export const LikeButton = ({ post }: Props) => {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${post.likeCount} likes, tap to ${post.isLiked ? "unlike" : "like"}`}
-      accessibilityState={{ selected: post.isLiked }}
+      accessibilityState={{
+        busy: mutationPending,
+        disabled: mutationPending,
+        selected: post.isLiked,
+      }}
+      disabled={mutationPending}
       hitSlop={6}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
       onPress={toggleLike}
@@ -298,12 +316,14 @@ export const LikeButton = ({ post }: Props) => {
         {activeBurst !== null && <CircleAnimation />}
         {activeBurst !== null && <BurstAnimation burst={activeBurst} />}
         {activeBurst === null ? (
-          <Heart color={post.isLiked ? "#ef4444" : colors.mutedForeground} />
+          <Heart color={post.isLiked ? HEART_COLOR : colors.mutedForeground} />
         ) : (
-          <AnimatingHeart onComplete={() => setBurst(null)} />
+          <AnimatingHeart onComplete={finishBurst} />
         )}
       </View>
-      <AnimatedNumber value={post.likeCount} />
+      <View className="min-w-3">
+        <AnimatedNumber value={post.likeCount} className="text-base" />
+      </View>
     </Pressable>
   );
 };

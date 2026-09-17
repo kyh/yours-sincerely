@@ -7,3 +7,5 @@ import { Gesture } from "react-native-gesture-handler";
  * and calls from module scope are outside the check's reach.
  */
 export const panGesture = () => Gesture.Pan();
+
+export const nativeGesture = () => Gesture.Native();

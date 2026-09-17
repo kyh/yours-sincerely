@@ -1,22 +1,43 @@
 import type { Href } from "expo-router";
+import { safeNextPath } from "@repo/contracts/navigation";
 
-/** Only known, parameterless routes are accepted as a post-sign-in
-    destination. An exact-match allowlist is stricter than the web's
-    `safeNextPath` origin check and is what keeps the result typed as `Href`
-    without a cast. */
+/** Keep the web's safe redirect behavior, then map supported destinations
+    to typed native routes. Unknown web-only pages return to the feed. */
 export const resolveNextRoute = (value?: string | string[]): Href => {
-  if (value === undefined || Array.isArray(value)) {
-    return "/";
-  }
-  switch (value) {
+  const url = new URL(safeNextPath(value), "https://next-route.invalid");
+  const params = Object.fromEntries(url.searchParams);
+  switch (url.pathname) {
     case "/":
     case "/settings":
     case "/notifications":
     case "/profile": {
-      return value;
+      return url.search === "" ? url.pathname : { params, pathname: url.pathname };
     }
     default: {
-      return "/";
+      break;
     }
   }
+
+  const [, route, segment, extra] = url.pathname.split("/");
+  if (segment === undefined || segment === "" || extra !== undefined) {
+    return "/";
+  }
+
+  let id: string;
+  try {
+    id = decodeURIComponent(segment);
+  } catch {
+    return "/";
+  }
+  if (id.includes("/") || id.includes("\\")) {
+    return "/";
+  }
+
+  if (route === "posts") {
+    return { params: { ...params, "post-id": id }, pathname: "/posts/[post-id]" };
+  }
+  if (route === "profile") {
+    return { params: { ...params, "user-id": id }, pathname: "/profile/[user-id]" };
+  }
+  return "/";
 };

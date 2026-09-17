@@ -18,19 +18,21 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
     the web AvatarFallback. */
 interface Props {
   name?: string;
+  src?: string;
   size?: number;
 }
 
-export const ProfileAvatar = ({ name, size = 80 }: Props) => {
+export const ProfileAvatar = ({ name, src, size = 80 }: Props) => {
   const { resolvedTheme } = useTheme();
   const reduceMotionEnabled = useReducedMotion();
-  const [loaded, setLoaded] = useState(false);
   const label = name ?? "Anonymous";
+  const source = src ?? getAvatarSource(label);
+  const [loadedSource, setLoadedSource] = useState<typeof source | null>(null);
   const initial = label.slice(0, 1) || "?";
 
   return (
     <View style={{ borderRadius: size / 2, height: size, overflow: "hidden", width: size }}>
-      {!loaded && (
+      {loadedSource !== source && (
         <AnimatedView
           exiting={reduceMotionEnabled ? undefined : FadeOut}
           className="bg-muted absolute inset-0 items-center justify-center"
@@ -39,12 +41,12 @@ export const ProfileAvatar = ({ name, size = 80 }: Props) => {
         </AnimatedView>
       )}
       <Image
-        source={getAvatarSource(label)}
+        source={source}
         style={{ height: size, width: size }}
         contentFit="cover"
-        tintColor={isDarkTheme(resolvedTheme) ? "#fff" : undefined}
+        tintColor={src === undefined && isDarkTheme(resolvedTheme) ? "#fff" : undefined}
         transition={reduceMotionEnabled ? 0 : 200}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setLoadedSource(source)}
         accessibilityLabel={`${label}'s avatar`}
       />
     </View>

@@ -114,7 +114,7 @@ export const PushNotificationRegistration = () => {
   const registerLabel = retryRegistration ? "Retry" : "Enable notifications";
 
   return (
-    <View className="bg-card border-border mx-5 mb-3 gap-3 rounded-xl border p-4">
+    <View className="bg-card border-border mb-3 gap-3 rounded-xl border p-4">
       <View className="gap-1">
         <Text className="font-semibold">Never miss a reply</Text>
         <Text className="text-muted-foreground text-sm">

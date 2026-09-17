@@ -6,9 +6,11 @@ import { toast } from "sonner-native";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { orpc } from "@/lib/api";
 import { refreshBlocks } from "@/lib/query-policies";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /**
  * Native half of the unblock surface. Mirrors
@@ -49,6 +51,15 @@ export const BlockedWriters = () => {
   let list: ReactNode;
   if (blocks.isPending) {
     list = <Text className="text-muted-foreground text-xs">Loading…</Text>;
+  } else if (blocks.isError && blocks.data === undefined) {
+    list = (
+      <QueryErrorState
+        message="Couldn't load blocked writers. Please try again."
+        onRetry={() => {
+          void ignoreRejection(blocks.refetch());
+        }}
+      />
+    );
   } else if (blocked.length === 0) {
     list = (
       <Text className="text-muted-foreground text-xs">
@@ -63,12 +74,14 @@ export const BlockedWriters = () => {
           const displayName = writer.displayName ?? "Anonymous";
           return (
             <View key={writer.blockingId} className="flex-row items-center gap-3">
-              <ProfileAvatar name={displayName} size={36} />
+              <ProfileAvatar name={displayName} src={writer.displayImage ?? undefined} size={36} />
               <Text className="flex-1 text-sm" numberOfLines={1}>
                 {displayName}
               </Text>
               <Button
                 variant="secondary"
+                accessibilityLabel={`Unblock ${displayName}`}
+                disabled={deleteBlock.isPending}
                 loading={
                   deleteBlock.isPending && deleteBlock.variables.blockingId === writer.blockingId
                 }
@@ -84,7 +97,7 @@ export const BlockedWriters = () => {
   }
 
   return (
-    <View className="gap-3">
+    <View className="border-border gap-3 rounded-md border px-3 py-4">
       <Text className="text-sm font-medium">Blocked writers</Text>
       {list}
     </View>

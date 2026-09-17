@@ -85,7 +85,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ThemeContext.Provider value={value}>
-      <View className={resolvedTheme === "light" ? "flex-1" : `flex-1 ${resolvedTheme}`}>
+      <View
+        className={
+          resolvedTheme === "light"
+            ? "will-change-variable flex-1"
+            : `will-change-variable flex-1 ${resolvedTheme}`
+        }
+      >
         {children}
       </View>
     </ThemeContext.Provider>
