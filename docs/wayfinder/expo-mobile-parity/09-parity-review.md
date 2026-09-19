@@ -171,12 +171,12 @@ Source paths below are relative to `apps/expo/src`.
 
 ## Remaining boundaries
 
-- Play production history contains Android codes 111, 1, and 30; code 30 remains installed.
-  Git matching code 30 uses a standard WebView, but its original web auth used Firebase.
-  Inspect the Play binaries and update working identities from both old cohorts in place.
-  The archived TWA code 40 is absent from production history; other tracks are unverified.
-  Any demonstrated TWA cohort needs browser-assisted migration because its cookies are
-  outside the native WebView importer.
+- All three artifacts in Play's current inventory were downloaded and verified on September
+  19: codes 111/1 use Capacitor; code 30 uses standard WebView/CookieManager. All load the
+  production host. The archived TWA code 40 is absent. Older installed cohorts remain listed;
+  update their working identities in place. Binary provenance does not prove that old web
+  credentials are still valid. Any later demonstrated TWA cohort needs browser-assisted
+  migration because its cookies are outside the native WebView importer.
 - Hardware shortcuts compile on both platforms. iOS Command-Enter and stack/editor/modal
   behavior passed locally. Control-Enter opened the simulator's edit menu; Command-arrows
   rotated Simulator even with keyboard capture enabled. These attempts do not verify the
@@ -191,14 +191,17 @@ Source paths below are relative to `apps/expo/src`.
   contracts and pure domain rules remain shared.
 - Physical push delivery, OS-verified HTTPS links, and store-delivered Capacitor upgrades
   require the release checks in `docs/phone-testing.md`. Simulator previews do not prove them.
-- Source upload and builds are now explicitly authorized; store submission is not.
-  iOS production build `b4684f7f-ed6f-42a4-8878-a476650daf9d` finished with existing
-  credentials. EAS generated an Android key despite `--freeze-credentials`; its build
-  `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751` was canceled without an artifact and the new key
-  removed. The recovered archive key matches neither Play's original upload certificate nor
-  its app-signing certificate. The original upload key remains missing locally and in EAS.
-  A replacement upload key was generated with user authorization; Play registration remains
-  pending activation on September 21 at 10:11 UTC; the owner submitted it and Play
-  displays the matching certificate. Google’s app-signing key remains unchanged.
-  Production Android requires local credentials and cannot generate a replacement.
-  See `docs/mobile-release-inputs.md`. No store submission was made.
+- Source upload and builds are authorized; store submission is not. Both production builds
+  from clean main `a496f9c1` finished and their downloaded artifacts passed verification:
+  iOS `386bfaa8-c0e6-49d1-8703-7baae7c66da4` (`2026090505`) with existing Apple signing;
+  Android `eb085f6d-ecfa-4b81-8710-ad5438fa21b2` (`2026090502`) with the owner-authorized
+  replacement upload key. Android targets API 36; all 50 bundled 64-bit native libraries
+  passed the ELF 16 KB alignment check. Physical runtime checks remain separate.
+  The replacement upload key matches Play's displayed certificate and activates September
+  21 at 10:11 UTC. This blocks Play upload, not the completed EAS build. Google's
+  app-signing key remains unchanged. Private credentials are in the ignored local repo
+  bundle. No store submission occurred. See `docs/mobile-release-inputs.md` for hashes
+  and recovery steps.
+- Play requires financial, health, and child-safety declarations. Child-safety standards,
+  responsible contact, and actual review/escalation process need owner input. Android
+  developer verification was checked: the production package is already Registered.

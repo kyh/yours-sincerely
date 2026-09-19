@@ -3,23 +3,22 @@
 Release prerequisites and remaining device checks. The current Expo candidate is still
 under parity review; configured credentials alone do not establish release readiness.
 
-Release audit, 2026-09-12:
+Release audit, updated 2026-09-19:
 
 - Production Vercel lists `COOKIE_SECRET`, `COOKIE_SECRET_LEGACY`, and `RESEND_API_KEY`.
   Secret values were not read. Presence does not prove that the legacy signer is correct.
 - Production EAS lists `GOOGLE_SERVICES_JSON`; neither API override is listed.
 - EAS has a finished production iOS build `964a431b-4302-414e-9004-fbca69923eeb`
   from 2026-09-05, version `2.0.0`, build `2026090503`. It predates the current changes.
-- The user authorized source upload and builds, with no store submission. Current-source
-  iOS build `b4684f7f-ed6f-42a4-8878-a476650daf9d` (`2026090504`) finished using the
-  existing distribution certificate and provisioning profile, both last updated September 5.
-  The downloaded IPA passed `codesign --verify --deep --strict`; its profile matches the
-  existing certificate serial, team `N89P364V32`, production push, and
-  `com.tehkaiyu.yourssincerely`, with debugging disabled. It supports iPhone and iPad.
+- The user authorized source upload and builds, with no store submission. Both production
+  candidates from clean main `a496f9c171bbd09dcf388ee8e9db190691a878b0` finished on
+  September 19. Downloaded artifacts passed the checks below. The earlier iOS candidate
+  `b4684f7f-ed6f-42a4-8878-a476650daf9d` is superseded.
 - EAS CLI 23.2.0 generated an Android keystore despite `--freeze-credentials`; the flag
   does not guard Android generation. Build `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751`
   (`2026090501`) was canceled with no artifact. Its newly generated key was removed and
-  the preview credential was verified unchanged. Production's build configuration is empty.
+  the preview credential was verified unchanged. Production Android now uses the explicitly
+  authorized local replacement key, not an EAS-generated key.
 - An archived Android key was found at
   `~/Documents/Desktop/code/yours-sincerely/signing.keystore`, alias `my-key-alias`.
   Its SHA-256 fingerprint is
@@ -32,10 +31,31 @@ Release audit, 2026-09-12:
   upload instead of generating a key. Supply a key matching Play's current upload certificate in ignored,
   mode-0600 `apps/expo/credentials.json`; iOS continues using existing remote credentials.
 - Production FCM V1 is assigned in EAS as of September 19; see Notifications below.
-  The production Android keystore is staged locally while Play processes the upload-key reset.
+  The production Android keystore is installed locally and was used for the finished build.
   Play submission credentials remain unassigned; no store submission is authorized.
 
-Play Console signing, verified 2026-09-19:
+## Verified production artifacts
+
+Both artifacts contain version `2.0.0`, Hermes bytecode, and the production app identity.
+Neither was submitted to a store.
+
+- [iOS build `2026090505`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/386bfaa8-c0e6-49d1-8703-7baae7c66da4):
+  strict code-signature verification passed. Existing certificate serial
+  `689895EACC2EBD804073C5450A09F352`, team `N89P364V32`, production APNs entitlement,
+  no debugging, iPhone/iPad support. Provisioning expires September 5, 2027 at 16:45:51 UTC.
+  IPA SHA-256: `55a808bdff5d47c77b0dc2f80dbf20f58511070e51d5c11152520297733522e5`.
+- [Android build `2026090502`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/eb085f6d-ecfa-4b81-8710-ad5438fa21b2):
+  JAR signature and bundletool validation passed; signer matches the replacement upload
+  certificate below. Target SDK 36, minimum SDK 24, Firebase project `yours-sincerely`,
+  notification permission present, overlay permission absent, debugging disabled.
+  All 50 bundled arm64-v8a/x86_64 libraries have ELF load-segment alignment of at least
+  16 KB. No bundled keystores or `.credentials/` entries were found. This is artifact validation,
+  not a 16 KB device runtime test.
+  AAB SHA-256: `640704b0fed8690a87595242154a0dbc687f479474053eac7fed9987f2b3ae8d`.
+
+## Play Console signing
+
+Verified 2026-09-19:
 
 - Play manages app signing. Its SHA-256 certificate is
   `95:6E:8F:3D:D8:7D:49:0B:98:D6:C1:52:D9:FD:A8:E9:27:1E:5B:BB:3A:E1:83:F6:41:32:EB:F1:2E:89:4A:BB`.
@@ -52,8 +72,9 @@ Play Console signing, verified 2026-09-19:
 - The owner submitted the reset. Play Console now displays the matching
   `EB:EF:…:72:9C` upload certificate. Its confirmation says the new key becomes valid
   **September 21, 2026 at 10:11 UTC (03:11 America/Los_Angeles)**; uploads are blocked
-  until then. The request still shows pending. Keep local build credentials staged until
-  activation. Google's app-signing key and installed-update identity stay unchanged.
+  until then. The request still shows pending. This delay blocks Play uploads, not EAS
+  compilation/signing; the verified AAB above already uses the replacement key.
+  Google's app-signing key and installed-update identity stay unchanged.
 - Inspect these under Play Console → Yours Sincerely → App integrity → App signing.
   Do not change the app-signing key or use the unrelated archived key for production.
 
@@ -77,9 +98,10 @@ separately when a build is requested.
 | `fcm/public-certificate.pem`     | Public certificate registered with Google                |
 | `google-services.json`           | Firebase Android config for `com.kyh.yourssincerely`     |
 
-The staged Android `credentials.json` is intended to be copied into `apps/expo/`;
-its keystore path resolves relative to that directory. After Play activation is confirmed,
-run from the repository root:
+Android `credentials.json` is already installed in ignored `apps/expo/credentials.json`;
+its keystore path resolves relative to that directory. To restore it and create a future
+build, run from the repository root. The finished candidate above needs no rebuild solely
+because the Play key activates later:
 
 ```sh
 install -m 600 .credentials/production/android/credentials.json apps/expo/credentials.json
@@ -119,23 +141,29 @@ Trusted Web Activity builds (`1.1.0.0`, APK code `40`), with a trusted-browser l
 `generatorApp=PWABuilder`, `fallbackType=customtabs`, and `https://yourssincerely.org/`.
 They establish the signing certificate, not the current Play runtime.
 
-Authenticated Play Console production history, checked 2026-09-19, contains codes
-`111` (`1.1.1`, February 2023), `1` (`1.0 rewrite`, February 2023), and `30`
-(`5.0`, June 2020). Code `30` still has an installed cohort. The archived code `40`
-TWA does not appear in that production history; other tracks remain unverified.
+Authenticated Play Console's complete app-bundle inventory, checked 2026-09-19, lists
+three versions: `111` (`1.1.1`, active), `1` (`1.0`, inactive), and `30` (`5.0`, inactive).
+All three signed universal APKs were downloaded from Play and passed `apksigner verify`;
+all use package `com.kyh.yourssincerely` and the Play app-signing certificate above.
+The archived TWA code `40` is absent from this inventory.
 
-Git introduced Capacitor on 2023-02-04 (`5b8f6a57`) and raised its Android version to
-`1.1.1`/`111` on 2023-02-07 (`ba74553b`). Source matching code `30` at
-`91559bb0` uses SuperView with standard Android WebView/CookieManager and the same live
-HTTPS host. Its original web code used Firebase Auth; the remotely loaded current site
-may since have issued a signed session cookie. App version alone cannot establish a
-user's current credential format. No additional importer is justified by this source review.
+| Play code | APK SHA-256                                                        | Verified shipped runtime                                                                                       |
+| --------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| 111       | `8b7fae151ae6b97f5f6e0df8b081de8ea097109afaf789e93f86789551e305ec` | Capacitor `BridgeActivity`; server `https://yourssincerely.org`                                                |
+| 1         | `3d1abe2035b37a1448edac345de9304d731bf0fdce9b057ade9f2db392fdd352` | Capacitor `BridgeActivity`; server `https://yourssincerely.org`                                                |
+| 30        | `80c5e68cc6023befe6301a31fecec5aef6d9d965695e36175a285fc14ae91038` | SuperView `AppCompatActivity`; standard Android WebView/CookieManager; target URL `https://yourssincerely.org` |
 
-Inspect Play's actual code `111` and `30` binaries and test in-place updates of working
-identities from both. Source matching is not shipped-binary proof. If a shipped TWA cohort
-is found, its browser-owned cookies require a separate transfer path:
-[Chrome documents that the host app cannot read those cookies](https://developer.chrome.com/docs/android/trusted-web-activity).
-Passing the Capacitor fixture alone does not close these gates.
+The current importer reads the app-owned WebView cookie store used by these binaries.
+That establishes the runtime path, not the validity of any user's stored cookie. Code 30's
+original web code used Firebase Auth; the remotely loaded current site may since have
+issued a signed session cookie. App version alone cannot establish the credential format.
+No additional importer is justified by this binary inspection.
+
+Play reports an install base of `≤100` for each of codes 1 and 30; that does not establish zero users. Test working
+identities from older cohorts as well as code 111 with an in-place, store-delivered update.
+If an unlisted shipped TWA cohort is later found, its browser-owned cookies need a separate
+transfer path: [Chrome documents that the host app cannot read those cookies](https://developer.chrome.com/docs/android/trusted-web-activity).
+Passing the Capacitor fixture alone does not close the physical upgrade gates.
 
 ## App links
 
@@ -177,7 +205,8 @@ Google key `38d4be0f1200e055792209827dbd3951111a20fb` is active and expires
 and an FCM `validate_only` request both returned HTTP 200; no notification was delivered.
 The JSON was uploaded and assigned to production Android `com.kyh.yourssincerely` in EAS,
 credential `ed3905f3-2af6-47a1-b4dd-c758f814a93a`. A fresh EAS query confirmed assignment;
-Play submission credentials and the production build keystore remain unassigned.
+Play submission credentials remain unassigned. The production build uses the local
+Android keystore; no remote EAS keystore is required.
 
 This private JSON differs from `google-services.json`. See
 [Expo's FCM setup](https://docs.expo.dev/push-notifications/fcm-credentials/),
@@ -185,6 +214,26 @@ This private JSON differs from `google-services.json`. See
 [FCM validation-only requests](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages/send).
 
 Then use physical devices to opt in, receive a notification, and open its exact post.
+
+## Store declarations
+
+Play's Test and release dashboard showed three required declarations on September 19:
+financial features, health apps, and child safety standards. No declarations were submitted.
+
+Current app/API code supports draft answers of no financial features and no health features;
+confirm any services outside the repository before attesting. Child safety needs owner facts:
+a published CSAE standards URL, a designated monitored safety contact, and the actual
+report-review, removal, and escalation process. Existing terms prohibit illegal/explicit
+content; generic support email and automatic flag-based hiding do not establish those facts.
+The report action opens email; existing identities can also flag posts inside the app.
+No staffed review workflow is documented. See
+[Google's child-safety declaration requirements](https://support.google.com/googleplay/android-developer/answer/14747720).
+
+Android developer verification lists `com.kyh.yourssincerely` as **Registered**, with one
+key and last-updated date March 6, 2026, verified in the live package table on September 19.
+The account-wide September 30 registration reminder therefore needs no package-registration
+action for this Play app. The new Android candidate targets API 36, but successful build
+validation does not establish Play policy clearance.
 
 ## Validate
 
@@ -208,7 +257,7 @@ remains untested. Local `.env` is for development.
 Before the first production build:
 
 - iOS: use the existing App Store Connect app and bundle ID `com.tehkaiyu.yourssincerely`. Seed EAS remote build version above the live Capacitor build number.
-- Android: use the Play-registered upload keystore for `com.kyh.yourssincerely`. The original key is unavailable; the owner-authorized replacement must wait for reset approval and a matching certificate in Play Console > App integrity. Seed EAS remote version code above the live build.
+- Android: use the Play-registered upload keystore for `com.kyh.yourssincerely`. The original key is unavailable; the owner-authorized replacement matches Play Console > App integrity and signed the current candidate. Play uploads must wait for its September 21 activation. Seed EAS remote version code above the live build.
 - Check/import credentials with `pnpm exec eas credentials`. Set remote versions with `pnpm exec eas build:version:set`.
 
 `apps/expo/eas.json` uses remote versions and auto-increments production builds after the initial seed.

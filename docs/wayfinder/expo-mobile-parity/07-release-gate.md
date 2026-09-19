@@ -8,8 +8,8 @@
 - [x] Android legacy-session upgrade journey (emulator; Play-delivered phone still pending).
 - [x] Automated Capacitor-to-Expo upgrade fixture (docs/phone-testing.md §3).
 - [x] Current iOS candidate built with existing production signing credentials; IPA verified.
-- [ ] Current Android candidate built with a key matching Play’s registered upload certificate.
-- [ ] Identify shipped Android runtimes, including whether any PWABuilder/TWA version shipped.
+- [x] Current Android candidate built and verified with the registered replacement upload certificate.
+- [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on Android.
@@ -18,15 +18,21 @@
 - [x] Production Android association JSON includes the verified Play app-signing certificate.
 - [ ] Verified HTTPS links work cold, warm, and after backgrounding on both platforms.
 - [ ] Production crash diagnostics verified.
+- [ ] Play upload-key activation confirmed (September 21, 2026 at 10:11 UTC).
+- [x] Android developer verification lists the production package as Registered.
+- [ ] Required Play financial, health, and child-safety declarations completed.
 
 Local Release builds and staged-cookie fixtures do not close the physical store gates.
-Play Console production history was verified on 2026-09-19: codes 111, 1, and 30;
-code 30 retains an installed cohort. The archived TWA code 40 is absent from that history.
-Source matching code 30 uses a standard WebView; inspect the actual binaries and exercise
-working identities from both code 111 and code 30 before claiming Android continuity.
+Play's complete artifact inventory was inspected on 2026-09-19: codes 111, 1, and 30.
+Their actual Play-signed APKs were verified: 111/1 use Capacitor; 30 uses a standard
+WebView/CookieManager; all load the production host. The archived TWA code 40 is absent.
+Older cohorts remain listed. Exercise their working identities in place before claiming
+Android continuity. Both production candidates from main `a496f9c1` finished and passed
+artifact verification: iOS `2026090505`, Android `2026090502`.
 The recovered archive key differs from Play's original upload key. Its replacement is
 stored locally in the ignored credential bundle; Play confirms activation on September 21
-at 10:11 UTC. FCM V1 is assigned and its validation-only request passed. The verified Play
+at 10:11 UTC. EAS compilation/signing is complete; only Play uploads wait for activation.
+FCM V1 is assigned and its validation-only request passed. The verified Play
 app-signing certificate is deployed; the public JSON was checked on September 19.
 See [release inputs](../../mobile-release-inputs.md).
 Both the earlier iOS fixture and a fresh simulator install preserved an anonymous ID across

@@ -37,11 +37,12 @@ Preview smoke test:
 
 Do not uninstall the existing store app. Uninstall/reinstall deletes the evidence this test needs.
 
-First inspect the installed Android artifact's version and runtime. The recovered 2023
-APK/AAB are PWABuilder Trusted Web Activity builds; whether they shipped is still unknown.
-The current importer covers Capacitor WebView cookies, not browser-owned TWA cookies.
-Check older released versions as well as the current Play release, because a phone can
-update directly from an old version. See [release inputs](./mobile-release-inputs.md#android-runtime-provenance).
+Record the installed Android version. The three versions listed in Play were inspected:
+codes 111/1 use Capacitor; code 30 uses standard Android WebView/CookieManager. All load
+the production host. The archived PWABuilder/TWA code 40 is absent from Play's inventory.
+The importer covers app-owned WebView cookies, not browser-owned TWA cookies. Test older
+cohorts as well as the current release: a phone can update directly from an old version.
+See [release inputs](./mobile-release-inputs.md#android-runtime-provenance).
 
 Before building:
 
@@ -54,7 +55,11 @@ pnpm exec eas build:version:set --platform ios --profile production
 pnpm exec eas build:version:set --platform android --profile production
 ```
 
-Build and send to private store testing:
+Production builds `2026090505` (iOS) and `2026090502` (Android) are already verified;
+see [release inputs](./mobile-release-inputs.md#verified-production-artifacts). Build
+permission does not include store submission. After separate authorization, the following
+commands build and send a future candidate to private store testing. Do not use `--latest`
+for a specific audited candidate without confirming it still identifies the intended build:
 
 ```sh
 pnpm exec eas build --profile production --platform all
@@ -188,7 +193,7 @@ These cannot safely be invented or recovered from source code.
 
 ### Google Play
 
-- Use the Play-registered upload keystore. The owner-submitted replacement activates September 21, 2026 at 10:11 UTC; see [release inputs](./mobile-release-inputs.md) for the staged local credential bundle.
+- Use the Play-registered upload keystore. The owner-submitted replacement activates September 21, 2026 at 10:11 UTC; see [release inputs](./mobile-release-inputs.md) for the local credential bundle already used by EAS. The activation delay blocks Play uploads, not builds.
 - Confirm Play App Signing is active and the committed app-link certificate matches Play Console.
 - Look up the live Capacitor `versionCode`; seed EAS above it.
 - Add a Play service-account JSON key to EAS Submit, or upload the AAB manually.
