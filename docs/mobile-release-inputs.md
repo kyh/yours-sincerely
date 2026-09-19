@@ -41,9 +41,15 @@ Play Console signing, verified 2026-09-19:
 - The current upload certificate SHA-256 is
   `E3:37:81:33:08:6E:59:08:F5:53:76:8E:0C:B7:20:B7:8A:15:09:4B:94:A1:CF:99:03:D7:69:EF:81:EF:03:B8`.
   No matching private key was found in the repository, local release archives, or EAS.
-- If that upload key cannot be recovered, Play offers an upload-key reset. This preserves
-  Google's app-signing key and installed-update identity. No reset has been requested;
-  replacing the upload credential requires the owner's authorization.
+- The user authorized replacement-key preparation on September 19. A new RSA-4096 upload
+  keystore was generated and its private key verified locally. Its SHA-256 certificate is
+  `EB:EF:98:9A:37:19:06:49:4B:D7:4B:24:D3:EE:89:AB:C9:17:FC:C0:6F:7E:4C:E5:AC:0C:EF:68:9A:F2:72:9C`.
+  Private files are under `~/.config/yours-sincerely/android-upload-20260919/` with
+  directory mode 0700 and file mode 0600. The public certificate is also in
+  `~/Downloads/yours-sincerely-upload-certificate.pem` for the Play reset form.
+- Play's reset form is prepared; the owner must upload that public certificate and submit
+  the request. No reset has been submitted. This preserves Google's app-signing key and
+  installed-update identity. Do not activate the replacement in EAS until Play registers it.
 - Inspect these under Play Console → Yours Sincerely → App integrity → App signing.
   Do not change the app-signing key or use the unrelated archived key for production.
 

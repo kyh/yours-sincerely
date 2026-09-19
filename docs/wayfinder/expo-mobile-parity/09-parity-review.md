@@ -197,6 +197,7 @@ Source paths below are relative to `apps/expo/src`.
   `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751` was canceled without an artifact and the new key
   removed. The recovered archive key matches neither Play's current upload certificate nor
   its app-signing certificate. The registered upload key remains missing locally and in EAS.
-  Play manages app signing and offers upload-key reset, but no reset is authorized or started.
+  A replacement upload key was generated with user authorization; Play registration remains
+  pending the owner’s submission. Google’s app-signing key remains unchanged.
   Production Android requires local credentials and cannot generate a replacement.
   See `docs/mobile-release-inputs.md`. No store submission was made.
