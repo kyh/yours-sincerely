@@ -11,10 +11,10 @@ Release audit, updated 2026-09-19:
 - EAS has a finished production iOS build `964a431b-4302-414e-9004-fbca69923eeb`
   from 2026-09-05, version `2.0.0`, build `2026090503`. It predates the current changes.
 - The user authorized source upload and builds, with no store submission. Both production
-  candidates from clean main `598876ddca8c3bf1850833e1c793e15880be6338` finished on
-  September 19. Downloaded artifacts passed the checks below, including the final profile
-  corners and appearance-swatch shadow. These supersede iOS `2026090505` and Android
-  `2026090502` from `a496f9c1`.
+  candidates from clean main `a4febf06ff108e2fe60565f1aec557fe8413092b` finished on
+  September 19. Downloaded artifacts passed the checks below, including inherited theme
+  colors, accessibility, navigation-wrapper and icon corrections. These supersede iOS
+  `2026090506` and Android `2026090503` from `598876dd`.
 - EAS CLI 23.2.0 generated an Android keystore despite `--freeze-credentials`; the flag
   does not guard Android generation. Build `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751`
   (`2026090501`) was canceled with no artifact. Its newly generated key was removed and
@@ -38,28 +38,29 @@ Release audit, updated 2026-09-19:
 ## Verified production artifacts
 
 Both artifacts contain version `2.0.0`, Hermes bytecode, and the production app identity.
-Both include the profile-corner/swatch changes and production API host, with neither local port-3100
-API URL present. Neither was submitted to a store. Artifact receipts:
-`/tmp/ys-release-final-ui-artifacts-20260919/` (platform build metadata and verification JSON).
+Both include the profile-corner/swatch and theme corrections, production API host, and
+no local port-3100 API URL or temporary navigation diagnostics. Neither was submitted to
+a store. Artifact receipts: `/tmp/ys-theme-production-artifacts-20260919/` (platform build
+metadata and verification JSON).
 
-These artifacts predate the subsequent theme accessibility, navigation-wrapper, and Lottie
-color fixes. Verify those fixes on the local native fixtures, then build replacement
-production candidates before release.
+The source passed CI and full `pnpm verify` (212 tests, including 69 Expo tests). All four
+iOS themes passed local transitions and cold-launch persistence. Android theme interaction
+and iOS native back gesture checks remain open; signed artifacts do not close those gates.
 
-- [iOS build `2026090506`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/927e6012-f4fd-46db-ad86-6e052baa43d6):
+- [iOS build `2026090507`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/34e840dc-84b2-497a-bc8a-20040f36fd83):
   strict code-signature verification passed; the actual signing certificate matches the
   provisioning profile. Existing certificate serial
   `689895EACC2EBD804073C5450A09F352`, team `N89P364V32`, production APNs entitlement,
   no debugging, iPhone/iPad support. Provisioning expires September 5, 2027 at 16:45:51 UTC.
-  IPA SHA-256: `57403dee3d5c8b23a6b095ecebb525c5433d99d70a0467e9b2c083e3cde3621c`.
-- [Android build `2026090503`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/d2acebb0-cafb-439f-ab1c-5b4dacf7c4e7):
+  IPA SHA-256: `b0f1f3bbfda60e51a4227fdf54bfe1fc4a69e1af1410c3836687685013bf1210`.
+- [Android build `2026090504`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/f7a61870-3af8-4a9b-a40c-180a0d014b2a):
   JAR signature and bundletool validation passed; signer matches the replacement upload
   certificate below. Target SDK 36, minimum SDK 24, Firebase project `yours-sincerely`,
   notification permission present, overlay permission absent, debugging disabled.
   All 50 bundled arm64-v8a/x86_64 libraries have ELF load-segment alignment of at least
   16 KB. No bundled keystores or `.credentials/` entries were found. This is artifact validation,
   not a 16 KB device runtime test.
-  AAB SHA-256: `ab3ae033949b78e0e26c3cefb93011ef586b1dd186886aa36636d293776af47e`.
+  AAB SHA-256: `ac4d0136d6e10dcae681f018361e789c3835c983b49855a173eaf96b49e4cbc2`.
 
 ## Play Console signing
 

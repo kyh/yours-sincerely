@@ -180,9 +180,8 @@ Source paths below are relative to `apps/expo/src`.
 - The final source pass added web-equivalent 33px outer profile corners at 1024px and the
   exact 5%-black appearance-swatch shadow without Android elevation. Compiler/palette tests
   and the full verification gate passed. Updated local Hermes UI bundles are installed in
-  fresh iOS/Android fixtures; profile/theme checks await an unlocked Mac. Production builds
-  from `598876dd` finished and their signed artifacts contain both changes; runtime checks
-  remain open. These artifacts predate the subsequent theme fixes below. See
+  fresh iOS/Android fixtures. The checks below supersede the earlier locked-Mac blocker.
+  Production builds from `a4febf06` include both changes and the theme fixes below. See
   [release inputs](../../mobile-release-inputs.md#verified-production-artifacts).
 
 - Fresh Like-first tests passed on iOS 26.5 and Android API 35: profile creation, cold
@@ -202,13 +201,15 @@ Source paths below are relative to `apps/expo/src`.
 - iOS 26.5 now passes all four theme transitions, individual accessibility controls, and
   selected-theme persistence after cold launches. The same Settings email remains present.
   An in-app Post route retains both route entries through the theme cycle; explicit Back
-  returns to the same liked feed card. Local fixtures include a temporary accessibility
-  history hint and event logging, absent from main. Android launches with its retained
+  returns to the same liked feed card. The iOS theme-check fixture included a temporary
+  accessibility history hint and event logging, absent from main and the production IPA.
+  A clean committed-source fixture then passed cold launch. Android launches with its retained
   account and individual controls; remaining theme checks await working emulator input.
 - iOS card swipe advances the feed. Native back swipe still does not navigate from the
   padded content edge despite confirmed stack history; explicit Back works. Read-only
   native inspection confirms two controllers, enabled pop recognizers and no dismissal
-  block. Touch delivery diagnostics remain open; no navigation option was changed.
+  block. A separate full-width fixture also failed the automated swipe, so no speculative
+  layout or navigation change was shipped. Native back verification remains open.
 
 ## Remaining boundaries
 
@@ -236,9 +237,9 @@ Source paths below are relative to `apps/expo/src`.
 - Physical push delivery, OS-verified HTTPS links, and store-delivered Capacitor upgrades
   require the release checks in `docs/phone-testing.md`. Simulator previews do not prove them.
 - Source upload and builds are authorized; store submission is not. Both production builds
-  from clean main `598876dd` finished and their downloaded artifacts passed verification:
-  iOS `927e6012-f4fd-46db-ad86-6e052baa43d6` (`2026090506`) with existing Apple signing;
-  Android `d2acebb0-cafb-439f-ab1c-5b4dacf7c4e7` (`2026090503`) with the owner-authorized
+  from clean main `a4febf06` finished and their downloaded artifacts passed verification:
+  iOS `34e840dc-84b2-497a-bc8a-20040f36fd83` (`2026090507`) with existing Apple signing;
+  Android `f7a61870-3af8-4a9b-a40c-180a0d014b2a` (`2026090504`) with the owner-authorized
   replacement upload key. Android targets API 36; all 50 bundled 64-bit native libraries
   passed the ELF 16 KB alignment check. Physical runtime checks remain separate.
   The replacement upload key matches Play's displayed certificate and activates September

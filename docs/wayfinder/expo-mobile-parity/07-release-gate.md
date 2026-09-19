@@ -12,9 +12,8 @@
 - [x] Play code 30 persisted-session upgrade passes all four old/native UI posts and both restarts.
 - [x] Fresh-session persistence fix passes immediate first-post → Expo replacement on Android codes 111 and 1.
 - [x] Deploy verified web persistence fix before rollout; document remaining unbridged/old-page interruption risk.
-- [x] Build iOS candidate from `598876dd` with existing production credentials; verify its IPA.
-- [x] Build Android candidate from `598876dd` with the registered replacement upload certificate; verify its AAB.
-- [ ] Build and verify new production candidates after the subsequent theme fixes pass native regression checks.
+- [x] Build iOS candidate from `a4febf06` with existing production credentials; verify its IPA.
+- [x] Build Android candidate from `a4febf06` with the registered replacement upload certificate; verify its AAB.
 - [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
@@ -50,9 +49,10 @@ Their actual Play-signed APKs were verified: 111/1 use Capacitor; 30 uses a stan
 WebView/CookieManager; all load the production host. The archived TWA code 40 is absent.
 Codes 1 and 30 now pass all four persisted-session UI writes, including both restarts and
 in-place Expo installation. All three listed Android cohorts have local migration proof.
-Both production candidates from main `598876dd` finished and passed
-artifact verification: iOS `2026090506`, Android `2026090503`. They predate the later
-theme-wrapper/icon corrections and will need replacement after native verification.
+Both production candidates from main `a4febf06` finished and passed
+artifact verification: iOS `2026090507`, Android `2026090504`. They include the inherited
+color, accessibility, navigation-wrapper and icon corrections. Native checks still open
+below remain release gates; neither artifact was submitted to a store.
 The recovered archive key differs from Play's original upload key. Its replacement is
 stored locally in the ignored credential bundle; Play confirms activation on September 21
 at 10:11 UTC. EAS compilation/signing is complete; only Play uploads wait for activation.
@@ -80,5 +80,7 @@ see [identity receipts](./02-identity-continuity.md) and [profile checks](./03-p
 Theme fixes now preserve root wrappers, inherited colors, individual accessibility controls,
 and light/dark navigation icon colors. The installed CSS resolver regressions and full
 `pnpm verify` pass. All four iOS themes pass transitions and cold-launch persistence with
-the same account. Android combined-fix checks and iOS native back diagnostics remain open.
+the same account. Android launches with its retained account and individual controls, but
+Studio's computer-use connection currently rejects taps. Alternate emulator input awaits
+explicit permission. Android theme checks and iOS native back verification remain open.
 Evidence: `/tmp/ys-theme-fix-20260919/propagation-fixed/ios-runtime-evidence.json`.
