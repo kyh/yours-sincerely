@@ -169,6 +169,10 @@ Source paths below are relative to `apps/expo/src`.
 - Metro required a clean cache after SDK peer-path changes and new utilities. Development
   cache failures were reproduced and resolved; the standalone iOS bundle rendered correctly.
 
+- Genuine legacy-created-session upgrades passed on iOS 26.5 and Android API 35 on
+  September 19, including UI writes before and after both restarts. No cookie injection
+  or uninstall between versions. [Receipts and limitations](../../mobile-upgrade-verification.md).
+
 ## Remaining boundaries
 
 - All three artifacts in Play's current inventory were downloaded and verified on September
@@ -181,9 +185,12 @@ Source paths below are relative to `apps/expo/src`.
   behavior passed locally. Control-Enter opened the simulator's edit menu; Command-arrows
   rotated Simulator even with keyboard capture enabled. These attempts do not verify the
   device modifier behavior. Android stack keys, native Publish, editor exclusion, and native
-  Back dismissal passed; modifier submission and hardware stack navigation after dismissal
-  remain open.
-- Production crash reporting is not integrated; service/project choice is pending.
+  Back dismissal passed. September 19 checks also passed Right/Left/Space navigation after
+  settled composer dismissal without refocusing, plus editor exclusion. Ctrl+Enter still
+  opened Studio's host New popup and created no post; modifier submission remains open.
+- Launch diagnostics use Apple and Google platform crash reports; collection still needs
+  verification on store-distributed builds. No additional reporting SDK is integrated, so
+  recovered JavaScript/render errors lack centralized reporting.
 - A failed first-session write retries while the process lives. If the app dies before
   the cookie reaches durable storage, or the first server response is lost, that anonymous
   identity cannot be recovered from the device. No session expiry was introduced.

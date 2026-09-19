@@ -1,6 +1,6 @@
 # Phone testing
 
-There are two different phone tests. Run both. A preview build tests the app. Only a store-delivered update tests Capacitor session retention.
+Preview builds test app behavior. An in-place simulator/emulator update tests legacy-session migration. A store-delivered update on a physical phone additionally verifies the real signing and distribution path.
 
 ## 1. Installable preview
 
@@ -83,7 +83,27 @@ On each phone:
 
 Failure evidence to capture: platform, old/new build numbers, exact screen, whether the old app was ever uninstalled, and a screen recording from before update through first Expo launch.
 
-## 3. Automated upgrade fixture (simulator + emulator)
+## 3. Upgrade fixtures (simulator + emulator)
+
+### Real legacy-app session
+
+Passed on both platforms on September 19, 2026. Install the historical Capacitor app pointed
+at the local web server, publish through its UI, restart and publish again, then update
+in place to Expo and repeat. Compare each post's author in local Postgres. Do not inject
+cookies, reset app data, or uninstall between versions. See the
+[verified run and artifact provenance](./mobile-upgrade-verification.md).
+
+Keep the web server running throughout: the old app loads its UI from it, and Expo uses
+its API. This run used `pnpm -F @repo/web with-env next dev --port 3100` plus the existing
+OrbStack database. Both builds used `http://localhost:3100`; Android also needed
+`adb reverse tcp:3100 tcp:3100`. The disposable Expo source changed the migration `HOST`
+to `localhost`; production source keeps `yourssincerely.org`.
+
+On this Xcode installation, computer-use control works through
+`/Applications/Xcode.app/Contents/Applications/DeviceHub.app`. The stale Simulator app
+entry could not attach. Use an isolated device and preserve its container through update.
+
+### Staged-cookie regression fixture
 
 Proves the Capacitor→Expo session hand-off without a store build: stage a legacy cookie
 where the old app left it, install the Expo build over the same app id, and confirm the
@@ -217,4 +237,4 @@ in-app feed is the `Notification` table.
 
 ## Done gate
 
-Do not call session continuity complete until both store-delivered upgrades pass on physical phones. Preview, Expo Go, simulator, clean install, and uninstall/reinstall do not count.
+Local migration is verified by an in-place simulator/emulator fixture. Production rollout clearance still requires both store-delivered upgrades on physical phones. Preview, Expo Go, clean install, and uninstall/reinstall do not establish update continuity.

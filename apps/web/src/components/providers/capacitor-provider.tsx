@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { App } from "@capacitor/app";
 import type { PluginListenerHandle } from "@capacitor/core";
+import { Capacitor } from "@capacitor/core";
 import { SplashScreen } from "@capacitor/splash-screen";
 
 export const CapacitorProvider = ({ children }: { children: React.ReactNode }) => {
@@ -11,6 +12,10 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     void SplashScreen.hide();
+
+    if (Capacitor.getPlatform() !== "android" || !Capacitor.isPluginAvailable("App")) {
+      return;
+    }
 
     let disposed = false;
     let listener: PluginListenerHandle | undefined;

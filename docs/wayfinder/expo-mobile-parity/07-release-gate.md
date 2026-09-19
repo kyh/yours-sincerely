@@ -6,14 +6,16 @@
 - [x] Signed iOS Hermes build and route smoke.
 - [x] Android Release APK build and cold launch.
 - [x] Android legacy-session upgrade journey (emulator; Play-delivered phone still pending).
-- [x] Automated Capacitor-to-Expo upgrade fixture (docs/phone-testing.md §3).
+- [x] Automated Capacitor-to-Expo staged-cookie fixture (docs/phone-testing.md §3).
+- [x] Real legacy UI posts survive restart, in-place Expo upgrade, and native restart on both platforms.
 - [x] Current iOS candidate built with existing production signing credentials; IPA verified.
 - [x] Current Android candidate built and verified with the registered replacement upload certificate.
 - [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on Android.
-- [ ] Hardware keyboard commands, editor exclusion, and modal dismissal verified natively.
+- [x] iOS Command-Enter and both platforms' stack navigation, editor exclusion, and modal dismissal verified locally.
+- [ ] Android Ctrl+Enter verified on a host/device that forwards the modifier.
 - [ ] Physical push opens its exact post on both platforms.
 - [x] Production Android association JSON includes the verified Play app-signing certificate.
 - [ ] Verified HTTPS links work cold, warm, and after backgrounding on both platforms.
@@ -22,7 +24,10 @@
 - [x] Android developer verification lists the production package as Registered.
 - [ ] Required Play financial, health, and child-safety declarations completed.
 
-Local Release builds and staged-cookie fixtures do not close the physical store gates.
+Real legacy UI upgrade tests passed on iOS 26.5 and Android API 35 on September 19.
+Each platform retained one author across four UI posts, including legacy and Expo restarts.
+See [artifact provenance, database receipts, and the early Android legacy-session anomaly](../../mobile-upgrade-verification.md).
+These local builds do not close the physical store gates.
 Play's complete artifact inventory was inspected on 2026-09-19: codes 111, 1, and 30.
 Their actual Play-signed APKs were verified: 111/1 use Capacitor; 30 uses a standard
 WebView/CookieManager; all load the production host. The archived TWA code 40 is absent.
@@ -45,5 +50,8 @@ A fresh Android overlay
 also passed write/restart/write/sign-up/restart with the same user and both letters intact;
 Settings showed the upgraded email. Evidence: `/tmp/ys-android-final-check.md` and
 `/tmp/ys-android-signup-restart-settings.xml` with its PNG. Android Ctrl+Enter was intercepted
-by Studio; modifier submission and hardware stack navigation after dismissal remain open.
+by Studio. On September 19, Android Right/Left/Space navigation after settled composer
+dismissal passed without refocusing the canvas, and editor exclusion passed again.
+Ctrl+Enter still opened Studio's New popup and created no post; modifier submission remains
+unverified. No user-wide Studio shortcuts were changed.
 See [phone testing](../../phone-testing.md) for the required evidence.
