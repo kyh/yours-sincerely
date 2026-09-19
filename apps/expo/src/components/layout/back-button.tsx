@@ -23,8 +23,8 @@ export const BackButton = ({ fallback, label }: Props) => {
       accessibilityRole="button"
       accessibilityLabel={label ?? "Back"}
       className={cn(
-        "active:bg-accent -ml-2 h-8 flex-row items-center gap-1 rounded-lg px-2",
-        label !== undefined && "w-16",
+        "active:bg-accent -ml-2 min-h-11 min-w-11 flex-row items-center gap-1 rounded-lg px-2",
+        label !== undefined && "min-w-16",
       )}
       onPress={() => {
         if (router.canGoBack()) {

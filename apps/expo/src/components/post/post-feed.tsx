@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { View } from "react-native";
 import { LegendList } from "@legendapp/list/react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import type { RouterOutputs } from "@/lib/api";
 import type { FeedLayout } from "@/lib/feed-layout";
+import { Button } from "@/components/ui/button";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
@@ -17,6 +19,7 @@ type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
 /** Mirrors apps/web posts/_components/post-feed.tsx. */
 interface Props {
+  header?: ReactNode;
   layout?: FeedLayout;
   filters?: {
     userId?: string;
@@ -27,15 +30,23 @@ interface Props {
 
 const EMPTY_FILTERS: NonNullable<Props["filters"]> = {};
 
-export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) => {
-  const { data, isPending, isError, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
-    useInfiniteQuery(
-      orpc.post.getFeed.infiniteOptions({
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-        initialPageParam: undefined,
-        input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
-      }),
-    );
+export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS, header }: Props) => {
+  const {
+    data,
+    isPending,
+    isError,
+    isFetchNextPageError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteQuery(
+    orpc.post.getFeed.infiniteOptions({
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      initialPageParam: undefined,
+      input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
+    }),
+  );
   // Only an explicit pull shows the refresh spinner; `isRefetching` would also
   // flash it on every background invalidation after a like or flag.
   const [refreshing, setRefreshing] = useState(false);
@@ -47,23 +58,26 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
   const [contentHeight, setContentHeight] = useState(0);
   const underfilled = viewportHeight > 0 && contentHeight > 0 && contentHeight <= viewportHeight;
   useEffect(() => {
-    if (underfilled && hasNextPage && !isFetchingNextPage) {
+    if (underfilled && hasNextPage && !isFetchingNextPage && !isError) {
       void ignoreRejection(fetchNextPage());
     }
-  }, [underfilled, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [underfilled, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
+  let emptyState: ReactNode = (
+    <View className="flex-1 items-center justify-center py-10">
+      <Text className="text-sm">No posts</Text>
+    </View>
+  );
   if (isPending) {
-    return (
+    emptyState = (
       <View className="flex-1 items-center justify-center py-10">
         <Spinner />
       </View>
     );
-  }
-
-  if (isError) {
-    return (
+  } else if (isError && data === undefined) {
+    emptyState = (
       <QueryErrorState
         message="Couldn't load posts"
         onRetry={() => {
@@ -73,26 +87,41 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
     );
   }
 
-  if (posts.length === 0) {
-    return (
-      <View className="flex-1 items-center justify-center py-10">
-        <Text className="text-sm">No posts</Text>
+  const loadError =
+    isError && data !== undefined ? (
+      <View className="items-center gap-3 py-5">
+        <Text className="text-center text-sm">
+          {isFetchNextPageError ? "Couldn't load more posts" : "Couldn't refresh posts"}
+        </Text>
+        <Button
+          size="sm"
+          variant="outline"
+          onPress={() => {
+            void ignoreRejection(isFetchNextPageError ? fetchNextPage() : refetch());
+          }}
+        >
+          Try again
+        </Button>
       </View>
-    );
-  }
+    ) : null;
 
-  if (layout === "stack") {
+  if (layout === "stack" && posts.length > 0) {
     return (
-      <CardStack
-        data={posts}
-        hasNextPage={hasNextPage}
-        onLoadMore={() => {
-          void ignoreRejection(fetchNextPage());
-        }}
-        render={(post) => (
-          <PostContent layout="stack" post={post} asLink={false} showMore={false} minHeight />
-        )}
-      />
+      <View className="flex-1 pt-5">
+        {loadError}
+        <CardStack
+          data={posts}
+          hasNextPage={hasNextPage}
+          onLoadMore={() => {
+            if (!isFetchingNextPage && !isError) {
+              void ignoreRejection(fetchNextPage());
+            }
+          }}
+          render={(post) => (
+            <PostContent layout="stack" post={post} asLink={false} showMore={false} minHeight />
+          )}
+        />
+      </View>
     );
   }
 
@@ -102,7 +131,7 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
       data={posts}
       keyExtractor={(post) => post.id}
       onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
+        if (hasNextPage && !isFetchingNextPage && !isError) {
           void ignoreRejection(fetchNextPage());
         }
       }}
@@ -115,18 +144,30 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
         setRefreshing(false);
       }}
       refreshing={refreshing}
-      contentContainerStyle={{ paddingBottom: 96, paddingHorizontal: 20 }}
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
+      contentContainerStyle={{ flexGrow: 1, paddingVertical: 20 }}
+      ListEmptyComponent={emptyState}
+      ListHeaderComponent={
+        <>
+          {header}
+          {isFetchNextPageError ? null : loadError}
+        </>
+      }
       renderItem={({ item }) => (
         <View className="border-border border-b pt-5 pb-3">
           <PostContent post={item} showMore={false} />
         </View>
       )}
       ListFooterComponent={
-        isFetchingNextPage ? (
-          <View className="items-center py-5">
-            <Spinner />
-          </View>
-        ) : null
+        <>
+          {isFetchingNextPage && (
+            <View className="items-center py-5">
+              <Spinner />
+            </View>
+          )}
+          {isFetchNextPageError ? loadError : null}
+        </>
       }
     />
   );

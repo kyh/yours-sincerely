@@ -8,6 +8,6 @@ declare class LegacyCookieModule extends NativeModule {
   clear(name: string, host: string): Promise<void>;
 }
 
-/** Null in builds compiled before this native module existed (e.g. older dev
-    clients) — callers must treat absence as "no legacy session to migrate". */
+/** Null in older development clients. A store build missing this bridge must
+    block API requests rather than discard the existing Capacitor identity. */
 export default requireOptionalNativeModule<LegacyCookieModule>("LegacyCookie");

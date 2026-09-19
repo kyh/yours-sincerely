@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { AccessibilityInfo, Pressable, View } from "react-native";
 import { onlineManager } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react-native";
+import { cn } from "cn";
 
 import { Text } from "@/components/ui/text";
-import { useThemeColors } from "@/components/theme-colors";
+import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { refreshConnectivity } from "@/lib/connectivity";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 export const ConnectivityBanner = () => {
-  const colors = useThemeColors();
+  const { resolvedTheme } = useTheme();
+  const dark = isDarkTheme(resolvedTheme);
   const [online, setOnline] = useState(() => onlineManager.isOnline());
   const [checking, setChecking] = useState(false);
 
@@ -29,15 +31,17 @@ export const ConnectivityBanner = () => {
 
   return (
     <View
-      accessible
       accessibilityLiveRegion="polite"
-      className="absolute right-4 bottom-24 left-4 z-50 flex-row items-center justify-between gap-3 rounded-xl bg-neutral-900 px-4 py-3 shadow-lg dark:bg-neutral-100"
+      className={cn(
+        "absolute right-4 bottom-24 left-4 z-50 flex-row items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-lg",
+        dark ? "bg-neutral-100" : "bg-neutral-900",
+      )}
     >
       <View className="flex-1 gap-0.5">
-        <Text className="text-sm font-semibold text-white dark:text-neutral-900">
+        <Text className={cn("text-sm font-semibold", dark ? "text-neutral-900" : "text-white")}>
           You&apos;re offline
         </Text>
-        <Text className="text-xs text-neutral-300 dark:text-neutral-600">
+        <Text className={cn("text-xs", dark ? "text-neutral-600" : "text-neutral-300")}>
           Already loaded letters remain available. New activity will load when you reconnect.
         </Text>
       </View>
@@ -45,15 +49,19 @@ export const ConnectivityBanner = () => {
         accessibilityRole="button"
         accessibilityLabel="Retry connection"
         disabled={checking}
+        accessibilityState={{ busy: checking, disabled: checking }}
         hitSlop={8}
-        className="h-11 w-11 items-center justify-center rounded-full bg-white/10 active:bg-white/20 dark:bg-black/10 dark:active:bg-black/20"
+        className={cn(
+          "h-11 w-11 items-center justify-center rounded-full",
+          dark ? "bg-black/10 active:bg-black/20" : "bg-white/10 active:bg-white/20",
+        )}
         onPress={async () => {
           setChecking(true);
           await ignoreRejection(refreshConnectivity());
           setChecking(false);
         }}
       >
-        <RefreshCw size={18} color={colors.background} />
+        <RefreshCw size={18} color={dark ? "#171717" : "#fff"} />
       </Pressable>
     </View>
   );

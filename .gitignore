@@ -67,3 +67,8 @@ credentials.json
 *.jks
 *.keystore
 !apps/expo/android/app/debug.keystore
+
+# Local release credential bundle and tracked public certificates.
+/.credentials/
+!docs/certificates/android-upload.pem
+!docs/certificates/fcm-push.pem

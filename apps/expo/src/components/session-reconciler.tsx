@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 
 import { orpc } from "@/lib/api";
 import { finalizeLegacySessionMigration } from "@/lib/legacy-session-migration";
-import { deleteSessionCookie, getSessionCookie } from "@/lib/session-store";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Reconciles the stored session with what the server says, once per
@@ -18,12 +17,9 @@ export const SessionReconciler = () => {
     }
     if (data.user !== null) {
       void ignoreRejection(finalizeLegacySessionMigration(true));
-    } else if (getSessionCookie() !== null) {
-      // A stored cookie that no longer resolves to a user is dead (account
-      // deleted elsewhere, or signature rejected) — drop it so the app settles
-      // into a clean signed-out state instead of replaying it forever.
-      void ignoreRejection(deleteSessionCookie());
     }
+    // A null result can predate a newly issued cookie. It changes the query's
+    // signed-in state, but only explicit sign-out may delete the stored session.
   }, [data]);
 
   return null;

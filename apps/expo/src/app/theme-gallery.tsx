@@ -1,6 +1,5 @@
 import { Pressable, ScrollView, View } from "react-native";
 import { Redirect } from "expo-router";
-import { SafeAreaView } from "@/lib/css-interop";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,63 +17,60 @@ const ThemeGallery = () => {
   }
 
   return (
-    <SafeAreaView className="bg-background flex-1">
-      <ScrollView contentContainerClassName="gap-4 p-4">
-        <Text className="text-2xl font-bold">Theme gallery</Text>
+    <ScrollView contentContainerStyle={{ gap: 16, paddingVertical: 20 }}>
+      <View className="flex-row flex-wrap gap-2">
+        {themes.map((option) => (
+          <Pressable
+            key={option.id}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ selected: theme === option.id }}
+            onPress={() => setTheme(option.id)}
+            className={
+              theme === option.id
+                ? "border-ring min-h-11 min-w-11 items-center justify-center rounded-full border-2 p-1"
+                : "min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-transparent p-1"
+            }
+          >
+            <View
+              className="border-border size-8 rounded-full border"
+              style={{ backgroundColor: option.color }}
+            />
+          </Pressable>
+        ))}
+      </View>
+      <Text className="text-muted-foreground text-sm">Active: {theme}</Text>
 
-        <View className="flex-row flex-wrap gap-2">
-          {themes.map((option) => (
-            <Pressable
-              key={option.id}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: theme === option.id }}
-              onPress={() => setTheme(option.id)}
-              className={
-                theme === option.id
-                  ? "border-ring rounded-full border-2 p-1"
-                  : "rounded-full border-2 border-transparent p-1"
-              }
-            >
-              <View
-                className="border-border size-8 rounded-full border"
-                style={{ backgroundColor: option.color }}
-              />
-            </Pressable>
-          ))}
+      <Card>
+        <Text className="text-lg font-semibold">A tiny beautiful letter</Text>
+        <Text className="text-muted-foreground">
+          This is what a card looks like — muted text on the card surface.
+        </Text>
+        <View className="flex-row gap-2">
+          <Button>Publish</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
         </View>
-        <Text className="text-muted-foreground text-sm">Active: {theme}</Text>
-
-        <Card>
-          <Text className="text-lg font-semibold">A tiny beautiful letter</Text>
-          <Text className="text-muted-foreground">
-            This is what a card looks like — muted text on the card surface.
-          </Text>
-          <View className="flex-row gap-2">
-            <Button>Publish</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="ghost">Ghost</Button>
-          </View>
-          <View className="flex-row gap-2">
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="destructive">Delete</Button>
-            <Button loading>Loading</Button>
-          </View>
-        </Card>
-
-        <Input placeholder="Write a little love letter..." />
-
-        <View className="flex-row items-center gap-3">
-          <Spinner />
-          <Text className="font-sans">Regular 400</Text>
-          <Text className="font-medium">Medium 500</Text>
-          <Text className="font-bold">Bold 700</Text>
+        <View className="flex-row gap-2">
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="destructive">Delete</Button>
+          <Button loading>Loading</Button>
         </View>
+      </Card>
 
-        <View className="bg-primary rounded-lg p-3">
-          <Text className="text-primary-foreground text-center font-medium">Primary surface</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <Input placeholder="Write a little love letter..." />
+
+      <View className="flex-row items-center gap-3">
+        <Spinner />
+        <Text className="font-sans">Regular 400</Text>
+        <Text className="font-medium">Medium 500</Text>
+        <Text className="font-bold">Bold 700</Text>
+      </View>
+
+      <View className="bg-primary rounded-lg p-3">
+        <Text className="text-primary-foreground text-center font-medium">Primary surface</Text>
+      </View>
+    </ScrollView>
   );
 };
 

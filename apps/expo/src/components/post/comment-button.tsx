@@ -1,4 +1,4 @@
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
 
@@ -23,7 +23,9 @@ export const CommentButton = ({ post }: Props) => {
       onPress={() => router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" })}
     >
       <MessageCircle size={16} color={colors.mutedForeground} />
-      <AnimatedNumber value={post.commentCount} />
+      <View className="min-w-3">
+        <AnimatedNumber value={post.commentCount} className="text-base" />
+      </View>
     </Pressable>
   );
 };

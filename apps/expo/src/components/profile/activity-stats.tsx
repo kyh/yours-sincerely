@@ -11,14 +11,14 @@ interface Props {
 }
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <View className="w-[45%] items-center gap-1">
-    <Text className="text-lg font-bold">{value}</Text>
+  <View accessible accessibilityLabel={`${label}: ${value}`} className="w-[45%] items-center gap-1">
+    <Text className="text-lg font-extrabold tabular-nums">{value}</Text>
     <Text className="text-muted-foreground text-xs">{label}</Text>
   </View>
 );
 
 export const ActivityStats = ({ posts, likes, currentStreak, longestStreak }: Props) => (
-  <View className="flex-row flex-wrap justify-center gap-y-4">
+  <View className="flex-row flex-wrap justify-center gap-y-2">
     <Stat label="Current Streak" value={currentStreak} />
     <Stat label="Longest Streak" value={longestStreak} />
     <Stat label="Total Posts" value={posts} />

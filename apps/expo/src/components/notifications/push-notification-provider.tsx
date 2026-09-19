@@ -14,11 +14,11 @@ import { usePushDeviceCleanup } from "./use-push-device-cleanup";
     retrying the server-side release of a device record that an offline
     sign-out could not clear. */
 export const PushNotificationProvider = ({ children }: { children: ReactNode }) => {
-  const { user, pushCleanupCapability, isPending } = useWorkspaceUser();
+  const { user, pushCleanupCapability, isPending, isError } = useWorkspaceUser();
   const cleanupPushDevice = usePushDeviceCleanup();
 
   useEffect(() => {
-    if (isPending || user !== null || getRegisteredPushDevice() === null) {
+    if (isPending || isError || user !== null || getRegisteredPushDevice() === null) {
       return;
     }
 
@@ -51,7 +51,7 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
       appStateSubscription.remove();
       onlineSubscription();
     };
-  }, [cleanupPushDevice, isPending, user]);
+  }, [cleanupPushDevice, isError, isPending, user]);
 
   if (user === null || pushCleanupCapability === null) {
     return children;

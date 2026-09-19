@@ -5,11 +5,13 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { LegendList } from "@legendapp/list/react-native";
 import { parseServerDate } from "@repo/contracts/content";
 import { describeNotification } from "@repo/contracts/notifications";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
-import { SafeAreaView } from "@/lib/css-interop";
+import { cn } from "cn";
+import { toast } from "sonner-native";
 
 import type { RouterOutputs } from "@/lib/api";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Spinner } from "@/components/ui/spinner";
@@ -27,20 +29,19 @@ type NotificationRow = NotificationPage["notifications"][number];
 
 const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress: () => void }) => {
   const description = describeNotification({ actorName: item.actorName, kind: item.kind });
+  const isUnread = item.readAt === null;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={description}
+      accessibilityLabel={`${isUnread ? "Unread. " : ""}${description}. ${item.preview}`}
       accessibilityHint="Opens the letter"
-      className="active:bg-accent border-border flex-row gap-3 border-b py-4"
+      className="active:bg-accent border-border flex-row items-start gap-3 border-b py-4"
       onPress={onPress}
     >
-      <View className="w-2 items-center pt-2">
-        {item.readAt === null ? <View className="bg-destructive size-2 rounded-full" /> : null}
-      </View>
+      <ProfileAvatar name={item.actorName} size={36} />
       <View className="flex-1 gap-1">
-        <Text className="font-medium">{description}</Text>
+        <Text className={cn("text-sm", isUnread && "font-medium")}>{description}</Text>
         <Text className="text-muted-foreground text-sm" numberOfLines={2}>
           {item.preview}
         </Text>
@@ -48,6 +49,7 @@ const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress
           {formatDistanceToNowStrict(parseServerDate(item.createdAt), { addSuffix: true })}
         </Text>
       </View>
+      {isUnread ? <View className="bg-destructive mt-2 size-1.5 rounded-full" /> : null}
     </Pressable>
   );
 };
@@ -56,27 +58,37 @@ const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress
     and a fetch for a first page too short to scroll. */
 const NotificationFeed = () => {
   const router = useRouter();
-  const { data, isPending, isError, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
-    useInfiniteQuery(
-      orpc.notification.list.infiniteOptions({
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-        initialPageParam: undefined,
-        input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
-      }),
-    );
+  const {
+    data,
+    isPending,
+    isError,
+    isFetchNextPageError,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteQuery(
+    orpc.notification.list.infiniteOptions({
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      initialPageParam: undefined,
+      input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
+    }),
+  );
   const [refreshing, setRefreshing] = useState(false);
 
   const [viewportHeight, setViewportHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
   const underfilled = viewportHeight > 0 && contentHeight > 0 && contentHeight <= viewportHeight;
   useEffect(() => {
-    if (underfilled && hasNextPage && !isFetchingNextPage) {
+    if (underfilled && hasNextPage && !isFetchingNextPage && !isError) {
       void ignoreRejection(fetchNextPage());
     }
-  }, [underfilled, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [underfilled, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
   const markRead = useMutation(
     orpc.notification.markRead.mutationOptions({
+      onError: () => toast.error("Could not mark this notification as read. Please try again."),
       onSuccess: () => {
         void ignoreRejection(refreshNotifications());
       },
@@ -100,21 +112,40 @@ const NotificationFeed = () => {
     );
   }
 
-  if (isError) {
+  if (isError && data === undefined) {
     return (
-      <QueryErrorState
-        message="Couldn't load notifications"
-        onRetry={() => {
-          void ignoreRejection(refetch());
-        }}
-      />
+      <View className="flex-1 py-5">
+        <QueryErrorState
+          message="Couldn't load notifications"
+          onRetry={() => {
+            void ignoreRejection(refetch());
+          }}
+        />
+      </View>
     );
   }
 
-  if (notifications.length === 0) {
-    return (
-      <View className="flex-1 items-center justify-center py-10">
-        <Text className="text-sm">No replies yet</Text>
+  let footer: ReactNode = null;
+  if (isError) {
+    footer = (
+      <View className="items-center gap-3 py-5">
+        <Text className="text-sm">Couldn&apos;t load notifications</Text>
+        <Button
+          size="sm"
+          variant="outline"
+          loading={isFetching}
+          onPress={() => {
+            void ignoreRejection(isFetchNextPageError ? fetchNextPage() : refetch());
+          }}
+        >
+          Try again
+        </Button>
+      </View>
+    );
+  } else if (isFetchingNextPage) {
+    footer = (
+      <View className="items-center py-5">
+        <Spinner />
       </View>
     );
   }
@@ -125,7 +156,7 @@ const NotificationFeed = () => {
       data={notifications}
       keyExtractor={(item) => item.id}
       onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
+        if (hasNextPage && !isFetchingNextPage && !isError) {
           void ignoreRejection(fetchNextPage());
         }
       }}
@@ -138,37 +169,25 @@ const NotificationFeed = () => {
         setRefreshing(false);
       }}
       refreshing={refreshing}
-      contentContainerStyle={{ paddingBottom: 96, paddingHorizontal: 20 }}
+      contentContainerStyle={{ paddingVertical: 20 }}
+      ListHeaderComponent={<PushNotificationRegistration />}
       renderItem={({ item }) => (
         <NotificationRowItem item={item} onPress={() => openNotification(item)} />
       )}
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View className="items-center py-5">
-            <Spinner />
-          </View>
-        ) : null
+      ListEmptyComponent={
+        <View className="items-center justify-center py-10">
+          <Text className="text-sm">No notifications</Text>
+        </View>
       }
+      ListFooterComponent={footer}
     />
   );
 };
 
 const NotificationsScreen = () => {
   const router = useRouter();
-  const { user, isPending } = useWorkspaceUser();
-  const { data: unread } = useQuery(
-    orpc.notification.unreadCount.queryOptions({ enabled: user !== null }),
-  );
-  const markAllRead = useMutation(
-    orpc.notification.markRead.mutationOptions({
-      onSuccess: () => {
-        void ignoreRejection(refreshNotifications());
-      },
-    }),
-  );
-  const hasUnread = user !== null && unread !== undefined && unread.count > 0;
-
-  // Tab screens stay mounted, so a reply the polled badge counted while the
+  const { user, isPending, isError, refetch: refetchWorkspace } = useWorkspaceUser();
+  // Stack screens stay mounted, so a reply the polled badge counted while the
   // user sat elsewhere leaves this list stale until it is looked at again. The
   // mount fetch already covers the first focus.
   const focusedBefore = useRef(false);
@@ -184,46 +203,41 @@ const NotificationsScreen = () => {
   let content: ReactNode;
   if (isPending) {
     content = (
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center py-5">
         <Spinner />
+      </View>
+    );
+  } else if (isError && user === null) {
+    content = (
+      <View className="flex-1 py-5">
+        <QueryErrorState
+          message="Couldn't load your account"
+          onRetry={() => {
+            void ignoreRejection(refetchWorkspace());
+          }}
+        />
       </View>
     );
   } else if (user === null) {
     content = (
-      <View className="flex-1 items-center justify-center gap-4 px-5">
+      <View className="flex-1 items-center justify-center gap-4 px-5 py-5">
         <Text className="text-muted-foreground text-center text-sm">
           Sign in to see replies to your love letters.
         </Text>
-        <Button onPress={() => router.push("/auth/sign-in")}>Sign in</Button>
+        <Button
+          onPress={() =>
+            router.push({ params: { next: "/notifications" }, pathname: "/auth/sign-in" })
+          }
+        >
+          Sign in
+        </Button>
       </View>
     );
   } else {
-    content = (
-      <View className="flex-1">
-        <PushNotificationRegistration />
-        <NotificationFeed />
-      </View>
-    );
+    content = <NotificationFeed />;
   }
 
-  return (
-    <SafeAreaView className="bg-background flex-1" edges={["top"]}>
-      <View className="flex-row items-center justify-between px-5 py-3">
-        <Text className="text-2xl font-bold tracking-tight">Notifications</Text>
-        {hasUnread ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            onPress={() => markAllRead.mutate({ scope: "all" })}
-            loading={markAllRead.isPending}
-          >
-            Mark all read
-          </Button>
-        ) : null}
-      </View>
-      {content}
-    </SafeAreaView>
-  );
+  return content;
 };
 
 export default NotificationsScreen;

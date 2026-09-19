@@ -16,7 +16,10 @@ const UNREAD_POLL_INTERVAL_MS = 60_000;
 const UnreadDot = () => {
   const reduceMotionEnabled = useReducedMotion();
   const { data } = useQuery(
-    orpc.notification.unreadCount.queryOptions({ refetchInterval: UNREAD_POLL_INTERVAL_MS }),
+    orpc.notification.unreadCount.queryOptions({
+      refetchInterval: UNREAD_POLL_INTERVAL_MS,
+      refetchOnWindowFocus: "always",
+    }),
   );
 
   if (data === undefined || data.count === 0) {
@@ -29,7 +32,7 @@ const UnreadDot = () => {
     <AnimatedView
       entering={reduceMotionEnabled ? undefined : ZoomIn.duration(180)}
       exiting={reduceMotionEnabled ? undefined : ZoomOut.duration(150)}
-      className="bg-destructive absolute -top-0.5 -right-0.5 size-2 rounded-full"
+      className="bg-destructive absolute -top-0.5 -right-0.5 size-1.5 rounded-full"
     />
   );
 };

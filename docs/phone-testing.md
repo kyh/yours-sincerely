@@ -1,6 +1,6 @@
 # Phone testing
 
-There are two different phone tests. Run both. A preview build tests the app. Only a store-delivered update tests Capacitor session retention.
+Preview builds test app behavior. An in-place simulator/emulator update tests legacy-session migration. A store-delivered update on a physical phone additionally verifies the real signing and distribution path.
 
 ## 1. Installable preview
 
@@ -37,6 +37,13 @@ Preview smoke test:
 
 Do not uninstall the existing store app. Uninstall/reinstall deletes the evidence this test needs.
 
+Record the installed Android version. The three versions listed in Play were inspected:
+codes 111/1 use Capacitor; code 30 uses standard Android WebView/CookieManager. All load
+the production host. The archived PWABuilder/TWA code 40 is absent from Play's inventory.
+The importer covers app-owned WebView cookies, not browser-owned TWA cookies. Test older
+cohorts as well as the current release: a phone can update directly from an old version.
+See [release inputs](./mobile-release-inputs.md#android-runtime-provenance).
+
 Before building:
 
 ```sh
@@ -48,7 +55,11 @@ pnpm exec eas build:version:set --platform ios --profile production
 pnpm exec eas build:version:set --platform android --profile production
 ```
 
-Build and send to private store testing:
+Production builds `2026090506` (iOS) and `2026090503` (Android) are already verified;
+see [release inputs](./mobile-release-inputs.md#verified-production-artifacts). Build
+permission does not include store submission. After separate authorization, the following
+commands build and send a future candidate to private store testing. Do not use `--latest`
+for a specific audited candidate without confirming it still identifies the intended build:
 
 ```sh
 pnpm exec eas build --profile production --platform all
@@ -72,13 +83,51 @@ On each phone:
 
 Failure evidence to capture: platform, old/new build numbers, exact screen, whether the old app was ever uninstalled, and a screen recording from before update through first Expo launch.
 
-## 3. Automated upgrade fixture (simulator + emulator)
+## 3. Upgrade fixtures (simulator + emulator)
+
+### Real legacy-app session
+
+Passed on both platforms on September 19, 2026. Install the historical Capacitor app pointed
+at the local web server, publish through its UI, restart and publish again, then update
+in place to Expo and repeat. Compare each post's author in local Postgres. Do not inject
+cookies, reset app data, or uninstall between versions. See the
+[verified run and artifact provenance](./mobile-upgrade-verification.md).
+
+Also test a fresh first post followed immediately by the Expo update, without the legacy
+restart or a persistence delay. That sequence exposed a lost Android identity before the
+web fix. Codes 111 and 1 now pass with the native persistence barrier; code 30 has no such
+bridge. A persisted-session pass alone does not cover this interruption window. Capture
+the cookie database and any WAL/SHM/journal metadata without recording cookie values.
+
+Keep the web server running throughout: the old app loads its UI from it, and Expo uses
+its API. This run used `pnpm -F @repo/web with-env next dev --port 3100` plus the existing
+OrbStack database. Both builds used `http://localhost:3100`; Android also needed
+`adb reverse tcp:3100 tcp:3100`. The disposable Expo source changed the migration `HOST`
+to `localhost`; production source keeps `yourssincerely.org`.
+
+On this Xcode installation, computer-use control works through
+`/Applications/Xcode.app/Contents/Applications/DeviceHub.app`. The stale Simulator app
+entry could not attach. Use an isolated device and preserve its container through update.
+
+### Staged-cookie regression fixture
 
 Proves the Capacitor→Expo session hand-off without a store build: stage a legacy cookie
 where the old app left it, install the Expo build over the same app id, and confirm the
 Settings screen shows the staged account. It does not replace the physical-phone gate, but
 it catches regressions in `apps/expo/modules/legacy-cookie` and the migration code on
 every change. Both legs passed on 2026-09-05 (iOS 18.6 simulator, Pixel 6 API 35 emulator).
+
+Use an isolated simulator/emulator without an existing Expo checkpoint. Installing the
+legacy shell over an earlier Expo fixture retains SecureStore; a completed checkpoint then
+correctly prevents another import. Reset only disposable fixture data before installing the
+legacy shell. Never reset or uninstall the store app used for the physical upgrade gate.
+
+A standalone fixture can use `Release` on iOS and `assembleRelease` on Android, with
+`EXPO_PUBLIC_API_URL=http://localhost:<port>` embedded and local simulator/debug signing.
+It launches without Metro. Android Release blocks HTTP: a disposable, generated release
+manifest can reference a network-security config permitting only `localhost` (set
+`includeSubdomains="false"`), with cleartext disabled in its base config. Remove that
+fixture override afterward. Never upload this local-API artifact as a store candidate.
 
 Prerequisites: `pnpm db:start && pnpm db:push`, `pnpm dev:web`, and a signed cookie for a
 local account — sign up with curl and keep the `Set-Cookie` value:
@@ -117,11 +166,19 @@ python3 scripts/legacy-session-fixture/write-binarycookies.py \
 xcrun simctl launch "$SIM" com.tehkaiyu.yourssincerely --initialUrl http://localhost:8081
 ```
 
+Resolve the container after the final install; a simulator update can change its path.
+
 Pass: `Cookies.binarycookies` disappears after the first launch (cleanup only runs once the
 server accepted the copied session), and after `simctl terminate` + relaunch the Settings
 screen (`xcrun simctl openurl "$SIM" yourssincerely://settings`) shows the staged email.
 
 ### Android
+
+For Android Studio's embedded emulator, an externally launched disposable AVD needs
+`-qt-hide-window` as well as authenticated gRPC (`-grpc <port> -grpc-use-token`). The
+installed Studio checks that flag before attaching; gRPC alone is insufficient. Combining
+`-no-window -qt-hide-window` worked when the standalone Qt window stalled on crash-report
+consent. Use a read-only/no-snapshot overlay for fixture resets and preserve the base AVD.
 
 The legacy shell in `apps/mobile` builds with `./gradlew assembleDebug`; enable WebView
 debugging for the run by adding `"android": {"webContentsDebuggingEnabled": true}` to the
@@ -153,7 +210,8 @@ These cannot safely be invented or recovered from source code.
 
 ### Apple
 
-- Sign into the Apple Developer team in EAS. The linked EAS account currently reports no Apple team.
+- Verify access to the existing Apple Developer team in EAS. A production iOS build
+  finished on 2026-09-05; the earlier missing-team note is stale.
 - Register each physical iPhone UDID for preview builds.
 - Give EAS access to the existing App Store Connect app and its distribution credentials.
 - Look up the live Capacitor `CFBundleVersion`; seed EAS above it.
@@ -161,7 +219,7 @@ These cannot safely be invented or recovered from source code.
 
 ### Google Play
 
-- Import the existing Play upload keystore. Never generate a replacement for the production package.
+- Use the Play-registered upload keystore. The owner-submitted replacement activates September 21, 2026 at 10:11 UTC; see [release inputs](./mobile-release-inputs.md) for the local credential bundle already used by EAS. The activation delay blocks Play uploads, not builds.
 - Confirm Play App Signing is active and the committed app-link certificate matches Play Console.
 - Look up the live Capacitor `versionCode`; seed EAS above it.
 - Add a Play service-account JSON key to EAS Submit, or upload the AAB manually.
@@ -185,4 +243,4 @@ in-app feed is the `Notification` table.
 
 ## Done gate
 
-Do not call session continuity complete until both store-delivered upgrades pass on physical phones. Preview, Expo Go, simulator, clean install, and uninstall/reinstall do not count.
+Local migration is verified by an in-place simulator/emulator fixture. Production rollout clearance still requires both store-delivered upgrades on physical phones. Preview, Expo Go, clean install, and uninstall/reinstall do not establish update continuity.

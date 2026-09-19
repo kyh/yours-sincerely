@@ -85,7 +85,16 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ThemeContext.Provider value={value}>
-      <View className={resolvedTheme === "light" ? "flex-1" : `flex-1 ${resolvedTheme}`}>
+      <View
+        accessible={false}
+        focusable={false}
+        // Keep wrappers and inherited base tokens present before navigation mounts.
+        className={
+          resolvedTheme === "light"
+            ? "will-change-variable will-change-container flex-1 light"
+            : `will-change-variable will-change-container flex-1 light ${resolvedTheme}`
+        }
+      >
         {children}
       </View>
     </ThemeContext.Provider>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Linking, Pressable, Share } from "react-native";
+import { Linking, Platform, Pressable, Share } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { ClipboardCopy, Share as ShareIcon } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
@@ -26,7 +26,11 @@ export const ShareButton = ({ post }: Props) => {
   // fall back to the curated drawer only when the OS sheet fails to present.
   const share = async () => {
     try {
-      await Share.share({ message: postUrl, title: "A tiny beautiful letter", url: postUrl });
+      await Share.share(
+        Platform.OS === "ios"
+          ? { title: "A tiny beautiful letter", url: postUrl }
+          : { message: postUrl, title: "A tiny beautiful letter" },
+      );
     } catch {
       setIsOpen(true);
     }

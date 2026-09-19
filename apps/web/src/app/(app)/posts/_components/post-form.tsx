@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { POST_EXPIRY_DAYS, createPostInput } from "@repo/contracts";
 import { Button } from "@repo/ui/components/button";
@@ -60,12 +60,20 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
 
   const form = useForm({
     defaultValues: {
-      content: typeof window === "undefined" ? "" : localStorage.getItem(postFormKey) || "",
+      content: "",
       createdBy: user?.displayName || "Anonymous",
       parentId,
     },
     resolver: zodResolver(createPostInput),
   });
+  const { getFieldState, resetField } = form;
+
+  useEffect(() => {
+    const draft = localStorage.getItem(postFormKey);
+    if (draft !== null && !getFieldState("content").isDirty) {
+      resetField("content", { defaultValue: draft });
+    }
+  }, [getFieldState, resetField]);
 
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({

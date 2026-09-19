@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, useWindowDimensions, View } from "react-native";
+import { Pressable, useWindowDimensions, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react-native";
 
 import { BottomDrawer } from "@/components/ui/bottom-drawer";
+import { Dialog } from "@/components/ui/dialog";
 import { useThemeColors } from "@/components/theme-colors";
 import { orpc } from "@/lib/api";
-import { CONTENT_COLUMN_STYLE } from "@/lib/layout";
 import { PostForm } from "./post-form";
 
-/** FAB + bottom-sheet post form — port of the web NewPostButton (drawer mode). */
-export const NewPostButton = () => {
+/** Web's FAB opens a drawer below 640px, a centered dialog above it. */
+export const NewPostButton = ({ bottom, right }: { bottom: number; right: number }) => {
   const { width } = useWindowDimensions();
   const colors = useThemeColors();
   const [open, setOpen] = useState(false);
@@ -23,10 +23,10 @@ export const NewPostButton = () => {
         accessibilityLabel="New post"
         className="bg-primary size-12 items-center justify-center rounded-full"
         style={{
-          bottom: 20,
+          bottom,
           elevation: 4,
           position: "absolute",
-          right: Math.max(20, (width - CONTENT_COLUMN_STYLE.maxWidth) / 2 + 20),
+          right,
           shadowColor: "#000",
           shadowOffset: { height: 2, width: 0 },
           shadowOpacity: 0.2,
@@ -36,13 +36,25 @@ export const NewPostButton = () => {
       >
         <Plus size={22} color={colors.primaryForeground} />
       </Pressable>
-      <BottomDrawer open={open} onClose={() => setOpen(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
-          <View className="p-2">
-            <PostForm placeholder={placeholder} onSuccess={() => setOpen(false)} />
+      {width >= 640 ? (
+        <Dialog open={open} onClose={() => setOpen(false)} label="New Post">
+          <PostForm
+            placeholder={placeholder}
+            onSuccess={() => setOpen(false)}
+            presentation="dialog"
+          />
+        </Dialog>
+      ) : (
+        <BottomDrawer open={open} onClose={() => setOpen(false)}>
+          <View className="py-4">
+            <PostForm
+              placeholder={placeholder}
+              onSuccess={() => setOpen(false)}
+              presentation="drawer"
+            />
           </View>
-        </KeyboardAvoidingView>
-      </BottomDrawer>
+        </BottomDrawer>
+      )}
     </>
   );
 };

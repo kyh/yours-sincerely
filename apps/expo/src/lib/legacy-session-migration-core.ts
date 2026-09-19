@@ -135,12 +135,12 @@ export const retireLegacySession = async (
     return "already-complete";
   }
 
+  setCheckpointVerified(deps, "complete");
+
   try {
     await deps.clearLegacy();
   } catch {
-    // Fall through to the checkpoint.
+    // The durable checkpoint already prevents another import.
   }
-
-  setCheckpointVerified(deps, "complete");
   return "retired";
 };
