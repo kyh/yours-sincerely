@@ -82,5 +82,8 @@ and light/dark navigation icon colors. The installed CSS resolver regressions an
 `pnpm verify` pass. All four iOS themes pass transitions and cold-launch persistence with
 the same account. Android launches with its retained account and individual controls, but
 Studio's computer-use connection currently rejects taps. Alternate emulator input awaits
-explicit permission. Android theme checks and iOS native back verification remain open.
+explicit permission. iOS drag control tests also fail in Apple Settings and on the Home
+Screen, so the failed automated swipe does not establish an app navigation defect. A separate
+simulator-only XCTest diagnostic is compiled, awaiting permission to run alternate input.
+Android theme checks and iOS native back verification remain open.
 Evidence: `/tmp/ys-theme-fix-20260919/propagation-fixed/ios-runtime-evidence.json`.

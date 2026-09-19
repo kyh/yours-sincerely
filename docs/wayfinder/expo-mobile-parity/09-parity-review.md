@@ -209,7 +209,12 @@ Source paths below are relative to `apps/expo/src`.
   padded content edge despite confirmed stack history; explicit Back works. Read-only
   native inspection confirms two controllers, enabled pop recognizers and no dismissal
   block. A separate full-width fixture also failed the automated swipe, so no speculative
-  layout or navigation change was shipped. Native back verification remains open.
+  layout or navigation change was shipped. The same computer-use drag also failed on
+  Apple's Home Screen and Settings → General, while taps and the app's explicit Back
+  worked. This input path cannot establish an app gesture defect or verify swipe-back.
+  Control receipt: `/tmp/ys-native-gesture-control-20260919/evidence.json`. A simulator-only
+  XCTest diagnostic compiled successfully but has not run; alternate input needs explicit
+  permission. Native back verification remains open.
 
 ## Remaining boundaries
 
