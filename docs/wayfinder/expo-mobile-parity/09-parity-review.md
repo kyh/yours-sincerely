@@ -169,17 +169,25 @@ Source paths below are relative to `apps/expo/src`.
 - Metro required a clean cache after SDK peer-path changes and new utilities. Development
   cache failures were reproduced and resolved; the standalone iOS bundle rendered correctly.
 
-- Genuine legacy-created-session upgrades passed on iOS 26.5 and Android API 35 on
-  September 19, including UI writes before and after both restarts. No cookie injection
-  or uninstall between versions. [Receipts and limitations](../../mobile-upgrade-verification.md).
+- Genuine persisted legacy-session upgrades passed on iOS 26.5 and Android API 35 on
+  September 19, including all listed Android cohorts (111, 1, 30) and UI writes before and
+  after both restarts. Immediate updates exposed an unpersisted-cookie loss window in the
+  old Android app. A scoped web/native persistence barrier now passes immediate-update
+  regressions on 111 and 1, with cookies on disk before installation. No injected cookies,
+  fixture flushes, added waits, or uninstall between versions.
+  [Receipts and limitations](../../mobile-upgrade-verification.md).
+- The final source pass added web-equivalent 33px outer profile corners at 1024px and the
+  exact 5%-black appearance-swatch shadow without Android elevation. Compiler/palette tests
+  and the full verification gate passed. Updated local Hermes UI bundles are ready for
+  profile/theme checks; production candidates must be rebuilt after those checks.
 
 ## Remaining boundaries
 
 - All three artifacts in Play's current inventory were downloaded and verified on September
   19: codes 111/1 use Capacitor; code 30 uses standard WebView/CookieManager. All load the
-  production host. The archived TWA code 40 is absent. Older installed cohorts remain listed;
-  update their working identities in place. Binary provenance does not prove that old web
-  credentials are still valid. Any later demonstrated TWA cohort needs browser-assisted
+  production host. The archived TWA code 40 is absent. Each listed runtime now passed
+  persisted-session local upgrades. Binary provenance alone does not prove old credentials
+  valid; the real UI-write tests supply that additional local evidence. Any later demonstrated TWA cohort needs browser-assisted
   migration because its cookies are outside the native WebView importer.
 - Hardware shortcuts compile on both platforms. iOS Command-Enter and stack/editor/modal
   behavior passed locally. Control-Enter opened the simulator's edit menu; Command-arrows

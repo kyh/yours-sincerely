@@ -25,7 +25,7 @@ import { ignoreRejection } from "@/lib/ignore-rejection";
 type UserStats = RouterOutputs["user"]["getUserStats"]["userStats"];
 
 const StatsCard = ({ userStats }: { userStats: UserStats | undefined }) => (
-  <Card className="min-h-60 flex-1 items-center justify-center py-8">
+  <Card className="min-h-60 flex-1 items-center justify-center py-8 lg:rounded-br-[33px]">
     <ActivityStats
       posts={userStats?.totalPostCount ?? 0}
       likes={userStats?.totalLikeCount ?? 0}
@@ -97,12 +97,12 @@ export const ProfileContent = ({ userId }: Props) => {
       contentContainerStyle={{ gap: 16, paddingVertical: 20 }}
       keyboardDismissMode="on-drag"
     >
-      <Card>
+      <Card className="lg:rounded-t-[33px]">
         <ProfileForm userId={userId} readonly={!allowEdit} />
         <ActivityCalendar data={heatmapData.stats} theme={theme} />
       </Card>
       <View className={cn("gap-4", width >= 1024 && "flex-row")}>
-        <Card className="min-h-60 flex-1 items-center justify-center py-8">
+        <Card className="min-h-60 flex-1 items-center justify-center py-8 lg:rounded-bl-[33px]">
           <Text className="text-center text-sm font-bold">
             {dailyData.max.day === "none" ? (
               "No daily stats yet"

@@ -11,7 +11,9 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
   const router = useRouter();
 
   useEffect(() => {
-    void SplashScreen.hide();
+    if (Capacitor.isPluginAvailable("SplashScreen")) {
+      void SplashScreen.hide();
+    }
 
     if (Capacitor.getPlatform() !== "android" || !Capacitor.isPluginAvailable("App")) {
       return;

@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { RouterClient } from "@orpc/server";
 import type { AppRouter } from "@repo/api";
+import { persistLegacySession } from "@/lib/persist-legacy-session";
 import { createQueryClient } from "./query-client";
 
 let clientQueryClientSingleton;
@@ -30,6 +31,12 @@ const getBaseUrl = () => {
 };
 
 const link = new RPCLink({
+  fetch: async (url, init) => {
+    const response = await fetch(url, init);
+    // Reads can renew the session too; persist before exposing any RPC result.
+    await persistLegacySession();
+    return response;
+  },
   headers: () => ({ "x-orpc-source": "nextjs-react" }),
   interceptors: [
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback

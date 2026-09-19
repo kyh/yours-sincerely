@@ -7,14 +7,22 @@
 - [x] Android Release APK build and cold launch.
 - [x] Android legacy-session upgrade journey (emulator; Play-delivered phone still pending).
 - [x] Automated Capacitor-to-Expo staged-cookie fixture (docs/phone-testing.md §3).
-- [x] Real legacy UI posts survive restart, in-place Expo upgrade, and native restart on both platforms.
-- [x] Current iOS candidate built with existing production signing credentials; IPA verified.
-- [x] Current Android candidate built and verified with the registered replacement upload certificate.
+- [x] Persisted legacy UI sessions survive restart, in-place Expo upgrade, and native restart on both platforms.
+- [x] Play code 1 persisted-session upgrade passes the same four-post journey.
+- [x] Play code 30 persisted-session upgrade passes all four old/native UI posts and both restarts.
+- [x] Fresh-session persistence fix passes immediate first-post → Expo replacement on Android codes 111 and 1.
+- [ ] Deploy verified web persistence fix before rollout; document remaining unbridged/old-page interruption risk.
+- [ ] Rebuild current iOS UI candidate with existing production credentials; verify its IPA.
+- [ ] Rebuild current Android UI candidate with the registered replacement upload certificate; verify its AAB.
 - [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on Android.
 - [x] iOS Command-Enter and both platforms' stack navigation, editor exclusion, and modal dismissal verified locally.
+- [ ] Fresh-install like creates a profile and preserves the same identity through restart and sign-up on both platforms.
+- [ ] Another writer's profile is read-only on both platforms.
+- [ ] All four theme variants pass native visual/persistence checks.
+- [ ] iOS swipe and back gestures verified with working gesture input.
 - [ ] Android Ctrl+Enter verified on a host/device that forwards the modifier.
 - [ ] Physical push opens its exact post on both platforms.
 - [x] Production Android association JSON includes the verified Play app-signing certificate.
@@ -26,13 +34,18 @@
 
 Real legacy UI upgrade tests passed on iOS 26.5 and Android API 35 on September 19.
 Each platform retained one author across four UI posts, including legacy and Expo restarts.
-See [artifact provenance, database receipts, and the early Android legacy-session anomaly](../../mobile-upgrade-verification.md).
+See [artifact provenance, database receipts, and reproduced fresh-session loss](../../mobile-upgrade-verification.md).
+An immediate update 12.953 seconds after a fresh legacy first post lost its unpersisted
+identity. The scoped web/native flush barrier now passes immediate-update regressions on
+111 and 1 at 10.821 and 10.748 seconds respectively, including native restarts. Do not claim
+unconditional session continuity: code 30 has no bridge, and an old loaded page or process
+death before the barrier completes remains outside this mitigation.
 These local builds do not close the physical store gates.
 Play's complete artifact inventory was inspected on 2026-09-19: codes 111, 1, and 30.
 Their actual Play-signed APKs were verified: 111/1 use Capacitor; 30 uses a standard
 WebView/CookieManager; all load the production host. The archived TWA code 40 is absent.
-Older cohorts remain listed. Exercise their working identities in place before claiming
-Android continuity. Both production candidates from main `a496f9c1` finished and passed
+Codes 1 and 30 now pass all four persisted-session UI writes, including both restarts and
+in-place Expo installation. All three listed Android cohorts have local migration proof. Both production candidates from main `a496f9c1` finished and passed
 artifact verification: iOS `2026090505`, Android `2026090502`.
 The recovered archive key differs from Play's original upload key. Its replacement is
 stored locally in the ignored credential bundle; Play confirms activation on September 21
