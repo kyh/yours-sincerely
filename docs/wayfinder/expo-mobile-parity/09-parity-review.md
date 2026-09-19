@@ -73,6 +73,13 @@ Source paths below are relative to `apps/expo/src`.
 
 ## Verification status
 
+- September 19 release audit authenticated Play Console and verified its app-signing and
+  upload certificates. The archived key matches neither. Fixed the missing Play app-signing
+  certificate in the web association response while preserving the archive certificate.
+  The real route handler check and full `pnpm verify` passed on main. Production still
+  serves the old response until this web change is deployed. Evidence:
+  `/tmp/ys-main-release-verify-20260919.log`.
+
 - Final `pnpm verify` passed: typecheck, lint, formatting, **210 tests** (67 Expo), and
   web build. Repeated after the single-line input fix; evidence:
   `/tmp/ys-release-input-verify.log`.
@@ -163,10 +170,12 @@ Source paths below are relative to `apps/expo/src`.
 
 ## Remaining boundaries
 
-- The recovered Android APK/AAB are PWABuilder TWA builds. Whether they shipped is
-  unverified; the current Play runtime also requires artifact inspection. The Capacitor
-  bridge cannot read browser-owned TWA cookies. Any shipped TWA cohort needs a separate
-  browser-assisted migration before Android continuity can be claimed.
+- Play production history contains Android codes 111, 1, and 30; code 30 remains installed.
+  Git matching code 30 uses a standard WebView, but its original web auth used Firebase.
+  Inspect the Play binaries and update working identities from both old cohorts in place.
+  The archived TWA code 40 is absent from production history; other tracks are unverified.
+  Any demonstrated TWA cohort needs browser-assisted migration because its cookies are
+  outside the native WebView importer.
 - Hardware shortcuts compile on both platforms. iOS Command-Enter and stack/editor/modal
   behavior passed locally. Control-Enter opened the simulator's edit menu; Command-arrows
   rotated Simulator even with keyboard capture enabled. These attempts do not verify the
@@ -185,7 +194,8 @@ Source paths below are relative to `apps/expo/src`.
   iOS production build `b4684f7f-ed6f-42a4-8878-a476650daf9d` finished with existing
   credentials. EAS generated an Android key despite `--freeze-credentials`; its build
   `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751` was canceled without an artifact and the new key
-  removed. The original Android key was found in a local release archive; its certificate
-  matches the archived APK/AAB and committed fingerprint. Its password is still needed.
-  Production Android now requires local credentials and cannot generate a replacement.
+  removed. The recovered archive key matches neither Play's current upload certificate nor
+  its app-signing certificate. The registered upload key remains missing locally and in EAS.
+  Play manages app signing and offers upload-key reset, but no reset is authorized or started.
+  Production Android requires local credentials and cannot generate a replacement.
   See `docs/mobile-release-inputs.md`. No store submission was made.
