@@ -12,17 +12,19 @@
 - [x] Play code 30 persisted-session upgrade passes all four old/native UI posts and both restarts.
 - [x] Fresh-session persistence fix passes immediate first-post → Expo replacement on Android codes 111 and 1.
 - [x] Deploy verified web persistence fix before rollout; document remaining unbridged/old-page interruption risk.
-- [x] Rebuild current iOS UI candidate with existing production credentials; verify its IPA.
-- [x] Rebuild current Android UI candidate with the registered replacement upload certificate; verify its AAB.
+- [x] Build iOS candidate from `598876dd` with existing production credentials; verify its IPA.
+- [x] Build Android candidate from `598876dd` with the registered replacement upload certificate; verify its AAB.
+- [ ] Build and verify new production candidates after the subsequent theme fixes pass native regression checks.
 - [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on Android.
 - [x] iOS Command-Enter and both platforms' stack navigation, editor exclusion, and modal dismissal verified locally.
-- [ ] Fresh-install like creates a profile and preserves the same identity through restart and sign-up on both platforms.
-- [ ] Another writer's profile is read-only on both platforms.
-- [ ] All four theme variants pass native visual/persistence checks.
-- [ ] iOS swipe and back gestures verified with working gesture input.
+- [x] Fresh-install like creates a profile and preserves the same identity through restart and sign-up on both platforms.
+- [x] Another writer's profile is read-only on both platforms.
+- [ ] All four theme variants pass native visual, accessibility, transition, and persistence checks.
+- [x] iOS card-stack swipe advances the visible card with working gesture input.
+- [ ] iOS native back gesture verified after the theme-wrapper fix.
 - [ ] Android Ctrl+Enter verified on a host/device that forwards the modifier.
 - [ ] Physical push opens its exact post on both platforms.
 - [x] Production Android association JSON includes the verified Play app-signing certificate.
@@ -49,7 +51,8 @@ WebView/CookieManager; all load the production host. The archived TWA code 40 is
 Codes 1 and 30 now pass all four persisted-session UI writes, including both restarts and
 in-place Expo installation. All three listed Android cohorts have local migration proof.
 Both production candidates from main `598876dd` finished and passed
-artifact verification: iOS `2026090506`, Android `2026090503`.
+artifact verification: iOS `2026090506`, Android `2026090503`. They predate the later
+theme-wrapper/icon corrections and will need replacement after native verification.
 The recovered archive key differs from Play's original upload key. Its replacement is
 stored locally in the ignored credential bundle; Play confirms activation on September 21
 at 10:11 UTC. EAS compilation/signing is complete; only Play uploads wait for activation.
@@ -71,3 +74,11 @@ dismissal passed without refocusing the canvas, and editor exclusion passed agai
 Ctrl+Enter still opened Studio's New popup and created no post; modifier submission remains
 unverified. No user-wide Studio shortcuts were changed.
 See [phone testing](../../phone-testing.md) for the required evidence.
+
+Like-first identity and profile ownership checks passed on both platforms on September 19;
+see [identity receipts](./02-identity-continuity.md) and [profile checks](./03-profile-release.md).
+iOS theme changes exposed root accessibility grouping, unstable navigation wrappers, and
+stale white Lottie icons when returning to a light theme. The scoped fix passed source
+review, the installed CSS resolver regression, and `pnpm verify`; updated local fixtures
+are packaged. Mac lock interrupted final native checks. Android Light passed appearance
+and persistence; its remaining theme checks are open.

@@ -66,7 +66,8 @@ Source paths below are relative to `apps/expo/src`.
   Account deletion uses the same confirmation copy and centered dialog as web.
 - **Shared UI:** web 16px root, spacing, Inter weights, palette/radius tokens, button/input
   dimensions, invisible touch expansion, complete scroll-container spacing, blurred
-  keyboard-aware drawers, and themed banners/toasts. Theme changes preserve navigation.
+  keyboard-aware drawers, and themed banners/toasts. The theme root preallocates variable
+  and container wrappers to keep navigation mounted; final native transition checks remain open.
   Single-line iOS fields explicitly clip instead of wrapping at spaces/hyphens when blurred;
   multiline letter inputs retain wrapping.
   `styles.css`, `components/ui/`, `components/theme-provider.tsx`.
@@ -181,7 +182,30 @@ Source paths below are relative to `apps/expo/src`.
   and the full verification gate passed. Updated local Hermes UI bundles are installed in
   fresh iOS/Android fixtures; profile/theme checks await an unlocked Mac. Production builds
   from `598876dd` finished and their signed artifacts contain both changes; runtime checks
-  remain open. See [release inputs](../../mobile-release-inputs.md#verified-production-artifacts).
+  remain open. These artifacts predate the subsequent theme fixes below. See
+  [release inputs](../../mobile-release-inputs.md#verified-production-artifacts).
+
+- Fresh Like-first tests passed on iOS 26.5 and Android API 35: profile creation, cold
+  restart, second Like, same-user sign-up, another restart, both Likes selected and the
+  account email retained. Own profile names accepted focus; other writers' names stayed
+  read-only. [Identity receipts](./02-identity-continuity.md).
+- iOS runtime testing reproduced dark-theme root accessibility grouping and stale white
+  navigation icons after Dark → Light Purple. The CSS compiler assigns dark containers;
+  the runtime then promotes the root View to Pressable and inserts a container provider.
+  A permanent `will-change-container` hint plus explicit false accessibility/focusability
+  now keeps the root structure stable and exposes descendants. Lottie retains installed
+  color providers when filters are cleared; keying only the icon by light/dark mode restores
+  original light asset colors. No navigation subtree is keyed. The installed CSS resolver
+  verifies five transitions; source review and full `pnpm verify` pass. Updated local
+  Hermes fixtures are installed over both existing test accounts. Native
+  verification was interrupted by Mac lock. Evidence and reproducible source-boundary
+  check: `/tmp/ys-theme-fix-20260919/`.
+- Before that correction, all four iOS themes persisted across cold launches; Android Light
+  passed feed/profile/calendar/composer/menu appearance and selected-radio persistence.
+  iOS card swipe advanced first → second card, proving gesture input works. Edge-back did
+  not navigate from the physical or padded content edge; explicit Back worked. Retest
+  native back after the theme fix before changing navigation. The remaining theme and
+  gesture gates stay open.
 
 ## Remaining boundaries
 

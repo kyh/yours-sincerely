@@ -38,9 +38,13 @@ Release audit, updated 2026-09-19:
 ## Verified production artifacts
 
 Both artifacts contain version `2.0.0`, Hermes bytecode, and the production app identity.
-Both include the final UI changes and production API host, with neither local port-3100
+Both include the profile-corner/swatch changes and production API host, with neither local port-3100
 API URL present. Neither was submitted to a store. Artifact receipts:
 `/tmp/ys-release-final-ui-artifacts-20260919/` (platform build metadata and verification JSON).
+
+These artifacts predate the subsequent theme accessibility, navigation-wrapper, and Lottie
+color fixes. Verify those fixes on the local native fixtures, then build replacement
+production candidates before release.
 
 - [iOS build `2026090506`](https://expo.dev/accounts/kaiyuhsu/projects/yours-sincerely/builds/927e6012-f4fd-46db-ad86-6e052baa43d6):
   strict code-signature verification passed; the actual signing certificate matches the

@@ -86,10 +86,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeContext.Provider value={value}>
       <View
+        accessible={false}
+        focusable={false}
+        // Dark variants need a container; initialize it before mounting navigation.
         className={
           resolvedTheme === "light"
-            ? "will-change-variable flex-1"
-            : `will-change-variable flex-1 ${resolvedTheme}`
+            ? "will-change-variable will-change-container flex-1"
+            : `will-change-variable will-change-container flex-1 ${resolvedTheme}`
         }
       >
         {children}

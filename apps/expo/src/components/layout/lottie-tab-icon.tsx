@@ -23,6 +23,7 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
   const ref = useRef<LottieView>(null);
   const { resolvedTheme } = useTheme();
   const reduceMotionEnabled = useReducedMotion();
+  const dark = isDarkTheme(resolvedTheme);
 
   useEffect(() => {
     if (focused && !reduceMotionEnabled) {
@@ -32,6 +33,8 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
 
   return (
     <LottieView
+      // Native color providers survive clearing filters; remount only the icon.
+      key={dark ? "dark" : "light"}
       ref={ref}
       source={icons[name]}
       loop={false}
@@ -44,7 +47,7 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
       // lottie-react-native appends ".**.Color" to the keypath, so "**" here
       // becomes "**.**.Color", which matches nothing; "*" (any top-level layer)
       // is the glob that recolors every stroke and fill.
-      colorFilters={isDarkTheme(resolvedTheme) ? [{ color: "#FAFAFA", keypath: "*" }] : undefined}
+      colorFilters={dark ? [{ color: "#FAFAFA", keypath: "*" }] : undefined}
     />
   );
 };
