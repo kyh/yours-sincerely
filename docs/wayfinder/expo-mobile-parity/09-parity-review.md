@@ -195,9 +195,10 @@ Source paths below are relative to `apps/expo/src`.
   iOS production build `b4684f7f-ed6f-42a4-8878-a476650daf9d` finished with existing
   credentials. EAS generated an Android key despite `--freeze-credentials`; its build
   `4b1db3e3-9bf4-4fdb-a0d7-2c3383c80751` was canceled without an artifact and the new key
-  removed. The recovered archive key matches neither Play's current upload certificate nor
-  its app-signing certificate. The registered upload key remains missing locally and in EAS.
+  removed. The recovered archive key matches neither Play's original upload certificate nor
+  its app-signing certificate. The original upload key remains missing locally and in EAS.
   A replacement upload key was generated with user authorization; Play registration remains
-  pending the owner’s submission. Google’s app-signing key remains unchanged.
+  pending activation on September 21 at 10:11 UTC; the owner submitted it and Play
+  displays the matching certificate. Google’s app-signing key remains unchanged.
   Production Android requires local credentials and cannot generate a replacement.
   See `docs/mobile-release-inputs.md`. No store submission was made.

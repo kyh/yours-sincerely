@@ -188,7 +188,7 @@ These cannot safely be invented or recovered from source code.
 
 ### Google Play
 
-- Import the existing Play upload keystore. Never generate a replacement for the production package.
+- Use the Play-registered upload keystore. The owner-submitted replacement activates September 21, 2026 at 10:11 UTC; see [release inputs](./mobile-release-inputs.md) for the staged local credential bundle.
 - Confirm Play App Signing is active and the committed app-link certificate matches Play Console.
 - Look up the live Capacitor `versionCode`; seed EAS above it.
 - Add a Play service-account JSON key to EAS Submit, or upload the AAB manually.

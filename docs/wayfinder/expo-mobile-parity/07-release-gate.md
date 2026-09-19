@@ -24,8 +24,10 @@ Play Console production history was verified on 2026-09-19: codes 111, 1, and 30
 code 30 retains an installed cohort. The archived TWA code 40 is absent from that history.
 Source matching code 30 uses a standard WebView; inspect the actual binaries and exercise
 working identities from both code 111 and code 30 before claiming Android continuity.
-The recovered archive key differs from Play's upload key, which remains missing. The
-verified Play app-signing certificate is deployed; the public JSON was checked on September 19.
+The recovered archive key differs from Play's original upload key. Its replacement is
+stored locally in the ignored credential bundle; Play confirms activation on September 21
+at 10:11 UTC. FCM V1 is assigned and its validation-only request passed. The verified Play
+app-signing certificate is deployed; the public JSON was checked on September 19.
 See [release inputs](../../mobile-release-inputs.md).
 Both the earlier iOS fixture and a fresh simulator install preserved an anonymous ID across
 write/restart/write. The fresh install then completed native sign-up with the same author ID

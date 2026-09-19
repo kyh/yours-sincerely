@@ -32,31 +32,78 @@ Release audit, 2026-09-12:
   upload instead of generating a key. Supply a key matching Play's current upload certificate in ignored,
   mode-0600 `apps/expo/credentials.json`; iOS continues using existing remote credentials.
 - Production FCM V1 is assigned in EAS as of September 19; see Notifications below.
-  The production Android keystore remains absent while Play processes the upload-key reset.
+  The production Android keystore is staged locally while Play processes the upload-key reset.
   Play submission credentials remain unassigned; no store submission is authorized.
 
 Play Console signing, verified 2026-09-19:
 
 - Play manages app signing. Its SHA-256 certificate is
   `95:6E:8F:3D:D8:7D:49:0B:98:D6:C1:52:D9:FD:A8:E9:27:1E:5B:BB:3A:E1:83:F6:41:32:EB:F1:2E:89:4A:BB`.
-- The current upload certificate SHA-256 is
+- The previous upload certificate SHA-256 was
   `E3:37:81:33:08:6E:59:08:F5:53:76:8E:0C:B7:20:B7:8A:15:09:4B:94:A1:CF:99:03:D7:69:EF:81:EF:03:B8`.
   No matching private key was found in the repository, local release archives, or EAS.
 - The user authorized replacement-key preparation on September 19. A new RSA-4096 upload
   keystore was generated and its private key verified locally. Its SHA-256 certificate is
   `EB:EF:98:9A:37:19:06:49:4B:D7:4B:24:D3:EE:89:AB:C9:17:FC:C0:6F:7E:4C:E5:AC:0C:EF:68:9A:F2:72:9C`.
   Private files are under `~/.config/yours-sincerely/android-upload-20260919/` with
-  directory mode 0700 and file mode 0600. The public certificate is also in
-  `~/Downloads/yours-sincerely-upload-certificate.pem` for the Play reset form.
-- Play Console now shows a pending upload-key reset request, verified September 19 after
-  the owner handoff. It still displays the old `E3:37:…:03:B8` upload certificate.
-  The pending request does not expose its proposed certificate; confirm Play registers
-  `EB:EF:…:72:9C` before activating the replacement in EAS. Google's app-signing key and
-  installed-update identity stay unchanged.
+  directory mode 0700 and file mode 0600. A verified local-repo copy is now in
+  `.credentials/production/android/`; the public certificate is committed at
+  [`certificates/android-upload.pem`](./certificates/android-upload.pem).
+- The owner submitted the reset. Play Console now displays the matching
+  `EB:EF:…:72:9C` upload certificate. Its confirmation says the new key becomes valid
+  **September 21, 2026 at 10:11 UTC (03:11 America/Los_Angeles)**; uploads are blocked
+  until then. The request still shows pending. Keep local build credentials staged until
+  activation. Google's app-signing key and installed-update identity stay unchanged.
 - Inspect these under Play Console → Yours Sincerely → App integrity → App signing.
   Do not change the app-signing key or use the unrelated archived key for production.
 
 For install commands and the exact upgrade test, use [phone testing](./phone-testing.md).
+
+## Credential files and recovery
+
+The local checkout contains the complete Android signing and FCM credential bundle in
+**`.credentials/production/`**. Git ignores this entire directory. Private files are mode
+0600; directories are mode 0700. No private keys or passwords are committed or included
+in the normal EAS source archive. EAS uploads the selected local signing credential
+separately when a build is requested.
+
+| Local file                       | Purpose                                                  |
+| -------------------------------- | -------------------------------------------------------- |
+| `android/upload-keystore.jks`    | Replacement Play upload private key; alias `upload`      |
+| `android/credentials.json`       | Keystore password, key password, alias, and path for EAS |
+| `android/upload-certificate.pem` | Public certificate submitted to Play                     |
+| `fcm/service-account.json`       | Complete FCM V1 credential already assigned in EAS       |
+| `fcm/private-key.pem`            | Original FCM private key, also contained in the JSON     |
+| `fcm/public-certificate.pem`     | Public certificate registered with Google                |
+| `google-services.json`           | Firebase Android config for `com.kyh.yourssincerely`     |
+
+The staged Android `credentials.json` is intended to be copied into `apps/expo/`;
+its keystore path resolves relative to that directory. After Play activation is confirmed,
+run from the repository root:
+
+```sh
+install -m 600 .credentials/production/android/credentials.json apps/expo/credentials.json
+cd apps/expo
+APP_VARIANT=production eas build --profile production --platform android
+```
+
+This builds only; do not run `eas submit` without separate store-submission authorization.
+Production `GOOGLE_SERVICES_JSON` remains configured in EAS. The local Firebase config
+matches its project/package; it is separate from the FCM service-account credential.
+To restore FCM in EAS, run `APP_VARIANT=production eas credentials --platform android`
+from `apps/expo`, select production → Google Service Account → Push Notifications
+(FCM V1), and supply `../../.credentials/production/fcm/service-account.json`.
+
+A fresh Git clone does **not** contain private credentials. Transfer the ignored bundle
+through a secure channel and preserve permissions; keep an encrypted off-machine backup
+of it. The original copies in `~/.config/yours-sincerely/` are on this same computer,
+so they do not protect against losing the computer. Do not force-add `.credentials/`.
+
+Apple distribution/provisioning/APNs credentials remain managed in EAS, under the existing
+Apple team; they were not exported into this Android/FCM bundle. Web `COOKIE_SECRET`,
+`COOKIE_SECRET_LEGACY`, and `RESEND_API_KEY` remain in the web deployment. They are not
+native build inputs. Public certificates, app IDs, EAS configuration, fingerprints, and
+recovery instructions are tracked in Git.
 
 ## Session continuity
 
@@ -121,7 +168,9 @@ with explicit owner approval, dedicated service account
 `roles/firebasecloudmessaging.admin`. No broader Firebase Admin/Editor or Play access was
 assigned. Its RSA-2048 key was generated locally; only its public X.509 certificate was
 uploaded to Google. The private JSON is stored outside Git under
-`~/.config/yours-sincerely/fcm-20260919/` (directory 0700, files 0600).
+`~/.config/yours-sincerely/fcm-20260919/` and copied into the ignored repo folder
+`.credentials/production/fcm/` (directories 0700, files 0600). Its
+[public certificate](./certificates/fcm-push.pem) is committed.
 
 Google key `38d4be0f1200e055792209827dbd3951111a20fb` is active and expires
 **September 19, 2027 at 10:15:46 UTC**. Rotate before expiry. Google OAuth authentication
