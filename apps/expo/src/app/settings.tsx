@@ -18,16 +18,22 @@ import { themes, useTheme } from "@/components/theme-provider";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { retireLegacySessionMigration } from "@/lib/legacy-session-migration";
 import { deleteSessionCookie } from "@/lib/session-store";
-import { queryClient, orpc } from "@/lib/api";
-import { refreshProfileData, refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { orpc } from "@/lib/api";
+import {
+  refreshProfileData,
+  refreshWorkspaceIdentity,
+  resetAfterSessionChanged,
+} from "@/lib/query-policies";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { useTabNavigation } from "@/lib/use-tab-navigation";
 
 /** Port of the web settings page: email (saved on blur), password reset,
     theme picker, sign out, account deletion. */
 const SettingsScreen = () => {
   const router = useRouter();
+  const navigateToTab = useTabNavigation();
   const { theme, setTheme } = useTheme();
   const { user, isPending, isError, refetch } = useWorkspaceUser();
   const colors = useThemeColors();
@@ -65,8 +71,8 @@ const SettingsScreen = () => {
   const endLocalSession = async () => {
     await retireLegacySessionMigration();
     await deleteSessionCookie();
-    queryClient.clear();
-    router.replace("/");
+    await resetAfterSessionChanged();
+    navigateToTab("/");
   };
 
   const signOutOnServer = useMutation(orpc.auth.signOut.mutationOptions({ networkMode: "always" }));

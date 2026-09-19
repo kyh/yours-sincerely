@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { View } from "react-native";
 import type { TextInput } from "react-native";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { signInWithPasswordInput, signUpInput } from "@repo/contracts/auth";
 import { useMutation } from "@tanstack/react-query";
@@ -10,7 +10,9 @@ import { toast } from "sonner-native";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/auth/form-field";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
-import { queryClient, orpc } from "@/lib/api";
+import { orpc } from "@/lib/api";
+import { resetAfterSessionChanged } from "@/lib/query-policies";
+import { isTabHref, useTabNavigation } from "@/lib/use-tab-navigation";
 
 /** Port of the web auth-form — email + password sign in/up. The session
     cookie from the response is captured by the fetch wrapper. */
@@ -31,6 +33,8 @@ const signInFormInput = signInWithPasswordInput.extend({
 
 export const AuthForm = ({ type, next = "/" }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const navigateToTab = useTabNavigation();
   const releasePushIdentity = useReleasePushIdentity();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,8 +47,14 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
     if (type === "signin") {
       await releasePushIdentity();
     }
-    queryClient.clear();
-    router.replace(next);
+    await resetAfterSessionChanged();
+    if (next !== pathname) {
+      if (isTabHref(next)) {
+        navigateToTab(next);
+      } else {
+        router.replace(next);
+      }
+    }
   };
   const signIn = useMutation(
     orpc.auth.signInWithPassword.mutationOptions({ onError: showMutationError, onSuccess }),

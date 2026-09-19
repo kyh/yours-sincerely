@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { Redirect } from "expo-router";
+import { SignUpContent } from "@/components/auth/sign-up-content";
+import { ProfileContent } from "@/components/profile/profile-content";
 
 import { Spinner } from "@/components/ui/spinner";
 import { QueryErrorState } from "@/components/ui/query-error-state";
@@ -29,11 +30,9 @@ const ProfileIndexScreen = () => {
       </View>
     );
   } else if (user === null) {
-    content = <Redirect href={{ params: { next: "/profile" }, pathname: "/auth/sign-up" }} />;
+    content = <SignUpContent next="/profile" />;
   } else {
-    content = (
-      <Redirect href={{ params: { "user-id": user.id }, pathname: "/profile/[user-id]" }} />
-    );
+    content = <ProfileContent key={user.id} userId={user.id} />;
   }
 
   return content;

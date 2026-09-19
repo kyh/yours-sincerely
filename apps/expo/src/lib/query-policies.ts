@@ -8,6 +8,12 @@ import { orpc, queryClient } from "./api";
  * Filters are built from `.key()`, which prefix-matches: `key({ input })` hits
  * every query whose input starts with that shape, and `key()` hits every input.
  */
+/** Retained tabs must drop the previous identity and refetch through their existing observers. */
+export const resetAfterSessionChanged = () => {
+  queryClient.getMutationCache().clear();
+  return queryClient.resetQueries();
+};
+
 export const refreshWorkspaceIdentity = () =>
   queryClient.invalidateQueries({ queryKey: orpc.auth.workspace.key() });
 

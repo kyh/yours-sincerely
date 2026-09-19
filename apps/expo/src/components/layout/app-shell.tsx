@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Linking, Pressable, View, useWindowDimensions } from "react-native";
-import type { Href } from "expo-router";
-import { usePathname, useRouter } from "expo-router";
+import { usePathname } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 
@@ -15,7 +14,8 @@ import { Text } from "@/components/ui/text";
 import { SafeAreaView } from "@/lib/css-interop";
 import { useFeedLayout } from "@/lib/feed-layout";
 import { siteConfig } from "@/lib/site-config";
-import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { useTabNavigation } from "@/lib/use-tab-navigation";
+import type { TabHref } from "@/lib/use-tab-navigation";
 
 const routeTitles = new Map([
   ["/", "Home"],
@@ -48,22 +48,22 @@ const NavLink = ({
 }: {
   children: ReactNode;
   label: string;
-  href: Href;
+  href: TabHref;
   selected: boolean;
   wide: boolean;
 }) => {
-  const router = useRouter();
+  const navigateToTab = useTabNavigation();
 
   return (
     <Pressable
-      accessibilityRole="link"
+      accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
       hitSlop={4}
       className="active:bg-accent min-h-9 min-w-11 flex-row items-center justify-center gap-2 rounded-full px-4"
       onPress={() => {
         if (!selected) {
-          router.push(href);
+          navigateToTab(href);
         }
       }}
     >
@@ -75,16 +75,6 @@ const NavLink = ({
 
 const Navigation = ({ wide }: { wide: boolean }) => {
   const pathname = usePathname();
-  const { user, isPending, isError } = useWorkspaceUser();
-  let profilePath = "/auth/sign-up";
-  let profileHref: Href = "/auth/sign-up";
-  if (user !== null) {
-    profilePath = `/profile/${user.id}`;
-    profileHref = { params: { "user-id": user.id }, pathname: "/profile/[user-id]" };
-  } else if (isPending || isError) {
-    profilePath = "/profile";
-    profileHref = "/profile";
-  }
 
   return (
     <View
@@ -105,8 +95,8 @@ const Navigation = ({ wide }: { wide: boolean }) => {
       >
         <NotificationsTabIcon focused={pathname === "/notifications"} />
       </NavLink>
-      <NavLink label="Profile" href={profileHref} selected={pathname === profilePath} wide={wide}>
-        <LottieTabIcon name="user" focused={pathname === profilePath} />
+      <NavLink label="Profile" href="/profile" selected={pathname === "/profile"} wide={wide}>
+        <LottieTabIcon name="user" focused={pathname === "/profile"} />
       </NavLink>
     </View>
   );
@@ -148,13 +138,12 @@ const SidebarFooter = () => (
   </View>
 );
 
-/** One persistent web-shaped shell around the native Stack keeps back gestures
-    and a single route history while sharing navigation across every screen. */
+/** The shell stays mounted around tabs and native detail screens. */
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
-  const router = useRouter();
+  const navigateToTab = useTabNavigation();
   const wide = width >= 768;
   const { layout } = useFeedLayout();
   const hasAside = width >= 1096;
@@ -180,11 +169,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
               accessibilityRole="link"
               accessibilityLabel="Yours Sincerely, home"
               style={{ height: headerHeight, justifyContent: "center" }}
-              onPress={() => {
-                if (pathname !== "/") {
-                  router.push("/");
-                }
-              }}
+              onPress={() => navigateToTab("/")}
             >
               <Logo />
             </Pressable>

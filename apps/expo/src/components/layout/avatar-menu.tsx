@@ -32,6 +32,7 @@ import { useFeedLayout } from "@/lib/feed-layout";
 import { siteConfig, supportMailto } from "@/lib/site-config";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
+import { useTabNavigation } from "@/lib/use-tab-navigation";
 
 type MenuState =
   | { kind: "closed" }
@@ -128,6 +129,7 @@ const AvatarDropdown = ({
 /** Port of the web aside-header avatar menu, including its 640px menu breakpoint. */
 export const AvatarMenu = () => {
   const router = useRouter();
+  const navigateToTab = useTabNavigation();
   const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const wide = width >= 640;
@@ -165,12 +167,10 @@ export const AvatarMenu = () => {
         label={showLogin ? "Login" : "Profile"}
         onPress={() => {
           close();
-          if (user !== null) {
-            router.push({ params: { "user-id": user.id }, pathname: "/profile/[user-id]" });
-          } else if (showLogin) {
+          if (showLogin) {
             router.push("/auth/sign-in");
           } else {
-            router.push("/profile");
+            navigateToTab("/profile");
           }
         }}
       />

@@ -33,6 +33,8 @@ import { palettes } from "@/lib/theme-palette";
 
 import "../styles.css";
 
+export const unstable_settings = { initialRouteName: "(tabs)" };
+
 void ignoreRejection(SplashScreen.preventAutoHideAsync());
 
 // Rendered above every provider, so it can only follow the OS scheme and
