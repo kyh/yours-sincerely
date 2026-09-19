@@ -188,6 +188,38 @@ text and no hydration warning. Publishing cleared the draft after reload. At 390
 closing/reopening the mobile drawer restored all 12 lines at 240px with no internal
 clipping. The temporary draft was cleared and the viewport override reset.
 
+## Current-source auth recheck
+
+Rechecked September 19 against main `200b33f5` and the latest local Expo fixtures from
+`a4febf06`. Auth transport, SecureStore, migration, native cookie readers, API source, app
+identity/configuration and dependency lockfile are unchanged from the genuine upgrade
+source `12a2e0c0`. The web persistence fix is unchanged from `598876dd`. No auth code fix
+was needed in this pass.
+
+- Live, read-only Postgres verification matched all 22 recorded posts to their original
+  authors across six runs: iOS, Android 111/1/30 persisted sessions, and Android 111/1
+  immediate updates after the persistence fix.
+- The preserved iOS legacy-upgrade device received the latest Expo fixture in place.
+  Two new UI posts, before and after a cold restart, retained original Capacitor author
+  `3243aed8-e6b5-4aa9-a856-a373b40790f6`. Post IDs:
+  `17c57942-08a7-4aa2-b0b3-680652ab822f` and `75158576-0333-4075-8c3e-edcbcdcef312`.
+- A separate registered iOS account still displayed `ioslike0919@test.local` in Settings
+  after a cold restart.
+- Android retained `androidlike0919@test.local` before and after the latest Expo
+  `install -r`, then through two cold restarts. Original install time remained
+  `2026-09-19 09:29:43`. This additional check is Expo-to-Expo; the genuine old-app migration
+  evidence is above. No uninstall, data reset, session injection, or adb tap/typing input.
+- Fresh checks passed: 36 native migration/storage/race tests, 68 API tests, and 11 auth
+  database integration tests, including epoch-less cookies and legacy-password recovery.
+  The database tests initially could not connect while OrbStack was stopped; they passed
+  after the existing local database was restored. No schema reset or seed was used.
+
+Detailed current-source receipts, native screenshots/XML, and test logs:
+`/tmp/ys-auth-final-20260919/`. The signed EAS artifacts use the same auth implementation;
+see [production artifact receipts](./mobile-release-inputs.md#verified-production-artifacts).
+These results establish local auth retention, with the fresh-cookie and physical-delivery
+limits already described above.
+
 ## Remaining release evidence
 
 These tests establish local session migration. They do not establish physical store

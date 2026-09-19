@@ -55,7 +55,7 @@ pnpm exec eas build:version:set --platform ios --profile production
 pnpm exec eas build:version:set --platform android --profile production
 ```
 
-Production builds `2026090506` (iOS) and `2026090503` (Android) are already verified;
+Production builds `2026090507` (iOS) and `2026090504` (Android) are already verified;
 see [release inputs](./mobile-release-inputs.md#verified-production-artifacts). Build
 permission does not include store submission. After separate authorization, the following
 commands build and send a future candidate to private store testing. Do not use `--latest`
