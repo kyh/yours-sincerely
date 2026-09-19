@@ -90,7 +90,8 @@ It drives Expo configuration and both web association files.
 The September 19 audit found that production `/.well-known/assetlinks.json` listed only
 archived certificate `A5:4E:…:9C:24`. The source now also includes Play's actual
 app-signing certificate `95:6E:…:4A:BB`, retaining the archive certificate for compatibility.
-Deploy the web change and verify the public JSON before testing Android HTTPS links.
+Commit `9afe91d1` deployed successfully; the public endpoint returned HTTP 200 with both
+certificates on September 19. Physical Android link verification remains open.
 Do not add the upload certificate: users receive binaries signed with the app-signing key.
 
 ## Notifications
@@ -108,9 +109,14 @@ EAS.
 Firebase Console was checked on September 19: project `yours-sincerely` has Cloud
 Messaging API V1 enabled. Its existing Firebase Admin service account has three registered
 keys, but no matching saved JSON was found in the project, local release archive, or Downloads.
-EAS has no production FCM V1 credential assigned. Recover an existing suitable key or
-create a push-scoped service account/key with owner approval, then assign it to EAS.
-Do not regenerate Google's app-signing key or reuse a broadly privileged Admin key blindly.
+EAS has no production FCM V1 credential assigned. Recover an existing suitable key or,
+with owner approval, create a dedicated service account with
+`roles/firebasecloudmessaging.admin` and a JSON key. Broader Firebase Admin/Editor or
+Play access is unnecessary. Assign it under EAS Credentials → Android
+`com.kyh.yourssincerely` → Service Credentials → FCM V1 service account key.
+This private JSON differs from `google-services.json`; existing private keys cannot be
+downloaded again. See [Expo's FCM setup](https://docs.expo.dev/push-notifications/fcm-credentials/)
+and [Google's key management](https://docs.cloud.google.com/iam/docs/keys-create-delete).
 
 Then use physical devices to opt in, receive a notification, and open its exact post.
 

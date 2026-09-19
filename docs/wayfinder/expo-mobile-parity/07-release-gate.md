@@ -15,7 +15,7 @@
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on Android.
 - [ ] Hardware keyboard commands, editor exclusion, and modal dismissal verified natively.
 - [ ] Physical push opens its exact post on both platforms.
-- [ ] Production Android association JSON includes the verified Play app-signing certificate.
+- [x] Production Android association JSON includes the verified Play app-signing certificate.
 - [ ] Verified HTTPS links work cold, warm, and after backgrounding on both platforms.
 - [ ] Production crash diagnostics verified.
 
@@ -25,7 +25,7 @@ code 30 retains an installed cohort. The archived TWA code 40 is absent from tha
 Source matching code 30 uses a standard WebView; inspect the actual binaries and exercise
 working identities from both code 111 and code 30 before claiming Android continuity.
 The recovered archive key differs from Play's upload key, which remains missing. The
-verified Play app-signing certificate is now in source; web deployment remains pending.
+verified Play app-signing certificate is deployed; the public JSON was checked on September 19.
 See [release inputs](../../mobile-release-inputs.md).
 Both the earlier iOS fixture and a fresh simulator install preserved an anonymous ID across
 write/restart/write. The fresh install then completed native sign-up with the same author ID

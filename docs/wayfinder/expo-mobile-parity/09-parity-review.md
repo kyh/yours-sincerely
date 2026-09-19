@@ -76,8 +76,9 @@ Source paths below are relative to `apps/expo/src`.
 - September 19 release audit authenticated Play Console and verified its app-signing and
   upload certificates. The archived key matches neither. Fixed the missing Play app-signing
   certificate in the web association response while preserving the archive certificate.
-  The real route handler check and full `pnpm verify` passed on main. Production still
-  serves the old response until this web change is deployed. Evidence:
+  The real route handler check and full `pnpm verify` passed on main. Commit `9afe91d1`
+  deployed successfully; the public endpoint returned HTTP 200 with the correct certificate.
+  Evidence:
   `/tmp/ys-main-release-verify-20260919.log`.
 
 - Final `pnpm verify` passed: typecheck, lint, formatting, **210 tests** (67 Expo), and
