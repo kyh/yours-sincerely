@@ -5,6 +5,10 @@
 /* Ported from apps/web/src/app/styles/themes.css — keep palettes in sync. */
 :root {
   font-size: 16px;
+}
+
+:root,
+.light {
   --background: hsl(45 60% 96%);
   --foreground: hsl(60 6% 13%);
   --card: hsl(34 10% 98%);

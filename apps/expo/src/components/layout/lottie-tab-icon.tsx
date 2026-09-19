@@ -33,8 +33,6 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
 
   return (
     <LottieView
-      // Native color providers survive clearing filters; remount only the icon.
-      key={dark ? "dark" : "light"}
       ref={ref}
       source={icons[name]}
       loop={false}
@@ -47,7 +45,8 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
       // lottie-react-native appends ".**.Color" to the keypath, so "**" here
       // becomes "**.**.Color", which matches nothing; "*" (any top-level layer)
       // is the glob that recolors every stroke and fill.
-      colorFilters={dark ? [{ color: "#FAFAFA", keypath: "*" }] : undefined}
+      // Native views retain filters when cleared, including across recycled mounts.
+      colorFilters={[{ color: dark ? "#FAFAFA" : "#000000", keypath: "*" }]}
     />
   );
 };

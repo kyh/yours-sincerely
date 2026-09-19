@@ -34,18 +34,21 @@ const CSS_VARIABLES = [
   ["border", "--border"],
 ] as const satisfies readonly (readonly [keyof ThemeColors, string])[];
 
-const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-
 const readBlock = (selector: string, source = css): Map<string, string> => {
-  const match = new RegExp(`^${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`, "mu").exec(source);
-  assert.ok(match?.[1] !== undefined, `styles.css has no ${selector} block`);
+  const blocks = [
+    ...source.matchAll(/^(?<selectors>[.:][\w-]+(?:\s*,\s*[.:][\w-]+)*)\s*\{(?<body>[^{}]*)\}/gmu),
+  ].filter((match) => match.groups?.selectors?.split(",").some((item) => item.trim() === selector));
+  assert.ok(blocks.length > 0, `styles.css has no ${selector} block`);
   const variables = new Map<string, string>();
-  for (const line of match[1].split("\n")) {
-    const declaration = /^\s*(?<name>--[\w-]+):\s*(?<value>[^;]+);/u.exec(line);
-    const name = declaration?.groups?.name;
-    const value = declaration?.groups?.value;
-    if (name !== undefined && value !== undefined) {
-      variables.set(name, value);
+  for (const block of blocks) {
+    assert.ok(block.groups?.body !== undefined);
+    for (const line of block.groups.body.split("\n")) {
+      const declaration = /^\s*(?<name>--[\w-]+):\s*(?<value>[^;]+);/u.exec(line);
+      const name = declaration?.groups?.name;
+      const value = declaration?.groups?.value;
+      if (name !== undefined && value !== undefined) {
+        variables.set(name, value);
+      }
     }
   }
   return variables;

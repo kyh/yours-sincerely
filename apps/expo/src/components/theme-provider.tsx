@@ -88,11 +88,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       <View
         accessible={false}
         focusable={false}
-        // Dark variants need a container; initialize it before mounting navigation.
+        // Keep wrappers and inherited base tokens present before navigation mounts.
         className={
           resolvedTheme === "light"
-            ? "will-change-variable will-change-container flex-1"
-            : `will-change-variable will-change-container flex-1 ${resolvedTheme}`
+            ? "will-change-variable will-change-container flex-1 light"
+            : `will-change-variable will-change-container flex-1 light ${resolvedTheme}`
         }
       >
         {children}

@@ -189,23 +189,26 @@ Source paths below are relative to `apps/expo/src`.
   restart, second Like, same-user sign-up, another restart, both Likes selected and the
   account email retained. Own profile names accepted focus; other writers' names stayed
   read-only. [Identity receipts](./02-identity-continuity.md).
-- iOS runtime testing reproduced dark-theme root accessibility grouping and stale white
-  navigation icons after Dark → Light Purple. The CSS compiler assigns dark containers;
-  the runtime then promotes the root View to Pressable and inserts a container provider.
-  A permanent `will-change-container` hint plus explicit false accessibility/focusability
-  now keeps the root structure stable and exposes descendants. Lottie retains installed
-  color providers when filters are cleared; keying only the icon by light/dark mode restores
-  original light asset colors. No navigation subtree is keyed. The installed CSS resolver
-  verifies five transitions; source review and full `pnpm verify` pass. Updated local
-  Hermes fixtures are installed over both existing test accounts. Native
-  verification was interrupted by Mac lock. Evidence and reproducible source-boundary
-  check: `/tmp/ys-theme-fix-20260919/`.
-- Before that correction, all four iOS themes persisted across cold launches; Android Light
-  passed feed/profile/calendar/composer/menu appearance and selected-radio persistence.
-  iOS card swipe advanced first → second card, proving gesture input works. Edge-back did
-  not navigate from the physical or padded content edge; explicit Back worked. Retest
-  native back after the theme fix before changing navigation. The remaining theme and
-  gesture gates stay open.
+- Native theme corrections preserve one navigation tree and expose individual controls.
+  The root preallocates variable/container wrappers and opts out of accessibility grouping.
+  An explicit `light` class supplies inherited base tokens from the first render; without
+  it, the native CSS cache kept Light colors after theme changes. Root font sizing stays
+  separate to preserve 16px rem conversion. Lottie filters always overwrite the previous
+  color, including when returning to a light theme. No navigation subtree is keyed.
+- The installed CSS compiler/resolver regression keeps child states alive through all four
+  themes and back to Light in both optimized and unoptimized modes. It checks shell/card/
+  text colors, inherited input fallback, stable wrappers, typography and accessibility
+  props. Full `pnpm verify` passes. Evidence: `/tmp/ys-theme-fix-20260919/propagation-fixed/`.
+- iOS 26.5 now passes all four theme transitions, individual accessibility controls, and
+  selected-theme persistence after cold launches. The same Settings email remains present.
+  An in-app Post route retains both route entries through the theme cycle; explicit Back
+  returns to the same liked feed card. Local fixtures include a temporary accessibility
+  history hint and event logging, absent from main. Android launches with its retained
+  account and individual controls; remaining theme checks await working emulator input.
+- iOS card swipe advances the feed. Native back swipe still does not navigate from the
+  padded content edge despite confirmed stack history; explicit Back works. Read-only
+  native inspection confirms two controllers, enabled pop recognizers and no dismissal
+  block. Touch delivery diagnostics remain open; no navigation option was changed.
 
 ## Remaining boundaries
 

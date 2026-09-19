@@ -77,8 +77,8 @@ See [phone testing](../../phone-testing.md) for the required evidence.
 
 Like-first identity and profile ownership checks passed on both platforms on September 19;
 see [identity receipts](./02-identity-continuity.md) and [profile checks](./03-profile-release.md).
-iOS theme changes exposed root accessibility grouping, unstable navigation wrappers, and
-stale white Lottie icons when returning to a light theme. The scoped fix passed source
-review, the installed CSS resolver regression, and `pnpm verify`; updated local fixtures
-are packaged. Mac lock interrupted final native checks. Android Light passed appearance
-and persistence; its remaining theme checks are open.
+Theme fixes now preserve root wrappers, inherited colors, individual accessibility controls,
+and light/dark navigation icon colors. The installed CSS resolver regressions and full
+`pnpm verify` pass. All four iOS themes pass transitions and cold-launch persistence with
+the same account. Android combined-fix checks and iOS native back diagnostics remain open.
+Evidence: `/tmp/ys-theme-fix-20260919/propagation-fixed/ios-runtime-evidence.json`.
