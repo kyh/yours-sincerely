@@ -31,8 +31,9 @@ Release audit, 2026-09-12:
 - Production Android explicitly uses local credentials, so missing credentials fail before
   upload instead of generating a key. Supply a key matching Play's current upload certificate in ignored,
   mode-0600 `apps/expo/credentials.json`; iOS continues using existing remote credentials.
-- Production FCM V1 and Play submission service-account credentials are not assigned in EAS.
-  This and the missing production Android keystore were rechecked on September 19.
+- Production FCM V1 is assigned in EAS as of September 19; see Notifications below.
+  The production Android keystore remains absent while Play processes the upload-key reset.
+  Play submission credentials remain unassigned; no store submission is authorized.
 
 Play Console signing, verified 2026-09-19:
 
@@ -47,9 +48,11 @@ Play Console signing, verified 2026-09-19:
   Private files are under `~/.config/yours-sincerely/android-upload-20260919/` with
   directory mode 0700 and file mode 0600. The public certificate is also in
   `~/Downloads/yours-sincerely-upload-certificate.pem` for the Play reset form.
-- Play's reset form is prepared; the owner must upload that public certificate and submit
-  the request. No reset has been submitted. This preserves Google's app-signing key and
-  installed-update identity. Do not activate the replacement in EAS until Play registers it.
+- Play Console now shows a pending upload-key reset request, verified September 19 after
+  the owner handoff. It still displays the old `E3:37:…:03:B8` upload certificate.
+  The pending request does not expose its proposed certificate; confirm Play registers
+  `EB:EF:…:72:9C` before activating the replacement in EAS. Google's app-signing key and
+  installed-update identity stay unchanged.
 - Inspect these under Play Console → Yours Sincerely → App integrity → App signing.
   Do not change the app-signing key or use the unrelated archived key for production.
 
@@ -112,17 +115,25 @@ EAS.
 - iOS: APNs key, created and stored by EAS during `eas credentials` for production.
 - Android: FCM V1 service-account key, uploaded to EAS as the production push credential, plus the file above.
 
-Firebase Console was checked on September 19: project `yours-sincerely` has Cloud
-Messaging API V1 enabled. Its existing Firebase Admin service account has three registered
-keys, but no matching saved JSON was found in the project, local release archive, or Downloads.
-EAS has no production FCM V1 credential assigned. Recover an existing suitable key or,
-with owner approval, create a dedicated service account with
-`roles/firebasecloudmessaging.admin` and a JSON key. Broader Firebase Admin/Editor or
-Play access is unnecessary. Assign it under EAS Credentials → Android
-`com.kyh.yourssincerely` → Service Credentials → FCM V1 service account key.
-This private JSON differs from `google-services.json`; existing private keys cannot be
-downloaded again. See [Expo's FCM setup](https://docs.expo.dev/push-notifications/fcm-credentials/)
-and [Google's key management](https://docs.cloud.google.com/iam/docs/keys-create-delete).
+Firebase Cloud Messaging API V1 is enabled for project `yours-sincerely`. On September 19,
+with explicit owner approval, dedicated service account
+`expo-push@yours-sincerely.iam.gserviceaccount.com` was created with only
+`roles/firebasecloudmessaging.admin`. No broader Firebase Admin/Editor or Play access was
+assigned. Its RSA-2048 key was generated locally; only its public X.509 certificate was
+uploaded to Google. The private JSON is stored outside Git under
+`~/.config/yours-sincerely/fcm-20260919/` (directory 0700, files 0600).
+
+Google key `38d4be0f1200e055792209827dbd3951111a20fb` is active and expires
+**September 19, 2027 at 10:15:46 UTC**. Rotate before expiry. Google OAuth authentication
+and an FCM `validate_only` request both returned HTTP 200; no notification was delivered.
+The JSON was uploaded and assigned to production Android `com.kyh.yourssincerely` in EAS,
+credential `ed3905f3-2af6-47a1-b4dd-c758f814a93a`. A fresh EAS query confirmed assignment;
+Play submission credentials and the production build keystore remain unassigned.
+
+This private JSON differs from `google-services.json`. See
+[Expo's FCM setup](https://docs.expo.dev/push-notifications/fcm-credentials/),
+[Google's public-key upload](https://docs.cloud.google.com/iam/docs/keys-upload), and
+[FCM validation-only requests](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages/send).
 
 Then use physical devices to opt in, receive a notification, and open its exact post.
 
@@ -140,14 +151,15 @@ production EAS environment.
 
 `GOOGLE_SERVICES_JSON` is listed in production EAS. The current iOS cloud build passed
 the production validator, including its Android package check and forbidden API overrides.
-This does not establish FCM V1 push credentials or delivery. Local `.env` is for development.
+Production FCM V1 credentials are now verified as described above; physical push delivery
+remains untested. Local `.env` is for development.
 
 ## Preserve store identity
 
 Before the first production build:
 
 - iOS: use the existing App Store Connect app and bundle ID `com.tehkaiyu.yourssincerely`. Seed EAS remote build version above the live Capacitor build number.
-- Android: import/reuse the existing Play upload keystore for `com.kyh.yourssincerely`; do not generate a replacement. Confirm its certificate matches Play Console > App integrity. Seed EAS remote version code above the live build.
+- Android: use the Play-registered upload keystore for `com.kyh.yourssincerely`. The original key is unavailable; the owner-authorized replacement must wait for reset approval and a matching certificate in Play Console > App integrity. Seed EAS remote version code above the live build.
 - Check/import credentials with `pnpm exec eas credentials`. Set remote versions with `pnpm exec eas build:version:set`.
 
 `apps/expo/eas.json` uses remote versions and auto-increments production builds after the initial seed.
