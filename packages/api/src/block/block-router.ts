@@ -31,7 +31,7 @@ export const blockRouter = {
     const existing =
       created ??
       (await context.db.query.block.findFirst({
-        where: and(eq(block.blockerId, userId), eq(block.blockingId, input.blockingId)),
+        where: { blockerId: userId, blockingId: input.blockingId },
       }));
 
     return {
@@ -56,7 +56,7 @@ export const blockRouter = {
       scoped to `context.user.id`: the actor never comes from client input. */
   listBlocks: protectedProcedure.handler(async ({ context }) => {
     const blocks = await context.db.query.block.findMany({
-      where: eq(block.blockerId, context.user.id),
+      where: { blockerId: context.user.id },
       with: {
         user_blockingId: {
           columns: { displayImage: true, displayName: true, id: true },

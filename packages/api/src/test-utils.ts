@@ -24,7 +24,7 @@ export const createCaller = (user: ORPCContext["user"]) =>
 export const callerFor = async (userId: string) => {
   const actor = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: (user, { eq }) => eq(user.id, userId),
+    where: { id: userId },
   });
   assert.ok(actor);
 

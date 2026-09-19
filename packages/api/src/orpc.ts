@@ -1,7 +1,5 @@
 import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
-import { eq } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
-import { user } from "@repo/db/drizzle-schema";
 import { ORPCError, os } from "@orpc/server";
 import { getCookie } from "@orpc/server/helpers";
 
@@ -11,7 +9,7 @@ import { authenticateSessionValue, renewSessionIfStale } from "./auth/session";
 const findDbUser = async (userId: string) => {
   const dbUser = await db.query.user.findFirst({
     columns: { passwordHash: false },
-    where: eq(user.id, userId),
+    where: { id: userId },
   });
 
   return dbUser ?? null;

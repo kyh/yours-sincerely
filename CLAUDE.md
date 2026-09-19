@@ -90,6 +90,11 @@ confirmation prompt. `--force` accepts data-loss statements without asking, whic
 against a disposable local database and is why `push:remote` deliberately does **not** carry
 it — production stays interactive.
 
+`push:remote` prints the plan (`drizzle-kit push --explain`) and applies only after a typed
+`yes`. Not carrying `--force` is not enough: drizzle-kit only prompts for statements it
+classes as data loss, and applies everything else — `DISABLE ROW LEVEL SECURITY`, index and
+constraint recreates — without asking. No stdin, no apply.
+
 **`drizzle-kit push` does NOT diff a view's body.** This is the trap. It creates a view
 that is missing and drops one deleted from the schema file, but when the name already
 exists it emits _nothing_, however much the SELECT changed — exit 0, no warning.
