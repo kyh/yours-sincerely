@@ -55,7 +55,7 @@ pnpm exec eas build:version:set --platform ios --profile production
 pnpm exec eas build:version:set --platform android --profile production
 ```
 
-Production builds `2026090505` (iOS) and `2026090502` (Android) are already verified;
+Production builds `2026090506` (iOS) and `2026090503` (Android) are already verified;
 see [release inputs](./mobile-release-inputs.md#verified-production-artifacts). Build
 permission does not include store submission. After separate authorization, the following
 commands build and send a future candidate to private store testing. Do not use `--latest`
@@ -92,6 +92,12 @@ at the local web server, publish through its UI, restart and publish again, then
 in place to Expo and repeat. Compare each post's author in local Postgres. Do not inject
 cookies, reset app data, or uninstall between versions. See the
 [verified run and artifact provenance](./mobile-upgrade-verification.md).
+
+Also test a fresh first post followed immediately by the Expo update, without the legacy
+restart or a persistence delay. That sequence exposed a lost Android identity before the
+web fix. Codes 111 and 1 now pass with the native persistence barrier; code 30 has no such
+bridge. A persisted-session pass alone does not cover this interruption window. Capture
+the cookie database and any WAL/SHM/journal metadata without recording cookie values.
 
 Keep the web server running throughout: the old app loads its UI from it, and Expo uses
 its API. This run used `pnpm -F @repo/web with-env next dev --port 3100` plus the existing

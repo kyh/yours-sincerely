@@ -11,9 +11,9 @@
 - [x] Play code 1 persisted-session upgrade passes the same four-post journey.
 - [x] Play code 30 persisted-session upgrade passes all four old/native UI posts and both restarts.
 - [x] Fresh-session persistence fix passes immediate first-post → Expo replacement on Android codes 111 and 1.
-- [ ] Deploy verified web persistence fix before rollout; document remaining unbridged/old-page interruption risk.
-- [ ] Rebuild current iOS UI candidate with existing production credentials; verify its IPA.
-- [ ] Rebuild current Android UI candidate with the registered replacement upload certificate; verify its AAB.
+- [x] Deploy verified web persistence fix before rollout; document remaining unbridged/old-page interruption risk.
+- [x] Rebuild current iOS UI candidate with existing production credentials; verify its IPA.
+- [x] Rebuild current Android UI candidate with the registered replacement upload certificate; verify its AAB.
 - [x] Inspect all three Android artifacts listed in Play: Capacitor 111/1 and WebView 30; no TWA listed.
 - [ ] Store-delivered Capacitor upgrade preserves identity on physical iOS and Android.
 - [x] Fresh anonymous write, restart, and sign-up preserve the same user ID on iOS.
@@ -40,13 +40,16 @@ identity. The scoped web/native flush barrier now passes immediate-update regres
 111 and 1 at 10.821 and 10.748 seconds respectively, including native restarts. Do not claim
 unconditional session continuity: code 30 has no bridge, and an old loaded page or process
 death before the barrier completes remains outside this mitigation.
-These local builds do not close the physical store gates.
+Commit `598876dd` passed CI and deployed to production. The public home page returned
+HTTP 200 and served the persistence barrier in its referenced JavaScript chunk on
+September 19. These local builds do not close the physical store gates.
 Play's complete artifact inventory was inspected on 2026-09-19: codes 111, 1, and 30.
 Their actual Play-signed APKs were verified: 111/1 use Capacitor; 30 uses a standard
 WebView/CookieManager; all load the production host. The archived TWA code 40 is absent.
 Codes 1 and 30 now pass all four persisted-session UI writes, including both restarts and
-in-place Expo installation. All three listed Android cohorts have local migration proof. Both production candidates from main `a496f9c1` finished and passed
-artifact verification: iOS `2026090505`, Android `2026090502`.
+in-place Expo installation. All three listed Android cohorts have local migration proof.
+Both production candidates from main `598876dd` finished and passed
+artifact verification: iOS `2026090506`, Android `2026090503`.
 The recovered archive key differs from Play's original upload key. Its replacement is
 stored locally in the ignored credential bundle; Play confirms activation on September 21
 at 10:11 UTC. EAS compilation/signing is complete; only Play uploads wait for activation.

@@ -178,8 +178,10 @@ Source paths below are relative to `apps/expo/src`.
   [Receipts and limitations](../../mobile-upgrade-verification.md).
 - The final source pass added web-equivalent 33px outer profile corners at 1024px and the
   exact 5%-black appearance-swatch shadow without Android elevation. Compiler/palette tests
-  and the full verification gate passed. Updated local Hermes UI bundles are ready for
-  profile/theme checks; production candidates must be rebuilt after those checks.
+  and the full verification gate passed. Updated local Hermes UI bundles are installed in
+  fresh iOS/Android fixtures; profile/theme checks await an unlocked Mac. Production builds
+  from `598876dd` finished and their signed artifacts contain both changes; runtime checks
+  remain open. See [release inputs](../../mobile-release-inputs.md#verified-production-artifacts).
 
 ## Remaining boundaries
 
@@ -207,9 +209,9 @@ Source paths below are relative to `apps/expo/src`.
 - Physical push delivery, OS-verified HTTPS links, and store-delivered Capacitor upgrades
   require the release checks in `docs/phone-testing.md`. Simulator previews do not prove them.
 - Source upload and builds are authorized; store submission is not. Both production builds
-  from clean main `a496f9c1` finished and their downloaded artifacts passed verification:
-  iOS `386bfaa8-c0e6-49d1-8703-7baae7c66da4` (`2026090505`) with existing Apple signing;
-  Android `eb085f6d-ecfa-4b81-8710-ad5438fa21b2` (`2026090502`) with the owner-authorized
+  from clean main `598876dd` finished and their downloaded artifacts passed verification:
+  iOS `927e6012-f4fd-46db-ad86-6e052baa43d6` (`2026090506`) with existing Apple signing;
+  Android `d2acebb0-cafb-439f-ab1c-5b4dacf7c4e7` (`2026090503`) with the owner-authorized
   replacement upload key. Android targets API 36; all 50 bundled 64-bit native libraries
   passed the ELF 16 KB alignment check. Physical runtime checks remain separate.
   The replacement upload key matches Play's displayed certificate and activates September

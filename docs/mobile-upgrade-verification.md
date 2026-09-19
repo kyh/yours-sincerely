@@ -118,7 +118,12 @@ claim is made. Exact post IDs, timestamps, metadata, and screenshots:
 `/tmp/ys-android-persistence-fixed-20260919/{111,1}/evidence.json`. This is one local API 35
 regression per fixed historical APK, not a universal persistence timing guarantee.
 
-Deploy the verified web fix before Expo rollout. It cannot cover code 30 (no Capacitor
+The web fix deployed from main `598876dd` before Expo rollout. CI and Vercel reported
+success; the public home page returned HTTP 200 and referenced a chunk containing the
+barrier key and its sanitized failure message. Public-asset receipt:
+`/tmp/ys-production-web-persistence-20260919.json`.
+
+The fix cannot cover code 30 (no Capacitor
 bridge), an old page that has not loaded the new JavaScript, a failed native barrier, or
 process death before the barrier completes. Physical store updates remain a separate gate.
 
