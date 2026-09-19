@@ -33,7 +33,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/node": "catalog:",
     "drizzle-kit": "1.0.0-rc.4",
-    "supabase": "^2.116.0",
+    "supabase": "^2.117.0",
     "typescript": "catalog:"
   }
 }
