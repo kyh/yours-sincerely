@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "test": "NODE_ENV=test tsc -p tsconfig.test.json && NODE_ENV=test node --test --test-reporter=spec 'src/**/*.test.ts'",
-    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 tsc -p tsconfig.test.json && NODE_ENV=test RUN_DB_TESTS=1 tsx --test 'src/**/*.integration.ts'",
+    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 tsc -p tsconfig.test.json && NODE_ENV=test RUN_DB_TESTS=1 tsx --test --test-concurrency=1 'src/**/*.integration.ts'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
