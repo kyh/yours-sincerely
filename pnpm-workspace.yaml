@@ -43,6 +43,22 @@ catalogs:
     # Expo SDK 57 blesses TS 6; the rest of the repo is on 7.
     typescript: ~6.0.3
 
+# Expo SDK 57 blesses exact versions of these; `pnpm up --latest` must not move them.
+# Matching is by NAME, so `react`/`react-dom`/`typescript`/`@types/react` cannot go here
+# without freezing web too — their `expo:` catalog rows are reverted by hand after a sweep.
+update:
+  ignoreDeps:
+    - expo
+    - expo-*
+    - "!expo-server-sdk"
+    - "@expo/*"
+    - react-native
+    - react-native-*
+    - "@react-native/*"
+    - "@react-native-async-storage/*"
+    - lottie-react-native
+    - nativewind
+
 allowBuilds:
   esbuild: true
   supabase: true

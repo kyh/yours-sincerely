@@ -119,7 +119,10 @@ Test runner is Node's built-in `node:test` + `node:assert/strict`. **Do not add 
 
 - `pnpm test` — unit suites (`*.test.ts`), no I/O, runs in CI.
 - `pnpm -F @repo/api test:db` — integration suites (`*.integration.ts`) against a local
-  Supabase. Not run in CI (CI has no Supabase).
+  Supabase. Not run in CI (CI has no Supabase). Needs `COOKIE_SECRET` of at least 32
+  chars, and an `auth.users` table for the legacy-rescue suite (local Supabase has one; a
+  bare Postgres does not). Runs with `--test-concurrency=1`: the files share one database
+  and `post-counters` asserts whole-table drift, so parallel files race it.
 
 The pattern to follow for anything with I/O: extract a pure, dependency-injected core
 (`*-core.ts`) and test it with in-memory fakes. The exemplars are
@@ -210,7 +213,12 @@ the public store build, which would make deletion safe).
 - **TypeScript is split across two catalogs.** The default catalog is on v7; Expo sits on
   `catalog:expo` (`~6.0.3`), the version Expo SDK 57 blesses. Next 16.3 shells out to the
   local `tsc` CLI, so `next build` still type-checks on TS 7.
-  `pnpm.updateConfig.ignoreDependencies` keeps update sweeps from overshooting the Expo pin.
+- **Update sweeps are only half-guarded.** `update.ignoreDeps` in `pnpm-workspace.yaml`
+  makes `pnpm up --latest -r` skip the Expo-only names (`expo`, `expo-*`, `@expo/*`,
+  `react-native`, `react-native-*`, `@react-native/*`, async-storage, lottie, nativewind).
+  It matches by name, so `react`/`react-dom`/`@types/react`/`typescript` cannot be listed
+  without freezing web: a sweep WILL bump their `expo:` catalog rows. Revert those rows by
+  hand, then run `npx expo install --check` in `apps/expo`.
 - **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
   bump either without bumping both and running a real device build. Exit criterion:
   NativeWind 5.0.0 stable.
