@@ -258,6 +258,14 @@ quality without sharing presentation code; a DOM/native component layer is not.
 **Out of scope:** shared React components across DOM and native; a visual rewrite
 disconnected from the current brand; a database schema rewrite.
 
+### Email lookup is exact first, then case-insensitive only when unambiguous
+
+`findUserByEmail` (`packages/api/src/auth/email-identity.ts`) backs sign-in and password
+reset. `sql/080-reconcile.sql` lowercases stored addresses, so **an exact-only lookup would
+lock out everyone who types the casing they signed up with.** Accounts that differ only in
+case predate normalization: the backfill skips them, the lookup never picks one, and there
+is deliberately no unique index on `lower(email)` until a person merges them.
+
 ## Tracked constraints — do not "fix" these
 
 - **TypeScript is split across two catalogs.** The default catalog is on v7; Expo sits on
