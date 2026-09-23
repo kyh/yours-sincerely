@@ -57,6 +57,38 @@ const readBlock = (selector: string, source = css): Map<string, string> => {
 /** `hsl(45 60% 96%)` (CSS) and `hsl(45, 60%, 96%)` (RN) are the same color. */
 const normalize = (color: string) => color.replaceAll(/[\s,]/gu, "").toLowerCase();
 
+// Not `mutedForeground` on `muted`: only the avatar fallback, shown while the image
+// loads, puts it there, and light-purple's mid-tone muted cannot reach AA without a redesign.
+const TEXT_ON_SURFACES = [
+  ["foreground", ["background"]],
+  ["cardForeground", ["card"]],
+  ["primaryForeground", ["primary"]],
+  ["primary", ["background", "card"]],
+  ["mutedForeground", ["background", "card", "accent"]],
+  ["destructive", ["background", "card"]],
+] as const satisfies readonly (readonly [keyof ThemeColors, readonly (keyof ThemeColors)[]])[];
+
+/** WCAG 2 relative luminance of an opaque `hsl(h, s%, l%)` palette value. */
+const luminance = (color: string) => {
+  const groups = /^hsl\((?<h>[\d.]+),\s*(?<s>[\d.]+)%,\s*(?<l>[\d.]+)%\)$/u.exec(color)?.groups;
+  const [h, s, l] = [groups?.h, groups?.s, groups?.l];
+  assert.ok(h !== undefined && s !== undefined && l !== undefined, `${color} is not opaque hsl()`);
+  const hue = Number(h);
+  const lightness = Number(l) / 100;
+  const chroma = (Number(s) / 100) * Math.min(lightness, 1 - lightness);
+  const linear = (offset: number) => {
+    const k = (offset + hue / 30) % 12;
+    const value = lightness - chroma * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * linear(0) + 0.7152 * linear(8) + 0.0722 * linear(4);
+};
+
+const contrast = (a: string, b: string) => {
+  const [x, y] = [luminance(a), luminance(b)];
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+
 describe("theme palette", () => {
   for (const [themeId, selector] of CSS_SELECTORS) {
     it(`${themeId} uses the web theme colors`, () => {
@@ -82,6 +114,16 @@ describe("theme palette", () => {
           normalize(expected),
           `${themeId}.${key} drifted from ${variable}`,
         );
+      }
+    });
+
+    it(`${themeId} text tokens meet WCAG AA (4.5:1) on their surfaces`, () => {
+      const palette = palettes[themeId];
+      for (const [text, surfaces] of TEXT_ON_SURFACES) {
+        for (const surface of surfaces) {
+          const ratio = contrast(palette[text], palette[surface]);
+          assert.ok(ratio >= 4.5, `${themeId}.${text} on ${surface} is ${ratio.toFixed(2)}:1`);
+        }
       }
     });
   }
