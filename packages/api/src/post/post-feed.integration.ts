@@ -6,7 +6,7 @@ import { inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
-import { createCaller } from "../test-utils";
+import { callerFor } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -43,13 +43,7 @@ const createFixture = async () => {
 
   const postIds = posts.map((row) => row.id);
 
-  const reader = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: readerId },
-  });
-  assert.ok(reader);
-
-  const caller = createCaller(reader);
+  const caller = await callerFor(readerId);
 
   const cleanup = async () => {
     await db.delete(like).where(inArray(like.postId, postIds));
@@ -98,6 +92,37 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
     assert.equal(new Set(seen).size, SEEDED_POST_COUNT);
     // Newest-first, and every seeded post appears exactly once.
     assert.deepEqual(seen, fixture.postIds);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+integrationTest("letters sharing a timestamp page by id, without gaps or repeats", async () => {
+  const fixture = await createFixture();
+  try {
+    await db
+      .update(post)
+      .set({ createdAt: new Date(fixture.now).toISOString() })
+      .where(inArray(post.id, fixture.postIds));
+
+    const seen: string[] = [];
+    let cursor: Awaited<ReturnType<typeof fixture.caller.post.getFeed>>["nextCursor"];
+    do {
+      const page = await fixture.caller.post.getFeed({
+        cursor,
+        limit: 3,
+        userId: fixture.authorId,
+      });
+      seen.push(...page.posts.map((row) => row.id));
+      cursor = page.nextCursor;
+    } while (cursor);
+
+    const whole = await fixture.caller.post.getFeed({ limit: 50, userId: fixture.authorId });
+    assert.deepEqual(
+      seen,
+      whole.posts.map((row) => row.id),
+    );
+    assert.equal(new Set(seen).size, SEEDED_POST_COUNT);
   } finally {
     await fixture.cleanup();
   }

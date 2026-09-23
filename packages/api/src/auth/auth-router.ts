@@ -1,19 +1,21 @@
-import { randomBytes } from "node:crypto";
+import { ANONYMOUS_DISPLAY_NAME } from "@repo/contracts/user";
+import type { Db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
-import { getDefaultValues } from "@repo/db/utils";
 import { ORPCError } from "@orpc/server";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 
-import type { ORPCContext } from "../orpc";
 import { env } from "../env";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
 import {
   requestPasswordResetInput,
   setPasswordInput,
   signInWithPasswordInput,
   signUpInput,
 } from "./auth-schema";
+import { burnResetTokens, issuePasswordReset } from "./password-reset";
+import { createResetEmailSender, hashResetToken } from "./password-reset-core";
 import {
   clearSession,
   createPasswordHash,
@@ -21,25 +23,15 @@ import {
   setSession,
   validatePassword,
 } from "./session";
-
-const RESET_TOKEN_EXPIRY_HOURS = 1;
-const APP_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://yourssincerely.org";
-
-const sanitizeUser = <T extends { passwordHash?: string | null }>(
-  record: T,
-): Omit<T, "passwordHash"> => {
-  const { passwordHash: _, ...safeUser } = record;
-  return safeUser;
-};
+import { toViewer } from "./session-user";
 
 /**
  * Revoke every session this user holds, anywhere, and return the new epoch.
  * The bump invalidates all cookies already issued; the caller decides whether
  * to hand the current device a fresh one.
  */
-const revokeUserSessions = async (context: ORPCContext, userId: string) => {
-  const [updated] = await context.db
+const revokeUserSessions = async (db: Pick<Db, "update">, userId: string) => {
+  const [updated] = await db
     .update(user)
     .set({ sessionEpoch: sql`${user.sessionEpoch} + 1` })
     .where(eq(user.id, userId))
@@ -52,27 +44,13 @@ const revokeUserSessions = async (context: ORPCContext, userId: string) => {
   return updated.sessionEpoch;
 };
 
-/** A reset link must be single-use, and issuing a new one must burn the old ones. */
-const invalidateResetTokens = (context: ORPCContext, userId: string) =>
-  context.db
-    .update(tokenTable)
-    .set({ usedAt: new Date().toISOString() })
-    .where(
-      and(
-        eq(tokenTable.userId, userId),
-        eq(tokenTable.type, "RESET_PASSWORD"),
-        isNull(tokenTable.usedAt),
-      ),
-    );
-
 export const authRouter = {
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetInput)
     .handler(async ({ context, input }) => {
       // Checked before the lookup: a deployment with no email provider can
-      // never deliver the link, and burning the account's outstanding reset
-      // tokens on the way to a failed send is worse than refusing outright. The
-      // answer does not depend on `input.email`, so it leaks no enumeration.
+      // never deliver the link, so refuse outright. The answer does not depend
+      // on `input.email`, so it leaks no enumeration.
       const resendApiKey = env.RESEND_API_KEY;
       if (resendApiKey === undefined) {
         throw new ORPCError("PRECONDITION_FAILED", {
@@ -81,6 +59,7 @@ export const authRouter = {
       }
 
       const existingUser = await context.db.query.user.findFirst({
+        columns: { id: true },
         where: { email: input.email },
       });
 
@@ -89,63 +68,56 @@ export const authRouter = {
         return { success: true };
       }
 
-      const resetToken = randomBytes(32).toString("hex");
-      const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
-
-      // Issuing a new link burns every unused one, so only the latest email works.
-      await invalidateResetTokens(context, existingUser.id);
-
-      await context.db.insert(tokenTable).values({
-        ...getDefaultValues(),
-        expiresAt: expiresAt.toISOString(),
-        sentTo: input.email,
-        token: resetToken,
-        type: "RESET_PASSWORD",
+      await issuePasswordReset(context.db, {
+        appUrl: env.APP_URL,
+        email: input.email,
+        send: createResetEmailSender(new Resend(resendApiKey).emails),
         userId: existingUser.id,
-      });
-
-      // One HTTPS link serves every client. Associated domains open the
-      // installed app; browsers remain the universal fallback.
-      const resetUrl = `${APP_URL}/auth/password-update?token=${resetToken}`;
-      const resend = new Resend(resendApiKey);
-
-      await resend.emails.send({
-        from: "Yours Sincerely <noreply@yourssincerely.org>",
-        html: `<p>Click the link below to reset your password. This link expires in ${RESET_TOKEN_EXPIRY_HOURS} hour.</p><p><a href="${resetUrl}">Reset password</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
-        subject: "Reset your password",
-        to: input.email,
       });
 
       return { success: true };
     }),
   setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
-    const resetToken = await context.db.query.token.findFirst({
-      where: {
-        expiresAt: { gt: new Date().toISOString() },
-        token: input.token,
-        type: "RESET_PASSWORD",
-        usedAt: { isNull: true },
-      },
+    const now = new Date().toISOString();
+
+    // One transaction: the new password never lands without the revocation
+    // that has to come with it.
+    const redeemed = await context.db.transaction(async (tx) => {
+      // The claim IS the check. Only a live, unused link matches, so of two
+      // concurrent redemptions exactly one gets a row back.
+      const [claimed] = await tx
+        .update(tokenTable)
+        .set({ usedAt: now })
+        .where(
+          and(
+            eq(tokenTable.token, hashResetToken(input.token)),
+            eq(tokenTable.type, "RESET_PASSWORD"),
+            isNull(tokenTable.usedAt),
+            gt(tokenTable.expiresAt, now),
+          ),
+        )
+        .returning({ userId: tokenTable.userId });
+
+      if (!claimed) {
+        throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
+      }
+
+      // Hashed only after the claim, so a garbage token costs no bcrypt.
+      const passwordHash = await createPasswordHash(input.password);
+      await tx.update(user).set({ passwordHash }).where(eq(user.id, claimed.userId));
+
+      // A password reset is the remediation a user reaches for after "someone
+      // got into my account", so every session an attacker already holds must
+      // die here, along with any other outstanding link.
+      const sessionEpoch = await revokeUserSessions(tx, claimed.userId);
+      await burnResetTokens(tx, claimed.userId);
+
+      return { sessionEpoch, userId: claimed.userId };
     });
 
-    if (!resetToken) {
-      throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
-    }
-
-    const passwordHash = await createPasswordHash(input.password);
-
-    await context.db.update(user).set({ passwordHash }).where(eq(user.id, resetToken.userId));
-
-    // Order matters. Revoke FIRST — a password reset is the remediation a user
-    // reaches for after "someone got into my account", so every session an
-    // attacker already holds must die here...
-    const sessionEpoch = await revokeUserSessions(context, resetToken.userId);
-
-    // ...then burn this token and any other outstanding link...
-    await invalidateResetTokens(context, resetToken.userId);
-
-    // ...and only then re-admit the person who actually did the reset.
-    await setSession(resetToken.userId, sessionEpoch);
+    // Only once the revocation has committed, re-admit the person who actually
+    // did the reset.
+    await setSession(redeemed.userId, redeemed.sessionEpoch);
 
     return { success: true };
   }),
@@ -169,7 +141,7 @@ export const authRouter = {
       await setSession(existingUser.id, existingUser.sessionEpoch);
 
       return {
-        user: sanitizeUser(existingUser),
+        user: toViewer(existingUser),
       };
     }),
   /** Normal sign-out: clears this device's cookie only. Correct semantic. */
@@ -183,7 +155,7 @@ export const authRouter = {
    * cookie an attacker captured. Logs out the calling device too.
    */
   signOutEverywhere: protectedProcedure.handler(async ({ context }) => {
-    await revokeUserSessions(context, context.user.id);
+    await revokeUserSessions(context.db, context.user.id);
     await clearSession();
 
     return { user: null };
@@ -204,21 +176,25 @@ export const authRouter = {
 
     const passwordHash = await createPasswordHash(input.password);
 
-    const [newUser] = context.user
-      ? await context.db
-          .update(user)
-          .set({ email: input.email, passwordHash })
-          .where(eq(user.id, context.user.id))
-          .returning()
-      : await context.db
-          .insert(user)
-          .values({
-            ...getDefaultValues(),
-            displayName: "Anonymous",
-            email: input.email,
-            passwordHash,
-          })
-          .returning();
+    // The lookup above can race a concurrent sign-up; the unique index decides.
+    const [newUser] = await rethrowPgError(
+      context.user
+        ? context.db
+            .update(user)
+            .set({ email: input.email, passwordHash })
+            .where(eq(user.id, context.user.id))
+            .returning()
+        : context.db
+            .insert(user)
+            .values({
+              displayName: ANONYMOUS_DISPLAY_NAME,
+              email: input.email,
+              passwordHash,
+            })
+            .returning(),
+      UNIQUE_VIOLATION,
+      () => new ORPCError("CONFLICT", { message: "User already registered" }),
+    );
 
     if (!newUser) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Unable to create user" });
@@ -227,12 +203,12 @@ export const authRouter = {
     await setSession(newUser.id, newUser.sessionEpoch);
 
     return {
-      user: sanitizeUser(newUser),
+      user: toViewer(newUser),
     };
   }),
   workspace: publicProcedure.handler(({ context }) => ({
     pushCleanupCapability:
       context.user === null ? null : createPushCleanupCapability(context.user.id),
-    user: context.user,
+    user: context.user === null ? null : toViewer(context.user),
   })),
 };

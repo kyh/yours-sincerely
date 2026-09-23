@@ -14,7 +14,8 @@ import { RPCHandler } from "@orpc/server/fetch";
 // nothing. `isCrossOrigin` below covers the rest. CORS headers paired with
 // Allow-Credentials would hand a cross-origin page an authenticated path in and
 // undo both. GET — the one method a cookie-bearing navigation can reach — is
-// refused by the handler's default `allowMethods`.
+// not exported, so Next answers 405 before the session is even read. No
+// procedure is a GET: the handler's default `allowMethods` would refuse one.
 const handler = new RPCHandler(appRouter, {
   clientInterceptors: [
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
@@ -81,4 +82,4 @@ const handleRequest = async (req: NextRequest) => {
   }
 };
 
-export { handleRequest as GET, handleRequest as POST };
+export { handleRequest as POST };

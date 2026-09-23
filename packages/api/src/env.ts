@@ -1,12 +1,14 @@
+import { WEB_ORIGIN } from "@repo/contracts/site";
 import { z } from "zod";
 
 /**
  * App configuration, parsed once at boot.
  *
  * Every key is optional on purpose: a missing one disables its feature
- * (password-reset email) instead of crashing the server. And `.env.example`
- * ships them as empty strings, so `""` is normalised to `undefined` here rather
- * than being re-checked — inconsistently — at each call site.
+ * (password-reset email) or falls back to production's value instead of
+ * crashing the server. And `.env.example` ships them as empty strings, so `""`
+ * is normalised to `undefined` here rather than being re-checked —
+ * inconsistently — at each call site.
  *
  * Push needs no key: Expo's push service accepts unauthenticated sends, and the
  * device tokens live in the database (`push/expo-push.ts`).
@@ -26,6 +28,9 @@ const optionalSetting = z
   .optional();
 
 const envSchema = z.object({
+  // The origin emailed links point at. Set it on preview and local deployments
+  // that send email, or their links open production.
+  APP_URL: optionalSetting.transform((value) => value ?? WEB_ORIGIN).pipe(z.url()),
   RESEND_API_KEY: optionalSetting,
 });
 
@@ -33,5 +38,6 @@ const envSchema = z.object({
 // `process.env.NEXT_PUBLIC_*` as string literals and do not guarantee that the
 // whole object survives the build.
 export const env = envSchema.parse({
+  APP_URL: process.env.APP_URL,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
 });

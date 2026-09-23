@@ -6,7 +6,7 @@ import { and, eq, inArray, or } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
-import { createCaller } from "./test-utils";
+import { callerFor } from "./test-utils";
 import { updateUserInput } from "./user/user-schema";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
@@ -53,13 +53,7 @@ const createFixture = async () => {
     },
   ]);
 
-  const actor = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: actorId },
-  });
-  assert.ok(actor);
-
-  const caller = createCaller(actor);
+  const caller = await callerFor(actorId);
 
   const cleanup = async () => {
     await db

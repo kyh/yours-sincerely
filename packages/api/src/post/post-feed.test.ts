@@ -29,3 +29,15 @@ test("feed input still accepts the filters clients actually send", () => {
     { cursor: { createdAt: "2026-07-12T00:00:00.000", postId: "a-post" } },
   );
 });
+
+test("a feed cursor timestamp Postgres cannot cast is a bad request, not a 500", () => {
+  assert.equal(
+    getFeedInput.safeParse({ cursor: { createdAt: "not a date", postId: "a-post" } }).success,
+    false,
+  );
+  assert.equal(
+    getFeedInput.safeParse({ cursor: { createdAt: "2026-07-12 09:30:00.12", postId: "a-post" } })
+      .success,
+    true,
+  );
+});
