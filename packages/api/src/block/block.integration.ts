@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 
-import { and, eq, inArray } from "@repo/db";
+import { and, eq, inArray, or } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, post, user } from "@repo/db/drizzle-schema";
 
 import { ORPCError } from "@orpc/server";
 
-import { callerFor, createCaller } from "../test-utils";
+import { FOREIGN_KEY_VIOLATION, pgErrorCode } from "../pg-error";
+import { callerFor, createCaller, runWithoutCookieScope } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -171,3 +172,41 @@ integrationTest("deleting a block the caller does not have is a no-op, not an er
     await fixture.cleanup();
   }
 });
+
+integrationTest(
+  "Block restricts user deletion, and deleteUser clears both directions",
+  async () => {
+    const fixture = await createFixture();
+    try {
+      await fixture.callerA.block.createBlock({ blockingId: fixture.authorDId });
+      await fixture.callerB.block.createBlock({ blockingId: fixture.blockerAId });
+
+      await assert.rejects(
+        db.delete(user).where(eq(user.id, fixture.authorDId)),
+        (error) => pgErrorCode(error) === FOREIGN_KEY_VIOLATION,
+      );
+
+      await runWithoutCookieScope(() => fixture.callerA.user.deleteUser());
+
+      const [blocks, users] = await Promise.all([
+        db
+          .select()
+          .from(block)
+          .where(
+            or(eq(block.blockerId, fixture.blockerAId), eq(block.blockingId, fixture.blockerAId)),
+          ),
+        db
+          .select({ id: user.id })
+          .from(user)
+          .where(inArray(user.id, [fixture.blockerAId, fixture.blockerBId, fixture.authorDId])),
+      ]);
+      assert.equal(blocks.length, 0);
+      assert.deepEqual(
+        users.map((row) => row.id).toSorted(),
+        [fixture.authorDId, fixture.blockerBId].toSorted(),
+      );
+    } finally {
+      await fixture.cleanup();
+    }
+  },
+);

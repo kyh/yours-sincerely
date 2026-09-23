@@ -1,4 +1,4 @@
-import { eq, inArray, or, sql } from "@repo/db";
+import { eq, or, sql } from "@repo/db";
 import {
   account,
   block,
@@ -12,7 +12,6 @@ import {
 import { ORPCError } from "@orpc/server";
 
 import { clearSession } from "../auth/session";
-import { collectDescendantPostIds } from "../post/post-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
 import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
@@ -25,26 +24,14 @@ export const userRouter = {
   deleteUser: protectedProcedure.handler(async ({ context }) => {
     const userId = context.user.id;
 
-    // Notification and PushToken rows go with the user row via ON DELETE CASCADE.
+    // Replies, likes and flags under the user's posts go with those posts, and
+    // Notification and PushToken rows with the user row, via ON DELETE CASCADE.
+    // Block restricts, so it and everything the user left on other people's
+    // posts are deleted by name.
     await context.db.transaction(async (tx) => {
-      const userPosts = await tx.select({ id: post.id }).from(post).where(eq(post.userId, userId));
-      const userPostIds = userPosts.map((row) => row.id);
-
-      if (userPostIds.length > 0) {
-        const deletedPostIds = await collectDescendantPostIds(tx, userPostIds);
-
-        await tx
-          .delete(like)
-          .where(or(eq(like.userId, userId), inArray(like.postId, deletedPostIds)));
-        await tx
-          .delete(flag)
-          .where(or(eq(flag.userId, userId), inArray(flag.postId, deletedPostIds)));
-        await tx.delete(post).where(inArray(post.id, deletedPostIds));
-      } else {
-        await tx.delete(like).where(eq(like.userId, userId));
-        await tx.delete(flag).where(eq(flag.userId, userId));
-      }
-
+      await tx.delete(post).where(eq(post.userId, userId));
+      await tx.delete(like).where(eq(like.userId, userId));
+      await tx.delete(flag).where(eq(flag.userId, userId));
       await tx.delete(token).where(eq(token.userId, userId));
       await tx.delete(account).where(eq(account.userId, userId));
       await tx.delete(enrolledEvent).where(eq(enrolledEvent.userId, userId));

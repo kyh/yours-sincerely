@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 
-import { and, eq, inArray, sql } from "@repo/db";
+import { and, eq, inArray, or, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
-import { block, flag, like, post, user } from "@repo/db/drizzle-schema";
+import { block, flag, like, notification, post, token, user } from "@repo/db/drizzle-schema";
 
 import { callerFor, runWithoutCookieScope } from "../test-utils";
 
@@ -230,3 +230,223 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
     await fixture.cleanup();
   }
 });
+
+type Caller = Awaited<ReturnType<typeof callerFor>>;
+
+/** Replies to `parentId`, then to that reply, and so on: one level per caller. */
+const replyChain = async (parentId: string, repliers: Caller[]) => {
+  const ids: string[] = [];
+  let replyTo = parentId;
+  for (const replier of repliers) {
+    const { post: reply } = await replier.post.createPost({
+      content: `A reply ${ids.length + 1} deep`,
+      parentId: replyTo,
+    });
+    assert.ok(reply);
+    ids.push(reply.id);
+    replyTo = reply.id;
+  }
+  return ids;
+};
+
+/** Every row that hangs off these posts, by table. */
+const rowsOn = async (postIds: string[]) => {
+  const [posts, likes, flags, notifications] = await Promise.all([
+    db.select({ id: post.id }).from(post).where(inArray(post.id, postIds)),
+    db.select().from(like).where(inArray(like.postId, postIds)),
+    db.select().from(flag).where(inArray(flag.postId, postIds)),
+    db
+      .select({ id: notification.id })
+      .from(notification)
+      .where(or(inArray(notification.postId, postIds), inArray(notification.commentId, postIds))),
+  ]);
+  return {
+    flags: flags.length,
+    likes: likes.length,
+    notifications: notifications.length,
+    posts: posts.length,
+  };
+};
+
+/** A registered third user, whose flags count, plus a letter of their own. */
+const createReader = async () => {
+  const readerId = randomUUID();
+  const readerPostId = randomUUID();
+  await db
+    .insert(user)
+    .values({ displayName: "Reader", email: `${readerId}@example.com`, id: readerId });
+  await db.insert(post).values({
+    content: "A letter by a reader",
+    createdBy: "Reader",
+    id: readerPostId,
+    updatedAt: new Date().toISOString(),
+    userId: readerId,
+  });
+
+  const cleanup = async () => {
+    await db.delete(post).where(eq(post.userId, readerId));
+    await db.delete(like).where(eq(like.userId, readerId));
+    await db.delete(flag).where(eq(flag.userId, readerId));
+    await db.delete(block).where(or(eq(block.blockerId, readerId), eq(block.blockingId, readerId)));
+    await db.delete(user).where(eq(user.id, readerId));
+  };
+
+  return { cleanup, readerCaller: await callerFor(readerId), readerId, readerPostId };
+};
+
+integrationTest("deletePost takes a 3-deep reply thread and every row under it", async () => {
+  const fixture = await createFixture();
+  const reader = await createReader();
+  try {
+    // A letter outside the thread, with a like, a flag and a reply of its own.
+    await fixture.flaggerCaller.like.createLike({ postId: reader.readerPostId });
+    await fixture.flaggerCaller.flag.createFlag({ postId: reader.readerPostId });
+    await fixture.ownerCaller.post.createPost({
+      content: "A reply outside the thread",
+      parentId: reader.readerPostId,
+    });
+    const bystanderBefore = await counters(reader.readerPostId);
+    const bystanderRowsBefore = await rowsOn([reader.readerPostId]);
+
+    // Each level has a different author, so the cascade crosses owners.
+    const threadIds = [
+      fixture.rootId,
+      ...(await replyChain(fixture.rootId, [
+        fixture.flaggerCaller,
+        reader.readerCaller,
+        fixture.ownerCaller,
+      ])),
+    ];
+    for (const postId of threadIds) {
+      await fixture.flaggerCaller.like.createLike({ postId });
+      await reader.readerCaller.like.createLike({ postId });
+      await fixture.flaggerCaller.flag.createFlag({ postId });
+      await reader.readerCaller.flag.createFlag({ postId });
+    }
+    assert.deepEqual(await rowsOn(threadIds), { flags: 8, likes: 8, notifications: 3, posts: 4 });
+    await assertNoDrift("before thread delete");
+
+    assert.deepEqual(await fixture.ownerCaller.post.deletePost({ postId: fixture.rootId }), {
+      post: { id: fixture.rootId },
+    });
+
+    assert.deepEqual(await rowsOn(threadIds), { flags: 0, likes: 0, notifications: 0, posts: 0 });
+    assert.deepEqual(await counters(reader.readerPostId), bystanderBefore);
+    assert.deepEqual(await rowsOn([reader.readerPostId]), bystanderRowsBefore);
+    await assertNoDrift("thread delete");
+  } finally {
+    await reader.cleanup();
+    await fixture.cleanup();
+  }
+});
+
+integrationTest("deleting a reply takes only its subtree", async () => {
+  const fixture = await createFixture();
+  try {
+    await fixture.ownerCaller.like.createLike({ postId: fixture.rootId });
+    const [replyId, ...below] = await replyChain(fixture.rootId, [
+      fixture.flaggerCaller,
+      fixture.ownerCaller,
+      fixture.flaggerCaller,
+    ]);
+    assert.ok(replyId);
+    for (const postId of [replyId, ...below]) {
+      await fixture.ownerCaller.like.createLike({ postId });
+    }
+
+    await fixture.flaggerCaller.post.deletePost({ postId: replyId });
+
+    assert.deepEqual(await rowsOn([replyId, ...below]), {
+      flags: 0,
+      likes: 0,
+      notifications: 0,
+      posts: 0,
+    });
+    assert.deepEqual(await counters(fixture.rootId), {
+      commentCount: 0,
+      flagCount: 0,
+      likeCount: 1,
+    });
+    await assertNoDrift("reply delete");
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+integrationTest(
+  "deleteUser takes their threads, blocks and tokens, and no one else's",
+  async () => {
+    const fixture = await createFixture();
+    const reader = await createReader();
+    const leaverId = fixture.flaggerId;
+    const leaver = fixture.flaggerCaller;
+    try {
+      // The leaver's own letter, with a thread that interleaves them and others.
+      const { post: letter } = await leaver.post.createPost({ content: "A letter that leaves" });
+      assert.ok(letter);
+      const letterThread = [
+        letter.id,
+        ...(await replyChain(letter.id, [fixture.ownerCaller, leaver, reader.readerCaller])),
+      ];
+      // A comment on someone else's letter, answered by a third user.
+      const commentThread = await replyChain(fixture.rootId, [leaver, reader.readerCaller]);
+      const leavingIds = [...letterThread, ...commentThread];
+      for (const postId of leavingIds) {
+        await fixture.ownerCaller.like.createLike({ postId });
+        await reader.readerCaller.flag.createFlag({ postId });
+      }
+      await leaver.like.createLike({ postId: fixture.rootId });
+      await leaver.flag.createFlag({ postId: fixture.rootId });
+      await leaver.like.createLike({ postId: reader.readerPostId });
+      await leaver.block.createBlock({ blockingId: reader.readerId });
+      await fixture.ownerCaller.block.createBlock({ blockingId: leaverId });
+      await db
+        .insert(token)
+        .values({ token: randomUUID(), type: "RESET_PASSWORD", userId: leaverId });
+
+      await runWithoutCookieScope(() => leaver.user.deleteUser());
+
+      const [leaverRows, blocks, tokens, survivors] = await Promise.all([
+        db.select({ id: user.id }).from(user).where(eq(user.id, leaverId)),
+        db
+          .select()
+          .from(block)
+          .where(or(eq(block.blockerId, leaverId), eq(block.blockingId, leaverId))),
+        db.select({ id: token.id }).from(token).where(eq(token.userId, leaverId)),
+        db
+          .select({ id: user.id })
+          .from(user)
+          .where(inArray(user.id, [fixture.ownerId, reader.readerId])),
+      ]);
+      assert.deepEqual(
+        {
+          blocks: blocks.length,
+          leaver: leaverRows.length,
+          survivors: survivors.length,
+          tokens: tokens.length,
+        },
+        { blocks: 0, leaver: 0, survivors: 2, tokens: 0 },
+      );
+      assert.deepEqual(await rowsOn(leavingIds), {
+        flags: 0,
+        likes: 0,
+        notifications: 0,
+        posts: 0,
+      });
+      assert.deepEqual(await counters(fixture.rootId), {
+        commentCount: 0,
+        flagCount: 0,
+        likeCount: 0,
+      });
+      assert.deepEqual(await counters(reader.readerPostId), {
+        commentCount: 0,
+        flagCount: 0,
+        likeCount: 0,
+      });
+      await assertNoDrift("deleteUser thread cascade");
+    } finally {
+      await reader.cleanup();
+      await fixture.cleanup();
+    }
+  },
+);

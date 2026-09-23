@@ -14,9 +14,9 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.user({ from: r.account.userId, to: r.user.id }),
   },
   block: {
-    /** `optional: false` on both: the FKs are NOT NULL and `ON DELETE RESTRICT`,
-        so the user row always exists, and `listBlocks` reads it without a guard
-        — exactly the type the non-null FK gave these relations before 1.0. */
+    /** `optional: false` on both: the FKs are NOT NULL, so the user row always
+        exists whatever their ON DELETE action, and `listBlocks` reads it without
+        a guard — exactly the type the non-null FK gave these relations before 1.0. */
     user_blockerId: r.one.user({
       alias: "block_blockerId_user_id",
       from: r.block.blockerId,
