@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { serverTimestamp } from "./content.ts";
+
 /** Push payload. The API sends it and every client routes a tapped
     notification by it, so a renamed key here silently breaks deep-opening
     the letter. */
@@ -20,10 +22,15 @@ export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /** Bounded like the feed: both clients page in small batches. */
 export const NOTIFICATION_PAGE_SIZE = 20;
 
+/** `unreadCount` stops counting here. Every client only asks whether it is zero,
+    and a popular author's unread backlog would otherwise be recounted, row by
+    row, on every poll. */
+export const UNREAD_COUNT_CAP = 100;
+
 export const listNotificationsInput = z.object({
   cursor: z
     .object({
-      createdAt: z.string(),
+      createdAt: serverTimestamp,
       notificationId: z.string().min(1),
     })
     .optional(),

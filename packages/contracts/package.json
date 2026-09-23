@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "test": "tsc -p tsconfig.test.json && tsx --test --test-reporter=spec 'src/**/*.test.ts'",
+    "test": "tsx --test --test-reporter=spec 'src/**/*.test.ts'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
