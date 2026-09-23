@@ -45,7 +45,14 @@ packages/
   ui/          # shadcn-ui components (web only)
 ```
 
-**oRPC routers are contract-first**: an `oc` contract in `packages/contracts/src/<router>-contract.ts` (outputs as `type<T>()`, which adds no runtime validation), implemented in `packages/api` with `implement()`, `requireUser` applied on the implementer and never on a procedure; `post` is the reference, and Expo drops `@repo/api` once every router is converted.
+**oRPC routers are going contract-first.** A router's wire shape is an `oc` contract in
+`packages/contracts/src/<router>-contract.ts`, implemented in `packages/api` with
+`implement()`. Only `post` is converted so far and it is the reference; the rest still use
+the builder until each gets its own PR, and a new router starts contract-first. Outputs are
+`type<T>()`: compile-time only, no runtime validation. Apply `requireUser` on the
+implementer (`os.use(requireUser).deletePost`), never on the procedure: there it runs after
+input validation and an anonymous malformed call answers 400, not 401. Expo drops
+`@repo/api` once every router is converted.
 
 ## Commands
 
