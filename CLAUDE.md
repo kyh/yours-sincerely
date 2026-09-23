@@ -266,8 +266,9 @@ disconnected from the current brand; a database schema rewrite.
   `apps/expo/src/release-pins.test.ts` fails when they drift.
 - **Every env var `next build` reads must be in `build.env` in `turbo.json`.** Turbo's
   strict env mode strips undeclared system variables, and Vercel supplies env as system
-  variables, so a missing entry breaks the Vercel build while `.env` (loaded inside the
-  task by `dotenv`) keeps it green locally. The build loads `packages/api` at module level:
+  variables; `.env` (loaded inside the task by `dotenv`) hides the gap locally. A missing
+  `COOKIE_SECRET` or `POSTGRES_URL` fails the Vercel build; a missing optional var builds
+  silently without it, outside the cache key. The build loads `packages/api` at module level:
   `COOKIE_SECRET`, `COOKIE_SECRET_LEGACY` (`auth/session.ts`), `POSTGRES_URL`
   (`db/src/drizzle-client.ts`), `RESEND_API_KEY`, `RESET_LINK_ORIGIN` (`env.ts`). Do not move them
   back to `globalEnv`: there they bust every typecheck and test cache.
