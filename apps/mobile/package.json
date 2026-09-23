@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "android": "cap run android --forwardPorts 3000:3000",
-    "ios": "cap run ios --target=BFD366C0-71DF-440A-AA5C-E9FBC541160D",
+    "ios": "cap run ios",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {

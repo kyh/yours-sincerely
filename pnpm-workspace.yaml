@@ -66,37 +66,3 @@ allowBuilds:
 overrides:
   lightningcss: "1.30.1"
   lucide-react: "catalog:"
-
-minimumReleaseAgeExclude:
-  - expo-blur@57.0.3
-  - "@expo/cli@57.0.24"
-  - "@expo/fingerprint@0.20.13"
-  - "@expo/prebuild-config@57.0.16"
-  - expo-asset@57.0.17
-  - expo-constants@57.0.18
-  - expo-file-system@57.0.7
-  - expo-font@57.0.4
-  - expo-keep-awake@57.0.2
-  - expo-modules-autolinking@57.0.13
-  - expo-modules-core@57.0.18
-  - expo@57.0.22
-  - "@expo/ui@57.0.18"
-  - expo-application@57.0.3
-  - expo-clipboard@57.0.2
-  - expo-dev-client@57.0.19
-  - expo-dev-launcher@57.0.20
-  - expo-device@57.0.2
-  - expo-glass-effect@57.0.3
-  - expo-haptics@57.0.3
-  - expo-image@57.0.5
-  - expo-json-utils@57.0.2
-  - expo-linking@57.0.10
-  - expo-manifests@57.0.2
-  - expo-network@57.0.2
-  - expo-notifications@57.0.18
-  - expo-router@57.0.21
-  - expo-secure-store@57.0.4
-  - expo-splash-screen@57.0.9
-  - expo-symbols@57.0.3
-  - expo-system-ui@57.0.4
-  - expo-updates-interface@57.0.2
