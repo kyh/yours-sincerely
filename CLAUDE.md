@@ -96,6 +96,15 @@ it — production stays interactive.
 classes as data loss, and applies everything else — `DISABLE ROW LEVEL SECURITY`, index and
 constraint recreates — without asking. No stdin, no apply.
 
+**Order schema changes against the Vercel deploy so any build you might roll back to still
+runs.** Schema that new code needs (a column it writes, an FK cascade it relies on) lands
+_before_ the deploy. Schema that old code still names goes only _after_ production serves
+code that no longer uses it. A column stays declared until no build inside the rollback
+window declares it: drizzle names every declared column in each INSERT and each whole-row
+SELECT, so a rollback onto a dropped column fails every anonymous write and, in a build that
+loads the whole `User` row per request, every route. Verified on a scratch database. A table
+that old code names in one query can go sooner, if the PR's rollback steps recreate it.
+
 **Lock-heavy DDL on a live table runs by hand first, so `push:remote` plans none of it.**
 Supavisor drops the `lock_timeout` that `drizzle.config.ts` asks for, so push's own
 `ALTER`/`DROP` queues behind one slow reader and stalls every query behind it. Wrap the

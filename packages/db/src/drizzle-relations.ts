@@ -10,9 +10,6 @@ import * as schema from "./drizzle-schema";
     `alias` pairs each `one` with its reverse `many`, and the `many` also spells
     its `from`/`to` so nothing is left to inference. */
 export const relations = defineRelations(schema, (r) => ({
-  account: {
-    user: r.one.user({ from: r.account.userId, to: r.user.id }),
-  },
   block: {
     /** `optional: false` on both: the FKs are NOT NULL, so the user row always
         exists whatever their ON DELETE action, and `listBlocks` reads it without
@@ -29,9 +26,6 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
       to: r.user.id,
     }),
-  },
-  enrolledEvent: {
-    user: r.one.user({ from: r.enrolledEvent.userId, to: r.user.id }),
   },
   flag: {
     post: r.one.post({ from: r.flag.postId, to: r.post.id }),
@@ -78,7 +72,6 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.user({ from: r.token.userId, to: r.user.id }),
   },
   user: {
-    accounts: r.many.account(),
     blocks_blockerId: r.many.block({
       alias: "block_blockerId_user_id",
       from: r.user.id,
@@ -89,7 +82,6 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.user.id,
       to: r.block.blockingId,
     }),
-    enrolledEvents: r.many.enrolledEvent(),
     flags: r.many.flag(),
     likes: r.many.like(),
     notifications: r.many.notification(),

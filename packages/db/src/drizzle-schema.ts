@@ -25,11 +25,6 @@ export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
 export const notificationKind = pgEnum("NotificationKind", ["COMMENT"]);
 export const pushPlatform = pgEnum("PushPlatform", ["ios", "android"]);
 
-export const prompt = pgTable("Prompt", {
-  content: text().notNull(),
-  id: text().primaryKey().notNull(),
-});
-
 export const user = pgTable(
   "User",
   {
@@ -40,6 +35,9 @@ export const user = pgTable(
     displayImage: text(),
     displayName: text(),
     email: text(),
+    /** Nothing reads or writes it. It stays until no build inside the rollback window
+        declares it: those builds name it in every `User` INSERT, and some in the
+        per-request session lookup, so dropping it early turns a rollback into an outage. */
     emailVerified: timestamp({ mode: "string", precision: 3 }),
     id: text()
       .primaryKey()
@@ -56,54 +54,6 @@ export const user = pgTable(
   },
   (table) => [
     uniqueIndex("User_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
-  ],
-);
-
-export const account = pgTable(
-  "Account",
-  {
-    accessToken: text(),
-    expiresAt: integer(),
-    id: text().primaryKey().notNull(),
-    provider: text().notNull(),
-    providerAccountId: text().notNull(),
-    refreshToken: text(),
-    userId: text().notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [user.id],
-      name: "Account_userId_fkey",
-    }),
-    uniqueIndex("Account_provider_providerAccountId_key").using(
-      "btree",
-      table.provider.asc().nullsLast().op("text_ops"),
-      table.providerAccountId.asc().nullsLast().op("text_ops"),
-    ),
-    index("Account_userId_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
-  ],
-);
-
-export const enrolledEvent = pgTable(
-  "EnrolledEvent",
-  {
-    end: timestamp({ mode: "string", precision: 3 }).notNull(),
-    id: text().primaryKey().notNull(),
-    name: text().notNull(),
-    slug: text().notNull(),
-    start: timestamp({ mode: "string", precision: 3 })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    userId: text().notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [user.id],
-      name: "EnrolledEvent_userId_fkey",
-    }),
-    index("EnrolledEvent_userId_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
   ],
 );
 

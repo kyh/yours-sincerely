@@ -1,14 +1,5 @@
 import { eq, or, sql } from "@repo/db";
-import {
-  account,
-  block,
-  enrolledEvent,
-  flag,
-  like,
-  post,
-  token,
-  user,
-} from "@repo/db/drizzle-schema";
+import { block, flag, like, post, token, user } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";
 
 import { clearSession } from "../auth/session";
@@ -32,8 +23,6 @@ export const userRouter = {
       await tx.delete(like).where(eq(like.userId, userId));
       await tx.delete(flag).where(eq(flag.userId, userId));
       await tx.delete(token).where(eq(token.userId, userId));
-      await tx.delete(account).where(eq(account.userId, userId));
-      await tx.delete(enrolledEvent).where(eq(enrolledEvent.userId, userId));
       await tx.delete(block).where(or(eq(block.blockerId, userId), eq(block.blockingId, userId)));
       await tx.delete(user).where(eq(user.id, userId));
     });
