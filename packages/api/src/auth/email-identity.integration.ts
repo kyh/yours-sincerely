@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { after, test } from "node:test";
-import { setTimeout as delay } from "node:timers/promises";
 
 import { eq, inArray, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
@@ -25,8 +22,6 @@ import { findSessionUser } from "./session-user";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
-const RECONCILE_SQL = path.join(import.meta.dirname, "../../../db/sql/080-reconcile.sql");
-
 after(async () => {
   await db.$client.end();
 });
@@ -34,16 +29,11 @@ after(async () => {
 const PASSWORD = "the-password-123";
 const OTHER_PASSWORD = "a-different-password-456";
 
-/** The whole file, as a push applies it: many statements, simple protocol. */
-const runReconcile = async () => {
-  await db.$client.unsafe(await readFile(RECONCILE_SQL, "utf-8")).simple();
-};
-
 /** A unique address in the given casing, e.g. `Kai-<uuid>@Example.com`. */
 const addressFor = (name: string) => `${name}-${randomUUID()}@Example.com`;
 
-/** Seeds accounts the way pre-normalization writes left them: the address
-    exactly as typed, with a working password. */
+/** Seeds accounts with each address stored exactly as given and a working
+    password: what every earlier deploy's sign-up left behind. */
 const seedAccounts = async (accounts: readonly { email: string; password?: string }[]) => {
   const ids = accounts.map(() => randomUUID());
   await db.insert(user).values(
@@ -86,6 +76,12 @@ const idsHoldingAddress = async (address: string) => {
   return rows.map((row) => row.id);
 };
 
+/** The only lookup a deploy rolled back past this code has: exact match. */
+const idsAnExactLookupFinds = async (address: string) => {
+  const rows = await db.select({ id: user.id }).from(user).where(eq(user.email, address));
+  return rows.map((row) => row.id);
+};
+
 /** Delivers nothing; records who each link went to. */
 const capturingSender = () => {
   const delivered: ResetEmail[] = [];
@@ -110,27 +106,31 @@ const resetLinkOwners = async (userIds: string[]) => {
   return rows.map((row) => row.userId);
 };
 
-integrationTest("a mixed-case sign-up is stored lowercase and signs in in any case", async () => {
-  const typed = addressFor("MiXeD");
-  const outcome = await runWithoutCookieScope(() =>
-    createCaller(null).auth.signUp({ email: ` ${typed} `, password: PASSWORD }),
-  );
-  assert.equal(outcome, "reached-cookie-write");
+integrationTest(
+  "a sign-up keeps its casing, so a rolled-back exact lookup still finds it",
+  async () => {
+    const typed = addressFor("MiXeD");
+    const outcome = await runWithoutCookieScope(() =>
+      createCaller(null).auth.signUp({ email: ` ${typed} `, password: PASSWORD }),
+    );
+    assert.equal(outcome, "reached-cookie-write");
 
-  const [userId, ...others] = await idsHoldingAddress(typed);
-  assert.ok(userId);
-  assert.deepEqual(others, []);
-  try {
-    assert.equal(await storedEmail(userId), typed.toLowerCase());
+    const [userId, ...others] = await idsHoldingAddress(typed);
+    assert.ok(userId);
+    assert.deepEqual(others, []);
+    try {
+      assert.equal(await storedEmail(userId), typed);
+      assert.deepEqual(await idsAnExactLookupFinds(typed), [userId]);
 
-    assert.equal(await signIn(typed.toLowerCase()), "reached-cookie-write");
-    assert.equal(await signIn(typed.toUpperCase()), "reached-cookie-write");
-    assert.equal(await signIn(typed), "reached-cookie-write");
-    await assert.rejects(signIn(typed.toLowerCase(), OTHER_PASSWORD), INVALID_CREDENTIALS);
-  } finally {
-    await db.delete(user).where(eq(user.id, userId));
-  }
-});
+      assert.equal(await signIn(typed), "reached-cookie-write");
+      assert.equal(await signIn(typed.toLowerCase()), "reached-cookie-write");
+      assert.equal(await signIn(typed.toUpperCase()), "reached-cookie-write");
+      await assert.rejects(signIn(typed.toLowerCase(), OTHER_PASSWORD), INVALID_CREDENTIALS);
+    } finally {
+      await db.delete(user).where(eq(user.id, userId));
+    }
+  },
+);
 
 integrationTest(
   "a legacy mixed-case account signs in with its own casing and any other",
@@ -227,7 +227,7 @@ integrationTest("sign-up cannot create an account that differs from one only in 
   }
 });
 
-integrationTest("updateUser stores lowercase and refuses another account's address", async () => {
+integrationTest("updateUser keeps the casing typed and refuses another's address", async () => {
   const mine = addressFor("Mine");
   const theirs = addressFor("Theirs");
   const fixture = await seedAccounts([{ email: mine }, { email: theirs }]);
@@ -239,8 +239,10 @@ integrationTest("updateUser stores lowercase and refuses another account's addre
     await assert.rejects(me.user.updateUser({ email: theirs.toLowerCase() }), CONFLICT);
     assert.equal(await storedEmail(myId), mine);
 
-    const { user: updated } = await me.user.updateUser({ email: mine.toUpperCase() });
-    assert.equal(updated?.email, mine.toLowerCase(), "re-casing your own address is allowed");
+    const recased = mine.toUpperCase();
+    const { user: updated } = await me.user.updateUser({ email: ` ${recased} ` });
+    assert.equal(updated?.email, recased, "re-casing your own address is allowed");
+    assert.deepEqual(await idsAnExactLookupFinds(recased), [myId]);
   } finally {
     await fixture.cleanup();
   }
@@ -266,122 +268,33 @@ const workspaceOf = async (userId: string) => {
 };
 
 integrationTest(
-  "signed-in users stay signed in, with the same workspace, across the backfill",
+  "case-insensitive sign-in and reset leave every existing session alone",
   async () => {
-    const mixed = addressFor("Signed-In");
-    const clean = addressFor("clean").toLowerCase();
-    const fixture = await seedAccounts([{ email: mixed }, { email: clean }]);
-    const [mixedId, cleanId] = fixture.ids;
-    assert.ok(mixedId);
-    assert.ok(cleanId);
+    const legacy = addressFor("Signed-In");
+    const fixture = await seedAccounts([{ email: legacy }]);
+    const [userId] = fixture.ids;
+    assert.ok(userId);
     try {
-      const cookies = [mixedId, cleanId].map((userId) => ({
-        current: signSession(encodeSessionPayload(userId, NOW_SECONDS, 0), SESSION_KEY),
-        // What pre-revocation `setSession` minted, still live in browsers and the
-        // Expo app's SecureStore: no `epoch` at all.
-        epochless: signSession(
-          Buffer.from(JSON.stringify({ iat: NOW_SECONDS, user: userId })).toString("base64"),
-          SESSION_KEY,
-        ),
-        userId,
-      }));
-      const before = { clean: await workspaceOf(cleanId), mixed: await workspaceOf(mixedId) };
+      const current = signSession(encodeSessionPayload(userId, NOW_SECONDS, 0), SESSION_KEY);
+      // What pre-revocation `setSession` minted, still live in browsers and the
+      // Expo app's SecureStore: no `epoch` at all.
+      const epochless = signSession(
+        Buffer.from(JSON.stringify({ iat: NOW_SECONDS, user: userId })).toString("base64"),
+        SESSION_KEY,
+      );
+      const before = await workspaceOf(userId);
 
-      await runReconcile();
+      assert.equal(await signIn(legacy.toLowerCase()), "reached-cookie-write");
+      await assert.rejects(signIn(legacy.toUpperCase(), OTHER_PASSWORD), INVALID_CREDENTIALS);
+      assert.deepEqual(await requestReset(legacy.toUpperCase()), [legacy]);
 
-      for (const cookie of cookies) {
-        assert.equal(await authenticatedId(cookie.current), cookie.userId);
-        assert.equal(await authenticatedId(cookie.epochless), cookie.userId);
-        const sessionUser = await findDbUser(cookie.userId);
-        assert.equal(sessionUser?.sessionEpoch, 0, "no session was revoked");
-      }
-      assert.deepEqual(await workspaceOf(cleanId), before.clean);
-      assert.deepEqual(await workspaceOf(mixedId), { ...before.mixed, email: mixed.toLowerCase() });
-
-      assert.equal(await signIn(mixed), "reached-cookie-write", "the old casing still signs in");
+      assert.equal(await authenticatedId(current), userId);
+      assert.equal(await authenticatedId(epochless), userId);
+      const sessionUser = await findDbUser(userId);
+      assert.equal(sessionUser?.sessionEpoch, 0, "no session was revoked");
+      assert.deepEqual(await workspaceOf(userId), before);
     } finally {
       await fixture.cleanup();
     }
   },
 );
-
-integrationTest(
-  "the backfill normalizes lone rows, skips case-twins, and re-runs clean",
-  async () => {
-    const lone = addressFor("Lone");
-    const padded = addressFor("Padded");
-    const twin = addressFor("Twin");
-    const fixture = await seedAccounts([
-      { email: lone },
-      { email: ` ${padded} ` },
-      { email: twin },
-      { email: twin.toLowerCase() },
-    ]);
-    const [loneId, paddedId, twinId, twinLowerId] = fixture.ids;
-    assert.ok(loneId);
-    assert.ok(paddedId);
-    assert.ok(twinId);
-    assert.ok(twinLowerId);
-    try {
-      await runReconcile();
-
-      assert.equal(await storedEmail(loneId), lone.toLowerCase());
-      assert.equal(await storedEmail(paddedId), padded.toLowerCase());
-      assert.equal(await storedEmail(twinId), twin, "a collision is left for a person to merge");
-      assert.equal(await storedEmail(twinLowerId), twin.toLowerCase());
-
-      await runReconcile();
-      assert.equal(await storedEmail(loneId), lone.toLowerCase());
-      assert.equal(await storedEmail(twinId), twin);
-
-      assert.equal(await signIn(padded), "reached-cookie-write");
-      assert.equal(await signIn(twin), "reached-cookie-write");
-    } finally {
-      await fixture.cleanup();
-    }
-  },
-);
-
-/** Resolves once some backend in this database is blocked on a lock. */
-const waitForLockWait = async () => {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
-    const [row] = await db.execute<{ waiting: number }>(
-      sql`SELECT count(*)::int AS waiting FROM pg_stat_activity
-          WHERE datname = current_database() AND wait_event_type = 'Lock'`,
-    );
-    if ((row?.waiting ?? 0) > 0) {
-      return;
-    }
-    await delay(50);
-  }
-  assert.fail("the backfill never blocked on the racing sign-up");
-};
-
-integrationTest("a sign-up racing the backfill cannot fail the push", async () => {
-  const racer = addressFor("Racer");
-  const fixture = await seedAccounts([{ email: racer }]);
-  const [racerId] = fixture.ids;
-  assert.ok(racerId);
-  const lateId = randomUUID();
-  try {
-    // Holds the lowercase address uncommitted until the backfill has read the
-    // table and is blocked on it: exactly the window its collision skip misses.
-    const lateSignUp = await db.$client.reserve();
-    try {
-      await lateSignUp`BEGIN`;
-      await lateSignUp`INSERT INTO public."User" (id, email, "displayName")
-                       VALUES (${lateId}, ${racer.toLowerCase()}, 'Late')`;
-      const reconcile = runReconcile();
-      await waitForLockWait();
-      await lateSignUp`COMMIT`;
-      await reconcile;
-    } finally {
-      lateSignUp.release();
-    }
-
-    assert.equal(await storedEmail(racerId), racer, "the raced row is left as it was");
-  } finally {
-    await db.delete(user).where(eq(user.id, lateId));
-    await fixture.cleanup();
-  }
-});
