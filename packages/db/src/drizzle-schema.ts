@@ -54,6 +54,10 @@ export const user = pgTable(
   },
   (table) => [
     uniqueIndex("User_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
+    /** Backs the case-insensitive email lookup. Not unique: accounts that differ
+        only in case predate normalization and are left for a person to merge
+        (`sql/080-reconcile.sql` counts them). */
+    index("User_email_lower_idx").using("btree", sql`lower(${table.email})`),
   ],
 );
 

@@ -51,6 +51,19 @@ test("every schema rejects a malformed email", () => {
   }
 });
 
+test("an email being stored is trimmed and lowercased", () => {
+  const typed = { email: " MiXeD@Example.com ", password: "a-long-password" };
+
+  assert.equal(signUpInput.parse(typed).email, "mixed@example.com");
+});
+
+test("an email being looked up is trimmed but keeps its case", () => {
+  const typed = { email: " MiXeD@Example.com ", password: "a-long-password" };
+
+  assert.equal(signInWithPasswordInput.parse(typed).email, "MiXeD@Example.com");
+  assert.equal(requestPasswordResetInput.parse(typed).email, "MiXeD@Example.com");
+});
+
 test("a reset password follows the sign-up rule", () => {
   assert.equal(setPasswordInput.safeParse({ password: sevenChars, token: "t" }).success, false);
   assert.equal(

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { newEmail } from "./auth.ts";
 import { MAX_DISPLAY_NAME_LENGTH } from "./post.ts";
 
 export const ANONYMOUS_DISPLAY_NAME = "Anonymous";
@@ -17,7 +18,7 @@ export const resolveDisplayName = (name?: string | null) => name || ANONYMOUS_DI
 export const updateUserInput = z
   .object({
     displayName: z.string().trim().min(1).max(MAX_DISPLAY_NAME_LENGTH).optional(),
-    email: z.email().optional(),
+    email: newEmail.optional(),
   })
   .refine((input) => input.email !== undefined || input.displayName !== undefined, {
     message: "At least one profile field is required",

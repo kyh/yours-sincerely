@@ -29,3 +29,10 @@ test("updateUserInput caps a display name at MAX_DISPLAY_NAME_LENGTH", () => {
 test("updateUserInput rejects a display name that trims to nothing", () => {
   assert.equal(updateUserInput.safeParse({ displayName: "   " }).success, false);
 });
+
+test("updateUserInput stores an email trimmed and lowercased", () => {
+  assert.deepEqual(updateUserInput.parse({ email: " MiXeD@Example.com " }), {
+    email: "mixed@example.com",
+  });
+  assert.equal(updateUserInput.safeParse({ email: "not-an-email" }).success, false);
+});

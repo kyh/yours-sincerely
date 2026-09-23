@@ -72,7 +72,7 @@ this file. Before trusting an index definition there, diff
 | `040-user-stats.sql`             | `getUserStats(text)`                                            |
 | `070-legacy-password-rescue.sql` | Un-strands the accounts orphaned by the 2026-03-10 auth cutover |
 | `075-retire-legacy-auth.sql`     | Drops the dead Supabase Auth wiring — after `070` has used it   |
-| `080-reconcile.sql`              | Backfill of unjudged flags + absolute recompute of the counters |
+| `080-reconcile.sql`              | Unjudged flags, counter recompute, email normalization          |
 | `085-triggers.sql`               | Every trigger — blocks writers until COMMIT, so it runs late    |
 | `090-views.sql`                  | The `Feed` view — **must stay last**                            |
 

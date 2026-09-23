@@ -1,7 +1,8 @@
 -- The only file here that touches data. It runs on EVERY push, so every statement
 -- is written to be a no-op once the database is already correct.
 --
--- Two jobs: judge flags that have never been judged, and repair counter drift.
+-- Three jobs: judge flags that have never been judged, repair counter drift, and
+-- normalize emails.
 
 ---------------------------------------------------------------------------------
 -- 1. Judge unjudged flags.
@@ -87,5 +88,68 @@ BEGIN
   IF repaired > 0 THEN
     RAISE NOTICE 'reconcile: repaired counters on % post(s)', repaired;
   END IF;
+END
+$$;
+
+---------------------------------------------------------------------------------
+-- 3. Normalize emails.
+---------------------------------------------------------------------------------
+-- Every write stores `lower(btrim(email))` (`newEmail` in
+-- `packages/contracts/src/auth.ts`); this brings the rest of the table into that
+-- shape. The marker is the row itself: a normalized row no longer matches, so a
+-- clean table updates nothing.
+--
+-- What keeps this from locking anyone out is the lookup, not this file:
+-- `findUserByEmail` (`packages/api/src/auth/email-identity.ts`) falls back to
+-- `lower(email)`, so a row normalized here still answers to the casing its owner
+-- signed up with. Against an exact-match-only lookup, this would lock them out.
+--
+-- A row whose normalized address another row shares is SKIPPED, never merged.
+-- Which account keeps the address is a person's call, and rewriting either one
+-- would trip `User_email_key`, fail this transaction and block every deploy.
+-- Each keeps signing in with its own exact casing; the notice counts them until
+-- someone merges them. The handler covers what the skip cannot see: a sign-up
+-- committing the same address mid-run. It undoes this step only, and the next
+-- push retries it.
+DO $$
+DECLARE
+  normalized integer;
+  shared integer;
+BEGIN
+  WITH shared_address AS (
+    SELECT lower(btrim(email)) AS address
+    FROM public."User"
+    WHERE email IS NOT NULL
+    GROUP BY 1
+    HAVING COUNT(*) > 1
+  )
+  UPDATE public."User" u
+  SET email = lower(btrim(u.email))
+  WHERE u.email IS DISTINCT FROM lower(btrim(u.email))
+    AND NOT EXISTS (
+      SELECT 1 FROM shared_address s WHERE s.address = lower(btrim(u.email))
+    );
+
+  GET DIAGNOSTICS normalized = ROW_COUNT;
+
+  IF normalized > 0 THEN
+    RAISE NOTICE 'reconcile: normalized % email(s)', normalized;
+  END IF;
+
+  SELECT COUNT(*) INTO shared
+  FROM (
+    SELECT 1
+    FROM public."User"
+    WHERE email IS NOT NULL
+    GROUP BY lower(btrim(email))
+    HAVING COUNT(*) > 1
+  ) collisions;
+
+  IF shared > 0 THEN
+    RAISE NOTICE 'reconcile: % email address(es) held by more than one account, left unnormalized', shared;
+  END IF;
+EXCEPTION
+  WHEN unique_violation THEN
+    RAISE NOTICE 'reconcile: email normalization raced a sign-up, skipped until the next push';
 END
 $$;
