@@ -310,6 +310,11 @@ export const like = pgTable(
       name: "Like_userId_fkey",
     }),
     index("Like_postId_idx").using("btree", table.postId.asc().nullsLast().op("text_ops")),
+    index("Like_postId_userId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
     index("Like_userId_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
   ],
 );
@@ -371,6 +376,11 @@ export const flag = pgTable(
       name: "Flag_userId_fkey",
     }),
     index("Flag_postId_idx").using("btree", table.postId.asc().nullsLast().op("text_ops")),
+    index("Flag_postId_userId_idx").using(
+      "btree",
+      table.postId.asc().nullsLast().op("text_ops"),
+      table.userId.asc().nullsLast().op("text_ops"),
+    ),
     index("Flag_userId_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
   ],
 );

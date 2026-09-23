@@ -60,9 +60,9 @@ local default.
 
 Every other key in `.env.example` may stay empty. A missing one disables its feature rather
 than crashing boot: no `RESEND_API_KEY` means `auth.requestPasswordReset` returns
-`PRECONDITION_FAILED` instead of sending mail. `APP_URL` is the exception: empty means the
-production origin, so emailed links from a local or preview deploy open production unless
-it is set. Notifications need no key at all — the feed
+`PRECONDITION_FAILED` instead of sending mail. `RESET_LINK_ORIGIN` is the exception: empty (or
+malformed) means the production origin, so emailed links from a local or preview deploy open
+production unless it is set. Notifications need no key at all — the feed
 is the `Notification` table and push goes through Expo's service unauthenticated.
 
 ## Login

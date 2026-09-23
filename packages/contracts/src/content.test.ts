@@ -125,6 +125,7 @@ test("serverTimestamp accepts every shape Postgres prints for a timestamp(3)", (
     "2026-07-09T18:23:45.123Z",
     "2026-07-09T18:23:45.123+09:00",
     "2026-07-09T18:23:45-15:59",
+    "2026-07-09 18:23:45.123+00",
   ]) {
     assert.equal(serverTimestamp.safeParse(value).success, true, value);
   }

@@ -25,18 +25,17 @@ const insertLike = async (context: ORPCContext, postId: string, userId: string) 
 /** Read after the write, once the counter trigger has run, so a client can
     write the server's own number into its cache instead of refetching every
     feed page it has loaded. The total is the Feed view's: seeded offset plus
-    real likes. */
+    real likes. Undefined when the letter is gone: unliking a deleted letter
+    succeeds as it always has, and clients fall back to a refetch. */
 const readLikeState = async (context: ORPCContext, postId: string, isLiked: boolean) => {
   const row = await context.db.query.post.findFirst({
     columns: { baseLikeCount: true, id: true, likeCount: true },
     where: { id: postId },
   });
 
-  if (row === undefined) {
-    throw postNotFound();
-  }
-
-  return { id: row.id, isLiked, likeCount: (row.baseLikeCount ?? 0) + row.likeCount };
+  return row === undefined
+    ? undefined
+    : { id: row.id, isLiked, likeCount: (row.baseLikeCount ?? 0) + row.likeCount };
 };
 
 export const likeRouter = {

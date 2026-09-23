@@ -31,9 +31,11 @@ export default {
         reader after it: the outage `apply-sql.ts` prevents with `SET LOCAL`.
         drizzle-kit has no session hook, so the setting rides in the startup
         packet. Verified on a direct connection: a DROP INDEX behind a held reader
-        lock fails at the timeout instead of queueing. NOT verified through
-        Supavisor, which may drop startup options: check `SHOW lock_timeout`
-        through the production URL before relying on it. */
+        lock fails at the timeout instead of queueing. Supavisor (local 2.9.7,
+        session and transaction mode) accepts the option but DROPS it —
+        `SHOW lock_timeout` reads 0 — so through the production pooler this is
+        no protection: run lock-heavy DDL by hand first (e.g. `DROP INDEX
+        CONCURRENTLY`) so push plans none. */
     url: withLockTimeout(nonPoolingUrl, "5s"),
   },
   dialect: "postgresql",

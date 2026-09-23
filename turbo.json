@@ -29,11 +29,11 @@
     }
   },
   "globalEnv": [
-    "APP_URL",
     "COOKIE_SECRET",
     "COOKIE_SECRET_LEGACY",
     "POSTGRES_URL",
     "RESEND_API_KEY",
+    "RESET_LINK_ORIGIN",
     "EXPO_PUBLIC_API_URL",
     "EXPO_PUBLIC_API_PORT",
     "GOOGLE_SERVICES_JSON",

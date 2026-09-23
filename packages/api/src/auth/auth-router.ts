@@ -69,7 +69,7 @@ export const authRouter = {
       }
 
       await issuePasswordReset(context.db, {
-        appUrl: env.APP_URL,
+        appUrl: env.RESET_LINK_ORIGIN,
         email: input.email,
         send: createResetEmailSender(new Resend(resendApiKey).emails),
         userId: existingUser.id,

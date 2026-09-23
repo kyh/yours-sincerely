@@ -37,7 +37,7 @@ export const serverTimestamp = z
   .string()
   .regex(
     // Year 0000 and offsets past ±15:59 are also cast errors in Postgres.
-    /^(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])[ T](?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:0\d|1[0-5]):?[0-5]\d)?$/u,
+    /^(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])[ T](?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:0\d|1[0-5])(?::?[0-5]\d)?)?$/u,
     "Not a server timestamp",
   )
   // The pattern admits February 30th, which Postgres rejects and `Date` silently

@@ -107,14 +107,18 @@ integrationTest("deleteLike returns the post's new like state", async () => {
   }
 });
 
-integrationTest("liking or unliking a deleted letter is NOT_FOUND, not a 500", async () => {
+integrationTest("liking a deleted letter is NOT_FOUND; unliking it still succeeds", async () => {
   const fixture = await createFixture();
   try {
     await db.delete(like).where(eq(like.postId, fixture.postId));
     await db.delete(post).where(eq(post.id, fixture.postId));
 
     await assert.rejects(fixture.caller.like.createLike({ postId: fixture.postId }), isNotFound);
-    await assert.rejects(fixture.caller.like.deleteLike({ postId: fixture.postId }), isNotFound);
+    // Shipped clients treat an unlike failure as an error toast; main answered
+    // `{ like: undefined }` here, so this must keep succeeding.
+    const unliked = await fixture.caller.like.deleteLike({ postId: fixture.postId });
+    assert.equal(unliked.like, undefined);
+    assert.equal(unliked.post, undefined);
 
     const rows = await db.select().from(like).where(eq(like.postId, fixture.postId));
     assert.equal(rows.length, 0);

@@ -27,17 +27,24 @@ const optionalSetting = z
   .transform((value) => (value.length === 0 ? undefined : value))
   .optional();
 
-const envSchema = z.object({
-  // The origin emailed links point at. Set it on preview and local deployments
-  // that send email, or their links open production.
-  APP_URL: optionalSetting.transform((value) => value ?? WEB_ORIGIN).pipe(z.url()),
+export const envSchema = z.object({
   RESEND_API_KEY: optionalSetting,
+  // The origin emailed links point at. Set it on preview and local deployments
+  // that send email, or their links open production. A malformed value falls
+  // back to production instead of failing: this module loads with every route,
+  // so a typo here must never take the whole app down. The name is new on
+  // purpose — an old `APP_URL` may still sit unread in a hosting dashboard.
+  RESET_LINK_ORIGIN: optionalSetting
+    .transform((value) => value ?? WEB_ORIGIN)
+    .pipe(z.url())
+    // oxlint-disable-next-line promise/prefer-await-to-then -- zod fallback, not a Promise
+    .catch(WEB_ORIGIN),
 });
 
 // Listed key by key rather than handing over `process.env`: bundlers inline
 // `process.env.NEXT_PUBLIC_*` as string literals and do not guarantee that the
 // whole object survives the build.
 export const env = envSchema.parse({
-  APP_URL: process.env.APP_URL,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESET_LINK_ORIGIN: process.env.RESET_LINK_ORIGIN,
 });

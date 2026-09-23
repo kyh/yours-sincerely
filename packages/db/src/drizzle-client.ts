@@ -8,9 +8,11 @@ import { relations } from "./drizzle-relations";
     and the instance count grows with traffic. postgres.js defaults to 10 sockets per
     instance that stay open while idle, and every one holds a slot in Supabase's
     pooler (a whole backend, in session mode).
-    - `max: 3`, not Supabase's serverless advice of 1: under Fluid, 1 queues every
-      concurrent request on the instance behind a single socket, which Vercel calls
-      out as the anti-pattern.
+    - `max: 10`, postgres.js's own default and what production has always run
+      with. Fewer sockets per instance would free pooler slots but queue concurrent
+      requests; that trade needs production load numbers first (GitHub issue #120).
+      Not 1: under Fluid, 1 queues every concurrent request behind one socket,
+      which Vercel calls out as the anti-pattern.
     - `idle_timeout: 5` seconds, Vercel's figure, hands slots back between bursts.
       Vercel's `attachDatabasePool` would also close them before a suspend, but it
       rejects postgres.js pools.
@@ -22,7 +24,7 @@ const client = postgres(
     NODE_ENV: process.env.NODE_ENV,
     POSTGRES_URL: process.env.POSTGRES_URL,
   }),
-  { idle_timeout: 5, max: 3, prepare: false },
+  { idle_timeout: 5, max: 10, prepare: false },
 );
 
 /** `relations`, not `schema`: in drizzle 1.0 the relation graph is what powers
