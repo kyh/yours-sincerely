@@ -1,6 +1,6 @@
 import type { ORPCContext } from "../orpc";
-import { and, desc, eq, inArray, sql } from "@repo/db";
-import { feed, flag, like, notification, post } from "@repo/db/drizzle-schema";
+import { and, desc, eq, sql } from "@repo/db";
+import { feed, notification, post } from "@repo/db/drizzle-schema";
 import { describeNotification } from "@repo/contracts/notifications";
 import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import type { NewCommentNotificationData } from "@repo/contracts/notifications";
@@ -21,12 +21,7 @@ import {
   getPostInput,
   getPostsByUserInput,
 } from "./post-schema";
-import {
-  collectDescendantPostIds,
-  getPostHistoryFloor,
-  notBlockedBy,
-  postVisibleTo,
-} from "./post-utils";
+import { getPostHistoryFloor, notBlockedBy, postVisibleTo } from "./post-utils";
 
 /** Which of these posts the viewer has liked. One indexed lookup over the ids on
     the page, instead of loading every `Like` row of every post to find out. */
@@ -140,29 +135,14 @@ export const postRouter = {
   }),
 
   deletePost: protectedProcedure.input(deletePostInput).handler(async ({ context, input }) => {
-    const ownedPost = await context.db.query.post.findFirst({
-      columns: { id: true },
-      where: { id: input.postId, userId: context.user.id },
-    });
+    const [deleted] = await context.db
+      .delete(post)
+      .where(and(eq(post.id, input.postId), eq(post.userId, context.user.id)))
+      .returning({ id: post.id });
 
-    if (ownedPost === undefined) {
+    if (deleted === undefined) {
       throw new ORPCError("NOT_FOUND", { message: "Post not found" });
     }
-
-    const deleted = await context.db.transaction(async (tx) => {
-      const postIds = await collectDescendantPostIds(tx, [input.postId]);
-
-      await tx.delete(like).where(inArray(like.postId, postIds));
-      await tx.delete(flag).where(inArray(flag.postId, postIds));
-      // One statement so the self-referential Post.parentId FK is checked
-      // after parents and children are gone together.
-      const deletedPosts = await tx
-        .delete(post)
-        .where(inArray(post.id, postIds))
-        .returning({ id: post.id });
-
-      return deletedPosts.find((row) => row.id === input.postId);
-    });
 
     return {
       post: deleted,

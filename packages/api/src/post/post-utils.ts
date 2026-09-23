@@ -1,10 +1,8 @@
 import type { SQL } from "@repo/db";
-import { and, eq, inArray, lte, notExists, sql } from "@repo/db";
-import type { Db, db } from "@repo/db/drizzle-client";
-import { block, post } from "@repo/db/drizzle-schema";
+import { and, eq, lte, notExists, sql } from "@repo/db";
+import type { Db } from "@repo/db/drizzle-client";
+import { block } from "@repo/db/drizzle-schema";
 import type { AnyColumn } from "drizzle-orm";
-
-type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /** More than this many COUNTING flags auto-hides a post. Mirrors the literal
     `flagCount <= 3` in the Feed view (`sql/090-views.sql`), which cannot import it. */
@@ -73,24 +71,3 @@ const DAY_MS = 24 * 60 * 60 * 1000;
     `timestamp`-comparable ISO string (the column is `mode: "string"`). */
 export const getPostHistoryFloor = (now: Date = new Date()): string =>
   new Date(now.getTime() - POST_HISTORY_WINDOW_DAYS * DAY_MS).toISOString();
-
-/** The given posts plus every descendant comment, breadth-first and
-    cycle-safe. Callers cascade-delete likes/flags/posts with the result —
-    the schema has no ON DELETE CASCADE on Post.parentId. */
-export const collectDescendantPostIds = async (tx: Tx, rootIds: string[]) => {
-  const collected = new Set(rootIds);
-  let parentIds = rootIds;
-
-  while (parentIds.length > 0) {
-    const children = await tx
-      .select({ id: post.id })
-      .from(post)
-      .where(inArray(post.parentId, parentIds));
-    parentIds = children.map((child) => child.id).filter((childId) => !collected.has(childId));
-    for (const childId of parentIds) {
-      collected.add(childId);
-    }
-  }
-
-  return [...collected];
-};
