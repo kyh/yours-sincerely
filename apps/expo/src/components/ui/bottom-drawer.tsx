@@ -39,6 +39,8 @@ import { useReducedMotion } from "@/lib/use-reduced-motion";
 interface BottomDrawerProps {
   open: boolean;
   onClose: () => void;
+  /** Fires once the sheet has left the screen, so a parent can unmount it. */
+  onExitComplete?: () => void;
   children: ReactNode;
 }
 
@@ -88,7 +90,7 @@ export const DrawerItem = ({
   </Pressable>
 );
 
-export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => {
+export const BottomDrawer = ({ open, onClose, onExitComplete, children }: BottomDrawerProps) => {
   const blurTarget = useDrawerBackdrop();
   const insets = useSafeAreaInsets();
   // Window, not screen: iPad split view and multitasking resize the window.
@@ -105,6 +107,16 @@ export const BottomDrawer = ({ open, onClose, children }: BottomDrawerProps) => 
     setClosing(false);
   }
   const visible = open || closing;
+
+  // Keyed to `visible`, not the exit spring: under reduce motion, or when it
+  // is switched on mid-exit, the sheet hides without the spring finishing.
+  const wasVisible = useRef(visible);
+  useEffect(() => {
+    if (wasVisible.current && !visible) {
+      onExitComplete?.();
+    }
+    wasVisible.current = visible;
+  }, [visible, onExitComplete]);
 
   const previousSettings = useRef({ open: false, reduceMotionEnabled });
   // translateY: 0 = fully open, sheetHeight = fully dismissed (offscreen).
