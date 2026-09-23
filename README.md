@@ -47,8 +47,9 @@ packages
 # Copy .env.example to .env and update variables
 cp .env.example .env
 
-# Set COOKIE_SECRET in .env — sessions are signed with it. The server throws
-# without it in production, and falls back to an insecure dev constant locally.
+# Set COOKIE_SECRET in .env (openssl rand -base64 32) — sessions are signed with it.
+# `pnpm dev` falls back to an insecure dev constant without it; `pnpm build` and
+# `pnpm verify` run as production and fail without it.
 
 # Installing dependencies
 pnpm install
@@ -72,13 +73,14 @@ You'll be able to view the website at `http://localhost:3000`
 ### Checks
 
 ```sh
-pnpm verify      # typecheck + lint + format + test — exactly what CI runs
+pnpm verify      # typecheck + lint + format + test + build — what CI runs
 
 # …or individually
 pnpm typecheck
 pnpm lint        # oxlint (ultracite presets)
 pnpm format      # oxfmt --check
 pnpm test        # node:test
+pnpm build
 ```
 
 Coding agents should start from [AGENTS.md](./AGENTS.md).

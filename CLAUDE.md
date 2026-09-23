@@ -48,7 +48,7 @@ packages/
 ## Commands
 
 ```bash
-pnpm dev              # All packages (turbo watch)
+pnpm dev              # All packages (turbo run)
 pnpm dev:web          # Web only
 pnpm dev:expo         # Expo only
 pnpm db:start         # Start local Supabase
@@ -57,7 +57,7 @@ pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
 pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
-pnpm verify           # typecheck + lint + format + test — mirrors CI, run before commit
+pnpm verify           # typecheck + lint + format + test + build — mirrors CI, run before commit
 pnpm lint             # oxlint (NOT ESLint) via ultracite presets, every rule an error
 pnpm format           # oxfmt --check (use format:fix to write)
 pnpm typecheck        # TypeScript
@@ -76,7 +76,8 @@ pnpm -F db apply-sql  # Re-apply sql/ only (push already does this)
 **The schema is declared, not migrated. There are no migrations.** It has two halves,
 and `pnpm db:push` applies both, in this order:
 
-1. `src/drizzle-schema.ts` — tables, columns, indexes. `drizzle-kit push` syncs these.
+1. `src/drizzle-schema.ts` — tables, columns, indexes. `drizzle-kit push` syncs these,
+   except an index redefined under its old name (below).
 2. `sql/*.sql` — functions, triggers, grants, **and views**. `src/apply-sql.ts` runs
    every file, in filename order, in one transaction. Every file is idempotent; it
    re-runs on every push. See `sql/README.md`.
@@ -105,8 +106,17 @@ success. `main` shipped a `Feed` whose drizzle copy had already drifted from the
 deployed view (it was missing `AND p."parentId" IS NULL`, which would have put every
 comment in the feed); it never broke anything _only_ because push ignored it.
 
-Corollary: **push cannot roll a view back either.** Reverting the schema file and
-pushing will leave the new view live. A rollback needs explicit SQL.
+Corollary: **reverting a view in `drizzle-schema.ts` rolls nothing back.** Reverting
+`sql/090-views.sql` and pushing does, because 090 drops and recreates the view on every
+push.
+
+**Push has the same blind spot for indexes. Never change an index definition in place;
+rename it.** drizzle-kit 1.0.0-rc.4 skips, in push mode only, an index whose name is
+unchanged but whose `WHERE` changed, or whose columns, order, direction or opclass
+changed at the same column count: `No changes detected`, exit 0. Verified on a scratch
+database. Renamed, push asks "rename or create": answer **create** (`DROP` + `CREATE`);
+rename emits only `ALTER INDEX ... RENAME` and silently discards the new definition. Details
+and the production drift check are in `sql/README.md`.
 
 The old `generate`/`migrate` scripts are gone, which retired the standing footgun that
 generate emitted `DROP TABLE "auth"."users" CASCADE` into every migration (an artifact
@@ -131,6 +141,9 @@ The pattern to follow for anything with I/O: extract a pure, dependency-injected
 
 Test globs in package.json scripts MUST stay single-quoted (`'src/**/*.test.ts'`) so
 /bin/sh cannot expand them and silently narrow the test run.
+
+Relative imports inside `packages/contracts` end in `.ts`: the api and expo suites load it
+under plain `node --test`, whose type stripping resolves no extensionless specifier.
 
 ## Architecture decisions — do not reverse
 
@@ -203,10 +216,29 @@ On Android it is the opposite: `apps/mobile/android/app/build.gradle` declares
 `applicationId "com.kyh.yourssincerely"`, which is **exactly** `MOBILE_ANDROID_PACKAGE` in
 `packages/contracts/src/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
 is the only source in the repo that can rebuild the shipped legacy **Android** app, and
-`docs/wayfinder/expo-mobile-parity/07-release-gate.md` still has "Android legacy-session
-upgrade journey" unchecked. Delete it only once that gate is closed (or once it is agreed
-the store build alone is enough — `docs/phone-testing.md` says the upgrade test installs
-the public store build, which would make deletion safe).
+the release gate (GitHub issue #125) still has its store-delivered Capacitor → Expo
+identity check open on physical phones (the emulator journey passed; the Play-delivered
+phone upgrade is pending). Delete it only once that gate is closed (or once
+it is agreed the store build alone is enough — `docs/phone-testing.md` says the upgrade test
+installs the public store build, which would make deletion safe). Tracked as GitHub issue
+#78.
+
+### Web and native UI stay separate
+
+`apps/web` and `apps/expo` each own their presentation code; they share domain logic only
+through `packages/contracts` — zod schemas and pure domain rules. The goal is better native
+quality without sharing presentation code; a DOM/native component layer is not.
+
+- **Sign-up upgrades the anonymous user in place.** When a session exists, `auth.signUp` sets
+  email and password on the current user rather than minting one, so pre-sign-up letters
+  and likes stay theirs.
+- **External legal pages are acceptable.** Native About, Privacy and Terms open the website.
+- **Preserve the avatar mapping.** `getLegacyAvatarIndex` (`packages/contracts/src/content.ts`)
+  hashes the display name modulo `LEGACY_AVATAR_COUNT`. Changing the hash or the modulus —
+  adding an avatar counts — reshuffles every existing user's avatar.
+
+**Out of scope:** shared React components across DOM and native; a visual rewrite
+disconnected from the current brand; a database schema rewrite.
 
 ## Tracked constraints — do not "fix" these
 
@@ -218,7 +250,8 @@ the public store build, which would make deletion safe).
   `react-native`, `react-native-*`, `@react-native/*`, async-storage, lottie, nativewind).
   It matches by name, so `react`/`react-dom`/`@types/react`/`typescript` cannot be listed
   without freezing web: a sweep WILL bump their `expo:` catalog rows. Revert those rows by
-  hand, then run `npx expo install --check` in `apps/expo`.
+  hand, then run `npx expo install --check` in `apps/expo`. CI runs that check, and
+  `apps/expo/src/release-pins.test.ts` fails if Expo resolves a TypeScript other than 6.
 - **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
   bump either without bumping both and running a real device build. Exit criterion:
   NativeWind 5.0.0 stable.
@@ -227,7 +260,8 @@ the public store build, which would make deletion safe).
   `apps/expo/package.json` — the Expo SDK 57-blessed patch; move it with the Expo SDK.
 - **`apps/expo/eas.json` `build.base.pnpm` must match the root `packageManager`.** EAS does
   not read `packageManager`, and `corepack: true` without the pin installs the image's default
-  pnpm and dies on the Corepack shim (verified on a real build). Bump both together.
+  pnpm and dies on the Corepack shim (verified on a real build). Bump both together;
+  `apps/expo/src/release-pins.test.ts` fails when they drift.
 - **Expo's `react`/`react-dom`/`typescript` are pinned via the `expo` named catalog**, not
   the default one. Expo must hold SDK-blessed versions, which may diverge from web. Re-run
   `npx expo install --check` in `apps/expo` after touching any mobile dependency.
