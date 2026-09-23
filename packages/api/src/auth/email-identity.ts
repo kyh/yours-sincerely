@@ -12,8 +12,8 @@ const sameAddress = (email: AnyColumn, address: string) => sql`lower(${email}) =
  *
  * An exact match wins, so every address that resolved before still resolves to
  * the same row. Only then is case ignored, and only when that names ONE
- * account. Accounts that differ only in case predate normalization, and
- * auto-picking one would let a sign-in or a reset land on the other's account.
+ * account. Accounts that differ only in case exist, and auto-picking one would
+ * let a sign-in or a reset land on the other's account.
  */
 export const findUserByEmail = async (db: Db, address: string) => {
   const exact = await db.query.user.findFirst({ where: { email: address } });
@@ -30,7 +30,8 @@ export const findUserByEmail = async (db: Db, address: string) => {
 };
 
 /** Case-insensitive, so no new account can differ from an existing one only in
-    case. `exceptUserId` lets a user re-save their own address. */
+    case. `exceptUserId` lets a user re-case their own address. Not race-proof;
+    a unique index on `lower(email)` would be, once case-twins are merged. */
 export const isEmailTaken = async (db: Db, address: string, exceptUserId?: string) => {
   const [holder] = await db
     .select({ id: user.id })

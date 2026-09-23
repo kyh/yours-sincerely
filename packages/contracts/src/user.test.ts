@@ -30,9 +30,9 @@ test("updateUserInput rejects a display name that trims to nothing", () => {
   assert.equal(updateUserInput.safeParse({ displayName: "   " }).success, false);
 });
 
-test("updateUserInput stores an email trimmed and lowercased", () => {
+test("updateUserInput trims an email but keeps its case", () => {
   assert.deepEqual(updateUserInput.parse({ email: " MiXeD@Example.com " }), {
-    email: "mixed@example.com",
+    email: "MiXeD@Example.com",
   });
   assert.equal(updateUserInput.safeParse({ email: "not-an-email" }).success, false);
 });
