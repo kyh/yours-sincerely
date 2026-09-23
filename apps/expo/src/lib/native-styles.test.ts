@@ -119,7 +119,7 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
         ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7", false],
         ["dark", "#0e0e0c", "#1a1a1a", "#fafafa", "#ffffff26", true],
         ["light-purple", "#f0edf7", "#fafaf9", "#190840", "#e4e4e7", false],
-        ["dark-purple", "#1e293b", "#0f172a", "#fafafa", "#e4e4e7", true],
+        ["dark-purple", "#1e293b", "#0f172a", "#fafafa", "#ffffff26", true],
         ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7", false],
       ] as const) {
         const props = {
