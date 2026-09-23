@@ -50,9 +50,13 @@ export const publicProcedure = o;
  * Requires a session, and narrows `context.user` to non-nullable for the
  * handler.
  *
- * @see https://orpc.dev/docs/procedure
+ * A contract implementer must apply it at the router level
+ * (`implementer.use(requireUser).procedure`): used on the procedure, it runs
+ * after input validation, so an anonymous malformed call answers 400, not 401.
+ *
+ * @see https://orpc.dev/docs/contract/implementation
  */
-export const protectedProcedure = o.use(({ context, next }) => {
+export const requireUser = o.middleware(({ context, next }) => {
   if (!context.user) {
     throw new ORPCError("UNAUTHORIZED");
   }
@@ -63,3 +67,5 @@ export const protectedProcedure = o.use(({ context, next }) => {
     },
   });
 });
+
+export const protectedProcedure = o.use(requireUser);
