@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { resolveDisplayName } from "@repo/contracts/user";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@repo/ui/components/hover-card";
 import { useQuery } from "@tanstack/react-query";
 
 import { getAvatarUrl } from "@/lib/avatars";
@@ -15,7 +15,7 @@ interface Props {
   displayName?: string | null;
 }
 
-const ProfileTooltipContent = ({ userId, displayName }: Props) => {
+const ProfilePreview = ({ userId, displayName }: Props) => {
   const { data, isLoading } = useQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
 
   return (
@@ -42,20 +42,17 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
 };
 
 export const ProfileLink = ({ userId, displayName }: Props) => (
-  <Tooltip>
-    <TooltipTrigger
+  <HoverCard>
+    <HoverCardTrigger
       className="inline-flex underline decoration-dotted underline-offset-2"
       render={<Link href={`/profile/${userId}`} />}
     >
       {resolveDisplayName(displayName)}
-    </TooltipTrigger>
-    <TooltipContent
-      className="bg-popover text-popover-foreground shadow-md"
-      arrowClassName="bg-popover fill-popover"
-    >
+    </HoverCardTrigger>
+    <HoverCardContent side="top" className="w-fit px-3 py-1.5 text-xs">
       <Link href={`/profile/${userId}`}>
-        <ProfileTooltipContent userId={userId} displayName={displayName} />
+        <ProfilePreview userId={userId} displayName={displayName} />
       </Link>
-    </TooltipContent>
-  </Tooltip>
+    </HoverCardContent>
+  </HoverCard>
 );
