@@ -7,25 +7,12 @@ import { createPostInput } from "@repo/contracts/post";
 import { resolveDisplayName } from "@repo/contracts/user";
 import { Button } from "@repo/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@repo/ui/components/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@repo/ui/components/drawer";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogTrigger,
+} from "@repo/ui/components/responsive-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
-import { cn } from "cn";
-import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
@@ -40,6 +27,11 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 import { postDraftKey } from "./post-draft";
 
+// Inside the mobile drawer the letter scrolls within a capped height, so the
+// sheet and its Publish button stay clear of the on-screen keyboard.
+const letterFieldClass =
+  "textarea-grow in-data-[slot=drawer-popup]:max-h-[60dvh] in-data-[slot=drawer-popup]:min-h-[25dvh] in-data-[slot=drawer-popup]:overflow-y-auto";
+
 // The post is already published; a failed refetch is not the writer's problem.
 const refreshQuietly = async (queryClient: QueryClient) => {
   try {
@@ -53,20 +45,13 @@ interface PostFormProps {
   placeholder?: string;
   parentId?: string;
   onSuccess?: () => void;
-  contained?: boolean;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 // The letter textarea is labelled with aria-label, not a <label for>: every copy
 // carries the `#post-input` hook id, and the home page keeps a hidden inline
 // composer mounted beside the dialog one, so `for` would name the wrong copy.
-export const PostForm = ({
-  placeholder,
-  parentId,
-  onSuccess,
-  contained,
-  textareaRef,
-}: PostFormProps) => {
+export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: PostFormProps) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
   const draftKey = postDraftKey(parentId);
@@ -130,21 +115,14 @@ export const PostForm = ({
   return (
     <Form {...form}>
       <form
-        className={cn("flex flex-col gap-2", contained && "min-h-0")}
+        className="flex flex-col gap-2 in-data-[slot=drawer-popup]:min-h-0"
         onSubmit={form.handleSubmit(handlePostForm)}
       >
         <FormField
           control={form.control}
           name="content"
           render={({ field: { onBlur, ref, ...field } }) => (
-            <FormItem
-              className={cn(
-                "textarea-grow",
-                contained && "max-h-[60dvh] min-h-[25dvh] overflow-y-auto",
-              )}
-              noStyles
-              data-textarea-value={field.value}
-            >
+            <FormItem className={letterFieldClass} noStyles data-textarea-value={field.value}>
               <FormControl>
                 <textarea
                   id="post-input"
@@ -213,29 +191,10 @@ export const PostForm = ({
 
 export const NewPostButton = ({ placeholder }: PostFormProps) => {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  if (isDesktop) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger render={<Button size="icon" className="size-12" />}>
-          <PlusIcon />
-          <span className="sr-only">New Post</span>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader className="sr-only">
-            <DialogTitle>New Post</DialogTitle>
-            <DialogDescription>Send your tiny beautiful letters to the world</DialogDescription>
-          </DialogHeader>
-          <PostForm placeholder={placeholder} onSuccess={() => setOpen(false)} />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Drawer
+    <ResponsiveDialog
       open={open}
       onOpenChange={(nextOpen) => {
         // The draft saves on blur, and Chromium fires no blur when the closed sheet
@@ -251,26 +210,21 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
           textareaRef.current?.focus();
         }
       }}
-      showSwipeHandle
     >
-      <DrawerTrigger render={<Button size="icon" className="size-12" />}>
+      <ResponsiveDialogTrigger render={<Button size="icon" className="size-12" />}>
         <PlusIcon />
         <span className="sr-only">New Post</span>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="sr-only">
-          <DrawerTitle>New Post</DrawerTitle>
-          <DrawerDescription>Send your tiny beautiful letters to the world</DrawerDescription>
-        </DrawerHeader>
-        <section className="flex min-h-0 flex-col p-4" data-base-ui-swipe-ignore>
-          <PostForm
-            placeholder={placeholder}
-            onSuccess={() => setOpen(false)}
-            textareaRef={textareaRef}
-            contained
-          />
-        </section>
-      </DrawerContent>
-    </Drawer>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent
+        title="New Post"
+        description="Send your tiny beautiful letters to the world"
+      >
+        <PostForm
+          placeholder={placeholder}
+          onSuccess={() => setOpen(false)}
+          textareaRef={textareaRef}
+        />
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };
