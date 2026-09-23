@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && tsx --test --test-reporter=spec 'src/**/*.test.ts'",
+    "test": "tsx --test --test-reporter=spec 'src/**/*.test.ts'",
     "supabase": "pnpm with-env supabase",
     "drizzle:kit": "pnpm with-env drizzle-kit",
     "seed": "pnpm with-env tsx src/seed/initial.ts",
@@ -26,14 +26,15 @@
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "postgres": "^3.4.9",
-    "zod": "catalog:"
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
     "@types/node": "catalog:",
+    "dotenv-cli": "catalog:",
     "drizzle-kit": "1.0.0-rc.4",
     "supabase": "^2.117.0",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }
