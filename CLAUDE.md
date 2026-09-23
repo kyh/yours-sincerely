@@ -263,8 +263,8 @@ disconnected from the current brand; a database schema rewrite.
 `findUserByEmail` (`packages/api/src/auth/email-identity.ts`) backs sign-in and password
 reset. `sql/080-reconcile.sql` lowercases stored addresses, so **an exact-only lookup would
 lock out everyone who types the casing they signed up with.** Accounts that differ only in
-case predate normalization: the backfill skips them, the lookup never picks one, and there
-is deliberately no unique index on `lower(email)` until a person merges them.
+case predate normalization: the backfill skips them, only an exact match reaches either, and
+there is deliberately no unique index on `lower(email)` until a person merges them.
 
 ## Tracked constraints — do not "fix" these
 
