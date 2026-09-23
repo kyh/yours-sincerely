@@ -109,7 +109,8 @@ after them.** `apply-sql.ts` sets `lock_timeout` so that a push which cannot get
 lock quickly fails and rolls back rather than queueing — a pending lock request
 blocks every conflicting request queued behind it, so without the timeout a push
 during one slow query becomes a site-wide outage. `drizzle.config.ts` asks for the
-same timeout for push's own DDL.
+same timeout for push's own DDL, but Supavisor drops it, so lock-heavy DDL runs by hand
+first (see CLAUDE.md).
 
 ## Recovery
 
