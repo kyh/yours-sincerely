@@ -57,7 +57,7 @@ const lightPurple: ThemeColors = {
   cardForeground: "hsl(258, 78%, 14%)",
   destructive: "hsl(358, 72%, 43%)",
   foreground: "hsl(258, 78%, 14%)",
-  muted: "hsl(260, 19%, 76%)",
+  muted: "hsl(260, 19%, 90%)",
   mutedForeground: "hsl(258, 16%, 44%)",
   primary: "hsl(236, 61%, 59%)",
   primaryForeground: "hsl(34, 10%, 98%)",

@@ -57,14 +57,12 @@ const readBlock = (selector: string, source = css): Map<string, string> => {
 /** `hsl(45 60% 96%)` (CSS) and `hsl(45, 60%, 96%)` (RN) are the same color. */
 const normalize = (color: string) => color.replaceAll(/[\s,]/gu, "").toLowerCase();
 
-// Not `mutedForeground` on `muted`: only the avatar fallback, shown while the image
-// loads, puts it there, and light-purple's mid-tone muted cannot reach AA without a redesign.
 const TEXT_ON_SURFACES = [
   ["foreground", ["background"]],
   ["cardForeground", ["card"]],
   ["primaryForeground", ["primary"]],
   ["primary", ["background", "card"]],
-  ["mutedForeground", ["background", "card", "accent"]],
+  ["mutedForeground", ["background", "card", "muted", "accent"]],
   ["destructive", ["background", "card"]],
 ] as const satisfies readonly (readonly [keyof ThemeColors, readonly (keyof ThemeColors)[]])[];
 
