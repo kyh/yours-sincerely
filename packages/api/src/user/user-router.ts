@@ -24,10 +24,9 @@ export const userRouter = {
   deleteUser: protectedProcedure.handler(async ({ context }) => {
     const userId = context.user.id;
 
-    // Replies, likes and flags under the user's posts go with those posts, and
-    // Notification and PushToken rows with the user row, via ON DELETE CASCADE.
-    // Block restricts, so it and everything the user left on other people's
-    // posts are deleted by name.
+    // ON DELETE CASCADE takes the replies, likes and flags under the user's
+    // posts with those posts, and Notification and PushToken rows with the user
+    // row. Every other reference to the user blocks the delete, so it goes by name.
     await context.db.transaction(async (tx) => {
       await tx.delete(post).where(eq(post.userId, userId));
       await tx.delete(like).where(eq(like.userId, userId));
