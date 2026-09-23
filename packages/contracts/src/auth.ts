@@ -21,18 +21,26 @@ const newPassword = z
     "Password is too long",
   );
 
+/** Only for an email being stored. Lowercased so no two accounts can differ
+    only in case. */
+export const newEmail = z.string().trim().toLowerCase().pipe(z.email());
+
+/** For finding an account. Casing is kept: accounts that differ only in case
+    predate `newEmail`, and the server tells them apart by exact match first. */
+const enteredEmail = z.string().trim().pipe(z.email());
+
 export const signUpInput = z.object({
-  email: z.email(),
+  email: newEmail,
   password: newPassword,
 });
 
 export const signInWithPasswordInput = z.object({
-  email: z.email(),
+  email: enteredEmail,
   password: z.string(),
 });
 export type SignInWithPasswordInput = z.infer<typeof signInWithPasswordInput>;
 
-export const requestPasswordResetInput = z.object({ email: z.email() });
+export const requestPasswordResetInput = z.object({ email: enteredEmail });
 
 export const setPasswordInput = z.object({
   password: newPassword,

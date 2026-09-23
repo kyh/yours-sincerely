@@ -14,7 +14,8 @@ import {
   signInWithPasswordInput,
   signUpInput,
 } from "./auth-schema";
-import { burnResetTokens, issuePasswordReset } from "./password-reset";
+import { findUserByEmail, isEmailTaken } from "./email-identity";
+import { burnResetTokens, sendPasswordReset } from "./password-reset";
 import { createResetEmailSender, hashResetToken } from "./password-reset-core";
 import {
   clearSession,
@@ -58,23 +59,13 @@ export const authRouter = {
         });
       }
 
-      const existingUser = await context.db.query.user.findFirst({
-        columns: { id: true },
-        where: { email: input.email },
+      await sendPasswordReset(context.db, {
+        address: input.email,
+        appUrl: env.RESET_LINK_ORIGIN,
+        send: createResetEmailSender(new Resend(resendApiKey).emails),
       });
 
       // Always return success to prevent email enumeration
-      if (!existingUser) {
-        return { success: true };
-      }
-
-      await issuePasswordReset(context.db, {
-        appUrl: env.RESET_LINK_ORIGIN,
-        email: input.email,
-        send: createResetEmailSender(new Resend(resendApiKey).emails),
-        userId: existingUser.id,
-      });
-
       return { success: true };
     }),
   setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
@@ -124,9 +115,7 @@ export const authRouter = {
   signInWithPassword: publicProcedure
     .input(signInWithPasswordInput)
     .handler(async ({ context, input }) => {
-      const existingUser = await context.db.query.user.findFirst({
-        where: { email: input.email },
-      });
+      const existingUser = await findUserByEmail(context.db, input.email);
 
       if (!existingUser?.passwordHash) {
         throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
@@ -161,12 +150,7 @@ export const authRouter = {
     return { user: null };
   }),
   signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
-    // Check if email already exists
-    const existingUser = await context.db.query.user.findFirst({
-      where: { email: input.email },
-    });
-
-    if (existingUser) {
+    if (await isEmailTaken(context.db, input.email)) {
       throw new ORPCError("CONFLICT", { message: "User already registered" });
     }
 
