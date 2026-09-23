@@ -7,7 +7,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import { getReadingTime } from "@repo/contracts/content";
 
-import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 import { PostContent } from "../_components/post-content";
 import { PostForm } from "../_components/post-form";
@@ -23,7 +22,6 @@ const canGoBackInApp = () =>
 
 export const PostPage = ({ postId }: Props) => {
   const router = useRouter();
-  const user = useWorkspaceUser();
   const {
     data: { post },
   } = useSuspenseQuery(orpc.post.getPost.queryOptions({ input: { postId } }));
@@ -56,7 +54,7 @@ export const PostPage = ({ postId }: Props) => {
           onDeleted={() => router.replace("/")}
         />
       </Card>
-      {user && <PostForm parentId={post.id} placeholder="Comment on this love letter..." />}
+      <PostForm parentId={post.id} placeholder="Comment on this love letter..." />
       <div>
         <h3 className="flex items-center gap-2 py-3">
           <span className="text-muted-foreground text-sm">Comments ({post.commentCount})</span>

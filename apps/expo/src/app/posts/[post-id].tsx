@@ -14,13 +14,11 @@ import { PostContent } from "@/components/post/post-content";
 import { PostForm } from "@/components/post/post-form";
 import { orpc } from "@/lib/api";
 import { getReadingTime } from "@repo/contracts/content";
-import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
 const PostScreen = () => {
   const { "post-id": postId } = useLocalSearchParams<"/posts/[post-id]">();
-  const { user } = useWorkspaceUser();
 
   const { data, error, isPending, isError, refetch } = useQuery(
     orpc.post.getPost.queryOptions({ input: { postId } }),
@@ -79,9 +77,7 @@ const PostScreen = () => {
               <PostContent post={post} layout="stack" asLink={false} showComment={false} />
             </Card>
 
-            {user !== null && (
-              <PostForm parentId={post.id} placeholder="Comment on this love letter..." />
-            )}
+            <PostForm parentId={post.id} placeholder="Comment on this love letter..." />
 
             <View className="flex-row items-center gap-2 py-3">
               <Text className="text-muted-foreground text-sm">Comments ({post.commentCount})</Text>
