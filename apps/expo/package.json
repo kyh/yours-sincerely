@@ -18,7 +18,7 @@
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/dom-webview": "~57.0.1",
     "@expo/metro-runtime": "~57.0.16",
-    "@legendapp/list": "^3.3.11",
+    "@legendapp/list": "^3.4.0",
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@react-native-async-storage/async-storage": "2.2.0",

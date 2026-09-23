@@ -31,10 +31,10 @@
   },
   "devDependencies": {
     "dotenv-cli": "catalog:",
-    "oxfmt": "^0.68.0",
-    "oxlint": "^1.83.0",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0",
     "tsx": "catalog:",
-    "turbo": "^2.11.1",
+    "turbo": "^2.11.2",
     "typescript": "catalog:",
     "ultracite": "^7.12.0"
   },
