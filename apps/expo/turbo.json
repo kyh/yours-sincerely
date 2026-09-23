@@ -3,7 +3,8 @@
   "extends": ["//"],
   "tasks": {
     "dev": {
-      "interactive": true
+      "interactive": true,
+      "passThroughEnv": ["$TURBO_EXTENDS$", "GOOGLE_SERVICES_JSON"]
     },
     "test": {
       "inputs": [
