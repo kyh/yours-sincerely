@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Linking, Platform, Pressable, Share } from "react-native";
 import * as Clipboard from "expo-clipboard";
+import { WEB_ORIGIN } from "@repo/contracts/site";
 import { ClipboardCopy, Share as ShareIcon } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import { toast } from "sonner-native";
 
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost } from "@/lib/api";
 import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { useThemeColors } from "@/components/theme-colors";
 import { ignoreRejection } from "@/lib/ignore-rejection";
-import { siteConfig } from "@/lib/site-config";
 
 interface Props {
   post: FeedPost;
@@ -18,7 +18,7 @@ interface Props {
 export const ShareButton = ({ post }: Props) => {
   const colors = useThemeColors();
   const [isOpen, setIsOpen] = useState(false);
-  const postUrl = `${siteConfig.url}/posts/${post.id}`;
+  const postUrl = `${WEB_ORIGIN}/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
   const iconSize = 16;
 

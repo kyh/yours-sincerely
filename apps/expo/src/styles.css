@@ -91,7 +91,9 @@
   font-family: "Inter_800ExtraBold";
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* ThemeProvider puts `dark-purple` on the root without `dark`, so every `dark:`
+   style would skip it. */
+@custom-variant dark (&:where(.dark, .dark *, .dark-purple, .dark-purple *));
 
 .dark {
   --background: hsl(60 6% 5%);
@@ -108,14 +110,12 @@
   --muted-foreground: hsl(60 6% 50%);
   --accent: hsl(60 6% 17%);
   --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
+  --destructive: hsl(359 100% 70%);
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(60 6% 17%);
   --input: oklch(1 0 0 / 15%);
   --ring: hsl(0 0% 98%);
 }
-
-@custom-variant light-purple (&:where(.light-purple, .light-purple *));
 
 .light-purple {
   --background: hsl(256 40% 95%);
@@ -137,8 +137,6 @@
   --border: hsl(258 22% 76%);
   --ring: hsl(236 61% 70%);
 }
-
-@custom-variant dark-purple (&:where(.dark-purple, .dark-purple *));
 
 .dark-purple {
   --background: hsl(217.24 32.58% 17.45%);

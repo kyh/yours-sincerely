@@ -40,7 +40,7 @@ const dark: ThemeColors = {
   border: "hsl(60, 6%, 17%)",
   card: "hsl(0, 0%, 10%)",
   cardForeground: "hsl(0, 0%, 98%)",
-  destructive: "hsl(0, 62.8%, 30.6%)",
+  destructive: "hsl(359, 100%, 70%)",
   foreground: "hsl(0, 0%, 98%)",
   muted: "hsl(60, 6%, 17%)",
   mutedForeground: "hsl(60, 6%, 50%)",

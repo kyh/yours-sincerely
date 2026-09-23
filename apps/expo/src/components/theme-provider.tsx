@@ -2,27 +2,26 @@ import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { View, useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { isThemeId } from "@repo/contracts/preferences";
+import { THEME_IDS, THEME_LABELS, isThemeId } from "@repo/contracts/preferences";
 import type { ResolvedThemeId, ThemeId } from "@repo/contracts/preferences";
 
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 export { isDarkThemeId as isDarkTheme } from "@repo/contracts/preferences";
 
-interface ThemeOption {
-  id: ThemeId;
-  label: string;
-  color: string;
-}
+const themeColors = {
+  dark: "hsl(60 6% 5%)",
+  "dark-purple": "hsl(270 100% 10%)",
+  light: "hsl(45 60% 96%)",
+  "light-purple": "hsl(270 100% 90%)",
+  system: "hsl(45 60% 96%)",
+} satisfies Record<ThemeId, string>;
 
-/** Mirrors the web theme list in apps/web/src/components/theme.tsx. */
-export const themes: readonly ThemeOption[] = [
-  { color: "hsl(45 60% 96%)", id: "system", label: "System" },
-  { color: "hsl(45 60% 96%)", id: "light", label: "Light" },
-  { color: "hsl(60 6% 5%)", id: "dark", label: "Dark" },
-  { color: "hsl(270 100% 90%)", id: "light-purple", label: "Light Purple" },
-  { color: "hsl(270 100% 10%)", id: "dark-purple", label: "Dark Purple" },
-];
+export const themes = THEME_IDS.map((id) => ({
+  color: themeColors[id],
+  id,
+  label: THEME_LABELS[id],
+}));
 
 export type { ThemeId } from "@repo/contracts/preferences";
 

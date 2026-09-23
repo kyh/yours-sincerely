@@ -1,4 +1,5 @@
 import { View, useWindowDimensions } from "react-native";
+import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import { useQuery } from "@tanstack/react-query";
 
 import { CardStackProvider } from "@/components/post/card-stack";
@@ -18,7 +19,7 @@ const HomeScreen = () => {
       <CardStackProvider key={layout}>
         <PostFeed
           layout={layout}
-          filters={{ limit: 5 }}
+          filters={{ limit: FEED_PAGE_SIZE }}
           header={
             inlineComposer ? (
               <View className="border-border mb-5 border-b pb-5">

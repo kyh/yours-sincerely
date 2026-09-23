@@ -19,19 +19,15 @@ import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
 const PostScreen = () => {
-  const params = useLocalSearchParams();
-  const postIdParam = params["post-id"];
-  const postId = Array.isArray(postIdParam) ? "" : (postIdParam ?? "");
+  const { "post-id": postId } = useLocalSearchParams<"/posts/[post-id]">();
   const { user } = useWorkspaceUser();
 
-  const { data, error, isPending, isError, refetch } = useQuery({
-    ...orpc.post.getPost.queryOptions({ input: { postId } }),
-    enabled: postId.length > 0,
-  });
+  const { data, error, isPending, isError, refetch } = useQuery(
+    orpc.post.getPost.queryOptions({ input: { postId } }),
+  );
   const post = data?.post;
 
-  const isGone =
-    postId.length === 0 || (isError && error instanceof ORPCError && error.code === "NOT_FOUND");
+  const isGone = isError && error instanceof ORPCError && error.code === "NOT_FOUND";
   let content: ReactNode;
   if (isGone) {
     content = (
