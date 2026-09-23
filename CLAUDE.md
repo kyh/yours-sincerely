@@ -96,6 +96,13 @@ it — production stays interactive.
 classes as data loss, and applies everything else — `DISABLE ROW LEVEL SECURITY`, index and
 constraint recreates — without asking. No stdin, no apply.
 
+**Lock-heavy DDL on a live table runs by hand first, so `push:remote` plans none of it.**
+Supavisor drops the `lock_timeout` that `drizzle.config.ts` asks for, so push's own
+`ALTER`/`DROP` queues behind one slow reader and stalls every query behind it. Wrap the
+statements in `BEGIN; SET LOCAL lock_timeout = '5s'; … COMMIT;` and retry on a timeout.
+Add a foreign key `NOT VALID`, then `VALIDATE CONSTRAINT` outside that transaction; push
+does not diff validation. Drop an index `CONCURRENTLY`.
+
 **`drizzle-kit push` does NOT diff a view's body.** This is the trap. It creates a view
 that is missing and drops one deleted from the schema file, but when the name already
 exists it emits _nothing_, however much the SELECT changed — exit 0, no warning.
