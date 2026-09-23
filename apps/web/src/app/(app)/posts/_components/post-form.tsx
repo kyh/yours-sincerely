@@ -232,29 +232,17 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
   }
 
   return (
-    <Drawer
-      open={open}
-      onOpenChange={setOpen}
-      onAnimationEnd={(opened) => {
-        if (opened) {
-          textareaRef.current?.focus();
-        }
-      }}
-      repositionInputs={false}
-      handleOnly
-    >
-      <DrawerTrigger asChild>
-        <Button size="icon" className="size-12">
-          <PlusIcon />
-          <span className="sr-only">New Post</span>
-        </Button>
+    <Drawer open={open} onOpenChange={setOpen} showSwipeHandle>
+      <DrawerTrigger render={<Button size="icon" className="size-12" />}>
+        <PlusIcon />
+        <span className="sr-only">New Post</span>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent initialFocus={textareaRef}>
         <DrawerHeader className="sr-only">
           <DrawerTitle>New Post</DrawerTitle>
           <DrawerDescription>Send your tiny beautiful letters to the world</DrawerDescription>
         </DrawerHeader>
-        <section className="p-4">
+        <section className="p-4" data-base-ui-swipe-ignore>
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
