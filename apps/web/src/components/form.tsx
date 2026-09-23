@@ -35,6 +35,9 @@ const FormField = <
 
 interface FormItemContextValue {
   id: string;
+  hasDescription: boolean;
+  /** Called by a mounted FormDescription; returns its unregister. */
+  registerDescription: () => () => void;
 }
 
 const FormItemContext = React.createContext<FormItemContextValue | null>(null);
@@ -45,18 +48,23 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>");
   }
   const itemContext = React.useContext(FormItemContext);
+  if (!itemContext) {
+    throw new Error("useFormField should be used within <FormItem>");
+  }
   const { getFieldState } = useFormContext();
   const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
 
-  const id = itemContext?.id;
+  const { hasDescription, id, registerDescription } = itemContext;
 
   return {
     formDescriptionId: `${id}-form-item-description`,
     formItemId: `${id}-form-item`,
     formMessageId: `${id}-form-item-message`,
+    hasDescription,
     id,
     name: fieldContext.name,
+    registerDescription,
     ...fieldState,
   };
 };
@@ -67,7 +75,15 @@ const FormItem = ({
   ...props
 }: React.ComponentProps<"div"> & { noStyles?: boolean }) => {
   const id = React.useId();
-  const contextValue = React.useMemo(() => ({ id }), [id]);
+  const [hasDescription, setHasDescription] = React.useState(false);
+  const registerDescription = React.useCallback(() => {
+    setHasDescription(true);
+    return () => setHasDescription(false);
+  }, []);
+  const contextValue = React.useMemo(
+    () => ({ hasDescription, id, registerDescription }),
+    [hasDescription, id, registerDescription],
+  );
 
   return (
     <FormItemContext.Provider value={contextValue}>
@@ -99,15 +115,35 @@ const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) 
   );
 };
 
+// Names only what is rendered, so a field without a description never points
+// aria-describedby at a missing id.
 const FormControl = ({ ...props }: React.ComponentProps<typeof Slot>) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+  const { error, formDescriptionId, formItemId, formMessageId, hasDescription } = useFormField();
+  const describedBy = [
+    ...(hasDescription ? [formDescriptionId] : []),
+    ...(error ? [formMessageId] : []),
+  ].join(" ");
 
   return (
     <Slot
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`}
+      aria-describedby={describedBy || undefined}
       aria-invalid={!!error}
+      {...props}
+    />
+  );
+};
+
+const FormDescription = ({ className, ...props }: React.ComponentProps<"p">) => {
+  const { formDescriptionId, registerDescription } = useFormField();
+  React.useEffect(() => registerDescription(), [registerDescription]);
+
+  return (
+    <p
+      data-slot="form-description"
+      id={formDescriptionId}
+      className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
   );
@@ -133,4 +169,4 @@ const FormMessage = ({ className, ...props }: React.ComponentProps<"p">) => {
   );
 };
 
-export { Form, FormItem, FormLabel, FormControl, FormMessage, FormField };
+export { Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };

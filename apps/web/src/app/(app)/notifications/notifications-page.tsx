@@ -8,9 +8,9 @@ import { Spinner } from "@repo/ui/components/spinner";
 import { cn } from "cn";
 import {
   useMutation,
+  useQuery,
   useQueryClient,
   useSuspenseInfiniteQuery,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
 import useInfiniteScroll from "react-infinite-scroll-hook";
@@ -34,11 +34,14 @@ const useMarkRead = () => {
   );
 };
 
+// Not a suspense query, and not prefetched: the Sidebar badge observes this key
+// before the page renders, and HydrationBoundary never hydrates into an entry
+// that already exists while pending. A suspense read would then fetch in SSR.
 const MarkAllReadButtonInner = () => {
-  const { data } = useSuspenseQuery(orpc.notification.unreadCount.queryOptions());
+  const { data } = useQuery(orpc.notification.unreadCount.queryOptions());
   const markRead = useMarkRead();
 
-  if (data.count === 0) {
+  if (!data || data.count === 0) {
     return null;
   }
 
@@ -54,6 +57,9 @@ const MarkAllReadButtonInner = () => {
   );
 };
 
+// The server page already renders a sign-in prompt instead, but Back after a
+// sign-out restores this tree from Next's client cache with the old inbox in
+// its HydrationBoundary. The client identity is the one that is current.
 export const MarkAllReadButton = () => {
   const user = useWorkspaceUser();
   if (user === null) {

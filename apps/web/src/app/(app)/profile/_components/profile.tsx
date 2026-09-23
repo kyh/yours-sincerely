@@ -14,6 +14,8 @@ import {
   createPostsDailyActivity,
   createPostsHeatmap,
   FULL_DAY_LABELS,
+  HEATMAP_DAYS,
+  HEATMAP_WIDE_MIN_WIDTH,
   PROFILE_CALENDAR_THEMES,
 } from "@repo/contracts/calendar";
 import { ProfileForm } from "./profile-form";
@@ -38,7 +40,7 @@ export const Profile = ({ userId }: ProfileProps) => {
   const {
     data: { posts },
   } = useSuspenseQuery(orpc.post.getPostsByUser.queryOptions({ input: { userId } }));
-  const isDesktop = useMediaQuery();
+  const isWide = useMediaQuery(`(min-width: ${HEATMAP_WIDE_MIN_WIDTH}px)`);
 
   if (!user) {
     return <ProfileNotFound />;
@@ -46,7 +48,7 @@ export const Profile = ({ userId }: ProfileProps) => {
 
   const allowEdit = currentUser ? currentUser.id === user.id : false;
   const dailyData = createPostsDailyActivity(posts);
-  const heatmapData = createPostsHeatmap(posts, isDesktop ? 200 : 120);
+  const heatmapData = createPostsHeatmap(posts, isWide ? HEATMAP_DAYS.wide : HEATMAP_DAYS.narrow);
   const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
 
   return (

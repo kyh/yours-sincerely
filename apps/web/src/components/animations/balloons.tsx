@@ -6,11 +6,11 @@ const lightColorProperty = "--light-color";
 const widthProperty = "--balloon-width";
 const heightProperty = "--balloon-height";
 
-export const balloonDefaultSize = {
+const balloonDefaultSize = {
   height: 609,
   width: 233,
 };
-export const balloonSvgHTML = `
+const balloonSvgHTML = `
 <svg
 
 style="width: var(${widthProperty}); height: var(${heightProperty});"
@@ -94,7 +94,7 @@ xmlns="http://www.w3.org/2000/svg"
 </svg>
 `;
 
-export const createBallonElement = ({
+const createBallonElement = ({
   balloonColor,
   lightColor,
   width,
@@ -131,7 +131,7 @@ export const createBallonElement = ({
   return balloon;
 };
 
-export const svgFiltersHtml = `
+const svgFiltersHtml = `
 <svg>
   <defs>
     <filter
@@ -510,6 +510,11 @@ const nextFrame = () =>
   });
 
 export const balloons = async (): Promise<void> => {
+  // Web Animations bypass both the global reduced-motion CSS and MotionConfig.
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
   const balloonsContainer = document.createElement("balloons");
 
   Object.assign(balloonsContainer.style, {

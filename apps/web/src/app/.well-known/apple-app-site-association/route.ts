@@ -6,7 +6,7 @@ import {
 
 const APP_PATHS = MOBILE_DEEP_LINK_PATH_PREFIXES.map((prefix) => `${prefix}*`);
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export const GET = () => {
   const details = [{ appID: `${MOBILE_APPLE_TEAM_ID}.${MOBILE_IOS_BUNDLE_ID}`, paths: APP_PATHS }];

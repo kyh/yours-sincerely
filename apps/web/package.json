@@ -6,10 +6,10 @@
   "scripts": {
     "build": "pnpm with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
-    "dev": "pnpm with-env next dev --turbopack",
+    "dev": "pnpm with-env next dev",
     "start": "pnpm with-env next start",
     "test": "NODE_ENV=test node --import tsx --test 'src/**/*.test.ts'",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
@@ -47,6 +47,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "dotenv-cli": "catalog:",
     "postcss": "^8.5.28",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",

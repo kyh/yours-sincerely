@@ -13,7 +13,7 @@ export const ProfileAvatar = ({ className, displayName, src, alt = "" }: Profile
 
   return (
     <Avatar className={cn("size-9", className)}>
-      <AvatarImage className="dark-purple:invert dark:invert" src={src ?? undefined} alt={alt} />
+      <AvatarImage className="dark:invert" src={src ?? undefined} alt={alt} />
       <AvatarFallback className="animate-in fade-in uppercase">{initials}</AvatarFallback>
     </Avatar>
   );

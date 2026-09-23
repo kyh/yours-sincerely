@@ -16,6 +16,11 @@ interface Props {
   postId: string;
 }
 
+// The Navigation API lists only this origin's entries, so canGoBack is false on
+// a link opened from another site; history.length covers browsers without it.
+const canGoBackInApp = () =>
+  typeof navigation === "undefined" ? window.history.length > 1 : navigation.canGoBack;
+
 export const PostPage = ({ postId }: Props) => {
   const router = useRouter();
   const user = useWorkspaceUser();
@@ -23,7 +28,13 @@ export const PostPage = ({ postId }: Props) => {
     data: { post },
   } = useSuspenseQuery(orpc.post.getPost.queryOptions({ input: { postId } }));
 
-  const goBack = () => router.back();
+  const goBack = () => {
+    if (canGoBackInApp()) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
 
   const stats = getReadingTime(post.content);
 
@@ -37,7 +48,13 @@ export const PostPage = ({ postId }: Props) => {
         <p className="text-xs">{stats.text}</p>
       </header>
       <Card>
-        <PostContent post={post} layout="stack" asLink={false} showComment={false} />
+        <PostContent
+          post={post}
+          layout="stack"
+          asLink={false}
+          showComment={false}
+          onDeleted={() => router.replace("/")}
+        />
       </Card>
       {user && <PostForm parentId={post.id} placeholder="Comment on this love letter..." />}
       <div>

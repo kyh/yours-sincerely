@@ -1,3 +1,4 @@
+import { hashKey } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { orpc } from "@/orpc/react";
 
@@ -18,6 +19,22 @@ import { orpc } from "@/orpc/react";
  * Filters are built from `.key()`, which prefix-matches: `key({ input })` hits
  * every query whose input starts with that shape, and `key()` hits every input.
  */
+/** Sign-in, sign-up, sign-out and password reset: nearly every cached answer
+    (isLiked, block filtering, the block list, the inbox) belonged to the old
+    identity, and no query key names it. Expo uses `resetQueries`; web does not,
+    because it would put mounted suspense queries back to pending and swap the
+    page for its loading fallback. Inactive entries are dropped instead, and
+    mounted ones refetch behind the data they already show. */
+export const resetAfterSessionChanged = async (queryClient: QueryClient) => {
+  queryClient.getMutationCache().clear();
+  // The protected reads go even while mounted: refetched, they would ask with
+  // the new cookie before `user` flips and disables them, and 401 on sign-out.
+  queryClient.removeQueries({ queryKey: orpc.notification.key() });
+  queryClient.removeQueries({ queryKey: orpc.block.listBlocks.key() });
+  queryClient.removeQueries({ type: "inactive" });
+  await queryClient.invalidateQueries();
+};
+
 export const refreshWorkspaceIdentity = async (queryClient: QueryClient) => {
   await queryClient.invalidateQueries({ queryKey: orpc.auth.workspace.key() });
   // The inbox belongs to the identity. Removed, not invalidated: an invalidated
@@ -43,12 +60,42 @@ export const refreshPostContent = (queryClient: QueryClient) =>
     queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key() }),
   ]);
 
+/** For a like, whose response already carries the post's new state: stale, not
+    refetched, because refetching an infinite query walks every loaded page in
+    series, one round trip per page. */
+export const markPostContentStale = (queryClient: QueryClient) =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: orpc.post.getFeed.key({ type: "infinite" }),
+      refetchType: "none",
+    }),
+    queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key(), refetchType: "none" }),
+  ]);
+
 export const refreshProfileData = (queryClient: QueryClient) =>
   Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.post.getPostsByUser.key() }),
     queryClient.invalidateQueries({ queryKey: orpc.user.getUser.key() }),
     queryClient.invalidateQueries({ queryKey: orpc.user.getUserStats.key() }),
   ]);
+
+/** The letter leaves the feed and its author's profile counts change. Its own
+    query is only marked stale: the permalink is still mounted while it
+    navigates away, and a refetch there can only answer NOT_FOUND. */
+export const refreshAfterPostDeleted = async (queryClient: QueryClient, postId: string) => {
+  const deletedPost = orpc.post.getPost.queryKey({ input: { postId } });
+  const deletedPostHash = hashKey(deletedPost);
+  await queryClient.cancelQueries({ exact: true, queryKey: deletedPost });
+  await Promise.all([
+    queryClient.invalidateQueries({ exact: true, queryKey: deletedPost, refetchType: "none" }),
+    queryClient.invalidateQueries({ queryKey: orpc.post.getFeed.key({ type: "infinite" }) }),
+    queryClient.invalidateQueries({
+      predicate: (query) => query.queryHash !== deletedPostHash,
+      queryKey: orpc.post.getPost.key(),
+    }),
+    refreshProfileData(queryClient),
+  ]);
+};
 
 /** Blocking or unblocking changes both the viewer's block inventory and which
     letters the feed is allowed to show them. Refresh both, or an unblocked author

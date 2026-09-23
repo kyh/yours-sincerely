@@ -3,7 +3,7 @@ import {
   MOBILE_ANDROID_PACKAGE,
 } from "@repo/contracts/mobile-identity";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export const GET = () => {
   const statements = [

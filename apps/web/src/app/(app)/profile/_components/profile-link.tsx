@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { resolveDisplayName } from "@repo/contracts/user";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ const ProfileTooltipContent = ({ userId, displayName }: Props) => {
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">
       <ProfileAvatar className="size-10" src={getAvatarUrl(displayName || userId)} />
-      <h4 className="mb-1 text-center font-bold">{displayName || "Anonymous"}</h4>
+      <h4 className="mb-1 text-center font-bold">{resolveDisplayName(displayName)}</h4>
       {!isLoading && data ? (
         <ActivityStats
           posts={data.userStats?.totalPostCount ?? 0}
@@ -46,7 +47,7 @@ export const ProfileLink = ({ userId, displayName }: Props) => (
       className="inline-flex underline decoration-dotted underline-offset-2"
       render={<Link href={`/profile/${userId}`} />}
     >
-      {displayName || "Anonymous"}
+      {resolveDisplayName(displayName)}
     </TooltipTrigger>
     <TooltipContent
       className="bg-popover text-popover-foreground shadow-md"

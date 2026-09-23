@@ -46,7 +46,7 @@ export const Sidebar = () => {
   });
   const unreadCount = user === null ? 0 : (unread.data?.count ?? 0);
 
-  const iconClassName = "size-6 dark:invert dark-purple:invert";
+  const iconClassName = "size-6 dark:invert";
   const { setDotLottie: homeSetDotLottie, ...homeControlProps } = useIconAnimation();
   const { setDotLottie: bellSetDotLottie, ...bellControlProps } = useIconAnimation();
   const { setDotLottie: userSetDotLottie, ...userControlProps } = useIconAnimation();

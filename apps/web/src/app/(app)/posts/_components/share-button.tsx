@@ -9,23 +9,50 @@ import {
   DrawerTitle,
 } from "@repo/ui/components/drawer";
 import { drawerItemClass } from "@/lib/drawer-item";
+import { WEB_ORIGIN } from "@repo/contracts/site";
 import { toast } from "@repo/ui/components/sonner";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
-import type { RouterOutputs } from "@repo/api";
+import type { FeedPost } from "@repo/api";
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
 }
 
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const postUrl = `https://yourssincerely.org/posts/${post.id}`;
+  // Canonical, not the dev-aware siteConfig.url: a link is shared to be opened
+  // on someone else's device, where localhost names nothing.
+  const postUrl = `${WEB_ORIGIN}/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(postUrl);
+    try {
+      await navigator.clipboard.writeText(postUrl);
+    } catch {
+      toast.error("Could not copy the link");
+      return;
+    }
     toast.success("📝 Copied to Clipboard");
+  };
+
+  const share = async () => {
+    if (!navigator.share) {
+      setIsOpen(true);
+      return;
+    }
+    try {
+      await navigator.share({
+        title: "A tiny beautiful letter",
+        url: postUrl,
+      });
+    } catch (error) {
+      // AbortError is the user dismissing the share sheet; anything else means
+      // the native sheet is unusable here, so offer the in-app options instead.
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        setIsOpen(true);
+      }
+    }
   };
 
   return (
@@ -33,16 +60,7 @@ export const ShareButton = ({ post }: Props) => {
       <button
         type="button"
         className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
-        onClick={() => {
-          if (navigator.share) {
-            navigator.share({
-              title: "A tiny beautiful letter",
-              url: postUrl,
-            });
-          } else {
-            setIsOpen(true);
-          }
-        }}
+        onClick={share}
       >
         <span className="sr-only">Share post</span>
         <ShareIcon className="size-4" />

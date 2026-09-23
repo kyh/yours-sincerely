@@ -5,10 +5,10 @@ import { getExpiryProgress } from "@repo/contracts/content";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 import { formatDistance } from "date-fns";
 
-import type { RouterOutputs } from "@repo/api";
+import type { FeedPost } from "@repo/api";
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
 }
 
 export const TimerButton = ({ post }: Props) => {
