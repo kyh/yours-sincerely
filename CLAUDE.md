@@ -100,8 +100,10 @@ constraint recreates — without asking. No stdin, no apply.
 Supavisor drops the `lock_timeout` that `drizzle.config.ts` asks for, so push's own
 `ALTER`/`DROP` queues behind one slow reader and stalls every query behind it. Wrap the
 statements in `BEGIN; SET LOCAL lock_timeout = '5s'; … COMMIT;` and retry on a timeout.
-Add a foreign key `NOT VALID`, then `VALIDATE CONSTRAINT` outside that transaction; push
-does not diff validation. Drop an index `CONCURRENTLY`.
+One table per transaction where atomicity allows: a lock already taken is held while a
+later statement waits out its timeout. Add a foreign key `NOT VALID`, then
+`VALIDATE CONSTRAINT` outside that transaction; push does not diff validation. Drop an
+index `CONCURRENTLY`.
 
 **`drizzle-kit push` does NOT diff a view's body.** This is the trap. It creates a view
 that is missing and drops one deleted from the schema file, but when the name already
