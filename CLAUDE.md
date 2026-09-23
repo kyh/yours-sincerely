@@ -45,6 +45,8 @@ packages/
   ui/          # shadcn-ui components (web only)
 ```
 
+**oRPC routers are contract-first**: an `oc` contract in `packages/contracts/src/<router>-contract.ts` (outputs as `type<T>()`, which adds no runtime validation), implemented in `packages/api` with `implement()`, `requireUser` applied on the implementer and never on a procedure; `post` is the reference, and Expo drops `@repo/api` once every router is converted.
+
 ## Commands
 
 ```bash

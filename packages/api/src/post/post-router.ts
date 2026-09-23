@@ -4,23 +4,17 @@ import { feed, notification, post } from "@repo/db/drizzle-schema";
 import { describeNotification } from "@repo/contracts/notifications";
 import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import type { NewCommentNotificationData } from "@repo/contracts/notifications";
+import { postContract } from "@repo/contracts/post-contract";
 import { SITE } from "@repo/contracts/site";
 import { resolveDisplayName } from "@repo/contracts/user";
-import { ORPCError } from "@orpc/server";
+import { implement, ORPCError } from "@orpc/server";
 
 import { afterResponse } from "../after-response";
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import { requireUser } from "../orpc";
 import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
 import { sendPushToUser } from "../push/expo-push";
-import {
-  convertDbPostToFeedPost,
-  createPostInput,
-  deletePostInput,
-  getFeedInput,
-  getPostInput,
-  getPostsByUserInput,
-} from "./post-schema";
+import { convertDbPostToFeedPost } from "./post-schema";
 import { getPostHistoryFloor, notBlockedBy, postVisibleTo } from "./post-utils";
 
 /** Which of these posts the viewer has liked. One indexed lookup over the ids on
@@ -39,8 +33,10 @@ const findMyLikes = async (context: ORPCContext, postIds: string[]): Promise<Set
   return new Set(rows.map((row) => row.postId));
 };
 
-export const postRouter = {
-  createPost: publicProcedure.input(createPostInput).handler(async ({ context, input }) => {
+const os = implement(postContract).$context<ORPCContext>();
+
+export const postRouter = os.router({
+  createPost: os.createPost.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context, input.createdBy);
 
     // The comment and its notification commit together: a letter author is
@@ -134,7 +130,7 @@ export const postRouter = {
     };
   }),
 
-  deletePost: protectedProcedure.input(deletePostInput).handler(async ({ context, input }) => {
+  deletePost: os.use(requireUser).deletePost.handler(async ({ context, input }) => {
     const [deleted] = await context.db
       .delete(post)
       .where(and(eq(post.id, input.postId), eq(post.userId, context.user.id)))
@@ -149,7 +145,7 @@ export const postRouter = {
     };
   }),
 
-  getFeed: publicProcedure.input(getFeedInput).handler(async ({ context, input }) => {
+  getFeed: os.getFeed.handler(async ({ context, input }) => {
     const limit = input.limit ?? FEED_PAGE_SIZE;
 
     // One extra row is the sentinel that tells us a next page exists. It is
@@ -199,7 +195,7 @@ export const postRouter = {
     };
   }),
 
-  getPost: publicProcedure.input(getPostInput).handler(async ({ context, input }) => {
+  getPost: os.getPost.handler(async ({ context, input }) => {
     const visible = (row: typeof post) => postVisibleTo(context.db, context.user?.id, row);
 
     // No `likes`/`flags` relations are loaded any more: the counters on Post
@@ -243,7 +239,7 @@ export const postRouter = {
       only dates. It is public and takes an arbitrary `userId`, so it must not
       hand out post IDs: that turned any author into an enumerable archive of
       every letter they ever wrote, permalink by permalink. Dates only. */
-  getPostsByUser: publicProcedure.input(getPostsByUserInput).handler(async ({ context, input }) => {
+  getPostsByUser: os.getPostsByUser.handler(async ({ context, input }) => {
     const posts = await context.db.query.post.findMany({
       columns: {
         createdAt: true,
@@ -254,4 +250,4 @@ export const postRouter = {
 
     return { posts };
   }),
-};
+});

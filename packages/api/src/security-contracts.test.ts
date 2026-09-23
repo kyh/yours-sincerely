@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createPostInput } from "./post/post-schema.ts";
+import { createPostInput } from "@repo/contracts/post";
 import { requestPasswordResetInput } from "./auth/auth-schema.ts";
 import { sessionCookieOptions } from "./auth/session-core.ts";
 import { updateUserInput } from "./user/user-schema.ts";

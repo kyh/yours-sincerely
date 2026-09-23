@@ -1,57 +1,8 @@
-import { z } from "zod";
-
-import { serverTimestamp } from "@repo/contracts/content";
+import type { WirePost } from "@repo/contracts/post-contract";
 import { resolveDisplayName } from "@repo/contracts/user";
 import type { post } from "@repo/db/drizzle-schema";
 
-export { createPostInput, type CreatePostInput } from "@repo/contracts/post";
-
-export const getPostsByUserInput = z.object({
-  userId: z.string(),
-});
-
-export const getPostInput = z.object({
-  postId: z.string(),
-});
-
-/** The `Feed` view only ever contains root posts (`parentId IS NULL`), so it has
-    no `parentId` filter to offer — comments are read through `getPost`. */
-export const getFeedInput = z.object({
-  cursor: z
-    .object({
-      createdAt: serverTimestamp,
-      postId: z.string(),
-    })
-    .optional(),
-  // Bounded: `getFeed` is a public, unauthenticated endpoint. Both clients ask
-  // for FEED_PAGE_SIZE, so 50 is generous headroom while still capping the blast radius.
-  limit: z.number().int().min(1).max(50).optional(),
-  userId: z.string().optional(),
-});
-
-export const deletePostInput = z.object({
-  postId: z.string(),
-});
-
 type DbPost = typeof post.$inferSelect;
-
-/** The wire shape both clients consume. It must not change.
- *
- *  `baseLikeCount` (a seeded offset) and `flagCount` (moderation state) are
- *  omitted deliberately: they are server-owned and have never been on the wire.
- *  `likeCount`/`commentCount` are re-declared so the shape stays identical now
- *  that columns of the same name exist on `Post`. */
-type WirePost = Omit<
-  DbPost,
-  "baseLikeCount" | "updatedAt" | "likeCount" | "commentCount" | "flagCount"
-> & {
-  createdBy: string;
-  parentId: string;
-  isLiked: boolean;
-  likeCount: number;
-  commentCount: number;
-  comments?: WirePost[];
-};
 
 interface ConvertOptions {
   isLiked: boolean;
