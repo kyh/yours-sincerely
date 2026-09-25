@@ -247,7 +247,8 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       }}
       onOpenChangeComplete={(opened) => {
         if (opened) {
-          textareaRef.current?.focus({ preventScroll: true });
+          // No preventScroll: it would also stop a restored draft scrolling to its caret.
+          textareaRef.current?.focus();
         }
       }}
       showSwipeHandle

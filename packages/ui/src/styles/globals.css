@@ -101,6 +101,12 @@
     border-radius: 5px;
   }
 
+  /* Base UI claims a touchmove only while swiping, so a drag on a sheet's still parts
+     would overscroll the page into pull-to-refresh and lose unsaved input. */
+  html:has([data-slot="drawer-popup"]) {
+    overscroll-behavior: none;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklab, var(--foreground) 25%, transparent) transparent;
