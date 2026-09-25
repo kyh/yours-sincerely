@@ -168,6 +168,8 @@ body {
 
 .textarea-grow {
   display: grid;
+  /* A height-capped container would otherwise shrink the row and clip the textarea. */
+  grid-template-rows: max-content;
 }
 
 .textarea-grow::after {
