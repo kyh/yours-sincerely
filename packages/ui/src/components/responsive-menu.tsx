@@ -96,10 +96,17 @@ interface ResponsiveMenuContentProps {
   /** Names the drawer for assistive tech; the menu takes its name from the trigger. */
   title: string;
   description: string;
+  /** Wraps the drawer rows, for a sheet whose rows sit in their own spaced or divided list. */
+  drawerListClassName?: string;
   children: React.ReactNode;
 }
 
-const ResponsiveMenuContent = ({ title, description, children }: ResponsiveMenuContentProps) => {
+const ResponsiveMenuContent = ({
+  title,
+  description,
+  drawerListClassName,
+  children,
+}: ResponsiveMenuContentProps) => {
   const { isDesktop } = useResponsiveMenu();
 
   if (isDesktop) {
@@ -116,7 +123,7 @@ const ResponsiveMenuContent = ({ title, description, children }: ResponsiveMenuC
         <DrawerTitle>{title}</DrawerTitle>
         <DrawerDescription>{description}</DrawerDescription>
       </DrawerHeader>
-      {children}
+      {drawerListClassName ? <div className={drawerListClassName}>{children}</div> : children}
     </DrawerContent>
   );
 };
