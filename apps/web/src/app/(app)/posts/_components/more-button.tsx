@@ -195,7 +195,11 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
         >
           <MoreVerticalIcon aria-hidden="true" className="size-4" />
         </ResponsiveMenuTrigger>
-        <ResponsiveMenuContent title="Post Settings" description="Options for this post">
+        <ResponsiveMenuContent
+          title="Post Settings"
+          description="Options for this post"
+          drawerListClassName="mt-4 flex flex-col font-medium *:border *:border-transparent"
+        >
           <ResponsiveMenuLinkItem href={reportPostMailto(post.id)}>
             <FlagIcon aria-hidden="true" className="size-4" />
             Report Post
