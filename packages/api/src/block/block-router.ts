@@ -4,6 +4,7 @@ import { ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
 import { createBlockInput, deleteBlockInput } from "./block-schema";
 
 export const blockRouter = {
@@ -17,14 +18,18 @@ export const blockRouter = {
 
     // Block_pkey is (blockerId, blockingId). Blocking the same author from a
     // second post is a no-op, not a unique-violation 500.
-    const [created] = await context.db
-      .insert(block)
-      .values({
-        blockerId: userId,
-        blockingId: input.blockingId,
-      })
-      .onConflictDoNothing()
-      .returning();
+    const [created] = await rethrowPgError(
+      context.db
+        .insert(block)
+        .values({
+          blockerId: userId,
+          blockingId: input.blockingId,
+        })
+        .onConflictDoNothing()
+        .returning(),
+      FOREIGN_KEY_VIOLATION,
+      () => new ORPCError("NOT_FOUND", { message: "User not found" }),
+    );
 
     // `onConflictDoNothing().returning()` yields nothing when the row already
     // existed, so read it back rather than handing the client an `undefined`.

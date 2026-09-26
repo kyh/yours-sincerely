@@ -1,14 +1,9 @@
+import { z } from "zod";
+
+import { ANONYMOUS_DISPLAY_NAME } from "./user.ts";
+
 export const POST_EXPIRY_DAYS = 21;
 const LEGACY_AVATAR_COUNT = 20;
-
-/** A feed row shows at most this much of a letter before deferring to the
-    detail screen; a single 50,000-character letter would otherwise be the
-    whole scroll. Either bound trips the preview. */
-export const FEED_PREVIEW_MAX_CHARS = 500;
-export const FEED_PREVIEW_MAX_LINES = 12;
-
-export const needsFeedPreview = (content: string): boolean =>
-  content.length > FEED_PREVIEW_MAX_CHARS || content.split("\n").length > FEED_PREVIEW_MAX_LINES;
 
 /** Server timestamps come from Postgres `timestamp without time zone` columns
     (drizzle mode "string") as UTC wall time like "2026-07-09 18:23:45.123".
@@ -24,6 +19,25 @@ export const parseServerDate = (value: string): Date => {
   }
   return new Date(`${iso}Z`);
 };
+
+/** A server timestamp echoed back as input, as keyset cursors do. Postgres rejects
+    anything else with a cast error, which would reach the client as a 500 instead
+    of a 400. `z.iso.datetime` cannot express it: it demands the `T` that Postgres
+    prints as a space. */
+export const serverTimestamp = z
+  .string()
+  .regex(
+    // Year 0000 and offsets past ±15:59 are also cast errors in Postgres.
+    /^(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])[ T](?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:0\d|1[0-5])(?::?[0-5]\d)?)?$/u,
+    "Not a server timestamp",
+  )
+  // The pattern admits February 30th, which Postgres rejects and `Date` silently
+  // rolls into March, so the calendar date has to survive a round trip.
+  .refine((value) => {
+    const day = value.slice(0, 10);
+    const parsed = parseServerDate(day);
+    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().startsWith(day);
+  }, "Not a calendar date");
 
 export interface ExpiryProgress {
   start: Date;
@@ -66,7 +80,7 @@ export const LIKE_BURST_COLOR_PAIRS = [
   { from: "#91D3F7", id: "sky-mint-b", to: "#9AE4CF" },
 ];
 
-export const getLegacyAvatarIndex = (value = "Anonymous") => {
+export const getLegacyAvatarIndex = (value = ANONYMOUS_DISPLAY_NAME) => {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
     // oxlint-disable-next-line no-bitwise, unicorn/prefer-code-point -- the legacy hash; changing it reassigns every stored avatar

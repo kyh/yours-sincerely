@@ -1,18 +1,17 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "ui": "tui",
+  "cacheMaxSize": "2GB",
   "tasks": {
     "topo": {
       "dependsOn": ["^topo"]
     },
     "build": {
-      "dependsOn": ["^topo"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": ["^topo"]
     },
     "dev": {
-      "dependsOn": ["^dev"],
       "cache": false,
-      "persistent": false
+      "persistent": true
     },
     "typecheck": {
       "dependsOn": ["^topo"],
@@ -33,8 +32,8 @@
     "COOKIE_SECRET",
     "COOKIE_SECRET_LEGACY",
     "POSTGRES_URL",
-    "NEXT_PUBLIC_SUPABASE_URL",
     "RESEND_API_KEY",
+    "RESET_LINK_ORIGIN",
     "EXPO_PUBLIC_API_URL",
     "EXPO_PUBLIC_API_PORT",
     "GOOGLE_SERVICES_JSON",

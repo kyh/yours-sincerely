@@ -1,6 +1,5 @@
+import { WEB_ORIGIN } from "@repo/contracts/site";
 import Constants from "expo-constants";
-
-const PROD_URL = "https://yourssincerely.org";
 
 /**
  * Dev builds talk to the local web dev server (`pnpm dev:web`) over LAN —
@@ -16,11 +15,11 @@ export const getBaseUrl = () => {
     return override;
   }
   if (!__DEV__) {
-    return PROD_URL;
+    return WEB_ORIGIN;
   }
   const host = Constants.expoConfig?.hostUri?.split(":")[0];
   if (!host) {
-    return PROD_URL;
+    return WEB_ORIGIN;
   }
   const port = process.env.EXPO_PUBLIC_API_PORT ?? "3000";
   return `http://${host}:${port}`;

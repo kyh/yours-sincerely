@@ -1,6 +1,6 @@
 import type { Config } from "drizzle-kit";
 
-import { toDirectConnectionUrl } from "./src/connection-url";
+import { toDirectConnectionUrl, withLockTimeout } from "./src/connection-url";
 
 if (!process.env.POSTGRES_URL) {
   throw new Error("Missing POSTGRES_URL");
@@ -13,7 +13,8 @@ const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
 
 /** There is no `out`, and no `generate`/`migrate` script, because this schema is
     declared rather than accumulated: `drizzle-kit push` syncs tables, columns and
-    indexes from the file below, and `sql/` holds everything push cannot express
+    indexes from the file below (but not an index redefined under its old name:
+    see `sql/README.md`), and `sql/` holds everything push cannot express
     (functions, triggers, grants, views). `pnpm -F db push` runs both. Nothing is
     replayed, so there is no migration history to drift from the schema.
 
@@ -25,7 +26,17 @@ const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
     production-shaped database, it emits no `auth` DDL at all. */
 export default {
   dbCredentials: {
-    url: nonPoolingUrl,
+    /** drizzle-kit applies each statement on its own and sets no lock_timeout, so
+        a DROP INDEX or ALTER TABLE queued behind one slow reader blocks every
+        reader after it: the outage `apply-sql.ts` prevents with `SET LOCAL`.
+        drizzle-kit has no session hook, so the setting rides in the startup
+        packet. Verified on a direct connection: a DROP INDEX behind a held reader
+        lock fails at the timeout instead of queueing. Supavisor (local 2.9.7,
+        session and transaction mode) accepts the option but DROPS it —
+        `SHOW lock_timeout` reads 0 — so through the production pooler this is
+        no protection: run lock-heavy DDL by hand first (e.g. `DROP INDEX
+        CONCURRENTLY`) so push plans none. */
+    url: withLockTimeout(nonPoolingUrl, "5s"),
   },
   dialect: "postgresql",
   schema: "./src/drizzle-schema.ts",

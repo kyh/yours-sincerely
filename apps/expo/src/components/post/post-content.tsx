@@ -1,9 +1,10 @@
 import { Pressable, useWindowDimensions, View } from "react-native";
 import { useRouter } from "expo-router";
 import Svg, { Line } from "react-native-svg";
+import { resolveDisplayName } from "@repo/contracts/user";
 
 import type { FeedLayout } from "@/lib/feed-layout";
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost } from "@/lib/api";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { cn } from "cn";
@@ -81,7 +82,7 @@ export const PostContent = ({
               accessibilityLabel={`Open ${post.createdBy}'s profile`}
               onPress={openProfile}
             >
-              <Text className="text-sm italic">{post.createdBy || "Anonymous"}</Text>
+              <Text className="text-sm italic">{resolveDisplayName(post.createdBy)}</Text>
               <View pointerEvents="none" className="absolute right-0 bottom-0.5 left-0">
                 <Svg width="100%" height={1}>
                   <Line

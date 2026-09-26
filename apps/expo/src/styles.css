@@ -20,10 +20,10 @@
   --secondary: hsl(47 27% 87%);
   --secondary-foreground: hsl(60 6% 13%);
   --muted: hsl(47 27% 87%);
-  --muted-foreground: hsl(60 6% 60%);
+  --muted-foreground: hsl(60 6% 37%);
   --accent: hsl(47 27% 87%);
   --accent-foreground: hsl(60 6% 13%);
-  --destructive: hsl(358 72% 59%);
+  --destructive: hsl(358 72% 45%);
   --destructive-foreground: hsl(34 10% 98%);
   --border: hsl(60 6% 85%);
   --input: oklch(0.92 0.004 286.32);
@@ -91,7 +91,9 @@
   font-family: "Inter_800ExtraBold";
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* ThemeProvider puts `dark-purple` on the root without `dark`, so every `dark:`
+   style would skip it. */
+@custom-variant dark (&:where(.dark, .dark *, .dark-purple, .dark-purple *));
 
 .dark {
   --background: hsl(60 6% 5%);
@@ -105,17 +107,15 @@
   --secondary: hsl(60 6% 17%);
   --secondary-foreground: hsl(0 0% 98%);
   --muted: hsl(60 6% 17%);
-  --muted-foreground: hsl(60 6% 50%);
+  --muted-foreground: hsl(60 6% 56%);
   --accent: hsl(60 6% 17%);
   --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
+  --destructive: hsl(359 100% 70%);
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(60 6% 17%);
   --input: oklch(1 0 0 / 15%);
   --ring: hsl(0 0% 98%);
 }
-
-@custom-variant light-purple (&:where(.light-purple, .light-purple *));
 
 .light-purple {
   --background: hsl(256 40% 95%);
@@ -124,21 +124,19 @@
   --card-foreground: hsl(258 78% 14%);
   --popover: hsl(34 10% 98%);
   --popover-foreground: hsl(258 78% 14%);
-  --primary: hsl(236 61% 70%);
+  --primary: hsl(236 61% 59%);
   --primary-foreground: hsl(34 10% 98%);
   --secondary: hsl(260 19% 76%);
   --secondary-foreground: hsl(258 78% 14%);
-  --muted: hsl(260 19% 76%);
-  --muted-foreground: hsl(258 16% 58%);
+  --muted: hsl(260 19% 90%);
+  --muted-foreground: hsl(258 16% 44%);
   --accent: hsl(260 19% 90%);
   --accent-foreground: hsl(258 78% 14%);
-  --destructive: hsl(358 72% 59%);
+  --destructive: hsl(358 72% 43%);
   --destructive-foreground: hsl(34 10% 98%);
   --border: hsl(258 22% 76%);
   --ring: hsl(236 61% 70%);
 }
-
-@custom-variant dark-purple (&:where(.dark-purple, .dark-purple *));
 
 .dark-purple {
   --background: hsl(217.24 32.58% 17.45%);
@@ -148,15 +146,16 @@
   --popover: hsl(222 47.4% 11.2%);
   --popover-foreground: hsl(0 0% 98%);
   --primary: hsl(236 61% 70%);
-  --primary-foreground: hsl(0 0% 98%);
+  --primary-foreground: hsl(222 47.4% 11.2%);
   --secondary: hsl(215.29 25% 26.67%);
   --secondary-foreground: hsl(212.73 26.83% 83.92%);
   --muted: hsl(60 6% 17%);
   --muted-foreground: hsl(212.73 26.83% 83.92%);
   --accent: hsl(215.29 25% 26.67%);
   --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(358 72% 59%);
+  --destructive: hsl(358 72% 76%);
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(215.29 25% 26.67%);
+  --input: oklch(1 0 0 / 15%);
   --ring: hsl(0 0% 98%);
 }

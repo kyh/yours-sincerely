@@ -14,24 +14,18 @@ import { PostContent } from "@/components/post/post-content";
 import { PostForm } from "@/components/post/post-form";
 import { orpc } from "@/lib/api";
 import { getReadingTime } from "@repo/contracts/content";
-import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */
 const PostScreen = () => {
-  const params = useLocalSearchParams();
-  const postIdParam = params["post-id"];
-  const postId = Array.isArray(postIdParam) ? "" : (postIdParam ?? "");
-  const { user } = useWorkspaceUser();
+  const { "post-id": postId } = useLocalSearchParams<"/posts/[post-id]">();
 
-  const { data, error, isPending, isError, refetch } = useQuery({
-    ...orpc.post.getPost.queryOptions({ input: { postId } }),
-    enabled: postId.length > 0,
-  });
+  const { data, error, isPending, isError, refetch } = useQuery(
+    orpc.post.getPost.queryOptions({ input: { postId } }),
+  );
   const post = data?.post;
 
-  const isGone =
-    postId.length === 0 || (isError && error instanceof ORPCError && error.code === "NOT_FOUND");
+  const isGone = isError && error instanceof ORPCError && error.code === "NOT_FOUND";
   let content: ReactNode;
   if (isGone) {
     content = (
@@ -83,9 +77,7 @@ const PostScreen = () => {
               <PostContent post={post} layout="stack" asLink={false} showComment={false} />
             </Card>
 
-            {user !== null && (
-              <PostForm parentId={post.id} placeholder="Comment on this love letter..." />
-            )}
+            <PostForm parentId={post.id} placeholder="Comment on this love letter..." />
 
             <View className="flex-row items-center gap-2 py-3">
               <Text className="text-muted-foreground text-sm">Comments ({post.commentCount})</Text>

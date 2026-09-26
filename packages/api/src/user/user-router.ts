@@ -9,10 +9,12 @@ import {
   token,
   user,
 } from "@repo/db/drizzle-schema";
+import { ORPCError } from "@orpc/server";
 
 import { clearSession } from "../auth/session";
 import { collectDescendantPostIds } from "../post/post-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
 import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
 
 /** `public."getUserStats"(text)` — see `sql/040-user-stats.sql`. Quoted because the name is
@@ -78,14 +80,14 @@ export const userRouter = {
    *  the `getUserStats(text)` function, which pushes the userId into the CTEs.
    *  Same columns, same numbers (characterized against the view for all users). */
   getUserStats: publicProcedure.input(getUserStatsInput).handler(async ({ context, input }) => {
-    const rows = await context.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
-
-    const parsed = userStatsRow.safeParse(rows[0]);
+    const [row] = await context.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
 
     return {
       // A user with no posts still yields a row (zeros). No row at all means no
-      // such user — the clients already render that as "not found".
-      userStats: parsed.success ? parsed.data : undefined,
+      // such user — the clients already render that as "not found". A row that
+      // fails to parse is drift between the SQL function and `userStatsRow`, and
+      // must fail loudly rather than pass for a missing user.
+      userStats: row === undefined ? undefined : userStatsRow.parse(row),
     };
   }),
 
@@ -100,16 +102,16 @@ export const userRouter = {
       updates.displayName = input.displayName;
     }
 
-    const [response] = await context.db
-      .update(user)
-      .set(updates)
-      .where(eq(user.id, context.user.id))
-      .returning({
+    const [response] = await rethrowPgError(
+      context.db.update(user).set(updates).where(eq(user.id, context.user.id)).returning({
         displayImage: user.displayImage,
         displayName: user.displayName,
         email: user.email,
         id: user.id,
-      });
+      }),
+      UNIQUE_VIOLATION,
+      () => new ORPCError("CONFLICT", { message: "Email already in use" }),
+    );
 
     return {
       user: response,

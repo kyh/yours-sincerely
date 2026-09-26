@@ -10,6 +10,8 @@ import {
   createPostsDailyActivity,
   createPostsHeatmap,
   FULL_DAY_LABELS,
+  HEATMAP_DAYS,
+  HEATMAP_WIDE_MIN_WIDTH,
   PROFILE_CALENDAR_THEMES,
 } from "@repo/contracts/calendar";
 import type { RouterOutputs } from "@/lib/api";
@@ -88,7 +90,10 @@ export const ProfileContent = ({ userId }: Props) => {
 
   const allowEdit = currentUser !== null && currentUser.id === user.id;
   const dailyData = createPostsDailyActivity(posts);
-  const heatmapData = createPostsHeatmap(posts, width >= 640 ? 200 : 120);
+  const heatmapData = createPostsHeatmap(
+    posts,
+    width >= HEATMAP_WIDE_MIN_WIDTH ? HEATMAP_DAYS.wide : HEATMAP_DAYS.narrow,
+  );
   const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
   const favoriteDay = dailyData.max.day === "none" ? null : FULL_DAY_LABELS[dailyData.max.day];
 

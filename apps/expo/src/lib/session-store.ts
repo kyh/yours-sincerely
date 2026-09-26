@@ -43,16 +43,17 @@ export const setSessionCookie = (value: string) => {
   persistPendingSession();
 };
 
+const removeCookie = async () => {
+  await SecureStore.deleteItemAsync(SESSION_KEY);
+  if (getSessionCookie() !== null) {
+    throw new Error("The session could not be removed from secure storage");
+  }
+};
+
 export const deleteSessionCookie = (): Promise<void> => {
   if (pendingSessionDeletion !== null) {
     return pendingSessionDeletion;
   }
-  const removeCookie = async () => {
-    await SecureStore.deleteItemAsync(SESSION_KEY);
-    if (getSessionCookie() !== null) {
-      throw new Error("The session could not be removed from secure storage");
-    }
-  };
   const finishDeletion = async () => {
     advanceSessionGeneration();
     pendingSessionWrite = null;

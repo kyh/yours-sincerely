@@ -5,7 +5,7 @@ import { formatDistance } from "date-fns";
 import Svg, { Circle, Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost } from "@/lib/api";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { sectorPath } from "@/lib/timer-geometry";

@@ -4,16 +4,7 @@ import { ORPCError, os } from "@orpc/server";
 import { getCookie } from "@orpc/server/helpers";
 
 import { authenticateSessionValue, renewSessionIfStale } from "./auth/session";
-
-/** Excludes only `passwordHash`, so `sessionEpoch` comes through. */
-const findDbUser = async (userId: string) => {
-  const dbUser = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: userId },
-  });
-
-  return dbUser ?? null;
-};
+import { findSessionUser } from "./auth/session-user";
 
 /**
  * Builds the per-request context: the database, plus the caller's user when a
@@ -31,7 +22,9 @@ export const createORPCContext = async (opts: { headers: Headers }) => {
   // Resolves the cookie AND enforces the session epoch: a session revoked by a
   // password reset or "sign out everywhere" yields no user. Reuses the user row
   // the context loads anyway, so the check costs zero extra queries.
-  const sessionUser = await authenticateSessionValue(sessionValue, findDbUser);
+  const sessionUser = await authenticateSessionValue(sessionValue, (userId) =>
+    findSessionUser(db, userId),
+  );
 
   // Renewal is gated behind a valid session and re-signs with the epoch from
   // the DATABASE, so a revoked session can never renew itself back into

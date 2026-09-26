@@ -1,26 +1,48 @@
 import { and, eq } from "@repo/db";
 import { like } from "@repo/db/drizzle-schema";
-import { getDefaultValues } from "@repo/db/utils";
+import { ORPCError } from "@orpc/server";
 
+import type { ORPCContext } from "../orpc";
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
 import { createLikeInput, deleteLikeInput } from "./like-schema";
+
+const postNotFound = () => new ORPCError("NOT_FOUND", { message: "Post not found" });
+
+/** Like_pkey is (postId, userId). A double-tap is an ordinary thing for a
+    user to do and must be a no-op, not a unique-violation 500. */
+const insertLike = async (context: ORPCContext, postId: string, userId: string) => {
+  // The author can delete the letter while it is still on the liker's screen.
+  const [created] = await rethrowPgError(
+    context.db.insert(like).values({ postId, userId }).onConflictDoNothing().returning(),
+    FOREIGN_KEY_VIOLATION,
+    postNotFound,
+  );
+  return created;
+};
+
+/** Read after the write, once the counter trigger has run, so a client can
+    write the server's own number into its cache instead of refetching every
+    feed page it has loaded. The total is the Feed view's: seeded offset plus
+    real likes. Undefined when the letter is gone: unliking a deleted letter
+    succeeds as it always has, and clients fall back to a refetch. */
+const readLikeState = async (context: ORPCContext, postId: string, isLiked: boolean) => {
+  const row = await context.db.query.post.findFirst({
+    columns: { baseLikeCount: true, id: true, likeCount: true },
+    where: { id: postId },
+  });
+
+  return row === undefined
+    ? undefined
+    : { id: row.id, isLiked, likeCount: (row.baseLikeCount ?? 0) + row.likeCount };
+};
 
 export const likeRouter = {
   createLike: publicProcedure.input(createLikeInput).handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
-    // Like_pkey is (postId, userId). A double-tap is an ordinary thing for a
-    // user to do and must be a no-op, not a unique-violation 500.
-    const [created] = await context.db
-      .insert(like)
-      .values({
-        ...getDefaultValues({ withId: false }),
-        postId: input.postId,
-        userId,
-      })
-      .onConflictDoNothing()
-      .returning();
+    const created = await insertLike(context, input.postId, userId);
 
     // `onConflictDoNothing().returning()` yields nothing when the row already
     // existed, so read it back rather than handing the client an `undefined`.
@@ -32,6 +54,7 @@ export const likeRouter = {
 
     return {
       like: existing,
+      post: await readLikeState(context, input.postId, existing !== undefined),
     };
   }),
 
@@ -43,6 +66,7 @@ export const likeRouter = {
 
     return {
       like: deleted,
+      post: await readLikeState(context, input.postId, false),
     };
   }),
 };

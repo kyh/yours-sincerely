@@ -1,24 +1,23 @@
-import { cookies } from "next/headers";
+import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import { cn } from "cn";
 
-import type { FeedFilters } from "@/lib/feed-query";
+import type { FeedFilters } from "@repo/api";
 import { PostFeed } from "@/app/(app)/posts/_components/post-feed";
 import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form";
 import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";
 import { feedInfiniteArgs } from "@/lib/feed-query";
-import { getFeedLayout } from "@/lib/feed-layout-actions";
+import { getFeedLayout } from "@/lib/feed-layout";
 import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
 
 const feedFilters: FeedFilters = {
-  limit: 5,
+  limit: FEED_PAGE_SIZE,
 };
 
 const Page = async () => {
-  const [cookieStore, placeholder] = await Promise.all([
-    cookies(),
+  const [feedLayout, placeholder] = await Promise.all([
+    getFeedLayout(),
     caller.prompt.getRandomPrompt(),
   ]);
-  const feedLayout = await getFeedLayout(cookieStore);
 
   prefetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters)));
 

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
+import { createLikeMutationHandlers } from "@repo/contracts/like-cache";
+import { ORPCError } from "@orpc/client";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
@@ -20,14 +22,16 @@ import Svg, { Circle, Path } from "react-native-svg";
 import { scheduleOnRN } from "react-native-worklets";
 import { toast } from "sonner-native";
 
-import type { RouterOutputs } from "@/lib/api";
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost, RouterOutputs } from "@/lib/api";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 import { queryClient, orpc } from "@/lib/api";
 import { ignoreRejection } from "@/lib/ignore-rejection";
-import { createLikeMutationHandlers } from "@/lib/like-cache";
-import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
+import {
+  markPostContentStale,
+  refreshPostContent,
+  refreshWorkspaceIdentityIfAnonymous,
+} from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
@@ -251,8 +255,9 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
       },
       readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
       readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
+      // A failed like can still have minted the anonymous user.
       refresh: () => {
-        void ignoreRejection(refreshPostContent());
+        void ignoreRejection(markPostContentStale());
         void ignoreRejection(refreshWorkspaceIdentityIfAnonymous());
       },
       writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
@@ -265,6 +270,13 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
     ...handlers,
     onError: (...args: Parameters<typeof handlers.onError>) => {
       handlers.onError(...args);
+      const [error] = args;
+      if (error instanceof ORPCError && error.code === "NOT_FOUND") {
+        toast.error("This letter has been deleted.");
+        // Unlike a like, this changes which letters the feed holds.
+        void ignoreRejection(refreshPostContent());
+        return;
+      }
       toast.error("Could not update this like. Please try again.");
     },
   };

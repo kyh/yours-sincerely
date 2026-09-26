@@ -10,7 +10,7 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { PushNotificationCoordinator } from "./push-notification-registration";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
-/** Mounts push registration for the signed-in user. Signed out, it keeps
+/** Runs push registration for the signed-in user. Signed out, it keeps
     retrying the server-side release of a device record that an offline
     sign-out could not clear. */
 export const PushNotificationProvider = ({ children }: { children: ReactNode }) => {
@@ -53,12 +53,16 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
     };
   }, [cleanupPushDevice, isError, isPending, user]);
 
-  if (user === null || pushCleanupCapability === null) {
-    return children;
-  }
-
+  // Rendered even signed out: this wraps the whole app, so swapping it for bare
+  // `children` when the user changes would remount every screen below it.
   return (
-    <PushNotificationCoordinator pushCleanupCapability={pushCleanupCapability} userId={user.id}>
+    <PushNotificationCoordinator
+      identity={
+        user === null || pushCleanupCapability === null
+          ? null
+          : { pushCleanupCapability, userId: user.id }
+      }
+    >
       {children}
     </PushNotificationCoordinator>
   );

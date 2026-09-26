@@ -1,34 +1,30 @@
 import type { ORPCContext } from "../orpc";
-import { and, count, desc, eq, inArray, isNull, lt, lte, notExists, or, sql } from "@repo/db";
-import { block, notification, post } from "@repo/db/drizzle-schema";
+import { alias, and, count, desc, eq, inArray, isNull, sql } from "@repo/db";
+import { notification, post } from "@repo/db/drizzle-schema";
 import {
   listNotificationsInput,
   markNotificationsReadInput,
   NOTIFICATION_PAGE_SIZE,
   NOTIFICATION_PREVIEW_MAX_CHARS,
+  UNREAD_COUNT_CAP,
 } from "@repo/contracts/notifications";
 
 import { protectedProcedure } from "../orpc";
-import { FLAG_HIDE_THRESHOLD } from "../post/post-utils";
+import { postVisibleTo } from "../post/post-utils";
 
 /** Code points, not UTF-16 units, so a cut never lands inside an emoji. */
 const previewOf = (content: string) =>
   [...content].slice(0, NOTIFICATION_PREVIEW_MAX_CHARS).join("");
 
-/** The rules `post.getPost` applies before it shows a comment, on the joined
-    `post` row: a preview must not carry words the recipient blocked or the
-    community flagged into hiding, and the badge must not count a row the list
-    will not show. */
-const commentVisibleTo = (db: ORPCContext["db"], viewerId: string) =>
-  and(
-    notExists(
-      db
-        .select({ blocked: sql`1` })
-        .from(block)
-        .where(and(eq(block.blockerId, viewerId), eq(block.blockingId, post.userId))),
-    ),
-    lte(post.flagCount, FLAG_HIDE_THRESHOLD),
-  );
+/** The letter a notification is about. `post` is joined as its comment. */
+const letter = alias(post, "letter");
+
+/** `post.getPost` must be willing to serve both the comment and its letter: a
+    preview must not carry words the recipient blocked or the community flagged
+    into hiding, a tap must not land on NOT_FOUND, and the badge must not count a
+    row the list will not show. */
+const notificationVisibleTo = (db: ORPCContext["db"], viewerId: string) =>
+  and(postVisibleTo(db, viewerId, post), postVisibleTo(db, viewerId, letter));
 
 export const notificationRouter = {
   list: protectedProcedure.input(listNotificationsInput).handler(async ({ context, input }) => {
@@ -49,21 +45,16 @@ export const notificationRouter = {
         readAt: notification.readAt,
       })
       .from(notification)
-      // Inner: the comment FK cascades, so a notification without its comment
-      // cannot exist.
+      // Inner: the comment and letter FKs cascade, so a notification without
+      // either cannot exist.
       .innerJoin(post, eq(post.id, notification.commentId))
+      .innerJoin(letter, eq(letter.id, notification.postId))
       .where(
         and(
           eq(notification.userId, context.user.id),
-          commentVisibleTo(context.db, context.user.id),
+          notificationVisibleTo(context.db, context.user.id),
           input.cursor
-            ? or(
-                lt(notification.createdAt, input.cursor.createdAt),
-                and(
-                  eq(notification.createdAt, input.cursor.createdAt),
-                  lt(notification.id, input.cursor.notificationId),
-                ),
-              )
+            ? sql`(${notification.createdAt}, ${notification.id}) < (${input.cursor.createdAt}, ${input.cursor.notificationId})`
             : undefined,
         ),
       )
@@ -106,17 +97,21 @@ export const notificationRouter = {
     }),
 
   unreadCount: protectedProcedure.handler(async ({ context }) => {
-    const [row] = await context.db
-      .select({ count: count() })
+    const unread = context.db
+      .select({ id: notification.id })
       .from(notification)
       .innerJoin(post, eq(post.id, notification.commentId))
+      .innerJoin(letter, eq(letter.id, notification.postId))
       .where(
         and(
           eq(notification.userId, context.user.id),
           isNull(notification.readAt),
-          commentVisibleTo(context.db, context.user.id),
+          notificationVisibleTo(context.db, context.user.id),
         ),
-      );
+      )
+      .limit(UNREAD_COUNT_CAP)
+      .as("unread");
+    const [row] = await context.db.select({ count: count() }).from(unread);
 
     return { count: row?.count ?? 0 };
   }),

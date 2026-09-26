@@ -20,9 +20,8 @@ Release audit, updated 2026-09-19:
   (`2026090501`) was canceled with no artifact. Its newly generated key was removed and
   the preview credential was verified unchanged. Production Android now uses the explicitly
   authorized local replacement key, not an EAS-generated key.
-- An archived Android key was found at
-  `~/Documents/Desktop/code/yours-sincerely/signing.keystore`, alias `my-key-alias`.
-  Its SHA-256 fingerprint is
+- An archived Android key was found in the owner's local release archive, outside the
+  repository. Its SHA-256 fingerprint is
   `A5:4E:25:FA:9A:72:34:61:1E:74:10:40:96:71:7F:6D:9B:0B:67:FE:D8:45:8D:93:23:EB:8B:4F:94:61:9C:24`.
   It matches the archived APK/AAB, package `com.kyh.yourssincerely`, version `1.1.0.0`
   (code `40`). Play Console verification on September 19 established that it matches
@@ -40,8 +39,7 @@ Release audit, updated 2026-09-19:
 Both artifacts contain version `2.0.0`, Hermes bytecode, and the production app identity.
 Both include the profile-corner/swatch and theme corrections, production API host, and
 no local port-3100 API URL or temporary navigation diagnostics. Neither was submitted to
-a store. Artifact receipts: `/tmp/ys-theme-production-artifacts-20260919/` (platform build
-metadata and verification JSON).
+a store. Build metadata and verification JSON were local evidence, not retained.
 
 The source passed CI and full `pnpm verify` (212 tests, including 69 Expo tests). All four
 iOS themes passed local transitions and cold-launch persistence. Android theme interaction
@@ -58,7 +56,7 @@ and iOS native back gesture checks remain open; signed artifacts do not close th
   certificate below. Target SDK 36, minimum SDK 24, Firebase project `yours-sincerely`,
   notification permission present, overlay permission absent, debugging disabled.
   All 50 bundled arm64-v8a/x86_64 libraries have ELF load-segment alignment of at least
-  16 KB. No bundled keystores or `.credentials/` entries were found. This is artifact validation,
+  16 KB. No bundled keystores or credential files were found. This is artifact validation,
   not a 16 KB device runtime test.
   AAB SHA-256: `ac4d0136d6e10dcae681f018361e789c3835c983b49855a173eaf96b49e4cbc2`.
 
@@ -74,9 +72,8 @@ Verified 2026-09-19:
 - The user authorized replacement-key preparation on September 19. A new RSA-4096 upload
   keystore was generated and its private key verified locally. Its SHA-256 certificate is
   `EB:EF:98:9A:37:19:06:49:4B:D7:4B:24:D3:EE:89:AB:C9:17:FC:C0:6F:7E:4C:E5:AC:0C:EF:68:9A:F2:72:9C`.
-  Private files are under `~/.config/yours-sincerely/android-upload-20260919/` with
-  directory mode 0700 and file mode 0600. A verified local-repo copy is now in
-  `.credentials/production/android/`; the public certificate is committed at
+  The private files are kept in the owner's local credential bundle, outside the
+  repository; the public certificate is committed at
   [`certificates/android-upload.pem`](./certificates/android-upload.pem).
 - The owner submitted the reset. Play Console now displays the matching
   `EB:EF:…:72:9C` upload certificate. Its confirmation says the new key becomes valid
@@ -91,30 +88,28 @@ For install commands and the exact upgrade test, use [phone testing](./phone-tes
 
 ## Credential files and recovery
 
-The local checkout contains the complete Android signing and FCM credential bundle in
-**`.credentials/production/`**. Git ignores this entire directory. Private files are mode
-0600; directories are mode 0700. No private keys or passwords are committed or included
-in the normal EAS source archive. EAS uploads the selected local signing credential
-separately when a build is requested.
+The complete Android signing and FCM credentials are kept in the owner's local
+credential bundle, outside the repository. Private files are mode 0600; directories are
+mode 0700. No private keys or passwords are committed or included in the normal EAS source
+archive. EAS uploads the selected local signing credential separately when a build is
+requested.
 
-| Local file                       | Purpose                                                  |
-| -------------------------------- | -------------------------------------------------------- |
-| `android/upload-keystore.jks`    | Replacement Play upload private key; alias `upload`      |
-| `android/credentials.json`       | Keystore password, key password, alias, and path for EAS |
-| `android/upload-certificate.pem` | Public certificate submitted to Play                     |
-| `fcm/service-account.json`       | Complete FCM V1 credential already assigned in EAS       |
-| `fcm/private-key.pem`            | Original FCM private key, also contained in the JSON     |
-| `fcm/public-certificate.pem`     | Public certificate registered with Google                |
-| `google-services.json`           | Firebase Android config for `com.kyh.yourssincerely`     |
+The bundle holds:
 
-Android `credentials.json` is already installed in ignored `apps/expo/credentials.json`;
-its keystore path resolves relative to that directory. To restore it and create a future
-build, run from the repository root. The finished candidate above needs no rebuild solely
-because the Play key activates later:
+- the replacement Play upload keystore, plus an EAS `credentials.json` carrying its
+  passwords and path;
+- the FCM V1 service-account JSON already assigned in EAS, and the original FCM private
+  key it contains;
+- `google-services.json`, the Firebase Android config for `com.kyh.yourssincerely`;
+- the public upload and FCM certificates, also committed under [`certificates/`](./certificates/).
+
+EAS reads Android signing from ignored, mode-0600 `apps/expo/credentials.json`; its keystore
+path resolves relative to `apps/expo`. To restore it, copy the bundle's `credentials.json`
+there with mode 0600 and place the keystore at the path it names. Then build from
+`apps/expo`. The finished candidate above needs no rebuild solely because the Play key
+activates later:
 
 ```sh
-install -m 600 .credentials/production/android/credentials.json apps/expo/credentials.json
-cd apps/expo
 APP_VARIANT=production eas build --profile production --platform android
 ```
 
@@ -123,12 +118,11 @@ Production `GOOGLE_SERVICES_JSON` remains configured in EAS. The local Firebase 
 matches its project/package; it is separate from the FCM service-account credential.
 To restore FCM in EAS, run `APP_VARIANT=production eas credentials --platform android`
 from `apps/expo`, select production → Google Service Account → Push Notifications
-(FCM V1), and supply `../../.credentials/production/fcm/service-account.json`.
+(FCM V1), and supply the bundle's service-account JSON.
 
-A fresh Git clone does **not** contain private credentials. Transfer the ignored bundle
-through a secure channel and preserve permissions; keep an encrypted off-machine backup
-of it. The original copies in `~/.config/yours-sincerely/` are on this same computer,
-so they do not protect against losing the computer. Do not force-add `.credentials/`.
+A fresh Git clone does **not** contain private credentials. Transfer the bundle through a
+secure channel and preserve permissions; keep an encrypted off-machine backup of it — copies
+on the same computer do not protect against losing it. Never commit any part of it.
 
 Apple distribution/provisioning/APNs credentials remain managed in EAS, under the existing
 Apple team; they were not exported into this Android/FCM bundle. Web `COOKIE_SECRET`,
@@ -145,7 +139,7 @@ These are web/server secrets, not EAS values. Losing the legacy signer invalidat
 
 ### Android runtime provenance
 
-The archived `Yours Sincerely.apk` and `.aab` beside the recovered key are PWABuilder
+The archived `Yours Sincerely.apk` and `.aab` kept with the recovered key are PWABuilder
 Trusted Web Activity builds (`1.1.0.0`, APK code `40`), with a trusted-browser launcher,
 `generatorApp=PWABuilder`, `fallbackType=customtabs`, and `https://yourssincerely.org/`.
 They establish the signing certificate, not the current Play runtime.
@@ -204,10 +198,8 @@ with explicit owner approval, dedicated service account
 `expo-push@yours-sincerely.iam.gserviceaccount.com` was created with only
 `roles/firebasecloudmessaging.admin`. No broader Firebase Admin/Editor or Play access was
 assigned. Its RSA-2048 key was generated locally; only its public X.509 certificate was
-uploaded to Google. The private JSON is stored outside Git under
-`~/.config/yours-sincerely/fcm-20260919/` and copied into the ignored repo folder
-`.credentials/production/fcm/` (directories 0700, files 0600). Its
-[public certificate](./certificates/fcm-push.pem) is committed.
+uploaded to Google. The private JSON is kept in the owner's local credential bundle,
+outside the repository. Its [public certificate](./certificates/fcm-push.pem) is committed.
 
 Google key `38d4be0f1200e055792209827dbd3951111a20fb` is active and expires
 **September 19, 2027 at 10:15:46 UTC**. Rotate before expiry. Google OAuth authentication

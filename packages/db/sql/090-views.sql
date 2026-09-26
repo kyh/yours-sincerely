@@ -58,6 +58,14 @@ DROP VIEW IF EXISTS "public"."Feed";
 -- the whole window to be sorted a second time. `Post_feed_idx` serves the ordering
 -- getFeed asks for.
 --
+-- The cutoff is the timer's rule exactly: served until `createdAt + 21 days`
+-- (`POST_EXPIRY_DAYS` in `getExpiryProgress`). Do not round it to a day boundary;
+-- that serves letters the timer already shows as "Expired" for up to 24h.
+-- `createdAt` is a zone-less UTC wall time, so `now()` is converted to one, which
+-- also frees the result from the session TimeZone. The bare column against a
+-- STABLE expression stays an index range on `Post_feed_idx`.
+-- `feed-expiry.integration.ts` pins this literal to the constant.
+--
 -- `security_invoker` so the view executes as its caller and not as its owner.
 CREATE VIEW "public"."Feed" WITH (security_invoker = true) AS
 SELECT
@@ -72,15 +80,15 @@ SELECT
   -- is inside the 21-day window, so the lie is currently unreachable — but it is
   -- still a lie, and it is the same one this schema just fixed for `parentId`.
   --
-  -- 'Anonymous' rather than '' because that is exactly what the permalink already
-  -- shows: `convertDbPostToFeedPost` does `dbPost.createdBy || "Anonymous"`.
-  -- `getFeed` spreads raw view rows onto the wire without that coalesce, so doing
-  -- it here is what keeps the feed and the permalink telling the same story about
-  -- the same letter.
-  COALESCE(p."createdBy", 'Anonymous') AS "createdBy",
+  -- NULLIF and 'Anonymous' because that is exactly what the permalink shows:
+  -- `convertDbPostToFeedPost` applies `resolveDisplayName`, which reads a null OR
+  -- blank name as `ANONYMOUS_DISPLAY_NAME` (`@repo/contracts/user`). `getFeed`
+  -- spreads raw view rows onto the wire without it, so doing it here is what keeps
+  -- the feed and the permalink telling the same story about the same letter.
+  COALESCE(NULLIF(p."createdBy", ''), 'Anonymous') AS "createdBy",
   COALESCE(p."baseLikeCount", 0) + p."likeCount" AS "likeCount",
   p."commentCount" AS "commentCount"
 FROM "public"."Post" p
 WHERE p."flagCount" <= 3
-  AND p."createdAt" >= (CURRENT_DATE - '21 days'::interval)
+  AND p."createdAt" > (now() AT TIME ZONE 'UTC') - interval '21 days'
   AND p."parentId" IS NULL;

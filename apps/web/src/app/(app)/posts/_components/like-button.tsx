@@ -1,13 +1,22 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
+import { createLikeMutationHandlers } from "@repo/contracts/like-cache";
+import { toast } from "@repo/ui/components/sonner";
 import NumberFlow from "@number-flow/react";
+import { ORPCError } from "@orpc/client";
+import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { m } from "motion/react";
 
-import type { RouterOutputs } from "@repo/api";
-import { refreshPostContent, refreshWorkspaceIdentityIfAnonymous } from "@/lib/query-policies";
+import type { FeedPost, RouterOutputs } from "@repo/api";
+import {
+  markPostContentStale,
+  refreshPostContent,
+  refreshWorkspaceIdentityIfAnonymous,
+} from "@/lib/query-policies";
+import { useIdentityScope } from "@/lib/use-identity-scope";
 import { orpc } from "@/orpc/react";
 
 const CircleAnimation = () => {
@@ -147,39 +156,70 @@ const BurstAnimation = () => (
 );
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
 }
+
+type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
+type PostQueryData = RouterOutputs["post"]["getPost"];
+
+const FEED_FILTER = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
+const POST_FILTER = { queryKey: orpc.post.getPost.key() };
+
+/** Binds the shared like bookkeeping to this client's feed and post-detail caches. */
+const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: boolean) => {
+  const handlers = createLikeMutationHandlers<FeedQueryData, PostQueryData>(
+    {
+      cancel: async () => {
+        await Promise.all([
+          queryClient.cancelQueries(FEED_FILTER),
+          queryClient.cancelQueries(POST_FILTER),
+        ]);
+      },
+      readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
+      readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
+      // A failed like can still have minted the anonymous user.
+      refresh: () => {
+        void markPostContentStale(queryClient);
+        void refreshWorkspaceIdentityIfAnonymous(queryClient);
+      },
+      writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+      writePost: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+    },
+    postId,
+    liked,
+  );
+  return {
+    ...handlers,
+    onError: (...args: Parameters<typeof handlers.onError>) => {
+      handlers.onError(...args);
+      const [error] = args;
+      if (error instanceof ORPCError && error.code === "NOT_FOUND") {
+        toast.error("This letter has been deleted.");
+        // Unlike a like, this changes which letters the feed holds.
+        void refreshPostContent(queryClient);
+        return;
+      }
+      toast.error("Could not update this like. Please try again.");
+    },
+  };
+};
 
 export const LikeButton = ({ post }: Props) => {
   const queryClient = useQueryClient();
   const [isAnimating, setIsAnimating] = useState(false);
-  const iconButtonRef = useRef<null | HTMLButtonElement>(null);
 
-  // Liking refreshes the post content it changed, and the workspace identity
-  // only when the like is what mints the anonymous user.
-  const refreshAfterLike = () =>
-    Promise.all([
-      refreshPostContent(queryClient),
-      refreshWorkspaceIdentityIfAnonymous(queryClient),
-    ]);
-
+  const identityScope = useIdentityScope();
   const createMutate = useMutation(
-    orpc.like.createLike.mutationOptions({ onSuccess: refreshAfterLike }),
+    orpc.like.createLike.mutationOptions({
+      ...likeMutationHandlers(queryClient, post.id, true),
+      scope: identityScope,
+    }),
   );
   const deleteMutate = useMutation(
-    orpc.like.deleteLike.mutationOptions({ onSuccess: refreshAfterLike }),
+    orpc.like.deleteLike.mutationOptions(likeMutationHandlers(queryClient, post.id, false)),
   );
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
-  const getOptimisticLike = () => {
-    if (createMutate.isPending) {
-      return { isLiked: true, likeCount: post.likeCount + Number(!post.isLiked) };
-    }
-    if (deleteMutate.isPending) {
-      return { isLiked: false, likeCount: Math.max(0, post.likeCount - Number(post.isLiked)) };
-    }
-    return { isLiked: post.isLiked, likeCount: post.likeCount };
-  };
-  const { isLiked, likeCount } = getOptimisticLike();
+  const { isLiked, likeCount } = post;
 
   const toggleLike = () => {
     if (!post.id) {
@@ -196,7 +236,6 @@ export const LikeButton = ({ post }: Props) => {
 
   return (
     <button
-      ref={iconButtonRef}
       type="button"
       disabled={mutationPending}
       className="hover:bg-accent relative flex h-8 cursor-pointer items-center gap-1.5 rounded-lg p-2 transition"

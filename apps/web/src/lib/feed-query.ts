@@ -1,10 +1,4 @@
-import type { RouterOutputs } from "@repo/api";
-
-export interface FeedFilters {
-  userId?: string;
-  parentId?: string;
-  limit?: number;
-}
+import type { FeedFilters, RouterOutputs } from "@repo/api";
 
 type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 

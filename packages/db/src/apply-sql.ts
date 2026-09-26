@@ -1,10 +1,11 @@
 /**
  * Applies every `sql/*.sql` file, in filename order, inside ONE transaction.
  *
- * `drizzle-kit push` syncs tables, columns, indexes and views. It has no concept
- * of a function, a trigger or a grant, so it can only ever sync half of this
- * schema. This applies the other half, and `pnpm -F db push` runs the two together
- * — that pair is the entire deploy. See `sql/README.md`.
+ * `drizzle-kit push` syncs tables, columns and indexes, with two blind spots: a
+ * view's body and an index redefined under its old name (see `sql/README.md`). It
+ * has no concept of a function, a trigger or a grant, so it can only ever sync half
+ * of this schema. This applies the other half, views included, and
+ * `pnpm -F db push` runs the two together — that pair is the entire deploy.
  *
  * One transaction because a half-applied schema is the genuinely bad state: the
  * `Feed` view reading counters that no trigger maintains yet. Postgres DDL is
@@ -46,12 +47,9 @@ const sql = postgres(nonPoolingUrl, {
 });
 
 const main = async () => {
-  /** Filename order IS dependency order — see `sql/README.md`. Sorting in place is
-      safe here (readdir hands back a fresh array, so there is nothing to mutate out
-      from under anyone) and `toSorted` would need lib es2023. */
+  /** Filename order IS dependency order — see `sql/README.md`. */
   const entries = await readdir(SQL_DIR);
-  // oxlint-disable-next-line unicorn/no-array-sort -- fresh array from readdir; toSorted needs lib es2023
-  const files = entries.filter((name) => name.endsWith(".sql")).sort();
+  const files = entries.filter((name) => name.endsWith(".sql")).toSorted();
 
   if (files.length === 0) {
     throw new Error(`No .sql files found in ${SQL_DIR}`);
@@ -62,13 +60,14 @@ const main = async () => {
   await sql.begin(async (tx) => {
     /** Fail fast instead of taking production down.
      *
-     *  `085-triggers.sql` and `090-views.sql` need ACCESS EXCLUSIVE, which conflicts
-     *  with the ACCESS SHARE every reader holds. Without a timeout, one slow query
-     *  on `Post` — an analytics scan, a backup, a pathological feed page — parks the
-     *  DROP behind it, and because a pending exclusive request blocks every lock
-     *  request queued after it, EVERY subsequent read of `Post` stalls too. A push
-     *  during a slow query would escalate into a site-wide outage lasting as long as
-     *  that query.
+     *  `090-views.sql` needs ACCESS EXCLUSIVE on `Feed`, which waits for every open
+     *  read of it; `085-triggers.sql` needs SHARE ROW EXCLUSIVE on `Post`, `Like`
+     *  and `Flag`, which waits for every open write. Without a timeout, one slow
+     *  query — an analytics scan, a pathological feed page, a stuck transaction —
+     *  parks the push behind it, and because a pending lock request blocks every
+     *  conflicting request queued after it, EVERY subsequent feed read (or like,
+     *  flag and post) stalls too. A push during a slow query would escalate into a
+     *  site-wide outage lasting as long as that query.
      *
      *  5s is far longer than the swap needs (two catalog updates) and far shorter
      *  than an outage. On timeout the whole transaction rolls back, changing

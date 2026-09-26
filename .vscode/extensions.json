@@ -1,8 +1,8 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
+    "oxc.oxc-vscode",
+    "TypeScriptTeam.native-preview",
     "expo.vscode-expo-tools",
-    "esbenp.prettier-vscode",
     "yoavbls.pretty-ts-errors",
     "bradlc.vscode-tailwindcss"
   ]

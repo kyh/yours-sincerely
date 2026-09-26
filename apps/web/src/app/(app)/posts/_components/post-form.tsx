@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { POST_EXPIRY_DAYS, createPostInput } from "@repo/contracts";
+import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
+import { createPostInput } from "@repo/contracts/post";
+import { resolveDisplayName } from "@repo/contracts/user";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -23,7 +25,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
 import { cn } from "cn";
-import { useMediaQuery } from "@repo/ui/lib/utils";
+import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
@@ -33,10 +35,10 @@ import { useForm } from "react-hook-form";
 import type { CreatePostInput } from "@repo/contracts/post";
 import { balloons } from "@/components/animations/balloons";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
+import { useIdentityScope } from "@/lib/use-identity-scope";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
-
-const postFormKey = "post-form";
+import { postDraftKey } from "./post-draft";
 
 // The post is already published; a failed refetch is not the writer's problem.
 const refreshQuietly = async (queryClient: QueryClient) => {
@@ -52,16 +54,27 @@ interface PostFormProps {
   parentId?: string;
   onSuccess?: () => void;
   contained?: boolean;
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
-export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFormProps) => {
+// The letter textarea is labelled with aria-label, not a <label for>: every copy
+// carries the `#post-input` hook id, and the home page keeps a hidden inline
+// composer mounted beside the dialog one, so `for` would name the wrong copy.
+export const PostForm = ({
+  placeholder,
+  parentId,
+  onSuccess,
+  contained,
+  textareaRef,
+}: PostFormProps) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
+  const draftKey = postDraftKey(parentId);
 
   const form = useForm({
     defaultValues: {
       content: "",
-      createdBy: user?.displayName || "Anonymous",
+      createdBy: resolveDisplayName(user?.displayName),
       parentId,
     },
     resolver: zodResolver(createPostInput),
@@ -69,12 +82,13 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
   const { getFieldState, resetField } = form;
 
   useEffect(() => {
-    const draft = localStorage.getItem(postFormKey);
+    const draft = localStorage.getItem(draftKey);
     if (draft !== null && !getFieldState("content").isDirty) {
       resetField("content", { defaultValue: draft });
     }
-  }, [getFieldState, resetField]);
+  }, [draftKey, getFieldState, resetField]);
 
+  const identityScope = useIdentityScope();
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
       onError: (err) => {
@@ -82,7 +96,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
       },
       onSuccess: (_data, variables) => {
         void refreshQuietly(queryClient);
-        localStorage.removeItem(postFormKey);
+        localStorage.removeItem(draftKey);
         form.reset({
           content: "",
           createdBy: variables.createdBy,
@@ -100,6 +114,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
           }
         }, 600);
       },
+      scope: identityScope,
     }),
   );
 
@@ -118,7 +133,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
         <FormField
           control={form.control}
           name="content"
-          render={({ field: { onBlur, ...field } }) => (
+          render={({ field: { onBlur, ref, ...field } }) => (
             <FormItem
               className={cn(
                 "textarea-grow",
@@ -127,16 +142,22 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
               noStyles
               data-textarea-value={field.value}
             >
-              <FormLabel className="sr-only">Post content</FormLabel>
               <FormControl>
                 <textarea
                   id="post-input"
+                  aria-label="Post content"
+                  ref={(element) => {
+                    ref(element);
+                    if (textareaRef) {
+                      textareaRef.current = element;
+                    }
+                  }}
                   placeholder={placeholder}
                   onBlur={(e) => {
                     if (e.target.value === "") {
-                      localStorage.removeItem(postFormKey);
+                      localStorage.removeItem(draftKey);
                     } else {
-                      localStorage.setItem(postFormKey, e.target.value);
+                      localStorage.setItem(draftKey, e.target.value);
                     }
                     onBlur();
                   }}
@@ -155,21 +176,25 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
         />
         <footer className="flex items-center justify-between gap-1">
           <div className="flex flex-col gap-1 text-xs">
-            <span className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1">
               Publishing as
               <FormField
                 control={form.control}
                 name="createdBy"
                 render={({ field }) => (
-                  <FormControl>
-                    <input
-                      className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-hidden hover:cursor-pointer focus-visible:cursor-text"
-                      {...field}
-                    />
-                  </FormControl>
+                  <FormItem noStyles>
+                    <FormLabel className="sr-only">Pen name</FormLabel>
+                    <FormControl>
+                      <input
+                        className="-m-1 bg-transparent p-1 underline decoration-dotted underline-offset-2 outline-hidden hover:cursor-pointer focus-visible:cursor-text"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
                 )}
               />
-            </span>
+            </div>
             <span className="text-muted-foreground">
               This post will expire on {format(expiry, "MMMM do")}
             </span>
@@ -185,7 +210,8 @@ export const PostForm = ({ placeholder, parentId, onSuccess, contained }: PostFo
 
 export const NewPostButton = ({ placeholder }: PostFormProps) => {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery();
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   if (isDesktop) {
     return (
@@ -211,13 +237,7 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       onOpenChange={setOpen}
       onAnimationEnd={(opened) => {
         if (opened) {
-          const textareaEl: HTMLTextAreaElement | null = document.querySelector(
-            "#drawer-post-form #post-input",
-          );
-          if (!textareaEl) {
-            return;
-          }
-          textareaEl.focus();
+          textareaRef.current?.focus();
         }
       }}
       repositionInputs={false}
@@ -234,8 +254,13 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
           <DrawerTitle>New Post</DrawerTitle>
           <DrawerDescription>Send your tiny beautiful letters to the world</DrawerDescription>
         </DrawerHeader>
-        <section id="drawer-post-form" className="p-4">
-          <PostForm placeholder={placeholder} onSuccess={() => setOpen(false)} contained />
+        <section className="p-4">
+          <PostForm
+            placeholder={placeholder}
+            onSuccess={() => setOpen(false)}
+            textareaRef={textareaRef}
+            contained
+          />
         </section>
       </DrawerContent>
     </Drawer>

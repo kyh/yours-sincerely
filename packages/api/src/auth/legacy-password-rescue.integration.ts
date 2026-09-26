@@ -158,16 +158,22 @@ integrationTest("an identity with no real password is left alone, not half-rescu
 });
 
 integrationTest("anonymous authors are untouched", async () => {
-  // They have no auth.users row and `createUserIfNotExists` already gave them a
-  // temp hash, so there is nothing here for the rescue to match on.
-  const id = randomUUID();
+  // `createUserIfNotExists` gives them no password, so they carry the same
+  // `passwordHash IS NULL` the rescue keys on. What keeps them out is the id
+  // join: they have no auth.users row. A stranded account sits alongside so
+  // the run provably matched something, and the anonymous row still did not.
+  const anonymousId = randomUUID();
+  const strandedId = await createStrandedAccount();
   try {
-    await db.execute(
-      sql`INSERT INTO public."User" (id, "displayName", "passwordHash") VALUES (${id}, 'Anon', 'temp-hash')`,
-    );
+    await db.insert(user).values({ displayName: "Anonymous", id: anonymousId });
+    assert.equal(await passwordHashOf(anonymousId), null, "precondition: minted without a hash");
+
     await runRescue();
-    assert.equal(await passwordHashOf(id), "temp-hash");
+
+    assert.ok(await passwordHashOf(strandedId), "the rescue ran and matched its target");
+    assert.equal(await passwordHashOf(anonymousId), null);
   } finally {
-    await cleanup(id);
+    await cleanup(anonymousId);
+    await cleanup(strandedId);
   }
 });

@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Linking, Pressable, useWindowDimensions } from "react-native";
+import { reportPostMailto } from "@repo/contracts/site";
 import { useMutation } from "@tanstack/react-query";
 import { Ban, Flag, MoreVertical, Trash2, TriangleAlert } from "lucide-react-native";
 import { toast } from "sonner-native";
 
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost } from "@/lib/api";
 import { BottomDrawer, DrawerItem } from "@/components/ui/bottom-drawer";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -77,9 +78,7 @@ export const MoreButton = ({ post }: Props) => {
     {
       handlePress: async () => {
         try {
-          await Linking.openURL(
-            `mailto:${siteConfig.supportEmail}?subject=Report YS Post: ${post.id}`,
-          );
+          await Linking.openURL(reportPostMailto(post.id));
         } catch {
           toast.error(
             `Could not open your mail app. Report this post to ${siteConfig.supportEmail}`,

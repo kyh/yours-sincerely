@@ -1,0 +1,33 @@
+name: Expo SDK versions
+
+# `expo install --check` compares against the newest patch Expo has published,
+# so it goes red on its own whenever Expo ships one. As a gate on every PR it
+# failed unrelated work; here it runs where it can act: on PRs that change
+# mobile dependencies, weekly, and on demand.
+on:
+  pull_request:
+    paths:
+      - apps/expo/package.json
+      - pnpm-workspace.yaml
+  schedule:
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  expo-sdk-check:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/setup@v2
+        with:
+          runtime: node@24
+          cache: true
+
+      - name: Expo SDK versions
+        run: pnpm -F @repo/expo exec expo install --check

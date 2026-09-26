@@ -2,14 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  FEED_PREVIEW_MAX_CHARS,
-  FEED_PREVIEW_MAX_LINES,
   getExpiryProgress,
   getLegacyAvatarIndex,
   getReadingTime,
-  needsFeedPreview,
   parseServerDate,
   POST_EXPIRY_DAYS,
+  serverTimestamp,
 } from "./content.ts";
 
 // --- Avatar mapping ---------------------------------------------------------
@@ -112,6 +110,46 @@ test("date-only strings parse as UTC midnight", () => {
   assert.equal(parseServerDate("2026-07-09").toISOString(), "2026-07-09T00:00:00.000Z");
 });
 
+test("serverTimestamp accepts every shape Postgres prints for a timestamp(3)", () => {
+  // Postgres trims trailing zeros from the fraction, and drops it at .000.
+  for (const value of [
+    "2026-07-09 18:23:45.123",
+    "2026-07-09 18:23:45.12",
+    "2026-07-09 18:23:45.4",
+    "2026-07-09 18:23:45",
+    "2024-02-29 00:00:00",
+    "2026-07-09T18:23:45.123",
+    "2026-07-09T18:23:45.123Z",
+    "2026-07-09T18:23:45.123+09:00",
+    "2026-07-09T18:23:45-15:59",
+    "2026-07-09 18:23:45.123+00",
+  ]) {
+    assert.equal(serverTimestamp.safeParse(value).success, true, value);
+  }
+});
+
+test("serverTimestamp rejects what Postgres would fail to cast", () => {
+  for (const value of [
+    "",
+    "garbage",
+    "2026-07-09",
+    "2026-07-09 18:23",
+    "2026-13-01 00:00:00",
+    "2026-02-30 00:00:00",
+    "2025-02-29 00:00:00",
+    "2026-04-31 00:00:00",
+    "2026-07-09 25:00:00",
+    "2026-07-09 18:60:00",
+    "2026-07-09 18:23:45.123; drop table",
+    "1 day ago",
+    "0000-01-01 00:00:00",
+    "2026-07-09 18:23:45+16:00",
+    "2026-07-09 18:23:45+99:99",
+  ]) {
+    assert.equal(serverTimestamp.safeParse(value).success, false, value);
+  }
+});
+
 // --- Expiry progress --------------------------------------------------------
 
 test("a fresh letter is at 0% and not expired", () => {
@@ -155,13 +193,4 @@ test("expiry is exclusive at the exact boundary instant", () => {
   const progress = getExpiryProgress("2026-07-09 00:00:00.000", new Date("2026-07-30T00:00:00Z"));
   assert.equal(progress.isExpired, true);
   assert.equal(progress.percentage, 100);
-});
-
-// --- Feed preview -----------------------------------------------------------
-
-test("feed preview trips on either the character or the line bound", () => {
-  assert.equal(needsFeedPreview("x".repeat(FEED_PREVIEW_MAX_CHARS)), false);
-  assert.equal(needsFeedPreview("x".repeat(FEED_PREVIEW_MAX_CHARS + 1)), true);
-  assert.equal(needsFeedPreview("x\n".repeat(FEED_PREVIEW_MAX_LINES - 1).trim()), false);
-  assert.equal(needsFeedPreview("x\n".repeat(FEED_PREVIEW_MAX_LINES)), true);
 });

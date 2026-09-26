@@ -1,37 +1,63 @@
 "use client";
 
-import { useRef } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@repo/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
+import type { AnimationItem } from "lottie-web/build/player/lottie_light";
 
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
-const LottiePlayer = dynamic(
-  async () => {
-    const mod = await import("@lottiefiles/react-lottie-player");
-    return mod.Player;
-  },
-  {
-    ssr: false,
-  },
-);
+// The light player has no expression engine: the icon JSONs have theirs baked
+// into keyframes, and sidebar-icons.test.ts keeps it that way.
+const loadLottie = async () => {
+  const { default: lottie } = await import("lottie-web/build/player/lottie_light");
+  return lottie;
+};
 
-interface DotLottie {
-  play: () => void;
-}
+const useLottieIcon = (path: string) => {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const animationRef = useRef<AnimationItem>(null);
 
-const useIconAnimation = () => {
-  const dotLottieRef = useRef<DotLottie>(null);
-  return {
-    onMouseEnter: () => dotLottieRef.current?.play(),
-    onTouchStart: () => dotLottieRef.current?.play(),
-    setDotLottie: (dotLottie: DotLottie) => {
-      dotLottieRef.current = dotLottie;
-    },
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+    let animation: AnimationItem | undefined;
+    let cancelled = false;
+    const mount = async () => {
+      const lottie = await loadLottie();
+      if (cancelled) {
+        return;
+      }
+      animation = lottie.loadAnimation({
+        autoplay: false,
+        container,
+        loop: false,
+        path,
+        renderer: "svg",
+      });
+      // A finished animation parks on its last frame, where play() is a no-op.
+      animation.addEventListener("complete", () => animation?.goToAndStop(0, true));
+      animationRef.current = animation;
+    };
+    void mount();
+    return () => {
+      cancelled = true;
+      animation?.destroy();
+      animationRef.current = null;
+    };
+  }, [path]);
+
+  const handleMouseEnter = () => {
+    if (window.matchMedia("(hover: hover)").matches) {
+      animationRef.current?.play();
+    }
   };
+
+  return [containerRef, handleMouseEnter] as const;
 };
 
 export const Sidebar = () => {
@@ -46,35 +72,29 @@ export const Sidebar = () => {
   });
   const unreadCount = user === null ? 0 : (unread.data?.count ?? 0);
 
-  const iconClassName = "size-6 dark:invert dark-purple:invert";
-  const { setDotLottie: homeSetDotLottie, ...homeControlProps } = useIconAnimation();
-  const { setDotLottie: bellSetDotLottie, ...bellControlProps } = useIconAnimation();
-  const { setDotLottie: userSetDotLottie, ...userControlProps } = useIconAnimation();
+  const iconClassName = "block size-6 dark:invert";
+  const [homeIconRef, handleHomeMouseEnter] = useLottieIcon("/icons/home-icon.json");
+  const [bellIconRef, handleBellMouseEnter] = useLottieIcon("/icons/bell-icon.json");
+  const [userIconRef, handleUserMouseEnter] = useLottieIcon("/icons/user-icon.json");
 
   return (
     <section className="area-nav">
       <nav className="bg-background flex w-full items-start justify-around gap-1 px-2 pb-2 md:-ml-4 md:w-auto md:flex-col md:px-0 md:py-5">
-        <Link href="/" className={buttonVariants({ variant: "ghost" })} {...homeControlProps}>
-          <LottiePlayer
-            src="/icons/home-icon.json"
-            className={iconClassName}
-            aria-hidden="true"
-            lottieRef={homeSetDotLottie}
-          />
+        <Link
+          href="/"
+          className={buttonVariants({ variant: "ghost" })}
+          onMouseEnter={handleHomeMouseEnter}
+        >
+          <span ref={homeIconRef} className={iconClassName} aria-hidden="true" />
           <span className="sr-only md:not-sr-only">Home</span>
         </Link>
         <Link
           href="/notifications"
           className={buttonVariants({ variant: "ghost" })}
-          {...bellControlProps}
+          onMouseEnter={handleBellMouseEnter}
         >
           <span className="relative">
-            <LottiePlayer
-              src="/icons/bell-icon.json"
-              className={iconClassName}
-              aria-hidden="true"
-              lottieRef={bellSetDotLottie}
-            />
+            <span ref={bellIconRef} className={iconClassName} aria-hidden="true" />
             {unreadCount > 0 && (
               <span className="bg-destructive animate-in fade-in zoom-in absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
             )}
@@ -84,14 +104,9 @@ export const Sidebar = () => {
         <Link
           href={user ? `/profile/${user.id}` : `/auth/sign-up`}
           className={buttonVariants({ variant: "ghost" })}
-          {...userControlProps}
+          onMouseEnter={handleUserMouseEnter}
         >
-          <LottiePlayer
-            src="/icons/user-icon.json"
-            className={iconClassName}
-            aria-hidden="true"
-            lottieRef={userSetDotLottie}
-          />
+          <span ref={userIconRef} className={iconClassName} aria-hidden="true" />
           <span className="sr-only md:not-sr-only">Profile</span>
         </Link>
       </nav>

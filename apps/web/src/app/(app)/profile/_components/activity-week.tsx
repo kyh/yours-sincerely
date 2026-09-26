@@ -1,69 +1,63 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 
-import type { CalendarLevel } from "@repo/contracts/calendar";
-import type { Theme } from "./calendar-types";
+import type { CalendarTheme, WeekdayActivity } from "@repo/contracts/calendar";
 import {
   calendarLevelColor,
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
-  getCalendarTheme as getTheme,
 } from "@repo/contracts/calendar";
 
 interface Props {
-  data: Record<string, { count: number; level: CalendarLevel }>;
-  theme?: Theme;
+  data: WeekdayActivity;
+  theme: CalendarTheme;
 }
 
-export const ActivityWeek = ({ data, theme: themeProp }: Props) => {
-  const theme = getTheme(themeProp);
+export const ActivityWeek = ({ data, theme }: Props) => (
+  <svg width="100%" height="100px">
+    <rect
+      className="block"
+      fill={theme.level0}
+      width="100%"
+      height="16px"
+      rx="8px"
+      ry="8px"
+      y="84px"
+    />
+    <g style={{ transform: "translateX(5.5%)" }}>
+      {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
+        const dayStats = data[day];
+        const ellipseProps = {
+          className: "block",
+          cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
+          cy: "50px",
+          fill: calendarLevelColor(theme, dayStats.level),
+          rx: `${dayStats.level * 4}`,
+          ry: `${dayStats.level * 4}`,
+          stroke: theme.stroke,
+          strokeWidth: 1,
+        };
 
-  return (
-    <svg width="100%" height="100px">
-      <rect
-        className="block"
-        fill={theme.level0}
-        width="100%"
-        height="16px"
-        rx="8px"
-        ry="8px"
-        y="84px"
-      />
-      <g style={{ transform: "translateX(5.5%)" }}>
-        {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
-          const dayStats = data[day];
-          const ellipseProps = {
-            className: "block",
-            cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,
-            cy: "50px",
-            fill: dayStats ? calendarLevelColor(theme, dayStats.level) : undefined,
-            rx: dayStats ? `${dayStats.level * 4}` : "0",
-            ry: dayStats ? `${dayStats.level * 4}` : "0",
-            stroke: theme.stroke,
-            strokeWidth: 1,
-          };
-
-          return (
-            <Tooltip key={day}>
-              <TooltipTrigger render={<ellipse {...ellipseProps} />} />
-              <TooltipContent>
-                {`${dayStats?.count} posts written on ${FULL_DAY_LABELS[day]}s`}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </g>
-      <g style={{ fontSize: 12, transform: "translateX(5%)" }}>
-        {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
-          <text
-            key={day}
-            x={`${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`}
-            y="96px"
-            fill="currentColor"
-          >
-            {day.charAt(0)}
-          </text>
-        ))}
-      </g>
-    </svg>
-  );
-};
+        return (
+          <Tooltip key={day}>
+            <TooltipTrigger render={<ellipse {...ellipseProps} />} />
+            <TooltipContent>
+              {`${dayStats.count} posts written on ${FULL_DAY_LABELS[day]}s`}
+            </TooltipContent>
+          </Tooltip>
+        );
+      })}
+    </g>
+    <g style={{ fontSize: 12, transform: "translateX(5%)" }}>
+      {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
+        <text
+          key={day}
+          x={`${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`}
+          y="96px"
+          fill="currentColor"
+        >
+          {day.charAt(0)}
+        </text>
+      ))}
+    </g>
+  </svg>
+);

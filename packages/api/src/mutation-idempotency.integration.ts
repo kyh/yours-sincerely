@@ -5,8 +5,9 @@ import { after, test } from "node:test";
 import { and, eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, flag, like, post, user } from "@repo/db/drizzle-schema";
+import { ORPCError } from "@orpc/server";
 
-import { createCaller } from "./test-utils";
+import { callerFor } from "./test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -32,13 +33,7 @@ const createFixture = async () => {
     userId: authorId,
   });
 
-  const actor = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: actorId },
-  });
-  assert.ok(actor);
-
-  const caller = createCaller(actor);
+  const caller = await callerFor(actorId);
 
   const cleanup = async () => {
     await db.delete(like).where(inArray(like.postId, [postId]));
@@ -108,6 +103,68 @@ integrationTest("blocking the same author twice is a no-op, not a 500", async ()
       .from(block)
       .where(and(eq(block.blockerId, fixture.actorId), eq(block.blockingId, fixture.authorId)));
     assert.equal(rows.length, 1);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+/** The author deleting a letter while someone else still has it on screen is an
+    ordinary race, not a server fault. */
+integrationTest("flagging or replying to a deleted letter is NOT_FOUND, not a 500", async () => {
+  const fixture = await createFixture();
+  try {
+    await db.delete(post).where(eq(post.id, fixture.postId));
+
+    await assert.rejects(
+      fixture.caller.flag.createFlag({ postId: fixture.postId }),
+      (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
+    );
+    await assert.rejects(
+      fixture.caller.post.createPost({
+        content: "A reply to a letter that is gone",
+        parentId: fixture.postId,
+      }),
+      (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
+    );
+
+    const orphans = await db.select().from(post).where(eq(post.userId, fixture.actorId));
+    assert.equal(orphans.length, 0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+integrationTest("blocking an account that does not exist is NOT_FOUND", async () => {
+  const fixture = await createFixture();
+  try {
+    await assert.rejects(
+      fixture.caller.block.createBlock({ blockingId: randomUUID() }),
+      (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+/** No client reads these payloads. Anything wider hands out server-owned state:
+    a flag's `countsTowardHide`, a letter's `flagCount` and `baseLikeCount`. */
+integrationTest("mutations hand back only the keys they mean to", async () => {
+  const fixture = await createFixture();
+  try {
+    assert.deepEqual(await fixture.caller.flag.createFlag({ postId: fixture.postId }), {
+      flag: { postId: fixture.postId },
+    });
+
+    const { post: created } = await fixture.caller.post.createPost({
+      content: "A reply that will not last long",
+      parentId: fixture.postId,
+    });
+    assert.ok(created);
+    assert.deepEqual(Object.keys(created).toSorted(), ["createdBy", "id", "parentId", "userId"]);
+
+    assert.deepEqual(await fixture.caller.post.deletePost({ postId: created.id }), {
+      post: { id: created.id },
+    });
   } finally {
     await fixture.cleanup();
   }

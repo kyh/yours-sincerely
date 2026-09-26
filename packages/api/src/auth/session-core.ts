@@ -1,4 +1,5 @@
 import { hkdfSync } from "node:crypto";
+import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contracts/auth";
 import cookieSignature from "cookie-signature";
 import { z } from "zod";
 
@@ -62,11 +63,6 @@ export const resolveCookieSecret = (env: SecretEnv): string => {
   return configured;
 };
 
-// 400 days is the max lifetime browsers honor for a cookie; sliding renewal
-// (`renewSessionIfStale`) resets it on every visit, so an active web user never
-// expires, and the native app persists the value in SecureStore indefinitely.
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
-
 /**
  * Attributes for the session cookie.
  *
@@ -83,7 +79,11 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
 export const sessionCookieOptions = (isLocal: boolean) =>
   ({
     httpOnly: true,
-    maxAge: SESSION_MAX_AGE_SECONDS,
+    // The browser's ceiling, not a session lifetime: sliding renewal
+    // (`renewSessionIfStale`) resets it on every visit, so an active web user
+    // never expires, and the native app persists the value in SecureStore
+    // indefinitely.
+    maxAge: BROWSER_COOKIE_MAX_AGE_SECONDS,
     path: "/",
     sameSite: "lax",
     secure: !isLocal,

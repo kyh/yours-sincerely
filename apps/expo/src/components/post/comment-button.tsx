@@ -2,7 +2,7 @@ import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import { MessageCircle } from "lucide-react-native";
 
-import type { FeedPost } from "@/lib/post-types";
+import type { FeedPost } from "@/lib/api";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { useThemeColors } from "@/components/theme-colors";
 

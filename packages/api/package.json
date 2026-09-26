@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "test": "NODE_ENV=test tsc -p tsconfig.test.json && NODE_ENV=test node --test --test-reporter=spec 'src/**/*.test.ts'",
-    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 tsc -p tsconfig.test.json && NODE_ENV=test RUN_DB_TESTS=1 tsx --test --test-concurrency=1 'src/**/*.integration.ts'",
-    "typecheck": "tsc --noEmit"
+    "test": "NODE_ENV=test node --test --test-reporter=spec 'src/**/*.test.ts'",
+    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 pnpm with-env tsx --test --test-concurrency=1 --test-global-setup=./src/integration-setup.ts 'src/**/*.integration.ts'",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
     "@orpc/server": "catalog:",
@@ -29,6 +29,7 @@
     "@kyh/tsconfig": "catalog:",
     "@types/cookie-signature": "^1.1.2",
     "@types/node": "catalog:",
+    "dotenv-cli": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }

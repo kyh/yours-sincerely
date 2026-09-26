@@ -9,10 +9,12 @@ import type { AppRouter } from "@repo/api";
 
 import { fetchWithSession } from "./api-fetch";
 import { getBaseUrl } from "./base-url";
+import { shouldRetryQuery } from "./query-retry";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      retry: shouldRetryQuery,
       staleTime: 30 * 1000,
     },
   },
@@ -58,4 +60,4 @@ const client: RouterClient<AppRouter> = createORPCClient(link);
  */
 export const orpc = createTanstackQueryUtils(client);
 
-export type { RouterOutputs } from "@repo/api";
+export type { FeedFilters, FeedPost, RouterOutputs } from "@repo/api";
