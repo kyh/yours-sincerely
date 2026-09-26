@@ -49,8 +49,5 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Expo SDK versions
-        run: pnpm -F @repo/expo exec expo install --check
-
       - name: Build
         run: pnpm build

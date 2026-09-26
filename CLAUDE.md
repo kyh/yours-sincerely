@@ -250,8 +250,10 @@ disconnected from the current brand; a database schema rewrite.
   `react-native`, `react-native-*`, `@react-native/*`, async-storage, lottie, nativewind).
   It matches by name, so `react`/`react-dom`/`@types/react`/`typescript` cannot be listed
   without freezing web: a sweep WILL bump their `expo:` catalog rows. Revert those rows by
-  hand, then run `npx expo install --check` in `apps/expo`. CI runs that check, and
-  `apps/expo/src/release-pins.test.ts` fails if Expo resolves a TypeScript other than 6.
+  hand, then run `npx expo install --check` in `apps/expo`. The `Expo SDK versions`
+  workflow runs that check on PRs touching mobile dependencies and weekly (not on every PR:
+  it goes red whenever Expo ships a patch), and `apps/expo/src/release-pins.test.ts` fails
+  if Expo resolves a TypeScript other than 6.
 - **NativeWind is on `5.0.0-preview.3`** (exact pin) with `react-native-css@3.0.7`. Do not
   bump either without bumping both and running a real device build. Exit criterion:
   NativeWind 5.0.0 stable.

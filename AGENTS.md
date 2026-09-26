@@ -97,9 +97,10 @@ Drive the UI instead.
 ## Verify a change end-to-end
 
 Static gate — run before every commit. It is what `.github/workflows/ci.yml` runs, in the
-same order. CI adds two steps: `git diff --exit-code` right after typecheck (typecheck runs
-`expo customize` and `next typegen`, which must not rewrite tracked files), and the networked
-`pnpm -F @repo/expo exec expo install --check`:
+same order, plus `git diff --exit-code` right after typecheck (typecheck runs `expo customize`
+and `next typegen`, which must not rewrite tracked files). The networked
+`pnpm -F @repo/expo exec expo install --check` is its own workflow: it runs on PRs that touch
+`apps/expo/package.json` or `pnpm-workspace.yaml`, weekly, and on demand.
 
 ```sh
 pnpm verify   # typecheck · lint · format · test · build
