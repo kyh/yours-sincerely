@@ -12,28 +12,15 @@ import {
   AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
 import { reportPostMailto } from "@repo/contracts/site";
-import { Button, buttonVariants } from "@repo/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@repo/ui/components/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@repo/ui/components/drawer";
-import { drawerItemClass } from "@/lib/drawer-item";
+  ResponsiveMenu,
+  ResponsiveMenuContent,
+  ResponsiveMenuItem,
+  ResponsiveMenuLinkItem,
+  ResponsiveMenuTrigger,
+} from "@repo/ui/components/responsive-menu";
 import { toast } from "@repo/ui/components/sonner";
-import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cn } from "cn";
 import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import type { FeedPost } from "@repo/api";
@@ -54,7 +41,6 @@ type Overlay = "menu" | "delete" | "block";
 export const MoreButton = ({ post, onDeleted }: Props) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
-  const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const [overlay, setOverlay] = useState<Overlay | null>(null);
   // The item that opened a confirmation has unmounted with the menu, so focus
   // would otherwise fall to <body> when the confirmation closes.
@@ -152,57 +138,6 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     }
   };
 
-  const buttonClassName = isDesktop ? "rounded-sm p-8" : drawerItemClass;
-
-  const menuItems = [
-    <a
-      key="report"
-      aria-label="Report post"
-      className={cn(buttonVariants({ className: buttonClassName, variant: "ghost" }))}
-      href={reportPostMailto(post.id)}
-    >
-      <FlagIcon aria-hidden="true" className="size-4" />
-      Report Post
-    </a>,
-    !!user && isPostOwner && (
-      <Button
-        key="delete"
-        type="button"
-        className={buttonClassName}
-        variant="ghost"
-        onClick={() => setOverlay("delete")}
-      >
-        <Trash2Icon aria-hidden="true" className="size-4" />
-        Delete Post
-      </Button>
-    ),
-    !!user && !isPostOwner && (
-      <Button
-        key="flag"
-        type="button"
-        className={buttonClassName}
-        variant="ghost"
-        loading={createMutation.isPending}
-        onClick={() => handleSubmit("flag")}
-      >
-        <TriangleAlertIcon aria-hidden="true" className="size-4" />
-        Mark as inappropriate
-      </Button>
-    ),
-    !!user && !isPostOwner && (
-      <Button
-        key="block"
-        type="button"
-        className={buttonClassName}
-        variant="ghost"
-        onClick={() => setOverlay("block")}
-      >
-        <BanIcon aria-hidden="true" className="size-4" />
-        Stop seeing content from this user
-      </Button>
-    ),
-  ].filter(Boolean);
-
   const confirmations = (
     <>
       <AlertDialog {...overlayState("delete")}>
@@ -250,48 +185,49 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     </>
   );
 
-  if (isDesktop) {
-    return (
-      <>
-        <Dialog {...overlayState("menu")}>
-          <DialogTrigger
-            ref={triggerRef}
-            aria-label="Post settings"
-            className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
-          >
-            <MoreVerticalIcon aria-hidden="true" className="size-4" />
-          </DialogTrigger>
-          <DialogContent showCloseButton={false} className="p-0">
-            <DialogHeader className="sr-only">
-              <DialogTitle>Post Settings</DialogTitle>
-              <DialogDescription>Options for this post</DialogDescription>
-            </DialogHeader>
-            <div className="divide-border flex flex-col divide-y">{menuItems}</div>
-          </DialogContent>
-        </Dialog>
-        {confirmations}
-      </>
-    );
-  }
-
   return (
     <>
-      <Drawer {...overlayState("menu")} showSwipeHandle>
-        <DrawerTrigger
+      <ResponsiveMenu {...overlayState("menu")}>
+        <ResponsiveMenuTrigger
           ref={triggerRef}
           aria-label="Post settings"
           className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
         >
           <MoreVerticalIcon aria-hidden="true" className="size-4" />
-        </DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader className="sr-only">
-            <DrawerTitle>Post Settings</DrawerTitle>
-            <DrawerDescription>Options for this post</DrawerDescription>
-          </DrawerHeader>
-          <div className="divide-border mt-4 flex flex-col divide-y">{menuItems}</div>
-        </DrawerContent>
-      </Drawer>
+        </ResponsiveMenuTrigger>
+        <ResponsiveMenuContent
+          title="Post Settings"
+          description="Options for this post"
+          drawerListClassName="mt-4 flex flex-col font-medium *:border *:border-transparent"
+        >
+          <ResponsiveMenuLinkItem href={reportPostMailto(post.id)}>
+            <FlagIcon aria-hidden="true" className="size-4" />
+            Report Post
+          </ResponsiveMenuLinkItem>
+          {!!user && isPostOwner && (
+            <ResponsiveMenuItem onClick={() => setOverlay("delete")}>
+              <Trash2Icon aria-hidden="true" className="size-4" />
+              Delete Post
+            </ResponsiveMenuItem>
+          )}
+          {!!user && !isPostOwner && (
+            <>
+              <ResponsiveMenuItem
+                closeOnClick={false}
+                loading={createMutation.isPending}
+                onClick={() => handleSubmit("flag")}
+              >
+                <TriangleAlertIcon aria-hidden="true" className="size-4" />
+                Mark as inappropriate
+              </ResponsiveMenuItem>
+              <ResponsiveMenuItem onClick={() => setOverlay("block")}>
+                <BanIcon aria-hidden="true" className="size-4" />
+                Stop seeing content from this user
+              </ResponsiveMenuItem>
+            </>
+          )}
+        </ResponsiveMenuContent>
+      </ResponsiveMenu>
       {confirmations}
     </>
   );
