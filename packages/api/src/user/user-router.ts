@@ -2,6 +2,7 @@ import { eq, or, sql } from "@repo/db";
 import { block, flag, like, post, token, user } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";
 
+import { isEmailTaken } from "../auth/email-identity";
 import { clearSession } from "../auth/session";
 import { protectedProcedure, publicProcedure } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
@@ -70,6 +71,9 @@ export const userRouter = {
     const updates: Partial<typeof user.$inferInsert> = {};
 
     if (input.email !== undefined) {
+      if (await isEmailTaken(context.db, input.email, context.user.id)) {
+        throw new ORPCError("CONFLICT", { message: "Email already in use" });
+      }
       updates.email = input.email;
     }
 

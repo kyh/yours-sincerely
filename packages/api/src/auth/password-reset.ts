@@ -3,6 +3,7 @@ import { token as tokenTable } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";
 import { and, eq, isNull, lt } from "drizzle-orm";
 
+import { findUserByEmail } from "./email-identity";
 import type { SendResetEmail } from "./password-reset-core";
 import {
   buildResetUrl,
@@ -71,4 +72,22 @@ export const issuePasswordReset = async (
   // Older, not "every other": a concurrent request's newer link must survive
   // this one's burn, or a double-click leaves the user with no working link.
   await burnResetTokens(db, userId, issued.createdAt);
+};
+
+/**
+ * Sends a reset link to the account `address` names. An unknown or ambiguous
+ * address sends nothing, and the caller reports success either way. The link
+ * goes to the address on file, not the one typed: they can differ in case, and
+ * only the stored one is known to reach the owner.
+ */
+export const sendPasswordReset = async (
+  db: Db,
+  { address, appUrl, send }: { address: string; appUrl: string; send: SendResetEmail },
+) => {
+  const account = await findUserByEmail(db, address);
+  if (!account?.email) {
+    return;
+  }
+
+  await issuePasswordReset(db, { appUrl, email: account.email, send, userId: account.id });
 };

@@ -258,6 +258,20 @@ quality without sharing presentation code; a DOM/native component layer is not.
 **Out of scope:** shared React components across DOM and native; a visual rewrite
 disconnected from the current brand; a database schema rewrite.
 
+### Stored emails keep their casing; lookup is exact first
+
+`findUserByEmail` (`packages/api/src/auth/email-identity.ts`) backs sign-in and password
+reset: exact match first, then `lower(email)` only when that names ONE account. Accounts that
+differ only in case exist, and only an exact match reaches either.
+
+**Nothing rewrites a stored address's case** — no backfill, no lowercase on write
+(`emailAddress` in `packages/contracts/src/auth.ts` only trims). Every earlier deploy looks
+up by exact match, so the moment a stored casing changes, a rollback locks its owner out of
+the casing they have always used. Lowercasing stored rows and a unique index on
+`lower(email)` wait until the exact-first lookup is past any rollback horizon and a person
+has merged the case-twins. Until then `isEmailTaken` refuses new case-duplicates and
+`User_email_lower_idx` stays non-unique.
+
 ## Tracked constraints — do not "fix" these
 
 - **TypeScript is split across two catalogs.** The default catalog is on v7; Expo sits on
