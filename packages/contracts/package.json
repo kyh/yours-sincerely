@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@orpc/contract": "catalog:",
     "date-fns": "catalog:",
     "zod": "catalog:"
   },
