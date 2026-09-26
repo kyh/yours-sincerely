@@ -186,11 +186,14 @@ export const post = pgTable(
       table.userId.asc().nullsLast().op("text_ops"),
     ),
     index("Post_parentId_idx").using("btree", table.parentId.asc().nullsLast().op("text_ops")),
+    /** Cascades, as do `Like_postId_fkey` and `Flag_postId_fkey`: deleting a
+        letter takes its whole reply thread, and every like and flag on it, in
+        the one statement `deletePost` issues. */
     foreignKey({
       columns: [table.parentId],
       foreignColumns: [table.id],
       name: "Post_parentId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
@@ -303,7 +306,7 @@ export const like = pgTable(
       columns: [table.postId],
       foreignColumns: [post.id],
       name: "Like_postId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
@@ -369,7 +372,7 @@ export const flag = pgTable(
       columns: [table.postId],
       foreignColumns: [post.id],
       name: "Flag_postId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
