@@ -3,7 +3,18 @@
   "extends": ["//"],
   "tasks": {
     "build": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "next-env.d.ts"]
+    },
+    "dev": {
+      "passThroughEnv": [
+        "$TURBO_EXTENDS$",
+        "COOKIE_SECRET",
+        "COOKIE_SECRET_LEGACY",
+        "POSTGRES_URL",
+        "RESEND_API_KEY",
+        "RESET_LINK_ORIGIN"
+      ]
     }
   }
 }
