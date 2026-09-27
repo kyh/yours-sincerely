@@ -52,7 +52,7 @@ describe("renderProsePageMarkdown", () => {
   test("renders headings, inline links and lists", () => {
     const body = renderProsePageMarkdown(contactPage);
     assert.ok(body.startsWith("# Contact\n"));
-    assert.ok(body.includes("[im.kaiyu@gmail.com](mailto:im.kaiyu@gmail.com)"));
+    assert.ok(body.includes("[kai@kyh.io](mailto:kai@kyh.io)"));
     assert.ok(body.includes("\n- Questions about how the service works"));
   });
 

@@ -15,7 +15,7 @@ test("the organization carries identity and a contact point, but no invented add
   assert.equal(org.name, "Yours Sincerely");
   assert.equal(org.url, "https://yourssincerely.org");
   assert.ok(Array.isArray(org.sameAs) && org.sameAs.length > 0);
-  assert.ok(JSON.stringify(org.contactPoint).includes("im.kaiyu@gmail.com"));
+  assert.ok(JSON.stringify(org.contactPoint).includes("kai@kyh.io"));
   assert.equal(org.address, undefined);
   assert.equal(org.telephone, undefined);
 });
