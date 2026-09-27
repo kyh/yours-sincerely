@@ -3,26 +3,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInWithPasswordInput } from "@repo/contracts/auth";
+import {
+  requestPasswordResetInput,
+  setPasswordFormInput,
+  signInWithPasswordInput,
+  signUpInput,
+} from "@repo/contracts/auth";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
 import { cn } from "cn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import type { SignInWithPasswordInput } from "@repo/contracts/auth";
-import { refreshWorkspaceIdentity } from "@/lib/query-policies";
+import { resetAfterSessionChanged } from "@/lib/query-policies";
 import { orpc } from "@/orpc/react";
 
-type AuthFormProps = {
+interface AuthFormProps {
   type: "signin" | "signup";
   /** Where to land after a successful sign-in/sign-up. Guarded on the server by
       `safeNextPath` (@repo/contracts/navigation), so this is always a path that
       resolves same-origin — never an attacker-supplied redirect target. */
   nextPath: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+  className?: string;
+}
 
 export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   const router = useRouter();
@@ -32,7 +37,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   // destination against the stale `auth.workspace`, so the user lands on the
   // page still looking signed-out.
   const enterApp = async () => {
-    await refreshWorkspaceIdentity(queryClient);
+    await resetAfterSessionChanged(queryClient);
     router.replace(nextPath);
   };
 
@@ -54,7 +59,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
       email: "",
       password: "",
     },
-    resolver: zodResolver(signInWithPasswordInput),
+    resolver: zodResolver(type === "signup" ? signUpInput : signInWithPasswordInput),
   });
 
   const handleAuthWithPassword = (credentials: SignInWithPasswordInput) => {
@@ -108,7 +113,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
                     type="password"
                     placeholder="******"
                     autoCapitalize="none"
-                    autoComplete="current-password"
+                    autoComplete={type === "signup" ? "new-password" : "current-password"}
                     autoCorrect="off"
                     {...field}
                   />
@@ -145,11 +150,7 @@ export const RequestPasswordResetForm = () => {
     defaultValues: {
       email: "",
     },
-    resolver: zodResolver(
-      z.object({
-        email: z.email(),
-      }),
-    ),
+    resolver: zodResolver(requestPasswordResetInput),
   });
 
   const handlePasswordReset = (data: { email: string }) => {
@@ -211,7 +212,7 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
       onSuccess: async () => {
         // A successful reset re-admits the user with a fresh session, so the
         // identity changes. Await it before navigating, as with sign-in.
-        await refreshWorkspaceIdentity(queryClient);
+        await resetAfterSessionChanged(queryClient);
         toast.success("Password set successfully!");
         router.push("/");
       },
@@ -223,17 +224,7 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
       confirmPassword: "",
       password: "",
     },
-    resolver: zodResolver(
-      z
-        .object({
-          confirmPassword: z.string(),
-          password: z.string().min(8, "Password must be at least 8 characters"),
-        })
-        .refine((data) => data.password === data.confirmPassword, {
-          message: "Passwords don't match",
-          path: ["confirmPassword"],
-        }),
-    ),
+    resolver: zodResolver(setPasswordFormInput),
   });
 
   const handleSetPassword = (data: { password: string; confirmPassword: string }) => {

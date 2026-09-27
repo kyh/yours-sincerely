@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@repo/ui/components/logo";
 
-import { CardStackProvider } from "@/app/(app)/posts/_components/card-stack";
+import { CardStackProvider } from "@/components/providers/card-stack-provider";
 import { AsideHeader } from "@/components/layout/aside-header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { HydrateClient, prefetch, orpc } from "@/orpc/server";

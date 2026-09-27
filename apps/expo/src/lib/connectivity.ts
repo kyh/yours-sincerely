@@ -40,6 +40,11 @@ export const refreshConnectivity = async () => {
   return online;
 };
 
+const applyCurrentState = async () => {
+  const state = await Network.getNetworkStateAsync();
+  onlineManager.setOnline(isOnline(state));
+};
+
 export const subscribeToNativeConnectivity = () => {
   if (Platform.OS === "web") {
     return () => {
@@ -51,10 +56,6 @@ export const subscribeToNativeConnectivity = () => {
     onlineManager.setOnline(isOnline(state));
   });
 
-  const applyCurrentState = async () => {
-    const state = await Network.getNetworkStateAsync();
-    onlineManager.setOnline(isOnline(state));
-  };
   void ignoreRejection(applyCurrentState());
 
   return () => subscription.remove();

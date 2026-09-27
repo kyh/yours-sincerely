@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
+import { resolveDisplayName } from "@repo/contracts/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
@@ -71,7 +72,7 @@ export const BlockedWriters = () => {
     list = (
       <View className="gap-2">
         {blocked.map((writer) => {
-          const displayName = writer.displayName ?? "Anonymous";
+          const displayName = resolveDisplayName(writer.displayName);
           return (
             <View key={writer.blockingId} className="flex-row items-center gap-3">
               <ProfileAvatar name={displayName} src={writer.displayImage ?? undefined} size={36} />

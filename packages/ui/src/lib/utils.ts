@@ -1,6 +1,9 @@
 import * as React from "react";
 
-export const useMediaQuery = (query = "(min-width: 640px)") => {
+/** Tailwind's `md`, where the page layout gains its sidebar. */
+export const DESKTOP_QUERY = "(min-width: 768px)";
+
+export const useMediaQuery = (query: string) => {
   const subscribe = React.useCallback(
     (onStoreChange: () => void) => {
       const result = matchMedia(query);

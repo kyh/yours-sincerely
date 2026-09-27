@@ -5,14 +5,14 @@ import { after, test } from "node:test";
 import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, notification, post, pushToken, user } from "@repo/db/drizzle-schema";
-import { NOTIFICATION_PREVIEW_MAX_CHARS } from "@repo/contracts/notifications";
+import { NOTIFICATION_PREVIEW_MAX_CHARS, UNREAD_COUNT_CAP } from "@repo/contracts/notifications";
 import { ORPCError } from "@orpc/server";
 
 import { signPushCleanupCapability } from "./auth/push-cleanup-capability";
 import { FLAG_HIDE_THRESHOLD } from "./post/post-utils";
 import { findLivePushTokens } from "./push/expo-push";
 import { PUSH_TOKEN_MAX_IDLE_DAYS } from "./push/expo-push-core";
-import { callerFor } from "./test-utils";
+import { callerFor, runWithoutCookieScope } from "./test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -22,20 +22,6 @@ after(async () => {
 
 const MINUTE_MS = 60 * 1000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
-
-/** `deleteUser` clears the session cookie via `next/headers`, which throws outside
-    a Next request scope. Every database effect runs BEFORE that write, so the
-    mutation is driven for real and only that one specific error is absorbed.
-    Same helper as `post/post-counters.integration.ts`. */
-const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
-  try {
-    await operation();
-  } catch (error) {
-    if (!(error instanceof Error && error.message.includes("outside a request scope"))) {
-      throw error;
-    }
-  }
-};
 
 /** An author with one letter, and a second user who will reply to it. Every
     read is scoped to these two users, so the fixture is isolated from anything
@@ -231,6 +217,49 @@ integrationTest("a reply flagged into hiding leaves list and badge", async () =>
   }
 });
 
+integrationTest(
+  "a letter flagged into hiding takes its notifications off list and badge",
+  async () => {
+    const fixture = await createFixture();
+    try {
+      await fixture.commenter.post.createPost({
+        content: "A reply to a letter the community will hide",
+        parentId: fixture.letterId,
+      });
+      assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 1 });
+
+      await db
+        .update(post)
+        .set({ flagCount: FLAG_HIDE_THRESHOLD + 1 })
+        .where(eq(post.id, fixture.letterId));
+
+      // Tapping the row would land here, so the row must not be offered.
+      await assert.rejects(
+        fixture.author.post.getPost({ postId: fixture.letterId }),
+        (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
+      );
+      assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 0 });
+      const listed = await fixture.author.notification.list({});
+      assert.equal(listed.notifications.length, 0);
+    } finally {
+      await fixture.cleanup();
+    }
+  },
+);
+
+integrationTest("the unread badge stops counting at the cap", async () => {
+  const fixture = await createFixture();
+  try {
+    await seedNotifications(fixture, UNREAD_COUNT_CAP + 5);
+
+    assert.deepEqual(await fixture.author.notification.unreadCount(), {
+      count: UNREAD_COUNT_CAP,
+    });
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
 integrationTest("list is newest first and the cursor pages without gaps", async () => {
   const fixture = await createFixture();
   try {
@@ -264,6 +293,35 @@ integrationTest("list is newest first and the cursor pages without gaps", async 
       whole.notifications.map((row) => row.id),
       expectedIds,
     );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+integrationTest("rows sharing a timestamp page by id, without gaps or repeats", async () => {
+  const fixture = await createFixture();
+  try {
+    const seeded = await seedNotifications(fixture, 3);
+    const sharedAt = new Date().toISOString();
+    await db
+      .update(notification)
+      .set({ createdAt: sharedAt })
+      .where(eq(notification.userId, fixture.authorId));
+
+    const seen: string[] = [];
+    let cursor: Awaited<ReturnType<typeof fixture.author.notification.list>>["nextCursor"];
+    do {
+      const page = await fixture.author.notification.list({ cursor, limit: 1 });
+      seen.push(...page.notifications.map((row) => row.id));
+      cursor = page.nextCursor;
+    } while (cursor);
+
+    const whole = await fixture.author.notification.list({});
+    assert.deepEqual(
+      seen,
+      whole.notifications.map((row) => row.id),
+    );
+    assert.equal(new Set(seen).size, seeded.length);
   } finally {
     await fixture.cleanup();
   }

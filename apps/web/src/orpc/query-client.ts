@@ -1,5 +1,10 @@
-import { RPCSerializer } from "@orpc/client";
-import { defaultShouldDehydrateQuery, QueryClient } from "@tanstack/react-query";
+import { ORPCError, RPCSerializer } from "@orpc/client";
+import { isPermanentErrorCode, MAX_QUERY_RETRIES } from "@repo/contracts/query-retry";
+import {
+  defaultShouldDehydrateQuery,
+  environmentManager,
+  QueryClient,
+} from "@tanstack/react-query";
 
 // oRPC's own serializer, so dehydrated data round-trips every type the RPC
 // protocol supports (Date, Map, Set, BigInt, URL, RegExp) — plain JSON would
@@ -39,6 +44,13 @@ export const createQueryClient = () => {
         deserializeData: (data) => serializer.deserialize(data),
       },
       queries: {
+        // Any explicit `retry` replaces TanStack's server default of 0, and this
+        // client also backs the RSC prefetches — so the server check stays here,
+        // or a 5xx during render would back off for seconds before failing.
+        retry: (failureCount, error) =>
+          !environmentManager.isServer() &&
+          failureCount < MAX_QUERY_RETRIES &&
+          !(error instanceof ORPCError && isPermanentErrorCode(error.code)),
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
         staleTime: 30 * 1000,

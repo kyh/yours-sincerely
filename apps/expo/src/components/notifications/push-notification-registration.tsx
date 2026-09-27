@@ -21,6 +21,7 @@ import {
   setRegisteredPushDevice,
 } from "@/lib/push-token-store";
 import { refreshNotifications } from "@/lib/query-policies";
+import { createPushSession, patchPushSession } from "./push-session";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
 // Foreground pushes show as a banner only: the tab dot is the badge, and a
@@ -141,20 +142,26 @@ export const PushNotificationRegistration = () => {
   );
 };
 
-export const PushNotificationCoordinator = ({
-  children,
-  pushCleanupCapability,
-  userId,
-}: {
-  children: ReactNode;
+interface PushIdentity {
   pushCleanupCapability: string;
   userId: string;
+}
+
+export const PushNotificationCoordinator = ({
+  children,
+  identity,
+}: {
+  children: ReactNode;
+  identity: PushIdentity | null;
 }) => {
   const router = useRouter();
-  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [permission, setPermission] = useState<Notifications.PermissionStatus | null>(null);
-  const [registrationFailed, setRegistrationFailed] = useState(false);
-  const [registering, setRegistering] = useState(false);
+  const userId = identity?.userId ?? null;
+  const pushCleanupCapability = identity?.pushCleanupCapability ?? null;
+  const [session, setSession] = useState(() => createPushSession(userId));
+  if (session.userId !== userId) {
+    setSession(createPushSession(userId));
+  }
+  const { expoPushToken, permission, registrationFailed, registering } = session;
   const cleanupStoredDevice = usePushDeviceCleanup();
   // Nothing queries push tokens, so there is no cache to invalidate.
   const { mutateAsync: registerPushToken } = useMutation(
@@ -162,6 +169,9 @@ export const PushNotificationCoordinator = ({
   );
 
   const register = useCallback(async () => {
+    if (userId === null || pushCleanupCapability === null) {
+      return;
+    }
     const previousDevice = getRegisteredPushDevice();
     // Already registered this exact device for this user this session —
     // skip the server upsert and keychain writes on every foreground.
@@ -172,12 +182,16 @@ export const PushNotificationCoordinator = ({
       previousDevice.token === expoPushToken &&
       previousDevice.cleanupCapability === pushCleanupCapability
     ) {
-      setPermission(Notifications.PermissionStatus.GRANTED);
-      setRegistrationFailed(false);
+      setSession(
+        patchPushSession(userId, {
+          permission: Notifications.PermissionStatus.GRANTED,
+          registrationFailed: false,
+        }),
+      );
       return;
     }
 
-    setRegistering(true);
+    setSession(patchPushSession(userId, { registering: true }));
     try {
       if (previousDevice !== null && previousDevice.userId !== userId) {
         // Best-effort: `push.register` moves the token to this account either
@@ -189,8 +203,12 @@ export const PushNotificationCoordinator = ({
       const acquired = await acquireExpoPushToken();
       if (acquired === null) {
         const { status } = await Notifications.getPermissionsAsync();
-        setPermission(status);
-        setRegistrationFailed(status === Notifications.PermissionStatus.GRANTED);
+        setSession(
+          patchPushSession(userId, {
+            permission: status,
+            registrationFailed: status === Notifications.PermissionStatus.GRANTED,
+          }),
+        );
       } else {
         // The server row IS the registration: remember it locally only once it
         // exists, or a failed upsert is skipped as "already registered" forever.
@@ -200,28 +218,35 @@ export const PushNotificationCoordinator = ({
           token: acquired.token,
           userId,
         });
-        setExpoPushToken(acquired.token);
-        setPermission(Notifications.PermissionStatus.GRANTED);
-        setRegistrationFailed(false);
+        setSession(
+          patchPushSession(userId, {
+            expoPushToken: acquired.token,
+            permission: Notifications.PermissionStatus.GRANTED,
+            registrationFailed: false,
+          }),
+        );
       }
     } catch (error) {
-      setRegistrationFailed(true);
-      setRegistering(false);
+      setSession(patchPushSession(userId, { registering: false, registrationFailed: true }));
       throw error;
     }
-    setRegistering(false);
+    setSession(patchPushSession(userId, { registering: false }));
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, registerPushToken, userId]);
 
   useEffect(() => {
+    if (userId === null) {
+      return;
+    }
+
     const refreshPermission = async () => {
       try {
         const { status } = await Notifications.getPermissionsAsync();
-        setPermission(status);
+        setSession(patchPushSession(userId, { permission: status }));
         if (status === Notifications.PermissionStatus.GRANTED) {
           await register();
         }
       } catch {
-        setRegistrationFailed(true);
+        setSession(patchPushSession(userId, { registrationFailed: true }));
       }
     };
 
@@ -240,9 +265,12 @@ export const PushNotificationCoordinator = ({
       subscription.remove();
       onlineSubscription();
     };
-  }, [register]);
+  }, [register, userId]);
 
   const releasePushIdentity = useCallback(async () => {
+    if (userId === null || pushCleanupCapability === null) {
+      return;
+    }
     const storedDevice = getRegisteredPushDevice();
     const token = expoPushToken ?? (storedDevice?.userId === userId ? storedDevice.token : null);
     if (token === null) {
@@ -266,15 +294,19 @@ export const PushNotificationCoordinator = ({
     }
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, userId]);
   const registrationContext = useMemo(
-    () => ({ permission, register, registering, registrationFailed }),
-    [permission, register, registrationFailed, registering],
+    () => (userId === null ? null : { permission, register, registering, registrationFailed }),
+    [permission, register, registrationFailed, registering, userId],
   );
 
   useEffect(() => {
+    if (userId === null) {
+      return;
+    }
+
     const openNotification = (response: Notifications.NotificationResponse) => {
       // Native keeps the last tap until told otherwise, and this effect runs
-      // again on every remount (sign-in, sign-out, password change): a tap
-      // routed once must not route again from the mount-time read below.
+      // again on every account change (sign-in, sign-out, password change): a
+      // tap routed once must not route again from the subscribe-time read below.
       Notifications.clearLastNotificationResponse();
       const target = notificationTargetData.safeParse(response.notification.request.content.data);
       if (target.success) {
@@ -297,7 +329,7 @@ export const PushNotificationCoordinator = ({
       received.remove();
       responded.remove();
     };
-  }, [router]);
+  }, [router, userId]);
 
   return (
     <ReleasePushIdentityContext.Provider value={releasePushIdentity}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserInput } from "@repo/contracts/user";
+import { resolveDisplayName, updateUserInput } from "@repo/contracts/user";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { Input } from "@repo/ui/components/input";
@@ -35,14 +35,18 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   const form = useForm({
     defaultValues: {
-      displayName: user?.displayName || "Anonymous",
+      displayName: resolveDisplayName(user?.displayName),
     },
-    mode: "onBlur",
     resolver: zodResolver(updateUserInput),
   });
 
   const onSubmit = (data: UpdateUserInput) => {
-    const promise = updateUser.mutateAsync(data);
+    const submitted = form.getValues("displayName");
+    const promise = updateUser.mutateAsync(data, {
+      // Typing during the save keeps its text, and stays dirty for the next blur.
+      onSuccess: () =>
+        form.reset(data, { keepValues: form.getValues("displayName") !== submitted }),
+    });
     toast.promise(promise, {
       error: "Could not update profile. Please try again.",
       loading: "Updating profile...",
@@ -52,8 +56,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   return (
     <Form {...form}>
-      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- saves on blur of any field, no interaction added */}
-      <form onBlur={form.handleSubmit(onSubmit)} className="flex flex-col items-center gap-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center gap-2">
         <ProfileAvatar className="size-20" src={getAvatarUrl(user?.displayName || user?.id)} />
         <FormField
           control={form.control}
@@ -67,6 +70,12 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
                   placeholder="Your name"
                   disabled={readonly}
                   {...field}
+                  onBlur={() => {
+                    field.onBlur();
+                    if (form.getFieldState("displayName").isDirty && !updateUser.isPending) {
+                      void form.handleSubmit(onSubmit)();
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />

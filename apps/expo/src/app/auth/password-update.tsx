@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { View } from "react-native";
 import type { TextInput } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { setPasswordInput } from "@repo/contracts/auth";
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { setPasswordFormInput, setPasswordInput } from "@repo/contracts/auth";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 import { z } from "zod";
@@ -11,20 +11,9 @@ import { Button } from "@/components/ui/button";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { useReleasePushIdentity } from "@/components/notifications/push-notification-registration";
 import { FormField } from "@/components/auth/form-field";
-import { queryClient, orpc } from "@/lib/api";
-
-/** Mirrors the web SetPasswordForm's client-side confirm-password check;
-    the token/password shape sent to the mutation still comes from
-    setPasswordInput. */
-const setPasswordFormInput = z
-  .object({
-    confirmPassword: z.string(),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+import { orpc } from "@/lib/api";
+import { resetAfterSessionChanged } from "@/lib/query-policies";
+import { useTabNavigation } from "@/lib/use-tab-navigation";
 
 type FieldErrors = Partial<Record<"password" | "confirmPassword", string>>;
 const resetToken = z.string().min(1);
@@ -47,7 +36,7 @@ const getFieldErrors = (password: string, confirmPassword: string): FieldErrors 
 
 /** Deep-link target: yourssincerely://auth/password-update?token=... */
 const PasswordUpdateScreen = () => {
-  const router = useRouter();
+  const navigateToTab = useTabNavigation();
   const releasePushIdentity = useReleasePushIdentity();
   const params = useLocalSearchParams();
   const tokenParam = resetToken.safeParse(params.token);
@@ -59,20 +48,14 @@ const PasswordUpdateScreen = () => {
   const passwordInput = useRef<TextInput>(null);
   const confirmPasswordInput = useRef<TextInput>(null);
 
-  useEffect(() => {
-    if (token === undefined) {
-      router.replace("/auth/password-reset");
-    }
-  }, [token, router]);
-
   const setPasswordMutation = useMutation(
     orpc.auth.setPassword.mutationOptions({
       onError: (mutationError) => toast.error(mutationError.message),
       onSuccess: async () => {
         await releasePushIdentity();
+        await resetAfterSessionChanged();
         toast.success("Password updated");
-        queryClient.clear();
-        router.replace("/");
+        navigateToTab("/");
       },
     }),
   );
@@ -104,7 +87,7 @@ const PasswordUpdateScreen = () => {
   };
 
   if (token === undefined) {
-    return null;
+    return <Redirect href="/auth/password-reset" />;
   }
 
   return (

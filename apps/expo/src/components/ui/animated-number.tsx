@@ -10,6 +10,8 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
+import type { CounterState } from "@/components/ui/odometer";
+import { nextCounterState, odometerColumns } from "@/components/ui/odometer";
 import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "cn";
@@ -66,22 +68,27 @@ const DigitTile = ({
 const Digit = ({
   value,
   whole,
+  initialValue,
+  initialWhole,
   height,
   className,
 }: {
   value: number;
   /** The whole number this column belongs to — every column rolls the way it moved. */
   whole: number;
+  /** Digit and whole number the column mounts on; it rolls to `value` from there. */
+  initialValue: number;
+  initialWhole: number;
   height: number;
   className?: string;
 }) => {
   // Unbounded dial index; the shown digit is position mod 10. Rolls are
   // accumulated on `target` (not the mid-flight value) so rapid changes
   // retarget the spring smoothly instead of teleporting the dial.
-  const position = useSharedValue(value);
-  const target = useRef(value);
-  const previous = useRef(value);
-  const previousWhole = useRef(whole);
+  const position = useSharedValue(initialValue);
+  const target = useRef(initialValue);
+  const previous = useRef(initialValue);
+  const previousWhole = useRef(initialWhole);
 
   useEffect(() => {
     const direction = whole >= previousWhole.current ? 1 : -1;
@@ -126,14 +133,22 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   const reduceMotionEnabled = useReducedMotion();
   const safe = Math.max(0, Math.trunc(value));
   const text = String(safe);
-  const chars = [...text];
-  const len = chars.length;
+
+  // Most counters never change on screen, and the odometer costs ten animated
+  // tiles per digit, so it mounts on the first change.
+  const [counter, setCounter] = useState<CounterState>({ from: null, value: safe });
+  const next = nextCounterState(counter, safe, reduceMotionEnabled);
+  if (next !== counter) {
+    setCounter(next);
+  }
+  const { from } = next;
 
   // Column height is derived from the rendered text so it tracks the font
-  // size the className resolves to. Until measured we render the plain number.
+  // size the className resolves to. Until measured, the odometer holds the
+  // previous value as plain text so its columns can still roll from it.
   const [height, setHeight] = useState(0);
 
-  if (reduceMotionEnabled) {
+  if (from === null) {
     return (
       <Text
         accessibilityLabel={text}
@@ -157,23 +172,25 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
 
       {height === 0 ? (
         <Text style={TABULAR} className={cn("text-muted-foreground text-sm", className)}>
-          {text}
+          {String(from)}
         </Text>
       ) : (
-        chars.map((ch, i) => {
-          // Key by position from the right (ones = 0) so a column keeps its
-          // identity as leading digits appear/disappear.
-          const position = len - 1 - i;
-          return (
-            <Animated.View
-              key={position}
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(150)}
-            >
-              <Digit value={Number(ch)} whole={safe} height={height} className={className} />
-            </Animated.View>
-          );
-        })
+        odometerColumns(safe, from).map((column) => (
+          <Animated.View
+            key={column.position}
+            entering={column.from === null ? FadeIn.duration(200) : undefined}
+            exiting={FadeOut.duration(150)}
+          >
+            <Digit
+              value={column.digit}
+              whole={safe}
+              initialValue={column.from ?? column.digit}
+              initialWhole={from}
+              height={height}
+              className={className}
+            />
+          </Animated.View>
+        ))
       )}
     </View>
   );

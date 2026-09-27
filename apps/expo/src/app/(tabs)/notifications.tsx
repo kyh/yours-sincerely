@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -21,6 +21,7 @@ import { orpc } from "@/lib/api";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 import { resolveNotificationTarget } from "@/lib/notification-target";
 import { refreshNotifications } from "@/lib/query-policies";
+import { useInfiniteList } from "@/lib/use-infinite-list";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 type NotificationPage = RouterOutputs["notification"]["list"];
@@ -54,8 +55,6 @@ const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress
   );
 };
 
-/** Mirrors components/post/post-feed.tsx: keyset pages, pull-to-refresh,
-    and a fetch for a first page too short to scroll. */
 const NotificationFeed = () => {
   const router = useRouter();
   const {
@@ -75,16 +74,14 @@ const NotificationFeed = () => {
       input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
     }),
   );
-  const [refreshing, setRefreshing] = useState(false);
-
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const [contentHeight, setContentHeight] = useState(0);
-  const underfilled = viewportHeight > 0 && contentHeight > 0 && contentHeight <= viewportHeight;
-  useEffect(() => {
-    if (underfilled && hasNextPage && !isFetchingNextPage && !isError) {
-      void ignoreRejection(fetchNextPage());
-    }
-  }, [underfilled, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
+  const { listProps } = useInfiniteList({
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetching,
+    refetch,
+  });
 
   const markRead = useMutation(
     orpc.notification.markRead.mutationOptions({
@@ -152,23 +149,10 @@ const NotificationFeed = () => {
 
   return (
     <LegendList
+      {...listProps}
       style={{ flex: 1 }}
       data={notifications}
       keyExtractor={(item) => item.id}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage && !isError) {
-          void ignoreRejection(fetchNextPage());
-        }
-      }}
-      onEndReachedThreshold={0.5}
-      onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
-      onContentSizeChange={(_width, height) => setContentHeight(height)}
-      onRefresh={async () => {
-        setRefreshing(true);
-        await ignoreRejection(refetch());
-        setRefreshing(false);
-      }}
-      refreshing={refreshing}
       contentContainerStyle={{ paddingVertical: 20 }}
       ListHeaderComponent={<PushNotificationRegistration />}
       renderItem={({ item }) => (

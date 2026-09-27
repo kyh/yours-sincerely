@@ -7,7 +7,10 @@
       "@/*": ["./src/*"]
     },
     "plugins": [{ "name": "next" }],
-    "module": "esnext"
+    "module": "esnext",
+    // packages/contracts writes relative imports with `.ts` so the api and expo
+    // suites, which run on plain `node --test`, can load it without a loader.
+    "allowImportingTsExtensions": true
   },
   "include": [".", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

@@ -2,10 +2,10 @@ import Link from "next/link";
 import NumberFlow from "@number-flow/react";
 import { MessageCircleIcon } from "lucide-react";
 
-import type { RouterOutputs } from "@repo/api";
+import type { FeedPost } from "@repo/api";
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
 }
 
 export const CommentButton = ({ post }: Props) => (

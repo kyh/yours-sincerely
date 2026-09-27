@@ -2,9 +2,9 @@
 # See here: https://github.com/vercel/next.js/tree/canary/.github/ISSUE_TEMPLATE
 
 name: 🛠 Feature Request
-description: Create a feature request for the core packages
+description: Suggest an idea for this project
 title: "feat: "
-labels: ["✨ enhancement"]
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:

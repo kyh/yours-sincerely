@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { getExpiryProgress } from "@repo/contracts/content";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
 import { formatDistance } from "date-fns";
 
-import type { RouterOutputs } from "@repo/api";
+import type { FeedPost } from "@repo/api";
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
 }
 
 export const TimerButton = ({ post }: Props) => {
-  const [open, setOpen] = useState(false);
-
   if (!post.createdAt) {
     return null;
   }
@@ -22,15 +19,12 @@ export const TimerButton = ({ post }: Props) => {
   const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
 
   return (
-    <Tooltip open={open} onOpenChange={setOpen}>
-      <TooltipTrigger
+    <Popover>
+      <PopoverTrigger
+        openOnHover
         className="hover:bg-accent grid size-8 cursor-pointer place-items-center rounded-lg p-2 transition"
-        onClick={(e) => {
-          e.preventDefault();
-          setOpen(true);
-        }}
       >
-        <div
+        <span
           className="relative inline-block h-4 w-4 rounded-full bg-[length:150%] bg-center bg-blend-overlay"
           style={{
             backgroundImage: `conic-gradient(
@@ -41,9 +35,11 @@ export const TimerButton = ({ post }: Props) => {
           data-percentage={percentage}
         >
           <span className="sr-only">{formattedTime}</span>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>{formattedTime}</TooltipContent>
-    </Tooltip>
+        </span>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="w-fit px-3 py-1.5 text-xs">
+        {formattedTime}
+      </PopoverContent>
+    </Popover>
   );
 };

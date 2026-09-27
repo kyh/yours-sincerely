@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { supportMailto } from "@repo/contracts/site";
 import { Button } from "@repo/ui/components/button";
 import {
   Drawer,
@@ -22,7 +23,7 @@ import {
 import { Separator } from "@repo/ui/components/separator";
 import { drawerItemClass } from "@/lib/drawer-item";
 import { themes, useTheme } from "@/components/theme";
-import { useMediaQuery } from "@repo/ui/lib/utils";
+import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 import {
   BookCheckIcon,
   GlobeLockIcon,
@@ -33,21 +34,20 @@ import {
   UserIcon,
 } from "lucide-react";
 
-import { useCardStack } from "@/app/(app)/posts/_components/card-stack";
+import { useCardStack } from "@/components/providers/card-stack-provider";
 import { getAvatarUrl } from "@/lib/avatars";
 import { toggleFeedLayout } from "@/lib/feed-layout-actions";
-import { siteConfig } from "@/lib/site-config";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 export const AsideHeader = () => {
   const user = useWorkspaceUser();
   const { theme, setTheme } = useTheme();
-  const isDesktop = useMediaQuery();
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const { setCurrentIndex } = useCardStack();
 
   const [open, setOpen] = useState(false);
 
-  const currentThemeIndex = themes.findIndex((t) => t.value === theme);
+  const currentThemeIndex = themes.findIndex((t) => t.id === theme);
   const currentTheme = themes[currentThemeIndex];
 
   type MenuEntry =
@@ -102,7 +102,7 @@ export const AsideHeader = () => {
         setOpen(false);
         const nextThemeIndex = (currentThemeIndex + 1) % themes.length;
         const nextTheme = themes[nextThemeIndex];
-        setTheme(nextTheme?.value ?? "system");
+        setTheme(nextTheme?.id ?? "system");
       },
       icon: (
         <span className="grid size-4 place-content-center">
@@ -130,7 +130,7 @@ export const AsideHeader = () => {
     { condition: true, id: "separator-2", kind: "separator" },
     {
       condition: true,
-      href: `mailto:${siteConfig.supportEmail}?subject=Support: ${user?.id}`,
+      href: supportMailto(user?.id),
       icon: <HelpCircleIcon aria-hidden="true" className="size-4" />,
       id: "support",
       kind: "link",

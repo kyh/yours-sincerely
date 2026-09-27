@@ -1,3 +1,5 @@
+import type { AnyProcedure } from "@orpc/server";
+import type { AppRouter } from "@repo/api";
 import { SESSION_COOKIE_NAME as SESSION_COOKIE } from "@repo/contracts/auth";
 import { parse, splitCookiesString } from "set-cookie-parser";
 
@@ -15,7 +17,15 @@ import {
   setSessionCookie,
 } from "./session-store.ts";
 
-const identityProcedures = new Set([
+type ProcedurePath<TRouter> = {
+  [K in keyof TRouter & string]: TRouter[K] extends AnyProcedure
+    ? K
+    : `${K}/${ProcedurePath<TRouter[K]>}`;
+}[keyof TRouter & string];
+
+// Checked against the router: a renamed procedure must fail typecheck, not
+// silently drop out of the lock and let two anonymous writes mint two users.
+const identityProcedurePaths: `/api/orpc/${ProcedurePath<AppRouter>}`[] = [
   "/api/orpc/auth/signInWithPassword",
   "/api/orpc/auth/signUp",
   "/api/orpc/auth/setPassword",
@@ -27,7 +37,8 @@ const identityProcedures = new Set([
   "/api/orpc/like/createLike",
   "/api/orpc/flag/createFlag",
   "/api/orpc/block/createBlock",
-]);
+];
+const identityProcedures = new Set<string>(identityProcedurePaths);
 
 let identityRequests: Promise<void> | null = null;
 

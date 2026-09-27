@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { buttonVariants } from "@repo/ui/components/button";
 import { Logo } from "@repo/ui/components/logo";
 
 import { AsideHeader } from "@/components/layout/aside-header";
-import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { NotFoundContent } from "@/components/layout/not-found-content";
 import { Sidebar } from "@/components/layout/sidebar";
 import { HydrateClient, prefetch, orpc } from "@/orpc/server";
 
@@ -21,16 +20,7 @@ const Page = () => {
           </Link>
         </div>
         <Sidebar />
-        <PageHeader title="Page not found" />
-        <PageContent className="flex flex-col gap-5">
-          <h1>Could not find the page you were looking for</h1>
-          <Link
-            href="/"
-            className={buttonVariants({ className: "self-start", variant: "outline" })}
-          >
-            Return Home
-          </Link>
-        </PageContent>
+        <NotFoundContent />
         <AsideHeader />
       </section>
     </HydrateClient>

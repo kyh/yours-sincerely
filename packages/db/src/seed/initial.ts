@@ -129,7 +129,9 @@ const seed = async () => {
   await db.insert(user).values(users);
   console.log(`  ${users.length} users`);
 
-  const posts: (typeof post.$inferInsert)[] = [];
+  // Ids are minted here, not by the schema default, because comments, likes and
+  // flags point at them before anything is inserted.
+  const posts: (typeof post.$inferInsert & { id: string })[] = [];
   const addPost = (userId: string, displayName: string, msAgo: number, parentId?: string) => {
     const row = {
       baseLikeCount: random() < 0.1 ? Math.floor(random() * 50) : null,

@@ -36,9 +36,9 @@
 --     non-null `passwordHash` is never touched. That matters: the reset flow
 --     (`auth-router.ts` resetPassword) was these users' only way in, and anyone who
 --     used it must not be reverted to their old password.
---   * Anonymous authors are not affected: `createUserIfNotExists` gives them a
---     `createTempPassword()` hash, so their `passwordHash` is never null, and they
---     have no `auth.users` row to join to anyway.
+--   * Anonymous authors are not affected. Their `passwordHash` IS null, but the
+--     join is by id and `createUserIfNotExists` mints ids with `randomUUID()`, so
+--     they never have an `auth.users` row to match.
 --
 -- ORDERING: this runs immediately before `075-retire-legacy-auth.sql`, which drops
 -- the wiring that created these accounts. Rescue first, retire second — and both

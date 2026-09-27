@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TextInput, View } from "react-native";
-import { updateUserInput } from "@repo/contracts/user";
+import { MAX_DISPLAY_NAME_LENGTH } from "@repo/contracts/post";
+import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName, updateUserInput } from "@repo/contracts/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
@@ -24,7 +25,10 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   const { data } = useQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
   const user = data?.user;
 
-  const [displayName, setDisplayName] = useSeededState(user?.displayName, "Anonymous");
+  const [displayName, setDisplayName] = useSeededState(
+    user && resolveDisplayName(user.displayName),
+    ANONYMOUS_DISPLAY_NAME,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const updateUser = useMutation(
@@ -44,7 +48,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     if (user === undefined || user === null) {
       return;
     }
-    if (displayName === (user.displayName ?? "Anonymous")) {
+    if (displayName === resolveDisplayName(user.displayName)) {
       setError(null);
       return;
     }
@@ -60,7 +64,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   if (readonly) {
     return (
       <View className="items-center gap-2">
-        <ProfileAvatar name={user?.displayName ?? user?.id} />
+        <ProfileAvatar name={user?.displayName || user?.id} />
         <Text className="px-3 py-1 text-center text-xl font-bold">{displayName}</Text>
       </View>
     );
@@ -68,14 +72,14 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
 
   return (
     <View className="items-center gap-2">
-      <ProfileAvatar name={user?.displayName ?? user?.id} />
+      <ProfileAvatar name={user?.displayName || user?.id} />
       <TextInput
         accessibilityLabel="Display name"
         lineBreakModeIOS="clip"
         accessibilityState={{ busy: updateUser.isPending }}
         value={displayName}
         editable={!updateUser.isPending}
-        maxLength={50}
+        maxLength={MAX_DISPLAY_NAME_LENGTH}
         returnKeyType="done"
         onChangeText={(value) => {
           setDisplayName(value);

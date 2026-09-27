@@ -6,7 +6,8 @@ import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 
-import { createCaller } from "../test-utils";
+import { createCaller, runWithoutCookieScope } from "../test-utils";
+import { hashResetToken } from "./password-reset-core";
 import { authenticateSessionValue } from "./session";
 import {
   deriveKey,
@@ -15,6 +16,7 @@ import {
   SESSION_PURPOSE,
   signSession,
 } from "./session-core";
+import { findSessionUser } from "./session-user";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -42,14 +44,8 @@ const mintSessionCookie = (userId: string, sessionEpoch: number, iat = NOW_SECON
 const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
   signSession(Buffer.from(JSON.stringify({ iat, user: userId })).toString("base64"), SESSION_KEY);
 
-/** The lookup `createORPCContext` performs — same columns, same exclusions. */
-const findDbUser = async (userId: string) => {
-  const found = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: userId },
-  });
-  return found ?? null;
-};
+/** The lookup `createORPCContext` performs. */
+const findDbUser = (userId: string) => findSessionUser(db, userId);
 
 /** Does this cookie authenticate against the real database? */
 const authenticates = async (sessionValue: string) =>
@@ -59,24 +55,6 @@ const readSessionEpoch = async (userId: string) => {
   const row = await findDbUser(userId);
   assert.ok(row);
   return row.sessionEpoch;
-};
-
-/**
- * The routers write the session cookie via `next/headers`, which throws outside
- * a Next request scope. Every database effect runs BEFORE that write, so the
- * mutation is driven for real and only that one specific error is absorbed.
- * Anything else rethrows.
- */
-const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
-  try {
-    await operation();
-    return "completed";
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("outside a request scope")) {
-      return "reached-cookie-write";
-    }
-    throw error;
-  }
 };
 
 const createFixture = async () => {
@@ -104,7 +82,7 @@ const createResetToken = async (userId: string) => {
     expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     id: randomUUID(),
     sentTo: `${userId}@example.com`,
-    token: tokenValue,
+    token: hashResetToken(tokenValue),
     type: "RESET_PASSWORD",
     updatedAt: new Date().toISOString(),
     userId,
@@ -255,10 +233,14 @@ integrationTest("issuing a new reset link burns the outstanding ones", async () 
       .select({ token: tokenTable.token, usedAt: tokenTable.usedAt })
       .from(tokenTable)
       .where(eq(tokenTable.userId, fixture.userId));
-    const used = new Map(rows.map((row) => [row.token, row.usedAt]));
+    const usedAt = (resetToken: string) => {
+      const row = rows.find((candidate) => candidate.token === hashResetToken(resetToken));
+      assert.ok(row, "every link is stored by its digest");
+      return row.usedAt;
+    };
 
-    assert.notEqual(used.get(firstToken), null);
-    assert.notEqual(used.get(secondToken), null);
+    assert.notEqual(usedAt(firstToken), null);
+    assert.notEqual(usedAt(secondToken), null);
 
     // ...and the burned one can no longer be redeemed.
     await assert.rejects(

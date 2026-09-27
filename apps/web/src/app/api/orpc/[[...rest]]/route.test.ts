@@ -41,11 +41,10 @@ describe("rpc endpoint", () => {
     assert.match(await response.text(), /UNAUTHORIZED/u);
   });
 
-  test("refuses GET, the one method a cross-site navigation can reach", async () => {
-    const response = await route.GET(
-      new NextRequest("http://localhost:3000/api/orpc/block/listBlocks", { method: "GET" }),
-    );
-    assert.strictEqual(response.status, 404);
+  // Not exported, so Next answers 405 before any of this code runs: no session
+  // lookup, no renewal cookie, for a method no client uses.
+  test("exports no GET handler, the one method a cross-site navigation can reach", () => {
+    assert.ok(!("GET" in route));
   });
 
   // A sibling `*.yourssincerely.org` host is a different ORIGIN but the same

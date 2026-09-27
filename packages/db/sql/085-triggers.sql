@@ -1,23 +1,15 @@
 -- Every trigger in the schema, in one file, so "what fires on write?" has one
 -- answer. The functions they call live in `010-` and `020-`.
 --
--- NUMBERED 085 FOR ONE REASON: **DROP TRIGGER TAKES ACCESS EXCLUSIVE ON THE
--- TABLE**, and the applier runs every file in a single transaction, so that lock
--- is held until COMMIT. Everything sequenced after this file is time during which
--- nobody can read `Post` — not write, READ. The feed stops.
+-- NUMBERED 085 FOR ONE REASON: **CREATE TRIGGER BLOCKS EVERY WRITER TO THE TABLE**
+-- (SHARE ROW EXCLUSIVE), and the applier runs every file in a single transaction,
+-- so that lock is held until COMMIT. Everything sequenced after this file is time
+-- during which nobody can like, flag or post. Readers are unaffected.
 --
--- This file sorted as `030-` at first, ahead of `080-reconcile.sql`. That was
--- wrong and not subtly: it meant every push took an ACCESS EXCLUSIVE lock on
--- `Post` and held it through the reconcile's 2.1s ground-truth computation
--- (measured against production, 166k posts) plus its 166k-row UPDATE. Every
--- deploy would have frozen the feed for seconds — the exact stall `090-views.sql`
--- is ordered last to avoid, reintroduced from inside the same transaction by the
--- file that argued for it. Verified with a concurrent reader: `DROP TRIGGER` on
--- `Post` blocks `SELECT ... FROM "Feed"` outright.
---
--- So this runs after the slow work and immediately before the view swap: the lock
--- window is now two catalog updates, not two seconds. Anything added between here
--- and the end of `090-` must be O(1).
+-- So this runs after the slow work (the reconcile measured 2.1s of ground-truth
+-- computation against production, 166k posts, before its UPDATE) and immediately
+-- before the view swap. Anything added between here and the end of `090-` must be
+-- O(1).
 --
 -- Running after the reconcile is safe, and is in fact *more* correct. Other
 -- sessions cannot see this file's DDL until COMMIT, so in steady state they keep
@@ -25,31 +17,56 @@
 -- still counted while the reconcile runs, and any that touch a row the reconcile
 -- repaired simply queue behind its row lock and apply their increment on top.
 --
--- DROP IF EXISTS then CREATE, rather than CREATE OR REPLACE TRIGGER: this form
--- re-points a trigger whose timing or event list changed. It is the same choice
--- `090-views.sql` makes and for the same reason — declare the end state, do not
--- assume the existing object resembles it.
+-- CREATE OR REPLACE TRIGGER, never DROP TRIGGER. Replace rewrites every property
+-- (timing, events, WHEN, function), so it converges on the declared end state just
+-- as DROP + CREATE would. But DROP TRIGGER takes ACCESS EXCLUSIVE, which blocks
+-- every READER of the table until COMMIT, and `DROP TRIGGER IF EXISTS` takes it
+-- even when the trigger is already gone. A DROP left in this file freezes the feed
+-- on every push, forever. To split or rename a trigger, keep the old name for one
+-- half (as the two split pairs below do); to retire one, drop it in a single push
+-- and delete the DROP once production has converged. Needs Postgres 14+.
+--
+-- Reverting the split is a retirement too. A revert that restores the combined
+-- INSERT OR DELETE OR UPDATE triggers leaves `flag_sync_post_count_update` and
+-- `post_sync_comment_count_update` installed, firing the same functions, so every
+-- re-judge and reparent counts twice until they are dropped explicitly, in a quiet
+-- window (ACCESS EXCLUSIVE):
+--   DROP TRIGGER "flag_sync_post_count_update" ON "public"."Flag";
+--   DROP TRIGGER "post_sync_comment_count_update" ON "public"."Post";
 
 -- BEFORE INSERT: decides `countsTowardHide` and writes it into the row being
 -- inserted. Must be BEFORE, so the value is present when `flag_sync_post_count`
 -- reads it AFTER.
-DROP TRIGGER IF EXISTS "flag_counts_toward_hide" ON "public"."Flag";
-CREATE TRIGGER "flag_counts_toward_hide"
+CREATE OR REPLACE TRIGGER "flag_counts_toward_hide"
   BEFORE INSERT ON "public"."Flag"
   FOR EACH ROW
   EXECUTE FUNCTION public."setFlagCountsTowardHide"();
 
-DROP TRIGGER IF EXISTS "like_sync_post_count" ON "public"."Like";
-CREATE TRIGGER "like_sync_post_count"
+CREATE OR REPLACE TRIGGER "like_sync_post_count"
   AFTER INSERT OR DELETE ON "public"."Like"
   FOR EACH ROW EXECUTE FUNCTION public."syncPostLikeCount"();
 
-DROP TRIGGER IF EXISTS "flag_sync_post_count" ON "public"."Flag";
-CREATE TRIGGER "flag_sync_post_count"
-  AFTER INSERT OR DELETE OR UPDATE ON "public"."Flag"
+-- The UPDATE halves are separate triggers because only an UPDATE trigger can carry
+-- a WHEN over OLD and NEW. `UPDATE OF` plus WHEN mirror the function's own guard,
+-- so an update that cannot move the counter queues no event at all. For `Post`
+-- that is every counter bump from these very triggers and every row the reconcile
+-- repairs. `080-`'s NULL -> judged backfill still fires the Flag one.
+CREATE OR REPLACE TRIGGER "flag_sync_post_count"
+  AFTER INSERT OR DELETE ON "public"."Flag"
   FOR EACH ROW EXECUTE FUNCTION public."syncPostFlagCount"();
 
-DROP TRIGGER IF EXISTS "post_sync_comment_count" ON "public"."Post";
-CREATE TRIGGER "post_sync_comment_count"
-  AFTER INSERT OR DELETE OR UPDATE ON "public"."Post"
+CREATE OR REPLACE TRIGGER "flag_sync_post_count_update"
+  AFTER UPDATE OF "countsTowardHide" ON "public"."Flag"
+  FOR EACH ROW
+  WHEN ((OLD."countsTowardHide" IS TRUE) IS DISTINCT FROM (NEW."countsTowardHide" IS TRUE))
+  EXECUTE FUNCTION public."syncPostFlagCount"();
+
+CREATE OR REPLACE TRIGGER "post_sync_comment_count"
+  AFTER INSERT OR DELETE ON "public"."Post"
   FOR EACH ROW EXECUTE FUNCTION public."syncPostCommentCount"();
+
+CREATE OR REPLACE TRIGGER "post_sync_comment_count_update"
+  AFTER UPDATE OF "parentId" ON "public"."Post"
+  FOR EACH ROW
+  WHEN (OLD."parentId" IS DISTINCT FROM NEW."parentId")
+  EXECUTE FUNCTION public."syncPostCommentCount"();

@@ -6,7 +6,7 @@ import { and, eq, inArray, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, flag, like, post, user } from "@repo/db/drizzle-schema";
 
-import { createCaller } from "../test-utils";
+import { callerFor, runWithoutCookieScope } from "../test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -42,20 +42,6 @@ const assertNoDrift = async (label: string) => {
   );
 };
 
-/** `deleteUser` clears the session cookie via `next/headers`, which throws outside
-    a Next request scope. Every database effect runs BEFORE that write, so the
-    mutation is driven for real and only that one specific error is absorbed.
-    Same helper as `auth/session-revocation.integration.ts`. */
-const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
-  try {
-    await operation();
-  } catch (error) {
-    if (!(error instanceof Error && error.message.includes("outside a request scope"))) {
-      throw error;
-    }
-  }
-};
-
 const counters = async (postId: string) => {
   const row = await db.query.post.findFirst({
     columns: { commentCount: true, flagCount: true, likeCount: true },
@@ -85,19 +71,8 @@ const createFixture = async () => {
     userId: ownerId,
   });
 
-  const owner = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: ownerId },
-  });
-  const flagger = await db.query.user.findFirst({
-    columns: { passwordHash: false },
-    where: { id: flaggerId },
-  });
-  assert.ok(owner);
-  assert.ok(flagger);
-
-  const ownerCaller = createCaller(owner);
-  const flaggerCaller = createCaller(flagger);
+  const ownerCaller = await callerFor(ownerId);
+  const flaggerCaller = await callerFor(flaggerId);
 
   const cleanup = async () => {
     const ids = await db
@@ -156,12 +131,7 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
   try {
     // Brand new, no email, no posts — exactly what a cookieless request mints.
     await db.insert(user).values({ displayName: "Fresh", id: freshId });
-    const fresh = await db.query.user.findFirst({
-      columns: { passwordHash: false },
-      where: { id: freshId },
-    });
-    assert.ok(fresh);
-    const freshCaller = createCaller(fresh);
+    const freshCaller = await callerFor(freshId);
 
     await freshCaller.flag.createFlag({ postId: fixture.rootId });
 

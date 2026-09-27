@@ -1,4 +1,3 @@
-import type { Day as WeekDay } from "date-fns";
 import {
   addDays,
   differenceInCalendarDays,
@@ -12,7 +11,7 @@ import {
   subWeeks,
 } from "date-fns";
 
-import { parseServerDate } from "./content";
+import { parseServerDate } from "./content.ts";
 
 export type CalendarLevel = 0 | 1 | 2 | 3 | 4;
 
@@ -38,14 +37,10 @@ export interface CalendarPost {
   createdAt: string;
 }
 
-export const DEFAULT_CALENDAR_THEME: CalendarTheme = {
-  level0: "#ede9fe",
-  level1: "#c4b5fd",
-  level2: "#8b5cf6",
-  level3: "#6d28d9",
-  level4: "#4c1d95",
-  stroke: "#ddd6fe",
-};
+/** Days the profile heatmap covers: the wide grid from `HEATMAP_WIDE_MIN_WIDTH`
+    (px on web, dp on native) up, the narrow one below it. */
+export const HEATMAP_DAYS = { narrow: 120, wide: 200 } as const;
+export const HEATMAP_WIDE_MIN_WIDTH = 640;
 
 /** Indigo ramps for the profile heatmap, keyed by resolved appearance —
     the one place both platforms read them from. */
@@ -68,7 +63,7 @@ export const PROFILE_CALENDAR_THEMES = {
   },
 } satisfies Record<"light" | "dark", CalendarTheme>;
 
-export const DEFAULT_MONTH_LABELS = [
+const MONTH_LABELS = [
   "Jan",
   "Feb",
   "Mar",
@@ -97,14 +92,9 @@ export const FULL_DAY_LABELS = {
   Wed: "Wednesday",
 } satisfies Record<WeekdayLabel, string>;
 
-export const DEFAULT_CALENDAR_LABELS = {
-  legend: { less: "Less", more: "More" },
-  months: DEFAULT_MONTH_LABELS,
-  totalCount: "{{count}} posts in last 200 days",
-  weekdays: DEFAULT_WEEKDAY_LABELS,
-};
+export type WeekdayActivity = Record<WeekdayLabel, { count: number; level: CalendarLevel }>;
 
-export const MIN_DISTANCE_MONTH_LABELS = 2;
+const MIN_DISTANCE_MONTH_LABELS = 2;
 
 export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): string => {
   switch (level) {
@@ -130,13 +120,10 @@ export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): 
   }
 };
 
-export const getCalendarTheme = (theme?: CalendarTheme): CalendarTheme =>
-  theme ?? DEFAULT_CALENDAR_THEME;
+/** Sunday, `getDay`'s 0: weeks are columns that start on Sunday. */
+const WEEK_START = 0;
 
-export const groupCalendarDaysByWeeks = (
-  days: CalendarDay[],
-  weekStart: WeekDay = 0,
-): CalendarWeeks => {
+export const groupCalendarDaysByWeeks = (days: CalendarDay[]): CalendarWeeks => {
   if (days.length === 0) {
     return [];
   }
@@ -158,7 +145,7 @@ export const groupCalendarDaysByWeeks = (
 
   const firstDate = parseISO(normalizedDays[0]?.date ?? "");
   const firstCalendarDate =
-    getDay(firstDate) === weekStart ? firstDate : subWeeks(nextDay(firstDate, weekStart), 1);
+    getDay(firstDate) === WEEK_START ? firstDate : subWeeks(nextDay(firstDate, WEEK_START), 1);
   const padding = Array.from(
     { length: differenceInCalendarDays(firstDate, firstCalendarDate) },
     (): undefined => undefined,
@@ -176,17 +163,14 @@ interface CalendarLabel {
   text: string;
 }
 
-export const getCalendarMonthLabels = (
-  weeks: CalendarWeeks,
-  monthNames: string[] = DEFAULT_MONTH_LABELS,
-): CalendarLabel[] => {
+export const getCalendarMonthLabels = (weeks: CalendarWeeks): CalendarLabel[] => {
   const labels: CalendarLabel[] = [];
   for (const [index, week] of weeks.entries()) {
     const firstDay = week.find((day) => day !== undefined);
     if (firstDay === undefined) {
       continue;
     }
-    const month = monthNames[getMonth(parseISO(firstDay.date))] ?? "";
+    const month = MONTH_LABELS[getMonth(parseISO(firstDay.date))] ?? "";
     const previous = labels.at(-1);
     if (index === 0 || previous?.text !== month) {
       labels.push({ text: month, x: index, y: 0 });
@@ -217,8 +201,12 @@ const getPostLevel = (count: number, max: number): CalendarLevel => {
   return 4;
 };
 
-export const createPostsHeatmap = (posts: CalendarPost[], lastNDays: number) => {
-  const days = eachDayOfInterval({ end: new Date(), start: addDays(new Date(), -lastNDays) });
+export const createPostsHeatmap = (
+  posts: CalendarPost[],
+  lastNDays: number,
+  now: Date = new Date(),
+) => {
+  const days = eachDayOfInterval({ end: now, start: addDays(now, -lastNDays) });
   const counts = new Map(days.map((day) => [format(day, "yyyy-MM-dd"), 0]));
 
   for (const post of posts) {
@@ -255,18 +243,18 @@ export const createPostsDailyActivity = (posts: CalendarPost[]) => {
       maxCount = count;
     }
   }
-  const stats = Object.fromEntries(
-    [...counts].map(([day, count]): [WeekdayLabel, { count: number; level: CalendarLevel }] => [
-      day,
-      { count, level: getPostLevel(count, maxCount) },
-    ]),
-  );
+  const activity = (day: WeekdayLabel) => {
+    const count = counts.get(day) ?? 0;
+    return { count, level: getPostLevel(count, maxCount) };
+  };
+  const stats: WeekdayActivity = {
+    Fri: activity("Fri"),
+    Mon: activity("Mon"),
+    Sat: activity("Sat"),
+    Sun: activity("Sun"),
+    Thu: activity("Thu"),
+    Tue: activity("Tue"),
+    Wed: activity("Wed"),
+  };
   return { max: { day: maxDay, max: maxCount }, stats };
 };
-
-export const generateEmptyCalendarData = (year = new Date().getFullYear()): CalendarDay[] =>
-  eachDayOfInterval({ end: new Date(year, 11, 31), start: new Date(year, 0, 1) }).map((date) => ({
-    count: 0,
-    date: formatISO(date, { representation: "date" }),
-    level: 0,
-  }));

@@ -8,12 +8,8 @@ import {
   calendarLevelColor,
   createPostsDailyActivity,
   createPostsHeatmap,
-  DEFAULT_CALENDAR_THEME,
-  generateEmptyCalendarData,
   getCalendarMonthLabels,
-  getCalendarTheme,
   groupCalendarDaysByWeeks,
-  MIN_DISTANCE_MONTH_LABELS,
   PROFILE_CALENDAR_THEMES,
 } from "./calendar.ts";
 
@@ -30,13 +26,12 @@ const emptyDays = (from: string, to: string): CalendarDay[] =>
     inside the heatmap stays deterministic. */
 const atNoon = (day: string): CalendarPost => ({ createdAt: `${day} 12:00:00.000` });
 
-/** The heatmap window is built from `new Date()` internally — it takes no `now`
-    parameter — so its inputs must be expressed relative to today. */
-const daysFromToday = (offset: number) => format(addDays(new Date(), offset), "yyyy-MM-dd");
+const NOW = new Date(2026, 5, 15, 12);
+const daysFromNow = (offset: number) => format(addDays(NOW, offset), "yyyy-MM-dd");
 
 // --- groupCalendarDaysByWeeks -----------------------------------------------
 
-test("weeks are padded to the week start (default Sunday)", () => {
+test("weeks are padded to start on Sunday", () => {
   // 2026-06-01 is a Monday, so a Sunday-start calendar needs one leading blank.
   const weeks = groupCalendarDaysByWeeks(emptyDays("2026-06-01", "2026-06-14"));
 
@@ -46,19 +41,6 @@ test("weeks are padded to the week start (default Sunday)", () => {
   assert.equal(weeks[0]?.[1]?.date, "2026-06-01");
   assert.equal(weeks[1]?.[0]?.date, "2026-06-07");
   assert.equal(weeks[2]?.[0]?.date, "2026-06-14");
-});
-
-test("weekStart shifts the padding", () => {
-  // With a Monday week start, a range beginning on Monday needs no padding at all.
-  const weeks = groupCalendarDaysByWeeks(emptyDays("2026-06-01", "2026-06-14"), 1);
-
-  assert.equal(weeks.length, 2);
-  assert.equal(weeks[0]?.[0]?.date, "2026-06-01");
-  assert.equal(weeks[1]?.[0]?.date, "2026-06-08");
-  assert.ok(
-    weeks.every((week) => week.every((day) => day !== undefined)),
-    "no padding expected",
-  );
 });
 
 test("gaps between supplied days are filled with empty days", () => {
@@ -96,67 +78,40 @@ test("month labels mark the first week of each month", () => {
 
 test("a crowded first label is dropped", () => {
   // Starting 2026-06-24 leaves June occupying only 2 weeks, so the "Jun" label at x=0
-  // would collide with "Jul" at x=2. The index-0 filter requires a gap strictly greater
-  // than MIN_DISTANCE_MONTH_LABELS, so "Jun" is dropped and "Jul" leads.
+  // would collide with "Jul" at x=2. The index-0 filter requires a gap of more than two
+  // weeks, so "Jun" is dropped and "Jul" leads.
   const weeks = groupCalendarDaysByWeeks(emptyDays("2026-06-24", "2026-09-15"));
-  const labels = getCalendarMonthLabels(weeks);
 
-  assert.deepEqual(labels, [
+  assert.deepEqual(getCalendarMonthLabels(weeks), [
     { text: "Jul", x: 2, y: 0 },
     { text: "Aug", x: 6, y: 0 },
     { text: "Sep", x: 11, y: 0 },
   ]);
-  const [first, second] = labels;
-  assert.ok(first !== undefined && second !== undefined);
-  assert.ok(second.x - first.x > MIN_DISTANCE_MONTH_LABELS);
-});
-
-test("custom month names are honoured", () => {
-  const weeks = groupCalendarDaysByWeeks(emptyDays("2026-06-01", "2026-09-15"));
-  const names = [
-    "1月",
-    "2月",
-    "3月",
-    "4月",
-    "5月",
-    "6月",
-    "7月",
-    "8月",
-    "9月",
-    "10月",
-    "11月",
-    "12月",
-  ];
-
-  assert.deepEqual(
-    getCalendarMonthLabels(weeks, names).map((label) => label.text),
-    ["6月", "7月", "8月", "9月"],
-  );
 });
 
 // --- createPostsHeatmap -----------------------------------------------------
 
 test("the heatmap counts posts per day and drops posts outside the window", () => {
   const posts: CalendarPost[] = [
-    atNoon(daysFromToday(-3)),
-    atNoon(daysFromToday(-3)),
-    atNoon(daysFromToday(-3)),
-    atNoon(daysFromToday(-5)),
+    atNoon(daysFromNow(-3)),
+    atNoon(daysFromNow(-3)),
+    atNoon(daysFromNow(-3)),
+    atNoon(daysFromNow(-5)),
     // far outside a 200-day window — must be discarded
-    atNoon(daysFromToday(-400)),
+    atNoon(daysFromNow(-400)),
   ];
 
-  const { stats, max } = createPostsHeatmap(posts, 200);
+  const { stats, max } = createPostsHeatmap(posts, 200, NOW);
 
   // eachDayOfInterval is inclusive on both ends: 200 days back plus today.
   assert.equal(stats.length, 201);
   assert.equal(max, 3);
 
   const byDate = new Map(stats.map((day) => [day.date, day]));
-  assert.equal(byDate.get(daysFromToday(-3))?.count, 3);
-  assert.equal(byDate.get(daysFromToday(-5))?.count, 1);
-  assert.equal(byDate.get(daysFromToday(-1))?.count, 0);
-  assert.equal(byDate.has(daysFromToday(-400)), false);
+  assert.equal(byDate.get(daysFromNow(-3))?.count, 3);
+  assert.equal(byDate.get(daysFromNow(-5))?.count, 1);
+  assert.equal(byDate.get(daysFromNow(-1))?.count, 0);
+  assert.equal(byDate.has(daysFromNow(-400)), false);
 
   // Total counted posts = 4; the 400-day-old post was dropped, not clamped into the window.
   assert.equal(
@@ -171,27 +126,27 @@ test("heatmap levels follow the 0.3 / 0.6 / 0.9 thresholds of the day's max", ()
   // 10 → level 4; 1 → level 1; 3 → level 2 (0.3 is exclusive);
   // 6 → level 3 (0.6 is exclusive); 9 → level 4 (0.9 is exclusive).
   const posts = [
-    ...Array.from({ length: 10 }, () => atNoon(daysFromToday(-1))),
-    ...Array.from({ length: 1 }, () => atNoon(daysFromToday(-2))),
-    ...Array.from({ length: 3 }, () => atNoon(daysFromToday(-3))),
-    ...Array.from({ length: 6 }, () => atNoon(daysFromToday(-4))),
-    ...Array.from({ length: 9 }, () => atNoon(daysFromToday(-5))),
+    ...Array.from({ length: 10 }, () => atNoon(daysFromNow(-1))),
+    ...Array.from({ length: 1 }, () => atNoon(daysFromNow(-2))),
+    ...Array.from({ length: 3 }, () => atNoon(daysFromNow(-3))),
+    ...Array.from({ length: 6 }, () => atNoon(daysFromNow(-4))),
+    ...Array.from({ length: 9 }, () => atNoon(daysFromNow(-5))),
   ];
 
-  const { stats, max } = createPostsHeatmap(posts, 30);
+  const { stats, max } = createPostsHeatmap(posts, 30, NOW);
   const byDate = new Map(stats.map((day) => [day.date, day]));
   assert.equal(max, 10);
 
-  assert.equal(byDate.get(daysFromToday(-1))?.level, 4);
-  assert.equal(byDate.get(daysFromToday(-2))?.level, 1);
-  assert.equal(byDate.get(daysFromToday(-3))?.level, 2);
-  assert.equal(byDate.get(daysFromToday(-4))?.level, 3);
-  assert.equal(byDate.get(daysFromToday(-5))?.level, 4);
-  assert.equal(byDate.get(daysFromToday(-6))?.level, 0);
+  assert.equal(byDate.get(daysFromNow(-1))?.level, 4);
+  assert.equal(byDate.get(daysFromNow(-2))?.level, 1);
+  assert.equal(byDate.get(daysFromNow(-3))?.level, 2);
+  assert.equal(byDate.get(daysFromNow(-4))?.level, 3);
+  assert.equal(byDate.get(daysFromNow(-5))?.level, 4);
+  assert.equal(byDate.get(daysFromNow(-6))?.level, 0);
 });
 
 test("an empty heatmap has a zero max and all-zero levels", () => {
-  const { stats, max } = createPostsHeatmap([], 10);
+  const { stats, max } = createPostsHeatmap([], 10, NOW);
 
   assert.equal(max, 0);
   assert.equal(stats.length, 11);
@@ -241,33 +196,15 @@ test("daily activity buckets a zone-less timestamp by its UTC instant", () => {
   assert.deepEqual(max, { day: "Mon", max: 1 });
 });
 
-// --- theme + scaffolding ----------------------------------------------------
+// --- theme ------------------------------------------------------------------
 
 test("calendarLevelColor maps every level to its theme colour", () => {
-  assert.equal(calendarLevelColor(DEFAULT_CALENDAR_THEME, 0), DEFAULT_CALENDAR_THEME.level0);
-  assert.equal(calendarLevelColor(DEFAULT_CALENDAR_THEME, 1), DEFAULT_CALENDAR_THEME.level1);
-  assert.equal(calendarLevelColor(DEFAULT_CALENDAR_THEME, 2), DEFAULT_CALENDAR_THEME.level2);
-  assert.equal(calendarLevelColor(DEFAULT_CALENDAR_THEME, 3), DEFAULT_CALENDAR_THEME.level3);
-  assert.equal(calendarLevelColor(DEFAULT_CALENDAR_THEME, 4), DEFAULT_CALENDAR_THEME.level4);
-});
-
-test("getCalendarTheme falls back to the default", () => {
-  assert.equal(getCalendarTheme(), DEFAULT_CALENDAR_THEME);
-  assert.equal(getCalendarTheme(), DEFAULT_CALENDAR_THEME);
-
-  const custom = { ...DEFAULT_CALENDAR_THEME, level0: "#000000" };
-  assert.equal(getCalendarTheme(custom), custom);
-});
-
-test("generateEmptyCalendarData covers a whole year", () => {
-  const days = generateEmptyCalendarData(2026);
-
-  assert.equal(days.length, 365);
-  assert.equal(days[0]?.date, "2026-01-01");
-  assert.equal(days.at(-1)?.date, "2026-12-31");
-  assert.ok(days.every((day) => day.count === 0 && day.level === 0));
-
-  assert.equal(generateEmptyCalendarData(2028).length, 366, "leap year");
+  const theme = PROFILE_CALENDAR_THEMES.light;
+  assert.equal(calendarLevelColor(theme, 0), theme.level0);
+  assert.equal(calendarLevelColor(theme, 1), theme.level1);
+  assert.equal(calendarLevelColor(theme, 2), theme.level2);
+  assert.equal(calendarLevelColor(theme, 3), theme.level3);
+  assert.equal(calendarLevelColor(theme, 4), theme.level4);
 });
 
 test("profile calendar themes are complete hex ramps in both appearances", () => {

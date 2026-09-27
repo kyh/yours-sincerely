@@ -1,21 +1,21 @@
+import { resolveDisplayName } from "@repo/contracts/user";
 import { user } from "@repo/db/drizzle-schema";
-import { getDefaultValues } from "@repo/db/utils";
 import { ORPCError } from "@orpc/server";
 
 import type { ORPCContext } from "../orpc";
-import { createTempPassword, setSession } from "./session";
+import { setSession } from "./session";
 
 export const createUserIfNotExists = async (context: ORPCContext, displayName?: string) => {
   let userId = context.user?.id;
 
-  // If the user is not logged in, create an anonymous user
+  // If the user is not logged in, create an anonymous user. No `passwordHash`:
+  // with no email there is no sign-in that could ever check one, and bcrypt
+  // here would cost every first write ~70ms of CPU.
   if (!userId) {
     const [userData] = await context.db
       .insert(user)
       .values({
-        ...getDefaultValues(),
-        displayName: displayName ?? "Anonymous",
-        passwordHash: await createTempPassword(),
+        displayName: resolveDisplayName(displayName),
       })
       .returning();
 

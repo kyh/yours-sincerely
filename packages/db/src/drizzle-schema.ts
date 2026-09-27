@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -12,6 +14,11 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+
+// For `$defaultFn` / `$onUpdate`, which run in drizzle, not Postgres: those
+// columns carry no DB default, so a raw SQL INSERT must still supply them, and an
+// UPDATE made by a trigger leaves `updatedAt` alone.
+const isoNow = () => new Date().toISOString();
 
 export const tokenType = pgEnum("TokenType", ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"]);
 export const userRole = pgEnum("UserRole", ["USER", "ADMIN"]);
@@ -34,7 +41,10 @@ export const user = pgTable(
     displayName: text(),
     email: text(),
     emailVerified: timestamp({ mode: "string", precision: 3 }),
-    id: text().primaryKey().notNull(),
+    id: text()
+      .primaryKey()
+      .notNull()
+      .$defaultFn(() => randomUUID()),
     passwordHash: text(),
     role: userRole().default("USER").notNull(),
     // Revocation, NOT expiry. Bumping this invalidates every session cookie
@@ -126,11 +136,17 @@ export const post = pgTable(
         censorship fix in `sql/010-flagger.sql` and let four cookieless requests
         hide any post again. */
     flagCount: integer().default(0).notNull(),
-    id: text().primaryKey().notNull(),
+    id: text()
+      .primaryKey()
+      .notNull()
+      .$defaultFn(() => randomUUID()),
     /** Real `Like` rows for this post. NOT including `baseLikeCount`. */
     likeCount: integer().default(0).notNull(),
     parentId: text(),
-    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .notNull()
+      .$defaultFn(isoNow)
+      .$onUpdate(isoNow),
     userId: text().notNull(),
   },
   (table) => [
@@ -197,11 +213,17 @@ export const token = pgTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     expiresAt: timestamp({ mode: "string", precision: 3 }),
-    id: text().primaryKey().notNull(),
+    id: text()
+      .primaryKey()
+      .notNull()
+      .$defaultFn(() => randomUUID()),
     sentTo: text(),
     token: text().notNull(),
     type: tokenType().notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .notNull()
+      .$defaultFn(isoNow)
+      .$onUpdate(isoNow),
     usedAt: timestamp({ mode: "string", precision: 3 }),
     userId: text().notNull(),
   },
@@ -264,10 +286,15 @@ export const like = pgTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     postId: text().notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .notNull()
+      .$defaultFn(isoNow)
+      .$onUpdate(isoNow),
     userId: text().notNull(),
   },
   (table) => [
+    /** Its btree IS the `(postId, userId)` index. A second index on the same
+          columns serves no query the key does not, and adds a write to every like. */
     primaryKey({
       columns: [table.postId, table.userId],
       name: "Like_pkey",
@@ -326,10 +353,14 @@ export const flag = pgTable(
       .notNull(),
     postId: text().notNull(),
     resolved: boolean().default(false).notNull(),
-    updatedAt: timestamp({ mode: "string", precision: 3 }).notNull(),
+    updatedAt: timestamp({ mode: "string", precision: 3 })
+      .notNull()
+      .$defaultFn(isoNow)
+      .$onUpdate(isoNow),
     userId: text().notNull(),
   },
   (table) => [
+    /** Also the `(postId, userId)` index; see `Like_pkey`. */
     primaryKey({
       columns: [table.postId, table.userId],
       name: "Flag_pkey",
@@ -367,7 +398,10 @@ export const notification = pgTable(
     createdAt: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    id: text().primaryKey().notNull(),
+    id: text()
+      .primaryKey()
+      .notNull()
+      .$defaultFn(() => randomUUID()),
     kind: notificationKind().notNull(),
     /** The letter the notification is about. */
     postId: text().notNull(),

@@ -31,8 +31,7 @@ const buttonVariants = cva(
         destructive: "bg-destructive/10 dark:bg-destructive/20",
         ghost: "bg-transparent",
         link: "bg-transparent",
-        outline:
-          "border-border bg-background dark:border-input dark:bg-input/30 dark-purple:border-input dark-purple:bg-input/30",
+        outline: "border-border bg-background dark:border-input dark:bg-input/30",
         secondary: "bg-secondary",
       },
     },

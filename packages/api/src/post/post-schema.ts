@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { serverTimestamp } from "@repo/contracts/content";
+import { resolveDisplayName } from "@repo/contracts/user";
 import type { post } from "@repo/db/drizzle-schema";
 
 export { createPostInput, type CreatePostInput } from "@repo/contracts/post";
@@ -17,12 +19,12 @@ export const getPostInput = z.object({
 export const getFeedInput = z.object({
   cursor: z
     .object({
-      createdAt: z.string(),
+      createdAt: serverTimestamp,
       postId: z.string(),
     })
     .optional(),
   // Bounded: `getFeed` is a public, unauthenticated endpoint. Both clients ask
-  // for 5, so 50 is generous headroom while still capping the blast radius.
+  // for FEED_PAGE_SIZE, so 50 is generous headroom while still capping the blast radius.
   limit: z.number().int().min(1).max(50).optional(),
   userId: z.string().optional(),
 });
@@ -39,7 +41,7 @@ type DbPost = typeof post.$inferSelect;
  *  omitted deliberately: they are server-owned and have never been on the wire.
  *  `likeCount`/`commentCount` are re-declared so the shape stays identical now
  *  that columns of the same name exist on `Post`. */
-type FeedPost = Omit<
+type WirePost = Omit<
   DbPost,
   "baseLikeCount" | "updatedAt" | "likeCount" | "commentCount" | "flagCount"
 > & {
@@ -48,7 +50,7 @@ type FeedPost = Omit<
   isLiked: boolean;
   likeCount: number;
   commentCount: number;
-  comments?: FeedPost[];
+  comments?: WirePost[];
 };
 
 interface ConvertOptions {
@@ -57,19 +59,19 @@ interface ConvertOptions {
       `commentCount` column counts ALL children, while `getPost` reports the
       comments it actually returns (hidden ones are filtered out first). */
   commentCount: number;
-  comments?: FeedPost[];
+  comments?: WirePost[];
 }
 
 /** Reads the denormalized counters (`sql/085-triggers.sql`) instead of counting loaded
     rows. `getPost` used to load every `Like` and `Flag` row for a post AND each
     of its comments purely to derive two integers and a boolean — a popular
     letter shipped thousands of rows to Node to do it. */
-export const convertDbPostToFeedPost = (dbPost: DbPost, options: ConvertOptions): FeedPost => ({
+export const convertDbPostToFeedPost = (dbPost: DbPost, options: ConvertOptions): WirePost => ({
   commentCount: options.commentCount,
   comments: options.comments,
   content: dbPost.content,
   createdAt: dbPost.createdAt,
-  createdBy: dbPost.createdBy || "Anonymous",
+  createdBy: resolveDisplayName(dbPost.createdBy),
   id: dbPost.id,
   isLiked: options.isLiked,
   likeCount: (dbPost.baseLikeCount ?? 0) + dbPost.likeCount,

@@ -11,18 +11,17 @@
     "ios": "pnpm with-env expo run:ios",
     "eas-build-post-install": "node ../../scripts/validate-mobile-release-env.mjs --target eas --if-production",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-test-module-mocks --test 'src/**/*.test.ts'",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "expo customize tsconfig.json && tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/dom-webview": "~57.0.1",
     "@expo/metro-runtime": "~57.0.16",
-    "@legendapp/list": "^3.3.11",
+    "@legendapp/list": "^3.4.0",
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@repo/api": "workspace:*",
     "@repo/contracts": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "class-variance-authority": "catalog:",
@@ -65,6 +64,7 @@
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
     "@orpc/server": "catalog:",
+    "@repo/api": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@types/react": "catalog:expo",
     "@types/set-cookie-parser": "^2.4.10",

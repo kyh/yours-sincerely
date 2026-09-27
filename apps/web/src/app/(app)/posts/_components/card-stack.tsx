@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import {
   animate,
@@ -22,52 +13,8 @@ import {
   wrap,
 } from "motion/react";
 
+import { useCardStackStrict } from "@/components/providers/card-stack-provider";
 import { useHotkeys } from "@/lib/use-hotkey";
-
-interface CardStackContextType {
-  currentIndex: number;
-  setCurrentIndex: (index: number) => void;
-}
-
-const CardStackContext = createContext<CardStackContextType | undefined>(undefined);
-
-export const CardStackProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const value = useMemo<CardStackContextType>(
-    () => ({ currentIndex, setCurrentIndex }),
-    [currentIndex],
-  );
-
-  return <CardStackContext.Provider value={value}>{children}</CardStackContext.Provider>;
-};
-
-const NO_CARD_STACK: CardStackContextType = {
-  currentIndex: 0,
-  setCurrentIndex: () => {
-    // No card stack on this page (e.g. error/404, which render chrome above the
-    // (app) route group, outside CardStackProvider). Resetting is a no-op.
-  },
-};
-
-/**
- * Safe for chrome (AsideHeader, Sidebar) that renders both inside the (app)
- * group and above it. Falls back to a no-op stack when there is no provider.
- */
-export const useCardStack = (): CardStackContextType =>
-  useContext(CardStackContext) ?? NO_CARD_STACK;
-
-/**
- * For the feed itself, where a missing provider is a genuine mounting mistake:
- * the stack would silently never advance. Throws instead.
- */
-const useCardStackStrict = (): CardStackContextType => {
-  const context = useContext(CardStackContext);
-  if (context === undefined) {
-    throw new Error("useCardStackStrict must be used within a CardStackProvider");
-  }
-  return context;
-};
 
 interface CardProps {
   index: number;
@@ -80,7 +27,7 @@ interface CardProps {
   children: React.ReactNode;
 }
 
-const CardComponent = ({
+const Card = ({
   index,
   currentIndex,
   total,
@@ -118,7 +65,8 @@ const CardComponent = ({
     }
   };
 
-  const opacity = progress(total * 0.25, total * 0.75, zIndex);
+  // The fade ramp only reaches 1 at four or more cards; the front one is always opaque.
+  const opacity = index === currentIndex ? 1 : progress(total * 0.25, total * 0.75, zIndex);
 
   const progressInStack = progress(0, total - 1, zIndex);
   const scale = mix(0.5, 1, easeIn(progressInStack));
@@ -146,8 +94,6 @@ const CardComponent = ({
     </m.div>
   );
 };
-
-const Card = memo(CardComponent);
 
 interface Props<T> {
   data: T[];
@@ -208,8 +154,6 @@ export const CardStack = <T extends { id: string }>({
     setCurrentIndex(wrap(0, total, safeIndex - 1));
   }, [total, safeIndex, setCurrentIndex]);
 
-  // Same three bindings as before; the aliases are spelled as the literal
-  // `event.key` values that @react-hook/hotkey resolved them to.
   useHotkeys([
     [" ", handleSetNextPost],
     ["arrowleft", handleSetPreviousPost],
@@ -217,7 +161,7 @@ export const CardStack = <T extends { id: string }>({
   ]);
 
   // Rendered once per data change, NOT per swipe, so each card's children keep a
-  // stable element identity and memo() can bail out of the PostContent subtree.
+  // stable element identity and React skips the PostContent subtree on a swipe.
   const rendered = useMemo(() => data.map((item) => render(item)), [data, render]);
 
   // The window wraps at both ends (the stack cycles). A Set keeps it correct when

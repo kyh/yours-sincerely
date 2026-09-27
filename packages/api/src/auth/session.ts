@@ -1,4 +1,3 @@
-import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME } from "@repo/contracts/auth";
 import { compare, hash } from "bcryptjs";
@@ -155,11 +154,4 @@ export const createPasswordHash = async (password: string) => {
 export const validatePassword = async (password: string, passwordHash: string) => {
   const isMatchingPassword = await compare(password, passwordHash);
   return isMatchingPassword;
-};
-
-const generateToken = () => randomBytes(20).toString("hex");
-
-export const createTempPassword = async () => {
-  const tempPassword = generateToken();
-  return await createPasswordHash(tempPassword);
 };

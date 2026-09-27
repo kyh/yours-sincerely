@@ -3,11 +3,14 @@
   "extends": ["//"],
   "tasks": {
     "dev": {
-      "persistent": true,
       "interactive": true
     },
     "test": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/web/src/app/styles/themes.css"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/web/src/app/styles/themes.css",
+        "$TURBO_ROOT$/package.json"
+      ]
     }
   }
 }

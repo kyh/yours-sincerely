@@ -73,7 +73,7 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
   const from = path.join(import.meta.dirname, "..", "styles.css");
   for (const optimize of [false, true]) {
     const output = await postcss([tailwind({ optimize })]).process(
-      `${readFileSync(from, "utf-8")}\n@source inline("text-base leading-6 px-5 min-h-11 rounded-xl rounded-2xl size-3 size-4 bg-background bg-card text-foreground bg-input");`,
+      `${readFileSync(from, "utf-8")}\n@source inline("text-base leading-6 px-5 min-h-11 rounded-xl rounded-2xl size-3 size-4 bg-background bg-card text-foreground bg-input dark:bg-card");`,
       { from },
     );
     const stylesheet = compile(output.css).stylesheet();
@@ -104,20 +104,24 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
       StyleCollection.inject(stylesheet);
       let root = createState();
       const { inheritedVariables, inheritedContainers } = root;
-      const children = ["bg-background", "bg-card", "text-foreground", "bg-input"].map(
-        (className) => ({
-          props: { className },
-          state: createState(),
-        }),
-      );
+      const children = [
+        "bg-background",
+        "bg-card",
+        "text-foreground",
+        "bg-input",
+        "dark:bg-card",
+      ].map((className) => ({
+        props: { className },
+        state: createState(),
+      }));
       // Keep the same child states. Remounting hides missing inherited-variable guards.
-      for (const [theme, background, card, foreground, input] of [
-        ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7"],
-        ["dark", "#0e0e0c", "#1a1a1a", "#fafafa", "#ffffff26"],
-        ["light-purple", "#f0edf7", "#fafaf9", "#190840", "#e4e4e7"],
-        ["dark-purple", "#1e293b", "#0f172a", "#fafafa", "#e4e4e7"],
-        ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7"],
-      ]) {
+      for (const [theme, background, card, foreground, input, isDark] of [
+        ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7", false],
+        ["dark", "#0e0e0c", "#1a1a1a", "#fafafa", "#ffffff26", true],
+        ["light-purple", "#f0edf7", "#fafaf9", "#190840", "#e4e4e7", false],
+        ["dark-purple", "#1e293b", "#0f172a", "#fafafa", "#ffffff26", true],
+        ["light", "#fbf8ef", "#fafaf9", "#23231f", "#e4e4e7", false],
+      ] as const) {
         const props = {
           accessible: false,
           className: `will-change-variable will-change-container flex-1 light ${theme}`,
@@ -145,6 +149,7 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
           { backgroundColor: card },
           { color: foreground },
           { backgroundColor: input },
+          isDark ? { backgroundColor: card } : undefined,
         ]);
       }
     });

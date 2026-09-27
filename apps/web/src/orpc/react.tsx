@@ -20,14 +20,18 @@ const getQueryClient = () => {
   return (clientQueryClientSingleton ??= createQueryClient());
 };
 
+// During SSR this link would fetch the app from itself without the viewer's
+// cookie, rendering the wrong identity. Fail loudly instead: a client query
+// that reaches it on the server has no dehydrated state. Either its page's RSC
+// never prefetched it, or the prefetch rejected before `HydrateClient` ran. An
+// errored query is not dehydrated, and `prefetch` swallows the rejection.
 const getBaseUrl = () => {
-  if (typeof window !== "undefined") {
-    return window.location.origin;
+  if (typeof window === "undefined") {
+    throw new TypeError(
+      "RPCLink called during SSR: the query was not prefetched in the page's server component (@/orpc/server), or its prefetch failed before the page dehydrated.",
+    );
   }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  return window.location.origin;
 };
 
 const link = new RPCLink({
@@ -41,13 +45,18 @@ const link = new RPCLink({
   interceptors: [
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
+      // StrictMode's dev remount cancels every in-flight query once; that
+      // abort is not a failure worth an overlay entry.
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
       if (process.env.NODE_ENV === "development") {
         console.error(error);
       }
     }),
   ],
   // Resolved per call, not at module load: this module is evaluated during SSR
-  // too, where `window` is absent and the deploy URL comes from the environment.
+  // too, where `window` is absent.
   origin: () => getBaseUrl(),
   url: "/api/orpc",
 });

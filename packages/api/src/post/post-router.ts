@@ -1,14 +1,17 @@
 import type { ORPCContext } from "../orpc";
-import { and, desc, eq, inArray, lt, notExists, or, sql } from "@repo/db";
-import { block, feed, flag, like, notification, post } from "@repo/db/drizzle-schema";
-import { getDefaultValues } from "@repo/db/utils";
+import { and, desc, eq, inArray, sql } from "@repo/db";
+import { feed, flag, like, notification, post } from "@repo/db/drizzle-schema";
 import { describeNotification } from "@repo/contracts/notifications";
+import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import type { NewCommentNotificationData } from "@repo/contracts/notifications";
+import { SITE } from "@repo/contracts/site";
+import { resolveDisplayName } from "@repo/contracts/user";
 import { ORPCError } from "@orpc/server";
 
 import { afterResponse } from "../after-response";
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { protectedProcedure, publicProcedure } from "../orpc";
+import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
 import { sendPushToUser } from "../push/expo-push";
 import {
   convertDbPostToFeedPost,
@@ -18,7 +21,12 @@ import {
   getPostInput,
   getPostsByUserInput,
 } from "./post-schema";
-import { collectDescendantPostIds, getPostHistoryFloor, isFlaggedIntoHiding } from "./post-utils";
+import {
+  collectDescendantPostIds,
+  getPostHistoryFloor,
+  notBlockedBy,
+  postVisibleTo,
+} from "./post-utils";
 
 /** Which of these posts the viewer has liked. One indexed lookup over the ids on
     the page, instead of loading every `Like` row of every post to find out. */
@@ -43,16 +51,25 @@ export const postRouter = {
     // The comment and its notification commit together: a letter author is
     // never told about a reply that failed to save, and never misses one that did.
     const { created, reply } = await context.db.transaction(async (tx) => {
-      const [inserted] = await tx
-        .insert(post)
-        .values({
-          ...getDefaultValues(),
-          content: input.content,
-          createdBy: input.createdBy || "Anonymous",
-          parentId: input.parentId,
-          userId,
-        })
-        .returning();
+      // The letter being replied to can be deleted while its reply form is open.
+      const [inserted] = await rethrowPgError(
+        tx
+          .insert(post)
+          .values({
+            content: input.content,
+            createdBy: resolveDisplayName(input.createdBy),
+            parentId: input.parentId,
+            userId,
+          })
+          .returning({
+            createdBy: post.createdBy,
+            id: post.id,
+            parentId: post.parentId,
+            userId: post.userId,
+          }),
+        FOREIGN_KEY_VIOLATION,
+        () => new ORPCError("NOT_FOUND", { message: "Post not found" }),
+      );
 
       const parent = inserted?.parentId
         ? await tx.query.post.findFirst({
@@ -76,12 +93,11 @@ export const postRouter = {
         return { created: inserted, reply: null };
       }
 
-      const actorName = inserted.createdBy ?? "Anonymous";
+      const actorName = resolveDisplayName(inserted.createdBy);
 
       await tx
         .insert(notification)
         .values({
-          ...getDefaultValues({ withUpdatedAt: false }),
           actorName,
           commentId: inserted.id,
           kind: "COMMENT",
@@ -112,7 +128,7 @@ export const postRouter = {
             commentPostId: reply.commentPostId,
             parentPostId: reply.parentPostId,
           } satisfies NewCommentNotificationData,
-          title: "Yours Sincerely",
+          title: SITE.name,
           userId: reply.recipientId,
         });
       });
@@ -140,7 +156,10 @@ export const postRouter = {
       await tx.delete(flag).where(inArray(flag.postId, postIds));
       // One statement so the self-referential Post.parentId FK is checked
       // after parents and children are gone together.
-      const deletedPosts = await tx.delete(post).where(inArray(post.id, postIds)).returning();
+      const deletedPosts = await tx
+        .delete(post)
+        .where(inArray(post.id, postIds))
+        .returning({ id: post.id });
 
       return deletedPosts.find((row) => row.id === input.postId);
     });
@@ -151,20 +170,7 @@ export const postRouter = {
   }),
 
   getFeed: publicProcedure.input(getFeedInput).handler(async ({ context, input }) => {
-    const limit = input.limit ?? 5;
-    const viewerId = context.user?.id;
-
-    // Blocked authors are excluded inside the query as a correlated NOT EXISTS,
-    // rather than fetching the viewer's whole block list on a separate round-trip
-    // and passing it back down as a literal array.
-    const notBlocked = viewerId
-      ? notExists(
-          context.db
-            .select({ blocked: sql`1` })
-            .from(block)
-            .where(and(eq(block.blockerId, viewerId), eq(block.blockingId, feed.userId))),
-        )
-      : undefined;
+    const limit = input.limit ?? FEED_PAGE_SIZE;
 
     // One extra row is the sentinel that tells us a next page exists. It is
     // sliced off BEFORE anything else is derived from the page — deriving first
@@ -174,12 +180,13 @@ export const postRouter = {
       .from(feed)
       .where(
         and(
-          notBlocked,
+          // The Feed view itself already drops posts flagged into hiding.
+          notBlockedBy(context.db, context.user?.id, feed.userId),
+          // A row comparison, not the equivalent `a < x OR (a = x AND b < y)`:
+          // Postgres seeks an index to a row bound but only filters on an OR, so
+          // every page would re-read every newer row.
           input.cursor
-            ? or(
-                lt(feed.createdAt, input.cursor.createdAt),
-                and(eq(feed.createdAt, input.cursor.createdAt), lt(feed.id, input.cursor.postId)),
-              )
+            ? sql`(${feed.createdAt}, ${feed.id}) < (${input.cursor.createdAt}, ${input.cursor.postId})`
             : undefined,
           input.userId ? eq(feed.userId, input.userId) : undefined,
         ),
@@ -213,34 +220,24 @@ export const postRouter = {
   }),
 
   getPost: publicProcedure.input(getPostInput).handler(async ({ context, input }) => {
-    const blockedUsers = await context.db.query.block.findMany({
-      where: { blockerId: context.user?.id ?? "" },
-    });
-    const blockingUserIds = new Set(blockedUsers.map((user) => user.blockingId));
+    const visible = (row: typeof post) => postVisibleTo(context.db, context.user?.id, row);
 
     // No `likes`/`flags` relations are loaded any more: the counters on Post
     // answer both questions, and `isLiked` is one small lookup below.
     const dbPost = await context.db.query.post.findFirst({
-      where: { id: input.postId },
-      with: { posts: true },
+      where: { RAW: visible, id: input.postId },
+      with: {
+        // Without an ORDER BY the aggregate follows physical row order, which a
+        // like can reshuffle: the counter UPDATE may move the comment's row.
+        posts: { orderBy: { createdAt: "asc", id: "asc" }, where: { RAW: visible } },
+      },
     });
 
-    // Mirror the Feed view's moderation rules: hide content from blocked users,
-    // and posts the community has flagged into hiding. `flagCount` counts ONLY
-    // flags the database judged to carry moderation authority — the very column
-    // the Feed view filters on. A raw count of Flag rows here would hand any
-    // cookieless caller a four-request censorship primitive.
-    //
-    // Expiry is deliberately NOT part of this: a letter leaves the feed after 21
-    // days but stays readable at its permalink. Share links do not die.
-    const isHidden = (item: { userId: string; flagCount: number }) =>
-      blockingUserIds.has(item.userId) || isFlaggedIntoHiding(item.flagCount);
-
-    if (!dbPost || isHidden(dbPost)) {
+    if (!dbPost) {
       throw new ORPCError("NOT_FOUND", { message: "Post not found" });
     }
 
-    const comments = dbPost.posts.filter((comment) => !isHidden(comment));
+    const { posts: comments } = dbPost;
     const myLikes = await findMyLikes(context, [dbPost.id, ...comments.map((row) => row.id)]);
 
     return {

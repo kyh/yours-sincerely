@@ -6,10 +6,10 @@
   "scripts": {
     "build": "pnpm with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
-    "dev": "pnpm with-env next dev --turbopack",
+    "dev": "pnpm with-env next dev",
     "start": "pnpm with-env next start",
     "test": "NODE_ENV=test node --import tsx --test 'src/**/*.test.ts'",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
@@ -17,7 +17,6 @@
     "@capacitor/core": "^8.5.2",
     "@capacitor/splash-screen": "^8.0.2",
     "@hookform/resolvers": "^5.9.1",
-    "@lottiefiles/react-lottie-player": "^3.6.0",
     "@number-flow/react": "^0.6.2",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
@@ -30,6 +29,7 @@
     "@vercel/analytics": "^2.0.1",
     "cn": "catalog:",
     "date-fns": "catalog:",
+    "lottie-web": "^5.13.0",
     "lucide-react": "catalog:",
     "motion": "^13.4.0",
     "next": "catalog:",
@@ -47,6 +47,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "dotenv-cli": "catalog:",
     "postcss": "^8.5.28",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",

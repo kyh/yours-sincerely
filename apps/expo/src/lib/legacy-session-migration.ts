@@ -32,32 +32,33 @@ let migration: Promise<MigrationResult> | null = null;
 let finalization: Promise<void> | null = null;
 let finalized = false;
 
+const copyLegacySession = async (): Promise<MigrationResult> => {
+  // Older development clients may predate the bridge. Store builds must
+  // include it: proceeding without it could strand the Capacitor identity.
+  const legacyCookie = LegacyCookie;
+  if (legacyCookie === null) {
+    if (__DEV__) {
+      return "unavailable";
+    }
+    throw new Error("Legacy session migration is unavailable. Rebuild the native app.");
+  }
+
+  const { result, legacyProvenance } = await migrateLegacySession({
+    getCheckpoint: getLegacySessionMigrationCheckpoint,
+    getStored: getSessionCookie,
+    // Keep the value verbatim (still percent-encoded) — the signed cookie
+    // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
+    readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
+    setCheckpoint: setLegacySessionMigrationCheckpoint,
+    setStored: setSessionCookie,
+  });
+  migrationProvenanceEstablished = legacyProvenance;
+  return result;
+};
+
 /** Share startup work across requests. A failed import blocks requests and
     remains retryable, so a temporary native error cannot replace the identity. */
 export const ensureLegacySessionMigrated = (): Promise<MigrationResult> => {
-  const copyLegacySession = async (): Promise<MigrationResult> => {
-    // Older development clients may predate the bridge. Store builds must
-    // include it: proceeding without it could strand the Capacitor identity.
-    const legacyCookie = LegacyCookie;
-    if (legacyCookie === null) {
-      if (__DEV__) {
-        return "unavailable";
-      }
-      throw new Error("Legacy session migration is unavailable. Rebuild the native app.");
-    }
-
-    const { result, legacyProvenance } = await migrateLegacySession({
-      getCheckpoint: getLegacySessionMigrationCheckpoint,
-      getStored: getSessionCookie,
-      // Keep the value verbatim (still percent-encoded) — the signed cookie
-      // must round-trip byte-for-byte, matching api-fetch's decodeValues: false.
-      readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
-      setCheckpoint: setLegacySessionMigrationCheckpoint,
-      setStored: setSessionCookie,
-    });
-    migrationProvenanceEstablished = legacyProvenance;
-    return result;
-  };
   const attemptMigration = async (): Promise<MigrationResult> => {
     try {
       return await copyLegacySession();

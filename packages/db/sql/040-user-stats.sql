@@ -54,18 +54,21 @@ AS $$
     FROM streaks
     GROUP BY streak_group
   ),
-  post_likes AS (
-    SELECT COALESCE(p."baseLikeCount", 0) + COUNT(l."userId") AS total_likes
+  -- The counters on "Post", not a re-count of "Like": one row per post instead of
+  -- one per like received, and the same number the feed and permalink show, so the
+  -- profile total cannot disagree with the letters it sums.
+  user_posts AS (
+    SELECT
+      COUNT(*) AS post_count,
+      SUM(COALESCE(p."baseLikeCount", 0) + p."likeCount") AS like_total
     FROM public."Post" p
-    LEFT JOIN public."Like" l ON p."id" = l."postId"
     WHERE p."userId" = target_user_id
-    GROUP BY p."id", p."baseLikeCount"
   )
   SELECT
     u."id",
     u."displayName",
-    COALESCE((SELECT COUNT(*) FROM public."Post" p WHERE p."userId" = target_user_id), 0)::bigint,
-    COALESCE((SELECT SUM(total_likes) FROM post_likes), 0)::numeric,
+    (SELECT post_count FROM user_posts)::bigint,
+    COALESCE((SELECT like_total FROM user_posts), 0)::numeric,
     COALESCE((SELECT MAX(streak_length) FROM streak_lengths), 0)::bigint,
     COALESCE(
       (

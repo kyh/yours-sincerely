@@ -1,8 +1,9 @@
 # `sql/` — the half of the schema Drizzle cannot express
 
-`drizzle-schema.ts` is the source of truth for tables, columns, indexes and views.
-`drizzle-kit push` syncs those and **nothing else** — it has no concept of a
-function, a trigger, or a grant.
+`drizzle-schema.ts` is the source of truth for tables, columns and indexes (and a
+view's column types, nothing more). `drizzle-kit push` syncs those, with the two
+blind spots below, and **nothing else** — it has no concept of a function, a
+trigger, or a grant.
 
 This directory is the source of truth for everything else. `src/apply-sql.ts`
 runs every `*.sql` file here in filename order, in one transaction, and
@@ -14,8 +15,8 @@ replay — the desired state is declared, not accumulated.
 
 **Every file must be idempotent.** It is re-run on every single push, against a
 database that may already be in the target state. In practice that means
-`CREATE OR REPLACE FUNCTION`, `DROP TRIGGER IF EXISTS` before `CREATE TRIGGER`,
-and `REVOKE`/`GRANT` (naturally idempotent).
+`CREATE OR REPLACE FUNCTION`, `CREATE OR REPLACE TRIGGER` (never `DROP TRIGGER`:
+see `085-triggers.sql`), and `REVOKE`/`GRANT` (naturally idempotent).
 
 **Idempotent is not the same as re-runnable-safely.** A statement can be
 idempotent on an empty database and still be destructive on a live one — see
@@ -35,6 +36,32 @@ changed. A view declared with `.as(...)` in `drizzle-schema.ts` will therefore g
 stale in production while push reports success. Declare views with `.existing()`
 there, for the column types only, and put the DDL in `090-views.sql`.
 
+A view also pins the columns it reads. Push runs before this directory, so an
+`ALTER COLUMN ... TYPE` on a `Post` column `Feed` selects fails push outright
+(`cannot alter type of a column used by a view`). That change needs the view
+dropped by hand first, in the same maintenance window; `090-` recreates it.
+
+## Never change an index definition in place
+
+Push has the same blind spot for indexes. drizzle-kit 1.0.0-rc.4 skips, in push
+mode only, an index whose name is unchanged but whose `WHERE` changed or whose
+columns, order, sort direction or opclass changed without changing the column
+count. `push` prints `No changes detected` and exits 0. It does recreate an index
+whose WHERE was added or removed, whose column count changed, or whose
+`unique`/`using`/`with` changed, but do not rely on knowing which is which.
+
+**Rename the index instead**, and when push asks "rename or create", answer
+**create** (headless: `--hints '[{"type":"create","kind":"index","entity":["public","<table>","<new name>"]}]'`).
+That emits `DROP INDEX` + `CREATE INDEX`. Answering rename emits only
+`ALTER INDEX ... RENAME`, and the new definition is silently discarded. Neither
+statement is `CONCURRENTLY`: `DROP INDEX` takes ACCESS EXCLUSIVE on the table and
+`CREATE INDEX` blocks its writes for the whole build, so do it in a quiet window.
+
+Push never repairs drift it cannot see, so production can already disagree with
+this file. Before trusting an index definition there, diff
+`SELECT indexname, indexdef FROM pg_indexes WHERE schemaname = 'public'` against
+`pnpm -F db drizzle:kit export`.
+
 ## Filename order is dependency order
 
 | File                             | Contains                                                        |
@@ -46,7 +73,7 @@ there, for the column types only, and put the DDL in `090-views.sql`.
 | `070-legacy-password-rescue.sql` | Un-strands the accounts orphaned by the 2026-03-10 auth cutover |
 | `075-retire-legacy-auth.sql`     | Drops the dead Supabase Auth wiring — after `070` has used it   |
 | `080-reconcile.sql`              | Backfill of unjudged flags + absolute recompute of the counters |
-| `085-triggers.sql`               | Every trigger — takes ACCESS EXCLUSIVE, so it runs late         |
+| `085-triggers.sql`               | Every trigger — blocks writers until COMMIT, so it runs late    |
 | `090-views.sql`                  | The `Feed` view — **must stay last**                            |
 
 `070-` then `075-` is deliberate: rescue the credentials, then retire the machinery
@@ -61,24 +88,28 @@ remember.
 
 ### The last two files hold locks. That is what the numbering is for.
 
-`085-` and `090-` are the only files that take **ACCESS EXCLUSIVE** — `DROP TRIGGER`
-on a table, `DROP VIEW` on a view. Everything in this directory runs in ONE
-transaction, so those locks are held until COMMIT: **every statement sequenced after
-them is time a feed reader spends blocked.** Not "writes blocked" — reads. The feed
-stops.
+Everything in this directory runs in ONE transaction, so every lock is held until
+COMMIT. Two files take locks that other sessions feel:
 
-So the slow work goes first and the locks go last. Both files were originally
-ordered the other way (`030-triggers`, `050-views`), which meant every push held an
-ACCESS EXCLUSIVE lock on `Post` across the reconcile's 2.1s ground-truth computation
-(measured against production, 166k posts) plus its 166k-row UPDATE. Every deploy
-would have frozen the feed for seconds. Verified with a concurrent reader:
-`DROP TRIGGER` on `Post` blocks `SELECT ... FROM "Feed"` outright.
+- `085-` takes **SHARE ROW EXCLUSIVE** on `Post`, `Like` and `Flag`
+  (`CREATE OR REPLACE TRIGGER`): nobody can post, like or flag until COMMIT.
+  Readers are unaffected. `DROP TRIGGER` would take ACCESS EXCLUSIVE and stop
+  reads as well, even with `IF EXISTS` on a trigger that is already gone, which is
+  why that file never drops one.
+- `090-` takes **ACCESS EXCLUSIVE** on `Feed` (`DROP VIEW`): **every statement
+  sequenced after it is time a feed reader spends blocked.** The feed stops.
+
+So the slow work goes first and the locks go last. The reconcile's ground-truth
+computation measured 2.1s against production (166k posts) before its 166k-row
+UPDATE even starts; sequenced after either lock, every deploy would freeze posting
+or the feed for that long.
 
 **Do not add a file at or after `085-` unless it is O(1), and do not move slow work
 after them.** `apply-sql.ts` sets `lock_timeout` so that a push which cannot get the
-lock quickly fails and rolls back rather than queueing — a pending exclusive request
-blocks every reader queued behind it, so without the timeout a push during one slow
-query becomes a site-wide outage.
+lock quickly fails and rolls back rather than queueing — a pending lock request
+blocks every conflicting request queued behind it, so without the timeout a push
+during one slow query becomes a site-wide outage. `drizzle.config.ts` asks for the
+same timeout for push's own DDL.
 
 ## Recovery
 
@@ -91,6 +122,15 @@ commits, so a write landing between the reconcile and the commit fires no trigge
 and misses the recompute. A second run costs nothing (the `IS DISTINCT FROM` guard
 updates zero rows when clean) and repairs exactly that.
 
-Rolling back needs explicit SQL. `git revert` plus a push will NOT undo a view —
-push does not diff view bodies, so it leaves the new one live and cannot recreate a
-deleted one. Recover an old view's DDL from this directory's git history.
+A view in `090-` rolls back with `git revert` plus a push, because that file drops
+and recreates it on every run. Deleting a view's DDL from `090-` does not drop the
+view, though: that needs an explicit `DROP VIEW` left in the file. Reverting a
+view in `drizzle-schema.ts` rolls nothing back: push does not diff view bodies.
+
+A trigger does not roll back that way. `085-` only ever creates or replaces, so a
+revert that removes a trigger name leaves the trigger installed. Reverting the split
+of the counter triggers into INSERT OR DELETE and UPDATE halves needs an explicit
+`DROP TRIGGER "flag_sync_post_count_update" ON "public"."Flag"` and
+`DROP TRIGGER "post_sync_comment_count_update" ON "public"."Post"`, run in a quiet
+window because DROP TRIGGER takes ACCESS EXCLUSIVE. Until then both halves fire the
+same function, and every re-judge or reparent counts twice.

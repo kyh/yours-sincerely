@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Image } from "expo-image";
 import { FadeOut } from "react-native-reanimated";
+import { resolveDisplayName } from "@repo/contracts/user";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { Text } from "@/components/ui/text";
@@ -25,7 +26,7 @@ interface Props {
 export const ProfileAvatar = ({ name, src, size = 80 }: Props) => {
   const { resolvedTheme } = useTheme();
   const reduceMotionEnabled = useReducedMotion();
-  const label = name ?? "Anonymous";
+  const label = resolveDisplayName(name);
   const source = src ?? getAvatarSource(label);
   const [loadedSource, setLoadedSource] = useState<typeof source | null>(null);
   const initial = label.slice(0, 1) || "?";

@@ -11,6 +11,10 @@ import { orpc, queryClient } from "./api";
 /** Retained tabs must drop the previous identity and refetch through their existing observers. */
 export const resetAfterSessionChanged = () => {
   queryClient.getMutationCache().clear();
+  // Signed-in-only data: a reset would refetch it with the new (or no) cookie
+  // before its user-gated consumers see the workspace change and unmount.
+  queryClient.removeQueries({ queryKey: orpc.notification.key() });
+  queryClient.removeQueries({ queryKey: orpc.block.listBlocks.key() });
   return queryClient.resetQueries();
 };
 
@@ -32,6 +36,18 @@ export const refreshPostContent = () =>
   Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.post.getFeed.key({ type: "infinite" }) }),
     queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key() }),
+  ]);
+
+/** For a like, whose response already carries the post's new state: stale, not
+    refetched, because refetching an infinite query walks every loaded page in
+    series, one round trip per page. */
+export const markPostContentStale = () =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: orpc.post.getFeed.key({ type: "infinite" }),
+      refetchType: "none",
+    }),
+    queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key(), refetchType: "none" }),
   ]);
 
 export const refreshProfileData = () =>

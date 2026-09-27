@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { supportMailto } from "@repo/contracts/site";
 import { toast } from "sonner-native";
 import { useRouter } from "expo-router";
 import {
@@ -29,7 +30,7 @@ import { ProfileAvatar } from "@/components/profile-avatar";
 import { themes, useTheme } from "@/components/theme-provider";
 import { useThemeColors } from "@/components/theme-colors";
 import { useFeedLayout } from "@/lib/feed-layout";
-import { siteConfig, supportMailto } from "@/lib/site-config";
+import { siteConfig } from "@/lib/site-config";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { useTabNavigation } from "@/lib/use-tab-navigation";

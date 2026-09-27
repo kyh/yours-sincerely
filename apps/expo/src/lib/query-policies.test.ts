@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
 import { it } from "node:test";
+import { createORPCClient } from "@orpc/client";
+import type { RouterClient } from "@orpc/server";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClient, QueryObserver } from "@tanstack/react-query";
+
+import type { AppRouter } from "@repo/api";
 
 interface Workspace {
   userId: string | null;
@@ -16,6 +21,11 @@ it("updates retained tab observers and drops inactive account data on account ch
   const queryClient = new QueryClient({
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
+  // Only the query keys are used; every request below goes through its own queryFn.
+  const client: RouterClient<AppRouter> = createORPCClient({
+    call: () => Promise.reject(new Error("No network in unit tests")),
+  });
+  const orpc = createTanstackQueryUtils(client);
   // Node probes the mocked TSX module with a versioned URL before substituting its exports.
   const apiModule = new URL("api.tsx", import.meta.url).href;
   const imports = registerHooks({
@@ -27,12 +37,15 @@ it("updates retained tab observers and drops inactive account data on account ch
       nextResolve(specifier === "./api" ? "./api.tsx" : specifier, context),
   });
   t.after(() => imports.deregister());
-  t.mock.module("./api", { exports: { orpc: {}, queryClient } });
+  t.mock.module("./api", { exports: { orpc, queryClient } });
   const { resetAfterSessionChanged } = await import("./query-policies.ts");
 
-  const workspaceKey = ["auth", "workspace"];
-  const feedKey = ["post", "getFeed"];
-  const inactiveKey = ["notification", "list"];
+  const workspaceKey = orpc.auth.workspace.key();
+  const feedKey = orpc.post.getFeed.key();
+  const inactiveKey = orpc.notification.list.key();
+  // Full keys, exactly as the screens' queryOptions store them.
+  const unreadCountKey = orpc.notification.unreadCount.queryKey();
+  const blocksKey = orpc.block.listBlocks.queryKey();
   const oldWorkspace: Workspace = { userId: "account-a" };
   const oldFeed: Feed = { liked: true, viewerId: "account-a" };
   queryClient.setQueryData(workspaceKey, oldWorkspace);
@@ -73,6 +86,27 @@ it("updates retained tab observers and drops inactive account data on account ch
     workspaceUpdates.length = 0;
     feedUpdates.length = 0;
 
+    // Mounted signed-in-only consumers, still subscribed when the reset runs.
+    let protectedRequests = 0;
+    queryClient.setQueryData(unreadCountKey, { count: 3 });
+    queryClient.setQueryData(blocksKey, { blocks: [] });
+    const unsubscribeProtected = [
+      new QueryObserver(queryClient, {
+        queryFn: () => {
+          protectedRequests += 1;
+          return { count: 0 };
+        },
+        queryKey: unreadCountKey,
+      }).subscribe(() => {}),
+      new QueryObserver(queryClient, {
+        queryFn: () => {
+          protectedRequests += 1;
+          return { blocks: [] };
+        },
+        queryKey: blocksKey,
+      }).subscribe(() => {}),
+    ];
+
     const changed = resetAfterSessionChanged();
 
     // Old data must disappear while requests for the new session are still pending.
@@ -83,6 +117,8 @@ it("updates retained tab observers and drops inactive account data on account ch
     assert.ok(workspaceUpdates.every((data) => data === undefined));
     assert.ok(feedUpdates.every((data) => data === undefined));
     assert.equal(queryClient.getQueryData(inactiveKey), undefined);
+    assert.equal(queryClient.getQueryData(unreadCountKey), undefined);
+    assert.equal(queryClient.getQueryData(blocksKey), undefined);
 
     const nextWorkspace: Workspace = { userId };
     const nextFeed: Feed = { liked: false, viewerId: userId };
@@ -101,5 +137,11 @@ it("updates retained tab observers and drops inactive account data on account ch
     assert.deepEqual(workspace.getCurrentResult().data, nextWorkspace);
     assert.deepEqual(feed.getCurrentResult().data, nextFeed);
     assert.equal(queryClient.getQueryData(inactiveKey), undefined);
+    // They would carry the new cookie (or none: UNAUTHORIZED) before their
+    // consumers re-render against the new workspace.
+    assert.equal(protectedRequests, 0);
+    for (const unsubscribe of unsubscribeProtected) {
+      unsubscribe();
+    }
   }
 });

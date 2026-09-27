@@ -1,8 +1,9 @@
 {
   "extends": "@kyh/tsconfig/base.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "types": ["node"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "src/**/*.test.ts"]
+  "exclude": ["node_modules"]
 }

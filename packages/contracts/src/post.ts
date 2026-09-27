@@ -28,6 +28,8 @@ export const MAX_POST_LENGTH = 10_000;
     `main` and not something this cap introduced. */
 export const MAX_DISPLAY_NAME_LENGTH = 50;
 
+export const FEED_PAGE_SIZE = 5;
+
 export const createPostInput = z.object({
   content: z
     .string()

@@ -1,8 +1,9 @@
 import { flag } from "@repo/db/drizzle-schema";
-import { getDefaultValues } from "@repo/db/utils";
+import { ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
 import { publicProcedure } from "../orpc";
+import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
 import { createFlagInput } from "./flag-schema";
 
 export const flagRouter = {
@@ -17,27 +18,23 @@ export const flagRouter = {
     // the database, once, at insert time: the `flag_counts_toward_hide` trigger
     // sets `countsTowardHide` from the `isEstablishedFlagger` function. That is
     // the single definition of the rule; never set the column from here.
-    const [created] = await context.db
-      .insert(flag)
-      .values({
-        ...getDefaultValues({ withId: false }),
-        comment: input.reason,
-        postId: input.postId,
-        userId,
-      })
-      .onConflictDoNothing()
-      .returning();
+    await rethrowPgError(
+      context.db
+        .insert(flag)
+        .values({
+          comment: input.reason,
+          postId: input.postId,
+          userId,
+        })
+        .onConflictDoNothing(),
+      FOREIGN_KEY_VIOLATION,
+      () => new ORPCError("NOT_FOUND", { message: "Post not found" }),
+    );
 
-    // `onConflictDoNothing().returning()` yields nothing when the row already
-    // existed, so read it back rather than handing the client an `undefined`.
-    const existing =
-      created ??
-      (await context.db.query.flag.findFirst({
-        where: { postId: input.postId, userId },
-      }));
-
+    // Only the key goes back: the stored row would tell whoever is minting
+    // identities which of them carry moderation authority (`countsTowardHide`).
     return {
-      flag: existing,
+      flag: { postId: input.postId },
     };
   }),
 };

@@ -1,6 +1,7 @@
 # Real legacy-to-Expo upgrade verification
 
-Verified September 19, 2026 against the local web app and OrbStack database.
+Verified September 19, 2026 against the local web app and OrbStack database. Raw receipts
+(evidence JSON, screenshots, logs) stayed on the test machine and are not retained.
 
 Both platforms passed real UI publish → legacy cold restart → publish → in-place Expo
 update → publish → Expo cold restart → publish. No session was injected. No uninstall or
@@ -30,9 +31,6 @@ continuity; seeing the same public feed alone would not.
 The backend stopped before the first Expo launch. Restoring it and tapping Try again
 recovered the feed; subsequent writes retained the same identity. No migration reset or
 session repair was needed.
-
-Local detailed evidence: `/tmp/ys-ios-genuine-upgrade-20260919-evidence.json`.
-Historical artifact provenance: `/tmp/ys-ios-shipped-source-20260919/FIXTURE.md`.
 
 ## Android
 
@@ -76,10 +74,9 @@ The direct trial preserved the original install time and application data. Its l
 old process's memory. These measured intervals do not establish a universal persistence
 threshold. The separate persisted-session migration pass remains valid.
 
-Detailed red-test receipts: `/tmp/ys-android-genuine-upgrade-20260919/legacy-flush-trials/`.
 Trial B's original capture misclassified missing sidecars because adb returned error text
-with exit code zero; the corrected metadata uses actual directory listings. Both receipts
-are retained. Trial A had a backend interruption before its second write; B and Direct did not.
+with exit code zero; the corrected metadata uses actual directory listings. Trial A had a
+backend interruption before its second write; B and Direct did not.
 
 ### Legacy persistence compatibility fix — immediate-upgrade regression passed
 
@@ -98,7 +95,6 @@ resolve. Reviewed original APK SHA-256:
 | 1         | `3d1abe2035b37a1448edac345de9304d731bf0fdce9b057ade9f2db392fdd352` |
 | 111       | `8b7fae151ae6b97f5f6e0df8b081de8ea097109afaf789e93f86789551e305ec` |
 
-Bytecode excerpts and provenance: `/tmp/ys-cap4-cookie-bytecode-review/`.
 A bridge rejection is logged without session data and preserves the server response;
 turning an already committed write into a retryable RPC failure could duplicate it.
 
@@ -114,14 +110,12 @@ Both complete cookie snapshots contained a persistent HttpOnly session before re
 the reserved sentinel was absent. Install time was preserved, and Expo cleared the legacy
 jar after import. Each native restart retained the author for another real UI post.
 Release logs exposed no native bridge-call lines, so no separate log-based invocation
-claim is made. Exact post IDs, timestamps, metadata, and screenshots:
-`/tmp/ys-android-persistence-fixed-20260919/{111,1}/evidence.json`. This is one local API 35
-regression per fixed historical APK, not a universal persistence timing guarantee.
+claim is made. This is one local API 35 regression per fixed historical APK, not a universal
+persistence timing guarantee.
 
 The web fix deployed from main `598876dd` before Expo rollout. CI and Vercel reported
 success; the public home page returned HTTP 200 and referenced a chunk containing the
-barrier key and its sanitized failure message. Public-asset receipt:
-`/tmp/ys-production-web-persistence-20260919.json`.
+barrier key and its sanitized failure message.
 
 The fix cannot cover code 30 (no Capacitor
 bridge), an old page that has not loaded the new JavaScript, a failed native barrier, or
@@ -166,11 +160,6 @@ restart completed after unlock; no reset or reinstall was used to resume the coh
 This establishes persisted-cookie migration for code 30; it does not give that bridgeless
 runtime the new Capacitor persistence barrier.
 
-Fixture provenance and cohort receipts: `/tmp/ys-older-android-upgrades-20260919/`.
-
-Local detailed evidence and screenshots:
-`/tmp/ys-android-genuine-upgrade-20260919/README.md` and `runtime-evidence.json`.
-
 ## Keyboard follow-up
 
 Android API 35 passed editor exclusion and Right/Left/Space stack navigation after native
@@ -214,9 +203,8 @@ was needed in this pass.
   The database tests initially could not connect while OrbStack was stopped; they passed
   after the existing local database was restored. No schema reset or seed was used.
 
-Detailed current-source receipts, native screenshots/XML, and test logs:
-`/tmp/ys-auth-final-20260919/`. The signed EAS artifacts use the same auth implementation;
-see [production artifact receipts](./mobile-release-inputs.md#verified-production-artifacts).
+The signed EAS artifacts use the same auth implementation; see
+[verified production artifacts](./mobile-release-inputs.md#verified-production-artifacts).
 These results establish local auth retention, with the fresh-cookie and physical-delivery
 limits already described above.
 
@@ -224,5 +212,6 @@ limits already described above.
 
 These tests establish local session migration. They do not establish physical store
 update delivery, production push, verified HTTPS links, or production crash collection.
-Those gates remain in [phone testing](./phone-testing.md) and the
-[release checklist](./wayfinder/expo-mobile-parity/07-release-gate.md).
+Those gates remain in [phone testing](./phone-testing.md), the
+[release gate](https://github.com/kyh/yours-sincerely/issues/125) and
+[crash reporting](https://github.com/kyh/yours-sincerely/issues/126).

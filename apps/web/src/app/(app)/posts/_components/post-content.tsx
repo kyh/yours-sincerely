@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { cn } from "cn";
 
-import type { FeedLayout } from "@/lib/feed-layout-actions";
-import type { RouterOutputs } from "@repo/api";
+import type { FeedLayout } from "@repo/contracts/preferences";
+import type { FeedPost } from "@repo/api";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { LikeButton } from "./like-button";
@@ -13,13 +13,14 @@ import { ShareButton } from "./share-button";
 import { TimerButton } from "./timer-button";
 
 interface Props {
-  post: RouterOutputs["post"]["getFeed"]["posts"][0];
+  post: FeedPost;
   layout?: FeedLayout;
   minHeight?: boolean;
   asLink?: boolean;
   showComment?: boolean;
   showTimer?: boolean;
   showMore?: boolean;
+  onDeleted?: () => void;
 }
 
 export const PostContent = ({
@@ -30,11 +31,12 @@ export const PostContent = ({
   showComment = true,
   showTimer = true,
   showMore = true,
+  onDeleted,
 }: Props) => {
   const contentClass = cn("whitespace-pre-wrap", minHeight && "min-h-[50dvh]");
 
   return (
-    <article className={cn(layout === "stack" && "word-break flex h-full w-full flex-col")}>
+    <article className={cn("wrap-break-word", layout === "stack" && "flex h-full w-full flex-col")}>
       {asLink ? (
         <Link href={`/posts/${post.id}`}>
           <p className={contentClass}>{post.content}</p>
@@ -57,7 +59,7 @@ export const PostContent = ({
           <LikeButton post={post} />
           {showTimer && <TimerButton post={post} />}
           <ShareButton post={post} />
-          {showMore && <MoreButton post={post} />}
+          {showMore && <MoreButton post={post} onDeleted={onDeleted} />}
         </div>
       </footer>
     </article>

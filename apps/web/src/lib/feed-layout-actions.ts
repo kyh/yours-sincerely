@@ -1,24 +1,18 @@
 "use server";
 
-import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
-import { nextFeedLayout, parseFeedLayout } from "@repo/contracts/preferences";
+import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contracts/auth";
+import { nextFeedLayout } from "@repo/contracts/preferences";
 
-const feedLayoutKey = "postView";
-
-export type { FeedLayout } from "@repo/contracts/preferences";
-
-// oxlint-disable-next-line require-await -- "use server" modules may only export async functions
-export const getFeedLayout = async (cookieStore: ReadonlyRequestCookies) => {
-  const feedLayout = cookieStore.get(feedLayoutKey);
-  return parseFeedLayout(feedLayout?.value);
-};
+import { FEED_LAYOUT_COOKIE, getFeedLayout } from "./feed-layout";
 
 export const toggleFeedLayout = async () => {
   const cookieStore = await cookies();
-  const feedLayout = await getFeedLayout(cookieStore);
+  const newFeedLayout = nextFeedLayout(await getFeedLayout());
 
-  const newFeedLayout = nextFeedLayout(feedLayout);
-
-  cookieStore.set(feedLayoutKey, newFeedLayout);
+  // A preference, not a session: without a maxAge the browser drops it on restart.
+  cookieStore.set(FEED_LAYOUT_COOKIE, newFeedLayout, {
+    maxAge: BROWSER_COOKIE_MAX_AGE_SECONDS,
+    sameSite: "lax",
+  });
 };

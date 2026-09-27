@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { isDarkThemeId, isThemeId, nextFeedLayout, parseFeedLayout } from "./preferences.ts";
+import {
+  THEME_IDS,
+  isDarkThemeId,
+  isThemeId,
+  nextFeedLayout,
+  parseFeedLayout,
+} from "./preferences.ts";
 import type { FeedLayout, ThemeId } from "./preferences.ts";
 
 test("parseFeedLayout only recognizes 'stack'; everything else is 'list'", () => {
@@ -25,10 +31,18 @@ test("nextFeedLayout is its own inverse", () => {
   }
 });
 
-test("isThemeId accepts exactly the five known themes", () => {
-  const known = ["system", "light", "dark", "light-purple", "dark-purple"] satisfies ThemeId[];
+test("THEME_IDS lists the five known themes, system first", () => {
+  assert.deepEqual(THEME_IDS, [
+    "system",
+    "light",
+    "dark",
+    "light-purple",
+    "dark-purple",
+  ] satisfies ThemeId[]);
+});
 
-  for (const theme of known) {
+test("isThemeId accepts every entry of THEME_IDS", () => {
+  for (const theme of THEME_IDS) {
     assert.equal(isThemeId(theme), true, theme);
   }
 });
