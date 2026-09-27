@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { FEED_PAGE_SIZE } from "@repo/contracts/post";
 import { cn } from "cn";
 
@@ -8,6 +9,10 @@ import { PageAside, PageContent, PageHeader } from "@/components/layout/page-lay
 import { feedInfiniteArgs } from "@/lib/feed-query";
 import { getFeedLayout } from "@/lib/feed-layout";
 import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const feedFilters: FeedFilters = {
   limit: FEED_PAGE_SIZE,

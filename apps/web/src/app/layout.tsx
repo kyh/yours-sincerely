@@ -6,8 +6,10 @@ import { Toaster } from "@repo/ui/components/sonner";
 import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { cn } from "cn";
 
+import { JsonLd } from "@/components/json-ld";
 import { CapacitorProvider } from "@/components/providers/capacitor-provider";
 import { MotionProvider } from "@/components/providers/motion-provider";
+import { buildSiteGraph } from "@/lib/agent/structured-data";
 import { siteConfig } from "@/lib/site-config";
 import { ORPCReactProvider } from "@/orpc/react";
 
@@ -115,6 +117,7 @@ const RootLayout = (props: LayoutProps) => (
         </MotionProvider>
       </CapacitorProvider>
       <Analytics />
+      <JsonLd node={buildSiteGraph()} />
     </body>
   </html>
 );
