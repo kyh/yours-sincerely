@@ -126,6 +126,9 @@ export const Sidebar = () => {
           <Link href="/about" className="inline-block hover:underline">
             About
           </Link>
+          <Link href="/contact" className="inline-block hover:underline">
+            Contact
+          </Link>
           <Link href="/privacy" className="inline-block hover:underline">
             Privacy
           </Link>
