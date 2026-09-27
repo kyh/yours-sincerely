@@ -5,6 +5,7 @@ import { Card } from "@repo/ui/components/card";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: "About",
 };
 
