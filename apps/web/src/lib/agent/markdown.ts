@@ -24,6 +24,12 @@ export const absoluteUrl = (path: string): string =>
 
 export const siteSummary = `${siteConfig.name} is a free, open-source space for anonymous letters written in disappearing ink: anyone can publish a short letter without an account, and every letter fades from the public feed after ${POST_EXPIRY_DAYS} days.`;
 
+export const howItWorks = `Writers publish as "Anonymous" or under any name they pick. Readers can like and reply to letters. Each letter shows how much of its ${POST_EXPIRY_DAYS}-day life is left, then disappears from the feed.`;
+
+export const artProject = `It is a public art project with optional anonymity — a direct channel to the inner lives of other people who, in other contexts, rarely reveal such vulnerability. Think of it as a magical graffiti wall in a busy part of town: notes to no one, tiny beautiful letters to each other, signed "Yours Sincerely, Anonymous".`;
+
+export const whereItRuns = `${siteConfig.name} runs on the web at ${siteConfig.url} and as native apps for iOS and Android. It is built and maintained by ${siteConfig.author.name} (${siteConfig.author.url}), and the source is open at ${siteConfig.repository}.`;
+
 export const whenToUse = [
   "Someone wants to write something honest — a love letter, an apology, a confession, a note to no one — and share it without their name attached.",
   "Someone wants to read what strangers are feeling right now, as short, sincere, anonymous letters.",
@@ -91,7 +97,7 @@ export const renderHomeMarkdown = (letters: MarkdownLetter[]): string =>
     `# ${siteConfig.name}`,
     `> ${siteConfig.description}`,
     siteSummary,
-    `Writers publish as "Anonymous" or under any name they pick. Readers can like and reply to letters. Each letter shows how much of its ${POST_EXPIRY_DAYS}-day life is left, then disappears from the feed.`,
+    howItWorks,
     "## Recent letters",
     letters.length > 0
       ? letters.map(renderLetter).join("\n\n")
@@ -115,8 +121,8 @@ export const renderAboutMarkdown = (): string =>
     `# About ${siteConfig.name}`,
     "> Stories about us, written by you.",
     siteSummary,
-    `It is a public art project with optional anonymity — a direct channel to the inner lives of other people who, in other contexts, rarely reveal such vulnerability. Think of it as a magical graffiti wall in a busy part of town: notes to no one, tiny beautiful letters to each other, signed "Yours Sincerely, Anonymous".`,
-    `${siteConfig.name} runs on the web at ${siteConfig.url} and as native apps for iOS and Android. It is built and maintained by ${siteConfig.author.name} (${siteConfig.author.url}), and the source is open at ${siteConfig.repository}.`,
+    artProject,
+    whereItRuns,
     "## Pages",
     renderList(sitePages),
   ]);

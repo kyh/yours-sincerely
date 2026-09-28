@@ -9,7 +9,7 @@ import { PageAside, PageContent, PageHeader } from "@/components/layout/page-lay
 import { feedInfiniteArgs } from "@/lib/feed-query";
 import { getFeedLayout } from "@/lib/feed-layout";
 import { siteConfig } from "@/lib/site-config";
-import { caller, fetchInfinite, HydrateClient, orpc } from "@/orpc/server";
+import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -23,8 +23,9 @@ const Page = async () => {
   const [feedLayout, placeholder] = await Promise.all([
     getFeedLayout(),
     caller.prompt.getRandomPrompt(),
-    fetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters))),
   ]);
+
+  prefetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters)));
 
   return (
     <HydrateClient>
@@ -51,7 +52,7 @@ const Page = async () => {
       </PageContent>
       <PageAside>
         <section className="my-6 overflow-auto">
-          <p className="text-muted-foreground text-sm">{siteConfig.description}</p>
+          <p className="sr-only">{siteConfig.description}</p>
         </section>
       </PageAside>
     </HydrateClient>

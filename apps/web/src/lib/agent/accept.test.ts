@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { negotiateMediaType, notAcceptableBody, withVaryAccept } from "./accept";
+import { negotiateMediaType, withVaryAccept } from "./accept";
 
 describe("negotiateMediaType", () => {
   test("defaults to HTML when the client states no constraint", () => {
@@ -51,16 +51,17 @@ describe("negotiateMediaType", () => {
     assert.equal(negotiateMediaType("text/html;q=0, text/*"), "text/markdown");
   });
 
-  test("returns null only when nothing produced is acceptable", () => {
-    assert.equal(negotiateMediaType("application/pdf"), null);
-    assert.equal(negotiateMediaType("image/png, application/json"), null);
-    assert.equal(negotiateMediaType("text/html;q=0, text/markdown;q=0"), null);
-    assert.equal(negotiateMediaType("*/*;q=0"), null);
+  test("falls back to HTML when nothing produced is acceptable", () => {
+    assert.equal(negotiateMediaType("application/pdf"), "text/html");
+    assert.equal(negotiateMediaType("image/png, application/json"), "text/html");
+    assert.equal(negotiateMediaType("text/html;q=0, text/markdown;q=0"), "text/html");
+    assert.equal(negotiateMediaType("text/html;q=0"), "text/html");
+    assert.equal(negotiateMediaType("*/*;q=0"), "text/html");
   });
 
   test("clamps out-of-range and unparseable q values", () => {
     assert.equal(negotiateMediaType("text/markdown;q=5, text/html;q=1"), "text/markdown");
-    assert.equal(negotiateMediaType("application/pdf;q=nonsense"), null);
+    assert.equal(negotiateMediaType("application/pdf;q=nonsense"), "text/html");
   });
 });
 
@@ -80,24 +81,5 @@ describe("withVaryAccept", () => {
   test("does not duplicate Accept, whatever its casing", () => {
     assert.equal(withVaryAccept("Accept"), "Accept");
     assert.equal(withVaryAccept("accept, rsc"), "accept, rsc");
-  });
-});
-
-describe("notAcceptableBody", () => {
-  test("lists the available representations and echoes the request", () => {
-    const body = notAcceptableBody("application/pdf");
-    assert.ok(body.includes("- text/html"), 'should contain "- text/html"');
-    assert.ok(body.includes("- text/markdown"), 'should contain "- text/markdown"');
-    assert.ok(
-      body.includes("You requested: application/pdf"),
-      'should contain "You requested: application/pdf"',
-    );
-  });
-
-  test("survives a missing Accept header", () => {
-    assert.ok(
-      notAcceptableBody(null).includes("(no Accept header)"),
-      'should contain "(no Accept header)"',
-    );
   });
 });

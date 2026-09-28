@@ -101,12 +101,12 @@ const bestMatchFor = (entries: AcceptEntry[], candidate: string): AcceptEntry | 
 };
 
 /**
- * Picks the representation to serve, or `null` when the client accepts nothing
- * this site produces — the one case that warrants a 406. A missing, empty or
- * unparseable header means "no constraint", not "nothing works", so it falls
- * back to HTML rather than erroring.
+ * Picks the representation to serve. HTML is the fallback whenever the client
+ * accepts nothing this site produces: a 406 would break clients that sent a
+ * sloppy header and got a page before Markdown negotiation existed. A missing,
+ * empty or unparseable header likewise means "no constraint".
  */
-export const negotiateMediaType = (header: string | null): ProducedMediaType | null => {
+export const negotiateMediaType = (header: string | null): ProducedMediaType => {
   if (!header?.trim()) {
     return "text/html";
   }
@@ -116,8 +116,8 @@ export const negotiateMediaType = (header: string | null): ProducedMediaType | n
     return "text/html";
   }
 
-  let chosen: ProducedMediaType | null = null;
-  let chosenQuality = -1;
+  let chosen: ProducedMediaType = "text/html";
+  let chosenQuality = 0;
   let chosenPosition = Number.POSITIVE_INFINITY;
 
   for (const candidate of PRODUCED_MEDIA_TYPES) {
@@ -156,13 +156,3 @@ export const withVaryAccept = (existing: string | null): string => {
   }
   return [...tokens, "Accept"].join(", ");
 };
-
-/** Body for a 406, per RFC 9110's recommendation to list what is available. */
-export const notAcceptableBody = (requested: string | null): string =>
-  [
-    "This resource is available in:",
-    ...PRODUCED_MEDIA_TYPES.map((type) => `- ${type}`),
-    "",
-    `You requested: ${requested ?? "(no Accept header)"}`,
-    "",
-  ].join("\n");
