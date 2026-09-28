@@ -77,6 +77,24 @@ export const fetchOrNotFound = async <
   }
 };
 
+/**
+ * Awaits an infinite query so its first page is in the initial HTML, rather
+ * than streaming in behind a fallback that crawlers without JS never replace.
+ * A failure reaches the route's error boundary: an errored query does not
+ * dehydrate, so swallowing it would only fail again inside the client RPC link.
+ */
+export const fetchInfinite = async <
+  TQueryFnData,
+  TError,
+  TData,
+  TQueryKey extends QueryKey,
+  TPageParam,
+>(
+  queryOptions: FetchInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
+) => {
+  await getQueryClient().fetchInfiniteQuery(queryOptions);
+};
+
 export const prefetchInfinite = <
   TQueryFnData,
   TError,
