@@ -33,7 +33,7 @@
     "@types/node": "catalog:",
     "dotenv-cli": "catalog:",
     "drizzle-kit": "1.0.0-rc.4",
-    "supabase": "^2.117.0",
+    "supabase": "^2.118.0",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }
