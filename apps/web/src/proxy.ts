@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { negotiateMediaType, notAcceptableBody, withVaryAccept } from "@/lib/agent/accept";
+import { negotiateMediaType, withVaryAccept } from "@/lib/agent/accept";
 import { resolveMarkdownRoute } from "@/lib/agent/markdown-routes";
 
 import type { NextRequest } from "next/server";
@@ -22,8 +22,8 @@ const applyVary = (response: NextResponse): NextResponse => {
   return response;
 };
 
-/** React's transport, not a representation of the page: negotiating a Server Action
-    or client navigation would answer it 406. */
+/** React's transport, not a representation of the page: a Server Action or client
+    navigation must never be rewritten to Markdown. */
 const isFlightRequest = (request: NextRequest) =>
   (request.headers.get("accept") ?? "").toLowerCase().includes(RSC_MEDIA_TYPE) ||
   request.headers.has("next-action");
@@ -34,24 +34,12 @@ export const proxy = (request: NextRequest) => {
   }
 
   const { pathname } = request.nextUrl;
-  const accept = request.headers.get("accept");
-  const chosen = negotiateMediaType(accept);
+  const chosen = negotiateMediaType(request.headers.get("accept"));
 
   if (chosen === "text/markdown" && resolveMarkdownRoute(pathname).kind !== "html-only") {
     const url = request.nextUrl.clone();
     url.pathname = `/api/markdown${pathname === "/" ? "" : pathname}`;
     return applyVary(NextResponse.rewrite(url));
-  }
-
-  if (chosen === null) {
-    return new Response(notAcceptableBody(accept), {
-      headers: {
-        "Cache-Control": "no-store",
-        "Content-Type": "text/plain; charset=utf-8",
-        Vary: "Accept",
-      },
-      status: 406,
-    });
   }
 
   return applyVary(NextResponse.next());
