@@ -8,7 +8,8 @@ import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form
 import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";
 import { feedInfiniteArgs } from "@/lib/feed-query";
 import { getFeedLayout } from "@/lib/feed-layout";
-import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
+import { siteConfig } from "@/lib/site-config";
+import { caller, fetchInfinite, HydrateClient, orpc } from "@/orpc/server";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -22,9 +23,8 @@ const Page = async () => {
   const [feedLayout, placeholder] = await Promise.all([
     getFeedLayout(),
     caller.prompt.getRandomPrompt(),
+    fetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters))),
   ]);
-
-  prefetchInfinite(orpc.post.getFeed.infiniteOptions(feedInfiniteArgs(feedFilters)));
 
   return (
     <HydrateClient>
@@ -50,7 +50,9 @@ const Page = async () => {
         </div>
       </PageContent>
       <PageAside>
-        <section className="my-6 overflow-auto" />
+        <section className="my-6 overflow-auto">
+          <p className="text-muted-foreground text-sm">{siteConfig.description}</p>
+        </section>
       </PageAside>
     </HydrateClient>
   );
