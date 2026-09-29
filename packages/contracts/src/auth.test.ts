@@ -51,6 +51,14 @@ test("every schema rejects a malformed email", () => {
   }
 });
 
+test("every schema trims an email but keeps its case", () => {
+  const typed = { email: " MiXeD@Example.com ", password: "a-long-password" };
+
+  for (const schema of [signUpInput, signInWithPasswordInput, requestPasswordResetInput]) {
+    assert.equal(schema.parse(typed).email, "MiXeD@Example.com");
+  }
+});
+
 test("a reset password follows the sign-up rule", () => {
   assert.equal(setPasswordInput.safeParse({ password: sevenChars, token: "t" }).success, false);
   assert.equal(

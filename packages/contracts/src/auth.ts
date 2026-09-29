@@ -21,18 +21,22 @@ const newPassword = z
     "Password is too long",
   );
 
+/** Never case-folded, stored or looked up: a deploy rolled back to exact-match
+    lookup must still find every address exactly as its owner typed it. */
+export const emailAddress = z.string().trim().pipe(z.email());
+
 export const signUpInput = z.object({
-  email: z.email(),
+  email: emailAddress,
   password: newPassword,
 });
 
 export const signInWithPasswordInput = z.object({
-  email: z.email(),
+  email: emailAddress,
   password: z.string(),
 });
 export type SignInWithPasswordInput = z.infer<typeof signInWithPasswordInput>;
 
-export const requestPasswordResetInput = z.object({ email: z.email() });
+export const requestPasswordResetInput = z.object({ email: emailAddress });
 
 export const setPasswordInput = z.object({
   password: newPassword,
