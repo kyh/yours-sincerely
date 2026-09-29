@@ -5,7 +5,9 @@ import { after, test } from "node:test";
 import { and, eq, inArray, or } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
+import { RPCHandler } from "@orpc/server/fetch";
 
+import { appRouter } from "./root-router";
 import { callerFor } from "./test-utils";
 import { updateUserInput } from "./user/user-schema";
 
@@ -92,6 +94,22 @@ integrationTest("profile updates derive the actor from the authenticated context
   } finally {
     await fixture.cleanup();
   }
+});
+
+// Over the wire, because a malformed input is exactly what the typed in-process
+// client cannot send. `requireUser` placed on the procedure instead of the
+// implementer runs after input validation, and this answers 400.
+integrationTest("an anonymous delete is refused before its input is judged", async () => {
+  const { response } = await new RPCHandler(appRouter).handle(
+    new Request("http://localhost/api/orpc/post/deletePost", {
+      body: JSON.stringify({ json: {} }),
+      headers: { "content-type": "application/json" },
+      method: "POST",
+    }),
+    { context: { db, user: null }, prefix: "/api/orpc" },
+  );
+
+  assert.equal(response?.status, 401);
 });
 
 integrationTest("post deletion rejects a different owner", async () => {

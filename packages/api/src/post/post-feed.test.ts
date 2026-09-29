@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getFeedInput } from "./post-schema.ts";
+import { getFeedInput } from "@repo/contracts/post-contract";
 
 test("feed limit is bounded", () => {
   assert.equal(getFeedInput.safeParse({ limit: 1_000_000 }).success, false);
