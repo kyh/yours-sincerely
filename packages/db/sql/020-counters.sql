@@ -12,11 +12,11 @@
 -- from ground truth on every push, and why `post-counters.integration.ts` asserts
 -- zero drift after each mutation.
 --
--- Row-level, not statement-level, so bulk deletes (deletePost / deleteUser cascade
--- through collectDescendantPostIds and delete many rows in ONE statement) are
--- handled a row at a time. When a parent post is deleted in the same statement as
--- its children, the child's decrement simply matches zero rows — the parent is
--- already gone — which is correct, not drift.
+-- Row-level, not statement-level, so bulk deletes (deletePost / deleteUser remove
+-- whole reply threads through the ON DELETE CASCADE on Post, Like and Flag) are
+-- handled a row at a time. When a parent post is deleted before its children, the
+-- child's decrement simply matches zero rows — the parent is already gone — which
+-- is correct, not drift.
 --
 -- GREATEST(x - 1, 0) everywhere: a counter must never go negative, even if a
 -- decrement somehow arrives without its matching increment. A negative flagCount
