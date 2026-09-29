@@ -264,6 +264,14 @@ disconnected from the current brand; a database schema rewrite.
   not read `packageManager`, and `corepack: true` without the pin installs the image's default
   pnpm and dies on the Corepack shim (verified on a real build). Bump both together;
   `apps/expo/src/release-pins.test.ts` fails when they drift.
+- **Every env var `next build` reads must be in `build.env` in `turbo.json`.** Turbo's
+  strict env mode strips undeclared system variables, and Vercel supplies env as system
+  variables; `.env` (loaded inside the task by `dotenv`) hides the gap locally. A missing
+  `COOKIE_SECRET` or `POSTGRES_URL` fails the Vercel build; a missing optional var builds
+  silently without it, outside the cache key. The build loads `packages/api` at module level:
+  `COOKIE_SECRET`, `COOKIE_SECRET_LEGACY` (`auth/session.ts`), `POSTGRES_URL`
+  (`db/src/drizzle-client.ts`), `RESEND_API_KEY`, `RESET_LINK_ORIGIN` (`env.ts`). Do not move them
+  back to `globalEnv`: there they bust every typecheck and test cache.
 - **Expo's `react`/`react-dom`/`typescript` are pinned via the `expo` named catalog**, not
   the default one. Expo must hold SDK-blessed versions, which may diverge from web. Re-run
   `npx expo install --check` in `apps/expo` after touching any mobile dependency.
