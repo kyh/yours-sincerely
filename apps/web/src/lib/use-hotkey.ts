@@ -9,8 +9,8 @@ import { useEffect, useEffectEvent } from "react";
  *    (`defaultPrevented`);
  *  - ignores a keypress carrying any modifier, because none of these hotkeys
  *    declare one (so Cmd+Left etc. stay browser navigation);
- *  - ignores keys typed into an editable field, so a space in the composer is a
- *    space and not "next card";
+ *  - ignores keys typed into an editable field or pressed inside a dialog, so a
+ *    space in the composer is a space and a sheet over the stack keeps its keys;
  *  - never calls `preventDefault` itself.
  */
 export type Hotkey = [key: string, handler: () => void];
@@ -24,11 +24,14 @@ const isEditableTarget = (target: EventTarget | null) =>
   target instanceof HTMLElement &&
   (target.isContentEditable || target.matches("input, select, textarea"));
 
+const isInDialog = (target: EventTarget | null) =>
+  target instanceof Element && target.closest('[role="dialog"], [role="alertdialog"]') !== null;
+
 const hasModifier = (event: HotkeyEvent) =>
   event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
-export const matchHotkeys = (hotkeys: Hotkey[], event: HotkeyEvent, inEditableField: boolean) => {
-  if (event.defaultPrevented || hasModifier(event) || inEditableField) {
+export const matchHotkeys = (hotkeys: Hotkey[], event: HotkeyEvent, targetOwnsKeys: boolean) => {
+  if (event.defaultPrevented || hasModifier(event) || targetOwnsKeys) {
     return [];
   }
   const pressed = event.key.toLowerCase();
@@ -40,7 +43,8 @@ export const useHotkeys = (hotkeys: Hotkey[]) => {
   // dependency, so a re-render with fresh handler identities does not tear down
   // and re-attach the listener.
   const dispatch = useEffectEvent((event: KeyboardEvent) => {
-    for (const handler of matchHotkeys(hotkeys, event, isEditableTarget(event.target))) {
+    const targetOwnsKeys = isEditableTarget(event.target) || isInDialog(event.target);
+    for (const handler of matchHotkeys(hotkeys, event, targetOwnsKeys)) {
       handler();
     }
   });

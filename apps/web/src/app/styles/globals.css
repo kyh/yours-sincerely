@@ -168,6 +168,9 @@ body {
 
 .textarea-grow {
   display: grid;
+  /* A height-capped box squeezes an auto row below the letter and clips the textarea;
+     the max-content floor stops the squeeze and keeps the stretch. */
+  grid-template-rows: minmax(max-content, auto);
 }
 
 .textarea-grow::after {

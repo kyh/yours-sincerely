@@ -129,7 +129,10 @@ export const PostForm = ({
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(handlePostForm)}>
+      <form
+        className={cn("flex flex-col gap-2", contained && "min-h-0")}
+        onSubmit={form.handleSubmit(handlePostForm)}
+      >
         <FormField
           control={form.control}
           name="content"
@@ -234,27 +237,32 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
   return (
     <Drawer
       open={open}
-      onOpenChange={setOpen}
-      onAnimationEnd={(opened) => {
+      onOpenChange={(nextOpen) => {
+        // The draft saves on blur, and Chromium fires no blur when the closed sheet
+        // unmounts a focused textarea.
+        if (!nextOpen) {
+          textareaRef.current?.blur();
+        }
+        setOpen(nextOpen);
+      }}
+      onOpenChangeComplete={(opened) => {
         if (opened) {
+          // No preventScroll: it would also stop a restored draft scrolling to its caret.
           textareaRef.current?.focus();
         }
       }}
-      repositionInputs={false}
-      handleOnly
+      showSwipeHandle
     >
-      <DrawerTrigger asChild>
-        <Button size="icon" className="size-12">
-          <PlusIcon />
-          <span className="sr-only">New Post</span>
-        </Button>
+      <DrawerTrigger render={<Button size="icon" className="size-12" />}>
+        <PlusIcon />
+        <span className="sr-only">New Post</span>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="sr-only">
           <DrawerTitle>New Post</DrawerTitle>
           <DrawerDescription>Send your tiny beautiful letters to the world</DrawerDescription>
         </DrawerHeader>
-        <section className="p-4">
+        <section className="flex min-h-0 flex-col p-4" data-base-ui-swipe-ignore>
           <PostForm
             placeholder={placeholder}
             onSuccess={() => setOpen(false)}
