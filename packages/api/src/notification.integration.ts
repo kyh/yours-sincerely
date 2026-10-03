@@ -5,13 +5,16 @@ import { after, test } from "node:test";
 import { eq, inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { block, notification, post, pushToken, user } from "@repo/db/drizzle-schema";
-import { NOTIFICATION_PREVIEW_MAX_CHARS, UNREAD_COUNT_CAP } from "@repo/contracts/notifications";
+import {
+  NOTIFICATION_PREVIEW_MAX_CHARS,
+  PUSH_TOKEN_MAX_IDLE_DAYS,
+  UNREAD_COUNT_CAP,
+} from "@repo/contracts/notifications";
 import { ORPCError } from "@orpc/server";
 
 import { signPushCleanupCapability } from "./auth/push-cleanup-capability";
 import { FLAG_HIDE_THRESHOLD } from "./post/post-utils";
 import { findLivePushTokens } from "./push/expo-push";
-import { PUSH_TOKEN_MAX_IDLE_DAYS } from "./push/expo-push-core";
 import { callerFor, runWithoutCookieScope } from "./test-utils";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;

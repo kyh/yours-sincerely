@@ -1,3 +1,4 @@
+import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contracts/notifications";
 import type { NewCommentNotificationData } from "@repo/contracts/notifications";
 import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 
@@ -38,18 +39,16 @@ export interface PushOutcome {
 /** A token is a device credential; a log line must not carry it whole. */
 export const redactPushToken = (token: string) => token.replace(/\[.*\]$/u, "[…]");
 
-/** A device that has not launched the app in this long is treated as gone.
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The oldest `lastSeenAt` a token is still sent to, as a Postgres
+    `timestamp`-comparable ISO string (the column is `mode: "string"`).
+
     Expo reports an uninstalled device as `DeviceNotRegistered` only in the
     push receipts, which nothing here fetches, so without a cut-off a token
     would outlive its app forever and keep the sender throttled by APNs/FCM.
     `push.register` refreshes `lastSeenAt` on every launch, so a device that
     comes back re-registers itself. */
-export const PUSH_TOKEN_MAX_IDLE_DAYS = 90;
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** The oldest `lastSeenAt` a token is still sent to, as a Postgres
-    `timestamp`-comparable ISO string (the column is `mode: "string"`). */
 export const getPushTokenIdleCutoff = (now: Date = new Date()): string =>
   new Date(now.getTime() - PUSH_TOKEN_MAX_IDLE_DAYS * DAY_MS).toISOString();
 
