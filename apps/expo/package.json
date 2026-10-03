@@ -63,9 +63,9 @@
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",
-    "@orpc/server": "catalog:",
-    "@repo/api": "workspace:*",
+    "@orpc/contract": "catalog:",
     "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
     "@types/react": "catalog:expo",
     "@types/set-cookie-parser": "^2.4.10",
     "dotenv-cli": "catalog:",

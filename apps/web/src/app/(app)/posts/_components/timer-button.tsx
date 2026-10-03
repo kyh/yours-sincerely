@@ -4,7 +4,7 @@ import { getExpiryProgress } from "@repo/contracts/content";
 import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
 import { formatDistance } from "date-fns";
 
-import type { FeedPost } from "@repo/api";
+import type { FeedPost } from "@repo/contracts/post-contract";
 
 interface Props {
   post: FeedPost;

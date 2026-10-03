@@ -15,7 +15,7 @@ import {
 import { formatDistanceToNowStrict } from "date-fns";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
-import type { RouterOutputs } from "@repo/api";
+import type { RouterOutputs } from "@repo/contracts/app-contract";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { getAvatarUrl } from "@/lib/avatars";
 import { notificationInfiniteArgs } from "@/lib/notification-query";

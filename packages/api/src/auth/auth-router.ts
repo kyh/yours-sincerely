@@ -1,19 +1,15 @@
 import { ANONYMOUS_DISPLAY_NAME } from "@repo/contracts/user";
 import type { Db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
-import { ORPCError } from "@orpc/server";
+import { authContract } from "@repo/contracts/auth-contract";
+import { implement, ORPCError } from "@orpc/server";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 
 import { env } from "../env";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import type { ORPCContext } from "../orpc";
+import { requireUser } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
-import {
-  requestPasswordResetInput,
-  setPasswordInput,
-  signInWithPasswordInput,
-  signUpInput,
-} from "./auth-schema";
 import { findUserByEmail, isEmailTaken } from "./email-identity";
 import { burnResetTokens, sendPasswordReset } from "./password-reset";
 import { createResetEmailSender, hashResetToken } from "./password-reset-core";
@@ -45,30 +41,30 @@ const revokeUserSessions = async (db: Pick<Db, "update">, userId: string) => {
   return updated.sessionEpoch;
 };
 
-export const authRouter = {
-  requestPasswordReset: publicProcedure
-    .input(requestPasswordResetInput)
-    .handler(async ({ context, input }) => {
-      // Checked before the lookup: a deployment with no email provider can
-      // never deliver the link, so refuse outright. The answer does not depend
-      // on `input.email`, so it leaks no enumeration.
-      const resendApiKey = env.RESEND_API_KEY;
-      if (resendApiKey === undefined) {
-        throw new ORPCError("PRECONDITION_FAILED", {
-          message: "Password reset email is not configured",
-        });
-      }
+const os = implement(authContract).$context<ORPCContext>();
 
-      await sendPasswordReset(context.db, {
-        address: input.email,
-        appUrl: env.RESET_LINK_ORIGIN,
-        send: createResetEmailSender(new Resend(resendApiKey).emails),
+export const authRouter = os.router({
+  requestPasswordReset: os.requestPasswordReset.handler(async ({ context, input }) => {
+    // Checked before the lookup: a deployment with no email provider can
+    // never deliver the link, so refuse outright. The answer does not depend
+    // on `input.email`, so it leaks no enumeration.
+    const resendApiKey = env.RESEND_API_KEY;
+    if (resendApiKey === undefined) {
+      throw new ORPCError("PRECONDITION_FAILED", {
+        message: "Password reset email is not configured",
       });
+    }
 
-      // Always return success to prevent email enumeration
-      return { success: true };
-    }),
-  setPassword: publicProcedure.input(setPasswordInput).handler(async ({ context, input }) => {
+    await sendPasswordReset(context.db, {
+      address: input.email,
+      appUrl: env.RESET_LINK_ORIGIN,
+      send: createResetEmailSender(new Resend(resendApiKey).emails),
+    });
+
+    // Always return success to prevent email enumeration
+    return { success: true };
+  }),
+  setPassword: os.setPassword.handler(async ({ context, input }) => {
     const now = new Date().toISOString();
 
     // One transaction: the new password never lands without the revocation
@@ -112,29 +108,27 @@ export const authRouter = {
 
     return { success: true };
   }),
-  signInWithPassword: publicProcedure
-    .input(signInWithPasswordInput)
-    .handler(async ({ context, input }) => {
-      const existingUser = await findUserByEmail(context.db, input.email);
+  signInWithPassword: os.signInWithPassword.handler(async ({ context, input }) => {
+    const existingUser = await findUserByEmail(context.db, input.email);
 
-      if (!existingUser?.passwordHash) {
-        throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
-      }
+    if (!existingUser?.passwordHash) {
+      throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
+    }
 
-      const isValid = await validatePassword(input.password, existingUser.passwordHash);
+    const isValid = await validatePassword(input.password, existingUser.passwordHash);
 
-      if (!isValid) {
-        throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
-      }
+    if (!isValid) {
+      throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
+    }
 
-      await setSession(existingUser.id, existingUser.sessionEpoch);
+    await setSession(existingUser.id, existingUser.sessionEpoch);
 
-      return {
-        user: toViewer(existingUser),
-      };
-    }),
+    return {
+      user: toViewer(existingUser),
+    };
+  }),
   /** Normal sign-out: clears this device's cookie only. Correct semantic. */
-  signOut: protectedProcedure.handler(async () => {
+  signOut: os.use(requireUser).signOut.handler(async () => {
     await clearSession();
 
     return { user: null };
@@ -143,13 +137,13 @@ export const authRouter = {
    * Revoke every session for this account, on every device — including any
    * cookie an attacker captured. Logs out the calling device too.
    */
-  signOutEverywhere: protectedProcedure.handler(async ({ context }) => {
+  signOutEverywhere: os.use(requireUser).signOutEverywhere.handler(async ({ context }) => {
     await revokeUserSessions(context.db, context.user.id);
     await clearSession();
 
     return { user: null };
   }),
-  signUp: publicProcedure.input(signUpInput).handler(async ({ context, input }) => {
+  signUp: os.signUp.handler(async ({ context, input }) => {
     if (await isEmailTaken(context.db, input.email)) {
       throw new ORPCError("CONFLICT", { message: "User already registered" });
     }
@@ -190,9 +184,9 @@ export const authRouter = {
       user: toViewer(newUser),
     };
   }),
-  workspace: publicProcedure.handler(({ context }) => ({
+  workspace: os.workspace.handler(({ context }) => ({
     pushCleanupCapability:
       context.user === null ? null : createPushCleanupCapability(context.user.id),
     user: context.user === null ? null : toViewer(context.user),
   })),
-};
+});

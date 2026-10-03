@@ -10,7 +10,8 @@ import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { m } from "motion/react";
 
-import type { FeedPost, RouterOutputs } from "@repo/api";
+import type { RouterOutputs } from "@repo/contracts/app-contract";
+import type { FeedPost } from "@repo/contracts/post-contract";
 import {
   markPostContentStale,
   refreshPostContent,

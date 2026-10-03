@@ -1,11 +1,4 @@
-import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
-import type { AppRouter } from "./root-router";
-
+// Server-only: the route handler and the RSC caller. Clients type against
+// `@repo/contracts/app-contract`, never against this package.
 export { createORPCContext } from "./orpc";
 export { type AppRouter, appRouter } from "./root-router";
-
-export type RouterInputs = InferRouterInputs<AppRouter>;
-export type RouterOutputs = InferRouterOutputs<AppRouter>;
-
-export type FeedPost = RouterOutputs["post"]["getFeed"]["posts"][number];
-export type FeedFilters = Omit<RouterInputs["post"]["getFeed"], "cursor">;

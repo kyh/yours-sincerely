@@ -1,15 +1,15 @@
 import type { ORPCContext } from "../orpc";
 import { alias, and, count, desc, eq, inArray, isNull, sql } from "@repo/db";
 import { notification, post } from "@repo/db/drizzle-schema";
+import { notificationContract } from "@repo/contracts/notification-contract";
 import {
-  listNotificationsInput,
-  markNotificationsReadInput,
   NOTIFICATION_PAGE_SIZE,
   NOTIFICATION_PREVIEW_MAX_CHARS,
   UNREAD_COUNT_CAP,
 } from "@repo/contracts/notifications";
+import { implement } from "@orpc/server";
 
-import { protectedProcedure } from "../orpc";
+import { requireUser } from "../orpc";
 import { postVisibleTo } from "../post/post-utils";
 
 /** Code points, not UTF-16 units, so a cut never lands inside an emoji. */
@@ -26,8 +26,10 @@ const letter = alias(post, "letter");
 const notificationVisibleTo = (db: ORPCContext["db"], viewerId: string) =>
   and(postVisibleTo(db, viewerId, post), postVisibleTo(db, viewerId, letter));
 
-export const notificationRouter = {
-  list: protectedProcedure.input(listNotificationsInput).handler(async ({ context, input }) => {
+const os = implement(notificationContract).$context<ORPCContext>();
+
+export const notificationRouter = os.router({
+  list: os.use(requireUser).list.handler(async ({ context, input }) => {
     const limit = input.limit ?? NOTIFICATION_PAGE_SIZE;
 
     // Same keyset mechanics as `post.getFeed`: one sentinel row past the limit
@@ -78,25 +80,23 @@ export const notificationRouter = {
     return { nextCursor, notifications };
   }),
 
-  markRead: protectedProcedure
-    .input(markNotificationsReadInput)
-    .handler(async ({ context, input }) => {
-      const updated = await context.db
-        .update(notification)
-        .set({ readAt: new Date().toISOString() })
-        .where(
-          and(
-            eq(notification.userId, context.user.id),
-            isNull(notification.readAt),
-            input.scope === "ids" ? inArray(notification.id, input.ids) : undefined,
-          ),
-        )
-        .returning({ id: notification.id });
+  markRead: os.use(requireUser).markRead.handler(async ({ context, input }) => {
+    const updated = await context.db
+      .update(notification)
+      .set({ readAt: new Date().toISOString() })
+      .where(
+        and(
+          eq(notification.userId, context.user.id),
+          isNull(notification.readAt),
+          input.scope === "ids" ? inArray(notification.id, input.ids) : undefined,
+        ),
+      )
+      .returning({ id: notification.id });
 
-      return { updated: updated.length };
-    }),
+    return { updated: updated.length };
+  }),
 
-  unreadCount: protectedProcedure.handler(async ({ context }) => {
+  unreadCount: os.use(requireUser).unreadCount.handler(async ({ context }) => {
     const unread = context.db
       .select({ id: notification.id })
       .from(notification)
@@ -115,4 +115,4 @@ export const notificationRouter = {
 
     return { count: row?.count ?? 0 };
   }),
-};
+});
