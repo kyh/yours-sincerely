@@ -21,11 +21,11 @@ export const SignUpContent = ({ next }: { next: Href }) => (
           try {
             await Linking.openURL(`${siteConfig.url}/terms`);
           } catch {
-            toast.error("Could not open Terms of Service. Please try again.");
+            toast.error("Could not open Terms of Use. Please try again.");
           }
         }}
       >
-        Terms of Service
+        Terms of Use
       </Text>{" "}
       and{" "}
       <Text

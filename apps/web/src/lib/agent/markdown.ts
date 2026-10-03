@@ -47,22 +47,66 @@ export const sitePages: LinkItem[] = [
   { href: "/", label: "Home", text: "the live feed of recent letters" },
   { href: "/about", label: "About", text: "what the project is and why it exists" },
   { href: "/contact", label: "Contact", text: "email and GitHub" },
-  { href: "/privacy", label: "Privacy", text: "what is collected and who processes it" },
-  { href: "/terms", label: "Terms", text: "rules for using the service" },
+  {
+    href: "/privacy",
+    label: "Privacy",
+    text: "the Privacy Policy, covering what is collected, who processes it, and your rights",
+  },
+  { href: "/terms", label: "Terms", text: "the Terms of Use, including how disputes are resolved" },
 ];
 
 export const renderList = (items: LinkItem[]): string =>
   items.map((item) => `- [${item.label}](${absoluteUrl(item.href)}): ${item.text}`).join("\n");
 
-const renderInline = (content: Inline[]): string =>
-  content
-    .map((part) => (part.kind === "text" ? part.text : `[${part.label}](${part.href})`))
-    .join("");
+/** A site path becomes absolute, since the twin is read away from the site; a
+    `#heading` anchor and any other scheme stay as written. */
+const markdownHref = (href: string): string => (href.startsWith("/") ? absoluteUrl(href) : href);
 
-const renderBlock = (block: Block): string =>
-  block.kind === "paragraph"
-    ? renderInline(block.content)
-    : block.items.map((item) => `- ${item}`).join("\n");
+const renderInlinePart = (part: Inline): string => {
+  switch (part.kind) {
+    case "text": {
+      return part.text;
+    }
+    case "strong": {
+      return `**${part.text}**`;
+    }
+    case "link": {
+      return `[${part.label}](${markdownHref(part.href)})`;
+    }
+    default: {
+      const exhaustive: never = part;
+      throw new Error(`Unknown inline ${String(exhaustive)}`);
+    }
+  }
+};
+
+const renderInline = (content: Inline[]): string => content.map(renderInlinePart).join("");
+
+/** A GFM table row. A pipe inside a cell would end it early, so it is escaped. */
+const renderTableRow = (cells: string[]): string =>
+  `| ${cells.map((cell) => cell.replaceAll("|", "\\|")).join(" | ")} |`;
+
+const renderBlock = (block: Block): string => {
+  switch (block.kind) {
+    case "paragraph": {
+      return renderInline(block.content);
+    }
+    case "list": {
+      return block.items.map((item) => `- ${renderInline(item)}`).join("\n");
+    }
+    case "table": {
+      return [
+        renderTableRow(block.head),
+        renderTableRow(block.head.map(() => "---")),
+        ...block.rows.map(renderTableRow),
+      ].join("\n");
+    }
+    default: {
+      const exhaustive: never = block;
+      throw new Error(`Unknown block ${String(exhaustive)}`);
+    }
+  }
+};
 
 const recoveryLinks = (): string =>
   renderList([
@@ -127,14 +171,17 @@ export const renderAboutMarkdown = (): string =>
     renderList(sitePages),
   ]);
 
+/** Headings carry no explicit id: a `## Heading` gets `headingId(heading)` from
+    any GitHub-style renderer, which is what the page's `#links` name. */
 export const renderProsePageMarkdown = (page: ProsePage): string =>
   joinSections([
     `# ${page.title}`,
     `> ${page.description}`,
-    ...(page.updated ? [`Last updated: ${page.updated}`] : []),
+    ...(page.intro ?? []).map(renderBlock),
     ...page.sections.map((section) =>
       [`## ${section.heading}`, ...section.blocks.map(renderBlock)].join("\n\n"),
     ),
+    ...(page.footnote ? ["---", ...page.footnote.map(renderBlock)] : []),
   ]);
 
 export const renderNotFoundMarkdown = (pathname: string): string =>

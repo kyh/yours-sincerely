@@ -28,7 +28,7 @@ const Page = async ({ searchParams }: Props) => {
             href="/terms"
             className="underline underline-offset-4 transition hover:text-primary"
           >
-            Terms of Service
+            Terms of Use
           </Link>{" "}
           and{" "}
           <Link

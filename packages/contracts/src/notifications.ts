@@ -64,6 +64,12 @@ export const describeNotification = (input: { kind: NotificationKind; actorName:
 export const PUSH_PLATFORMS = ["ios", "android"] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
 
+/** A device that has not launched the app in this long is treated as gone: its
+    push token is deleted before the next push to its account. The API enforces it
+    (`packages/api/src/push/expo-push-core.ts`) and the privacy policy states it,
+    so both read this one value. */
+export const PUSH_TOKEN_MAX_IDLE_DAYS = 90;
+
 /** Expo issues `ExponentPushToken[…]` today and `ExpoPushToken[…]` historically;
     accepting only those shapes keeps arbitrary strings out of the table. */
 export const expoPushToken = z
