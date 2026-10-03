@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createPostInput } from "@repo/contracts/post";
-import { requestPasswordResetInput } from "./auth/auth-schema.ts";
+import { requestPasswordResetInput } from "@repo/contracts/auth";
 import { sessionCookieOptions } from "./auth/session-core.ts";
-import { updateUserInput } from "./user/user-schema.ts";
+import { updateUserInput } from "@repo/contracts/user";
 
 test("the session cookie is withheld from cross-site requests", () => {
   // `/api/orpc` carries no CSRF token, so cross-site protection is the cookie:

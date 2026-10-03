@@ -1,14 +1,17 @@
 import { and, eq } from "@repo/db";
 import { block } from "@repo/db/drizzle-schema";
-import { ORPCError } from "@orpc/server";
+import { blockContract } from "@repo/contracts/block-contract";
+import { implement, ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import type { ORPCContext } from "../orpc";
+import { requireUser } from "../orpc";
 import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
-import { createBlockInput, deleteBlockInput } from "./block-schema";
 
-export const blockRouter = {
-  createBlock: publicProcedure.input(createBlockInput).handler(async ({ context, input }) => {
+const os = implement(blockContract).$context<ORPCContext>();
+
+export const blockRouter = os.router({
+  createBlock: os.createBlock.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
     // Blocking yourself would erase you from your own feed. It is never intended.
@@ -44,7 +47,7 @@ export const blockRouter = {
     };
   }),
 
-  deleteBlock: protectedProcedure.input(deleteBlockInput).handler(async ({ context, input }) => {
+  deleteBlock: os.use(requireUser).deleteBlock.handler(async ({ context, input }) => {
     // SECURITY: the `where` is scoped to context.user.id. Without that clause any
     // caller could delete anyone else's blocks by guessing ids — an IDOR.
     const [deleted] = await context.db
@@ -57,9 +60,9 @@ export const blockRouter = {
     };
   }),
 
-  /** The blocker's own inventory of blocks. `protectedProcedure` + a `blockerId`
+  /** The blocker's own inventory of blocks. `requireUser` + a `blockerId`
       scoped to `context.user.id`: the actor never comes from client input. */
-  listBlocks: protectedProcedure.handler(async ({ context }) => {
+  listBlocks: os.use(requireUser).listBlocks.handler(async ({ context }) => {
     const blocks = await context.db.query.block.findMany({
       where: { blockerId: context.user.id },
       with: {
@@ -82,4 +85,4 @@ export const blockRouter = {
       })),
     };
   }),
-};
+});

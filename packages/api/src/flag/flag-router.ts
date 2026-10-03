@@ -1,13 +1,15 @@
 import { flag } from "@repo/db/drizzle-schema";
-import { ORPCError } from "@orpc/server";
+import { flagContract } from "@repo/contracts/flag-contract";
+import { implement, ORPCError } from "@orpc/server";
 
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { publicProcedure } from "../orpc";
+import type { ORPCContext } from "../orpc";
 import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
-import { createFlagInput } from "./flag-schema";
 
-export const flagRouter = {
-  createFlag: publicProcedure.input(createFlagInput).handler(async ({ context, input }) => {
+const os = implement(flagContract).$context<ORPCContext>();
+
+export const flagRouter = os.router({
+  createFlag: os.createFlag.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
     // Flag_pkey is (postId, userId). Flagging the same post twice is a no-op,
@@ -37,4 +39,4 @@ export const flagRouter = {
       flag: { postId: input.postId },
     };
   }),
-};
+});
