@@ -40,9 +40,8 @@ export default defineConfig({
           {
             paths: [
               {
-                allowTypeImports: true,
                 message:
-                  "Type-only: a value import bundles next/headers, bcrypt and postgres into Metro. Shared runtime code belongs in @repo/contracts.",
+                  "Server code: it bundles next/headers, bcrypt and postgres into Metro. Wire types come from @repo/contracts/app-contract; shared runtime code belongs in @repo/contracts.",
                 name: "@repo/api",
               },
             ],
