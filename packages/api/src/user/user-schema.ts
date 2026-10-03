@@ -1,17 +1,5 @@
 import { z } from "zod";
 
-export { updateUserInput, type UpdateUserInput } from "@repo/contracts/user";
-
-export const getUserInput = z
-  .object({
-    userId: z.string(),
-  })
-  .required();
-
-export const getUserStatsInput = z.object({
-  userId: z.string(),
-});
-
 /** The row shape of `public."getUserStats"(text)` (`sql/040-user-stats.sql`).
  *
  *  The counts come back from Postgres as `bigint`/`numeric`, which the driver

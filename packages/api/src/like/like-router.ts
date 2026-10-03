@@ -1,12 +1,12 @@
 import { and, eq } from "@repo/db";
 import { like } from "@repo/db/drizzle-schema";
-import { ORPCError } from "@orpc/server";
+import { likeContract } from "@repo/contracts/like-contract";
+import { implement, ORPCError } from "@orpc/server";
 
 import type { ORPCContext } from "../orpc";
 import { createUserIfNotExists } from "../auth/auth-utils";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import { requireUser } from "../orpc";
 import { FOREIGN_KEY_VIOLATION, rethrowPgError } from "../pg-error";
-import { createLikeInput, deleteLikeInput } from "./like-schema";
 
 const postNotFound = () => new ORPCError("NOT_FOUND", { message: "Post not found" });
 
@@ -38,8 +38,10 @@ const readLikeState = async (context: ORPCContext, postId: string, isLiked: bool
     : { id: row.id, isLiked, likeCount: (row.baseLikeCount ?? 0) + row.likeCount };
 };
 
-export const likeRouter = {
-  createLike: publicProcedure.input(createLikeInput).handler(async ({ context, input }) => {
+const os = implement(likeContract).$context<ORPCContext>();
+
+export const likeRouter = os.router({
+  createLike: os.createLike.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
     const created = await insertLike(context, input.postId, userId);
@@ -58,7 +60,7 @@ export const likeRouter = {
     };
   }),
 
-  deleteLike: protectedProcedure.input(deleteLikeInput).handler(async ({ context, input }) => {
+  deleteLike: os.use(requireUser).deleteLike.handler(async ({ context, input }) => {
     const [deleted] = await context.db
       .delete(like)
       .where(and(eq(like.userId, context.user.id), eq(like.postId, input.postId)))
@@ -69,4 +71,4 @@ export const likeRouter = {
       post: await readLikeState(context, input.postId, false),
     };
   }),
-};
+});

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 
+import { updateUserInput } from "@repo/contracts/user";
 import { and, eq, inArray, or } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
@@ -9,7 +10,6 @@ import { RPCHandler } from "@orpc/server/fetch";
 
 import { appRouter } from "./root-router";
 import { callerFor } from "./test-utils";
-import { updateUserInput } from "./user/user-schema";
 
 const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
 
@@ -98,18 +98,37 @@ integrationTest("profile updates derive the actor from the authenticated context
 
 // Over the wire, because a malformed input is exactly what the typed in-process
 // client cannot send. `requireUser` placed on the procedure instead of the
-// implementer runs after input validation, and this answers 400.
-integrationTest("an anonymous delete is refused before its input is judged", async () => {
-  const { response } = await new RPCHandler(appRouter).handle(
-    new Request("http://localhost/api/orpc/post/deletePost", {
-      body: JSON.stringify({ json: {} }),
-      headers: { "content-type": "application/json" },
-      method: "POST",
-    }),
-    { context: { db, user: null }, prefix: "/api/orpc" },
-  );
+// implementer runs after input validation, and these answer 400.
+const protectedPaths = [
+  "auth/signOut",
+  "auth/signOutEverywhere",
+  "block/deleteBlock",
+  "block/listBlocks",
+  "like/deleteLike",
+  "notification/list",
+  "notification/markRead",
+  "notification/unreadCount",
+  "post/deletePost",
+  "push/register",
+  "user/deleteUser",
+  "user/updateUser",
+];
 
-  assert.equal(response?.status, 401);
+integrationTest("an anonymous call is refused before its input is judged", async () => {
+  const handler = new RPCHandler(appRouter);
+
+  for (const path of protectedPaths) {
+    const { response } = await handler.handle(
+      new Request(`http://localhost/api/orpc/${path}`, {
+        body: JSON.stringify({ json: { cursor: 1, ids: 1, postId: 1, token: 1 } }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      }),
+      { context: { db, user: null }, prefix: "/api/orpc" },
+    );
+
+    assert.equal(response?.status, 401, path);
+  }
 });
 
 integrationTest("post deletion rejects a different owner", async () => {

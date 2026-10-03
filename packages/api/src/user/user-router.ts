@@ -9,20 +9,24 @@ import {
   token,
   user,
 } from "@repo/db/drizzle-schema";
-import { ORPCError } from "@orpc/server";
+import { userContract } from "@repo/contracts/user-contract";
+import { implement, ORPCError } from "@orpc/server";
 
 import { isEmailTaken } from "../auth/email-identity";
 import { clearSession } from "../auth/session";
-import { protectedProcedure, publicProcedure } from "../orpc";
+import type { ORPCContext } from "../orpc";
+import { requireUser } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
-import { getUserInput, getUserStatsInput, updateUserInput, userStatsRow } from "./user-schema";
+import { userStatsRow } from "./user-schema";
 
 /** `public."getUserStats"(text)` — see `sql/040-user-stats.sql`. Quoted because the name is
     camelCase; `sql.raw` would invite injection, an identifier cannot. */
 const getUserStatsFn = sql.identifier("getUserStats");
 
-export const userRouter = {
-  deleteUser: protectedProcedure.handler(async ({ context }) => {
+const os = implement(userContract).$context<ORPCContext>();
+
+export const userRouter = os.router({
+  deleteUser: os.use(requireUser).deleteUser.handler(async ({ context }) => {
     const userId = context.user.id;
 
     // ON DELETE CASCADE takes the replies, likes and flags under the user's
@@ -44,7 +48,7 @@ export const userRouter = {
     return { user: null };
   }),
 
-  getUser: publicProcedure.input(getUserInput).handler(async ({ context, input }) => {
+  getUser: os.getUser.handler(async ({ context, input }) => {
     const response = await context.db.query.user.findFirst({
       columns: {
         displayImage: true,
@@ -66,7 +70,7 @@ export const userRouter = {
    *  to the one asked for — the predicate could not be pushed down. It now calls
    *  the `getUserStats(text)` function, which pushes the userId into the CTEs.
    *  Same columns, same numbers (characterized against the view for all users). */
-  getUserStats: publicProcedure.input(getUserStatsInput).handler(async ({ context, input }) => {
+  getUserStats: os.getUserStats.handler(async ({ context, input }) => {
     const [row] = await context.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
 
     return {
@@ -78,7 +82,7 @@ export const userRouter = {
     };
   }),
 
-  updateUser: protectedProcedure.input(updateUserInput).handler(async ({ context, input }) => {
+  updateUser: os.use(requireUser).updateUser.handler(async ({ context, input }) => {
     const updates: Partial<typeof user.$inferInsert> = {};
 
     if (input.email !== undefined) {
@@ -107,4 +111,4 @@ export const userRouter = {
       user: response,
     };
   }),
-};
+});
