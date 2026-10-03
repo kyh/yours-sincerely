@@ -143,7 +143,7 @@ bug — verified, it emits no `auth` DDL.
 
 ## Testing
 
-Test runner is Node's built-in `node:test` + `node:assert/strict`. **Do not add vitest or jest.**
+Test runner is Node's built-in `node:test` + `node:assert/strict`.
 
 - `pnpm test` — unit suites (`*.test.ts`), no I/O, runs in CI.
 - `pnpm -F @repo/api test:db` — integration suites (`*.integration.ts`) against a local
