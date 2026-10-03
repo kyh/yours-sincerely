@@ -13,7 +13,7 @@ import { WEB_ORIGIN } from "@repo/contracts/site";
 import { toast } from "@repo/ui/components/sonner";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
-import type { FeedPost } from "@repo/api";
+import type { FeedPost } from "@repo/contracts/post-contract";
 
 interface Props {
   post: FeedPost;

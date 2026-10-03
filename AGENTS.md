@@ -116,9 +116,9 @@ when you touch a router, a query or the schema.
 and `lint` fails on the first one. `no-await-in-loop` is the one deliberate override (sequential
 awaits are intentional). `no-restricted-imports` draws the package boundaries: `@repo/db` is off
 limits in `apps/web`, `apps/expo`, `packages/contracts` and `packages/ui` (only `packages/api` talks
-to Postgres), and `apps/expo` may import `@repo/api` for types only. Prefer fixing code over
-`oxlint-disable` comments; when a rule is genuinely wrong for a line, disable that line with a
-`-- reason`.
+to Postgres), and `apps/expo` may not import `@repo/api` at all (wire types come from
+`@repo/contracts/app-contract`). Prefer fixing code over `oxlint-disable` comments; when a rule
+is genuinely wrong for a line, disable that line with a `-- reason`.
 
 Runtime — drive the real web UI with [agent-browser](https://github.com/vercel-labs/agent-browser).
 The core flow needs no login:
