@@ -327,11 +327,7 @@ const privacySections: Section[] = [
           "audit our internal processes for compliance with legal and contractual requirements or our internal policies;",
         ),
       ],
-      [
-        t("enforce the terms and conditions that govern the Service, including our "),
-        link("/terms", "Terms of Use"),
-        t("; and"),
-      ],
+      [t("enforce the terms and conditions that govern the Service; and")],
       [
         t(
           "prevent, identify, investigate and deter fraudulent, harmful, unauthorized, unethical or illegal activity, including cyberattacks and identity theft.",
