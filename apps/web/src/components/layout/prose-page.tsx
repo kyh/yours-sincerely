@@ -75,9 +75,21 @@ const BlockContent = ({ block }: { block: Block }) => {
             <tbody>
               {block.rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <td key={cellIndex}>{cell}</td>
-                  ))}
+                  {row.map((cell, cellIndex) =>
+                    // A row's first cell names the row. `prose` styles only `tbody td`,
+                    // so the row header takes a first data cell's spacing itself.
+                    cellIndex === 0 ? (
+                      <th
+                        key={cellIndex}
+                        scope="row"
+                        className="py-[0.5714286em] ps-0 pe-[0.5714286em] text-start align-baseline font-semibold"
+                      >
+                        {cell}
+                      </th>
+                    ) : (
+                      <td key={cellIndex}>{cell}</td>
+                    ),
+                  )}
                 </tr>
               ))}
             </tbody>
