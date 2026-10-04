@@ -38,7 +38,7 @@ packages
 
 ### Install dependencies
 
-- [Node.js](https://nodejs.org/en) - LTS version recommended (>= 24)
+- [Node.js](https://nodejs.org/en) - LTS version recommended (24.x)
 - [Docker](https://www.docker.com/) - Used for running the database
 
 ### Local Development

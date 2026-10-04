@@ -9,7 +9,7 @@ import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
  */
 
 /** Every payload a push can carry, so a client parses a tapped notification
-    back into one of the contracts shapes rather than a loose dictionary. */
+    back into one of @repo/contract's shapes rather than a loose dictionary. */
 export type PushData = NewCommentNotificationData;
 
 export interface PushMessage {
