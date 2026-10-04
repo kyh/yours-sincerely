@@ -26,19 +26,19 @@ apps
      └─ Legacy Capacitor shell — superseded by apps/expo, pending removal
 
 packages
-  ├─ api
-  |  └─ oRPC router definitions and session/auth
-  ├─ contracts
-  |  └─ Shared domain: zod schemas and pure rules used by both web and expo
+  ├─ contract
+  |  └─ oRPC contract, plus the shared domain: zod schemas and pure rules used by both web and expo
   ├─ db
   |  └─ Drizzle schema and Postgres client
+  ├─ service
+  |  └─ oRPC routers implementing the contract, and session/auth
   └─ ui
      └─ UI package for the webapp using shadcn-ui
 ```
 
 ### Install dependencies
 
-- [Node.js](https://nodejs.org/en) - LTS version recommended (>= 24)
+- [Node.js](https://nodejs.org/en) - LTS version recommended (24.x)
 - [Docker](https://www.docker.com/) - Used for running the database
 
 ### Local Development

@@ -518,7 +518,7 @@ export const feed = pgView("Feed", {
 // caller asked for — and it is fired on profile-link HOVER. It is now the
 // `public."getUserStats"(text)` FUNCTION in `sql/040-user-stats.sql`, which pushes
 // the userId into the CTEs so the work is proportional to one user's posts. The
-// streak logic is a verbatim port; `packages/api/src/user/user-router.ts` calls it.
+// streak logic is a verbatim port; `packages/service/src/user/user-router.ts` calls it.
 //
 // Its absence from this file is what makes push drop it — unlike `Feed` above,
 // which push would have silently left alone. Removing a view here works; changing

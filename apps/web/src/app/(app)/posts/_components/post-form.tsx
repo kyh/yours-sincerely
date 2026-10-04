@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
-import { createPostInput } from "@repo/contracts/post";
-import { resolveDisplayName } from "@repo/contracts/user";
+import { POST_EXPIRY_DAYS } from "@repo/contract/content";
+import { createPostInput } from "@repo/contract/post";
+import { resolveDisplayName } from "@repo/contract/user";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ import { addDays, format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type { CreatePostInput } from "@repo/contracts/post";
+import type { CreatePostInput } from "@repo/contract/post";
 import { balloons } from "@/components/animations/balloons";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useIdentityScope } from "@/lib/use-identity-scope";

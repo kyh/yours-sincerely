@@ -13,7 +13,7 @@ import { QueryErrorState } from "@/components/ui/query-error-state";
 import { PostContent } from "@/components/post/post-content";
 import { PostForm } from "@/components/post/post-form";
 import { orpc } from "@/lib/api";
-import { getReadingTime } from "@repo/contracts/content";
+import { getReadingTime } from "@repo/contract/content";
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
 /** Port of apps/web (app)/posts/[postId]/post-page.tsx. */

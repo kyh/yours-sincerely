@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { appRouter, createORPCContext } from "@repo/api";
+import { appRouter, createORPCContext } from "@repo/service";
 import { COMMON_ERROR_STATUS_MAP, onError, ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
@@ -9,7 +9,7 @@ import { RPCHandler } from "@orpc/server/fetch";
 // React Native does not enforce CORS.
 //
 // The session cookie's SameSite=lax (see `sessionCookieOptions` in
-// packages/api/src/auth/session-core.ts) covers the cross-SITE half: a forged
+// packages/service/src/auth/session-core.ts) covers the cross-SITE half: a forged
 // POST from another site reaches the handler carrying no session and does
 // nothing. `isCrossOrigin` below covers the rest. CORS headers paired with
 // Allow-Credentials would hand a cross-origin page an authenticated path in and
@@ -21,7 +21,7 @@ const handler = new RPCHandler(appRouter, {
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
       // An ORPCError is a router answering deliberately: an anonymous hit on a
-      // `protectedProcedure`, a failed sign-in, a duplicate signup email.
+      // protected procedure, a failed sign-in, a duplicate signup email.
       // Everything else is a fault, and this log is the only place its cause —
       // in practice a raw Postgres exception — survives, because oRPC hands the
       // client a generic INTERNAL_SERVER_ERROR in its place.

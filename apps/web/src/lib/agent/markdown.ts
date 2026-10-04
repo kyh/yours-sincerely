@@ -1,4 +1,4 @@
-import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
+import { POST_EXPIRY_DAYS } from "@repo/contract/content";
 
 import { siteConfig } from "@/lib/site-config";
 

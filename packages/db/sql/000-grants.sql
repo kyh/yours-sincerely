@@ -4,7 +4,7 @@
 -- This one line was the only thing in 401 lines that was ours.
 --
 -- Postgres grants USAGE on `public` to PUBLIC by default, i.e. to every role that
--- can open a connection. Nothing should reach these tables except `packages/api`,
+-- can open a connection. Nothing should reach these tables except `packages/service`,
 -- which connects as the owner and holds the Postgres connection directly.
 --
 -- This is defence in depth, not the actual defence: the Supabase Data API

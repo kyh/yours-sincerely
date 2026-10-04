@@ -5,7 +5,7 @@
 -- the account into `public."User"`. Then signup moved to the hand-rolled path,
 -- which hashes into `public."User"."passwordHash"`. The existing passwords were
 -- never carried across, and `signInWithPassword`
--- (`packages/api/src/auth/auth-router.ts`) reads ONLY `passwordHash`:
+-- (`packages/service/src/auth/auth-router.ts`) reads ONLY `passwordHash`:
 --
 --     if (!existingUser?.passwordHash) -> reject
 --
@@ -16,7 +16,7 @@
 --
 -- WHY A COPY IS SAFE, AND EXACT. Supabase Auth (GoTrue) stores bcrypt. Measured
 -- against production: all 485 stranded hashes are `$2a$10$`, length 60. This app
--- uses bcryptjs at `SALT_ROUNDS = 10` (`packages/api/src/auth/session.ts`). Same
+-- uses bcryptjs at `SALT_ROUNDS = 10` (`packages/service/src/auth/session.ts`). Same
 -- algorithm, same cost, same encoding — `bcryptjs.compare` accepts these verbatim.
 -- Nothing is re-hashed and no password is read, derived or weakened; the hash moves
 -- column to column inside one database. Users sign in with the password they

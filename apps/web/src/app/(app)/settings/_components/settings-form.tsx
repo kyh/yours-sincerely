@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserInput } from "@repo/contracts/user";
+import { updateUserInput } from "@repo/contract/user";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +33,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-import type { UpdateUserInput } from "@repo/contracts/user";
+import type { UpdateUserInput } from "@repo/contract/user";
 import {
   refreshProfileData,
   refreshWorkspaceIdentity,

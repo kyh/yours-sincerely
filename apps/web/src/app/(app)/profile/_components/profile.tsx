@@ -17,7 +17,7 @@ import {
   HEATMAP_DAYS,
   HEATMAP_WIDE_MIN_WIDTH,
   PROFILE_CALENDAR_THEMES,
-} from "@repo/contracts/calendar";
+} from "@repo/contract/calendar";
 import { ProfileForm } from "./profile-form";
 
 interface ProfileProps {
