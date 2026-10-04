@@ -3,7 +3,7 @@ import { View } from "react-native";
 import type { TextInput } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { signInWithPasswordInput, signUpInput } from "@repo/contracts/auth";
+import { signInWithPasswordInput, signUpInput } from "@repo/contract/auth";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 

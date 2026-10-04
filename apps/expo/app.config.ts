@@ -5,7 +5,7 @@ import {
   MOBILE_DEEP_LINK_PATH_PREFIXES,
   MOBILE_IOS_BUNDLE_ID,
   WEB_HOST,
-} from "@repo/contracts/mobile-identity";
+} from "@repo/contract/mobile-identity";
 
 const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
   // Set per build profile in eas.json. eas-cli applies a profile's `env` when

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Linking, Platform, Pressable, Share } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { WEB_ORIGIN } from "@repo/contracts/site";
+import { WEB_ORIGIN } from "@repo/contract/site";
 import { ClipboardCopy, Share as ShareIcon } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import { toast } from "sonner-native";

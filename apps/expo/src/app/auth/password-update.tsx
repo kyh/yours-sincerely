@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { View } from "react-native";
 import type { TextInput } from "react-native";
 import { Redirect, useLocalSearchParams } from "expo-router";
-import { setPasswordFormInput, setPasswordInput } from "@repo/contracts/auth";
+import { setPasswordFormInput, setPasswordInput } from "@repo/contract/auth";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 import { z } from "zod";

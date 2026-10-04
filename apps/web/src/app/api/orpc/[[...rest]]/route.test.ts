@@ -12,7 +12,7 @@ import * as route from "./route";
  * dropping the origin check, adding CORS headers, exporting OPTIONS, or
  * admitting GET turns CI red instead of silently shipping a
  * cross-origin-reachable endpoint. The cookie half is pinned in
- * `packages/api/src/security-contracts.test.ts`.
+ * `packages/service/src/security-contracts.test.ts`.
  */
 
 interface PostOptions {

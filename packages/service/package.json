@@ -1,0 +1,36 @@
+{
+  "name": "@repo/service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "NODE_ENV=test node --import tsx --test --test-reporter=spec 'src/**/*.test.ts'",
+    "test:db": "NODE_ENV=test RUN_DB_TESTS=1 pnpm with-env tsx --test --test-concurrency=1 --test-global-setup=./src/integration-setup.ts 'src/**/*.integration.ts'",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@orpc/server": "catalog:",
+    "@repo/contract": "workspace:^",
+    "@repo/db": "workspace:^",
+    "bcryptjs": "^3.0.3",
+    "cookie-signature": "^1.2.2",
+    "drizzle-orm": "catalog:",
+    "expo-server-sdk": "^7.2.0",
+    "next": "catalog:",
+    "resend": "^6.30.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@kyh/tsconfig": "catalog:",
+    "@types/cookie-signature": "^1.1.2",
+    "@types/node": "catalog:",
+    "dotenv-cli": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,8 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contracts/auth";
-import { nextFeedLayout } from "@repo/contracts/preferences";
+import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contract/auth";
+import { nextFeedLayout } from "@repo/contract/preferences";
 
 import { FEED_LAYOUT_COOKIE, getFeedLayout } from "./feed-layout";
 

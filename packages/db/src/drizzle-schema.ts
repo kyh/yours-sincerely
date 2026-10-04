@@ -56,6 +56,9 @@ export const user = pgTable(
   },
   (table) => [
     uniqueIndex("User_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
+    /** Backs the case-insensitive email lookup. Not unique: accounts that differ
+        only in case exist and must be merged by a person first. */
+    index("User_email_lower_idx").using("btree", sql`lower(${table.email})`),
   ],
 );
 
@@ -186,11 +189,14 @@ export const post = pgTable(
       table.userId.asc().nullsLast().op("text_ops"),
     ),
     index("Post_parentId_idx").using("btree", table.parentId.asc().nullsLast().op("text_ops")),
+    /** Cascades, as do `Like_postId_fkey` and `Flag_postId_fkey`: deleting a
+        letter takes its whole reply thread, and every like and flag on it, in
+        the one statement `deletePost` issues. */
     foreignKey({
       columns: [table.parentId],
       foreignColumns: [table.id],
       name: "Post_parentId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
@@ -303,7 +309,7 @@ export const like = pgTable(
       columns: [table.postId],
       foreignColumns: [post.id],
       name: "Like_postId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
@@ -369,7 +375,7 @@ export const flag = pgTable(
       columns: [table.postId],
       foreignColumns: [post.id],
       name: "Flag_postId_fkey",
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [user.id],
@@ -512,7 +518,7 @@ export const feed = pgView("Feed", {
 // caller asked for — and it is fired on profile-link HOVER. It is now the
 // `public."getUserStats"(text)` FUNCTION in `sql/040-user-stats.sql`, which pushes
 // the userId into the CTEs so the work is proportional to one user's posts. The
-// streak logic is a verbatim port; `packages/api/src/user/user-router.ts` calls it.
+// streak logic is a verbatim port; `packages/service/src/user/user-router.ts` calls it.
 //
 // Its absence from this file is what makes push drop it — unlike `Feed` above,
 // which push would have silently left alone. Removing a view here works; changing

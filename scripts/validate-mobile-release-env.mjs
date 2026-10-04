@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 
 // Node 22.18+ strips types, so the canonical identity constants import directly.
-import { MOBILE_ANDROID_PACKAGE } from "../packages/contracts/src/mobile-identity.ts";
+import { MOBILE_ANDROID_PACKAGE } from "../packages/contract/src/mobile-identity.ts";
 
 const webRequired = ["COOKIE_SECRET", "RESEND_API_KEY"];
 

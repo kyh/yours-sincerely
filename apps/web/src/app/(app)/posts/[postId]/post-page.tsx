@@ -5,7 +5,7 @@ import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
-import { getReadingTime } from "@repo/contracts/content";
+import { getReadingTime } from "@repo/contract/content";
 
 import { orpc } from "@/orpc/react";
 import { PostContent } from "../_components/post-content";
