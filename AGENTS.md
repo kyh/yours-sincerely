@@ -48,7 +48,7 @@ that reads or writes data cannot run there.
 `COOKIE_SECRET` signs the session cookie, and the session cookie **is** the user id. Under
 `NODE_ENV=development` or `test` an empty value falls back to a public dev constant, so
 `pnpm dev:web` works without one. Every other environment fails to boot without it — that
-is deliberate (`packages/api/src/auth/session-core.ts`) — and that includes `next build`,
+is deliberate (`packages/service/src/auth/session-core.ts`) — and that includes `next build`,
 which runs as production: `pnpm build` and `pnpm verify` fail on an empty secret. The
 quickstart generates one; by hand it is `openssl rand -base64 32` (32-character minimum).
 
@@ -106,19 +106,19 @@ and `next typegen`, which must not rewrite tracked files). The networked
 pnpm verify   # typecheck · lint · format · test · build
 ```
 
-`pnpm test` is `turbo run test`: the `*.test.ts` unit suites in `@repo/api`, `@repo/contracts`,
+`pnpm test` is `turbo run test`: the `*.test.ts` unit suites in `@repo/service`, `@repo/contract`,
 `@repo/db`, `@repo/web` and `@repo/expo`. The `*.integration.ts` suites need a live local
-Supabase and are deliberately outside CI — run them yourself with `pnpm -F @repo/api test:db`
+Supabase and are deliberately outside CI — run them yourself with `pnpm -F @repo/service test:db`
 when you touch a router, a query or the schema.
 
 **Lint is a clean gate.** `oxlint.config.ts` extends the ultracite presets (`ultracite/oxlint/core`,
-`react`, `anti-slop`, with `next` scoped to `apps/web` and `packages/api`); every rule is an error
-and `lint` fails on the first one. `no-await-in-loop` is the one deliberate override (sequential
-awaits are intentional). `no-restricted-imports` draws the package boundaries: `@repo/db` is off
-limits in `apps/web`, `apps/expo`, `packages/contracts` and `packages/ui` (only `packages/api` talks
-to Postgres), and `apps/expo` may import `@repo/api` for types only. Prefer fixing code over
-`oxlint-disable` comments; when a rule is genuinely wrong for a line, disable that line with a
-`-- reason`.
+`react`, `anti-slop`, with `next` scoped to `apps/web` and `packages/service`); every rule is an
+error and `lint` fails on the first one. `no-await-in-loop` is the one deliberate override
+(sequential awaits are intentional). `no-restricted-imports` draws the package boundaries:
+`@repo/db` is off limits in `apps/web`, `apps/expo`, `packages/contract` and `packages/ui` (only
+`packages/service` talks to Postgres), and `apps/expo` may not import `@repo/service` at all
+(wire types come from `@repo/contract`). Prefer fixing code over `oxlint-disable` comments; when
+a rule is genuinely wrong for a line, disable that line with a `-- reason`.
 
 Runtime — drive the real web UI with [agent-browser](https://github.com/vercel-labs/agent-browser).
 The core flow needs no login:
@@ -163,7 +163,7 @@ Capacitor→Expo session-migration fixture.
   would be silently replaced by any per-mutation handler. Add a `useMutation`, add its policy:
   `@/lib/query-policies` (both web and expo). Mutations go through oRPC,
   never a Next Server Action.
-- **Shared domain logic lives in `packages/contracts`**, used by both web and expo — not
+- **Shared domain logic lives in `packages/contract`**, used by both web and expo — not
   duplicated per platform.
 - **No `any`, no non-null `!`, no `as` casts.** Kebab-case filenames. Make illegal states
   unrepresentable.
@@ -177,10 +177,11 @@ Capacitor→Expo session-migration fixture.
 ## Map
 
 - `apps/web` (Next.js) · `apps/expo` (React Native) · `apps/mobile` (legacy Capacitor)
-- `packages/api` — oRPC routers, sessions, `env.ts` · `packages/contracts` — shared zod
-  schemas and pure rules · `packages/db` — Drizzle schema + `sql/` · `packages/ui` — shadcn
+- `packages/contract` — the oRPC contract, shared zod schemas and pure rules ·
+  `packages/service` — the routers implementing it, sessions, `env.ts` · `packages/db` —
+  Drizzle schema + `sql/` · `packages/ui` — shadcn
 - `CLAUDE.md` — architecture decisions and tracked constraints (read before changing anything
   structural) · `README.md` — human-facing setup · `docs/` — phone testing, release inputs,
   the legacy-to-Expo upgrade verification
-- `packages/api/src/auth/session.ts` + `session-core.ts` — the hand-rolled auth
+- `packages/service/src/auth/session.ts` + `session-core.ts` — the hand-rolled auth
   (**not** Supabase Auth) · `packages/db/src/drizzle-schema.ts` — the tables

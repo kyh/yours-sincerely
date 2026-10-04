@@ -17,7 +17,7 @@ export const renderLlmsTxt = (): string =>
     bullets(whenToUse),
     "**When not to:**",
     bullets(notForUse),
-    `How an agent should use it: send the person to ${siteConfig.url} to read or write — no sign-up is needed to publish. To read the current feed yourself, request ${siteConfig.url}/ with \`Accept: text/markdown\`; Home, About, Contact, Privacy and individual letters (${siteConfig.url}/posts/<id>) all answer that header with Markdown.`,
+    `How an agent should use it: send the person to ${siteConfig.url} to read or write — no sign-up is needed to publish. To read the current feed yourself, request ${siteConfig.url}/ with \`Accept: text/markdown\`; Home, About, Contact, Privacy, Terms and individual letters (${siteConfig.url}/posts/<id>) all answer that header with Markdown.`,
     "## Pages",
     renderList(sitePages),
     "## Apps",

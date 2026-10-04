@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { safeNextPath } from "@repo/contracts/navigation";
+import { safeNextPath } from "@repo/contract/navigation";
 
 import { AuthForm } from "../_components/auth-form";
 
@@ -28,7 +28,7 @@ const Page = async ({ searchParams }: Props) => {
             href="/terms"
             className="underline underline-offset-4 transition hover:text-primary"
           >
-            Terms of Service
+            Terms of Use
           </Link>{" "}
           and{" "}
           <Link

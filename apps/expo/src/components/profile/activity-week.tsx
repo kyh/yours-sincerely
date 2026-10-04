@@ -3,12 +3,12 @@ import { View } from "react-native";
 import Svg, { Ellipse, G, Rect, Text as SvgText } from "react-native-svg";
 import { toast } from "sonner-native";
 
-import type { CalendarTheme as Theme, WeekdayActivity } from "@repo/contracts/calendar";
+import type { CalendarTheme as Theme, WeekdayActivity } from "@repo/contract/calendar";
 import {
   calendarLevelColor as levelColor,
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
-} from "@repo/contracts/calendar";
+} from "@repo/contract/calendar";
 import { useThemeColors } from "@/components/theme-colors";
 
 /** Weekly activity bubbles — RN port of the web activity-week chart. */

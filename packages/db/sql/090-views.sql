@@ -51,7 +51,7 @@ DROP VIEW IF EXISTS "public"."Feed";
 -- `flagCount <= 3` is exactly the old `HAVING COUNT(*) > 3` exclusion, except over
 -- the established-flagger rule in `010-flagger.sql` rather than raw Flag rows.
 -- Reverting it to a raw count re-opens the four-cookieless-requests censorship
--- hole; `FLAG_HIDE_THRESHOLD` in `packages/api/src/post/post-utils.ts` mirrors the
+-- hole; `FLAG_HIDE_THRESHOLD` in `packages/service/src/post/post-utils.ts` mirrors the
 -- 3 for the permalink path.
 --
 -- Deliberately NO `ORDER BY`: `getFeed` orders, and the view's own ORDER BY forced
@@ -82,7 +82,7 @@ SELECT
   --
   -- NULLIF and 'Anonymous' because that is exactly what the permalink shows:
   -- `convertDbPostToFeedPost` applies `resolveDisplayName`, which reads a null OR
-  -- blank name as `ANONYMOUS_DISPLAY_NAME` (`@repo/contracts/user`). `getFeed`
+  -- blank name as `ANONYMOUS_DISPLAY_NAME` (`@repo/contract/user`). `getFeed`
   -- spreads raw view rows onto the wire without it, so doing it here is what keeps
   -- the feed and the permalink telling the same story about the same letter.
   COALESCE(NULLIF(p."createdBy", ''), 'Anonymous') AS "createdBy",

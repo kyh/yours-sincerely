@@ -1,5 +1,5 @@
 import { View, useWindowDimensions } from "react-native";
-import { FEED_PAGE_SIZE } from "@repo/contracts/post";
+import { FEED_PAGE_SIZE } from "@repo/contract/post";
 import { useQuery } from "@tanstack/react-query";
 
 import { CardStackProvider } from "@/components/post/card-stack";

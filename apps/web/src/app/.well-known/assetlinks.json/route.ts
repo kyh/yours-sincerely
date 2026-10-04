@@ -1,7 +1,7 @@
 import {
   MOBILE_ANDROID_CERT_SHA256_FINGERPRINTS,
   MOBILE_ANDROID_PACKAGE,
-} from "@repo/contracts/mobile-identity";
+} from "@repo/contract/mobile-identity";
 
 export const dynamic = "force-static";
 

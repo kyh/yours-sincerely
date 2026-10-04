@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import { supportMailto } from "@repo/contracts/site";
+import { supportMailto } from "@repo/contract/site";
 import { Button } from "@repo/ui/components/button";
 import {
   Drawer,

@@ -9,11 +9,11 @@ import {
   DrawerTitle,
 } from "@repo/ui/components/drawer";
 import { drawerItemClass } from "@/lib/drawer-item";
-import { WEB_ORIGIN } from "@repo/contracts/site";
+import { WEB_ORIGIN } from "@repo/contract/site";
 import { toast } from "@repo/ui/components/sonner";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 
-import type { FeedPost } from "@repo/api";
+import type { FeedPost } from "@repo/contract";
 
 interface Props {
   post: FeedPost;

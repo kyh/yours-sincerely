@@ -21,11 +21,11 @@ duplicate each other.
   `@capacitor/*` runtime inside `apps/web` (see "Architecture decisions"). Do not add
   features; do not delete either without reading "Architecture decisions" first.
 - **DB**: Postgres (Supabase) + Drizzle ORM
-- **Auth**: hand-rolled signed-cookie sessions (`packages/api/src/auth/session.ts`).
+- **Auth**: hand-rolled signed-cookie sessions (`packages/service/src/auth/session.ts`).
   **Not Supabase Auth.** Supabase is the Postgres host and local CLI only.
   Read "Architecture decisions" before changing anything here.
-- **Notifications**: in-house feed (`Notification` table, `packages/api/src/notification`)
-  - Expo push (`packages/api/src/push`). No third-party service.
+- **Notifications**: in-house feed (`Notification` table, `packages/service/src/notification`)
+  - Expo push (`packages/service/src/push`). No third-party service.
 - **Hosting**: Vercel
 
 ## Structure
@@ -38,21 +38,32 @@ apps/
                # applicationId still matches the live Play Store package, so it is
                # the only source that can rebuild the legacy Android artifact.
 packages/
-  api/         # oRPC routers + auth/session
-  contracts/   # SHARED domain: zod schemas + pure rules used by BOTH web and expo.
+  contract/    # SHARED domain: zod schemas + pure rules used by BOTH web and expo,
+               # and the oRPC contract both clients type against.
                # Shared domain logic belongs HERE, not duplicated per-platform.
   db/          # Drizzle schema, Postgres client
+  service/     # oRPC implementation of the contract + auth/session, push, notifications
   ui/          # shadcn-ui components (web only)
 ```
 
-**oRPC routers are going contract-first.** A router's wire shape is an `oc` contract in
-`packages/contracts/src/<router>-contract.ts`, implemented in `packages/api` with
-`implement()`. Only `post` is converted so far and it is the reference; the rest still use
-the builder until each gets its own PR, and a new router starts contract-first. Outputs are
-`type<T>()`: compile-time only, no runtime validation. Apply `requireUser` on the
-implementer (`os.use(requireUser).deletePost`), never on the procedure: there it runs after
-input validation and an anonymous malformed call answers 400, not 401. Expo drops
-`@repo/api` once every router is converted.
+**Contract-first API.** `@repo/contract` is the single source of truth for the wire: each
+router has `src/<router>/<router>-contract.ts`, built on `publicBase` / `protectedBase` from
+`base.ts` (both plain `oc`: they name the kind of procedure and declare no errors), and
+`src/index.ts` assembles them into `contract`. A new procedure starts in its contract.
+Inputs are zod; the ones forms also use live in the flat domain modules (`auth.ts`,
+`post.ts`, `user.ts`, `notifications.ts`). Outputs are `type<T>()` over wire interfaces
+written in the contract: compile-time only, no runtime validation, and never a `@repo/db`
+type, because Expo compiles the contract. `@repo/service` implements it with one
+`os = implement(contract)` in `src/orpc.ts`: public procedures are
+`os.<router>.<proc>.handler(...)`; protected ones take `requireUser` on the implementer
+(`const authed = os.<router>.use(requireUser)`, then `authed.<proc>.handler(...)`), never on
+the procedure: there it runs after input validation and an anonymous malformed call answers
+400, not 401 (`src/auth/orpc-middleware.test.ts` checks every protected procedure). Routers
+stay plain objects, because `os.<router>.router()` re-applies implementer middleware, so it
+would run twice; only `root-router.ts` calls `os.router()`, which fails to compile if a
+procedure is missing or mistyped. Clients type against `ContractClient` / `RouterInputs` /
+`RouterOutputs` (plus `FeedPost`, `FeedFilters`) from `@repo/contract`; only the web route
+handler and RSC caller import `@repo/service`, and lint bans it from `apps/expo` outright.
 
 ## Commands
 
@@ -152,10 +163,10 @@ bug — verified, it emits no `auth` DDL.
 
 ## Testing
 
-Test runner is Node's built-in `node:test` + `node:assert/strict`. **Do not add vitest or jest.**
+Test runner is Node's built-in `node:test` + `node:assert/strict`.
 
 - `pnpm test` — unit suites (`*.test.ts`), no I/O, runs in CI.
-- `pnpm -F @repo/api test:db` — integration suites (`*.integration.ts`) against a local
+- `pnpm -F @repo/service test:db` — integration suites (`*.integration.ts`) against a local
   Supabase. Not run in CI (CI has no Supabase). Needs `COOKIE_SECRET` of at least 32
   chars, and an `auth.users` table for the legacy-rescue suite (local Supabase has one; a
   bare Postgres does not). Runs with `--test-concurrency=1`: the files share one database
@@ -164,13 +175,13 @@ Test runner is Node's built-in `node:test` + `node:assert/strict`. **Do not add 
 The pattern to follow for anything with I/O: extract a pure, dependency-injected core
 (`*-core.ts`) and test it with in-memory fakes. The exemplars are
 `apps/expo/src/lib/legacy-session-migration-core.ts` and
-`packages/api/src/auth/session-core.ts` — read one before writing new tests.
+`packages/service/src/auth/session-core.ts` — read one before writing new tests.
 
 Test globs in package.json scripts MUST stay single-quoted (`'src/**/*.test.ts'`) so
 /bin/sh cannot expand them and silently narrow the test run.
 
-Relative imports inside `packages/contracts` end in `.ts`: the api and expo suites load it
-under plain `node --test`, whose type stripping resolves no extensionless specifier.
+Relative imports inside `packages/contract` end in `.ts`: the expo suite loads it under
+plain `node --test`, whose type stripping resolves no extensionless specifier.
 
 ## Architecture decisions — do not reverse
 
@@ -180,12 +191,12 @@ failure mode that is silent and severe. Read this section before "fixing" any of
 ### Sessions are hand-rolled, not Supabase Auth
 
 Sessions are a signed cookie: `base64({user, iat})` signed with `COOKIE_SECRET` via
-`cookie-signature`. Implementation: `packages/api/src/auth/session.ts`.
+`cookie-signature`. Implementation: `packages/service/src/auth/session.ts`.
 
 **Why:**
 
 1. **Anonymous-first identity.** Writing a letter requires no account. The server mints a
-   credential-less `User` row on first write (`packages/api/src/auth/auth-utils.ts`,
+   credential-less `User` row on first write (`packages/service/src/auth/auth-utils.ts`,
    `createUserIfNotExists`) and hands back a session. A stock auth provider has no model
    for "a user with no credentials, created as a side effect of a POST" — and this is the
    product's core act, not an edge case.
@@ -212,10 +223,10 @@ every existing anonymous author from their letters.
 ### The Supabase Data API is OFF — that is why there are no RLS policies
 
 There is not a single RLS policy in this repo, and that is correct: nothing can reach the
-tables except `packages/api`, which holds the Postgres connection directly.
+tables except `packages/service`, which holds the Postgres connection directly.
 
 **If anyone re-enables the Data API (PostgREST), every table in `public` becomes directly
-readable and writable with the anon key, bypassing all of `packages/api`** — every
+readable and writable with the anon key, bypassing all of `packages/service`** — every
 authorization check, rate limit, and input cap in the oRPC layer becomes optional. Turning
 it on without first writing RLS policies for every table is a full data breach, not a
 config change.
@@ -241,7 +252,7 @@ It is tempting to delete `apps/mobile` on the grounds that its `appId`
 
 On Android it is the opposite: `apps/mobile/android/app/build.gradle` declares
 `applicationId "com.kyh.yourssincerely"`, which is **exactly** `MOBILE_ANDROID_PACKAGE` in
-`packages/contracts/src/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
+`packages/contract/src/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
 is the only source in the repo that can rebuild the shipped legacy **Android** app, and
 the release gate (GitHub issue #125) still has its store-delivered Capacitor → Expo
 identity check open on physical phones (the emulator journey passed; the Play-delivered
@@ -253,14 +264,14 @@ installs the public store build, which would make deletion safe). Tracked as Git
 ### Web and native UI stay separate
 
 `apps/web` and `apps/expo` each own their presentation code; they share domain logic only
-through `packages/contracts` — zod schemas and pure domain rules. The goal is better native
+through `packages/contract` — zod schemas and pure domain rules. The goal is better native
 quality without sharing presentation code; a DOM/native component layer is not.
 
 - **Sign-up upgrades the anonymous user in place.** When a session exists, `auth.signUp` sets
   email and password on the current user rather than minting one, so pre-sign-up letters
   and likes stay theirs.
 - **External legal pages are acceptable.** Native About, Privacy and Terms open the website.
-- **Preserve the avatar mapping.** `getLegacyAvatarIndex` (`packages/contracts/src/content.ts`)
+- **Preserve the avatar mapping.** `getLegacyAvatarIndex` (`packages/contract/src/content.ts`)
   hashes the display name modulo `LEGACY_AVATAR_COUNT`. Changing the hash or the modulus —
   adding an avatar counts — reshuffles every existing user's avatar.
 
@@ -269,12 +280,12 @@ disconnected from the current brand; a database schema rewrite.
 
 ### Stored emails keep their casing; lookup is exact first
 
-`findUserByEmail` (`packages/api/src/auth/email-identity.ts`) backs sign-in and password
+`findUserByEmail` (`packages/service/src/auth/email-identity.ts`) backs sign-in and password
 reset: exact match first, then `lower(email)` only when that names ONE account. Accounts that
 differ only in case exist, and only an exact match reaches either.
 
 **Nothing rewrites a stored address's case** — no backfill, no lowercase on write
-(`emailAddress` in `packages/contracts/src/auth.ts` only trims). Every earlier deploy looks
+(`emailAddress` in `packages/contract/src/auth.ts` only trims). Every earlier deploy looks
 up by exact match, so the moment a stored casing changes, a rollback locks its owner out of
 the casing they have always used. Lowercasing stored rows and a unique index on
 `lower(email)` wait until the exact-first lookup is past any rollback horizon and a person
@@ -309,7 +320,7 @@ has merged the case-twins. Until then `isEmailTaken` refuses new case-duplicates
   strict env mode strips undeclared system variables, and Vercel supplies env as system
   variables; `.env` (loaded inside the task by `dotenv`) hides the gap locally. A missing
   `COOKIE_SECRET` or `POSTGRES_URL` fails the Vercel build; a missing optional var builds
-  silently without it, outside the cache key. The build loads `packages/api` at module level:
+  silently without it, outside the cache key. The build loads `packages/service` at module level:
   `COOKIE_SECRET`, `COOKIE_SECRET_LEGACY` (`auth/session.ts`), `POSTGRES_URL`
   (`db/src/drizzle-client.ts`), `RESEND_API_KEY`, `RESET_LINK_ORIGIN` (`env.ts`). Do not move them
   back to `globalEnv`: there they bust every typecheck and test cache.
