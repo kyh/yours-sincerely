@@ -4,8 +4,8 @@ import { Spinner } from "@repo/ui/components/spinner";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
-import type { FeedFilters } from "@repo/api";
-import type { FeedLayout } from "@repo/contracts/preferences";
+import type { FeedFilters } from "@repo/contract";
+import type { FeedLayout } from "@repo/contract/preferences";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
 import { feedInfiniteArgs } from "@/lib/feed-query";

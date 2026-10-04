@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { appRouter, createORPCContext } from "@repo/api";
+import { appRouter, createORPCContext } from "@repo/service";
 import { ORPCError, createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";

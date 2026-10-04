@@ -1,10 +1,10 @@
 "use client";
 
 import { ThemeProvider as NextThemeProvider } from "next-themes";
-import { THEME_IDS, THEME_LABELS } from "@repo/contracts/preferences";
-import type { ThemeId } from "@repo/contracts/preferences";
+import { THEME_IDS, THEME_LABELS } from "@repo/contract/preferences";
+import type { ThemeId } from "@repo/contract/preferences";
 
-export { isDarkThemeId as isDarkTheme } from "@repo/contracts/preferences";
+export { isDarkThemeId as isDarkTheme } from "@repo/contract/preferences";
 
 export { useTheme } from "next-themes";
 

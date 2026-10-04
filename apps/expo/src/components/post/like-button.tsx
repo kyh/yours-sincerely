@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
-import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
-import { createLikeMutationHandlers } from "@repo/contracts/like-cache";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contract/content";
+import { createLikeMutationHandlers } from "@repo/contract/like-cache";
 import { ORPCError } from "@orpc/client";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";

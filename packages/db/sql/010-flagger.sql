@@ -41,7 +41,7 @@ AS $$
 $$;
 
 -- Decides `countsTowardHide` once, at insert time. The application never writes
--- that column; see `packages/api/src/flag/flag-router.ts`.
+-- that column; see `packages/service/src/flag/flag-router.ts`.
 --
 -- Frozen at insert time on purpose: "established" depends on wall-clock age, so a
 -- live rule could not be denormalized onto Post."flagCount" without a cron

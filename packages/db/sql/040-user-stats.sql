@@ -19,7 +19,7 @@
 -- so there is no privilege to escalate) and every object it touches is
 -- schema-qualified. Do NOT add a SET clause without re-measuring.
 --
--- Called from `packages/api/src/user/user-router.ts`; the row shape is mirrored by
+-- Called from `packages/service/src/user/user-router.ts`; the row shape is mirrored by
 -- `userStatsRow` in `user-schema.ts`.
 CREATE OR REPLACE FUNCTION public."getUserStats"(target_user_id text)
 RETURNS TABLE (

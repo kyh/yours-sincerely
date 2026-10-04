@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { View, useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { THEME_IDS, THEME_LABELS, isThemeId } from "@repo/contracts/preferences";
-import type { ResolvedThemeId, ThemeId } from "@repo/contracts/preferences";
+import { THEME_IDS, THEME_LABELS, isThemeId } from "@repo/contract/preferences";
+import type { ResolvedThemeId, ThemeId } from "@repo/contract/preferences";
 
 import { ignoreRejection } from "@/lib/ignore-rejection";
 
-export { isDarkThemeId as isDarkTheme } from "@repo/contracts/preferences";
+export { isDarkThemeId as isDarkTheme } from "@repo/contract/preferences";
 
 const themeColors = {
   dark: "hsl(60 6% 5%)",
@@ -23,7 +23,7 @@ export const themes = THEME_IDS.map((id) => ({
   label: THEME_LABELS[id],
 }));
 
-export type { ThemeId } from "@repo/contracts/preferences";
+export type { ThemeId } from "@repo/contract/preferences";
 
 const THEME_STORAGE_KEY = "theme";
 

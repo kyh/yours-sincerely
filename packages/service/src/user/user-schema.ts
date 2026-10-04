@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+/** The row shape of `public."getUserStats"(text)` (`sql/040-user-stats.sql`).
+ *
+ *  The counts come back from Postgres as `bigint`/`numeric`, which the driver
+ *  hands over as strings; the old `UserStats` view was read through Drizzle,
+ *  which coerced them to numbers. `z.coerce.number()` keeps the wire shape
+ *  byte-identical to what both clients already consume — and parsing at the
+ *  boundary is what lets `db.execute` be typed without a single `as`. */
+export const userStatsRow = z.object({
+  currentPostStreak: z.coerce.number(),
+  displayName: z.string().nullable(),
+  longestPostStreak: z.coerce.number(),
+  totalLikeCount: z.coerce.number(),
+  totalPostCount: z.coerce.number(),
+  userId: z.string(),
+});

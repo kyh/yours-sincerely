@@ -11,7 +11,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { supportMailto } from "@repo/contracts/site";
+import { supportMailto } from "@repo/contract/site";
 import { toast } from "sonner-native";
 import { useRouter } from "expo-router";
 import {

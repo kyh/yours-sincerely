@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Linking, Pressable, useWindowDimensions } from "react-native";
-import { reportPostMailto } from "@repo/contracts/site";
+import { reportPostMailto } from "@repo/contract/site";
 import { useMutation } from "@tanstack/react-query";
 import { Ban, Flag, MoreVertical, Trash2, TriangleAlert } from "lucide-react-native";
 import { toast } from "sonner-native";

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { FEED_PAGE_SIZE } from "@repo/contracts/post";
+import { FEED_PAGE_SIZE } from "@repo/contract/post";
 
 import { MARKDOWN_CONTENT_TYPE } from "@/lib/agent/accept";
 import {
@@ -10,7 +10,7 @@ import {
   renderProsePageMarkdown,
 } from "@/lib/agent/markdown";
 import { resolveMarkdownRoute } from "@/lib/agent/markdown-routes";
-import { contactPage, privacyPage } from "@/lib/agent/site-pages";
+import { contactPage, privacyPage, termsPage } from "@/lib/agent/site-pages";
 import { caller } from "@/orpc/server";
 
 interface MarkdownParams {
@@ -57,6 +57,9 @@ const buildMarkdown = async (pathname: string): Promise<MarkdownResult> => {
     }
     case "privacy": {
       return found(renderProsePageMarkdown(privacyPage));
+    }
+    case "terms": {
+      return found(renderProsePageMarkdown(termsPage));
     }
     case "letter": {
       return letterMarkdown(pathname, route.postId);

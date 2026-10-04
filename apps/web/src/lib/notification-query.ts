@@ -1,4 +1,4 @@
-import type { RouterOutputs } from "@repo/api";
+import type { RouterOutputs } from "@repo/contract";
 
 type NotificationCursor = RouterOutputs["notification"]["list"]["nextCursor"];
 

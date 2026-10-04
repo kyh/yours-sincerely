@@ -1,5 +1,5 @@
 import type { Href } from "expo-router";
-import { safeNextPath } from "@repo/contracts/navigation";
+import { safeNextPath } from "@repo/contract/navigation";
 
 /** Keep the web's safe redirect behavior, then map supported destinations
     to typed native routes. Unknown web-only pages return to the feed. */

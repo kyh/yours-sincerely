@@ -1,4 +1,4 @@
-import { WEB_ORIGIN } from "@repo/contracts/site";
+import { WEB_ORIGIN } from "@repo/contract/site";
 import Constants from "expo-constants";
 
 /**

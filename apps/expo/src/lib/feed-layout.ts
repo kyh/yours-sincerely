@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react";
-import type { FeedLayout } from "@repo/contracts/preferences";
+import type { FeedLayout } from "@repo/contract/preferences";
 
 /** Feed layout preference — mirrors the web `postView` cookie
     (apps/web/src/lib/feed-layout-actions.ts), stored in AsyncStorage. */
-export type { FeedLayout } from "@repo/contracts/preferences";
+export type { FeedLayout } from "@repo/contract/preferences";
 
 export const FEED_LAYOUT_STORAGE_KEY = "postView";
 
