@@ -1,0 +1,40 @@
+{
+  "name": "@repo/contract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth.ts",
+    "./base": "./src/base.ts",
+    "./calendar": "./src/calendar.ts",
+    "./content": "./src/content.ts",
+    "./like-cache": "./src/like-cache.ts",
+    "./mobile-identity": "./src/mobile-identity.ts",
+    "./navigation": "./src/navigation.ts",
+    "./notifications": "./src/notifications.ts",
+    "./post": "./src/post.ts",
+    "./post/post-contract": "./src/post/post-contract.ts",
+    "./preferences": "./src/preferences.ts",
+    "./query-retry": "./src/query-retry.ts",
+    "./site": "./src/site.ts",
+    "./user": "./src/user.ts"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "tsx --test --test-reporter=spec 'src/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@orpc/contract": "catalog:",
+    "date-fns": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@kyh/tsconfig": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

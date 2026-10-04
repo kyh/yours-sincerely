@@ -170,7 +170,7 @@ Passing the Capacitor fixture alone does not close the physical upgrade gates.
 
 ## App links
 
-The existing store identity is committed in `packages/contracts/src/mobile-identity.ts`.
+The existing store identity is committed in `packages/contract/src/mobile-identity.ts`.
 It preserves iOS `com.tehkaiyu.yourssincerely` and Android `com.kyh.yourssincerely`.
 It drives Expo configuration and both web association files.
 

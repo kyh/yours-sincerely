@@ -22,7 +22,7 @@
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@repo/contracts": "workspace:*",
+    "@repo/contract": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "class-variance-authority": "catalog:",
     "cn": "catalog:",

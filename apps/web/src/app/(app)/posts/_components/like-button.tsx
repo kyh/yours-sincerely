@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { LIKE_BURST_COLOR_PAIRS } from "@repo/contracts/content";
-import { createLikeMutationHandlers } from "@repo/contracts/like-cache";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contract/content";
+import { createLikeMutationHandlers } from "@repo/contract/like-cache";
 import { toast } from "@repo/ui/components/sonner";
 import NumberFlow from "@number-flow/react";
 import { ORPCError } from "@orpc/client";
@@ -10,8 +10,7 @@ import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { m } from "motion/react";
 
-import type { RouterOutputs } from "@repo/contracts/app-contract";
-import type { FeedPost } from "@repo/contracts/post-contract";
+import type { FeedPost, RouterOutputs } from "@repo/contract";
 import {
   markPostContentStale,
   refreshPostContent,

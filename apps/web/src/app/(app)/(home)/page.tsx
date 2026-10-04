@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { FEED_PAGE_SIZE } from "@repo/contracts/post";
+import { FEED_PAGE_SIZE } from "@repo/contract/post";
 import { cn } from "cn";
 
-import type { FeedFilters } from "@repo/contracts/app-contract";
+import type { FeedFilters } from "@repo/contract";
 import { PostFeed } from "@/app/(app)/posts/_components/post-feed";
 import { NewPostButton, PostForm } from "@/app/(app)/posts/_components/post-form";
 import { PageAside, PageContent, PageHeader } from "@/components/layout/page-layout";

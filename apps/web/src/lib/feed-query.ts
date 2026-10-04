@@ -1,4 +1,4 @@
-import type { FeedFilters, RouterOutputs } from "@repo/contracts/app-contract";
+import type { FeedFilters, RouterOutputs } from "@repo/contract";
 
 type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 

@@ -1,5 +1,5 @@
 import type { Href } from "expo-router";
-import type { NotificationTargetData } from "@repo/contracts/notifications";
+import type { NotificationTargetData } from "@repo/contract/notifications";
 
 /** Typed route for a parsed notification payload — shared by the in-app
     feed rows and native push responses so both open the same screen. */

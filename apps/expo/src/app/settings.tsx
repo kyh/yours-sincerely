@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import { useRouter } from "expo-router";
-import { updateUserInput } from "@repo/contracts/user";
+import { updateUserInput } from "@repo/contract/user";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 

@@ -5,7 +5,7 @@ import { createORPCClient } from "@orpc/client";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
-import type { AppClient } from "@repo/contracts/app-contract";
+import type { ContractClient } from "@repo/contract";
 
 interface Workspace {
   userId: string | null;
@@ -21,7 +21,7 @@ it("updates retained tab observers and drops inactive account data on account ch
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
   // Only the query keys are used; every request below goes through its own queryFn.
-  const client: AppClient = createORPCClient({
+  const client: ContractClient = createORPCClient({
     call: () => Promise.reject(new Error("No network in unit tests")),
   });
   const orpc = createTanstackQueryUtils(client);

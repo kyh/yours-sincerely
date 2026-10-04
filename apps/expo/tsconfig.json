@@ -5,9 +5,9 @@
     "checkJs": false,
     "allowImportingTsExtensions": true,
     "moduleSuffixes": [".ios", ".android", ".native", ""],
-    // The *.test.ts suites run under node, and @repo/contracts uses `TextEncoder`.
+    // The *.test.ts suites run under node, and @repo/contract uses `TextEncoder`.
     // TS 6 loads no @types package unless named; these used to arrive by
-    // accident, through the @repo/api source this app no longer imports.
+    // accident, through the server package's source this app no longer imports.
     "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]

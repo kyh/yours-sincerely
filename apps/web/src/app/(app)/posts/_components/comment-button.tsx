@@ -2,7 +2,7 @@ import Link from "next/link";
 import NumberFlow from "@number-flow/react";
 import { MessageCircleIcon } from "lucide-react";
 
-import type { FeedPost } from "@repo/contracts/post-contract";
+import type { FeedPost } from "@repo/contract";
 
 interface Props {
   post: FeedPost;

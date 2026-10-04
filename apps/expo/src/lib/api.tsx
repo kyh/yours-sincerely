@@ -4,7 +4,7 @@ import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { focusManager, QueryClient } from "@tanstack/react-query";
 
-import type { AppClient } from "@repo/contracts/app-contract";
+import type { ContractClient } from "@repo/contract";
 
 import { fetchWithSession } from "./api-fetch";
 import { getBaseUrl } from "./base-url";
@@ -51,7 +51,7 @@ const link = new RPCLink({
   url: "/api/orpc",
 });
 
-const client: AppClient = createORPCClient(link);
+const client: ContractClient = createORPCClient(link);
 
 /**
  * Typesafe query/mutation option builders — use with TanStack Query hooks:
@@ -59,5 +59,4 @@ const client: AppClient = createORPCClient(link);
  */
 export const orpc = createTanstackQueryUtils(client);
 
-export type { FeedFilters, RouterOutputs } from "@repo/contracts/app-contract";
-export type { FeedPost } from "@repo/contracts/post-contract";
+export type { FeedFilters, FeedPost, RouterOutputs } from "@repo/contract";

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { FEED_PAGE_SIZE } from "@repo/contracts/post";
+import { FEED_PAGE_SIZE } from "@repo/contract/post";
 
 import { MARKDOWN_CONTENT_TYPE } from "@/lib/agent/accept";
 import {

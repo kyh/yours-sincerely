@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { cn } from "cn";
 
-import type { FeedLayout } from "@repo/contracts/preferences";
-import type { FeedPost } from "@repo/contracts/post-contract";
+import type { FeedLayout } from "@repo/contract/preferences";
+import type { FeedPost } from "@repo/contract";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";
 import { LikeButton } from "./like-button";

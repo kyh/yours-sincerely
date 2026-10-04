@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { POST_EXPIRY_DAYS } from "@repo/contracts/content";
+import { POST_EXPIRY_DAYS } from "@repo/contract/content";
 
 import {
   renderHomeMarkdown,

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Modal, Pressable, useWindowDimensions, View } from "react-native";
-import { getExpiryProgress } from "@repo/contracts/content";
+import { getExpiryProgress } from "@repo/contract/content";
 import { formatDistance } from "date-fns";
 import Svg, { Circle, Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

@@ -1,10 +1,10 @@
 "use client";
 
-import { getExpiryProgress } from "@repo/contracts/content";
+import { getExpiryProgress } from "@repo/contract/content";
 import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
 import { formatDistance } from "date-fns";
 
-import type { FeedPost } from "@repo/contracts/post-contract";
+import type { FeedPost } from "@repo/contract";
 
 interface Props {
   post: FeedPost;

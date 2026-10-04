@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { resolveDisplayName } from "@repo/contracts/user";
+import { resolveDisplayName } from "@repo/contract/user";
 import { Button } from "@repo/ui/components/button";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
@@ -85,7 +85,7 @@ const BlockedList = () => {
 export const BlockedWriters = () => {
   const user = useWorkspaceUser();
 
-  // listBlocks is a protectedProcedure; an anonymous visitor has nothing to list.
+  // listBlocks is a protected procedure; an anonymous visitor has nothing to list.
   if (!user) {
     return null;
   }

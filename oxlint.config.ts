@@ -4,13 +4,13 @@ import core from "ultracite/oxlint/core";
 import next from "ultracite/oxlint/next";
 import react from "ultracite/oxlint/react";
 
-const nextPackages = ["apps/web/**", "packages/api/**"];
+const nextPackages = ["apps/web/**", "packages/service/**"];
 
-// The Data API is off, so packages/api is the only thing that may hold a
+// The Data API is off, so packages/service is the only thing that may hold a
 // Postgres connection; every authorization check lives there.
 const noDirectDatabase = {
   group: ["@repo/db", "@repo/db/*"],
-  message: "Only packages/api talks to Postgres. Go through an oRPC procedure.",
+  message: "Only packages/service talks to Postgres. Go through an oRPC procedure.",
 };
 
 export default defineConfig({
@@ -41,8 +41,8 @@ export default defineConfig({
             paths: [
               {
                 message:
-                  "Server code: it bundles next/headers, bcrypt and postgres into Metro. Wire types come from @repo/contracts/app-contract; shared runtime code belongs in @repo/contracts.",
-                name: "@repo/api",
+                  "Server code: it bundles next/headers, bcrypt and postgres into Metro. Wire types come from @repo/contract; shared runtime code belongs in @repo/contract.",
+                name: "@repo/service",
               },
             ],
             patterns: [noDirectDatabase],
@@ -51,7 +51,7 @@ export default defineConfig({
       },
     },
     {
-      files: ["apps/web/**", "packages/contracts/**", "packages/ui/**"],
+      files: ["apps/web/**", "packages/contract/**", "packages/ui/**"],
       rules: { "no-restricted-imports": ["error", { patterns: [noDirectDatabase] }] },
     },
   ],

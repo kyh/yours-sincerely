@@ -8,8 +8,8 @@
     },
     "plugins": [{ "name": "next" }],
     "module": "esnext",
-    // packages/contracts writes relative imports with `.ts` so the api and expo
-    // suites, which run on plain `node --test`, can load it without a loader.
+    // packages/contract writes relative imports with `.ts` so the expo suite,
+    // which runs on plain `node --test`, can load it without a loader.
     "allowImportingTsExtensions": true
   },
   "include": [".", ".next/types/**/*.ts"],
