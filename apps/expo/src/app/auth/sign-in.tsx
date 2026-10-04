@@ -1,6 +1,6 @@
 import { Pressable, View } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
-import { safeNextPath } from "@repo/contracts/navigation";
+import { safeNextPath } from "@repo/contract/navigation";
 
 import { AuthForm } from "@/components/auth/auth-form";
 import { AuthScreen } from "@/components/auth/auth-screen";

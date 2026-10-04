@@ -1,4 +1,4 @@
-import type { ResolvedThemeId } from "@repo/contracts/preferences";
+import type { ResolvedThemeId } from "@repo/contract/preferences";
 
 /** Raw palette values for props NativeWind classes can't reach
     (placeholderTextColor, SVG fills, navigation themes, spinners).

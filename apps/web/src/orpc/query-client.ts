@@ -1,5 +1,5 @@
 import { ORPCError, RPCSerializer } from "@orpc/client";
-import { isPermanentErrorCode, MAX_QUERY_RETRIES } from "@repo/contracts/query-retry";
+import { isPermanentErrorCode, MAX_QUERY_RETRIES } from "@repo/contract/query-retry";
 import {
   defaultShouldDehydrateQuery,
   environmentManager,

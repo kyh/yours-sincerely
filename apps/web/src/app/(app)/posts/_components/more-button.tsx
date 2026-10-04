@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
-import { reportPostMailto } from "@repo/contracts/site";
+import { reportPostMailto } from "@repo/contract/site";
 import {
   ResponsiveMenu,
   ResponsiveMenuContent,
@@ -23,7 +23,7 @@ import { toast } from "@repo/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
-import type { FeedPost } from "@repo/api";
+import type { FeedPost } from "@repo/contract";
 import { refreshAfterPostDeleted, refreshBlocks, refreshPostContent } from "@/lib/query-policies";
 import { useIdentityScope } from "@/lib/use-identity-scope";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";

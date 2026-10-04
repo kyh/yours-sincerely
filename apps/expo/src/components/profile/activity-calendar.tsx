@@ -7,12 +7,12 @@ import type {
   CalendarDay as Day,
   CalendarLevel as Level,
   CalendarTheme as Theme,
-} from "@repo/contracts/calendar";
+} from "@repo/contract/calendar";
 import {
   calendarLevelColor as levelColor,
   getCalendarMonthLabels as getMonthLabels,
   groupCalendarDaysByWeeks as groupByWeeks,
-} from "@repo/contracts/calendar";
+} from "@repo/contract/calendar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 

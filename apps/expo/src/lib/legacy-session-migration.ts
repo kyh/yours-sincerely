@@ -15,7 +15,7 @@ import type { MigrateLegacySessionResult } from "./legacy-session-migration-core
 /** The old Capacitor app was a WebView onto production, so its `__session`
     cookie lives in the native WebView jars for this host. Same bundle id =
     same app container, so the jars survive the store update.
-    Deliberately frozen literals (not imported from contracts): they must
+    Deliberately frozen literals (not imported from @repo/contract): they must
     match what the RETIRED app wrote, even if the live values ever change. */
 const HOST = "yourssincerely.org";
 const SESSION_COOKIE = "__session";

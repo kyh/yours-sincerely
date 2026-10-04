@@ -8,7 +8,7 @@ import {
   setPasswordFormInput,
   signInWithPasswordInput,
   signUpInput,
-} from "@repo/contracts/auth";
+} from "@repo/contract/auth";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
@@ -16,14 +16,14 @@ import { cn } from "cn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
-import type { SignInWithPasswordInput } from "@repo/contracts/auth";
+import type { SignInWithPasswordInput } from "@repo/contract/auth";
 import { resetAfterSessionChanged } from "@/lib/query-policies";
 import { orpc } from "@/orpc/react";
 
 interface AuthFormProps {
   type: "signin" | "signup";
   /** Where to land after a successful sign-in/sign-up. Guarded on the server by
-      `safeNextPath` (@repo/contracts/navigation), so this is always a path that
+      `safeNextPath` (@repo/contract/navigation), so this is always a path that
       resolves same-origin — never an attacker-supplied redirect target. */
   nextPath: string;
   className?: string;

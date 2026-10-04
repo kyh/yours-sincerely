@@ -9,6 +9,7 @@ describe("resolveMarkdownRoute", () => {
     assert.deepEqual(resolveMarkdownRoute("/about"), { kind: "about" });
     assert.deepEqual(resolveMarkdownRoute("/contact/"), { kind: "contact" });
     assert.deepEqual(resolveMarkdownRoute("/privacy"), { kind: "privacy" });
+    assert.deepEqual(resolveMarkdownRoute("/terms"), { kind: "terms" });
   });
 
   test("reads a letter id from its permalink", () => {
@@ -18,7 +19,7 @@ describe("resolveMarkdownRoute", () => {
   });
 
   test("keeps live HTML-only screens out of the 404 path", () => {
-    for (const path of ["/terms", "/settings", "/notifications", "/profile/u1", "/auth/sign-in"]) {
+    for (const path of ["/settings", "/notifications", "/profile/u1", "/auth/sign-in"]) {
       assert.deepEqual(resolveMarkdownRoute(path), { kind: "html-only" }, path);
     }
   });

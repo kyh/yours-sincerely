@@ -1,7 +1,7 @@
 import { Pressable, useWindowDimensions, View } from "react-native";
 import { useRouter } from "expo-router";
 import Svg, { Line } from "react-native-svg";
-import { resolveDisplayName } from "@repo/contracts/user";
+import { resolveDisplayName } from "@repo/contract/user";
 
 import type { FeedLayout } from "@/lib/feed-layout";
 import type { FeedPost } from "@/lib/api";

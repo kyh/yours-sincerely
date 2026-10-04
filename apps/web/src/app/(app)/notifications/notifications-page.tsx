@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { parseServerDate } from "@repo/contracts/content";
-import { describeNotification } from "@repo/contracts/notifications";
+import { parseServerDate } from "@repo/contract/content";
+import { describeNotification } from "@repo/contract/notifications";
 import { Button } from "@repo/ui/components/button";
 import { Spinner } from "@repo/ui/components/spinner";
 import { cn } from "cn";
@@ -15,7 +15,7 @@ import {
 import { formatDistanceToNowStrict } from "date-fns";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
-import type { RouterOutputs } from "@repo/api";
+import type { RouterOutputs } from "@repo/contract";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { getAvatarUrl } from "@/lib/avatars";
 import { notificationInfiniteArgs } from "@/lib/notification-query";

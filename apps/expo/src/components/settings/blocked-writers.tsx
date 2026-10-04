@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { resolveDisplayName } from "@repo/contracts/user";
+import { resolveDisplayName } from "@repo/contract/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
@@ -28,7 +28,7 @@ export const BlockedWriters = () => {
 
   const blocks = useQuery({
     ...orpc.block.listBlocks.queryOptions(),
-    // listBlocks is a protectedProcedure; an anonymous visitor has nothing to list.
+    // listBlocks is a protected procedure; an anonymous visitor has nothing to list.
     enabled: user !== null,
   });
 
