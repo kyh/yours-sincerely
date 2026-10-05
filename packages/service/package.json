@@ -22,7 +22,7 @@
     "drizzle-orm": "catalog:",
     "expo-server-sdk": "^7.2.0",
     "next": "catalog:",
-    "resend": "^6.30.0",
+    "resend": "^6.32.0",
     "zod": "catalog:"
   },
   "devDependencies": {

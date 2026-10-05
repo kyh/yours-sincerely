@@ -60,6 +60,9 @@ const useLottieIcon = (path: string) => {
   return [containerRef, handleMouseEnter] as const;
 };
 
+// Read once at module load, outside render.
+const copyrightYear = new Date().getFullYear();
+
 export const Sidebar = () => {
   const user = useWorkspaceUser();
   const unread = useQuery({
@@ -112,7 +115,7 @@ export const Sidebar = () => {
       </nav>
       <footer className="border-t-border mt-auto hidden flex-col gap-2 border-t py-4 text-xs md:flex">
         <div>
-          ©{new Date().getFullYear()}, Made with{" "}
+          ©{copyrightYear}, Made with{" "}
           <a
             className="hover:underline"
             href="https://github.com/kyh/yours-sincerely"

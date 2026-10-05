@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   getExpiryProgress,
+  getPostExpiry,
   getLegacyAvatarIndex,
   getReadingTime,
   parseServerDate,
@@ -193,4 +194,19 @@ test("expiry is exclusive at the exact boundary instant", () => {
   const progress = getExpiryProgress("2026-07-09 00:00:00.000", new Date("2026-07-30T00:00:00Z"));
   assert.equal(progress.isExpired, true);
   assert.equal(progress.percentage, 100);
+});
+
+test("a letter written now expires POST_EXPIRY_DAYS calendar days ahead, on the same wall clock", () => {
+  const now = new Date(2026, 6, 9, 18, 23, 45);
+  const expiry = getPostExpiry(now);
+  assert.equal(expiry.getFullYear(), 2026);
+  assert.equal(expiry.getMonth(), 6);
+  assert.equal(expiry.getDate(), 9 + POST_EXPIRY_DAYS);
+  assert.equal(expiry.getHours(), 18);
+  assert.equal(now.getDate(), 9, "the input is not mutated");
+});
+
+test("the expiry progress hands back the clock it read", () => {
+  const now = new Date("2026-07-10T00:00:00Z");
+  assert.equal(getExpiryProgress("2026-07-09 00:00:00.000", now).now, now);
 });

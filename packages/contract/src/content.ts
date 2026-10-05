@@ -40,6 +40,8 @@ export const serverTimestamp = z
   }, "Not a calendar date");
 
 export interface ExpiryProgress {
+  /** The clock the progress was read against, so a caller formats against the same instant. */
+  now: Date;
   start: Date;
   end: Date;
   /** 0–100, clamped. 100 means expired. */
@@ -58,7 +60,16 @@ export const getExpiryProgress = (createdAt: string, now: Date = new Date()): Ex
   const elapsed = now.getTime() - start.getTime();
   const percentage = Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
 
-  return { end, isExpired: now >= end, percentage, start };
+  return { end, isExpired: now >= end, now, percentage, start };
+};
+
+/** When a letter written now disappears: POST_EXPIRY_DAYS calendar days ahead,
+    local wall clock kept (as date-fns `addDays` does), so the compose forms on
+    web and native show the same day. Reads the clock here, not in render. */
+export const getPostExpiry = (now: Date = new Date()): Date => {
+  const expiry = new Date(now);
+  expiry.setDate(expiry.getDate() + POST_EXPIRY_DAYS);
+  return expiry;
 };
 
 /** Particle from→to color transitions for the like-button burst — shared so

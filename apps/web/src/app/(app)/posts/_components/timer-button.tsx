@@ -15,8 +15,8 @@ export const TimerButton = ({ post }: Props) => {
     return null;
   }
 
-  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
-  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
+  const { percentage, end, isExpired, now } = getExpiryProgress(post.createdAt);
+  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
   return (
     <Popover>

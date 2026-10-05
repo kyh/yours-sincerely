@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { POST_EXPIRY_DAYS } from "@repo/contract/content";
+import { getPostExpiry } from "@repo/contract/content";
 import { createPostInput } from "@repo/contract/post";
 import { resolveDisplayName } from "@repo/contract/user";
 import { Button } from "@repo/ui/components/button";
@@ -28,7 +28,7 @@ import { cn } from "cn";
 import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
@@ -125,7 +125,7 @@ export const PostForm = ({
     createPost.mutate(formData);
   };
 
-  const expiry = addDays(new Date(), POST_EXPIRY_DAYS);
+  const expiry = getPostExpiry();
 
   return (
     <Form {...form}>

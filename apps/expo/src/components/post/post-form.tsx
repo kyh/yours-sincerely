@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { TextInput, useWindowDimensions, View } from "react-native";
-import { POST_EXPIRY_DAYS } from "@repo/contract/content";
+import { getPostExpiry } from "@repo/contract/content";
 import { createPostInput } from "@repo/contract/post";
 import type { CreatePostInput } from "@repo/contract/post";
 import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName } from "@repo/contract/user";
 import { useMutation } from "@tanstack/react-query";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import * as Haptics from "expo-haptics";
 import { toast } from "sonner-native";
 
@@ -105,7 +105,7 @@ export const PostForm = ({
     createPost.mutate(parsed.data);
   };
 
-  const expiry = addDays(new Date(), POST_EXPIRY_DAYS);
+  const expiry = getPostExpiry();
 
   return (
     <KeyboardShortcutsView mode="compose" onSubmit={handleSubmit}>

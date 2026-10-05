@@ -110,10 +110,13 @@ const openLink = async (url: string) => {
   }
 };
 
+// Read once at module load, outside render.
+const copyrightYear = new Date().getFullYear();
+
 const SidebarFooter = () => (
   <View className="border-border mt-auto gap-2 border-t py-4">
     <Text className="text-xs">
-      ©{new Date().getFullYear()}, Made with{" "}
+      ©{copyrightYear}, Made with{" "}
       <Text
         accessibilityLabel="View source on GitHub"
         accessibilityRole="link"
