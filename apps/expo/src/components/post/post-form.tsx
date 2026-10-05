@@ -105,7 +105,8 @@ export const PostForm = ({
     createPost.mutate(parsed.data);
   };
 
-  const expiry = addDays(new Date(), POST_EXPIRY_DAYS);
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
+  const [expiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
 
   return (
     <KeyboardShortcutsView mode="compose" onSubmit={handleSubmit}>

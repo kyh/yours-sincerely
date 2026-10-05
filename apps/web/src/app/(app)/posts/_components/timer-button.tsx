@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { getExpiryProgress } from "@repo/contract/content";
 import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
 import { formatDistance } from "date-fns";
@@ -11,12 +12,15 @@ interface Props {
 }
 
 export const TimerButton = ({ post }: Props) => {
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
+  const [now] = useState(() => new Date());
+
   if (!post.createdAt) {
     return null;
   }
 
-  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
-  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
+  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt, now);
+  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
   return (
     <Popover>

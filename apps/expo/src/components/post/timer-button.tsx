@@ -92,8 +92,10 @@ const ExpiryTooltip = ({
 export const TimerButton = ({ post }: Props) => {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
-  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt);
-  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(new Date(), end)}`;
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
+  const [now] = useState(() => new Date());
+  const { percentage, end, isExpired } = getExpiryProgress(post.createdAt, now);
+  const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
   return (
     <>

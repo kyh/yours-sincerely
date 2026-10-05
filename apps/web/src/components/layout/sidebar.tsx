@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@repo/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
@@ -62,6 +62,8 @@ const useLottieIcon = (path: string) => {
 
 export const Sidebar = () => {
   const user = useWorkspaceUser();
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
+  const [year] = useState(() => new Date().getFullYear());
   const unread = useQuery({
     ...orpc.notification.unreadCount.queryOptions(),
     enabled: user !== null,
@@ -112,7 +114,7 @@ export const Sidebar = () => {
       </nav>
       <footer className="border-t-border mt-auto hidden flex-col gap-2 border-t py-4 text-xs md:flex">
         <div>
-          ©{new Date().getFullYear()}, Made with{" "}
+          ©{year}, Made with{" "}
           <a
             className="hover:underline"
             href="https://github.com/kyh/yours-sincerely"

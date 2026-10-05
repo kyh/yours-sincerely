@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { Linking, Pressable, View, useWindowDimensions } from "react-native";
 import { usePathname } from "expo-router";
@@ -110,33 +111,38 @@ const openLink = async (url: string) => {
   }
 };
 
-const SidebarFooter = () => (
-  <View className="border-border mt-auto gap-2 border-t py-4">
-    <Text className="text-xs">
-      ©{new Date().getFullYear()}, Made with{" "}
-      <Text
-        accessibilityLabel="View source on GitHub"
-        accessibilityRole="link"
-        className="text-xs"
-        onPress={() => openLink("https://github.com/kyh/yours-sincerely")}
-      >
-        💻
-      </Text>
-    </Text>
-    <View className="flex-row gap-2">
-      {["About", "Privacy", "Terms"].map((label) => (
-        <Pressable
-          key={label}
+const SidebarFooter = () => {
+  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
+  const [year] = useState(() => new Date().getFullYear());
+
+  return (
+    <View className="border-border mt-auto gap-2 border-t py-4">
+      <Text className="text-xs">
+        ©{year}, Made with{" "}
+        <Text
+          accessibilityLabel="View source on GitHub"
           accessibilityRole="link"
-          className="min-h-11 justify-center"
-          onPress={() => openLink(`${siteConfig.url}/${label.toLowerCase()}`)}
+          className="text-xs"
+          onPress={() => openLink("https://github.com/kyh/yours-sincerely")}
         >
-          <Text className="text-xs">{label}</Text>
-        </Pressable>
-      ))}
+          💻
+        </Text>
+      </Text>
+      <View className="flex-row gap-2">
+        {["About", "Privacy", "Terms"].map((label) => (
+          <Pressable
+            key={label}
+            accessibilityRole="link"
+            className="min-h-11 justify-center"
+            onPress={() => openLink(`${siteConfig.url}/${label.toLowerCase()}`)}
+          >
+            <Text className="text-xs">{label}</Text>
+          </Pressable>
+        ))}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 /** The shell stays mounted around tabs and native detail screens. */
 export const AppShell = ({ children }: { children: ReactNode }) => {
