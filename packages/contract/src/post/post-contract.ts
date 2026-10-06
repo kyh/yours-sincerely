@@ -1,36 +1,14 @@
 import { type } from "@orpc/contract";
-import { z } from "zod";
 
 import { protectedBase, publicBase } from "../base.ts";
-import { serverTimestamp } from "../content.ts";
-import { createPostInput } from "../post.ts";
-
-export const getPostsByUserInput = z.object({
-  userId: z.string(),
-});
-
-export const getPostInput = z.object({
-  postId: z.string(),
-});
-
-const feedCursor = z.object({
-  createdAt: serverTimestamp,
-  postId: z.string(),
-});
-
-/** The `Feed` view only ever contains root posts (`parentId IS NULL`), so it has
-    no `parentId` filter to offer — comments are read through `getPost`. */
-export const getFeedInput = z.object({
-  cursor: feedCursor.optional(),
-  // Bounded: `getFeed` is a public, unauthenticated endpoint. Both clients ask
-  // for FEED_PAGE_SIZE, so 50 is generous headroom while still capping the blast radius.
-  limit: z.number().int().min(1).max(50).optional(),
-  userId: z.string().optional(),
-});
-
-export const deletePostInput = z.object({
-  postId: z.string(),
-});
+import type { FeedCursor } from "./post-schema.ts";
+import {
+  createPostInput,
+  deletePostInput,
+  getFeedInput,
+  getPostInput,
+  getPostsByUserInput,
+} from "./post-schema.ts";
 
 /** A row of the `Feed` view plus the viewer's like. The view holds root posts
     only, so `parentId` is always null here. */
@@ -86,7 +64,7 @@ export const postContract = {
     .output(type<{ post: { id: string } | undefined }>()),
   getFeed: publicBase.input(getFeedInput).output(
     type<{
-      nextCursor: z.output<typeof feedCursor> | undefined;
+      nextCursor: FeedCursor | undefined;
       posts: FeedPost[];
     }>(),
   ),

@@ -1,14 +1,7 @@
 import { z } from "zod";
 
-import { emailAddress } from "./auth.ts";
-import { MAX_DISPLAY_NAME_LENGTH } from "./post.ts";
-
-export const ANONYMOUS_DISPLAY_NAME = "Anonymous";
-
-/** `||`, not `??`: a cleared pen name arrives as `""`, and a blank name must read
-    as Anonymous everywhere, or the same writer gets a different name and avatar
-    per surface. */
-export const resolveDisplayName = (name?: string | null) => name || ANONYMOUS_DISPLAY_NAME;
+import { emailAddress } from "../auth/auth-schema.ts";
+import { MAX_DISPLAY_NAME_LENGTH } from "../post/post-schema.ts";
 
 // The retired `userId` rollout field is deliberately absent rather than
 // `.optional()`. The server has always derived ownership from the session and
@@ -24,3 +17,13 @@ export const updateUserInput = z
     message: "At least one profile field is required",
   });
 export type UpdateUserInput = z.infer<typeof updateUserInput>;
+
+export const getUserInput = z
+  .object({
+    userId: z.string(),
+  })
+  .required();
+
+export const getUserStatsInput = z.object({
+  userId: z.string(),
+});

@@ -5,7 +5,7 @@ import {
   setPasswordInput,
   signInWithPasswordInput,
   signUpInput,
-} from "../auth.ts";
+} from "./auth-schema.ts";
 import { protectedBase, publicBase } from "../base.ts";
 
 /** What a client is told about its own account. `role` and `sessionEpoch` live

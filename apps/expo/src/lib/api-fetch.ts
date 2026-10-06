@@ -1,6 +1,6 @@
 import type { AnyProcedureContract } from "@orpc/contract";
 import type { Contract } from "@repo/contract";
-import { SESSION_COOKIE_NAME as SESSION_COOKIE } from "@repo/contract/auth";
+import { SESSION_COOKIE_NAME as SESSION_COOKIE } from "@repo/contract/auth/auth-schema";
 import { parse, splitCookiesString } from "set-cookie-parser";
 
 import {

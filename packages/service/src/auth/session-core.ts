@@ -1,5 +1,5 @@
 import { hkdfSync } from "node:crypto";
-import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contract/auth";
+import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contract/auth/auth-schema";
 import cookieSignature from "cookie-signature";
 import { z } from "zod";
 

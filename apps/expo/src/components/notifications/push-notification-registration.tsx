@@ -2,8 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 import { AppState, Linking, Platform, View } from "react-native";
 import { useRouter } from "expo-router";
-import { notificationTargetData } from "@repo/contract/notifications";
-import type { PushPlatform } from "@repo/contract/notifications";
+import { notificationTargetData } from "@repo/contract/notification/notification-schema";
+import type { PushPlatform } from "@repo/contract/push/push-schema";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { onlineManager, useMutation } from "@tanstack/react-query";

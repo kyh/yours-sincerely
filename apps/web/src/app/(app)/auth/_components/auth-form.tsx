@@ -8,7 +8,7 @@ import {
   setPasswordFormInput,
   signInWithPasswordInput,
   signUpInput,
-} from "@repo/contract/auth";
+} from "@repo/contract/auth/auth-schema";
 import { Button } from "@repo/ui/components/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";
 import { toast } from "@repo/ui/components/sonner";
@@ -16,7 +16,7 @@ import { cn } from "cn";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
-import type { SignInWithPasswordInput } from "@repo/contract/auth";
+import type { SignInWithPasswordInput } from "@repo/contract/auth/auth-schema";
 import { resetAfterSessionChanged } from "@/lib/query-policies";
 import { orpc } from "@/orpc/react";
 

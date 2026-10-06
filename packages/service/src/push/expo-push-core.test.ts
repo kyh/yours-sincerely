@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/notifications";
+import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import { getPushTokenIdleCutoff, redactPushToken, sendPushToUserCore } from "./expo-push-core.ts";
 import type { PushDependencies, PushMessage } from "./expo-push-core.ts";

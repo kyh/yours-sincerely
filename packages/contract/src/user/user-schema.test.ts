@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getLegacyAvatarIndex } from "./content.ts";
-import { MAX_DISPLAY_NAME_LENGTH } from "./post.ts";
-import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName, updateUserInput } from "./user.ts";
+import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex, resolveDisplayName } from "../content.ts";
+import { MAX_DISPLAY_NAME_LENGTH } from "../post/post-schema.ts";
+import { updateUserInput } from "./user-schema.ts";
 
 test("a missing or blank display name resolves to Anonymous", () => {
   for (const name of [undefined, null, ""]) {

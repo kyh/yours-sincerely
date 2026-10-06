@@ -1,11 +1,7 @@
 import { type } from "@orpc/contract";
-import { z } from "zod";
 
 import { protectedBase, publicBase } from "../base.ts";
-
-export const createLikeInput = z.object({ postId: z.string() });
-
-export const deleteLikeInput = z.object({ postId: z.string() });
+import { createLikeInput, deleteLikeInput } from "./like-schema.ts";
 
 interface Like {
   createdAt: string;

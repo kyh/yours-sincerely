@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FEED_PAGE_SIZE } from "@repo/contract/post";
+import { FEED_PAGE_SIZE } from "@repo/contract/post/post-schema";
 import { cn } from "cn";
 
 import type { FeedFilters } from "@repo/contract";

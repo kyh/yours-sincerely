@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { parseServerDate } from "@repo/contract/content";
-import { describeNotification } from "@repo/contract/notifications";
+import { describeNotification } from "@repo/contract/notification/notification-schema";
 import { Button } from "@repo/ui/components/button";
 import { Spinner } from "@repo/ui/components/spinner";
 import { cn } from "cn";

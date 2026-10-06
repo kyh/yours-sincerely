@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { resolveDisplayName } from "@repo/contract/user";
+import { resolveDisplayName } from "@repo/contract/content";
 import { Button } from "@repo/ui/components/button";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";

@@ -1,18 +1,7 @@
 import { type } from "@orpc/contract";
-import { z } from "zod";
 
 import { protectedBase, publicBase } from "../base.ts";
-import { updateUserInput } from "../user.ts";
-
-export const getUserInput = z
-  .object({
-    userId: z.string(),
-  })
-  .required();
-
-export const getUserStatsInput = z.object({
-  userId: z.string(),
-});
+import { getUserInput, getUserStatsInput, updateUserInput } from "./user-schema.ts";
 
 interface PublicUser {
   displayImage: string | null;

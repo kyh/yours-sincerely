@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { TextInput, View } from "react-native";
-import { MAX_DISPLAY_NAME_LENGTH } from "@repo/contract/post";
-import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName, updateUserInput } from "@repo/contract/user";
+import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName } from "@repo/contract/content";
+import { MAX_DISPLAY_NAME_LENGTH } from "@repo/contract/post/post-schema";
+import { updateUserInput } from "@repo/contract/user/user-schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { SESSION_COOKIE_NAME } from "@repo/contract/auth";
+import { SESSION_COOKIE_NAME } from "@repo/contract/auth/auth-schema";
 import { compare, hash } from "bcryptjs";
 
 import { parsePushCleanupCapability, signPushCleanupCapability } from "./push-cleanup-capability";

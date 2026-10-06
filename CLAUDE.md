@@ -50,8 +50,11 @@ packages/
 router has `src/<router>/<router>-contract.ts`, built on `publicBase` / `protectedBase` from
 `base.ts` (both plain `oc`: they name the kind of procedure and declare no errors), and
 `src/index.ts` assembles them into `contract`. A new procedure starts in its contract.
-Inputs are zod; the ones forms also use live in the flat domain modules (`auth.ts`,
-`post.ts`, `user.ts`, `notifications.ts`). Outputs are `type<T>()` over wire interfaces
+Its zod inputs, with the constants and rules that travel with them, live beside it in
+`src/<router>/<router>-schema.ts`, exported as `@repo/contract/<router>/<router>-schema` so a
+form validates with the schema the server does. The flat modules next to the router folders
+(`content.ts`, `calendar.ts`, `preferences.ts`, …) are pure rules both clients share, not
+wire. Outputs are `type<T>()` over wire interfaces
 written in the contract: compile-time only, no runtime validation, and never a `@repo/db`
 type, because Expo compiles the contract. `@repo/service` implements it with one
 `os = implement(contract)` in `src/orpc.ts`: public procedures are
@@ -276,7 +279,7 @@ reset: exact match first, then `lower(email)` only when that names ONE account. 
 differ only in case exist, and only an exact match reaches either.
 
 **Nothing rewrites a stored address's case** — no backfill, no lowercase on write
-(`emailAddress` in `packages/contract/src/auth.ts` only trims). Every earlier deploy looks
+(`emailAddress` in `packages/contract/src/auth/auth-schema.ts` only trims). Every earlier deploy looks
 up by exact match, so the moment a stored casing changes, a rollback locks its owner out of
 the casing they have always used. Lowercasing stored rows and a unique index on
 `lower(email)` wait until the exact-first lookup is past any rollback horizon and a person

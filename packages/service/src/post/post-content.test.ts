@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createPostInput, MAX_POST_LENGTH } from "@repo/contract/post";
-import { updateUserInput } from "@repo/contract/user";
+import { createPostInput, MAX_POST_LENGTH } from "@repo/contract/post/post-schema";
+import { updateUserInput } from "@repo/contract/user/user-schema";
 
 test("post content is bounded at both ends", () => {
   assert.equal(createPostInput.safeParse({ content: "x".repeat(10) }).success, true);

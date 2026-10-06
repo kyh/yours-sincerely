@@ -1,4 +1,4 @@
-import { ANONYMOUS_DISPLAY_NAME } from "@repo/contract/user";
+import { ANONYMOUS_DISPLAY_NAME } from "@repo/contract/content";
 import type { Db } from "@repo/db/drizzle-client";
 import { token as tokenTable, user } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";

@@ -1,5 +1,5 @@
-import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/notifications";
-import type { NewCommentNotificationData } from "@repo/contract/notifications";
+import type { NewCommentNotificationData } from "@repo/contract/notification/notification-schema";
+import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 
 /**

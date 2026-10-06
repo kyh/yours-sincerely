@@ -1,7 +1,7 @@
-import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contract/auth";
+import { BROWSER_COOKIE_MAX_AGE_SECONDS } from "@repo/contract/auth/auth-schema";
 import { POST_EXPIRY_DAYS } from "@repo/contract/content";
 import { WEB_HOST } from "@repo/contract/mobile-identity";
-import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/notifications";
+import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 
 import { siteConfig } from "@/lib/site-config";
 
