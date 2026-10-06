@@ -33,8 +33,8 @@ const DIRECT_PORT = 5432;
 const POOLER_PORT_AT_END_OF_AUTHORITY = new RegExp(`:${POOLER_PORT}(?=[/?]|$)`, "u");
 
 /** Rewrites a Supabase transaction-mode URL (:6543) to the same host's session
-    mode (:5432). Any other URL — including local Supabase on 54322 — is returned
-    untouched. */
+    mode (:5432). Any other URL — including local Supabase's, on whatever port
+    `pnpm db:start` wrote into `.env` — is returned untouched. */
 export const toDirectConnectionUrl = (connectionUrl: string): string =>
   connectionUrl.replace(POOLER_PORT_AT_END_OF_AUTHORITY, `:${DIRECT_PORT}`);
 
@@ -52,11 +52,15 @@ export const withLockTimeout = (connectionUrl: string, timeout: string): string 
   return `${base}?${params.toString()}`;
 };
 
-const LOCAL_SUPABASE_URL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+/** Unit suites import the client with no database behind it (postgres.js connects
+    lazily), so under test a missing URL gets one nothing listens on: a stray query
+    fails at once instead of landing in whichever local database happens to be up. */
+const UNREACHABLE_TEST_URL = "postgresql://postgres:postgres@127.0.0.1:1/postgres";
 
-/** The app's runtime URL. Outside production a missing `POSTGRES_URL` means local
-    Supabase; in production that fallback would turn a missing variable into
-    ECONNREFUSED on every request instead of a failed boot. */
+/** The app's runtime URL. There is no local default to fall back to: every git branch
+    and worktree gets its own local Supabase on its own port, and `pnpm db:start` writes
+    this checkout's URL into `.env`. So outside tests a missing `POSTGRES_URL` fails boot
+    rather than turning into ECONNREFUSED on every request. */
 export const resolveRuntimeConnectionUrl = (env: {
   NODE_ENV?: string | undefined;
   POSTGRES_URL?: string | undefined;
@@ -64,8 +68,8 @@ export const resolveRuntimeConnectionUrl = (env: {
   if (env.POSTGRES_URL) {
     return env.POSTGRES_URL;
   }
-  if (env.NODE_ENV === "production") {
-    throw new Error("Missing POSTGRES_URL");
+  if (env.NODE_ENV === "test") {
+    return UNREACHABLE_TEST_URL;
   }
-  return LOCAL_SUPABASE_URL;
+  throw new Error("Missing POSTGRES_URL (locally, `pnpm db:start` writes it to .env)");
 };

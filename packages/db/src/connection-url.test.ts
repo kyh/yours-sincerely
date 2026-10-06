@@ -32,11 +32,12 @@ test("rewrites when there is no path at all", () => {
 });
 
 test("leaves local Supabase alone", () => {
-  // 54322 contains no `:6543`, but it is the URL everyone actually develops
-  // against, so a rewrite that touched it would break every local push.
+  // Local Supabase takes a port from 20000 up, and some of those end in 6543. It is
+  // the URL everyone actually develops against, so a rewrite that touched it would
+  // break every local push.
   assert.equal(
-    toDirectConnectionUrl("postgresql://postgres:postgres@127.0.0.1:54322/postgres"),
-    "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+    toDirectConnectionUrl("postgresql://postgres:postgres@127.0.0.1:26543/postgres"),
+    "postgresql://postgres:postgres@127.0.0.1:26543/postgres",
   );
 });
 
@@ -97,19 +98,22 @@ test("uses POSTGRES_URL whenever it is set", () => {
   );
 });
 
-test("falls back to local Supabase outside production", () => {
+test("falls back only under test, to a URL nothing listens on", () => {
   assert.equal(
-    resolveRuntimeConnectionUrl({ NODE_ENV: "development", POSTGRES_URL: undefined }),
-    "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+    resolveRuntimeConnectionUrl({ NODE_ENV: "test", POSTGRES_URL: undefined }),
+    "postgresql://postgres:postgres@127.0.0.1:1/postgres",
   );
 });
 
-test("refuses to start in production without POSTGRES_URL", () => {
-  // Hosts commonly hand an unset-but-declared variable over as "".
-  for (const POSTGRES_URL of [undefined, ""]) {
-    assert.throws(
-      () => resolveRuntimeConnectionUrl({ NODE_ENV: "production", POSTGRES_URL }),
-      /Missing POSTGRES_URL/u,
-    );
+test("refuses to start without POSTGRES_URL everywhere else", () => {
+  // Hosts commonly hand an unset-but-declared variable over as "". Development is
+  // included: local Supabase has no fixed port to guess (`pnpm db:start` writes it).
+  for (const NODE_ENV of ["production", "development", undefined]) {
+    for (const POSTGRES_URL of [undefined, ""]) {
+      assert.throws(
+        () => resolveRuntimeConnectionUrl({ NODE_ENV, POSTGRES_URL }),
+        /Missing POSTGRES_URL/u,
+      );
+    }
   }
 });
