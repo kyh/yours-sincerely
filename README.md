@@ -55,7 +55,7 @@ cp .env.example .env
 # Installing dependencies
 pnpm install
 
-# To start the database (local Supabase, no Docker; it writes POSTGRES_URL into .env)
+# To start the database (local Supabase, no Docker; it writes POSTGRES_URL into .env.local)
 pnpm db:start
 
 # To create the schema — a new local database is EMPTY (every git branch gets its

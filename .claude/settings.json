@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "prompt": "This repo is driven by coding agents — read AGENTS.md first. If .env is missing, copy .env.example to .env, then run `pnpm db:start` (local Supabase without Docker; it writes POSTGRES_URL into .env) and `pnpm db:push`: a new local database is EMPTY, so the push is not optional. Gate every change with `pnpm verify`.",
+  "prompt": "This repo is driven by coding agents — read AGENTS.md first. If .env is missing, copy .env.example to .env, then run `pnpm db:start` (local Supabase without Docker; the CLI writes POSTGRES_URL into .env.local) and `pnpm db:push`: a new local database is EMPTY, so the push is not optional. Gate every change with `pnpm verify`.",
   "permissions": {
     "allow": [
       "Bash(pnpm verify)",
@@ -22,6 +22,10 @@
             "type": "command",
             "command": "[ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] && cd \"$CLAUDE_PROJECT_DIR\" && pnpm install || true",
             "timeout": 600
+          },
+          {
+            "type": "command",
+            "command": "[ \"$(id -u)\" = 0 ] && [ -n \"$CLAUDE_ENV_FILE\" ] && { id -u supabase-postgres >/dev/null 2>&1 || useradd --system --user-group supabase-postgres; } && echo 'export SUPABASE_NATIVE_POSTGRES_USER=supabase-postgres' >> \"$CLAUDE_ENV_FILE\" || true"
           }
         ]
       }

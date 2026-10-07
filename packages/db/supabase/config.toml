@@ -1,5 +1,5 @@
-# Local Supabase, as `pnpm db:start` runs it (packages/db/src/local-supabase.ts). It shapes
-# the local stack only; production is the hosted project named here.
+# Local Supabase, as `pnpm db:start` runs it. It shapes the local stack only; production
+# is the hosted project named here.
 project_id = "zmdrwswxugswzmcokvff"
 
 # Postgres is the only service this app runs on. Sessions are hand-rolled, not Supabase
@@ -12,7 +12,7 @@ enabled = false
 [db]
 # No `port` here, or under any service: the CLI gives every checkout and git branch its
 # own stack on its own ports, and a pinned port makes a second branch's stack fail to
-# bind. `pnpm db:start` writes the URL the CLI picked into .env.
+# bind. `pnpm db:start` writes the URL the CLI picked into .env.local.
 #
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
 # server_version;` on the remote database to check.

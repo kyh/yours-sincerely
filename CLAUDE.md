@@ -71,7 +71,7 @@ handler and RSC caller import `@repo/service`, and lint bans it from `apps/expo`
 pnpm dev              # All packages (turbo run)
 pnpm dev:web          # Web only
 pnpm dev:expo         # Expo only
-pnpm db:start         # Local Supabase, native (no Docker); writes POSTGRES_URL into .env
+pnpm db:start         # Local Supabase, native (no Docker); writes POSTGRES_URL into .env.local
 pnpm db:stop          # Stop Supabase
 pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
@@ -93,10 +93,11 @@ pnpm -F db seed       # Run seed script
 pnpm -F db apply-sql  # Re-apply sql/ only (push already does this)
 ```
 
-**Local Supabase runs without Docker, one database per git branch.** `pnpm db:start`
-(`src/local-supabase.ts`) starts the CLI's native runtime (`[experimental] stack` in
-`supabase/config.toml`, Postgres only) and writes this checkout's URL into `.env` as
-`POSTGRES_URL`. Each branch and worktree gets its own database on its own port, so a new
+**Local Supabase runs without Docker, one database per git branch.** `pnpm db:start` is two
+stock CLI calls: `supabase start` on the native runtime (`[experimental] stack` in
+`supabase/config.toml`, Postgres only), then `supabase status --env` into `.env.local` with
+`DB_URL` renamed to `POSTGRES_URL`. The `with-env` scripts load `.env.local` before `.env`,
+so it wins. Each branch and worktree gets its own database on its own port, so a new
 branch starts EMPTY: `pnpm db:push`. Never pin a port in `config.toml`: a second branch's
 stack then fails to bind. AGENTS.md → Local Supabase has the rest.
 

@@ -34,7 +34,7 @@ const POOLER_PORT_AT_END_OF_AUTHORITY = new RegExp(`:${POOLER_PORT}(?=[/?]|$)`, 
 
 /** Rewrites a Supabase transaction-mode URL (:6543) to the same host's session
     mode (:5432). Any other URL — including local Supabase's, on whatever port
-    `pnpm db:start` wrote into `.env` — is returned untouched. */
+    `pnpm db:start` wrote into `.env.local` — is returned untouched. */
 export const toDirectConnectionUrl = (connectionUrl: string): string =>
   connectionUrl.replace(POOLER_PORT_AT_END_OF_AUTHORITY, `:${DIRECT_PORT}`);
 
@@ -59,7 +59,7 @@ const UNREACHABLE_TEST_URL = "postgresql://postgres:postgres@127.0.0.1:1/postgre
 
 /** The app's runtime URL. There is no local default to fall back to: every git branch
     and worktree gets its own local Supabase on its own port, and `pnpm db:start` writes
-    this checkout's URL into `.env`. So outside tests a missing `POSTGRES_URL` fails boot
+    this checkout's URL into `.env.local`. So outside tests a missing `POSTGRES_URL` fails boot
     rather than turning into ECONNREFUSED on every request. */
 export const resolveRuntimeConnectionUrl = (env: {
   NODE_ENV?: string | undefined;
@@ -71,5 +71,5 @@ export const resolveRuntimeConnectionUrl = (env: {
   if (env.NODE_ENV === "test") {
     return UNREACHABLE_TEST_URL;
   }
-  throw new Error("Missing POSTGRES_URL (locally, `pnpm db:start` writes it to .env)");
+  throw new Error("Missing POSTGRES_URL (locally, `pnpm db:start` writes it to .env.local)");
 };

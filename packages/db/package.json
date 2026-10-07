@@ -14,7 +14,7 @@
     "supabase": "pnpm with-env supabase",
     "drizzle:kit": "pnpm with-env drizzle-kit",
     "seed": "pnpm with-env tsx src/seed/initial.ts",
-    "start": "tsx src/local-supabase.ts",
+    "start": "supabase start --runtime ${SUPABASE_RUNTIME:-native} && supabase status --env --output-format text --override-name DB_URL=POSTGRES_URL > ../../.env.local",
     "stop": "supabase stop",
     "reset": "pnpm start && supabase db reset && pnpm push && pnpm seed",
     "status": "supabase status",
@@ -22,7 +22,7 @@
     "push:remote": "dotenv -e ../../.env.production.local -- sh -c 'drizzle-kit push --explain && printf \"Apply the plan above to PRODUCTION? Type yes: \" && read answer && [ \"$answer\" = yes ] && drizzle-kit push && tsx src/apply-sql.ts'",
     "apply-sql": "pnpm with-env tsx src/apply-sql.ts",
     "studio": "pnpm with-env drizzle-kit studio",
-    "with-env": "dotenv -e ../../.env --"
+    "with-env": "dotenv -e ../../.env.local -e ../../.env --"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",

@@ -10,7 +10,7 @@
     "start": "pnpm with-env next start",
     "test": "NODE_ENV=test node --import tsx --test 'src/**/*.test.ts'",
     "typecheck": "next typegen && tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --"
+    "with-env": "dotenv -e ../../.env.local -e ../../.env --"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.2",
