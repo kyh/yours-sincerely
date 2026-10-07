@@ -33,5 +33,5 @@ export type ContractClient = RouterContractClient<Contract>;
 export type RouterInputs = InferContractRouterInputs<Contract>;
 export type RouterOutputs = InferContractRouterOutputs<Contract>;
 
-export type { FeedPost } from "./post/post-contract.ts";
+export type { FeedPost, WirePost } from "./post/post-contract.ts";
 export type FeedFilters = Omit<RouterInputs["post"]["getFeed"], "cursor">;

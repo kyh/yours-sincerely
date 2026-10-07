@@ -7,7 +7,7 @@ import {
   setPasswordInput,
   signInWithPasswordInput,
   signUpInput,
-} from "./auth.ts";
+} from "./auth-schema.ts";
 
 const email = "writer@example.com";
 const sevenChars = "1234567";

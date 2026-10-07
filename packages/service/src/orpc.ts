@@ -1,5 +1,5 @@
 import { contract } from "@repo/contract";
-import { SESSION_COOKIE_NAME } from "@repo/contract/auth";
+import { SESSION_COOKIE_NAME } from "@repo/contract/auth/auth-schema";
 import { db } from "@repo/db/drizzle-client";
 import { implement, ORPCError, os as builder } from "@orpc/server";
 import { getCookie } from "@orpc/server/helpers";

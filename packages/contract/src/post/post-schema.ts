@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { serverTimestamp } from "../content.ts";
+
 /** A letter, not an essay. There is no cap in the compose UI and none in the
     database, so this is the only bound on a public, unauthenticated endpoint.
     10,000 characters is ~1,700 words, and small enough not to be a storage/DoS
@@ -40,3 +42,31 @@ export const createPostInput = z.object({
   parentId: z.string().optional(),
 });
 export type CreatePostInput = z.infer<typeof createPostInput>;
+
+export const getPostsByUserInput = z.object({
+  userId: z.string(),
+});
+
+export const getPostInput = z.object({
+  postId: z.string(),
+});
+
+const feedCursor = z.object({
+  createdAt: serverTimestamp,
+  postId: z.string(),
+});
+export type FeedCursor = z.output<typeof feedCursor>;
+
+/** The `Feed` view only ever contains root posts (`parentId IS NULL`), so it has
+    no `parentId` filter to offer — comments are read through `getPost`. */
+export const getFeedInput = z.object({
+  cursor: feedCursor.optional(),
+  // Bounded: `getFeed` is a public, unauthenticated endpoint. Both clients ask
+  // for FEED_PAGE_SIZE, so 50 is generous headroom while still capping the blast radius.
+  limit: z.number().int().min(1).max(50).optional(),
+  userId: z.string().optional(),
+});
+
+export const deletePostInput = z.object({
+  postId: z.string(),
+});

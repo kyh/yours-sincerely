@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { TextInput, useWindowDimensions, View } from "react-native";
-import { POST_EXPIRY_DAYS } from "@repo/contract/content";
-import { createPostInput } from "@repo/contract/post";
-import type { CreatePostInput } from "@repo/contract/post";
-import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName } from "@repo/contract/user";
+import {
+  ANONYMOUS_DISPLAY_NAME,
+  POST_EXPIRY_DAYS,
+  resolveDisplayName,
+} from "@repo/contract/content";
+import { createPostInput } from "@repo/contract/post/post-schema";
+import type { CreatePostInput } from "@repo/contract/post/post-schema";
 import { useMutation } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import * as Haptics from "expo-haptics";

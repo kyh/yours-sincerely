@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { resolveDisplayName } from "@repo/contract/user";
+import { resolveDisplayName } from "@repo/contract/content";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@repo/ui/components/hover-card";
 import { useQuery } from "@tanstack/react-query";

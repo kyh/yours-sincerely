@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 
-import { updateUserInput } from "@repo/contract/user";
+import { updateUserInput } from "@repo/contract/user/user-schema";
 import { and, eq, inArray, or } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";

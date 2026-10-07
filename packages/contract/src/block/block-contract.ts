@@ -1,15 +1,7 @@
 import { type } from "@orpc/contract";
-import { z } from "zod";
 
 import { protectedBase, publicBase } from "../base.ts";
-
-export const createBlockInput = z.object({
-  blockingId: z.string(),
-});
-
-export const deleteBlockInput = z.object({
-  blockingId: z.string(),
-});
+import { createBlockInput, deleteBlockInput } from "./block-schema.ts";
 
 interface Block {
   blockerId: string;

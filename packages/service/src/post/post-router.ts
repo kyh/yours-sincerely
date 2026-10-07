@@ -1,11 +1,11 @@
 import type { ORPCContext } from "../orpc";
 import { and, desc, eq, sql } from "@repo/db";
 import { feed, notification, post } from "@repo/db/drizzle-schema";
-import { describeNotification } from "@repo/contract/notifications";
-import { FEED_PAGE_SIZE } from "@repo/contract/post";
-import type { NewCommentNotificationData } from "@repo/contract/notifications";
+import { resolveDisplayName } from "@repo/contract/content";
+import { describeNotification } from "@repo/contract/notification/notification-schema";
+import { FEED_PAGE_SIZE } from "@repo/contract/post/post-schema";
+import type { NewCommentNotificationData } from "@repo/contract/notification/notification-schema";
 import { SITE } from "@repo/contract/site";
-import { resolveDisplayName } from "@repo/contract/user";
 import { ORPCError } from "@orpc/server";
 
 import { afterResponse } from "../after-response";

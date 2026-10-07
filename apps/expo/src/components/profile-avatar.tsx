@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Image } from "expo-image";
 import { FadeOut } from "react-native-reanimated";
-import { resolveDisplayName } from "@repo/contract/user";
+import { resolveDisplayName } from "@repo/contract/content";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { Text } from "@/components/ui/text";

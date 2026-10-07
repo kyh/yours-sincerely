@@ -5,7 +5,7 @@ import {
   NOTIFICATION_PAGE_SIZE,
   NOTIFICATION_PREVIEW_MAX_CHARS,
   UNREAD_COUNT_CAP,
-} from "@repo/contract/notifications";
+} from "@repo/contract/notification/notification-schema";
 
 import { os, requireUser } from "../orpc";
 import { postVisibleTo } from "../post/post-utils";

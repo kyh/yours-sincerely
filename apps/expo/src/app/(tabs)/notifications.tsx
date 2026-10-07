@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { LegendList } from "@legendapp/list/react-native";
 import { parseServerDate } from "@repo/contract/content";
-import { describeNotification } from "@repo/contract/notifications";
+import { describeNotification } from "@repo/contract/notification/notification-schema";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
 import { cn } from "cn";

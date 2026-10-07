@@ -6,20 +6,23 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
-    "./auth": "./src/auth.ts",
+    "./auth/auth-schema": "./src/auth/auth-schema.ts",
     "./base": "./src/base.ts",
+    "./block/block-schema": "./src/block/block-schema.ts",
     "./calendar": "./src/calendar.ts",
     "./content": "./src/content.ts",
+    "./flag/flag-schema": "./src/flag/flag-schema.ts",
     "./like-cache": "./src/like-cache.ts",
+    "./like/like-schema": "./src/like/like-schema.ts",
     "./mobile-identity": "./src/mobile-identity.ts",
     "./navigation": "./src/navigation.ts",
-    "./notifications": "./src/notifications.ts",
-    "./post": "./src/post.ts",
-    "./post/post-contract": "./src/post/post-contract.ts",
+    "./notification/notification-schema": "./src/notification/notification-schema.ts",
+    "./post/post-schema": "./src/post/post-schema.ts",
     "./preferences": "./src/preferences.ts",
+    "./push/push-schema": "./src/push/push-schema.ts",
     "./query-retry": "./src/query-retry.ts",
     "./site": "./src/site.ts",
-    "./user": "./src/user.ts"
+    "./user/user-schema": "./src/user/user-schema.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",

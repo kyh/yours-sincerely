@@ -1,7 +1,7 @@
 import { type } from "@orpc/contract";
 
 import { protectedBase, publicBase } from "../base.ts";
-import { registerPushTokenInput, unregisterPushTokenInput } from "../notifications.ts";
+import { registerPushTokenInput, unregisterPushTokenInput } from "./push-schema.ts";
 
 export const pushContract = {
   register: protectedBase.input(registerPushTokenInput).output(type<{ success: boolean }>()),

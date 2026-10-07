@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createFlagInput } from "./flag-contract.ts";
+import { createFlagInput } from "./flag-schema.ts";
 
 test("a blank flag reason is dropped, not stored and not refused", () => {
   for (const reason of ["", "   ", "\n\t"]) {

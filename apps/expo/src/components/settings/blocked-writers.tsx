@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { resolveDisplayName } from "@repo/contract/user";
+import { resolveDisplayName } from "@repo/contract/content";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 

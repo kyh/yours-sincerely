@@ -7,9 +7,9 @@ import { db } from "@repo/db/drizzle-client";
 import { block, notification, post, pushToken, user } from "@repo/db/drizzle-schema";
 import {
   NOTIFICATION_PREVIEW_MAX_CHARS,
-  PUSH_TOKEN_MAX_IDLE_DAYS,
   UNREAD_COUNT_CAP,
-} from "@repo/contract/notifications";
+} from "@repo/contract/notification/notification-schema";
+import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 import { ORPCError } from "@orpc/server";
 
 import { signPushCleanupCapability } from "./auth/push-cleanup-capability";

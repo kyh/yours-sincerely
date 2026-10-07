@@ -1,8 +1,8 @@
 import { type } from "@orpc/contract";
 
 import { protectedBase } from "../base.ts";
-import type { NotificationKind } from "../notifications.ts";
-import { listNotificationsInput, markNotificationsReadInput } from "../notifications.ts";
+import type { NotificationKind } from "./notification-schema.ts";
+import { listNotificationsInput, markNotificationsReadInput } from "./notification-schema.ts";
 
 export interface NotificationItem {
   actorName: string;

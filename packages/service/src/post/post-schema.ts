@@ -1,5 +1,5 @@
-import type { WirePost } from "@repo/contract/post/post-contract";
-import { resolveDisplayName } from "@repo/contract/user";
+import type { WirePost } from "@repo/contract";
+import { resolveDisplayName } from "@repo/contract/content";
 import type { post } from "@repo/db/drizzle-schema";
 
 type DbPost = typeof post.$inferSelect;
