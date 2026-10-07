@@ -11,7 +11,7 @@
     "test": "NODE_ENV=test node --import tsx --test --test-reporter=spec 'src/**/*.test.ts'",
     "test:db": "NODE_ENV=test RUN_DB_TESTS=1 pnpm with-env tsx --test --test-concurrency=1 --test-global-setup=./src/integration-setup.ts 'src/**/*.integration.ts'",
     "typecheck": "tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --"
+    "with-env": "dotenv -e ../../.env.local -e ../../.env --"
   },
   "dependencies": {
     "@orpc/server": "catalog:",
