@@ -27,7 +27,7 @@ import { AnimatedView } from "@/lib/css-interop";
 import { panGesture } from "@/lib/gesture";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-/** Bottom sheet used where the web app opens a vaul Drawer
+/** Bottom sheet used where the web app opens a Drawer
     (share menu, post options, new-post form). Hand-rolled gesture sheet
     (reanimated + gesture-handler) mirroring vaul's feel: smooth spring-in,
     finger-tracking drag on the grab handle, resisted upward pull,

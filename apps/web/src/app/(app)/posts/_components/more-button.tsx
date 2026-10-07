@@ -47,8 +47,8 @@ interface Props {
   onDeleted?: () => void;
 }
 
-/** A confirmation replaces the menu rather than opening on top of it: the
-    mobile menu is a vaul drawer, whose focus trap would fight a second modal. */
+/** A confirmation replaces the menu rather than opening on top of it, so only
+    one modal traps focus at a time. */
 type Overlay = "menu" | "delete" | "block";
 
 export const MoreButton = ({ post, onDeleted }: Props) => {
@@ -276,16 +276,13 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
 
   return (
     <>
-      <Drawer {...overlayState("menu")}>
-        <DrawerTrigger asChild>
-          <button
-            ref={triggerRef}
-            type="button"
-            aria-label="Post settings"
-            className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
-          >
-            <MoreVerticalIcon aria-hidden="true" className="size-4" />
-          </button>
+      <Drawer {...overlayState("menu")} showSwipeHandle>
+        <DrawerTrigger
+          ref={triggerRef}
+          aria-label="Post settings"
+          className="hover:bg-accent size-8 cursor-pointer rounded-lg p-2 transition"
+        >
+          <MoreVerticalIcon aria-hidden="true" className="size-4" />
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader className="sr-only">

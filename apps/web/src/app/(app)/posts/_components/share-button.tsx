@@ -65,7 +65,7 @@ export const ShareButton = ({ post }: Props) => {
         <span className="sr-only">Share post</span>
         <ShareIcon className="size-4" />
       </button>
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={isOpen} onOpenChange={setIsOpen} showSwipeHandle>
         <DrawerContent>
           <DrawerHeader className="sr-only">
             <DrawerTitle>Share Post</DrawerTitle>

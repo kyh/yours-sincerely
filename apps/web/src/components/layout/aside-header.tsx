@@ -211,15 +211,13 @@ export const AsideHeader = () => {
 
   return (
     <div className="area-aside-header">
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Open menu">
-            <ProfileAvatar
-              className="size-8"
-              src={getAvatarUrl(user?.displayName || user?.id)}
-              alt="Profile"
-            />
-          </Button>
+      <Drawer open={open} onOpenChange={setOpen} showSwipeHandle>
+        <DrawerTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" />}>
+          <ProfileAvatar
+            className="size-8"
+            src={getAvatarUrl(user?.displayName || user?.id)}
+            alt="Profile"
+          />
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader className="sr-only">
