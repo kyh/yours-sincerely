@@ -1,7 +1,9 @@
 import type { NextRequest } from "next/server";
+import { ORPC_CLIENT_HEADER } from "@repo/contract/rpc-client";
 import { appRouter, createORPCContext } from "@repo/service";
 import { COMMON_ERROR_STATUS_MAP, onError, ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
+import { z } from "zod";
 
 // No CORS headers, and none belong here: every client reaches this route
 // same-origin. The web app is served from it, the legacy Capacitor app is a
@@ -57,11 +59,7 @@ const isCrossOrigin = (req: NextRequest) => {
   return origin !== null && origin !== new URL(req.url).origin;
 };
 
-const handleRequest = async (req: NextRequest) => {
-  if (isCrossOrigin(req)) {
-    return new Response("Cross-origin request blocked.", { status: 403 });
-  }
-
+const answer = async (req: NextRequest): Promise<Response> => {
   try {
     const context = await createORPCContext({ headers: req.headers });
     const { response } = await handler.handle(req, { context, prefix: "/api/orpc" });
@@ -80,6 +78,48 @@ const handleRequest = async (req: NextRequest) => {
       { status: COMMON_ERROR_STATUS_MAP[failure.code] },
     );
   }
+};
+
+const rpcErrorBody = z.looseObject({
+  json: z.looseObject({ code: z.string(), defined: z.boolean() }),
+});
+
+/**
+ * A call without {@link ORPC_CLIENT_HEADER} is an Expo build on oRPC 2.0.0-beta.31,
+ * or a tab that loaded the web app before it named its client. That client takes
+ * an error body only with `inferable`, which 2.0.0-beta.34 dropped; it was true
+ * exactly when the contract declared the code.
+ */
+const withInferable = async (response: Response): Promise<Response> => {
+  if (response.ok) {
+    return response;
+  }
+  const body = rpcErrorBody.safeParse(
+    await response
+      .clone()
+      .json()
+      .catch(() => null),
+  );
+  if (!body.success || "inferable" in body.data.json) {
+    return response;
+  }
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+
+  return Response.json(
+    { ...body.data, json: { ...body.data.json, inferable: body.data.json.defined } },
+    { headers, status: response.status },
+  );
+};
+
+const handleRequest = async (req: NextRequest) => {
+  if (isCrossOrigin(req)) {
+    return new Response("Cross-origin request blocked.", { status: 403 });
+  }
+
+  const response = await answer(req);
+
+  return req.headers.has(ORPC_CLIENT_HEADER) ? response : await withInferable(response);
 };
 
 export { handleRequest as POST };

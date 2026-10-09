@@ -2,10 +2,12 @@
 
 import { createORPCClient, onError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import { version as orpcClientVersion } from "@orpc/client/package.json";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { ContractClient } from "@repo/contract";
+import { ORPC_CLIENT_HEADER } from "@repo/contract/rpc-client";
 import { persistLegacySession } from "@/lib/persist-legacy-session";
 import { createQueryClient } from "./query-client";
 
@@ -40,7 +42,10 @@ const link = new RPCLink({
     await persistLegacySession();
     return response;
   },
-  headers: () => ({ "x-orpc-source": "nextjs-react" }),
+  headers: () => ({
+    [ORPC_CLIENT_HEADER]: orpcClientVersion,
+    "x-orpc-source": "nextjs-react",
+  }),
   interceptors: [
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
