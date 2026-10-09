@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { version as orpcClientVersion } from "@orpc/client/package.json";
 import { NextRequest } from "next/server";
-import { z } from "zod";
 
-import { ORPC_CLIENT_HEADER } from "@repo/contract/rpc-client";
 import * as route from "./route";
 
 /**
@@ -21,21 +18,15 @@ import * as route from "./route";
 interface PostOptions {
   url?: string;
   origin?: string;
-  /** The `@orpc/client` version the caller names, as current builds do. */
-  client?: string;
 }
 
 const post = ({
   url = "http://localhost:3000/api/orpc/block/listBlocks",
   origin,
-  client,
 }: PostOptions = {}) => {
   const headers = new Headers({ "content-type": "application/json" });
   if (origin !== undefined) {
     headers.set("origin", origin);
-  }
-  if (client !== undefined) {
-    headers.set(ORPC_CLIENT_HEADER, client);
   }
 
   return route.POST(
@@ -90,29 +81,5 @@ describe("rpc endpoint", () => {
 
   test("exports no OPTIONS handler", () => {
     assert.ok(!("OPTIONS" in route));
-  });
-});
-
-const rpcError = z.object({ json: z.looseObject({ code: z.string() }) });
-
-// What oRPC 2.0.0-beta.31's client accepts as an error body: these keys and no
-// others, with `inferable` among those it requires.
-const BETA_31_ERROR_KEYS = new Set(["code", "data", "defined", "inferable", "message"]);
-
-describe("rpc error body", () => {
-  // Expo builds in the stores name no client and run beta.31.
-  test("carries inferable for a call that names no oRPC client", async () => {
-    const response = await post();
-    const { json } = rpcError.parse(await response.json());
-    assert.strictEqual(json.code, "UNAUTHORIZED");
-    assert.strictEqual(json.inferable, false);
-    assert.ok(Object.keys(json).every((key) => BETA_31_ERROR_KEYS.has(key)));
-  });
-
-  test("is oRPC's own for a call that names its client", async () => {
-    const response = await post({ client: orpcClientVersion });
-    const { json } = rpcError.parse(await response.json());
-    assert.strictEqual(json.code, "UNAUTHORIZED");
-    assert.ok(!("inferable" in json));
   });
 });

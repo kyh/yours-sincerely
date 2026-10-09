@@ -21,7 +21,6 @@
     "./preferences": "./src/preferences.ts",
     "./push/push-schema": "./src/push/push-schema.ts",
     "./query-retry": "./src/query-retry.ts",
-    "./rpc-client": "./src/rpc-client.ts",
     "./site": "./src/site.ts",
     "./user/user-schema": "./src/user/user-schema.ts"
   },

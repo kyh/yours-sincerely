@@ -338,9 +338,9 @@ has merged the case-twins. Until then `isEmailTaken` refuses new case-duplicates
 - **Expo's `react`/`react-dom`/`typescript` are pinned via the `expo` named catalog**, not
   the default one. Expo must hold SDK-blessed versions, which may diverge from web. Re-run
   `npx expo install --check` in `apps/expo` after touching any mobile dependency.
-- **The RPC route adds `inferable` back to error bodies for clients that name no oRPC
-  version.** Expo builds in the stores run oRPC 2.0.0-beta.31, whose client reads an error
-  body without `inferable` (dropped in beta.34) as malformed. Both current clients send
-  `x-orpc-client: <@orpc/client version>` (`@repo/contract/rpc-client`); a call without it
-  gets the old shape. Exit criterion: no installed Expo build older than the header. A later
-  oRPC bump that changes the wire again can branch on the version it carries.
+- **The RPC wire can change freely until the Expo app is in the stores.** Until then, every
+  client ships with the server: the web app, and the legacy Capacitor app that loads it live.
+  A store build keeps the `@orpc/client` it was built with. After release, an oRPC bump that
+  changes the wire (as beta.34 did, by dropping `inferable` from error bodies) must keep
+  answering old builds. From that bump on, clients send a version header, and the server serves
+  the old shape to any call without one.
