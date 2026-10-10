@@ -1,12 +1,10 @@
 import { AppState, Platform } from "react-native";
 import { createORPCClient, onError } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
-import { version as orpcClientVersion } from "@orpc/client/package.json";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { focusManager, QueryClient } from "@tanstack/react-query";
 
 import type { ContractClient } from "@repo/contract";
-import { ORPC_CLIENT_HEADER } from "@repo/contract/rpc-client";
 
 import { fetchWithSession } from "./api-fetch";
 import { getBaseUrl } from "./base-url";
@@ -39,7 +37,7 @@ const isCancelledFetch = (error: Error) =>
 // deliver the body before the wrapper could read it.
 const link = new RPCLink({
   fetch: fetchWithSession,
-  headers: () => ({ [ORPC_CLIENT_HEADER]: orpcClientVersion, "x-orpc-source": "expo" }),
+  headers: () => ({ "x-orpc-source": "expo" }),
   interceptors: [
     // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
     onError((error) => {
