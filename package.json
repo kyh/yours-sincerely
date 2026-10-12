@@ -31,11 +31,11 @@
   },
   "devDependencies": {
     "dotenv-cli": "catalog:",
-    "oxfmt": "^0.71.0",
-    "oxlint": "^1.86.0",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
     "turbo": "^2.11.7",
     "typescript": "catalog:",
-    "ultracite": "^7.12.2"
+    "ultracite": "^7.12.4"
   },
   "engines": {
     "node": "24.x"
