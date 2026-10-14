@@ -40,7 +40,7 @@ packages
 
 - [Node.js](https://nodejs.org/en) - LTS version recommended (24.x)
 - macOS on Apple silicon, or Linux - the local database is the Supabase CLI (installed by
-  `pnpm install`) running Postgres natively, no Docker
+  `pnpm install`) running Postgres natively
 
 ### Local Development
 
@@ -55,7 +55,7 @@ cp .env.example .env
 # Installing dependencies
 pnpm install
 
-# To start the database (local Supabase, no Docker; it writes POSTGRES_URL into .env.local)
+# To start the database (local Supabase; it writes POSTGRES_URL into .env.local)
 pnpm db:start
 
 # To create the schema — a new local database is EMPTY (every git branch gets its

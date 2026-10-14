@@ -14,7 +14,7 @@
     "supabase": "pnpm with-env supabase",
     "drizzle:kit": "pnpm with-env drizzle-kit",
     "seed": "pnpm with-env tsx src/seed/initial.ts",
-    "start": "supabase start --runtime ${SUPABASE_RUNTIME:-native} && supabase status --env --output-format text --override-name DB_URL=POSTGRES_URL > ../../.env.local",
+    "start": "supabase start --runtime native && supabase status --env --output-format text --override-name DB_URL=POSTGRES_URL > ../../.env.local",
     "stop": "supabase stop",
     "reset": "pnpm start && supabase db reset && pnpm push && pnpm seed",
     "status": "supabase status",
