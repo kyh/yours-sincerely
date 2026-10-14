@@ -101,7 +101,7 @@ the cookie database and any WAL/SHM/journal metadata without recording cookie va
 
 Keep the web server running throughout: the old app loads its UI from it, and Expo uses
 its API. This run used `pnpm -F @repo/web with-env next dev --port 3100` plus the existing
-OrbStack database. Both builds used `http://localhost:3100`; Android also needed
+local database. Both builds used `http://localhost:3100`; Android also needed
 `adb reverse tcp:3100 tcp:3100`. The disposable Expo source changed the migration `HOST`
 to `localhost`; production source keeps `yourssincerely.org`.
 

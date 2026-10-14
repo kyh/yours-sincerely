@@ -1,6 +1,6 @@
 # Real legacy-to-Expo upgrade verification
 
-Verified September 19, 2026 against the local web app and OrbStack database. Raw receipts
+Verified September 19, 2026 against the local web app and the local database. Raw receipts
 (evidence JSON, screenshots, logs) stayed on the test machine and are not retained.
 
 Both platforms passed real UI publish → legacy cold restart → publish → in-place Expo
@@ -200,8 +200,8 @@ was needed in this pass.
   evidence is above. No uninstall, data reset, session injection, or adb tap/typing input.
 - Fresh checks passed: 36 native migration/storage/race tests, 68 API tests, and 11 auth
   database integration tests, including epoch-less cookies and legacy-password recovery.
-  The database tests initially could not connect while OrbStack was stopped; they passed
-  after the existing local database was restored. No schema reset or seed was used.
+  The database tests initially could not connect while the local database was stopped;
+  they passed once it was running again. No schema reset or seed was used.
 
 The signed EAS artifacts use the same auth implementation; see
 [verified production artifacts](./mobile-release-inputs.md#verified-production-artifacts).

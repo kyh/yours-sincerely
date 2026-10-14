@@ -48,7 +48,7 @@ enabled = false
 enabled = false
 
 [experimental]
-# The CLI's stack backend: local Supabase as plain processes, without Docker, one stack
-# per checkout and branch. Experimental (CLI 2.119+): its flags and output can change
-# between releases, so re-run `pnpm db:start` after bumping `supabase`.
+# The CLI's stack backend: local Supabase as plain processes, one stack per checkout and
+# branch. Experimental (CLI 2.119+): its flags and output can change between releases, so
+# re-run `pnpm db:start` after bumping `supabase`.
 stack = true
