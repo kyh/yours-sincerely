@@ -1,6 +1,7 @@
 import type { ReactNode, RefObject } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { BlurTargetView, BlurView } from "expo-blur";
+import type { ViewInstance } from "react-native";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -54,13 +55,13 @@ const DISMISS_VELOCITY = 800;
 // Generous grab area around the handle pill.
 const HANDLE_HIT_SLOP = { bottom: 16, left: 48, right: 48, top: 8 };
 
-const DrawerBackdropContext = createContext<RefObject<View | null> | undefined>(undefined);
+const DrawerBackdropContext = createContext<RefObject<ViewInstance | null> | undefined>(undefined);
 
 export const useDrawerBackdrop = () => useContext(DrawerBackdropContext);
 
 /** Android blur needs an explicit target beneath the separate Modal view tree. */
 export const DrawerBackdropProvider = ({ children }: { children: ReactNode }) => {
-  const target = useRef<View | null>(null);
+  const target = useRef<ViewInstance | null>(null);
   return (
     <DrawerBackdropContext value={target}>
       <BlurTargetView ref={target} style={{ flex: 1 }}>

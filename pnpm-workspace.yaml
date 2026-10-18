@@ -38,13 +38,13 @@ catalogs:
   # unexplained version literal in apps/expo/package.json that looks like drift.
   # Bump only alongside an Expo SDK upgrade.
   expo:
-    react: 19.2.3
-    react-dom: 19.2.3
-    "@types/react": ~19.2.18
-    # Expo SDK 57 blesses TS 6; the rest of the repo is on 7.
+    react: 19.3.0
+    react-dom: 19.3.0
+    "@types/react": ~19.3.0
+    # Expo SDK 58 blesses TS 6; the rest of the repo is on 7.
     typescript: ~6.0.3
 
-# Expo SDK 57 blesses exact versions of these; `pnpm up --latest` must not move them.
+# Expo SDK 58 blesses exact versions of these; `pnpm up --latest` must not move them.
 # Matching is by NAME, so `react`/`react-dom`/`typescript`/`@types/react` cannot go here
 # without freezing web too — their `expo:` catalog rows are reverted by hand after a sweep.
 update:

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { View } from "react-native";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { setPasswordFormInput, setPasswordInput } from "@repo/contract/auth/auth-schema";
 import { useMutation } from "@tanstack/react-query";
@@ -45,8 +45,8 @@ const PasswordUpdateScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const passwordInput = useRef<TextInput>(null);
-  const confirmPasswordInput = useRef<TextInput>(null);
+  const passwordInput = useRef<TextInputInstance>(null);
+  const confirmPasswordInput = useRef<TextInputInstance>(null);
 
   const setPasswordMutation = useMutation(
     orpc.auth.setPassword.mutationOptions({

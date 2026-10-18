@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { View } from "react-native";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { requestPasswordResetInput } from "@repo/contract/auth/auth-schema";
 import { useMutation } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ const PasswordResetScreen = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const emailInput = useRef<TextInput>(null);
+  const emailInput = useRef<TextInputInstance>(null);
 
   const requestReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({

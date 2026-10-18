@@ -33,7 +33,7 @@ import { palettes } from "@/lib/theme-palette";
 
 import "../styles.css";
 
-export const unstable_settings = { initialRouteName: "(tabs)" };
+export const unstable_settings = { anchor: "(tabs)" };
 
 void ignoreRejection(SplashScreen.preventAutoHideAsync());
 

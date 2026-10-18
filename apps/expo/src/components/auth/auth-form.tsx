@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { View } from "react-native";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { signInWithPasswordInput, signUpInput } from "@repo/contract/auth/auth-schema";
@@ -40,8 +40,8 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const emailInput = useRef<TextInput>(null);
-  const passwordInput = useRef<TextInput>(null);
+  const emailInput = useRef<TextInputInstance>(null);
+  const passwordInput = useRef<TextInputInstance>(null);
 
   const onSuccess = async () => {
     if (type === "signin") {

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import type { ViewInstance } from "react-native";
 import { Modal, Pressable, useWindowDimensions, View } from "react-native";
 import { getExpiryProgress } from "@repo/contract/content";
 import { formatDistance } from "date-fns";
@@ -90,7 +91,7 @@ const ExpiryTooltip = ({
 };
 
 export const TimerButton = ({ post }: Props) => {
-  const button = useRef<View>(null);
+  const button = useRef<ViewInstance>(null);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [now] = useState(() => new Date());

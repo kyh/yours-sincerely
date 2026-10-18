@@ -5,6 +5,9 @@ import { Tabs } from "expo-router/js-tabs";
 import { useThemeColors } from "@/components/theme-colors";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
+// Home is the tab a cold start or deep link lands under.
+export const unstable_settings = { anchor: "index" };
+
 // AppShell owns the persistent bar, including navigation from detail screens.
 const hideTabBar = () => null;
 
@@ -16,7 +19,6 @@ const TabLayout = () => {
   return (
     <View className="flex-1" onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       <Tabs
-        initialRouteName="index"
         backBehavior="history"
         tabBar={hideTabBar}
         screenOptions={{

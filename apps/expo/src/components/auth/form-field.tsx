@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { ComponentProps, RefObject } from "react";
 import { Pressable } from "react-native";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 import { cn } from "cn";
 
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Text } from "@/components/ui/text";
 type Props = Omit<ComponentProps<typeof Input>, "ref"> & {
   label: string;
   error?: string;
-  inputRef?: RefObject<TextInput | null>;
+  inputRef?: RefObject<TextInputInstance | null>;
   position?: "first" | "last" | "single";
 };
 
@@ -25,7 +25,7 @@ export const FormField = ({
   onBlur,
   ...props
 }: Props) => {
-  const localRef = useRef<TextInput>(null);
+  const localRef = useRef<TextInputInstance>(null);
   const ref = inputRef ?? localRef;
   const [focused, setFocused] = useState(false);
 

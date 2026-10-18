@@ -306,7 +306,7 @@ has merged the case-twins. Until then `isEmailTaken` refuses new case-duplicates
 ## Tracked constraints — do not "fix" these
 
 - **TypeScript is split across two catalogs.** The default catalog is on v7; Expo sits on
-  `catalog:expo` (`~6.0.3`), the version Expo SDK 57 blesses. Next 16.3 shells out to the
+  `catalog:expo` (`~6.0.3`), the version Expo SDK 58 blesses. Next 16.3 shells out to the
   local `tsc` CLI, so `next build` still type-checks on TS 7.
 - **Update sweeps are only half-guarded.** `update.ignoreDeps` in `pnpm-workspace.yaml`
   makes `pnpm up --latest -r` skip the Expo-only names (`expo`, `expo-*`, `@expo/*`,
@@ -322,7 +322,7 @@ has merged the case-twins. Until then `isEmailTaken` refuses new case-duplicates
   NativeWind 5.0.0 stable.
 - **`lightningcss` is pinned** via `overrides` in `pnpm-workspace.yaml` (pnpm 12 reads
   overrides there, not from `package.json`). **`react-native-svg` is an exact pin** in
-  `apps/expo/package.json` — the Expo SDK 57-blessed patch; move it with the Expo SDK.
+  `apps/expo/package.json` — the Expo SDK 58-blessed patch; move it with the Expo SDK.
 - **`apps/expo/eas.json` `build.base.pnpm` must match the root `packageManager`.** EAS does
   not read `packageManager`, and `corepack: true` without the pin installs the image's default
   pnpm and dies on the Corepack shim (verified on a real build). Bump both together;

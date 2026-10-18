@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import type { ViewStyle } from "react-native";
+import type { ViewInstance, ViewStyle } from "react-native";
 import {
   Linking,
   Modal,
@@ -138,7 +138,7 @@ export const AvatarMenu = () => {
   const { theme, setTheme } = useTheme();
   const { toggleLayout } = useFeedLayout();
   const [menu, setMenu] = useState<MenuState>({ kind: "closed" });
-  const trigger = useRef<View>(null);
+  const trigger = useRef<ViewInstance>(null);
   const MenuItem = wide ? DropdownItem : DrawerItem;
   const showLogin = user === null && !isPending && !isError;
 
