@@ -76,3 +76,4 @@ minimumReleaseAgeExclude:
   - "@orpc/server@2.0.0-beta.45"
   - "@orpc/shared@2.0.0-beta.45"
   - "@orpc/tanstack-query@2.0.0-beta.45"
+  - expo-notifications@57.0.24
