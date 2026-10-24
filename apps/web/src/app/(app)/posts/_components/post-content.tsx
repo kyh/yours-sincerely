@@ -16,6 +16,7 @@ interface Props {
   post: FeedPost;
   layout?: FeedLayout;
   minHeight?: boolean;
+  selectable?: boolean;
   asLink?: boolean;
   showComment?: boolean;
   showTimer?: boolean;
@@ -27,16 +28,16 @@ export const PostContent = ({
   post,
   layout = "list",
   minHeight = false,
+  selectable = true,
   asLink = true,
   showComment = true,
   showTimer = true,
   showMore = true,
   onDeleted,
 }: Props) => {
-  // The swipeable stack keeps the app default: a selection would fight the drag.
   const contentClass = cn(
     "whitespace-pre-wrap",
-    layout !== "stack" && "select-text",
+    selectable && "select-text",
     minHeight && "min-h-[50dvh]",
   );
 
