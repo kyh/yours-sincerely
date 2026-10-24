@@ -33,7 +33,12 @@ export const PostContent = ({
   showMore = true,
   onDeleted,
 }: Props) => {
-  const contentClass = cn("whitespace-pre-wrap", minHeight && "min-h-[50dvh]");
+  // The swipeable stack keeps the app default: a selection would fight the drag.
+  const contentClass = cn(
+    "whitespace-pre-wrap",
+    layout !== "stack" && "select-text",
+    minHeight && "min-h-[50dvh]",
+  );
 
   return (
     <article className={cn("wrap-break-word", layout === "stack" && "flex h-full w-full flex-col")}>

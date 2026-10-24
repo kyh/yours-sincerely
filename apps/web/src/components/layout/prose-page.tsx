@@ -112,7 +112,7 @@ const Blocks = ({ blocks, scope }: { blocks: Block[]; scope: string }) =>
 export const ProsePage = ({ page }: { page: ProsePageData }) => (
   <>
     <PageHeader title={page.title} />
-    <PageContent className="prose dark:prose-invert">
+    <PageContent className="prose dark:prose-invert select-text">
       <Blocks blocks={page.intro ?? []} scope="intro" />
       {page.sections.map((section) => (
         <Fragment key={section.heading}>

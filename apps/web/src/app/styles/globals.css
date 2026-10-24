@@ -4,6 +4,23 @@
 
 @plugin "@tailwindcss/typography";
 
+/* App feel: text is not selectable by default; content opts in with `select-text`.
+   Fields are re-enabled by hand: an iOS WebView (the legacy Capacitor app) inherits
+   `none` into inputs and the caret and typing break. */
+@layer base {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea,
+  [contenteditable]:not([contenteditable="false"]) {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
