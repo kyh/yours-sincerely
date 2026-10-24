@@ -3,14 +3,9 @@ import Image from "next/image";
 import { Card } from "@repo/ui/components/card";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
-import { pageMetadata } from "@/lib/seo";
+import { pageCardMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
-  description:
-    "Stories about us, written by you: an ephemeral, anonymous public art project for tiny beautiful letters in disappearing ink.",
-  path: "/about",
-  title: "About",
-});
+export const metadata: Metadata = pageCardMetadata("about", { video: true });
 
 const Page = () => (
   <>

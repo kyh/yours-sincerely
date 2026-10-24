@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { letterExcerpt, letterMetadata, pageMetadata } from "./seo";
+import {
+  PAGE_CARDS,
+  isPageCardKey,
+  letterExcerpt,
+  letterMetadata,
+  pageCardMetadata,
+  pageMetadata,
+} from "./seo";
 
 const NOW = new Date("2026-10-24T12:00:00Z");
 
@@ -47,4 +54,16 @@ test("a letter whose ink has faded is noindex and quotes none of its words", () 
   assert.deepEqual(meta.robots, { follow: false, index: false });
   const shared = JSON.stringify([meta.title, meta.description, meta.openGraph, meta.twitter]);
   assert.ok(!shared.includes("kindness"));
+});
+
+test("every standing page shares its own drawn card, and the home page keeps og.jpg", () => {
+  for (const key of Object.keys(PAGE_CARDS).filter(isPageCardKey)) {
+    const meta = pageCardMetadata(key);
+    const shared = JSON.stringify([meta.openGraph, meta.twitter]);
+    assert.ok(shared.includes(`/api/og/page/${key}`), key);
+    assert.ok(shared.includes('"width":1200') && shared.includes('"height":630'), key);
+    assert.ok(!shared.includes("og.jpg"), key);
+    assert.equal(meta.alternates?.canonical, PAGE_CARDS[key].path);
+  }
+  assert.ok(JSON.stringify(pageMetadata({ path: "/" }).openGraph).includes("/og.jpg"));
 });

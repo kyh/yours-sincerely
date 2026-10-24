@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getExpiryProgress, parseServerDate } from "@repo/contract/content";
 
+import { contactPage, privacyPage, termsPage } from "@/lib/agent/site-pages";
 import { siteConfig } from "@/lib/site-config";
 
 /** The site-wide share card, `public/og.jpg`. */
@@ -36,14 +37,56 @@ const ogVideoTag = {
   width: OG_VIDEO.width,
 };
 
+/** Every card `src/lib/share-card.tsx` draws is this size. */
+export const SHARE_CARD_SIZE = { height: 630, width: 1200 } as const;
+
+export interface PageCard {
+  path: string;
+  title: string;
+  description: string;
+}
+
+/** The standing pages that get a share card of their own, drawn at
+    `/api/og/page/<key>`. The home page keeps `og.jpg`. */
+export const PAGE_CARDS = {
+  about: {
+    description:
+      "Stories about us, written by you: an ephemeral, anonymous public art project for tiny beautiful letters in disappearing ink.",
+    path: "/about",
+    title: "About",
+  },
+  contact: contactPage,
+  privacy: privacyPage,
+  terms: termsPage,
+} as const satisfies Record<string, PageCard>;
+
+export type PageCardKey = keyof typeof PAGE_CARDS;
+
+export const isPageCardKey = (value: string): value is PageCardKey =>
+  Object.hasOwn(PAGE_CARDS, value);
+
+export const pageCardPath = (key: PageCardKey) => `/api/og/page/${key}`;
+
+/** A card drawn by `src/lib/share-card.tsx`: a URL and what it shows. */
+interface ShareCardImage {
+  url: string;
+  alt: string;
+}
+
 interface PageMetadataInput {
   /** Site path, also the canonical URL. */
   path: string;
   title?: string;
   description?: string;
+  /** The page's own share card; without one it shares `og.jpg`. */
+  card?: ShareCardImage;
   /** The og:video plays on the marketing pages, not on a letter's own card. */
   video?: boolean;
 }
+
+/** The one place og:image and twitter:image are spelled, with their size and alt. */
+const shareImage = (card: ShareCardImage | undefined) =>
+  card ? { ...SHARE_CARD_SIZE, alt: card.alt, url: card.url } : OG_IMAGE;
 
 /** Child metadata replaces the root's `openGraph` and `twitter` wholesale, so a
     page that needs its own `og:url` restates every field here once. */
@@ -51,15 +94,17 @@ export const pageMetadata = ({
   path,
   title,
   description = siteConfig.description,
+  card,
   video = true,
 }: PageMetadataInput): Metadata => {
+  const image = shareImage(card);
   const shareTitle = title ? `${siteConfig.name} | ${title}` : siteConfig.name;
   const metadata: Metadata = {
     alternates: { canonical: path },
     description,
     openGraph: {
       description,
-      images: [OG_IMAGE],
+      images: [image],
       locale: "en-US",
       siteName: siteConfig.name,
       title: shareTitle,
@@ -71,7 +116,7 @@ export const pageMetadata = ({
       card: "summary_large_image",
       creator: siteConfig.twitter,
       description,
-      images: [OG_IMAGE],
+      images: [image],
       title: shareTitle,
     },
   };
@@ -80,6 +125,18 @@ export const pageMetadata = ({
     metadata.title = title;
   }
   return metadata;
+};
+
+/** A standing page's metadata, its share card drawn from `PAGE_CARDS`. */
+export const pageCardMetadata = (key: PageCardKey, options: { video?: boolean } = {}) => {
+  const page = PAGE_CARDS[key];
+  return pageMetadata({
+    card: { alt: `${siteConfig.name}: ${page.title}. ${page.description}`, url: pageCardPath(key) },
+    description: page.description,
+    path: page.path,
+    title: page.title,
+    video: options.video ?? false,
+  });
 };
 
 export const rootOpenGraphVideos = [ogVideoTag];
@@ -127,23 +184,19 @@ export const letterMetadata = (letter: SeoLetter, now = new Date()): Metadata =>
     ? `${letterExcerpt(letter.content, 150)} (${kind.toLowerCase()} on ${siteConfig.name})`
     : FADED_DESCRIPTION;
   const path = letterPath(letter.id);
-  const image = {
+  const card = {
     alt: live ? `${kind}: ${letterExcerpt(letter.content, 120)}` : `${kind} whose ink has faded`,
-    height: 630,
     url: letterImagePath(letter.id),
-    width: 1200,
   };
-  const base = pageMetadata({ description, path, title, video: false });
+  const base = pageMetadata({ card, description, path, title, video: false });
 
   const metadata: Metadata = {
     ...base,
     openGraph: {
       ...base.openGraph,
-      images: [image],
       publishedTime: parseServerDate(letter.createdAt).toISOString(),
       type: "article",
     },
-    twitter: { ...base.twitter, images: [image] },
   };
   if (!live) {
     metadata.robots = NOINDEX;

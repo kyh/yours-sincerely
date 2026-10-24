@@ -2,14 +2,9 @@ import type { Metadata } from "next";
 
 import { ProsePage } from "@/components/layout/prose-page";
 import { privacyPage } from "@/lib/agent/site-pages";
-import { pageMetadata } from "@/lib/seo";
+import { pageCardMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
-  description: privacyPage.description,
-  path: privacyPage.path,
-  title: privacyPage.title,
-  video: false,
-});
+export const metadata: Metadata = pageCardMetadata("privacy");
 
 const Page = () => <ProsePage page={privacyPage} />;
 
