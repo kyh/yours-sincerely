@@ -18,6 +18,7 @@
     "dev:expo": "turbo run dev -F @repo/expo",
     "dev:mobile-ios": "pnpm -F mobile ios",
     "dev:mobile-android": "pnpm -F mobile android",
+    "og:video": "pnpm -F @repo/web og:video",
     "lint": "oxlint --report-unused-disable-directives",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

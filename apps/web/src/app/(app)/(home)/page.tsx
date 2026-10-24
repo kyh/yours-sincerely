@@ -10,10 +10,9 @@ import { feedInfiniteArgs } from "@/lib/feed-query";
 import { getFeedLayout } from "@/lib/feed-layout";
 import { siteConfig } from "@/lib/site-config";
 import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
+export const metadata: Metadata = pageMetadata({ path: "/" });
 
 const feedFilters: FeedFilters = {
   limit: FEED_PAGE_SIZE,

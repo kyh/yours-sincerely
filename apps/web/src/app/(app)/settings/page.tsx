@@ -6,8 +6,10 @@ import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { caller, HydrateClient, prefetch, orpc } from "@/orpc/server";
 import { BlockedWriters } from "./_components/blocked-writers";
 import { AppearanceSettings, SettingsForm } from "./_components/settings-form";
+import { NOINDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  robots: NOINDEX,
   title: "Settings",
 };
 

@@ -3,11 +3,14 @@ import Image from "next/image";
 import { Card } from "@repo/ui/components/card";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/about" },
+export const metadata: Metadata = pageMetadata({
+  description:
+    "Stories about us, written by you: an ephemeral, anonymous public art project for tiny beautiful letters in disappearing ink.",
+  path: "/about",
   title: "About",
-};
+});
 
 const Page = () => (
   <>
