@@ -13,16 +13,17 @@ export const OG_IMAGE = {
 } as const;
 
 /** The og:video, rendered by `pnpm og:video` (`apps/web/scripts/og-video.mjs`):
-    a letter writes itself in the app's card styling, then its ink fades. */
+    beside the logo icon and tagline, a letter card arrives, writes, is liked,
+    and its ink fades word by word before the card floats away. */
 export const OG_VIDEO = {
   description:
-    "A love letter writes itself line by line on a Yours Sincerely card, holds a beat, then its disappearing ink fades away.",
-  durationSeconds: 8,
+    "Beside the Yours Sincerely icon and tagline, a letter card springs into place, a love letter writes itself and is signed and liked, then its disappearing ink lifts away word by word as the expiry ring runs out and the empty card floats off.",
+  durationSeconds: 7,
   height: 630,
   name: `${siteConfig.name}: a letter in disappearing ink`,
   poster: "/og/og-poster.jpg",
   /** The day the clip was committed. Bump it when the clip is re-rendered. */
-  uploadDate: "2026-10-24",
+  uploadDate: "2026-10-25",
   url: "/og/og.mp4",
   width: 1200,
 } as const;
