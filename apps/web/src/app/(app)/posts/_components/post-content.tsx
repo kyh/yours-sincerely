@@ -16,6 +16,7 @@ interface Props {
   post: FeedPost;
   layout?: FeedLayout;
   minHeight?: boolean;
+  selectable?: boolean;
   asLink?: boolean;
   showComment?: boolean;
   showTimer?: boolean;
@@ -27,13 +28,18 @@ export const PostContent = ({
   post,
   layout = "list",
   minHeight = false,
+  selectable = true,
   asLink = true,
   showComment = true,
   showTimer = true,
   showMore = true,
   onDeleted,
 }: Props) => {
-  const contentClass = cn("whitespace-pre-wrap", minHeight && "min-h-[50dvh]");
+  const contentClass = cn(
+    "whitespace-pre-wrap",
+    selectable && "select-text",
+    minHeight && "min-h-[50dvh]",
+  );
 
   return (
     <article className={cn("wrap-break-word", layout === "stack" && "flex h-full w-full flex-col")}>
