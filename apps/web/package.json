@@ -7,6 +7,7 @@
     "build": "pnpm with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "pnpm with-env next dev",
+    "og:video": "node scripts/og-video.mjs",
     "start": "pnpm with-env next start",
     "test": "NODE_ENV=test node --import tsx --test 'src/**/*.test.ts'",
     "typecheck": "next typegen && tsc --noEmit",

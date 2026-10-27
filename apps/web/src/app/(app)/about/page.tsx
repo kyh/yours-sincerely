@@ -3,11 +3,9 @@ import Image from "next/image";
 import { Card } from "@repo/ui/components/card";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
+import { pageCardMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/about" },
-  title: "About",
-};
+export const metadata: Metadata = pageCardMetadata("about", { video: true });
 
 const Page = () => (
   <>

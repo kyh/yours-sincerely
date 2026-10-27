@@ -6,8 +6,10 @@ import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { notificationInfiniteArgs } from "@/lib/notification-query";
 import { caller, HydrateClient, prefetchInfinite, orpc } from "@/orpc/server";
 import { MarkAllReadButton, NotificationsPage } from "./notifications-page";
+import { NOINDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  robots: NOINDEX,
   title: "Notifications",
 };
 

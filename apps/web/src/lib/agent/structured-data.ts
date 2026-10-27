@@ -1,5 +1,10 @@
 import { siteConfig } from "@/lib/site-config";
 
+import { getExpiryProgress, parseServerDate } from "@repo/contract/content";
+
+import { OG_VIDEO, letterExcerpt, letterPath } from "@/lib/seo";
+import type { SeoLetter } from "@/lib/seo";
+
 import { absoluteUrl, siteSummary } from "./markdown";
 
 export type JsonLdValue =
@@ -17,6 +22,7 @@ export interface JsonLdNode {
 const ORGANIZATION_ID = `${siteConfig.url}/#organization`;
 const WEBSITE_ID = `${siteConfig.url}/#website`;
 const APPLICATION_ID = `${siteConfig.url}/#application`;
+const VIDEO_ID = `${siteConfig.url}/#video`;
 
 const sameAs = [siteConfig.repository, siteConfig.playStoreUrl];
 
@@ -75,12 +81,90 @@ export const buildWebApplication = (): JsonLdNode => ({
   publisher: { "@id": ORGANIZATION_ID },
   sameAs,
   url: siteConfig.url,
+  video: { "@id": VIDEO_ID },
+});
+
+/** The og:video, described for search: the same clip every share card plays. */
+export const buildVideoObject = (): JsonLdNode => ({
+  "@id": VIDEO_ID,
+  "@type": "VideoObject",
+  contentUrl: absoluteUrl(OG_VIDEO.url),
+  description: OG_VIDEO.description,
+  duration: `PT${OG_VIDEO.durationSeconds}S`,
+  height: OG_VIDEO.height,
+  name: OG_VIDEO.name,
+  publisher: { "@id": ORGANIZATION_ID },
+  thumbnailUrl: absoluteUrl(OG_VIDEO.poster),
+  uploadDate: OG_VIDEO.uploadDate,
+  width: OG_VIDEO.width,
 });
 
 export const buildSiteGraph = (): JsonLdNode => ({
   "@context": "https://schema.org",
-  "@graph": [buildOrganization(), buildWebSite(), buildWebApplication()],
+  "@graph": [buildOrganization(), buildWebSite(), buildWebApplication(), buildVideoObject()],
 });
+
+interface LetterStats {
+  likeCount: number;
+  commentCount: number;
+}
+
+/** One letter's page. The author is the pen name the page itself prints (often
+    "Anonymous"), with no profile link: the card never says more than the page. */
+export const buildLetterGraph = (letter: SeoLetter & LetterStats, imageUrl: string): JsonLdNode => {
+  const url = absoluteUrl(letterPath(letter.id));
+  const published = parseServerDate(letter.createdAt).toISOString();
+  const { end } = getExpiryProgress(letter.createdAt);
+  const isReply = Boolean(letter.parentId);
+  const posting: JsonLdNode = {
+    "@id": `${url}#letter`,
+    "@type": isReply ? "Comment" : "SocialMediaPosting",
+    articleBody: letter.content,
+    author: { "@type": "Person", name: letter.createdBy },
+    datePublished: published,
+    expires: end.toISOString(),
+    headline: letterExcerpt(letter.content, 110),
+    image: imageUrl,
+    inLanguage: "en-US",
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/LikeAction",
+        userInteractionCount: letter.likeCount,
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/CommentAction",
+        userInteractionCount: letter.commentCount,
+      },
+    ],
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntityOfPage: url,
+    publisher: { "@id": ORGANIZATION_ID },
+    url,
+  };
+  if (letter.parentId) {
+    posting.parentItem = { "@id": `${absoluteUrl(letterPath(letter.parentId))}#letter` };
+  }
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      posting,
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", item: siteConfig.url, name: "Home", position: 1 },
+          {
+            "@type": "ListItem",
+            item: url,
+            name: isReply ? "A reply to a love letter" : "A love letter",
+            position: 2,
+          },
+        ],
+      },
+    ],
+  };
+};
 
 /** `<` is escaped so no value can close the surrounding script tag early. */
 export const serializeJsonLd = (node: JsonLdNode): string =>

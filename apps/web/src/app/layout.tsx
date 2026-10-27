@@ -10,6 +10,7 @@ import { JsonLd } from "@/components/json-ld";
 import { CapacitorProvider } from "@/components/providers/capacitor-provider";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { buildSiteGraph } from "@/lib/agent/structured-data";
+import { OG_IMAGE, rootOpenGraphVideos } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 import { ORPCReactProvider } from "@/orpc/react";
 
@@ -46,18 +47,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   openGraph: {
     description: siteConfig.description,
-    images: [
-      {
-        height: 1080,
-        url: `${siteConfig.url}/og.jpg`,
-        width: 1920,
-      },
-    ],
+    images: [OG_IMAGE],
     locale: "en-US",
     siteName: siteConfig.name,
     title: siteConfig.name,
     type: "website",
     url: siteConfig.url,
+    videos: rootOpenGraphVideos,
   },
   other: {
     "apple-mobile-web-app-title": siteConfig.shortName,
@@ -70,13 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: siteConfig.twitter,
     description: siteConfig.description,
-    images: [
-      {
-        height: 1080,
-        url: `${siteConfig.url}/og.jpg`,
-        width: 1920,
-      },
-    ],
+    images: [OG_IMAGE],
     title: siteConfig.name,
   },
 };

@@ -6,8 +6,10 @@ import { Spinner } from "@repo/ui/components/spinner";
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { fetchOrNotFound, HydrateClient, prefetch, orpc } from "@/orpc/server";
 import { Profile } from "../_components/profile";
+import { NOINDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  robots: NOINDEX,
   title: "Profile",
 };
 
