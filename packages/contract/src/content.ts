@@ -101,7 +101,11 @@ const CJK_CHARACTER = /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uAC
 /** Platform-neutral reading time. CJK characters count as words, matching the prior web behavior. */
 export const getReadingTime = (text: string) => {
   const cjkWords = text.match(CJK_CHARACTER)?.length ?? 0;
-  const spacedWords = text.replace(CJK_CHARACTER, " ").trim().split(/\s+/u).filter(Boolean).length;
+  const spacedWords = text
+    .replaceAll(CJK_CHARACTER, " ")
+    .trim()
+    .split(/\s+/u)
+    .filter(Boolean).length;
   const words = cjkWords + spacedWords;
   const minutes = words / 200;
   return { minutes, text: `${Math.ceil(minutes)} min read`, words };
