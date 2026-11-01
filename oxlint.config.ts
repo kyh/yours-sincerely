@@ -56,6 +56,9 @@ export default defineConfig({
     },
   ],
   rules: {
+    // Keep established code style when upgrading the preset; avoid unrelated rewrites.
+    "anti-slop/no-array-filter-map": "off",
+    "anti-slop/require-readable-spacing": "off",
     // Sequential awaits in loops are deliberate here (ordered SQL statements, batched seed writes).
     "no-await-in-loop": "off",
   },

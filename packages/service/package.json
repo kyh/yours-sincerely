@@ -20,9 +20,9 @@
     "bcryptjs": "^3.0.3",
     "cookie-signature": "^1.2.2",
     "drizzle-orm": "catalog:",
-    "expo-server-sdk": "^7.2.0",
+    "expo-server-sdk": "^8.0.0",
     "next": "catalog:",
-    "resend": "^6.34.1",
+    "resend": "^6.37.0",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "postgres": "^3.4.9"
+    "postgres": "catalog:"
   },
   "devDependencies": {
     "@kyh/tsconfig": "catalog:",

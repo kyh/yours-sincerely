@@ -24,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/form";
-import { Label } from "@repo/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
 import { themes, useTheme } from "@/components/theme";
 import { toast } from "@repo/ui/components/sonner";
@@ -63,8 +62,11 @@ export const AppearanceSettings = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn("outline-border space-y-4 px-3 py-4 outline -outline-offset-1", className)}>
-      <Label>Appearance</Label>
+      <h2 id="appearance-heading" className="text-sm leading-none font-medium">
+        Appearance
+      </h2>
       <RadioGroup
+        aria-labelledby="appearance-heading"
         className="grid grid-cols-4 gap-4 md:grid-cols-6"
         onValueChange={onChangeTheme}
         value={hydrated ? theme : null}
@@ -192,7 +194,7 @@ export const SettingsForm = () => {
         </form>
       </Form>
       <div className="outline-border space-y-2 px-3 py-4 outline -outline-offset-1">
-        <Label>Password</Label>
+        <h2 className="text-sm leading-none font-medium">Password</h2>
         <Button type="button" variant="secondary" onClick={handleRequestPasswordReset}>
           Request password reset
         </Button>

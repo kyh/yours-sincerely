@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import { resolveDisplayName } from "@repo/contract/content";
 import { Button } from "@repo/ui/components/button";
-import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -92,7 +91,7 @@ export const BlockedWriters = () => {
 
   return (
     <div className="outline-border space-y-4 rounded-md px-3 py-4 outline -outline-offset-1">
-      <Label>Blocked writers</Label>
+      <h2 className="text-sm leading-none font-medium">Blocked writers</h2>
       <Suspense fallback={<p className="text-muted-foreground text-sm">Loading…</p>}>
         <BlockedList />
       </Suspense>
