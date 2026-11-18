@@ -2,11 +2,11 @@ import { NativeModule, registerWebModule } from "expo";
 
 class LegacyCookieModule extends NativeModule {
   // oxlint-disable-next-line class-methods-use-this -- instance method shape mirrors the native module
-  read(): Promise<string | null> {
+  read() {
     return Promise.resolve(null);
   }
   // oxlint-disable-next-line class-methods-use-this -- instance method shape mirrors the native module
-  clear(): Promise<void> {
+  clear() {
     return Promise.resolve();
   }
 }

@@ -16,7 +16,6 @@ import {
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 
-/** GitHub-style heatmap — RN port of the web activity-calendar. */
 const BLOCK_SIZE = 12;
 const BLOCK_MARGIN = 4;
 const BLOCK_RADIUS = 2;
@@ -26,9 +25,11 @@ const LEGEND_LEVELS: Level[] = [0, 1, 2, 3, 4];
 
 const getTooltipMessage = (day: Day) => {
   const date = format(parseISO(day.date), DATE_FORMAT);
+
   if (!day.count) {
     return `No posts on ${date}`;
   }
+
   return `${day.count} post${day.count > 1 ? "s" : ""} on ${date}`;
 };
 

@@ -10,17 +10,15 @@ export interface CounterState {
 /** Returns `state` itself when nothing changed, so a render can compare by
     identity before setting state. Reduce motion shows plain text and forgets
     `from`: turning it back off must not roll from a stale value. */
-export const nextCounterState = (
-  state: CounterState,
-  value: number,
-  reduceMotion: boolean,
-): CounterState => {
+export const nextCounterState = (state: CounterState, value: number, reduceMotion: boolean) => {
   if (value !== state.value) {
     return { from: reduceMotion ? null : state.value, value };
   }
+
   if (reduceMotion && state.from !== null) {
     return { from: null, value };
   }
+
   return state;
 };
 
@@ -33,12 +31,14 @@ export interface OdometerColumn {
   from: number | null;
 }
 
-export const odometerColumns = (value: number, from: number): OdometerColumn[] => {
+export const odometerColumns = (value: number, from: number) => {
   const digits = [...String(value)];
   const fromDigits = [...String(from)];
+
   return digits.map((char, index) => {
     const position = digits.length - 1 - index;
     const fromChar = fromDigits.at(-1 - position);
+
     return {
       digit: Number(char),
       from: fromChar === undefined ? null : Number(fromChar),

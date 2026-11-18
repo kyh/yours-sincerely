@@ -34,9 +34,6 @@ import {
 } from "@/lib/query-policies";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-/** Port of apps/web posts/_components/like-button.tsx — heart pop, expanding
-    ring, and 14-particle burst with the same timings/easings/colors. */
-
 const AnimatedCircle = createAnimatedComponent(Circle);
 
 const HEART_PATH =
@@ -52,8 +49,6 @@ const Heart = ({ color }: { color: string }) => (
 
 const CIRCLE_RADIUS = 20;
 
-/** Expanding ring: scale 0→1, stroke #E5214A→#CC8EF5, strokeWidth 40→0,
-    400ms cubic-out. */
 const CircleAnimation = () => {
   const progress = useSharedValue(0);
 
@@ -100,13 +95,14 @@ interface ParticleFlight {
   targetY: number;
 }
 
-const planParticleFlight = (index: number, totalParticles: number): ParticleFlight => {
+const planParticleFlight = (index: number, totalParticles: number) => {
   const angle = (index / totalParticles) * 360 + 45;
   const radians = (angle * Math.PI) / 180;
   const randomFactor = 0.85 + Math.random() * 0.3;
   const burstDistance = BURST_RADIUS * randomFactor;
   const duration = 500 + Math.random() * 200;
   const degreeShift = (13 * Math.PI) / 180;
+
   return {
     duration,
     startX: Math.cos(radians) * START_RADIUS * PATH_SCALE_FACTOR,
@@ -118,8 +114,7 @@ const planParticleFlight = (index: number, totalParticles: number): ParticleFlig
 
 type BurstPlan = { color: (typeof LIKE_BURST_COLOR_PAIRS)[number]; flight: ParticleFlight }[];
 
-/** Rolled once per tap, in the handler: render must stay pure. */
-const planBurst = (): BurstPlan =>
+const planBurst = () =>
   LIKE_BURST_COLOR_PAIRS.map((color, index) => ({
     color,
     flight: planParticleFlight(index, LIKE_BURST_COLOR_PAIRS.length),
@@ -138,7 +133,6 @@ const Particle = ({
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    // Movement/scale/color start at +300ms; opacity keyframes [0,1,1,0] at +400ms.
     progress.set(
       withDelay(300, withTiming(1, { duration: flight.duration, easing: Easing.linear })),
     );
@@ -159,6 +153,7 @@ const Particle = ({
     const easedOutT = Easing.bezier(0.23, 1, 0.32, 1).factory()(t);
     const colorT = Easing.bezier(0.42, 0, 0.58, 1).factory()(t);
     const scale = 1 - Easing.bezier(0.55, 0.085, 0.68, 0.53).factory()(t);
+
     return {
       backgroundColor: interpolateColor(colorT, [0, 1], [fromColor, toColor]),
       opacity: opacity.get(),
@@ -205,7 +200,6 @@ const BurstAnimation = ({ burst }: { burst: BurstPlan }) => (
   </View>
 );
 
-/** Heart pops in with spring {stiffness: 300, damping: 10} after 300ms. */
 const AnimatingHeart = ({ onComplete }: { onComplete: () => void }) => {
   const scale = useSharedValue(0);
 
@@ -238,12 +232,12 @@ interface Props {
 }
 
 type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
+
 type PostQueryData = RouterOutputs["post"]["getPost"];
 
 const FEED_FILTER = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
 const POST_FILTER = { queryKey: orpc.post.getPost.key() };
 
-/** Binds the pure like bookkeeping to the real feed and post-detail caches. */
 const likeMutationHandlers = (postId: string, liked: boolean) => {
   const handlers = createLikeMutationHandlers<FeedQueryData, PostQueryData>(
     {
@@ -255,7 +249,6 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
       },
       readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
       readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
-      // A failed like can still have minted the anonymous user.
       refresh: () => {
         void ignoreRejection(markPostContentStale());
         void ignoreRejection(refreshWorkspaceIdentityIfAnonymous());
@@ -266,17 +259,20 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
     postId,
     liked,
   );
+
   return {
     ...handlers,
     onError: (...args: Parameters<typeof handlers.onError>) => {
       handlers.onError(...args);
       const [error] = args;
+
       if (error instanceof ORPCError && error.code === "NOT_FOUND") {
         toast.error("This letter has been deleted.");
-        // Unlike a like, this changes which letters the feed holds.
         void ignoreRejection(refreshPostContent());
+
         return;
       }
+
       toast.error("Could not update this like. Please try again.");
     },
   };
@@ -292,15 +288,18 @@ export const LikeButton = ({ post }: Props) => {
   const createMutate = useMutation(
     orpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),
   );
+
   const deleteMutate = useMutation(
     orpc.like.deleteLike.mutationOptions(likeMutationHandlers(post.id, false)),
   );
+
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
 
   const toggleLike = () => {
     if (mutationPending) {
       return;
     }
+
     if (post.isLiked) {
       deleteMutate.mutate({ postId: post.id });
     } else {

@@ -12,16 +12,14 @@ after(async () => {
   await db.$client.end();
 });
 
-// The UPDATE halves of the counter triggers (`sql/085-triggers.sql`) fire only on
-// `UPDATE OF` one column, behind a WHEN. The app never issues either update, so
-// nothing else exercises them; a wrong column or a wrong WHEN would fail silently.
-
 const counters = async (postId: string) => {
   const [row] = await db
     .select({ commentCount: post.commentCount, flagCount: post.flagCount })
     .from(post)
     .where(eq(post.id, postId));
+
   assert.ok(row);
+
   return row;
 };
 
@@ -53,6 +51,7 @@ const createFixture = async () => {
 
 integrationTest("reparenting a comment moves its count between parents", async () => {
   const fixture = await createFixture();
+
   try {
     await db.update(post).set({ parentId: fixture.secondId }).where(eq(post.id, fixture.commentId));
 
@@ -65,7 +64,6 @@ integrationTest("reparenting a comment moves its count between parents", async (
   }
 });
 
-/** The backfill `sql/080-reconcile.sql` runs on every push, scoped to one flagger. */
 const judgeUnjudgedFlags = (userId: string) =>
   db.execute(sql`
     UPDATE "Flag" SET "countsTowardHide" = public."isEstablishedFlagger"("userId")
@@ -74,6 +72,7 @@ const judgeUnjudgedFlags = (userId: string) =>
 
 integrationTest("judging an unjudged flag moves flagCount", async () => {
   const fixture = await createFixture();
+
   try {
     await db
       .insert(flag)

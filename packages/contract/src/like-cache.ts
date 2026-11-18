@@ -13,6 +13,7 @@ export interface Likeable {
 export interface FeedPages {
   pages: { posts: Likeable[] }[];
 }
+
 export interface PostDetail {
   post: Likeable & { comments?: Likeable[] };
 }
@@ -21,26 +22,26 @@ type LikeUpdate = <T extends Likeable>(item: T) => T;
 
 /** Idempotent: a second optimistic write for the same state (double tap
     racing the network) must not double-count. */
-export const likePatch = <T extends Likeable>(item: T, liked: boolean): T =>
+export const likePatch = <T extends Likeable>(item: T, liked: boolean) =>
   item.isLiked === liked
     ? item
     : { ...item, isLiked: liked, likeCount: item.likeCount + (liked ? 1 : -1) };
 
 /** The server's answer replaces the optimistic guess outright: its count also
     includes everyone else's likes since the page loaded. */
-export const settleLike = <T extends Likeable>(item: T, settled: Likeable): T =>
+export const settleLike = <T extends Likeable>(item: T, settled: Likeable) =>
   item.isLiked === settled.isLiked && item.likeCount === settled.likeCount
     ? item
     : { ...item, isLiked: settled.isLiked, likeCount: settled.likeCount };
 
-const updateById = <T extends Likeable>(items: T[], postId: string, update: LikeUpdate): T[] =>
+const updateById = <T extends Likeable>(items: T[], postId: string, update: LikeUpdate) =>
   items.map((item) => (item.id === postId ? update(item) : item));
 
 const updateFeedPages = <T extends FeedPages>(
   data: T | undefined,
   postId: string,
   update: LikeUpdate,
-): T | undefined =>
+) =>
   data === undefined
     ? undefined
     : {
@@ -55,14 +56,17 @@ const updatePostDetail = <T extends PostDetail>(
   data: T | undefined,
   postId: string,
   update: LikeUpdate,
-): T | undefined => {
+) => {
   if (data === undefined) {
-    return undefined;
+    return;
   }
+
   const post = data.post.id === postId ? update(data.post) : data.post;
+
   if (post.comments === undefined) {
     return { ...data, post };
   }
+
   return { ...data, post: { ...post, comments: updateById(post.comments, postId, update) } };
 };
 
@@ -70,23 +74,19 @@ export const patchFeedPages = <T extends FeedPages>(
   data: T | undefined,
   postId: string,
   liked: boolean,
-): T | undefined => updateFeedPages(data, postId, (item) => likePatch(item, liked));
+) => updateFeedPages(data, postId, (item) => likePatch(item, liked));
 
 export const patchPostDetail = <T extends PostDetail>(
   data: T | undefined,
   postId: string,
   liked: boolean,
-): T | undefined => updatePostDetail(data, postId, (item) => likePatch(item, liked));
+) => updatePostDetail(data, postId, (item) => likePatch(item, liked));
 
-export const settleFeedPages = <T extends FeedPages>(
-  data: T | undefined,
-  settled: Likeable,
-): T | undefined => updateFeedPages(data, settled.id, (item) => settleLike(item, settled));
+export const settleFeedPages = <T extends FeedPages>(data: T | undefined, settled: Likeable) =>
+  updateFeedPages(data, settled.id, (item) => settleLike(item, settled));
 
-export const settlePostDetail = <T extends PostDetail>(
-  data: T | undefined,
-  settled: Likeable,
-): T | undefined => updatePostDetail(data, settled.id, (item) => settleLike(item, settled));
+export const settlePostDetail = <T extends PostDetail>(data: T | undefined, settled: Likeable) =>
+  updatePostDetail(data, settled.id, (item) => settleLike(item, settled));
 
 export type CacheEntries<T> = [readonly unknown[], T | undefined][];
 
@@ -110,7 +110,7 @@ export interface LikeCache<TFeed extends FeedPages, TPost extends PostDetail> {
 const likeableBefore = <TFeed extends FeedPages, TPost extends PostDetail>(
   snapshot: LikeSnapshot<TFeed, TPost>,
   postId: string,
-): Likeable | undefined =>
+) =>
   [
     ...snapshot.feeds.flatMap(([, data]) => data?.pages.flatMap((page) => page.posts) ?? []),
     ...snapshot.posts.flatMap(([, data]) =>
@@ -132,45 +132,42 @@ export const createLikeMutationHandlers = <TFeed extends FeedPages, TPost extend
     for (const [queryKey, data] of cache.readFeeds()) {
       cache.writeFeed(queryKey, settleFeedPages(data, settled));
     }
+
     for (const [queryKey, data] of cache.readPosts()) {
       cache.writePost(queryKey, settlePostDetail(data, settled));
     }
   };
 
   return {
-    /** Restores this one post, not the whole snapshot: writing back entire
-        cache entries would also undo whatever landed since onMutate, such as
-        another letter's settled like or a newly loaded page, and nothing
-        refetches afterwards to repair it. */
     onError: (
       _error: Error,
       _variables: { postId: string },
       snapshot: LikeSnapshot<TFeed, TPost> | undefined,
     ) => {
       const previous = snapshot === undefined ? undefined : likeableBefore(snapshot, postId);
+
       if (previous !== undefined) {
         settle(previous);
       }
     },
-    onMutate: async (): Promise<LikeSnapshot<TFeed, TPost>> => {
+    onMutate: async () => {
       await cache.cancel();
       const feeds = cache.readFeeds();
       const posts = cache.readPosts();
+
       for (const [queryKey, data] of feeds) {
         cache.writeFeed(queryKey, patchFeedPages(data, postId, liked));
       }
+
       for (const [queryKey, data] of posts) {
         cache.writePost(queryKey, patchPostDetail(data, postId, liked));
       }
+
       return { feeds, posts };
     },
     onSettled: () => {
       cache.refresh();
     },
-    /** `post` is optional so a server without it (an API rolled back, or a
-        store build released ahead of its API) keeps the optimistic state
-        rather than throwing into onError and reverting a like that was saved;
-        onSettled's refresh still runs. */
     onSuccess: (result: { post?: Likeable }) => {
       if (result.post !== undefined) {
         settle(result.post);

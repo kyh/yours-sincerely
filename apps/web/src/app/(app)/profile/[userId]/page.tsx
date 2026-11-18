@@ -19,14 +19,13 @@ interface Props {
   }>;
 }
 
-// No loading.tsx for this segment: its Suspense boundary would start the stream
-// before the notFound() check, and an unknown profile would answer 200.
 const Page = async (props: Props) => {
   const params = await props.params;
 
   const { user } = await fetchOrNotFound(
     orpc.user.getUser.queryOptions({ input: { userId: params.userId } }),
   );
+
   if (!user) {
     notFound();
   }

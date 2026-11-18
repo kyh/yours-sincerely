@@ -11,7 +11,7 @@ interface PushSession {
   registering: boolean;
 }
 
-export const createPushSession = (userId: string | null): PushSession => ({
+export const createPushSession: (userId: string | null) => PushSession = (userId) => ({
   expoPushToken: null,
   permission: null,
   registering: false,

@@ -43,6 +43,7 @@ export const Dialog = ({
   const reduceMotionEnabled = useReducedMotion();
   const [closing, setClosing] = useState(false);
   const [previousOpen, setPreviousOpen] = useState(open);
+
   if (previousOpen !== open) {
     setPreviousOpen(open);
     setClosing(!open && !reduceMotionEnabled);
@@ -54,8 +55,10 @@ export const Dialog = ({
   useEffect(() => {
     if (reduceMotionEnabled) {
       progress.set(open ? 1 : 0);
+
       return;
     }
+
     progress.set(
       withTiming(
         open ? 1 : 0,
@@ -70,6 +73,7 @@ export const Dialog = ({
   }, [open, progress, reduceMotionEnabled]);
 
   const backdropStyle = useAnimatedStyle(() => ({ opacity: progress.get() }));
+
   const panelStyle = useAnimatedStyle(() => ({
     opacity: progress.get(),
     transform: [{ scale: 0.95 + progress.get() * 0.05 }],

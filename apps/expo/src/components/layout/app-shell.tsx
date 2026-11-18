@@ -34,9 +34,11 @@ const pageTitle = (pathname: string) => {
   if (pathname.startsWith("/profile/")) {
     return "Profile";
   }
+
   if (pathname.startsWith("/posts/")) {
     return "Post";
   }
+
   return routeTitles.get(pathname) ?? "Page not found";
 };
 

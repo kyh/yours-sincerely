@@ -25,7 +25,6 @@ const REAL_SECRET = "a-real-secret-of-at-least-32-chars";
 const OLD_SECRET = "the-previous-secret-32-chars-long!";
 const NOW = 1_800_000_000;
 
-/** Exactly how `session.ts` builds its keys — same functions, same order. */
 const sessionVerifySecrets = (activeSecret: string, legacySecrets: readonly string[] = []) =>
   buildVerifySecrets({ activeSecret, legacySecrets, purpose: SESSION_PURPOSE });
 
@@ -51,7 +50,6 @@ describe("resolveCookieSecret", () => {
       DEV_SIGNING_SECRET,
     );
     assert.equal(isLocalEnv("production"), false);
-    // oxlint-disable-next-line unicorn/no-useless-undefined -- an unset NODE_ENV is the case under test
     assert.equal(isLocalEnv(undefined), false);
   });
 
@@ -96,8 +94,6 @@ describe("deriveKey", () => {
 
 describe("the mass-logout guard", () => {
   it("still verifies a session cookie signed with the RAW secret after key derivation", () => {
-    // This is the cookie sitting in browsers and in the Expo app's SecureStore
-    // right now. If it stops verifying, every user is logged out.
     const inTheWild = signSession(encodeSessionPayload("user-1", NOW, 0), REAL_SECRET);
 
     const unsigned = unsignSession(inTheWild, sessionVerifySecrets(REAL_SECRET));
@@ -113,9 +109,6 @@ describe("the mass-logout guard", () => {
   });
 
   it("verifies a cookie signed with a DERIVED legacy key — rotation after this change", () => {
-    // Once the fleet is on derived keys, a later rotation moves the old ROOT
-    // secret into COOKIE_SECRET_LEGACY. Cookies out there are signed with
-    // derive(oldRoot), so the derived legacy key must be in the verify list too.
     const derivedLegacy = signSession(
       encodeSessionPayload("user-1", NOW, 0),
       deriveKey(OLD_SECRET, SESSION_PURPOSE),
@@ -141,6 +134,7 @@ describe("the mass-logout guard", () => {
       encodeSessionPayload("user-1", NOW, 0),
       "attacker-secret-32-chars-long!!!",
     );
+
     assert.equal(unsignSession(forged, sessionVerifySecrets(REAL_SECRET, [OLD_SECRET])), null);
   });
 
@@ -177,8 +171,6 @@ describe("key separation", () => {
   });
 
   it("rejects cross-purpose tokens even while the raw secret is still trusted", () => {
-    // During the migration window the RAW secret verifies in BOTH lists, so the
-    // payload shape is the only thing standing between the two. It must hold.
     const rawSignedCapability = signPushCleanupCapability("user-1", REAL_SECRET, NOW);
     const rawSignedSession = signSession(encodeSessionPayload("user-1", NOW, 0), REAL_SECRET);
 
@@ -186,7 +178,7 @@ describe("key separation", () => {
       rawSignedCapability,
       sessionVerifySecrets(REAL_SECRET),
     );
-    // The signature does verify, but it is not a session.
+
     assert.notEqual(unsignedCapability, null);
     assert.equal(parseSessionPayload(unsignedCapability ?? ""), null);
 
@@ -223,8 +215,6 @@ describe("push-cleanup capability expiry", () => {
   });
 
   it("still accepts an `exp`-less capability — the Expo SecureStore migration window", () => {
-    // The Expo app holds one of these to clean up its push device AFTER sign-out,
-    // the one moment it cannot re-mint. Rejecting these strands those devices.
     const legacyCapability = signSession(
       Buffer.from(JSON.stringify({ scope: "push-cleanup", userId: "user-1" })).toString(
         "base64url",
@@ -251,8 +241,6 @@ describe("push-cleanup capability expiry", () => {
   });
 
   it("keeps trying later secrets when an earlier one yields a malformed payload", () => {
-    // The loop-abort nit: a `catch` that returned null aborted verification
-    // against the remaining (legacy) secrets.
     const legacyKey = deriveKey(OLD_SECRET, PUSH_CLEANUP_PURPOSE);
     const capability = signPushCleanupCapability("user-1", legacyKey, NOW);
 

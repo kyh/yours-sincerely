@@ -14,13 +14,15 @@ import type { CacheEntries, FeedPages, PostDetail } from "./like-cache.ts";
 
 const post = (id: string, likeCount = 0, isLiked = false) => ({ id, isLiked, likeCount });
 
-const feed = (): FeedPages => ({
-  pages: [{ posts: [post("a", 3), post("b", 1, true)] }, { posts: [post("a", 3), post("c")] }],
-});
+const feed = () =>
+  ({
+    pages: [{ posts: [post("a", 3), post("b", 1, true)] }, { posts: [post("a", 3), post("c")] }],
+  }) satisfies FeedPages;
 
-const detail = (): PostDetail => ({
-  post: { ...post("a", 3), comments: [post("b", 1, true), post("c")] },
-});
+const detail = () =>
+  ({
+    post: { ...post("a", 3), comments: [post("b", 1, true), post("c")] },
+  }) satisfies PostDetail;
 
 describe("likePatch", () => {
   it("toggles the flag and moves the count by one", () => {
@@ -107,19 +109,22 @@ describe("settleLike / settleFeedPages / settlePostDetail", () => {
   });
 });
 
-/** In-memory stand-in for the query client: one typed slot per query. */
 const createCacheHarness = () => {
   const feedKey: readonly unknown[] = ["post", "getFeed", { type: "infinite" }];
+
   const emptyFeedKey: readonly unknown[] = [
     "post",
     "getFeed",
     { input: { userId: "u" }, type: "infinite" },
   ];
+
   const postKey: readonly unknown[] = ["post", "getPost", { input: { postId: "a" } }];
+
   const feeds = new Map<string, FeedPages | undefined>([
     [JSON.stringify(feedKey), feed()],
     [JSON.stringify(emptyFeedKey), undefined],
   ]);
+
   const posts = new Map<string, PostDetail | undefined>([[JSON.stringify(postKey), detail()]]);
   let cancelCount = 0;
   let refreshCount = 0;
@@ -128,11 +133,16 @@ const createCacheHarness = () => {
     cache: {
       cancel: () => {
         cancelCount += 1;
+
         return Promise.resolve();
       },
-      readFeeds: (): CacheEntries<FeedPages> =>
-        [feedKey, emptyFeedKey].map((key) => [key, feeds.get(JSON.stringify(key))]),
-      readPosts: (): CacheEntries<PostDetail> => [[postKey, posts.get(JSON.stringify(postKey))]],
+      readFeeds: () =>
+        [feedKey, emptyFeedKey].map((key) => [
+          key,
+          feeds.get(JSON.stringify(key)),
+        ]) satisfies CacheEntries<FeedPages>,
+      readPosts: () =>
+        [[postKey, posts.get(JSON.stringify(postKey))]] satisfies CacheEntries<PostDetail>,
       refresh: () => {
         refreshCount += 1;
       },
@@ -237,7 +247,6 @@ describe("createLikeMutationHandlers", () => {
   it("does nothing on error without a snapshot", () => {
     const harness = createCacheHarness();
     const handlers = createLikeMutationHandlers(harness.cache, "a", true);
-    // oxlint-disable-next-line unicorn/no-useless-undefined -- the snapshot parameter is required, mirroring TanStack's onError
     handlers.onError(new Error("offline"), { postId: "a" }, undefined);
     assert.deepEqual(harness.feed, feed());
   });

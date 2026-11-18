@@ -26,6 +26,7 @@ export const ActivityWeek = ({ data, theme }: Props) => (
     <g style={{ transform: "translateX(5.5%)" }}>
       {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
         const dayStats = data[day];
+
         const ellipseProps = {
           className: "block",
           cx: `${index * (100 / DEFAULT_WEEKDAY_LABELS.length)}%`,

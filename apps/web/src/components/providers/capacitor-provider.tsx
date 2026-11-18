@@ -21,6 +21,7 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
 
     let disposed = false;
     let listener: PluginListenerHandle | undefined;
+
     const listen = async () => {
       const handle = await App.addListener("backButton", ({ canGoBack }) => {
         if (canGoBack) {
@@ -29,12 +30,16 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
           App.exitApp();
         }
       });
+
       if (disposed) {
         await handle.remove();
+
         return;
       }
+
       listener = handle;
     };
+
     void listen();
 
     return () => {

@@ -8,8 +8,6 @@ import { os, requireUser } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
 import { userStatsRow } from "./user-schema";
 
-/** `public."getUserStats"(text)` — see `sql/040-user-stats.sql`. Quoted because the name is
-    camelCase; `sql.raw` would invite injection, an identifier cannot. */
 const getUserStatsFn = sql.identifier("getUserStats");
 
 const authed = os.user.use(requireUser);
@@ -18,9 +16,6 @@ export const userRouter = {
   deleteUser: authed.deleteUser.handler(async ({ context }) => {
     const userId = context.user.id;
 
-    // ON DELETE CASCADE takes the replies, likes and flags under the user's
-    // posts with those posts, and Notification and PushToken rows with the user
-    // row. Every other reference to the user blocks the delete, so it goes by name.
     await context.db.transaction(async (tx) => {
       await tx.delete(post).where(eq(post.userId, userId));
       await tx.delete(like).where(eq(like.userId, userId));
@@ -61,10 +56,6 @@ export const userRouter = {
     const [row] = await context.db.execute(sql`SELECT * FROM ${getUserStatsFn}(${input.userId})`);
 
     return {
-      // A user with no posts still yields a row (zeros). No row at all means no
-      // such user — the clients already render that as "not found". A row that
-      // fails to parse is drift between the SQL function and `userStatsRow`, and
-      // must fail loudly rather than pass for a missing user.
       userStats: row === undefined ? undefined : userStatsRow.parse(row),
     };
   }),
@@ -76,6 +67,7 @@ export const userRouter = {
       if (await isEmailTaken(context.db, input.email, context.user.id)) {
         throw new ORPCError("CONFLICT", { message: "Email already in use" });
       }
+
       updates.email = input.email;
     }
 

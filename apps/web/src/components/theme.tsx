@@ -22,8 +22,6 @@ export const themes = THEME_IDS.map((id) => ({
   label: THEME_LABELS[id],
 }));
 
-// next-themes only writes color-scheme for the literal "light"/"dark", which
-// leaves dark-purple with light native controls; themes.css sets it per class.
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => (
   <NextThemeProvider
     attribute="class"

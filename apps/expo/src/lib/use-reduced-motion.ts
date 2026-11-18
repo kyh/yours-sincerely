@@ -13,7 +13,9 @@ const updateValue = (enabled: boolean) => {
   if (enabled === currentValue) {
     return;
   }
+
   currentValue = enabled;
+
   for (const listener of listeners) {
     listener();
   }
@@ -24,14 +26,17 @@ const subscribe = (listener: Listener) => {
 
   if (nativeSubscription === undefined) {
     nativeSubscription = AccessibilityInfo.addEventListener("reduceMotionChanged", updateValue);
+
     const readInitialValue = async () => {
       updateValue(await AccessibilityInfo.isReduceMotionEnabled());
     };
+
     void ignoreRejection(readInitialValue());
   }
 
   return () => {
     listeners.delete(listener);
+
     if (listeners.size === 0) {
       nativeSubscription?.remove();
       nativeSubscription = undefined;

@@ -44,14 +44,9 @@ interface BottomDrawerProps {
   children: ReactNode;
 }
 
-// Near-critically damped, overshoot-clamped so the sheet never springs past
-// its rest position (an upward overshoot would flash the background below it).
 const SETTLE_SPRING = { damping: 30, overshootClamping: true, stiffness: 300 };
-// Fraction of sheet height a downward drag must pass to dismiss on release.
 const DISMISS_DISTANCE_RATIO = 0.4;
-// Downward velocity (px/s) that dismisses regardless of distance.
 const DISMISS_VELOCITY = 800;
-// Generous grab area around the handle pill.
 const HANDLE_HIT_SLOP = { bottom: 16, left: 48, right: 48, top: 8 };
 
 const DrawerBackdropContext = createContext<RefObject<View | null> | undefined>(undefined);
@@ -61,6 +56,7 @@ export const useDrawerBackdrop = () => useContext(DrawerBackdropContext);
 /** Android blur needs an explicit target beneath the separate Modal view tree. */
 export const DrawerBackdropProvider = ({ children }: { children: ReactNode }) => {
   const target = useRef<View | null>(null);
+
   return (
     <DrawerBackdropContext value={target}>
       <BlurTargetView ref={target} style={{ flex: 1 }}>
@@ -93,65 +89,58 @@ export const DrawerItem = ({
 export const BottomDrawer = ({ open, onClose, onExitComplete, children }: BottomDrawerProps) => {
   const blurTarget = useDrawerBackdrop();
   const insets = useSafeAreaInsets();
-  // Window, not screen: iPad split view and multitasking resize the window.
   const { height: windowHeight } = useWindowDimensions();
   const reduceMotionEnabled = useReducedMotion();
-  // Modal stays mounted through the exit animation, then unmounts. Reduce
-  // motion has no exit animation, so there is nothing to stay mounted for.
   const [closing, setClosing] = useState(false);
   const [previousOpen, setPreviousOpen] = useState(open);
+
   if (previousOpen !== open) {
     setPreviousOpen(open);
     setClosing(!open && !reduceMotionEnabled);
   } else if (closing && reduceMotionEnabled) {
     setClosing(false);
   }
+
   const visible = open || closing;
 
-  // Keyed to `visible`, not the exit spring: under reduce motion, or when it
-  // is switched on mid-exit, the sheet hides without the spring finishing.
   const wasVisible = useRef(visible);
   useEffect(() => {
     if (wasVisible.current && !visible) {
       onExitComplete?.();
     }
+
     wasVisible.current = visible;
   }, [visible, onExitComplete]);
 
   const previousSettings = useRef({ open: false, reduceMotionEnabled });
-  // translateY: 0 = fully open, sheetHeight = fully dismissed (offscreen).
   const translateY = useSharedValue(windowHeight);
-  // Where the sheet sat when a drag started, so drags that begin mid-spring
-  // don't teleport it.
   const dragStartY = useSharedValue(0);
-  // Measured sheet height; falls back to the window height until first layout.
   const sheetHeight = useSharedValue(windowHeight);
 
-  // Drive enter/exit from the `open` prop so every close path (item select,
-  // scrim tap, hardware back, drag) animates out before the Modal unmounts.
   useEffect(() => {
     const previous = previousSettings.current;
+
     if (open === previous.open && reduceMotionEnabled === previous.reduceMotionEnabled) {
       return;
     }
+
     previousSettings.current = { open, reduceMotionEnabled };
 
     if (reduceMotionEnabled) {
       translateY.set(open ? 0 : sheetHeight.get());
+
       return;
     }
 
     if (open) {
-      // A sheet parked at its dismissed position is a fresh open and starts
-      // offscreen; a reopen mid-exit springs back from wherever the sheet is.
       if (translateY.get() >= sheetHeight.get()) {
         translateY.set(windowHeight);
       }
+
       translateY.set(withSpring(0, SETTLE_SPRING));
     } else {
       translateY.set(
         withSpring(sheetHeight.get(), SETTLE_SPRING, (finished) => {
-          // Skip unmounting when the exit spring was cancelled by a reopen.
           if (finished === true) {
             scheduleOnRN(setClosing, false);
           }
@@ -161,31 +150,22 @@ export const BottomDrawer = ({ open, onClose, onExitComplete, children }: Bottom
   }, [open, reduceMotionEnabled, sheetHeight, translateY, windowHeight]);
 
   const pan = panGesture()
-    // Only while open — touches during the exit animation can't drag the
-    // sheet back up or cancel a dismissal the user already asked for.
     .enabled(open)
-    // Attached to the grab handle only, so vertical drags inside the content
-    // (e.g. scrolling the post-form input) still reach the children.
     .activeOffsetY([-10, 10])
     .onStart((event) => {
       "worklet";
-      // Baseline includes the finger travel already spent reaching the
-      // activation threshold, so the first onChange doesn't snap the sheet.
       dragStartY.set(translateY.get() - event.translationY);
     })
     .onChange((event) => {
       "worklet";
-      // Downward follows the finger 1:1; upward is rubber-banded (vaul-style).
       const offset = dragStartY.get() + event.translationY;
       translateY.set(offset < 0 ? -Math.sqrt(-offset) : offset);
     })
-    // onEnd only fires for drags that actually activated, so taps and
-    // sub-threshold flicks can never trigger the velocity dismiss.
     .onEnd((event) => {
       "worklet";
       const dismissDistance = sheetHeight.get() * DISMISS_DISTANCE_RATIO;
+
       if (translateY.get() > dismissDistance || event.velocityY > DISMISS_VELOCITY) {
-        // Flip the prop; the effect above runs the exit spring from here.
         scheduleOnRN(onClose);
       } else {
         translateY.set(reduceMotionEnabled ? 0 : withSpring(0, SETTLE_SPRING));
@@ -202,8 +182,6 @@ export const BottomDrawer = ({ open, onClose, onExitComplete, children }: Bottom
 
   return (
     <Modal visible={visible} transparent statusBarTranslucent onRequestClose={onClose}>
-      {/* Modal hosts a separate native view tree — Android needs its own
-          gesture-handler root inside it. */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}

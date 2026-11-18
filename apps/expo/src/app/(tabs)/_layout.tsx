@@ -5,7 +5,6 @@ import { Tabs } from "expo-router/js-tabs";
 import { useThemeColors } from "@/components/theme-colors";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-// AppShell owns the persistent bar, including navigation from detail screens.
 const hideTabBar = () => null;
 
 const TabLayout = () => {

@@ -1,4 +1,5 @@
 export type CopyLegacySessionResult = "already-stored" | "copied" | "absent";
+
 export type LegacySessionMigrationCheckpoint = "cleanup-pending" | "complete" | null;
 
 interface CopyLegacySessionDependencies {
@@ -39,26 +40,27 @@ const setCheckpointVerified = (
   checkpoint: Exclude<LegacySessionMigrationCheckpoint, null>,
 ) => {
   setCheckpoint(checkpoint);
+
   if (getCheckpoint() !== checkpoint) {
     throw new Error(`The migration ${checkpoint} checkpoint could not be verified`);
   }
 };
 
-export const copyLegacySession = async ({
-  getStored,
-  setStored,
-  readLegacy,
-}: CopyLegacySessionDependencies): Promise<CopyLegacySessionResult> => {
+export const copyLegacySession: (
+  deps: CopyLegacySessionDependencies,
+) => Promise<CopyLegacySessionResult> = async ({ getStored, setStored, readLegacy }) => {
   if (isPresent(getStored())) {
     return "already-stored";
   }
 
   const legacy = await readLegacy();
+
   if (!isPresent(legacy)) {
     return "absent";
   }
 
   setStored(legacy);
+
   if (getStored() !== legacy) {
     throw new Error("The migrated session could not be verified in secure storage");
   }
@@ -68,9 +70,9 @@ export const copyLegacySession = async ({
 
 /** Runs once per cold start. Returns whether the stored session's provenance
     is the legacy jar — only then may finalization later clear that jar. */
-export const migrateLegacySession = async (
+export const migrateLegacySession: (
   deps: MigrateLegacySessionDependencies,
-): Promise<{ result: MigrateLegacySessionResult; legacyProvenance: boolean }> => {
+) => Promise<{ result: MigrateLegacySessionResult; legacyProvenance: boolean }> = async (deps) => {
   const { getStored, setStored, readLegacy, getCheckpoint } = deps;
 
   if (getCheckpoint() === "complete") {
@@ -78,40 +80,43 @@ export const migrateLegacySession = async (
   }
 
   const stored = getStored();
+
   if (getCheckpoint() === "cleanup-pending" && isPresent(stored)) {
     return { legacyProvenance: true, result: "cleanup-pending" };
   }
 
   if (getCheckpoint() === null && isPresent(stored)) {
-    // Recover the narrow crash window between persisting the copied cookie and
-    // checkpointing it. Exact equality proves this stored value came from the
-    // legacy jar without treating an unrelated native session as migratable.
     const legacy = await readLegacy();
+
     if (isPresent(legacy) && legacy === stored) {
       setCheckpointVerified(deps, "cleanup-pending");
+
       return { legacyProvenance: true, result: "cleanup-pending" };
     }
-    // The stored session provably did not come from the legacy jar (e.g. a
-    // sign-up on this app), so there is nothing to migrate now or ever —
-    // reach the terminal state so cold starts stop paying for a native read.
+
     setCheckpointVerified(deps, "complete");
+
     return { legacyProvenance: false, result: "already-stored" };
   }
 
   const result = await copyLegacySession({ getStored, readLegacy, setStored });
+
   if (result === "copied") {
     setCheckpointVerified(deps, "cleanup-pending");
   }
+
   return { legacyProvenance: result === "copied", result };
 };
 
-export const finalizeLegacySession = async ({
+export const finalizeLegacySession: (
+  deps: FinalizeLegacySessionDependencies,
+) => Promise<"cleared" | "deferred"> = async ({
   authenticated,
   getStored,
   getCheckpoint,
   setCheckpoint,
   clearLegacy,
-}: FinalizeLegacySessionDependencies): Promise<"cleared" | "deferred"> => {
+}) => {
   if (!authenticated || !isPresent(getStored()) || getCheckpoint() !== "cleanup-pending") {
     return "deferred";
   }
@@ -128,9 +133,9 @@ export const finalizeLegacySession = async ({
     cookie again and silently sign them back in — so reach the terminal
     checkpoint now. Clearing the jar is best-effort: the checkpoint alone is
     what stops the resurrection, and a cookie nothing reads is harmless. */
-export const retireLegacySession = async (
+export const retireLegacySession: (
   deps: RetireLegacySessionDependencies,
-): Promise<"retired" | "already-complete"> => {
+) => Promise<"retired" | "already-complete"> = async (deps) => {
   if (deps.getCheckpoint() === "complete") {
     return "already-complete";
   }
@@ -140,7 +145,8 @@ export const retireLegacySession = async (
   try {
     await deps.clearLegacy();
   } catch {
-    // The durable checkpoint already prevents another import.
+    return "retired";
   }
+
   return "retired";
 };

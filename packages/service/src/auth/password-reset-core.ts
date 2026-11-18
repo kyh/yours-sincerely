@@ -23,6 +23,7 @@ export const hashResetToken = (resetToken: string) =>
 export const buildResetUrl = (appUrl: string, resetToken: string) => {
   const resetUrl = new URL("/auth/password-update", appUrl);
   resetUrl.searchParams.set("token", resetToken);
+
   return resetUrl.toString();
 };
 
@@ -50,8 +51,8 @@ export interface EmailClient {
  * that into a logged failure instead of a "sent" toast for an email that never
  * left.
  */
-export const createResetEmailSender =
-  (emails: EmailClient): SendResetEmail =>
+export const createResetEmailSender: (emails: EmailClient) => SendResetEmail =
+  (emails) =>
   async ({ resetUrl, to }) => {
     const { error } = await emails.send({
       from: "Yours Sincerely <noreply@yourssincerely.org>",

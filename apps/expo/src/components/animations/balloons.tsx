@@ -30,18 +30,9 @@ import Svg, {
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { createBalloonScene, projectBalloon } from "./balloon-scene";
 
-/** Port of apps/web/src/components/animations/balloons.tsx (Web Animations
-    API → reanimated). Same color pairs, easings, sway + alternating tilt.
-    The balloon art mirrors the web SVG (viewBox 223x609): gradient string,
-    body, knot, soft radial shadow for volume, and lighten glints — softened
-    with react-native-svg native Gaussian-blur filters. The web's perspective
-    projects each flight into native translation and scale. */
-
-// viewBox aspect of the source SVG (223 wide, 609 tall incl. string).
 const BALLOON_VIEWBOX_WIDTH = 223;
 const BALLOON_ASPECT = 609 / BALLOON_VIEWBOX_WIDTH;
 
-// Light and body colors: yellow, red, blue, green, purple.
 const colorPairs: [string, string][] = [
   ["#ffec37ee", "#f8b13dff"],
   ["#f89640ee", "#c03940ff"],
@@ -50,7 +41,6 @@ const colorPairs: [string, string][] = [
   ["#cf85b8ee", "#a3509dff"],
 ];
 
-// easeOutQuint, easeOutCubic.
 const easings = [Easing.bezier(0.22, 1, 0.36, 1), Easing.bezier(0.33, 1, 0.68, 1)];
 
 interface BalloonConfig {
@@ -81,12 +71,10 @@ const BalloonGraphic = ({
   blur: boolean;
 }) => {
   const height = width * BALLOON_ASPECT;
-  // 8px screen-space bokeh (web uses blur(8px)) expressed in viewBox units.
   const bokehStd = (8 * BALLOON_VIEWBOX_WIDTH) / width;
 
   const layers = (
     <>
-      {/* string */}
       <G opacity={0.8} filter="url(#string-blur)">
         <Path
           d="M117.5 253C136.167 294.5 134.7 395 125.5 453C116.3 511 133.833 578.167 125.5 606"
@@ -95,46 +83,39 @@ const BalloonGraphic = ({
           fill="none"
         />
       </G>
-      {/* balloon body */}
       <Path
         d="M176.876 204.032C181.934 198.064 209.694 160.262 210.899 127.619C213.023 70.1236 176.876 13 118.337 13C55.7949 13 18.5828 69.332 22.2724 127.619C24.0956 156.423 38.9766 178.5 51.7922 195.372C57.7811 203.257 90.0671 238.749 112.15 245.044C111.698 248.246 112.044 253.284 116.338 254H121.838V245.71C143.277 242.292 172.085 209.686 176.876 204.032Z"
         fill={balloonColor}
         opacity={0.85}
       />
-      {/* knot */}
       <Path
         d="M125 256.5C125 258.433 122.09 260 118.5 260C114.91 260 112 258.433 112 256.5C112 254.567 114.91 255 118.5 255C122.09 255 125 254.567 125 256.5Z"
         fill={balloonColor}
       />
-      {/* soft radial shadow — gives the body volume */}
       <G opacity={0.2}>
         <Path
           d="M178.928 128.12C178.011 152.146 172.137 162.97 154.623 184.2C141.594 199.992 128.28 215 112.805 215C104.349 215 92.739 215 65.2673 177.844C56.1123 165.461 45.4818 149.259 44.1794 128.12C41.5436 85.3424 68.1267 44 112.805 44C154.623 44 180.55 85.6242 178.928 128.12Z"
           fill="url(#body-shadow)"
         />
       </G>
-      {/* primary glint */}
       <G opacity={0.7} filter="url(#glint-blur-lg)">
         <Path
           d="M72.7992 108.638L74.0985 87.5247C74.3145 84.0152 77.4883 81.4427 80.9664 81.958L94.8619 84.0166C98.4018 84.541 100.699 88.0277 99.7828 91.4871L94.0502 113.144C93.1964 116.369 89.8758 118.278 86.659 117.394L77.1969 114.792C74.4599 114.039 72.6249 111.471 72.7992 108.638Z"
           fill={lightColor}
         />
       </G>
-      {/* secondary glint */}
       <G opacity={0.5} filter="url(#glint-blur-md)">
         <Path
           d="M147.76 88.7366L144.842 67.9855C144.378 64.687 141.316 62.3976 138.021 62.8858L123.638 65.0166C120.098 65.541 117.801 69.0277 118.717 72.4871L124.462 94.1891C125.311 97.3967 128.602 99.3061 131.808 98.4512L143.364 95.3695C146.296 94.5878 148.182 91.7409 147.76 88.7366Z"
           fill={lightColor}
         />
       </G>
-      {/* left rim streak */}
       <G opacity={0.5} filter="url(#glint-blur-sm)">
         <Path
           d="M46.4087 131.164C38.1642 111.726 43.2454 91.2599 47.4381 82.0988C47.7504 81.4164 48.5574 80.8601 48.8712 81.5418C48.9711 81.7589 48.9188 82.1169 48.8357 82.3409C41.2341 102.832 45.5154 122.958 47.3397 130.925C47.8434 133.124 47.2898 133.242 46.4087 131.164Z"
           fill={lightColor}
         />
       </G>
-      {/* right rim streak */}
       <G opacity={0.3} filter="url(#glint-blur-sm)">
         <Path
           d="M190.817 150.078C196.906 136.754 196.503 119.258 195.396 111.05C195.318 110.475 194.888 109.925 194.734 110.403C194.704 110.495 194.689 110.697 194.699 110.807C196.396 129.344 191.942 144.593 190.447 149.824C190.122 150.959 190.349 151.104 190.817 150.078Z"
@@ -199,9 +180,6 @@ const Balloon = ({
 }) => {
   const progress = useSharedValue(0);
 
-  // Kick off on mount — float up with sway + alternating tilt. Runs in an
-  // effect (not the render body) so re-renders never restart the flight; the
-  // config is stable for a mounted balloon (unique id per batch).
   useEffect(() => {
     const easing = easings[config.easingIndex] ?? Easing.linear;
     progress.set(withDelay(config.delay, withTiming(1, { duration: config.duration, easing })));
@@ -209,13 +187,16 @@ const Balloon = ({
 
   const style = useAnimatedStyle(() => {
     const t = progress.get();
+
     const position = projectBalloon(
       config.x + (config.targetX - config.x) * t,
       screenHeight - screenHeight * 5 * t + config.width / 2,
       config.depth,
       { height: screenHeight, width: screenWidth },
     );
+
     const tilt = (t <= 0.5 ? t * 2 : 2 - t * 2) * 2 - 1;
+
     return {
       opacity: t === 0 ? 0 : 1,
       transform: [
@@ -254,9 +235,7 @@ interface BalloonsContextValue {
 }
 
 const BalloonsContext = createContext<BalloonsContextValue>({
-  celebrate: () => {
-    /* empty */
-  },
+  celebrate: () => null,
 });
 
 export const useBalloons = () => useContext(BalloonsContext);
@@ -267,8 +246,6 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
   const [balloonBatch, setBalloonBatch] = useState<BalloonConfig[] | null>(null);
   const nextId = useRef(0);
 
-  // Turning reduce-motion on mid-flight pulls the balloons immediately; the
-  // batch itself is left to expire on its own timer.
   const balloons = reduceMotionEnabled ? null : balloonBatch;
 
   const celebrate = useCallback(() => {
@@ -281,6 +258,7 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
       width: screenWidth,
     }).map((position, index) => {
       const colorPair = colorPairs[index % colorPairs.length];
+
       return {
         ...position,
         balloonColor: colorPair?.[1] ?? "#84A332",
@@ -296,7 +274,6 @@ export const BalloonsProvider = ({ children }: { children: ReactNode }) => {
     const maxLifetime = Math.max(0, ...configs.map((c) => c.duration + c.delay));
 
     setBalloonBatch(configs);
-    // Only clear our own batch — a later celebrate() may have replaced it.
     setTimeout(() => {
       setBalloonBatch((prev) => (prev === configs ? null : prev));
     }, maxLifetime + 500);

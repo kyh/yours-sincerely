@@ -10,18 +10,16 @@ export const resolveDisplayName = (name?: string | null) => name || ANONYMOUS_DI
 export const POST_EXPIRY_DAYS = 21;
 const LEGACY_AVATAR_COUNT = 20;
 
-/** Server timestamps come from Postgres `timestamp without time zone` columns
-    (drizzle mode "string") as UTC wall time like "2026-07-09 18:23:45.123".
-    They are zone-less, so `new Date()` would parse them as LOCAL time and skew
-    all countdown/heatmap math by the viewer's UTC offset. */
+// WARNING: server timestamps are zone-less UTC wall time; new Date() on them parses local time.
 const HAS_EXPLICIT_ZONE = /(?:Z|[+-]\d{2}:?\d{2})$/iu;
 
-export const parseServerDate = (value: string): Date => {
+export const parseServerDate = (value: string) => {
   const iso = value.replace(" ", "T");
-  // Date-only strings already parse as UTC; only zone-less date-times need Z.
+
   if (!iso.includes("T") || HAS_EXPLICIT_ZONE.test(iso)) {
     return new Date(iso);
   }
+
   return new Date(`${iso}Z`);
 };
 
@@ -32,15 +30,13 @@ export const parseServerDate = (value: string): Date => {
 export const serverTimestamp = z
   .string()
   .regex(
-    // Year 0000 and offsets past ±15:59 are also cast errors in Postgres.
     /^(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])[ T](?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:0\d|1[0-5])(?::?[0-5]\d)?)?$/u,
     "Not a server timestamp",
   )
-  // The pattern admits February 30th, which Postgres rejects and `Date` silently
-  // rolls into March, so the calendar date has to survive a round trip.
   .refine((value) => {
     const day = value.slice(0, 10);
     const parsed = parseServerDate(day);
+
     return !Number.isNaN(parsed.getTime()) && parsed.toISOString().startsWith(day);
   }, "Not a calendar date");
 
@@ -54,7 +50,10 @@ export interface ExpiryProgress {
 
 /** The one definition of how a letter fades. Both the web and native timer
     buttons render this — do not re-derive it per platform. */
-export const getExpiryProgress = (createdAt: string, now: Date = new Date()): ExpiryProgress => {
+export const getExpiryProgress: (createdAt: string, now?: Date) => ExpiryProgress = (
+  createdAt,
+  now = new Date(),
+) => {
   const start = parseServerDate(createdAt);
   const end = new Date(start);
   end.setUTCDate(end.getUTCDate() + POST_EXPIRY_DAYS);
@@ -87,12 +86,14 @@ export const LIKE_BURST_COLOR_PAIRS = [
 
 export const getLegacyAvatarIndex = (value = ANONYMOUS_DISPLAY_NAME) => {
   let hash = 0;
+
   for (let index = 0; index < value.length; index += 1) {
     // oxlint-disable-next-line no-bitwise, unicorn/prefer-code-point -- the legacy hash; changing it reassigns every stored avatar
     hash = (hash << 5) - hash + value.charCodeAt(index);
     // oxlint-disable-next-line no-bitwise -- truncates to int32, part of the same hash
     hash &= hash;
   }
+
   return Math.abs(hash) % LEGACY_AVATAR_COUNT;
 };
 
@@ -101,12 +102,15 @@ const CJK_CHARACTER = /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uAC
 /** Platform-neutral reading time. CJK characters count as words, matching the prior web behavior. */
 export const getReadingTime = (text: string) => {
   const cjkWords = text.match(CJK_CHARACTER)?.length ?? 0;
+
   const spacedWords = text
     .replaceAll(CJK_CHARACTER, " ")
     .trim()
     .split(/\s+/u)
     .filter(Boolean).length;
+
   const words = cjkWords + spacedWords;
   const minutes = words / 200;
+
   return { minutes, text: `${Math.ceil(minutes)} min read`, words };
 };

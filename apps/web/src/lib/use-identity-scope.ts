@@ -22,8 +22,10 @@ const IDENTITY_SCOPE: MutationScope = { id: "identity" };
 export const useIdentityScope = () => {
   const anonymous = useWorkspaceUser() === null;
   const [scoped, setScoped] = useState(anonymous);
+
   if (anonymous && !scoped) {
     setScoped(true);
   }
+
   return scoped ? IDENTITY_SCOPE : undefined;
 };

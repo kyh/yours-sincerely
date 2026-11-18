@@ -48,11 +48,11 @@ const createFixture = async () => {
 
 integrationTest("liking the same post twice is a no-op, not a 500", async () => {
   const fixture = await createFixture();
+
   try {
     const first = await fixture.caller.like.createLike({ postId: fixture.postId });
     const second = await fixture.caller.like.createLike({ postId: fixture.postId });
 
-    // The repeat call still returns the row — the client is never handed undefined.
     assert.ok(first.like);
     assert.ok(second.like);
     assert.equal(second.like.postId, fixture.postId);
@@ -62,6 +62,7 @@ integrationTest("liking the same post twice is a no-op, not a 500", async () => 
       .select()
       .from(like)
       .where(and(eq(like.postId, fixture.postId), eq(like.userId, fixture.actorId)));
+
     assert.equal(rows.length, 1);
   } finally {
     await fixture.cleanup();
@@ -70,6 +71,7 @@ integrationTest("liking the same post twice is a no-op, not a 500", async () => 
 
 integrationTest("flagging the same post twice is a no-op, not a 500", async () => {
   const fixture = await createFixture();
+
   try {
     const first = await fixture.caller.flag.createFlag({ postId: fixture.postId });
     const second = await fixture.caller.flag.createFlag({ postId: fixture.postId });
@@ -82,6 +84,7 @@ integrationTest("flagging the same post twice is a no-op, not a 500", async () =
       .select()
       .from(flag)
       .where(and(eq(flag.postId, fixture.postId), eq(flag.userId, fixture.actorId)));
+
     assert.equal(rows.length, 1);
   } finally {
     await fixture.cleanup();
@@ -90,6 +93,7 @@ integrationTest("flagging the same post twice is a no-op, not a 500", async () =
 
 integrationTest("blocking the same author twice is a no-op, not a 500", async () => {
   const fixture = await createFixture();
+
   try {
     const first = await fixture.caller.block.createBlock({ blockingId: fixture.authorId });
     const second = await fixture.caller.block.createBlock({ blockingId: fixture.authorId });
@@ -102,16 +106,16 @@ integrationTest("blocking the same author twice is a no-op, not a 500", async ()
       .select()
       .from(block)
       .where(and(eq(block.blockerId, fixture.actorId), eq(block.blockingId, fixture.authorId)));
+
     assert.equal(rows.length, 1);
   } finally {
     await fixture.cleanup();
   }
 });
 
-/** The author deleting a letter while someone else still has it on screen is an
-    ordinary race, not a server fault. */
 integrationTest("flagging or replying to a deleted letter is NOT_FOUND, not a 500", async () => {
   const fixture = await createFixture();
+
   try {
     await db.delete(post).where(eq(post.id, fixture.postId));
 
@@ -136,6 +140,7 @@ integrationTest("flagging or replying to a deleted letter is NOT_FOUND, not a 50
 
 integrationTest("blocking an account that does not exist is NOT_FOUND", async () => {
   const fixture = await createFixture();
+
   try {
     await assert.rejects(
       fixture.caller.block.createBlock({ blockingId: randomUUID() }),
@@ -146,10 +151,9 @@ integrationTest("blocking an account that does not exist is NOT_FOUND", async ()
   }
 });
 
-/** No client reads these payloads. Anything wider hands out server-owned state:
-    a flag's `countsTowardHide`, a letter's `flagCount` and `baseLikeCount`. */
 integrationTest("mutations hand back only the keys they mean to", async () => {
   const fixture = await createFixture();
+
   try {
     assert.deepEqual(await fixture.caller.flag.createFlag({ postId: fixture.postId }), {
       flag: { postId: fixture.postId },
@@ -159,6 +163,7 @@ integrationTest("mutations hand back only the keys they mean to", async () => {
       content: "A reply that will not last long",
       parentId: fixture.postId,
     });
+
     assert.ok(created);
     assert.deepEqual(Object.keys(created).toSorted(), ["createdBy", "id", "parentId", "userId"]);
 
@@ -172,6 +177,7 @@ integrationTest("mutations hand back only the keys they mean to", async () => {
 
 integrationTest("blocking yourself is rejected", async () => {
   const fixture = await createFixture();
+
   try {
     await assert.rejects(
       fixture.caller.block.createBlock({ blockingId: fixture.actorId }),

@@ -6,7 +6,7 @@ import { after } from "next/server";
  * integration suites use — there is no response to wait for, so the task runs
  * inline and is awaited, which keeps those tests deterministic.
  */
-export const afterResponse = async (task: () => Promise<void>): Promise<void> => {
+export const afterResponse = async (task: () => Promise<void>) => {
   try {
     after(task);
   } catch {

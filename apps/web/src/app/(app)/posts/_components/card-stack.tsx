@@ -39,9 +39,11 @@ const Card = ({
 }: CardProps) => {
   const baseRotation = mix(0, maxRotate, Math.sin(index));
   const x = useMotionValue(0);
+
   const rotate = useTransform(x, [0, 400], [baseRotation, baseRotation + 10], {
     clamp: false,
   });
+
   const zIndex = total - wrap(total, 0, index - currentIndex + 1);
 
   const onDragEnd = () => {
@@ -65,7 +67,6 @@ const Card = ({
     }
   };
 
-  // The fade ramp only reaches 1 at four or more cards; the front one is always opaque.
   const opacity = index === currentIndex ? 1 : progress(total * 0.25, total * 0.75, zIndex);
 
   const progressInStack = progress(0, total - 1, zIndex);
@@ -102,9 +103,6 @@ interface Props<T> {
   hasNextPage?: boolean;
 }
 
-/** Only a handful of cards are ever visible: the current one, the two behind it,
-    and the one you land on going backwards. Mounting the rest gains nothing and
-    costs a drag-enabled motion node each. */
 const WINDOW_BEFORE = 1;
 const WINDOW_AFTER = 2;
 
@@ -122,28 +120,25 @@ export const CardStack = <T extends { id: string }>({
     if (!ref.current) {
       return;
     }
+
     setWidth(ref.current.offsetWidth);
   }, []);
 
   const total = data.length;
 
-  // `currentIndex` lives in CardStackProvider (mounted in the (app) layout), so
-  // it outlives the feed data it indexes. The feed can shrink (block/delete
-  // invalidation, or a refetch simply returning fewer posts) below currentIndex;
-  // wrap it back into range so exactly one card stays gesture-enabled. Without
-  // this, no card satisfies `index === currentIndex` and the stack goes dead.
   const safeIndex = total > 0 ? wrap(0, total, currentIndex) : 0;
 
   const handleSetNextPost = useCallback(() => {
     if (total === 0) {
       return;
     }
-    // Unchanged by windowing: this is derived from the full data length, not
-    // from how many cards happen to be mounted.
+
     const postsLeft = total - safeIndex - 1;
+
     if (postsLeft <= 1 && hasNextPage && onLoadMore) {
       onLoadMore();
     }
+
     setCurrentIndex(wrap(0, total, safeIndex + 1));
   }, [total, safeIndex, hasNextPage, onLoadMore, setCurrentIndex]);
 
@@ -151,6 +146,7 @@ export const CardStack = <T extends { id: string }>({
     if (total === 0) {
       return;
     }
+
     setCurrentIndex(wrap(0, total, safeIndex - 1));
   }, [total, safeIndex, setCurrentIndex]);
 
@@ -160,28 +156,28 @@ export const CardStack = <T extends { id: string }>({
     ["arrowright", handleSetNextPost],
   ]);
 
-  // Rendered once per data change, NOT per swipe, so each card's children keep a
-  // stable element identity and React skips the PostContent subtree on a swipe.
   const rendered = useMemo(() => data.map((item) => render(item)), [data, render]);
 
-  // The window wraps at both ends (the stack cycles). A Set keeps it correct when
-  // the feed is shorter than the window and offsets would collide.
   const windowed = useMemo(() => {
     if (total === 0) {
       return [];
     }
+
     const seen = new Set<number>();
     const cards: { item: T; node: React.ReactNode; index: number }[] = [];
 
     for (let offset = -WINDOW_BEFORE; offset <= WINDOW_AFTER; offset += 1) {
       const index = wrap(0, total, safeIndex + offset);
+
       if (seen.has(index)) {
         continue;
       }
+
       seen.add(index);
 
       const item = data[index];
       const node = rendered[index];
+
       if (item === undefined) {
         continue;
       }

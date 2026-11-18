@@ -15,8 +15,6 @@ after(async () => {
   await db.$client.end();
 });
 
-/** An author with a seeded letter, a plain letter and a reply of their own, and
-    two readers who like some of them. */
 const createFixture = async () => {
   const authorId = randomUUID();
   const readerIds = [randomUUID(), randomUUID()];
@@ -55,6 +53,7 @@ const createFixture = async () => {
 
 integrationTest("totalLikeCount matches a ground-truth count of Like rows", async () => {
   const fixture = await createFixture();
+
   try {
     for (const readerId of fixture.readerIds) {
       const reader = await callerFor(readerId);
@@ -69,12 +68,14 @@ integrationTest("totalLikeCount matches a ground-truth count of Like rows", asyn
         + (SELECT COUNT(*) FROM "Like" l JOIN "Post" p ON p."id" = l."postId"
           WHERE p."userId" = ${fixture.authorId}) AS total
     `);
+
     assert.ok(truth);
     assert.equal(Number(truth.total), 7 + 4);
 
     const { userStats } = await createCaller(null).user.getUserStats({
       userId: fixture.authorId,
     });
+
     assert.ok(userStats);
     assert.equal(userStats.totalLikeCount, Number(truth.total));
     assert.equal(userStats.totalPostCount, fixture.postIds.length);
@@ -91,6 +92,7 @@ integrationTest("getUserStats answers undefined for a user that does not exist",
 integrationTest("taking an email another account holds is CONFLICT, not a 500", async () => {
   const fixture = await createFixture();
   const email = `${fixture.authorId}@example.com`;
+
   try {
     await db.update(user).set({ email }).where(eq(user.id, fixture.authorId));
     const [readerId] = fixture.readerIds;

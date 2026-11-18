@@ -18,26 +18,13 @@ import {
   signSession,
 } from "./session-core";
 
-// Product decision: sessions are effectively permanent — nobody is logged out
-// for inactivity. `COOKIE_SECRET` (from the env, required outside development
-// and test) is the ROOT secret; purpose-scoped sub-keys are derived from it, so
-// a session signature and a push-cleanup capability signature are
-// cryptographically unrelated and neither can be replayed as the other.
-//
-// `COOKIE_SECRET_LEGACY` is a comma-separated list of ROOT secrets accepted for
-// VERIFICATION ONLY, permanently — so rotating the signer never logs anyone out.
-// To retire a signer without logging anyone out, move its value into
-// COOKIE_SECRET_LEGACY before swapping COOKIE_SECRET.
-//
-// The raw root secrets are ALSO accepted for verification, permanently: cookies
-// minted before key derivation existed are signed with the raw secret and are
-// live in browsers and in the Expo app's SecureStore. Sliding renewal migrates
-// them onto the derived key over time.
+// WARNING: raw root secrets and COOKIE_SECRET_LEGACY stay accepted for verification forever; dropping either logs out live sessions.
 const COOKIE_SECRET = resolveCookieSecret(process.env);
 const LEGACY_SECRETS = parseLegacySecrets(process.env.COOKIE_SECRET_LEGACY);
 const IS_LOCAL_ENV = isLocalEnv(process.env.NODE_ENV);
 
 const SESSION_KEY = deriveKey(COOKIE_SECRET, SESSION_PURPOSE);
+
 const SESSION_VERIFY_SECRETS = buildVerifySecrets({
   activeSecret: COOKIE_SECRET,
   legacySecrets: LEGACY_SECRETS,
@@ -45,13 +32,13 @@ const SESSION_VERIFY_SECRETS = buildVerifySecrets({
 });
 
 const PUSH_CLEANUP_KEY = deriveKey(COOKIE_SECRET, PUSH_CLEANUP_PURPOSE);
+
 const PUSH_CLEANUP_VERIFY_SECRETS = buildVerifySecrets({
   activeSecret: COOKIE_SECRET,
   legacySecrets: LEGACY_SECRETS,
   purpose: PUSH_CLEANUP_PURPOSE,
 });
 
-// Renew if older than 7 days.
 const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7;
 
 export const createPushCleanupCapability = (userId: string) =>
@@ -71,8 +58,7 @@ export const verifyPushCleanupCapability = (capability: string) =>
 export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>(
   sessionValue: string | null | undefined,
   findUser: (userId: string) => Promise<TUser | null>,
-): Promise<TUser | null> =>
-  resolveSessionUser({ findUser, sessionValue, verifySecrets: SESSION_VERIFY_SECRETS });
+) => resolveSessionUser({ findUser, sessionValue, verifySecrets: SESSION_VERIFY_SECRETS });
 
 /**
  * Issue a session cookie for `userId` at the user's CURRENT `sessionEpoch`.
@@ -122,11 +108,7 @@ export const renewSessionIfStale = async (
     return;
   }
 
-  try {
-    await setSession(payload.user, sessionEpoch);
-  } catch {
-    // cookies().set throws outside route handlers / server actions (RSC render)
-  }
+  await setSession(payload.user, sessionEpoch).catch(() => null);
 };
 
 /**
@@ -136,7 +118,6 @@ export const clearSession = async () => {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
 
-  // Clear any lingering Supabase auth cookies (migration period)
   for (const cookie of cookieStore.getAll()) {
     if (cookie.name.startsWith("sb-")) {
       cookieStore.delete(cookie.name);
@@ -148,10 +129,12 @@ const SALT_ROUNDS = 10;
 
 export const createPasswordHash = async (password: string) => {
   const passwordHash = await hash(password, SALT_ROUNDS);
+
   return passwordHash;
 };
 
 export const validatePassword = async (password: string, passwordHash: string) => {
   const isMatchingPassword = await compare(password, passwordHash);
+
   return isMatchingPassword;
 };

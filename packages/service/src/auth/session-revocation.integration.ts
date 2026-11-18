@@ -24,36 +24,26 @@ after(async () => {
   await db.$client.end();
 });
 
-// The key `session.ts` signs with — derived from the SAME env, through the SAME
-// pure functions. If `session.ts` ever wires its keys differently, the cookies
-// minted here stop verifying and every test below fails loudly.
 const SESSION_KEY = deriveKey(resolveCookieSecret(process.env), SESSION_PURPOSE);
 
 const NOW_SECONDS = Math.floor(Date.now() / 1000);
 const SESSION_RENEW_AFTER_SECONDS = 60 * 60 * 24 * 7;
 
-/** A cookie exactly as the CURRENT `setSession` mints it. */
 const mintSessionCookie = (userId: string, sessionEpoch: number, iat = NOW_SECONDS) =>
   signSession(encodeSessionPayload(userId, iat, sessionEpoch), SESSION_KEY);
 
-/**
- * A cookie as the PRE-REVOCATION `setSession` minted it: `{user, iat}` with no
- * `epoch` field at all. This is what is sitting in browsers and in the Expo
- * app's SecureStore right now.
- */
 const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
   signSession(Buffer.from(JSON.stringify({ iat, user: userId })).toString("base64"), SESSION_KEY);
 
-/** The lookup `createORPCContext` performs. */
 const findDbUser = (userId: string) => findSessionUser(db, userId);
 
-/** Does this cookie authenticate against the real database? */
 const authenticates = async (sessionValue: string) =>
   (await authenticateSessionValue(sessionValue, findDbUser)) !== null;
 
 const readSessionEpoch = async (userId: string) => {
   const row = await findDbUser(userId);
   assert.ok(row);
+
   return row.sessionEpoch;
 };
 
@@ -87,6 +77,7 @@ const createResetToken = async (userId: string) => {
     updatedAt: new Date().toISOString(),
     userId,
   });
+
   return tokenValue;
 };
 
@@ -94,10 +85,10 @@ integrationTest(
   "THE MASS-LOGOUT GUARD: a cookie with no `epoch` field still authenticates",
   async () => {
     const fixture = await createFixture();
+
     try {
       const inTheWild = mintLegacyCookieWithoutEpoch(fixture.userId);
 
-      // Prove the payload really has no epoch — otherwise this tests nothing.
       const [payload] = inTheWild.split(".");
       assert.equal(
         JSON.stringify(JSON.parse(Buffer.from(payload ?? "", "base64").toString("utf-8"))).includes(
@@ -120,6 +111,7 @@ integrationTest(
 
 integrationTest("a password reset revokes sessions captured beforehand", async () => {
   const fixture = await createFixture();
+
   try {
     const captured = mintSessionCookie(fixture.userId, 0);
     const legacyCaptured = mintLegacyCookieWithoutEpoch(fixture.userId);
@@ -149,13 +141,13 @@ integrationTest("a password reset revokes sessions captured beforehand", async (
 
 integrationTest("the person who reset the password stays signed in", async () => {
   const fixture = await createFixture();
+
   try {
     const resetToken = await createResetToken(fixture.userId);
     await runWithoutCookieScope(() =>
       fixture.caller.auth.setPassword({ password: "a-new-password-123", token: resetToken }),
     );
 
-    // The cookie `setPassword` issues carries the epoch it just bumped to.
     const issuedByTheReset = mintSessionCookie(
       fixture.userId,
       await readSessionEpoch(fixture.userId),
@@ -169,28 +161,25 @@ integrationTest("the person who reset the password stays signed in", async () =>
 
 integrationTest("sliding renewal cannot resurrect a revoked session", async () => {
   const fixture = await createFixture();
+
   try {
-    // Stale enough that `renewSessionIfStale` would re-issue it...
     const staleCookie = mintSessionCookie(
       fixture.userId,
       0,
       NOW_SECONDS - SESSION_RENEW_AFTER_SECONDS - 1,
     );
+
     assert.equal(await authenticates(staleCookie), true);
 
     await runWithoutCookieScope(() => fixture.caller.auth.signOutEverywhere());
     assert.equal(await readSessionEpoch(fixture.userId), 1);
 
-    // ...but the epoch gate runs BEFORE renewal in `createORPCContext`, so the
-    // request is rejected and the cookie is never re-signed.
     assert.equal(
       await authenticates(staleCookie),
       false,
       "a revoked session must not renew itself back into validity",
     );
 
-    // And a cookie re-signed with the epoch from the OLD cookie (the bug this
-    // guards against) would still be rejected.
     assert.equal(await authenticates(mintSessionCookie(fixture.userId, 0)), false);
   } finally {
     await fixture.cleanup();
@@ -199,6 +188,7 @@ integrationTest("sliding renewal cannot resurrect a revoked session", async () =
 
 integrationTest("signOutEverywhere invalidates a cookie captured beforehand", async () => {
   const fixture = await createFixture();
+
   try {
     const captured = mintSessionCookie(fixture.userId, 0);
     assert.equal(await authenticates(captured), true);
@@ -206,7 +196,6 @@ integrationTest("signOutEverywhere invalidates a cookie captured beforehand", as
     await runWithoutCookieScope(() => fixture.caller.auth.signOutEverywhere());
 
     assert.equal(await authenticates(captured), false);
-    // The user can sign in again and the fresh cookie works.
     assert.equal(
       await authenticates(
         mintSessionCookie(fixture.userId, await readSessionEpoch(fixture.userId)),
@@ -220,11 +209,11 @@ integrationTest("signOutEverywhere invalidates a cookie captured beforehand", as
 
 integrationTest("issuing a new reset link burns the outstanding ones", async () => {
   const fixture = await createFixture();
+
   try {
     const firstToken = await createResetToken(fixture.userId);
     const secondToken = await createResetToken(fixture.userId);
 
-    // Consuming one burns every other unused RESET_PASSWORD token for this user.
     await runWithoutCookieScope(() =>
       fixture.caller.auth.setPassword({ password: "a-new-password-123", token: secondToken }),
     );
@@ -233,16 +222,17 @@ integrationTest("issuing a new reset link burns the outstanding ones", async () 
       .select({ token: tokenTable.token, usedAt: tokenTable.usedAt })
       .from(tokenTable)
       .where(eq(tokenTable.userId, fixture.userId));
+
     const usedAt = (resetToken: string) => {
       const row = rows.find((candidate) => candidate.token === hashResetToken(resetToken));
       assert.ok(row, "every link is stored by its digest");
+
       return row.usedAt;
     };
 
     assert.notEqual(usedAt(firstToken), null);
     assert.notEqual(usedAt(secondToken), null);
 
-    // ...and the burned one can no longer be redeemed.
     await assert.rejects(
       fixture.caller.auth.setPassword({ password: "another-password-123", token: firstToken }),
       /Invalid or expired reset token/u,

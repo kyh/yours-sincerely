@@ -10,17 +10,11 @@ import {
 import { os, requireUser } from "../orpc";
 import { postVisibleTo } from "../post/post-utils";
 
-/** Code points, not UTF-16 units, so a cut never lands inside an emoji. */
 const previewOf = (content: string) =>
   [...content].slice(0, NOTIFICATION_PREVIEW_MAX_CHARS).join("");
 
-/** The letter a notification is about. `post` is joined as its comment. */
 const letter = alias(post, "letter");
 
-/** `post.getPost` must be willing to serve both the comment and its letter: a
-    preview must not carry words the recipient blocked or the community flagged
-    into hiding, a tap must not land on NOT_FOUND, and the badge must not count a
-    row the list will not show. */
 const notificationVisibleTo = (db: ORPCContext["db"], viewerId: string) =>
   and(postVisibleTo(db, viewerId, post), postVisibleTo(db, viewerId, letter));
 
@@ -30,9 +24,6 @@ export const notificationRouter = {
   list: authed.list.handler(async ({ context, input }) => {
     const limit = input.limit ?? NOTIFICATION_PAGE_SIZE;
 
-    // Same keyset mechanics as `post.getFeed`: one sentinel row past the limit
-    // says whether a next page exists, and it is sliced off before anything is
-    // derived from the page.
     const rows = await context.db
       .select({
         actorName: notification.actorName,
@@ -45,8 +36,6 @@ export const notificationRouter = {
         readAt: notification.readAt,
       })
       .from(notification)
-      // Inner: the comment and letter FKs cascade, so a notification without
-      // either cannot exist.
       .innerJoin(post, eq(post.id, notification.commentId))
       .innerJoin(letter, eq(letter.id, notification.postId))
       .where(
@@ -70,6 +59,7 @@ export const notificationRouter = {
     }));
 
     const lastItem = pageItems.at(-1);
+
     const nextCursor =
       hasMore && lastItem
         ? { createdAt: lastItem.createdAt, notificationId: lastItem.id }
@@ -109,6 +99,7 @@ export const notificationRouter = {
       )
       .limit(UNREAD_COUNT_CAP)
       .as("unread");
+
     const [row] = await context.db.select({ count: count() }).from(unread);
 
     return { count: row?.count ?? 0 };

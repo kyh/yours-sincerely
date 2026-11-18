@@ -1,10 +1,6 @@
-/**
- * Origin used only to resolve a candidate redirect against. `.invalid` is
- * reserved by RFC 2606, so it can never collide with a real deployment origin.
- */
 const GUARD_ORIGIN = "http://next-path.invalid";
 
-const isSameOrigin = (candidate: string): boolean => {
+const isSameOrigin = (candidate: string) => {
   try {
     return new URL(candidate, GUARD_ORIGIN).origin === GUARD_ORIGIN;
   } catch {
@@ -30,17 +26,20 @@ const isSameOrigin = (candidate: string): boolean => {
  * Repeated params arrive as an array; there is no sensible single destination
  * in that case, so it falls back too.
  */
-export const safeNextPath = (nextPath: string | string[] | undefined): string => {
+export const safeNextPath = (nextPath: string | string[] | undefined) => {
   if (nextPath === undefined || Array.isArray(nextPath)) {
     return "/";
   }
 
   let resolved: string;
+
   try {
     const url = new URL(nextPath, GUARD_ORIGIN);
+
     if (url.origin !== GUARD_ORIGIN) {
       return "/";
     }
+
     resolved = `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return "/";

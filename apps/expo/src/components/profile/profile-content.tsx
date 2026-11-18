@@ -75,6 +75,7 @@ export const ProfileContent = ({ userId }: Props) => {
   }
 
   const user = userQuery.data?.user;
+
   if (user === undefined || user === null) {
     return (
       <View className="flex-1 items-center justify-center px-5 py-5">
@@ -90,10 +91,12 @@ export const ProfileContent = ({ userId }: Props) => {
 
   const allowEdit = currentUser !== null && currentUser.id === user.id;
   const dailyData = createPostsDailyActivity(posts);
+
   const heatmapData = createPostsHeatmap(
     posts,
     width >= HEATMAP_WIDE_MIN_WIDTH ? HEATMAP_DAYS.wide : HEATMAP_DAYS.narrow,
   );
+
   const theme = PROFILE_CALENDAR_THEMES[isDarkTheme(resolvedTheme) ? "dark" : "light"];
   const favoriteDay = dailyData.max.day === "none" ? null : FULL_DAY_LABELS[dailyData.max.day];
 

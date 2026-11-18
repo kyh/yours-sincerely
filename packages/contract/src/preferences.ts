@@ -1,14 +1,15 @@
 export type FeedLayout = "list" | "stack";
 
-export const parseFeedLayout = (value: string | undefined): FeedLayout =>
+export const parseFeedLayout: (value: string | undefined) => FeedLayout = (value) =>
   value === "stack" ? "stack" : "list";
 
-export const nextFeedLayout = (value: FeedLayout): FeedLayout =>
+export const nextFeedLayout: (value: FeedLayout) => FeedLayout = (value) =>
   value === "list" ? "stack" : "list";
 
 export const THEME_IDS = ["system", "light", "dark", "light-purple", "dark-purple"] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
+
 export type ResolvedThemeId = Exclude<ThemeId, "system">;
 
 export const THEME_LABELS = {

@@ -19,9 +19,6 @@ import { clamp01, easeIn, mix, progress, wrap } from "@/lib/motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { KeyboardShortcutsView } from "../../../modules/keyboard-shortcuts/src/keyboard-shortcuts-view";
 
-/** Port of apps/web posts/_components/card-stack.tsx (motion → reanimated).
-    Spring constants match the web version exactly. */
-
 interface CardStackContextType {
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
@@ -32,14 +29,17 @@ const CardStackContext = createContext<CardStackContextType | undefined>(undefin
 export const CardStackProvider = ({ children }: { children: ReactNode }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const value = useMemo(() => ({ currentIndex, setCurrentIndex }), [currentIndex]);
+
   return <CardStackContext.Provider value={value}>{children}</CardStackContext.Provider>;
 };
 
 export const useCardStack = () => {
   const context = useContext(CardStackContext);
+
   if (context === undefined) {
     throw new Error("useCardStack must be used within a CardStackProvider");
   }
+
   return context;
 };
 
@@ -47,7 +47,6 @@ const ADVANCE_SPRING = { damping: 50, stiffness: 600 };
 const SNAP_BACK_SPRING = { damping: 50, stiffness: 300 };
 const STACK_SPRING = { damping: 30, stiffness: 600 };
 
-// Match the web window: current, two ahead, and one behind for Previous.
 const MOUNTED_AHEAD = 2;
 const MOUNTED_BEHIND = 1;
 
@@ -83,7 +82,6 @@ const Card = ({
   const opacity = isCurrent ? 1 : clamp01(progress(total * 0.25, total * 0.75, zIndex));
   const scale = mix(0.5, 1, easeIn(clamp01(progress(0, total - 1, zIndex))));
 
-  // Mount like the web card: from {opacity: 0, scale: 0.3} with a spring.
   const animatedOpacity = useSharedValue(reduceMotionEnabled ? opacity : 0);
   const animatedScale = useSharedValue(reduceMotionEnabled ? scale : 0.3);
   useEffect(() => {
@@ -92,6 +90,7 @@ const Card = ({
   }, [opacity, scale, reduceMotionEnabled, animatedOpacity, animatedScale]);
 
   const scrollGesture = nativeGesture();
+
   const pan = panGesture()
     .enabled(isCurrent)
     .activeOffsetX([-10, 10])
@@ -107,11 +106,14 @@ const Card = ({
     })
     .onEnd((event, success) => {
       "worklet";
+
       if (!success) {
         return;
       }
+
       const distance = Math.abs(event.translationX);
       const speed = Math.abs(event.velocityX);
+
       if (distance > minDistance || speed > minSpeed) {
         scheduleOnRN(setNextPost);
         x.set(reduceMotionEnabled ? 0 : withSpring(0, ADVANCE_SPRING));
@@ -122,6 +124,7 @@ const Card = ({
     .onFinalize((_event, success) => {
       "worklet";
       pressed.set(reduceMotionEnabled ? 1 : withSpring(1, STACK_SPRING));
+
       if (!success) {
         x.set(reduceMotionEnabled ? 0 : withSpring(0, SNAP_BACK_SPRING));
       }
@@ -131,6 +134,7 @@ const Card = ({
     const rotate = reduceMotionEnabled
       ? baseRotation
       : interpolate(x.get(), [0, 400], [baseRotation, baseRotation + 10], Extrapolation.EXTEND);
+
     return {
       opacity: animatedOpacity.get(),
       transform: [
@@ -148,7 +152,6 @@ const Card = ({
         pointerEvents={isCurrent ? "auto" : "none"}
         accessibilityElementsHidden={!isCurrent}
         importantForAccessibility={isCurrent ? "auto" : "no-hide-descendants"}
-        // Elevation casts a full-wrapper Android shadow; stack order only needs zIndex.
         style={[{ zIndex }, animatedStyle]}
       >
         <View className="bg-card max-h-full shrink rounded-2xl p-5" style={PAPER_SHADOW}>
@@ -179,18 +182,19 @@ export const CardStack = <T extends { id: string }>({
   const { currentIndex, setCurrentIndex } = useCardStack();
   const [width, setWidth] = useState(400);
 
-  // The feed can shrink (block/delete invalidation) below currentIndex; wrap
-  // it back into range so exactly one card stays gesture-enabled.
   const safeIndex = data.length > 0 ? wrap(0, data.length, currentIndex) : 0;
 
   const handleSetNextPost = () => {
     if (data.length === 0) {
       return;
     }
+
     const postsLeft = data.length - safeIndex - 1;
+
     if (postsLeft <= 1 && hasNextPage && onLoadMore) {
       onLoadMore();
     }
+
     setCurrentIndex(wrap(0, data.length, safeIndex + 1));
   };
 
@@ -198,11 +202,13 @@ export const CardStack = <T extends { id: string }>({
     if (data.length === 0) {
       return;
     }
+
     setCurrentIndex(wrap(0, data.length, safeIndex - 1));
   };
 
   const isMounted = (index: number) => {
     const ahead = wrap(0, data.length, index - safeIndex);
+
     return ahead <= MOUNTED_AHEAD || data.length - ahead <= MOUNTED_BEHIND;
   };
 

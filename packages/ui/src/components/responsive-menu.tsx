@@ -28,6 +28,7 @@ import { DESKTOP_QUERY, useMediaQuery } from "@repo/ui/lib/utils";
 
 const itemClassName =
   "relative flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
+
 const rowClassName = cn(itemClassName, "h-10 justify-start");
 
 interface ResponsiveMenuContextValue {
@@ -62,6 +63,7 @@ interface ResponsiveMenuProps {
 const ResponsiveMenu = ({ open, onOpenChange, children }: ResponsiveMenuProps) => {
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const drawerActions = React.useRef<DrawerPrimitive.Root.Actions>(null);
+
   const contextValue = React.useMemo(
     () => ({ closeDrawer: () => drawerActions.current?.close(), isDesktop }),
     [isDesktop],
@@ -145,6 +147,7 @@ const ResponsiveMenuItem = ({
   children,
 }: ResponsiveMenuItemProps) => {
   const { isDesktop, closeDrawer } = useResponsiveMenu();
+
   const content = (
     <>
       {children}
@@ -176,6 +179,7 @@ const ResponsiveMenuItem = ({
       aria-busy={loading || undefined}
       onClick={() => {
         onClick?.();
+
         if (closeOnClick) {
           closeDrawer();
         }
@@ -198,6 +202,7 @@ const ResponsiveMenuLinkItem = ({
   ...props
 }: ResponsiveMenuLinkItemProps) => {
   const { isDesktop, closeDrawer } = useResponsiveMenu();
+
   const row = useRender({
     defaultTagName: "a",
     enabled: !isDesktop,

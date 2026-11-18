@@ -15,6 +15,7 @@ export const FeedLayoutProvider = ({ children }: { children: ReactNode }) => {
       const stored = await AsyncStorage.getItem(FEED_LAYOUT_STORAGE_KEY);
       setLayout(parseFeedLayout(stored ?? undefined));
     };
+
     void ignoreRejection(restoreLayout());
   }, []);
 
@@ -25,6 +26,7 @@ export const FeedLayoutProvider = ({ children }: { children: ReactNode }) => {
         setLayout((current) => {
           const next: FeedLayout = nextFeedLayout(current);
           void ignoreRejection(AsyncStorage.setItem(FEED_LAYOUT_STORAGE_KEY, next));
+
           return next;
         });
       },

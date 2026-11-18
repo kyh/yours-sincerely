@@ -5,12 +5,13 @@ import { sectorPath } from "./timer-geometry.ts";
 
 const RADIUS = 8;
 
-/** Arc endpoint from the path's `A … x y Z` tail. */
 const endpoint = (path: string) => {
   const match = /A [\d.]+ [\d.]+ 0 (?<largeArc>\d) 1 (?<x>-?[\d.e-]+) (?<y>-?[\d.e-]+) Z$/u.exec(
     path,
   );
+
   assert.ok(match?.groups, `unexpected path: ${path}`);
+
   return {
     largeArc: Number(match.groups.largeArc),
     x: Number(match.groups.x),

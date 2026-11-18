@@ -6,53 +6,25 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
-// oRPC's own serializer, so dehydrated data round-trips every type the RPC
-// protocol supports (Date, Map, Set, BigInt, URL, NaN, Infinity) — plain JSON would
-// hand the client a string where the server had a Date.
-//
-// Query KEYS get TanStack's default hash, which is exact only while every
-// procedure input stays plain JSON — it encodes a Map or Set as "{}", so two
-// distinct inputs share one cache entry, and it throws on a BigInt. Today they
-// are all plain (ids, a limit, and a feed cursor whose `createdAt` is a
-// string). Put a rich value in an input and keys have to hash through this
-// serializer too, with the meta sorted so property order cannot split them.
 const serializer = new RPCSerializer();
 
 export const createQueryClient = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      // No `mutations.onSuccess` default here on purpose. TanStack merges
-      // mutation options by spread, so a per-mutation `onSuccess` replaces the
-      // default rather than chaining with it — a blanket default silently does
-      // nothing for every mutation that defines its own. Each mutation calls an
-      // explicit policy from `@/lib/query-policies` instead.
       dehydrate: {
-        // FormData cannot ride the hydration payload into the browser, so blobs
-        // stay inline in the JSON.
         serializeData: (data) => serializer.serialize(data, { useFormDataForBlobFields: false }),
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) || query.state.status === "pending",
-        shouldRedactErrors: () =>
-          // We should not catch Next.js server errors
-          // as that's how Next.js detects dynamic pages
-          // so we cannot redact them.
-          // Next.js also automatically redacts errors for us
-          // with better digests.
-          false,
+        shouldRedactErrors: () => false,
       },
       hydrate: {
         deserializeData: (data) => serializer.deserialize(data),
       },
       queries: {
-        // Any explicit `retry` replaces TanStack's server default of 0, and this
-        // client also backs the RSC prefetches — so the server check stays here,
-        // or a 5xx during render would back off for seconds before failing.
         retry: (failureCount, error) =>
           !environmentManager.isServer() &&
           failureCount < MAX_QUERY_RETRIES &&
           !(error instanceof ORPCError && isPermanentErrorCode(error.code)),
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
         staleTime: 30 * 1000,
       },
     },

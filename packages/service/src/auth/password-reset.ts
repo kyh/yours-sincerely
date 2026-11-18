@@ -69,8 +69,6 @@ export const issuePasswordReset = async (
     throw error;
   }
 
-  // Older, not "every other": a concurrent request's newer link must survive
-  // this one's burn, or a double-click leaves the user with no working link.
   await burnResetTokens(db, userId, issued.createdAt);
 };
 
@@ -85,6 +83,7 @@ export const sendPasswordReset = async (
   { address, appUrl, send }: { address: string; appUrl: string; send: SendResetEmail },
 ) => {
   const account = await findUserByEmail(db, address);
+
   if (!account?.email) {
     return;
   }

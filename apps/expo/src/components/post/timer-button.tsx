@@ -37,10 +37,12 @@ const ExpiryTooltip = ({
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const [size, setSize] = useState({ height: 0, width: 0 });
+
   const left = Math.max(
     8,
     Math.min(anchor.x + anchor.width / 2 - size.width / 2, width - size.width - 8),
   );
+
   const above = anchor.y - size.height - 4 >= insets.top;
   const top = above ? anchor.y - size.height - 4 : anchor.y + anchor.height + 4;
 

@@ -30,6 +30,7 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     user && resolveDisplayName(user.displayName),
     ANONYMOUS_DISPLAY_NAME,
   );
+
   const [error, setError] = useState<string | null>(null);
 
   const updateUser = useMutation(
@@ -49,15 +50,21 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
     if (user === undefined || user === null) {
       return;
     }
+
     if (displayName === resolveDisplayName(user.displayName)) {
       setError(null);
+
       return;
     }
+
     const parsed = updateUserInput.safeParse({ displayName });
+
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid name");
+
       return;
     }
+
     setError(null);
     updateUser.mutate(parsed.data);
   };

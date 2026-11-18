@@ -11,7 +11,6 @@ import {
 
 const email = "writer@example.com";
 const sevenChars = "1234567";
-// 37 characters, 74 UTF-8 bytes: over the byte cap while well under 72 characters.
 const seventyFourBytes = "é".repeat(37);
 
 test("sign-up rejects a password shorter than 8 characters", () => {

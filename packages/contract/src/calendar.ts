@@ -22,6 +22,7 @@ export interface CalendarDay {
 }
 
 export type CalendarWeek = (CalendarDay | undefined)[];
+
 export type CalendarWeeks = CalendarWeek[];
 
 export interface CalendarTheme {
@@ -96,23 +97,28 @@ export type WeekdayActivity = Record<WeekdayLabel, { count: number; level: Calen
 
 const MIN_DISTANCE_MONTH_LABELS = 2;
 
-export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): string => {
+export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel) => {
   switch (level) {
     case 0: {
       return theme.level0;
     }
+
     case 1: {
       return theme.level1;
     }
+
     case 2: {
       return theme.level2;
     }
+
     case 3: {
       return theme.level3;
     }
+
     case 4: {
       return theme.level4;
     }
+
     default: {
       const exhaustive: never = level;
       throw new Error(`Unknown calendar level ${String(exhaustive)}`);
@@ -120,10 +126,9 @@ export const calendarLevelColor = (theme: CalendarTheme, level: CalendarLevel): 
   }
 };
 
-/** Sunday, `getDay`'s 0: weeks are columns that start on Sunday. */
 const WEEK_START = 0;
 
-export const groupCalendarDaysByWeeks = (days: CalendarDay[]): CalendarWeeks => {
+export const groupCalendarDaysByWeeks: (days: CalendarDay[]) => CalendarWeeks = (days) => {
   if (days.length === 0) {
     return [];
   }
@@ -131,6 +136,7 @@ export const groupCalendarDaysByWeeks = (days: CalendarDay[]): CalendarWeeks => 
   const daysMap = new Map(days.map((day) => [day.date, day]));
   const [firstInput] = days;
   const lastInput = days.at(-1);
+
   if (firstInput === undefined || lastInput === undefined) {
     return [];
   }
@@ -138,18 +144,21 @@ export const groupCalendarDaysByWeeks = (days: CalendarDay[]): CalendarWeeks => 
   const normalizedDays = eachDayOfInterval({
     end: parseISO(lastInput.date),
     start: parseISO(firstInput.date),
-  }).map((day): CalendarDay => {
+  }).map((day) => {
     const date = formatISO(day, { representation: "date" });
-    return daysMap.get(date) ?? { count: 0, date, level: 0 };
+
+    return daysMap.get(date) ?? ({ count: 0, date, level: 0 } satisfies CalendarDay);
   });
 
   const firstDate = parseISO(normalizedDays[0]?.date ?? "");
+
   const firstCalendarDate =
     getDay(firstDate) === WEEK_START ? firstDate : subWeeks(nextDay(firstDate, WEEK_START), 1);
-  const padding = Array.from(
-    { length: differenceInCalendarDays(firstDate, firstCalendarDate) },
-    (): undefined => undefined,
-  );
+
+  const padding = Array.from<undefined>({
+    length: differenceInCalendarDays(firstDate, firstCalendarDate),
+  });
+
   const paddedDays: (CalendarDay | undefined)[] = [...padding, ...normalizedDays];
 
   return Array.from({ length: Math.ceil(paddedDays.length / 7) }, (_, calendarWeek) =>
@@ -163,41 +172,52 @@ interface CalendarLabel {
   text: string;
 }
 
-export const getCalendarMonthLabels = (weeks: CalendarWeeks): CalendarLabel[] => {
+export const getCalendarMonthLabels = (weeks: CalendarWeeks) => {
   const labels: CalendarLabel[] = [];
+
   for (const [index, week] of weeks.entries()) {
     const firstDay = week.find((day) => day !== undefined);
+
     if (firstDay === undefined) {
       continue;
     }
+
     const month = MONTH_LABELS[getMonth(parseISO(firstDay.date))] ?? "";
     const previous = labels.at(-1);
+
     if (index === 0 || previous?.text !== month) {
       labels.push({ text: month, x: index, y: 0 });
     }
   }
+
   return labels.filter((label, index, all) => {
     if (index !== 0) {
       return true;
     }
+
     const [, second] = all;
+
     return second !== undefined && second.x - label.x > MIN_DISTANCE_MONTH_LABELS;
   });
 };
 
-const getPostLevel = (count: number, max: number): CalendarLevel => {
+const getPostLevel: (count: number, max: number) => CalendarLevel = (count, max) => {
   if (count === 0) {
     return 0;
   }
+
   if (count < max * 0.3) {
     return 1;
   }
+
   if (count < max * 0.6) {
     return 2;
   }
+
   if (count < max * 0.9) {
     return 3;
   }
+
   return 4;
 };
 
@@ -211,25 +231,30 @@ export const createPostsHeatmap = (
 
   for (const post of posts) {
     const day = format(parseServerDate(post.createdAt), "yyyy-MM-dd");
+
     if (counts.has(day)) {
       counts.set(day, (counts.get(day) ?? 0) + 1);
     }
   }
 
   const max = Math.max(0, ...counts.values());
+
   const stats: CalendarDay[] = [...counts].map(([date, count]) => ({
     count,
     date,
     level: getPostLevel(count, max),
   }));
+
   return { max, stats };
 };
 
 export const createPostsDailyActivity = (posts: CalendarPost[]) => {
   const counts = new Map<WeekdayLabel, number>(DEFAULT_WEEKDAY_LABELS.map((day) => [day, 0]));
+
   for (const post of posts) {
     const formatted = format(parseServerDate(post.createdAt), "eee");
     const day = DEFAULT_WEEKDAY_LABELS.find((label) => label === formatted);
+
     if (day !== undefined) {
       counts.set(day, (counts.get(day) ?? 0) + 1);
     }
@@ -237,16 +262,20 @@ export const createPostsDailyActivity = (posts: CalendarPost[]) => {
 
   let maxDay: WeekdayLabel | "none" = "none";
   let maxCount = 0;
+
   for (const [day, count] of counts) {
     if (count > maxCount) {
       maxDay = day;
       maxCount = count;
     }
   }
+
   const activity = (day: WeekdayLabel) => {
     const count = counts.get(day) ?? 0;
+
     return { count, level: getPostLevel(count, maxCount) };
   };
+
   const stats: WeekdayActivity = {
     Fri: activity("Fri"),
     Mon: activity("Mon"),
@@ -256,5 +285,6 @@ export const createPostsDailyActivity = (posts: CalendarPost[]) => {
     Tue: activity("Tue"),
     Wed: activity("Wed"),
   };
+
   return { max: { day: maxDay, max: maxCount }, stats };
 };

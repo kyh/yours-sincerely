@@ -22,6 +22,7 @@ export const KeyboardShortcutsView = (props: Props) => {
   useFocusEffect(
     useCallback(() => {
       setFocused(true);
+
       return () => setFocused(false);
     }, []),
   );
@@ -30,6 +31,7 @@ export const KeyboardShortcutsView = (props: Props) => {
     if (!focused) {
       return;
     }
+
     if (props.mode === "compose") {
       if (action === "submit") {
         props.onSubmit();

@@ -12,7 +12,6 @@ const config: CapacitorConfig = {
     },
   },
   server: {
-    // url: "http://localhost:3000",
     url: "https://yourssincerely.org",
   },
 };

@@ -12,7 +12,7 @@ export const OG_IMAGE = {
   width: 1920,
 } as const;
 
-/** The og:video, rendered by `pnpm og:video` (`apps/web/scripts/og-video.mjs`):
+/** The og:video, rendered by `pnpm og:video` (`apps/web/scripts/og-video.ts`):
     beside the logo icon and tagline, a letter card arrives, writes, is liked,
     and its ink fades word by word before the card floats away. */
 export const OG_VIDEO = {
@@ -85,21 +85,21 @@ interface PageMetadataInput {
   video?: boolean;
 }
 
-/** The one place og:image and twitter:image are spelled, with their size and alt. */
 const shareImage = (card: ShareCardImage | undefined) =>
   card ? { ...SHARE_CARD_SIZE, alt: card.alt, url: card.url } : OG_IMAGE;
 
 /** Child metadata replaces the root's `openGraph` and `twitter` wholesale, so a
     page that needs its own `og:url` restates every field here once. */
-export const pageMetadata = ({
+export const pageMetadata: (input: PageMetadataInput) => Metadata = ({
   path,
   title,
   description = siteConfig.description,
   card,
   video = true,
-}: PageMetadataInput): Metadata => {
+}) => {
   const image = shareImage(card);
   const shareTitle = title ? `${siteConfig.name} | ${title}` : siteConfig.name;
+
   const metadata: Metadata = {
     alternates: { canonical: path },
     description,
@@ -121,16 +121,18 @@ export const pageMetadata = ({
       title: shareTitle,
     },
   };
-  // Left unset, the root layout's default title applies; an explicit undefined would erase it.
+
   if (title) {
     metadata.title = title;
   }
+
   return metadata;
 };
 
 /** A standing page's metadata, its share card drawn from `PAGE_CARDS`. */
 export const pageCardMetadata = (key: PageCardKey, options: { video?: boolean } = {}) => {
   const page = PAGE_CARDS[key];
+
   return pageMetadata({
     card: { alt: `${siteConfig.name}: ${page.title}. ${page.description}`, url: pageCardPath(key) },
     description: page.description,
@@ -148,13 +150,16 @@ export const NOINDEX: Metadata["robots"] = { follow: false, index: false };
 const ELLIPSIS = "…";
 
 /** The first `max` characters of a letter, on one line, cut at a word. */
-export const letterExcerpt = (content: string, max: number): string => {
+export const letterExcerpt = (content: string, max: number) => {
   const flat = content.replaceAll(/\s+/gu, " ").trim();
+
   if (flat.length <= max) {
     return flat;
   }
+
   const cut = flat.slice(0, max - 1);
   const lastSpace = cut.lastIndexOf(" ");
+
   return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}${ELLIPSIS}`;
 };
 
@@ -176,19 +181,26 @@ export const isLetterIndexable = (letter: Pick<SeoLetter, "createdAt">, now = ne
 
 const FADED_DESCRIPTION = `The disappearing ink on this letter has faded. ${siteConfig.description}`;
 
-export const letterMetadata = (letter: SeoLetter, now = new Date()): Metadata => {
+export const letterMetadata: (letter: SeoLetter, now?: Date) => Metadata = (
+  letter,
+  now = new Date(),
+) => {
   const live = isLetterIndexable(letter, now);
   const isReply = Boolean(letter.parentId);
   const kind = isReply ? "A reply to a love letter" : "A love letter";
   const title = live ? `“${letterExcerpt(letter.content, 60)}”` : kind;
+
   const description = live
     ? `${letterExcerpt(letter.content, 150)} (${kind.toLowerCase()} on ${siteConfig.name})`
     : FADED_DESCRIPTION;
+
   const path = letterPath(letter.id);
+
   const card = {
     alt: live ? `${kind}: ${letterExcerpt(letter.content, 120)}` : `${kind} whose ink has faded`,
     url: letterImagePath(letter.id),
   };
+
   const base = pageMetadata({ card, description, path, title, video: false });
 
   const metadata: Metadata = {
@@ -199,8 +211,10 @@ export const letterMetadata = (letter: SeoLetter, now = new Date()): Metadata =>
       type: "article",
     },
   };
+
   if (!live) {
     metadata.robots = NOINDEX;
   }
+
   return metadata;
 };

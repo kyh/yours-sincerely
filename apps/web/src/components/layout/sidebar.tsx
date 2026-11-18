@@ -9,10 +9,9 @@ import type { AnimationItem } from "lottie-web/build/player/lottie_light";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
-// The light player has no expression engine: the icon JSONs have theirs baked
-// into keyframes, and sidebar-icons.test.ts keeps it that way.
 const loadLottie = async () => {
   const { default: lottie } = await import("lottie-web/build/player/lottie_light");
+
   return lottie;
 };
 
@@ -22,16 +21,21 @@ const useLottieIcon = (path: string) => {
 
   useEffect(() => {
     const container = containerRef.current;
+
     if (!container) {
       return;
     }
+
     let animation: AnimationItem | undefined;
     let cancelled = false;
+
     const mount = async () => {
       const lottie = await loadLottie();
+
       if (cancelled) {
         return;
       }
+
       animation = lottie.loadAnimation({
         autoplay: false,
         container,
@@ -39,11 +43,12 @@ const useLottieIcon = (path: string) => {
         path,
         renderer: "svg",
       });
-      // A finished animation parks on its last frame, where play() is a no-op.
       animation.addEventListener("complete", () => animation?.goToAndStop(0, true));
       animationRef.current = animation;
     };
+
     void mount();
+
     return () => {
       cancelled = true;
       animation?.destroy();
@@ -64,14 +69,14 @@ export const Sidebar = () => {
   const user = useWorkspaceUser();
   // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [year] = useState(() => new Date().getFullYear());
+
   const unread = useQuery({
     ...orpc.notification.unreadCount.queryOptions(),
     enabled: user !== null,
     refetchInterval: 60_000,
-    // "always", not the default: a badge must be right the moment the tab is
-    // looked at again, and the 30s SSR staleTime would skip that refetch.
     refetchOnWindowFocus: "always",
   });
+
   const unreadCount = user === null ? 0 : (unread.data?.count ?? 0);
 
   const iconClassName = "block size-6 dark:invert";

@@ -7,7 +7,6 @@ interface Params {
 
 const ONE_DAY = 86_400;
 
-// Drawn once at build: a standing page's card changes only with a deploy.
 export const dynamic = "force-static";
 export const dynamicParams = false;
 
@@ -17,10 +16,13 @@ export const generateStaticParams = () => Object.keys(PAGE_CARDS).map((page) => 
     every letter on the site is. */
 export const GET = async (_request: Request, { params }: Params) => {
   const { page } = await params;
+
   if (!isPageCardKey(page)) {
     return new Response("Not found", { status: 404 });
   }
+
   const card = PAGE_CARDS[page];
+
   return renderShareCard({
     heading: card.title,
     maxAge: ONE_DAY,

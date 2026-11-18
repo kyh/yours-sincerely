@@ -10,8 +10,6 @@ import type { ORPCContext } from "../orpc";
 import { requireUser } from "../orpc";
 import { appRouter } from "../root-router";
 
-/** A signed-in caller as `createORPCContext` resolves one. No call below reaches
-    the database: middleware or input validation settles every one first. */
 const viewer: NonNullable<ORPCContext["user"]> = {
   disabled: null,
   displayImage: null,
@@ -59,9 +57,6 @@ describe("procedure authorization", () => {
   });
 });
 
-// Over the wire, because a malformed input is exactly what the typed in-process
-// client cannot send. `requireUser` placed on the procedure instead of the
-// implementer runs after input validation, and these answer 400.
 const protectedPaths = [
   "auth/signOut",
   "auth/signOutEverywhere",
@@ -77,8 +72,6 @@ const protectedPaths = [
   "user/updateUser",
 ];
 
-/** The protected procedures that take input. The rest would run their handler
-    for a signed-in caller, and the handlers need a database. */
 const protectedPathsWithInput = [
   "block/deleteBlock",
   "like/deleteLike",

@@ -7,18 +7,17 @@ import {
   WEB_HOST,
 } from "@repo/contract/mobile-identity";
 
-const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
-  // Set per build profile in eas.json. eas-cli applies a profile's `env` when
-  // it evaluates this file locally, which is where it picks credentials and
-  // remote versions by app id; `EAS_BUILD_PROFILE` only exists on the build
-  // server, so keying on it would hand a production build the preview identity.
+const defineConfig: (context: ConfigContext) => ExpoConfig = ({ config }) => {
+  // WARNING: key on APP_VARIANT from eas.json, never EAS_BUILD_PROFILE, which exists only on the build server and would give production the preview identity.
   const isStoreBuild = process.env.APP_VARIANT === "production";
   const notificationsMode = isStoreBuild ? "production" : "development";
   const appName = isStoreBuild ? "Yours Sincerely" : "Yours Sincerely Preview";
   const scheme = isStoreBuild ? "yourssincerely" : "yourssincerely-preview";
+
   const iosBundleIdentifier = isStoreBuild
     ? MOBILE_IOS_BUNDLE_ID
     : `${MOBILE_IOS_BUNDLE_ID}.preview`;
+
   const androidPackage = isStoreBuild
     ? MOBILE_ANDROID_PACKAGE
     : `${MOBILE_ANDROID_PACKAGE}.preview`;
@@ -64,8 +63,7 @@ const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       appleTeamId: MOBILE_APPLE_TEAM_ID,
       associatedDomains: [`applinks:${WEB_HOST}`],
-      // Production must match the live Capacitor app so the update inherits
-      // its app container (WebView cookies → session migration).
+      // WARNING: production must keep the live Capacitor app's identity so the update inherits its WebView cookies.
       bundleIdentifier: iosBundleIdentifier,
       entitlements: {
         "aps-environment": notificationsMode,
@@ -76,8 +74,6 @@ const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
       },
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        // `orientation` alone leaves iPad rotatable; requireFullScreen plus this
-        // key is what keeps it portrait there too.
         "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait"],
       },
       requireFullScreen: true,
@@ -114,7 +110,6 @@ const defineConfig = ({ config }: ConfigContext): ExpoConfig => {
     scheme,
     slug: "yours-sincerely",
     userInterfaceStyle: "automatic",
-    // Native rewrite replacing the live Capacitor apps.
     version: "2.0.0",
   };
 };

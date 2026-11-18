@@ -24,6 +24,7 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
 
     const retryCleanup = () => {
       const device = getRegisteredPushDevice();
+
       if (device === null) {
         return;
       }
@@ -32,15 +33,18 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
         await cleanupPushDevice(device);
         await Notifications.unregisterForNotificationsAsync();
       };
+
       void ignoreRejection(releaseDevice());
     };
 
     retryCleanup();
+
     const appStateSubscription = AppState.addEventListener("change", (status) => {
       if (status === "active") {
         retryCleanup();
       }
     });
+
     const onlineSubscription = onlineManager.subscribe((online) => {
       if (online) {
         retryCleanup();
@@ -53,8 +57,6 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
     };
   }, [cleanupPushDevice, isError, isPending, user]);
 
-  // Rendered even signed out: this wraps the whole app, so swapping it for bare
-  // `children` when the user changes would remount every screen below it.
   return (
     <PushNotificationCoordinator
       identity={

@@ -20,6 +20,7 @@ test("tells agents when to use the product", () => {
 test("keeps prose out of H2 sections, which the spec reserves for link lists", () => {
   const sections = body.split("\n## ").slice(1);
   assert.ok(sections.length > 0);
+
   for (const section of sections) {
     const lines = section.split("\n").slice(1).filter(Boolean);
     assert.ok(

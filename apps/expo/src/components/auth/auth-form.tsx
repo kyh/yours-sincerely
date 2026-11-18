@@ -27,6 +27,7 @@ type FieldErrors = Partial<Record<"email" | "password", string>>;
 
 const showMutationError = (mutationError: { message: string }) =>
   toast.error(mutationError.message);
+
 const signInFormInput = signInWithPasswordInput.extend({
   password: signInWithPasswordInput.shape.password.min(1, "Password is required"),
 });
@@ -47,7 +48,9 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
     if (type === "signin") {
       await releasePushIdentity();
     }
+
     await resetAfterSessionChanged();
+
     if (next !== pathname) {
       if (isTabHref(next)) {
         navigateToTab(next);
@@ -56,9 +59,11 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
       }
     }
   };
+
   const signIn = useMutation(
     orpc.auth.signInWithPassword.mutationOptions({ onError: showMutationError, onSuccess }),
   );
+
   const signUp = useMutation(
     orpc.auth.signUp.mutationOptions({ onError: showMutationError, onSuccess }),
   );
@@ -67,28 +72,37 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
     if (signIn.isPending || signUp.isPending) {
       return;
     }
+
     setSubmitted(true);
     const schema = type === "signup" ? signUpInput : signInFormInput;
     const parsed = schema.safeParse({ email, password });
+
     if (!parsed.success) {
       const errors: FieldErrors = {};
+
       for (const issue of parsed.error.issues) {
         const [field] = issue.path;
+
         if (field === "email" && errors.email === undefined) {
           errors.email = issue.message;
         } else if (field === "password" && errors.password === undefined) {
           errors.password = issue.message;
         }
       }
+
       setFieldErrors(errors);
+
       if (errors.email === undefined) {
         passwordInput.current?.focus();
       } else {
         emailInput.current?.focus();
       }
+
       return;
     }
+
     setFieldErrors({});
+
     if (type === "signup") {
       signUp.mutate(parsed.data);
     } else {
@@ -108,6 +122,7 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
           value={email}
           onChangeText={(value) => {
             setEmail(value);
+
             if (submitted) {
               const parsed = signInWithPasswordInput.shape.email.safeParse(value);
               setFieldErrors((errors) => ({
@@ -134,6 +149,7 @@ export const AuthForm = ({ type, next = "/" }: Props) => {
           value={password}
           onChangeText={(value) => {
             setPassword(value);
+
             if (submitted) {
               const schema = type === "signup" ? signUpInput : signInFormInput;
               const parsed = schema.shape.password.safeParse(value);

@@ -18,5 +18,4 @@ export const GestureHandlerRootView: Styled<ComponentProps<typeof RNGestureHandl
 
 export const AnimatedView: Styled<ComponentProps<typeof Animated.View>> =
   // @ts-expect-error TS2590 — styled's const-generic inference explodes on
-  // Animated.View's prop union; the export is typed explicitly above.
   styled(Animated.View, { className: "style" });

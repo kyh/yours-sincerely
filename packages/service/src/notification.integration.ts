@@ -26,9 +26,6 @@ after(async () => {
 const MINUTE_MS = 60 * 1000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
 
-/** An author with one letter, and a second user who will reply to it. Every
-    read is scoped to these two users, so the fixture is isolated from anything
-    else in the database. */
 const createFixture = async () => {
   const authorId = randomUUID();
   const commenterId = randomUUID();
@@ -48,10 +45,6 @@ const createFixture = async () => {
   });
 
   const cleanup = async () => {
-    // Notifications cascade from the posts and push tokens from the users; the
-    // Block FKs restrict, so blocks go first. One statement for the posts, so
-    // the self-referential parentId FK is checked after the letter and its
-    // replies are gone together.
     await db.delete(block).where(inArray(block.blockerId, [authorId, commenterId]));
     await db.delete(post).where(inArray(post.userId, [authorId, commenterId]));
     await db.delete(user).where(inArray(user.id, [authorId, commenterId]));
@@ -68,13 +61,12 @@ const createFixture = async () => {
   };
 };
 
-/** Direct rows with explicit timestamps, so ordering tests do not depend on
-    the wall clock ticking between two `createPost` calls. */
 const seedNotifications = async (
   fixture: Awaited<ReturnType<typeof createFixture>>,
   count: number,
 ) => {
   const now = Date.now();
+
   const comments = Array.from({ length: count }, (_, index) => ({
     content: `Reply number ${index}`,
     createdBy: "Commenter",
@@ -83,9 +75,9 @@ const seedNotifications = async (
     updatedAt: fixture.updatedAt,
     userId: fixture.commenterId,
   }));
+
   await db.insert(post).values(comments);
 
-  // Newest first: index 0 is the most recent.
   const rows = comments.map((comment, index) => ({
     actorName: "Commenter",
     commentId: comment.id,
@@ -95,6 +87,7 @@ const seedNotifications = async (
     postId: fixture.letterId,
     userId: fixture.authorId,
   }));
+
   await db.insert(notification).values(rows);
 
   return rows;
@@ -102,13 +95,16 @@ const seedNotifications = async (
 
 integrationTest("a reply notifies the letter's author with a preview", async () => {
   const fixture = await createFixture();
+
   try {
     const content = `${"x".repeat(NOTIFICATION_PREVIEW_MAX_CHARS)} and the rest of the reply`;
+
     const { post: reply } = await fixture.commenter.post.createPost({
       content,
       createdBy: "Commenter",
       parentId: fixture.letterId,
     });
+
     assert.ok(reply);
 
     const { notifications, nextCursor } = await fixture.author.notification.list({});
@@ -124,7 +120,6 @@ integrationTest("a reply notifies the letter's author with a preview", async () 
     assert.equal(row.preview, "x".repeat(NOTIFICATION_PREVIEW_MAX_CHARS));
 
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 1 });
-    // The commenter hears nothing about their own reply.
     assert.deepEqual(await fixture.commenter.notification.unreadCount(), { count: 0 });
   } finally {
     await fixture.cleanup();
@@ -133,6 +128,7 @@ integrationTest("a reply notifies the letter's author with a preview", async () 
 
 integrationTest("replying to your own letter creates no notification", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.author.post.createPost({
       content: "Talking to myself in the margins",
@@ -149,22 +145,26 @@ integrationTest("replying to your own letter creates no notification", async () 
 
 integrationTest("a reply from someone the author blocked is never stored", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.author.block.createBlock({ blockingId: fixture.commenterId });
+
     const { post: reply } = await fixture.commenter.post.createPost({
       content: "Words the author asked never to see",
       parentId: fixture.letterId,
     });
+
     assert.ok(reply);
 
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 0 });
     const listed = await fixture.author.notification.list({});
     assert.equal(listed.notifications.length, 0);
-    // No row at all, not merely a hidden one: nothing to push from either.
+
     const stored = await db
       .select({ id: notification.id })
       .from(notification)
       .where(eq(notification.commentId, reply.id));
+
     assert.equal(stored.length, 0);
   } finally {
     await fixture.cleanup();
@@ -175,6 +175,7 @@ integrationTest(
   "blocking the commenter afterwards hides the reply from list and badge",
   async () => {
     const fixture = await createFixture();
+
     try {
       await fixture.commenter.post.createPost({
         content: "Landed before the block",
@@ -199,11 +200,13 @@ integrationTest(
 
 integrationTest("a reply flagged into hiding leaves list and badge", async () => {
   const fixture = await createFixture();
+
   try {
     const { post: reply } = await fixture.commenter.post.createPost({
       content: "The community will hide this",
       parentId: fixture.letterId,
     });
+
     assert.ok(reply);
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 1 });
 
@@ -224,6 +227,7 @@ integrationTest(
   "a letter flagged into hiding takes its notifications off list and badge",
   async () => {
     const fixture = await createFixture();
+
     try {
       await fixture.commenter.post.createPost({
         content: "A reply to a letter the community will hide",
@@ -236,7 +240,6 @@ integrationTest(
         .set({ flagCount: FLAG_HIDE_THRESHOLD + 1 })
         .where(eq(post.id, fixture.letterId));
 
-      // Tapping the row would land here, so the row must not be offered.
       await assert.rejects(
         fixture.author.post.getPost({ postId: fixture.letterId }),
         (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
@@ -252,6 +255,7 @@ integrationTest(
 
 integrationTest("the unread badge stops counting at the cap", async () => {
   const fixture = await createFixture();
+
   try {
     await seedNotifications(fixture, UNREAD_COUNT_CAP + 5);
 
@@ -265,6 +269,7 @@ integrationTest("the unread badge stops counting at the cap", async () => {
 
 integrationTest("list is newest first and the cursor pages without gaps", async () => {
   const fixture = await createFixture();
+
   try {
     const seeded = await seedNotifications(fixture, 5);
     const expectedIds = seeded.map((row) => row.id);
@@ -303,6 +308,7 @@ integrationTest("list is newest first and the cursor pages without gaps", async 
 
 integrationTest("rows sharing a timestamp page by id, without gaps or repeats", async () => {
   const fixture = await createFixture();
+
   try {
     const seeded = await seedNotifications(fixture, 3);
     const sharedAt = new Date().toISOString();
@@ -313,6 +319,7 @@ integrationTest("rows sharing a timestamp page by id, without gaps or repeats", 
 
     const seen: string[] = [];
     let cursor: Awaited<ReturnType<typeof fixture.author.notification.list>>["nextCursor"];
+
     do {
       const page = await fixture.author.notification.list({ cursor, limit: 1 });
       seen.push(...page.notifications.map((row) => row.id));
@@ -332,12 +339,12 @@ integrationTest("rows sharing a timestamp page by id, without gaps or repeats", 
 
 integrationTest("markRead by ids touches only those rows, and only mine", async () => {
   const fixture = await createFixture();
+
   try {
     const seeded = await seedNotifications(fixture, 3);
     const [target] = seeded;
     assert.ok(target);
 
-    // Someone else naming my notification ids marks nothing.
     assert.deepEqual(
       await fixture.commenter.notification.markRead({ ids: [target.id], scope: "ids" }),
       { updated: 0 },
@@ -355,7 +362,6 @@ integrationTest("markRead by ids touches only those rows, and only mine", async 
     assert.equal(readState.get(seeded[1]?.id ?? ""), false);
     assert.equal(readState.get(seeded[2]?.id ?? ""), false);
 
-    // Already read: a repeat is a no-op, not a second timestamp.
     assert.deepEqual(
       await fixture.author.notification.markRead({ ids: [target.id], scope: "ids" }),
       { updated: 0 },
@@ -367,6 +373,7 @@ integrationTest("markRead by ids touches only those rows, and only mine", async 
 
 integrationTest("markRead all clears the unread count", async () => {
   const fixture = await createFixture();
+
   try {
     await seedNotifications(fixture, 3);
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 3 });
@@ -389,11 +396,13 @@ integrationTest("markRead all clears the unread count", async () => {
 
 integrationTest("deleting the comment takes its notification with it", async () => {
   const fixture = await createFixture();
+
   try {
     const { post: reply } = await fixture.commenter.post.createPost({
       content: "A reply the commenter will think better of",
       parentId: fixture.letterId,
     });
+
     assert.ok(reply);
     assert.deepEqual(await fixture.author.notification.unreadCount(), { count: 1 });
 
@@ -410,6 +419,7 @@ integrationTest("deleting the comment takes its notification with it", async () 
 integrationTest("push.register upserts, and a token follows its latest user", async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
+
   try {
     await fixture.author.push.register({ platform: "ios", token });
     const [first] = await db.select().from(pushToken).where(eq(pushToken.token, token));
@@ -426,10 +436,12 @@ integrationTest("push.register upserts, and a token follows its latest user", as
     await fixture.commenter.push.register({ platform: "android", token });
     const [moved] = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.equal(moved?.userId, fixture.commenterId);
+
     const authorTokens = await db
       .select()
       .from(pushToken)
       .where(eq(pushToken.userId, fixture.authorId));
+
     assert.equal(authorTokens.length, 0);
   } finally {
     await db.delete(pushToken).where(eq(pushToken.token, token));
@@ -442,6 +454,7 @@ integrationTest(
   async () => {
     const fixture = await createFixture();
     const token = `ExponentPushToken[${randomUUID()}]`;
+
     try {
       await fixture.author.push.register({ platform: "ios", token });
       assert.deepEqual(await findLivePushTokens(fixture.authorId), [token]);
@@ -449,6 +462,7 @@ integrationTest(
       const idleSince = new Date(
         Date.now() - (PUSH_TOKEN_MAX_IDLE_DAYS + 1) * DAY_MS,
       ).toISOString();
+
       await db.update(pushToken).set({ lastSeenAt: idleSince }).where(eq(pushToken.token, token));
       assert.deepEqual(await findLivePushTokens(fixture.authorId), []);
       const dropped = await db.select().from(pushToken).where(eq(pushToken.token, token));
@@ -466,6 +480,7 @@ integrationTest(
 integrationTest("push.unregister honours only a genuine capability for my own token", async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
+
   try {
     await fixture.author.push.register({ platform: "ios", token });
     const { pushCleanupCapability } = await fixture.author.auth.workspace();
@@ -477,7 +492,6 @@ integrationTest("push.unregister honours only a genuine capability for my own to
       (error) => error instanceof ORPCError && error.code === "UNAUTHORIZED",
     );
 
-    // A valid capability for a different user cannot delete my token.
     const { pushCleanupCapability: otherCapability } = await fixture.commenter.auth.workspace();
     assert.ok(otherCapability);
     await fixture.commenter.push.unregister({ capability: otherCapability, token });
@@ -496,6 +510,7 @@ integrationTest("push.unregister honours only a genuine capability for my own to
 integrationTest("deleting the account cascades its notifications and tokens", async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
+
   try {
     await seedNotifications(fixture, 2);
     await fixture.author.push.register({ platform: "ios", token });
@@ -506,6 +521,7 @@ integrationTest("deleting the account cascades its notifications and tokens", as
       .select({ id: notification.id })
       .from(notification)
       .where(eq(notification.userId, fixture.authorId));
+
     assert.equal(remainingNotifications.length, 0);
     const remainingTokens = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.equal(remainingTokens.length, 0);

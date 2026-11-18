@@ -12,19 +12,19 @@ const FADED_TEXT = "The disappearing ink on this letter has faded.";
 const MAX_CHARACTERS = 300;
 const ONE_HOUR = 3600;
 
-/** Short letters keep their own line breaks; long ones are cut at a word. */
 const cardText = (content: string) =>
   content.length <= MAX_CHARACTERS ? content.trim() : letterExcerpt(content, MAX_CHARACTERS);
 
-/** A deleted, hidden or faded letter gets a card with no words of its own. */
 const loadLetterText = async (postId: string) => {
   try {
     const { post } = await caller.post.getPost({ postId });
+
     return isLetterIndexable(post) ? { content: post.content, signature: post.createdBy } : null;
   } catch (error) {
     if (error instanceof ORPCError) {
       return null;
     }
+
     throw error;
   }
 };

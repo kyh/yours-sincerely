@@ -9,14 +9,7 @@ export const flagRouter = {
   createFlag: os.flag.createFlag.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
-    // Flag_pkey is (postId, userId). Flagging the same post twice is a no-op,
-    // not a unique-violation 500.
-    //
-    // Anyone may SUBMIT a flag, including a brand-new cookieless identity — the
-    // row is always recorded. Whether it COUNTS toward auto-hide is decided by
-    // the database, once, at insert time: the `flag_counts_toward_hide` trigger
-    // sets `countsTowardHide` from the `isEstablishedFlagger` function. That is
-    // the single definition of the rule; never set the column from here.
+    // WARNING: never set countsTowardHide here; the flag_counts_toward_hide trigger decides it.
     await rethrowPgError(
       context.db
         .insert(flag)
@@ -30,8 +23,7 @@ export const flagRouter = {
       () => new ORPCError("NOT_FOUND", { message: "Post not found" }),
     );
 
-    // Only the key goes back: the stored row would tell whoever is minting
-    // identities which of them carry moderation authority (`countsTowardHide`).
+    // WARNING: return only the key; the row would tell an identity minter which identities carry moderation authority.
     return {
       flag: { postId: input.postId },
     };

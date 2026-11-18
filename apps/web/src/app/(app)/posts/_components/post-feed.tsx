@@ -39,7 +39,6 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
           data={posts}
           hasNextPage={hasNextPage}
           onLoadMore={fetchNextPage}
-          // A selection would fight the swipe, so the stack's letters stay unselectable.
           render={(post) => (
             <PostContent
               layout="stack"

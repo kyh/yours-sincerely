@@ -34,16 +34,16 @@ export const matchHotkeys = (hotkeys: Hotkey[], event: HotkeyEvent, targetOwnsKe
   if (event.defaultPrevented || hasModifier(event) || targetOwnsKeys) {
     return [];
   }
+
   const pressed = event.key.toLowerCase();
-  return hotkeys.filter(([key]) => key === pressed).map(([, handler]) => handler);
+
+  return hotkeys.flatMap(([key, handler]) => (key === pressed ? [handler] : []));
 };
 
 export const useHotkeys = (hotkeys: Hotkey[]) => {
-  // An Effect Event always sees the latest bindings without becoming a
-  // dependency, so a re-render with fresh handler identities does not tear down
-  // and re-attach the listener.
   const dispatch = useEffectEvent((event: KeyboardEvent) => {
     const targetOwnsKeys = isEditableTarget(event.target) || isInDialog(event.target);
+
     for (const handler of matchHotkeys(hotkeys, event, targetOwnsKeys)) {
       handler();
     }
@@ -53,6 +53,7 @@ export const useHotkeys = (hotkeys: Hotkey[]) => {
     const onKeyDown = (event: KeyboardEvent) => dispatch(event);
 
     window.addEventListener("keydown", onKeyDown);
+
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 };

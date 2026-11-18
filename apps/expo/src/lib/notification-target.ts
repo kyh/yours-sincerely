@@ -3,7 +3,8 @@ import type { NotificationTargetData } from "@repo/contract/notification/notific
 
 /** Typed route for a parsed notification payload — shared by the in-app
     feed rows and native push responses so both open the same screen. */
-export const resolveNotificationTarget = ({ parentPostId }: NotificationTargetData): Href => ({
-  params: { "post-id": parentPostId },
-  pathname: "/posts/[post-id]",
-});
+export const resolveNotificationTarget = ({ parentPostId }: NotificationTargetData) =>
+  ({
+    params: { "post-id": parentPostId },
+    pathname: "/posts/[post-id]",
+  }) satisfies Href;

@@ -30,13 +30,17 @@ const PasswordResetScreen = () => {
     if (requestReset.isPending) {
       return;
     }
+
     setSubmitted(true);
     const parsed = requestPasswordResetInput.safeParse({ email });
+
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid email");
       emailInput.current?.focus();
+
       return;
     }
+
     setError(null);
     requestReset.mutate(parsed.data);
   };
@@ -64,6 +68,7 @@ const PasswordResetScreen = () => {
             value={email}
             onChangeText={(value) => {
               setEmail(value);
+
               if (submitted) {
                 const parsed = requestPasswordResetInput.shape.email.safeParse(value);
                 setError(

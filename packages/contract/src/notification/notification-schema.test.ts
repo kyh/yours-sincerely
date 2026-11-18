@@ -41,6 +41,7 @@ test("markNotificationsReadInput is either everything or a bounded list of ids",
     ids: ["n1", "n2"],
     scope: "ids",
   });
+
   for (const payload of [
     { ids: [], scope: "ids" },
     { scope: "ids" },

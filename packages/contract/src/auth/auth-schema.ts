@@ -8,11 +8,8 @@ export const SESSION_COOKIE_NAME = "__session";
     silently clamped to it. */
 export const BROWSER_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
 
-/** bcrypt hashes only the first 72 bytes and ignores the rest without error. */
 const BCRYPT_MAX_PASSWORD_BYTES = 72;
 
-/** Only for a password being chosen. Sign-in stays permissive so an account
-    created before a rule existed can still log in. */
 const newPassword = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -34,6 +31,7 @@ export const signInWithPasswordInput = z.object({
   email: emailAddress,
   password: z.string(),
 });
+
 export type SignInWithPasswordInput = z.infer<typeof signInWithPasswordInput>;
 
 export const requestPasswordResetInput = z.object({ email: emailAddress });

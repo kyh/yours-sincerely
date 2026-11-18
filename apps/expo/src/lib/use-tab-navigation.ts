@@ -2,10 +2,12 @@ import { useRouter, useSegments } from "expo-router";
 import type { Href } from "expo-router";
 
 type TabPath = "/" | "/notifications" | "/profile";
+
 export type TabHref = TabPath | (Exclude<Href, string> & { pathname: TabPath });
 
 export const isTabHref = (href: Href): href is TabHref => {
   const pathname = typeof href === "string" ? href : href.pathname;
+
   return pathname === "/" || pathname === "/notifications" || pathname === "/profile";
 };
 

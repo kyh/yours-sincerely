@@ -41,6 +41,7 @@ export const createPostInput = z.object({
   createdBy: z.string().trim().max(MAX_DISPLAY_NAME_LENGTH).optional(),
   parentId: z.string().optional(),
 });
+
 export type CreatePostInput = z.infer<typeof createPostInput>;
 
 export const getPostsByUserInput = z.object({
@@ -55,14 +56,13 @@ const feedCursor = z.object({
   createdAt: serverTimestamp,
   postId: z.string(),
 });
+
 export type FeedCursor = z.output<typeof feedCursor>;
 
 /** The `Feed` view only ever contains root posts (`parentId IS NULL`), so it has
     no `parentId` filter to offer — comments are read through `getPost`. */
 export const getFeedInput = z.object({
   cursor: feedCursor.optional(),
-  // Bounded: `getFeed` is a public, unauthenticated endpoint. Both clients ask
-  // for FEED_PAGE_SIZE, so 50 is generous headroom while still capping the blast radius.
   limit: z.number().int().min(1).max(50).optional(),
   userId: z.string().optional(),
 });

@@ -4,13 +4,7 @@ import { z } from "zod";
 const PUSH_CLEANUP_SCOPE = "push-cleanup";
 
 const capabilityPayloadSchema = z.object({
-  // MIGRATION WINDOW: capabilities minted before expiry existed have no
-  // `exp`, and the Expo app keeps one in SecureStore precisely so it can
-  // clean up its push device AFTER signing out — the one moment it cannot
-  // re-mint. Rejecting `exp`-less tokens would strand those devices, so
-  // they are still accepted. Once the fleet has cycled (every signed-in
-  // `auth.workspace` query re-mints), tighten this to require `exp`.
-  // oxlint-disable-next-line promise/prefer-await-to-then -- zod's `.catch()` is a schema fallback, not a promise
+  // WARNING: exp-less capabilities stay accepted until the fleet has cycled; rejecting them strands signed-out devices' push cleanup.
   exp: z.number().nullable().catch(null),
   scope: z.literal(PUSH_CLEANUP_SCOPE),
   userId: z.string(),
@@ -37,6 +31,7 @@ export const signPushCleanupCapability = (
       userId,
     }),
   ).toString("base64url");
+
   return cookieSignature.sign(payload, signingSecret);
 };
 
@@ -47,6 +42,7 @@ export const parsePushCleanupCapability = (
 ) => {
   for (const secret of signingSecrets) {
     const unsigned = cookieSignature.unsign(capability, secret);
+
     if (!unsigned) {
       continue;
     }
@@ -55,18 +51,20 @@ export const parsePushCleanupCapability = (
       const parsed = capabilityPayloadSchema.safeParse(
         JSON.parse(Buffer.from(unsigned, "base64url").toString("utf-8")),
       );
+
       if (parsed.success) {
         const { userId, exp } = parsed.data;
+
         if (exp !== null && exp <= nowSeconds) {
           return null;
         }
+
         return userId;
       }
     } catch {
-      // A malformed payload must not abort verification against the remaining
-      // secrets.
       continue;
     }
   }
+
   return null;
 };

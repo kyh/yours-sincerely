@@ -33,8 +33,6 @@ test("createdBy obeys the same 50-char rule as displayName", () => {
     false,
   );
 
-  // One column (User.displayName), one rule — `createdBy` becomes the anonymous
-  // author's display name, so the two contracts must agree.
   assert.equal(updateUserInput.safeParse({ displayName: fifty, userId: "u" }).success, true);
   assert.equal(
     updateUserInput.safeParse({ displayName: "x".repeat(51), userId: "u" }).success,

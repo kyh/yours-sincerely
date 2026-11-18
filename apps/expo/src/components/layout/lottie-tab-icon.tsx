@@ -5,8 +5,6 @@ import LottieView from "lottie-react-native";
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-/** Animated nav icons — same Lottie JSON files the web sidebar uses,
-    played when the tab becomes focused. */
 const icons = {
   bell: require("../../../assets/icons/bell-icon.json"),
   home: require("../../../assets/icons/home-icon.json"),
@@ -42,10 +40,6 @@ export const LottieTabIcon = ({ name, focused, size = 24 }: Props) => {
         height: size,
         width: size,
       }}
-      // lottie-react-native appends ".**.Color" to the keypath, so "**" here
-      // becomes "**.**.Color", which matches nothing; "*" (any top-level layer)
-      // is the glob that recolors every stroke and fill.
-      // Native views retain filters when cleared, including across recycled mounts.
       colorFilters={[{ color: dark ? "#FAFAFA" : "#000000", keypath: "*" }]}
     />
   );

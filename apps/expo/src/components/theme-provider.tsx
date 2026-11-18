@@ -28,12 +28,8 @@ export type { ThemeId } from "@repo/contract/preferences";
 const THEME_STORAGE_KEY = "theme";
 
 interface ThemeContextValue {
-  /** The user's selected theme (may be "system"). */
   theme: ThemeId;
-  /** The concrete theme in effect ("system" resolved via OS color scheme). */
   resolvedTheme: ResolvedThemeId;
-  /** False until the stored choice has been read, so the splash screen can
-      stay up instead of flashing the default theme first. */
   isReady: boolean;
   setTheme: (theme: ThemeId) => void;
 }
@@ -41,9 +37,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue>({
   isReady: false,
   resolvedTheme: "light",
-  setTheme: () => {
-    // Without a provider there is nothing to store the choice in.
-  },
+  setTheme: () => null,
   theme: "system",
 });
 
@@ -56,16 +50,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const restoreTheme = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        if (stored !== null && isThemeId(stored)) {
-          setSelectedTheme(stored);
-        }
-      } catch {
-        // Unreadable storage keeps the default theme.
+      const stored = await AsyncStorage.getItem(THEME_STORAGE_KEY).catch(() => null);
+
+      if (stored !== null && isThemeId(stored)) {
+        setSelectedTheme(stored);
       }
+
       setIsReady(true);
     };
+
     void restoreTheme();
   }, []);
 
@@ -87,7 +80,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       <View
         accessible={false}
         focusable={false}
-        // Keep wrappers and inherited base tokens present before navigation mounts.
         className={
           resolvedTheme === "light"
             ? "will-change-variable will-change-container flex-1 light"

@@ -37,28 +37,32 @@ export interface ProsePage {
  * names. It is GitHub's heading-anchor rule (lowercase, punctuation dropped, a
  * hyphen per space), so the Markdown twin's links resolve where it is rendered.
  */
-export const headingId = (heading: string): string =>
+export const headingId = (heading: string) =>
   heading
     .trim()
     .toLowerCase()
     .replaceAll(/[^\p{L}\p{N}\s_-]/gu, "")
     .replaceAll(/\s/gu, "-");
 
-const t = (text: string): Inline => ({ kind: "text", text });
-const b = (text: string): Inline => ({ kind: "strong", text });
-const link = (href: string, label: string): Inline => ({ href, kind: "link", label });
-const p = (...content: Inline[]): Block => ({ content, kind: "paragraph" });
-const list = (...items: string[]): Block => ({
-  items: items.map((item) => [t(item)]),
-  kind: "list",
-});
-const richList = (...items: Inline[][]): Block => ({ items, kind: "list" });
-const table = (head: string[], ...rows: string[][]): Block => ({ head, kind: "table", rows });
-const section = (heading: string, ...blocks: Block[]): Section => ({ blocks, heading });
-/** The legal templates' run-in heading: "**Label.** text". */
-const labelled = (label: string, ...content: Inline[]): Block => p(b(label), t(" "), ...content);
-/** A link to a section of the same page, labelled with its heading. */
-const anchor = (heading: string, label = heading): Inline => link(`#${headingId(heading)}`, label);
+const t = (text: string) => ({ kind: "text", text }) satisfies Inline;
+const b = (text: string) => ({ kind: "strong", text }) satisfies Inline;
+const link = (href: string, label: string) => ({ href, kind: "link", label }) satisfies Inline;
+const p = (...content: Inline[]) => ({ content, kind: "paragraph" }) satisfies Block;
+
+const list = (...items: string[]) =>
+  ({
+    items: items.map((item) => [t(item)]),
+    kind: "list",
+  }) satisfies Block;
+
+const richList = (...items: Inline[][]) => ({ items, kind: "list" }) satisfies Block;
+
+const table = (head: string[], ...rows: string[][]) =>
+  ({ head, kind: "table", rows }) satisfies Block;
+
+const section = (heading: string, ...blocks: Block[]) => ({ blocks, heading }) satisfies Section;
+const labelled = (label: string, ...content: Inline[]) => p(b(label), t(" "), ...content);
+const anchor = (heading: string, label = heading) => link(`#${headingId(heading)}`, label);
 
 const email = link(`mailto:${siteConfig.contactEmail}`, siteConfig.contactEmail);
 const repo = link(siteConfig.repository, "github.com/kyh/yours-sincerely");
@@ -120,24 +124,14 @@ export const contactPage: ProsePage = {
   title: "Contact",
 };
 
-/* The Privacy Policy and the Terms of Use follow General Legal's templates
-   (privacy-policy-gdpr and terms-of-use, dispute resolution Option A), with each
-   bracketed choice resolved to what this code actually does. Change a practice
-   in the code and its sentence here in the same commit. */
-
-/** Both documents took their current form on this date. */
 const LEGAL_EFFECTIVE_DATE = "October 3, 2026";
-/** 1.0 was the hand-written Terms of Use of February 2, 2025. */
 const TERMS_VERSION = "2.0";
 const SECONDS_PER_DAY = 60 * 60 * 24;
 const COOKIE_MAX_AGE_DAYS = BROWSER_COOKIE_MAX_AGE_SECONDS / SECONDS_PER_DAY;
-/** The defined term in the templates' all-caps clauses. */
 const NAME_CAPS = siteConfig.name.toUpperCase();
-/** The terms have always named `supportEmail`, the privacy policy `contactEmail`. */
 const termsEmail = link(`mailto:${siteConfig.supportEmail}`, siteConfig.supportEmail);
 const privacyPolicyLink = link("/privacy", `${WEB_HOST}/privacy`);
 
-/** General Legal's credit, verbatim: the last paragraph of each legal document. */
 const generalLegalCredit = p(
   t(
     'This template was prepared and made publicly available by General Legal, PC ("General Legal"). It is provided for general reference purposes only and does not constitute, and should not be construed as, legal advice, or an endorsement or review of any particular transaction in which it is used. Use of this template does not create an attorney-client relationship with General Legal. General Legal has not reviewed, and takes no position on, any modifications made to this document or the deal terms it is used to document.',
@@ -1072,9 +1066,7 @@ export const privacyPage: ProsePage = {
   title: "Privacy Policy",
 };
 
-/** A numbered subsection of the Terms, "N.M **Title.** text". Numbers are fixed
-    because the Terms cross-reference them (Sections 2.7, 8, 11). */
-const clause = (number: string, title: string, ...content: Inline[]): Block =>
+const clause = (number: string, title: string, ...content: Inline[]) =>
   p(t(`${number} `), b(title), t(" "), ...content);
 
 const termsSections: Section[] = [

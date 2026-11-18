@@ -7,10 +7,6 @@ import {
   withLockTimeout,
 } from "./connection-url";
 
-/** `pnpm db:push` runs drizzle-kit and then the applier. If these two ever resolve
-    to different databases, or to the pooler, the deploy is silently wrong — so the
-    edge cases below are pinned rather than reasoned about at 2am. */
-
 test("rewrites a Supabase pooler URL to the direct port", () => {
   assert.equal(
     toDirectConnectionUrl(
@@ -32,9 +28,6 @@ test("rewrites when there is no path at all", () => {
 });
 
 test("leaves local Supabase alone", () => {
-  // Local Supabase takes a port from 20000 up, and some of those end in 6543. It is
-  // the URL everyone actually develops against, so a rewrite that touched it would
-  // break every local push.
   assert.equal(
     toDirectConnectionUrl("postgresql://postgres:postgres@127.0.0.1:26543/postgres"),
     "postgresql://postgres:postgres@127.0.0.1:26543/postgres",
@@ -46,9 +39,6 @@ test("leaves an already-direct URL alone", () => {
 });
 
 test("does not corrupt a password that contains the pooler port", () => {
-  // The whole reason this is not `String.replace(":6543", ":5432")`: that replaces
-  // the FIRST occurrence, which here is inside the password — corrupting the
-  // credential and leaving the real port on the pooler. Both failures at once.
   assert.equal(
     toDirectConnectionUrl("postgres://u:pw:6543@host:6543/db"),
     "postgres://u:pw:6543@host:5432/db",
@@ -56,9 +46,6 @@ test("does not corrupt a password that contains the pooler port", () => {
 });
 
 test("does not re-encode the password", () => {
-  // The reason this is not `new URL()` + `.port =` + `.toString()`: that serializer
-  // round-trip rewrites `pw:6543` to `pw%3A6543`, which only survives if the driver
-  // percent-decodes. Byte-identical except the port is the contract here.
   const url = "postgres://postgres.abc:p@ss:w%3Aord@host:6543/postgres";
   assert.equal(toDirectConnectionUrl(url), url.replace("host:6543", "host:5432"));
 });
@@ -106,8 +93,6 @@ test("falls back only under test, to a URL nothing listens on", () => {
 });
 
 test("refuses to start without POSTGRES_URL everywhere else", () => {
-  // Hosts commonly hand an unset-but-declared variable over as "". Development is
-  // included: local Supabase has no fixed port to guess (`pnpm db:start` writes it).
   for (const NODE_ENV of ["production", "development", undefined]) {
     for (const POSTGRES_URL of [undefined, ""]) {
       assert.throws(

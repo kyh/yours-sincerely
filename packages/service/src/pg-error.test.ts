@@ -5,8 +5,6 @@ import { DrizzleQueryError } from "drizzle-orm";
 
 import { FOREIGN_KEY_VIOLATION, pgErrorCode, rethrowPgError } from "./pg-error.ts";
 
-/** What drizzle throws for a query Postgres rejected: the driver's error, which
-    carries the SQLSTATE, wrapped as the `cause`. */
 const failedQuery = (code: string) =>
   new DrizzleQueryError(
     'insert into "Flag" ...',

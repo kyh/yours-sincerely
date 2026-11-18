@@ -6,9 +6,6 @@ if (!process.env.POSTGRES_URL) {
   throw new Error("Missing POSTGRES_URL");
 }
 
-/** DDL must not go through the transaction pooler. `src/apply-sql.ts` calls the
-    same helper: the two have to resolve to the same database, or `pnpm db:push`
-    would apply half the schema through each. */
 const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
 
 /** There is no `out`, and no `generate`/`migrate` script, because this schema is

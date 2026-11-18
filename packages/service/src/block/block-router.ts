@@ -12,13 +12,10 @@ export const blockRouter = {
   createBlock: os.block.createBlock.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context);
 
-    // Blocking yourself would erase you from your own feed. It is never intended.
     if (input.blockingId === userId) {
       throw new ORPCError("BAD_REQUEST", { message: "You cannot block yourself" });
     }
 
-    // Block_pkey is (blockerId, blockingId). Blocking the same author from a
-    // second post is a no-op, not a unique-violation 500.
     const [created] = await rethrowPgError(
       context.db
         .insert(block)
@@ -32,8 +29,6 @@ export const blockRouter = {
       () => new ORPCError("NOT_FOUND", { message: "User not found" }),
     );
 
-    // `onConflictDoNothing().returning()` yields nothing when the row already
-    // existed, so read it back rather than handing the client an `undefined`.
     const existing =
       created ??
       (await context.db.query.block.findFirst({
@@ -46,8 +41,7 @@ export const blockRouter = {
   }),
 
   deleteBlock: authed.deleteBlock.handler(async ({ context, input }) => {
-    // SECURITY: the `where` is scoped to context.user.id. Without that clause any
-    // caller could delete anyone else's blocks by guessing ids — an IDOR.
+    // WARNING: keep the where scoped to context.user.id, or any caller can delete anyone's blocks.
     const [deleted] = await context.db
       .delete(block)
       .where(and(eq(block.blockerId, context.user.id), eq(block.blockingId, input.blockingId)))
@@ -70,11 +64,6 @@ export const blockRouter = {
       },
     });
 
-    // Blocked authors are usually just "Anonymous", so the deterministic avatar
-    // (derived from displayName) is the only stable identity the list can show.
-    // We deliberately do NOT surface an excerpt of their letters: showing a
-    // blocked author's words back to the person who blocked them is precisely
-    // what they asked not to see.
     return {
       blocks: blocks.map((row) => ({
         blockingId: row.blockingId,

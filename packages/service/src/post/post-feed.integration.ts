@@ -17,8 +17,6 @@ after(async () => {
 const SEEDED_POST_COUNT = 8;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Eight root posts by one author, one hour apart, newest first. Every read is
-    filtered by `userId` so the fixture is isolated from anything else in the DB. */
 const createFixture = async () => {
   const authorId = randomUUID();
   const readerId = randomUUID();
@@ -30,7 +28,6 @@ const createFixture = async () => {
     { displayName: "Feed reader", id: readerId },
   ]);
 
-  // Newest first: index 0 is the most recent.
   const posts = Array.from({ length: SEEDED_POST_COUNT }, (_, index) => ({
     content: `Feed letter number ${index}`,
     createdAt: new Date(now - index * 60 * 60 * 1000).toISOString(),
@@ -39,6 +36,7 @@ const createFixture = async () => {
     updatedAt,
     userId: authorId,
   }));
+
   await db.insert(post).values(posts);
 
   const postIds = posts.map((row) => row.id);
@@ -57,10 +55,10 @@ const createFixture = async () => {
 
 integrationTest("getFeed returns exactly the requested page size", async () => {
   const fixture = await createFixture();
+
   try {
     const page = await fixture.caller.post.getFeed({ limit: 5, userId: fixture.authorId });
 
-    // The sentinel row used to detect a next page must not be served.
     assert.equal(page.posts.length, 5);
     assert.ok(page.nextCursor);
   } finally {
@@ -70,13 +68,13 @@ integrationTest("getFeed returns exactly the requested page size", async () => {
 
 integrationTest("getFeed pages through the cursor without duplicates or gaps", async () => {
   const fixture = await createFixture();
+
   try {
     const first = await fixture.caller.post.getFeed({ limit: 5, userId: fixture.authorId });
     assert.ok(first.nextCursor);
 
     const lastOfFirst = first.posts.at(-1);
     assert.ok(lastOfFirst);
-    // The cursor points at a row the client has SEEN, not at an unseen peek row.
     assert.equal(first.nextCursor.postId, lastOfFirst.id);
 
     const second = await fixture.caller.post.getFeed({
@@ -90,7 +88,6 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
 
     const seen = [...first.posts, ...second.posts].map((row) => row.id);
     assert.equal(new Set(seen).size, SEEDED_POST_COUNT);
-    // Newest-first, and every seeded post appears exactly once.
     assert.deepEqual(seen, fixture.postIds);
   } finally {
     await fixture.cleanup();
@@ -99,6 +96,7 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
 
 integrationTest("letters sharing a timestamp page by id, without gaps or repeats", async () => {
   const fixture = await createFixture();
+
   try {
     await db
       .update(post)
@@ -107,12 +105,14 @@ integrationTest("letters sharing a timestamp page by id, without gaps or repeats
 
     const seen: string[] = [];
     let cursor: Awaited<ReturnType<typeof fixture.caller.post.getFeed>>["nextCursor"];
+
     do {
       const page = await fixture.caller.post.getFeed({
         cursor,
         limit: 3,
         userId: fixture.authorId,
       });
+
       seen.push(...page.posts.map((row) => row.id));
       cursor = page.nextCursor;
     } while (cursor);
@@ -133,6 +133,7 @@ integrationTest("getFeed only serves root posts, never comments", async () => {
   const [parent] = fixture.posts;
   assert.ok(parent);
   const commentId = randomUUID();
+
   try {
     await db.insert(post).values({
       content: "A comment that must never reach the feed",
@@ -156,14 +157,13 @@ integrationTest("getFeed only serves root posts, never comments", async () => {
   }
 });
 
-/** Characterization: the counters the feed exposes. These values must survive
-    the denormalization of `likeCount`/`commentCount` onto `Post`. */
 integrationTest("getFeed reports like, comment and isLiked exactly", async () => {
   const fixture = await createFixture();
   const [liked, commented] = fixture.posts;
   assert.ok(liked);
   assert.ok(commented);
   const commentIds = [randomUUID(), randomUUID()];
+
   try {
     await db.insert(post).values(
       commentIds.map((id, index) => ({

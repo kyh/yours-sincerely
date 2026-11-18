@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserInput } from "@repo/contract/user/user-schema";
 import {
@@ -24,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/form";
-import { Label } from "@repo/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
 import { themes, useTheme } from "@/components/theme";
 import { toast } from "@repo/ui/components/sonner";
@@ -42,15 +41,13 @@ import {
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
-const subscribeToNothing = () => () => {
-  // Hydration happens once; there is no later change to hear about.
-};
+const subscribeToNothing = () => () => null;
 
 /** The one section that needs no account, so signed-out /settings renders it alone. */
 export const AppearanceSettings = ({ className }: { className?: string }) => {
   const { theme, setTheme } = useTheme();
-  // The stored theme is only readable in the browser, so the server cannot
-  // render the checked radio; show it once hydration is done.
+  const headingId = useId();
+
   const hydrated = useSyncExternalStore(
     subscribeToNothing,
     () => true,
@@ -63,8 +60,11 @@ export const AppearanceSettings = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn("outline-border space-y-4 px-3 py-4 outline -outline-offset-1", className)}>
-      <Label>Appearance</Label>
+      <h2 className="text-sm leading-none font-medium" id={headingId}>
+        Appearance
+      </h2>
       <RadioGroup
+        aria-labelledby={headingId}
         className="grid grid-cols-4 gap-4 md:grid-cols-6"
         onValueChange={onChangeTheme}
         value={hydrated ? theme : null}
@@ -94,6 +94,7 @@ export const SettingsForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
+
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
@@ -101,27 +102,19 @@ export const SettingsForm = () => {
     }),
   );
 
-  // No invalidation policy: this only sends an email. It changes nothing that
-  // is held in the query cache.
   const requestPasswordReset = useMutation(orpc.auth.requestPasswordReset.mutationOptions());
 
   const signOut = useMutation(
     orpc.auth.signOut.mutationOptions({
       onError: (error) => toast.error(error.message),
       onSuccess: async () => {
-        // Reset before navigating so the home page does not render as the
-        // signed-out user's predecessor.
         await resetAfterSessionChanged(queryClient);
         router.replace("/");
-        // signOut is a fetch, not a Server Action, so nothing else evicts the
-        // signed-in pages Back would otherwise restore from Next's client cache.
         router.refresh();
       },
     }),
   );
 
-  // No invalidation policy needed: this does a full document load, which throws
-  // the whole query cache away.
   const deleteUser = useMutation(
     orpc.user.deleteUser.mutationOptions({
       onError: () => toast.error("Could not delete account. Please try again."),
@@ -138,10 +131,11 @@ export const SettingsForm = () => {
 
   const onSubmit = (data: UpdateUserInput) => {
     const submitted = form.getValues("email");
+
     const promise = updateUser.mutateAsync(data, {
-      // Typing during the save keeps its text, and stays dirty for the next blur.
       onSuccess: () => form.reset(data, { keepValues: form.getValues("email") !== submitted }),
     });
+
     toast.promise(promise, {
       error: "Could not update Settings. Please try again.",
       loading: "Updating Settings...",
@@ -153,6 +147,7 @@ export const SettingsForm = () => {
     const promise = requestPasswordReset.mutateAsync({
       email: user?.email ?? "",
     });
+
     toast.promise(promise, {
       error: "Could not send password reset email. Please try again.",
       loading: "Requesting password reset...",
@@ -176,6 +171,7 @@ export const SettingsForm = () => {
                     {...field}
                     onBlur={() => {
                       field.onBlur();
+
                       if (form.getFieldState("email").isDirty && !updateUser.isPending) {
                         void form.handleSubmit(onSubmit)();
                       }
@@ -192,7 +188,7 @@ export const SettingsForm = () => {
         </form>
       </Form>
       <div className="outline-border space-y-2 px-3 py-4 outline -outline-offset-1">
-        <Label>Password</Label>
+        <h2 className="text-sm leading-none font-medium">Password</h2>
         <Button type="button" variant="secondary" onClick={handleRequestPasswordReset}>
           Request password reset
         </Button>

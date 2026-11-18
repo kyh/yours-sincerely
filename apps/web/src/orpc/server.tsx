@@ -14,10 +14,6 @@ import type {
 
 import { createQueryClient } from "./query-client";
 
-/**
- * Wraps `createORPCContext` and provides the required context when a React
- * Server Component calls a procedure.
- */
 const createContext = cache(async () => {
   const heads = new Headers(await headers());
 
@@ -39,6 +35,7 @@ export const orpc = createTanstackQueryUtils(caller);
 
 export const HydrateClient = (props: { children: React.ReactNode }) => {
   const queryClient = getQueryClient();
+
   return <HydrationBoundary state={dehydrate(queryClient)}>{props.children}</HydrationBoundary>;
 };
 
@@ -66,13 +63,13 @@ export const fetchOrNotFound = async <
   try {
     return await getQueryClient().fetchQuery(queryOptions);
   } catch (error) {
-    // BAD_REQUEST too: a malformed id in a URL names nothing that exists.
     if (
       error instanceof ORPCError &&
       (error.code === "NOT_FOUND" || error.code === "BAD_REQUEST")
     ) {
       notFound();
     }
+
     throw error;
   }
 };

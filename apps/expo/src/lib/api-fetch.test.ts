@@ -11,16 +11,20 @@ it("blocks failed imports, retries, and shares migration before sending session 
   let persistenceError: Error | null = null;
   let checkpointError: Error | null = null;
   let readError: Error | null = new Error("native jar unavailable");
+
   const read = t.mock.fn(() =>
     readError === null ? Promise.resolve(legacy) : Promise.reject(readError),
   );
+
   const clear = t.mock.fn(() => Promise.reject(new Error("native jar unavailable")));
 
   const legacyModule = "../../modules/legacy-cookie/src/legacy-cookie-module";
+
   const imports = registerHooks({
     resolve: (specifier, context, nextResolve) =>
       nextResolve(specifier === legacyModule ? `${specifier}.ts` : specifier, context),
   });
+
   t.after(() => imports.deregister());
   t.mock.module(legacyModule, {
     exports: { default: { clear, read } },
@@ -29,6 +33,7 @@ it("blocks failed imports, retries, and shares migration before sending session 
     exports: {
       deleteItemAsync: () => {
         stored = null;
+
         return Promise.resolve();
       },
       getItem: (key: string) => (key === "session-cookie" ? stored : checkpoint),
@@ -37,11 +42,13 @@ it("blocks failed imports, retries, and shares migration before sending session 
           if (persistenceError !== null) {
             throw persistenceError;
           }
+
           stored = value;
         } else {
           if (checkpointError !== null) {
             throw checkpointError;
           }
+
           assert.ok(value === "cleanup-pending" || value === "complete");
           checkpoint = value;
         }
@@ -49,15 +56,18 @@ it("blocks failed imports, retries, and shares migration before sending session 
     },
   });
   const requestHeaders: Headers[] = [];
+
   const network = t.mock.method(
     globalThis,
     "fetch",
     (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
       requestHeaders.push(new Headers(init?.headers));
       assert.equal(init?.credentials, "omit");
+
       return Promise.resolve(new Response("{}"));
     },
   );
+
   t.mock.method(console, "warn", () => {});
   const { fetchWithSession } = await import("./api-fetch.ts");
   const endpoint = "https://yourssincerely.org/api/orpc/like/createLike";
@@ -66,6 +76,7 @@ it("blocks failed imports, retries, and shares migration before sending session 
     assert.rejects(fetchWithSession(endpoint), /native jar unavailable/u),
     assert.rejects(fetchWithSession(endpoint), /native jar unavailable/u),
   ]);
+
   assert.equal(read.mock.callCount(), 1);
   assert.equal(network.mock.callCount(), 0);
   await failedRead;

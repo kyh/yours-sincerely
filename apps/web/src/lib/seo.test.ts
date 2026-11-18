@@ -65,5 +65,6 @@ test("every standing page shares its own drawn card, and the home page keeps og.
     assert.ok(!shared.includes("og.jpg"), key);
     assert.equal(meta.alternates?.canonical, PAGE_CARDS[key].path);
   }
+
   assert.ok(JSON.stringify(pageMetadata({ path: "/" }).openGraph).includes("/og.jpg"));
 });

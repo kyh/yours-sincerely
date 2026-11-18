@@ -28,7 +28,7 @@ const sameAs = [siteConfig.repository, siteConfig.playStoreUrl];
 
 /** No `address`: a personal open-source project has no premises, and a made-up
     PostalAddress would be worse than the missing field. */
-export const buildOrganization = (): JsonLdNode => ({
+export const buildOrganization: () => JsonLdNode = () => ({
   "@id": ORGANIZATION_ID,
   "@type": "Organization",
   contactPoint: [
@@ -56,7 +56,7 @@ export const buildOrganization = (): JsonLdNode => ({
   url: siteConfig.url,
 });
 
-export const buildWebSite = (): JsonLdNode => ({
+export const buildWebSite: () => JsonLdNode = () => ({
   "@id": WEBSITE_ID,
   "@type": "WebSite",
   description: siteConfig.description,
@@ -66,7 +66,7 @@ export const buildWebSite = (): JsonLdNode => ({
   url: siteConfig.url,
 });
 
-export const buildWebApplication = (): JsonLdNode => ({
+export const buildWebApplication: () => JsonLdNode = () => ({
   "@id": APPLICATION_ID,
   "@type": "WebApplication",
   applicationCategory: "SocialNetworkingApplication",
@@ -85,7 +85,7 @@ export const buildWebApplication = (): JsonLdNode => ({
 });
 
 /** The og:video, described for search: the same clip every share card plays. */
-export const buildVideoObject = (): JsonLdNode => ({
+export const buildVideoObject: () => JsonLdNode = () => ({
   "@id": VIDEO_ID,
   "@type": "VideoObject",
   contentUrl: absoluteUrl(OG_VIDEO.url),
@@ -99,7 +99,7 @@ export const buildVideoObject = (): JsonLdNode => ({
   width: OG_VIDEO.width,
 });
 
-export const buildSiteGraph = (): JsonLdNode => ({
+export const buildSiteGraph: () => JsonLdNode = () => ({
   "@context": "https://schema.org",
   "@graph": [buildOrganization(), buildWebSite(), buildWebApplication(), buildVideoObject()],
 });
@@ -111,11 +111,15 @@ interface LetterStats {
 
 /** One letter's page. The author is the pen name the page itself prints (often
     "Anonymous"), with no profile link: the card never says more than the page. */
-export const buildLetterGraph = (letter: SeoLetter & LetterStats, imageUrl: string): JsonLdNode => {
+export const buildLetterGraph: (letter: SeoLetter & LetterStats, imageUrl: string) => JsonLdNode = (
+  letter,
+  imageUrl,
+) => {
   const url = absoluteUrl(letterPath(letter.id));
   const published = parseServerDate(letter.createdAt).toISOString();
   const { end } = getExpiryProgress(letter.createdAt);
   const isReply = Boolean(letter.parentId);
+
   const posting: JsonLdNode = {
     "@id": `${url}#letter`,
     "@type": isReply ? "Comment" : "SocialMediaPosting",
@@ -143,9 +147,11 @@ export const buildLetterGraph = (letter: SeoLetter & LetterStats, imageUrl: stri
     publisher: { "@id": ORGANIZATION_ID },
     url,
   };
+
   if (letter.parentId) {
     posting.parentItem = { "@id": `${absoluteUrl(letterPath(letter.parentId))}#letter` };
   }
+
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -167,5 +173,5 @@ export const buildLetterGraph = (letter: SeoLetter & LetterStats, imageUrl: stri
 };
 
 /** `<` is escaped so no value can close the surrounding script tag early. */
-export const serializeJsonLd = (node: JsonLdNode): string =>
+export const serializeJsonLd = (node: JsonLdNode) =>
   JSON.stringify(node).replaceAll("<", "\\u003c");

@@ -143,9 +143,11 @@ export const AvatarMenu = () => {
   const showLogin = user === null && !isPending && !isError;
 
   const close = () => setMenu({ kind: "closed" });
+
   const cycleTheme = () => {
     const index = themes.findIndex((option) => option.id === theme);
     const next = themes[(index + 1) % themes.length];
+
     if (next !== undefined) {
       setTheme(next.id);
       close();
@@ -168,6 +170,7 @@ export const AvatarMenu = () => {
         label={showLogin ? "Login" : "Profile"}
         onPress={() => {
           close();
+
           if (showLogin) {
             router.push("/auth/sign-in");
           } else {

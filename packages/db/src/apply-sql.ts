@@ -1,20 +1,4 @@
-/**
- * Applies every `sql/*.sql` file, in filename order, inside ONE transaction.
- *
- * `drizzle-kit push` syncs tables, columns and indexes, with two blind spots: a
- * view's body and an index redefined under its old name (see `sql/README.md`). It
- * has no concept of a function, a trigger or a grant, so it can only ever sync half
- * of this schema. This applies the other half, views included, and
- * `pnpm -F db push` runs the two together — that pair is the entire deploy.
- *
- * One transaction because a half-applied schema is the genuinely bad state: the
- * `Feed` view reading counters that no trigger maintains yet. Postgres DDL is
- * transactional, so either every function, trigger and grant lands or none does.
- * (This is also why nothing here may use CREATE INDEX CONCURRENTLY, which cannot
- * run inside a transaction. Indexes belong in `drizzle-schema.ts` anyway.)
- *
- * Run with: pnpm -F db apply-sql   (or, normally, via pnpm -F db push)
- */
+// WARNING: every sql/ file runs in one transaction, so none may use CREATE INDEX CONCURRENTLY.
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -25,20 +9,15 @@ import { toDirectConnectionUrl } from "./connection-url";
 const SQL_DIR = path.join(import.meta.dirname, "..", "sql");
 
 const connectionUrl = process.env.POSTGRES_URL;
+
 if (!connectionUrl) {
   throw new Error("Missing POSTGRES_URL");
 }
 
-/** DDL must not go through the transaction pooler. `drizzle.config.ts` calls the
-    same helper: the two have to resolve to the same database, or `pnpm db:push`
-    would apply half the schema through each. */
 const nonPoolingUrl = toDirectConnectionUrl(connectionUrl);
 
 const sql = postgres(nonPoolingUrl, {
   max: 1,
-  /** `080-reconcile.sql` reports repaired drift this way. Surfacing it means a
-      push that silently fixed thousands of rows cannot look like a push that did
-      nothing. */
   onnotice: (notice) => {
     if (notice.message) {
       console.log(`  note: ${notice.message}`);
@@ -47,7 +26,6 @@ const sql = postgres(nonPoolingUrl, {
 });
 
 const main = async () => {
-  /** Filename order IS dependency order — see `sql/README.md`. */
   const entries = await readdir(SQL_DIR);
   const files = entries.filter((name) => name.endsWith(".sql")).toSorted();
 
@@ -58,32 +36,19 @@ const main = async () => {
   console.log(`Applying ${files.length} sql file(s) from sql/`);
 
   await sql.begin(async (tx) => {
-    /** Fail fast instead of taking production down.
-     *
-     *  `090-views.sql` needs ACCESS EXCLUSIVE on `Feed`, which waits for every open
-     *  read of it; `085-triggers.sql` needs SHARE ROW EXCLUSIVE on `Post`, `Like`
-     *  and `Flag`, which waits for every open write. Without a timeout, one slow
-     *  query — an analytics scan, a pathological feed page, a stuck transaction —
-     *  parks the push behind it, and because a pending lock request blocks every
-     *  conflicting request queued after it, EVERY subsequent feed read (or like,
-     *  flag and post) stalls too. A push during a slow query would escalate into a
-     *  site-wide outage lasting as long as that query.
-     *
-     *  5s is far longer than the swap needs (two catalog updates) and far shorter
-     *  than an outage. On timeout the whole transaction rolls back, changing
-     *  nothing: re-run the push. LOCAL, so it dies with this transaction. */
+    // WARNING: without this lock_timeout one slow query parks the push, and every feed read, like and post queues behind it.
     await tx.unsafe("SET LOCAL lock_timeout = '5s'").simple();
 
     for (const file of files) {
       const content = await readFile(path.join(SQL_DIR, file), "utf-8");
+
       try {
-        /** `.simple()` because these files hold many statements each, and the
-            extended protocol permits exactly one per message. */
         await tx.unsafe(content).simple();
       } catch (error) {
         const reason = error instanceof Error ? error.message : String(error);
         throw new Error(`sql/${file} failed: ${reason}`, { cause: error });
       }
+
       console.log(`  applied ${file}`);
     }
   });

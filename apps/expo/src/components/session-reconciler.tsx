@@ -15,11 +15,10 @@ export const SessionReconciler = () => {
     if (data === undefined) {
       return;
     }
+
     if (data.user !== null) {
       void ignoreRejection(finalizeLegacySessionMigration(true));
     }
-    // A null result can predate a newly issued cookie. It changes the query's
-    // signed-in state, but only explicit sign-out may delete the stored session.
   }, [data]);
 
   return null;

@@ -24,8 +24,6 @@ import { refreshNotifications } from "@/lib/query-policies";
 import { createPushSession, patchPushSession } from "./push-session";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
-// Foreground pushes show as a banner only: the tab dot is the badge, and a
-// reply is not worth a sound.
 Notifications.setNotificationHandler({
   handleNotification: () =>
     Promise.resolve({
@@ -36,20 +34,11 @@ Notifications.setNotificationHandler({
     }),
 });
 
-/** Expo's push service delivers to this channel when a message names none. */
 const ANDROID_CHANNEL_ID = "default";
 
 const pushPlatform = Platform.select<PushPlatform>({ android: "android", ios: "ios" });
 
-interface AcquiredPushToken {
-  token: string;
-  platform: PushPlatform;
-}
-
-/** Null when this device cannot hold a token: simulators and unsupported
-    platforms never prompt, a refused permission ends here, and a failed
-    token fetch is reported through the permission state, not thrown. */
-const acquireExpoPushToken = async (): Promise<AcquiredPushToken | null> => {
+const acquireExpoPushToken = async () => {
   if (!Device.isDevice || pushPlatform === undefined) {
     return null;
   }
@@ -62,10 +51,12 @@ const acquireExpoPushToken = async (): Promise<AcquiredPushToken | null> => {
   }
 
   const current = await Notifications.getPermissionsAsync();
+
   const { status } =
     current.status === Notifications.PermissionStatus.GRANTED
       ? current
       : await Notifications.requestPermissionsAsync();
+
   if (status !== Notifications.PermissionStatus.GRANTED) {
     return null;
   }
@@ -74,11 +65,13 @@ const acquireExpoPushToken = async (): Promise<AcquiredPushToken | null> => {
     const { data } = await Notifications.getExpoPushTokenAsync({
       projectId: appConfig.easProjectId,
     });
+
     return { platform: pushPlatform, token: data };
   } catch (error) {
     if (__DEV__) {
       console.error("[push] Could not fetch an Expo push token", error);
     }
+
     return null;
   }
 };
@@ -97,9 +90,11 @@ export const useReleasePushIdentity = () => useContext(ReleasePushIdentityContex
 
 export const PushNotificationRegistration = () => {
   const registration = useContext(PushRegistrationContext);
+
   if (registration === null) {
     return null;
   }
+
   const { permission, register, registrationFailed, registering } = registration;
 
   if (
@@ -110,8 +105,10 @@ export const PushNotificationRegistration = () => {
   }
 
   const denied = permission === Notifications.PermissionStatus.DENIED;
+
   const retryRegistration =
     permission === Notifications.PermissionStatus.GRANTED && registrationFailed;
+
   const registerLabel = retryRegistration ? "Retry" : "Enable notifications";
 
   return (
@@ -158,12 +155,14 @@ export const PushNotificationCoordinator = ({
   const userId = identity?.userId ?? null;
   const pushCleanupCapability = identity?.pushCleanupCapability ?? null;
   const [session, setSession] = useState(() => createPushSession(userId));
+
   if (session.userId !== userId) {
     setSession(createPushSession(userId));
   }
+
   const { expoPushToken, permission, registrationFailed, registering } = session;
   const cleanupStoredDevice = usePushDeviceCleanup();
-  // Nothing queries push tokens, so there is no cache to invalidate.
+
   const { mutateAsync: registerPushToken } = useMutation(
     orpc.push.register.mutationOptions({ networkMode: "always" }),
   );
@@ -172,9 +171,9 @@ export const PushNotificationCoordinator = ({
     if (userId === null || pushCleanupCapability === null) {
       return;
     }
+
     const previousDevice = getRegisteredPushDevice();
-    // Already registered this exact device for this user this session —
-    // skip the server upsert and keychain writes on every foreground.
+
     if (
       expoPushToken !== null &&
       previousDevice !== null &&
@@ -188,19 +187,19 @@ export const PushNotificationCoordinator = ({
           registrationFailed: false,
         }),
       );
+
       return;
     }
 
     setSession(patchPushSession(userId, { registering: true }));
+
     try {
       if (previousDevice !== null && previousDevice.userId !== userId) {
-        // Best-effort: `push.register` moves the token to this account either
-        // way, and the old account's capability may have expired since it
-        // signed out — that must not lock this account out of push.
         await cleanupStoredDevice(previousDevice).catch(() => deleteRegisteredPushDevice());
       }
 
       const acquired = await acquireExpoPushToken();
+
       if (acquired === null) {
         const { status } = await Notifications.getPermissionsAsync();
         setSession(
@@ -210,8 +209,6 @@ export const PushNotificationCoordinator = ({
           }),
         );
       } else {
-        // The server row IS the registration: remember it locally only once it
-        // exists, or a failed upsert is skipped as "already registered" forever.
         await registerPushToken(acquired);
         setRegisteredPushDevice({
           cleanupCapability: pushCleanupCapability,
@@ -230,6 +227,7 @@ export const PushNotificationCoordinator = ({
       setSession(patchPushSession(userId, { registering: false, registrationFailed: true }));
       throw error;
     }
+
     setSession(patchPushSession(userId, { registering: false }));
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, registerPushToken, userId]);
 
@@ -242,6 +240,7 @@ export const PushNotificationCoordinator = ({
       try {
         const { status } = await Notifications.getPermissionsAsync();
         setSession(patchPushSession(userId, { permission: status }));
+
         if (status === Notifications.PermissionStatus.GRANTED) {
           await register();
         }
@@ -251,16 +250,19 @@ export const PushNotificationCoordinator = ({
     };
 
     void refreshPermission();
+
     const subscription = AppState.addEventListener("change", (status) => {
       if (status === "active") {
         void refreshPermission();
       }
     });
+
     const onlineSubscription = onlineManager.subscribe((online) => {
       if (online) {
         void refreshPermission();
       }
     });
+
     return () => {
       subscription.remove();
       onlineSubscription();
@@ -271,8 +273,10 @@ export const PushNotificationCoordinator = ({
     if (userId === null || pushCleanupCapability === null) {
       return;
     }
+
     const storedDevice = getRegisteredPushDevice();
     const token = expoPushToken ?? (storedDevice?.userId === userId ? storedDevice.token : null);
+
     if (token === null) {
       return;
     }
@@ -281,18 +285,11 @@ export const PushNotificationCoordinator = ({
       storedDevice?.userId === userId
         ? storedDevice
         : { cleanupCapability: pushCleanupCapability, token, userId };
-    try {
-      await cleanupStoredDevice(device);
-    } catch {
-      // Offline: keep the capability so any later session can retry server cleanup.
-    }
 
-    try {
-      await Notifications.unregisterForNotificationsAsync();
-    } catch {
-      // Remote cleanup is authoritative; native cleanup is defense in depth.
-    }
+    await ignoreRejection(cleanupStoredDevice(device));
+    await ignoreRejection(Notifications.unregisterForNotificationsAsync());
   }, [cleanupStoredDevice, expoPushToken, pushCleanupCapability, userId]);
+
   const registrationContext = useMemo(
     () => (userId === null ? null : { permission, register, registering, registrationFailed }),
     [permission, register, registrationFailed, registering, userId],
@@ -304,11 +301,9 @@ export const PushNotificationCoordinator = ({
     }
 
     const openNotification = (response: Notifications.NotificationResponse) => {
-      // Native keeps the last tap until told otherwise, and this effect runs
-      // again on every account change (sign-in, sign-out, password change): a
-      // tap routed once must not route again from the subscribe-time read below.
       Notifications.clearLastNotificationResponse();
       const target = notificationTargetData.safeParse(response.notification.request.content.data);
+
       if (target.success) {
         router.push(resolveNotificationTarget(target.data));
       }
@@ -317,10 +312,11 @@ export const PushNotificationCoordinator = ({
     const received = Notifications.addNotificationReceivedListener(() => {
       void ignoreRejection(refreshNotifications());
     });
+
     const responded = Notifications.addNotificationResponseReceivedListener(openNotification);
 
-    // A tap that cold-started the app happened before any listener existed.
     const launchResponse = Notifications.getLastNotificationResponse();
+
     if (launchResponse !== null) {
       openNotification(launchResponse);
     }

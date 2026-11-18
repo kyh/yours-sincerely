@@ -21,6 +21,7 @@ const countAttempts = async (error: Error) => {
     error,
   );
   queryClient.clear();
+
   return attempts;
 };
 

@@ -22,6 +22,7 @@ describe("negotiateMediaType", () => {
   test("serves HTML to a browser's Accept header", () => {
     const browser =
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
+
     assert.equal(negotiateMediaType(browser), "text/html");
   });
 
@@ -41,7 +42,6 @@ describe("negotiateMediaType", () => {
   });
 
   test("lets a specific range override a wildcard, per RFC 9110 §12.5.1", () => {
-    // The wildcard must not resurrect a type the client explicitly rejected.
     assert.equal(negotiateMediaType("text/html;q=0, */*"), "text/markdown");
     assert.equal(negotiateMediaType("text/markdown;q=0, */*;q=1"), "text/html");
   });

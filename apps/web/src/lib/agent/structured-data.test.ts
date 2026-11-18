@@ -11,6 +11,7 @@ import {
 
 test("the graph names the organization, the site and the app", () => {
   const graph = JSON.stringify(buildSiteGraph()["@graph"]);
+
   for (const type of ["Organization", "WebSite", "WebApplication"]) {
     assert.ok(graph.includes(`"@type":"${type}"`), type);
   }
@@ -55,6 +56,7 @@ test("a letter's graph names only the pen name the page prints", () => {
     },
     "https://yourssincerely.org/api/og/letter/abc",
   );
+
   const out = JSON.stringify(graph);
   assert.ok(out.includes('"@type":"SocialMediaPosting"'));
   assert.ok(out.includes('"@type":"BreadcrumbList"'));

@@ -26,6 +26,7 @@ const FormField = <
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
   const contextValue = React.useMemo(() => ({ name: props.name }), [props.name]);
+
   return (
     <FormFieldContext.Provider value={contextValue}>
       <Controller {...props} />
@@ -36,7 +37,6 @@ const FormField = <
 interface FormItemContextValue {
   id: string;
   hasDescription: boolean;
-  /** Called by a mounted FormDescription; returns its unregister. */
   registerDescription: () => () => void;
 }
 
@@ -44,13 +44,17 @@ const FormItemContext = React.createContext<FormItemContextValue | null>(null);
 
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
+
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>");
   }
+
   const itemContext = React.useContext(FormItemContext);
+
   if (!itemContext) {
     throw new Error("useFormField should be used within <FormItem>");
   }
+
   const { getFieldState } = useFormContext();
   const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
@@ -76,10 +80,13 @@ const FormItem = ({
 }: React.ComponentProps<"div"> & { noStyles?: boolean }) => {
   const id = React.useId();
   const [hasDescription, setHasDescription] = React.useState(false);
+
   const registerDescription = React.useCallback(() => {
     setHasDescription(true);
+
     return () => setHasDescription(false);
   }, []);
+
   const contextValue = React.useMemo(
     () => ({ hasDescription, id, registerDescription }),
     [hasDescription, id, registerDescription],
@@ -115,10 +122,9 @@ const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) 
   );
 };
 
-// Names only what is rendered, so a field without a description never points
-// aria-describedby at a missing id.
 const FormControl = ({ ...props }: React.ComponentProps<typeof Slot>) => {
   const { error, formDescriptionId, formItemId, formMessageId, hasDescription } = useFormField();
+
   const describedBy = [
     ...(hasDescription ? [formDescriptionId] : []),
     ...(error ? [formMessageId] : []),

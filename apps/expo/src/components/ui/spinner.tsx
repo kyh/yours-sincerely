@@ -5,5 +5,6 @@ import { useThemeColors } from "@/components/theme-colors";
 
 export const Spinner = (props: ActivityIndicatorProps) => {
   const colors = useThemeColors();
+
   return <ActivityIndicator color={colors.mutedForeground} {...props} />;
 };

@@ -19,8 +19,6 @@ const Page = ({ error, retry }: ErrorProps) => {
     console.error(error);
   }, [error]);
 
-  // `retry` alone re-renders the segment, but a suspense query that already
-  // failed is not refetched on remount until TanStack's boundary is reset too.
   const tryAgain = () => {
     reset();
     retry();

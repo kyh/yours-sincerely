@@ -17,7 +17,10 @@ interface ConvertOptions {
     rows. `getPost` used to load every `Like` and `Flag` row for a post AND each
     of its comments purely to derive two integers and a boolean — a popular
     letter shipped thousands of rows to Node to do it. */
-export const convertDbPostToFeedPost = (dbPost: DbPost, options: ConvertOptions): WirePost => ({
+export const convertDbPostToFeedPost: (dbPost: DbPost, options: ConvertOptions) => WirePost = (
+  dbPost,
+  options,
+) => ({
   commentCount: options.commentCount,
   comments: options.comments,
   content: dbPost.content,
