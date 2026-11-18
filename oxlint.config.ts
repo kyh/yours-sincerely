@@ -1,20 +1,20 @@
 import { defineConfig } from "oxlint";
 import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
+import landmines from "ultracite/oxlint/landmines";
 import next from "ultracite/oxlint/next";
 import react from "ultracite/oxlint/react";
 
 const nextPackages = ["apps/web/**", "packages/service/**"];
 
-// The Data API is off, so packages/service is the only thing that may hold a
-// Postgres connection; every authorization check lives there.
 const noDirectDatabase = {
   group: ["@repo/db", "@repo/db/*"],
   message: "Only packages/service talks to Postgres. Go through an oRPC procedure.",
 };
 
 export default defineConfig({
-  extends: [core, react, antiSlop],
+  extends: [core, react, antiSlop, landmines],
+  jsPlugins: landmines.jsPlugins,
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
     "dist-electron",
@@ -56,7 +56,7 @@ export default defineConfig({
     },
   ],
   rules: {
-    // Sequential awaits in loops are deliberate here (ordered SQL statements, batched seed writes).
+    "anti-slop/require-safety-comment-for-type-assertion": "off",
     "no-await-in-loop": "off",
   },
 });

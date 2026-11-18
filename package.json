@@ -31,12 +31,13 @@
     "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
   },
   "devDependencies": {
+    "@interfere/landmines": "0.1.0",
     "dotenv-cli": "catalog:",
     "oxfmt": "^0.73.0",
-    "oxlint": "^1.89.0",
+    "oxlint": "^1.94.0",
     "turbo": "^2.11.10",
     "typescript": "catalog:",
-    "ultracite": "8.0.0"
+    "ultracite": "8.3.0"
   },
   "engines": {
     "node": "24.x"
