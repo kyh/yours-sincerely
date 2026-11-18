@@ -81,7 +81,7 @@ pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
 pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
 pnpm verify           # typecheck + lint + format + test + build — mirrors CI, run before commit
-pnpm lint             # oxlint (NOT ESLint) via ultracite presets, every rule an error
+pnpm lint             # oxlint (NOT ESLint) via ultracite presets incl. landmines, every rule an error
 pnpm format           # oxfmt --check (use format:fix to write)
 pnpm typecheck        # TypeScript
 pnpm test             # node:test suites (turbo run test)
@@ -116,6 +116,21 @@ and `pnpm db:push` applies both, in this order:
 `pnpm db:push` is therefore the whole deploy, and `pnpm db:reset` is
 `supabase db reset && push && seed`. Nothing is replayed, so no migration history can
 drift from the schema.
+
+Schema facts the code no longer spells out in comments (landmines bans them):
+
+- `$defaultFn` / `$onUpdate` columns run in drizzle, not Postgres: they carry no DB default, so
+  a raw SQL `INSERT` must supply them, and an `UPDATE` made by a trigger leaves `updatedAt` alone.
+- `drizzle.config.ts` and `src/apply-sql.ts` both resolve their URL through
+  `src/connection-url.ts` (transaction-pooler port 6543 rewritten to session mode 5432): DDL
+  never goes through the transaction pooler, and the two halves of a push must reach the same
+  database.
+- User stats are the `getUserStats(text)` function in `sql/040-user-stats.sql`, not a view: the
+  old `UserStats` view computed every user's streaks per call. Deleting a view from
+  `drizzle-schema.ts` makes push drop it; changing one does nothing (below).
+- `drizzle-client.ts`'s pool (`max: 10`, `idle_timeout: 5`, `prepare: false`) matches what
+  production runs on Vercel Fluid against Supabase's pooler; change it only with load numbers
+  (GitHub issue #120).
 
 The LOCAL `push` runs `drizzle-kit push --force` so a headless run cannot hang on the TTY
 confirmation prompt. `--force` accepts data-loss statements without asking, which is fine
