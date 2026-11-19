@@ -1,20 +1,11 @@
 import { orpc, queryClient } from "./api";
 
-/**
- * Scoped cache-invalidation policies for expo mutations. Mirrors
- * `apps/web/src/lib/query-policies.ts` in intent; expo's query client and
- * utils are module singletons, so no parameters.
- *
- * Filters are built from `.key()`, which prefix-matches: `key({ input })` hits
- * every query whose input starts with that shape, and `key()` hits every input.
- */
 /** Retained tabs must drop the previous identity and refetch through their existing observers. */
 export const resetAfterSessionChanged = () => {
   queryClient.getMutationCache().clear();
-  // Signed-in-only data: a reset would refetch it with the new (or no) cookie
-  // before its user-gated consumers see the workspace change and unmount.
   queryClient.removeQueries({ queryKey: orpc.notification.key() });
   queryClient.removeQueries({ queryKey: orpc.block.listBlocks.key() });
+
   return queryClient.resetQueries();
 };
 
@@ -24,9 +15,8 @@ export const refreshWorkspaceIdentity = () =>
 /** Content mutations (like/flag/post) only change identity when they mint the
     anonymous user — skip the workspace roundtrip once a user exists. */
 export const refreshWorkspaceIdentityIfAnonymous = () => {
-  // `queryKey()` is a full match; `auth.workspace` takes no input, so this is
-  // exactly the key `queryOptions()` stores the data under.
   const workspace = queryClient.getQueryData(orpc.auth.workspace.queryKey());
+
   return workspace === undefined || workspace.user === null
     ? refreshWorkspaceIdentity()
     : Promise.resolve();

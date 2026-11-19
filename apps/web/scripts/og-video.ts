@@ -1,24 +1,3 @@
-/**
- * Renders `public/og/og.mp4` (the og:video) and `public/og/og-poster.jpg`.
- *
- *   pnpm og:video
- *
- * A self-contained scene, never a route of the app, in seven seconds: beside
- * the logo icon and its tagline, a letter card springs onto the page, the
- * letter writes itself at a typist's uneven pace, the signature runs in under
- * it, the card's own buttons pop up and its heart is liked, then the
- * disappearing ink lifts off word by word while the expiry ring runs out, and
- * the empty card floats away, leaving the frame the loop starts on. Everything
- * it draws comes from the repo: the theme tokens in `src/app/styles/themes.css`,
- * the Inter files in `assets/fonts`, the icon of `public/logo.svg`, a character
- * from `public/characters`, the post card's buttons and its like burst colours.
- *
- * Each frame is set by hand on a stepped clock and screenshotted at twice the
- * size, so the clip is deterministic and its last frame leads straight back
- * into its first. Needs Playwright with its Chromium (resolved from this
- * package or NODE_PATH; it is not a dependency) and ffmpeg on PATH. Not part
- * of `pnpm verify` or the build.
- */
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -29,9 +8,7 @@ const WIDTH = 1200;
 const HEIGHT = 630;
 const SCALE = 2;
 const FPS = 30;
-/** Keep in step with `OG_VIDEO.durationSeconds` in `src/lib/seo.ts`. */
 const SECONDS = 7;
-/** Written, signed and liked: the frame a share shows before it plays. */
 const POSTER_AT = 4.12;
 
 const webRoot = path.resolve(import.meta.dirname, "..");
@@ -42,10 +19,12 @@ const LETTER = [
   "you won't remember it, but I will.",
   "I hope someone holds one for you.",
 ].join("\n");
+
 const TAGLINE = "Anonymous love letters written in disappearing ink.";
 
 const loadPlaywright = () => {
   const require = createRequire(import.meta.url);
+
   try {
     return require("playwright");
   } catch {
@@ -55,18 +34,20 @@ const loadPlaywright = () => {
   }
 };
 
-/** The light theme's tokens, read from the stylesheet the app ships. */
 const readThemeTokens = async () => {
   const css = await readFile(path.join(webRoot, "src/app/styles/themes.css"), "utf-8");
   const root = css.slice(css.indexOf(":root"), css.indexOf("}"));
-  /** @param {string} name - a custom property of `:root`, without the dashes */
-  const token = (name) => {
+
+  const token = (name: string) => {
     const match = root.match(new RegExp(`--${name}:\\s*([^;]+);`, "u"));
+
     if (!match?.[1]) {
       throw new Error(`themes.css has no --${name} in :root`);
     }
+
     return match[1].trim();
   };
+
   return {
     background: token("background"),
     card: token("card"),
@@ -77,51 +58,53 @@ const readThemeTokens = async () => {
   };
 };
 
-/**
- * @param {string} file - a font file in `assets/fonts`
- * @param {"normal" | "italic"} style - its CSS font-style
- */
-const fontFace = async (file, style) => {
+const fontFace = async (file: string, style: "normal" | "italic") => {
   const data = await readFile(path.join(webRoot, "assets/fonts", file));
+
   return `@font-face{font-family:Inter;font-style:${style};font-weight:400;src:url(data:font/ttf;base64,${data.toString("base64")}) format("truetype");}`;
 };
 
-/** The logo's mark alone: its first path, the cat in a speech bubble. */
 const readLogoIcon = async () => {
   const svg = await readFile(path.join(webRoot, "public/logo.svg"), "utf-8");
   const mark = svg.match(/<path[^>]*\sd="(?<d>[^"]+)"/u)?.groups?.d;
+
   if (!mark) {
     throw new Error("public/logo.svg has no path for its icon");
   }
+
   return `<svg viewBox="-2 -2 286 274" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="${mark}"/></svg>`;
 };
 
-/** The like burst's colour pairs, read from the rule the app's button uses. */
 const readBurstColors = async () => {
   const source = await readFile(
     path.join(webRoot, "../../packages/contract/src/content.ts"),
     "utf-8",
   );
+
   const block = source.slice(source.indexOf("LIKE_BURST_COLOR_PAIRS"));
+
   const pairs = [
     ...block
       .slice(0, block.indexOf("]"))
       .matchAll(/from: "(?<from>#[0-9A-Fa-f]{6})".*?to: "(?<to>#[0-9A-Fa-f]{6})"/gu),
   ].map(({ groups }) => [groups?.from, groups?.to]);
+
   if (pairs.length === 0) {
     throw new Error("packages/contract/src/content.ts has no LIKE_BURST_COLOR_PAIRS");
   }
+
   return pairs;
 };
 
-// The post card's own icons (lucide's message-circle and share, the like heart).
 const COMMENT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>`;
 const SHARE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/></svg>`;
+
 const HEART_PATH =
   "m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z";
 
 const buildScene = async () => {
   const theme = await readThemeTokens();
+
   const [regular, italic, icon, lion, burst] = await Promise.all([
     fontFace("inter-regular.ttf", "normal"),
     fontFace("inter-italic.ttf", "italic"),
@@ -129,6 +112,7 @@ const buildScene = async () => {
     readFile(path.join(webRoot, "public/characters/lion.svg")),
     readBurstColors(),
   ]);
+
   const lionUrl = `data:image/svg+xml;base64,${lion.toString("base64")}`;
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -383,11 +367,7 @@ window.setFrame(0);
 </script></body></html>`;
 };
 
-/**
- * @param {string} framesDir - where the numbered PNG frames are
- * @param {string} output - the MP4 to write
- */
-const encode = (framesDir, output) => {
+const encode = (framesDir: string, output: string) => {
   execFileSync(
     "ffmpeg",
     [
@@ -419,11 +399,7 @@ const encode = (framesDir, output) => {
   );
 };
 
-/**
- * The scene's own hook, `window.setFrame`, draws the frame at `t` seconds.
- * @param {number} t - seconds into the loop
- */
-const frameScript = (t) => `window.setFrame(${t})`;
+const frameScript = (t: number) => `window.setFrame(${t})`;
 
 const main = async () => {
   const { chromium } = loadPlaywright();
@@ -432,15 +408,18 @@ const main = async () => {
   await mkdir(outDir, { recursive: true });
 
   const browser = await chromium.launch();
+
   try {
     const page = await browser.newPage({
       deviceScaleFactor: SCALE,
       viewport: { height: HEIGHT, width: WIDTH },
     });
+
     await page.setContent(html, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
 
     const frameCount = FPS * SECONDS;
+
     for (let frame = 0; frame < frameCount; frame += 1) {
       await page.evaluate(frameScript(frame / FPS));
       const name = `frame-${String(frame).padStart(4, "0")}.png`;

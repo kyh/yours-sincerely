@@ -3,7 +3,6 @@ import { Platform, View } from "react-native";
 
 import { cn } from "cn";
 
-/* Mirrors packages/ui card: bg-card, rounded-xl, padded, soft shadow. */
 export const PAPER_SHADOW = (
   Platform.OS === "android" && Number(Platform.Version) < 28
     ? { elevation: 2 }

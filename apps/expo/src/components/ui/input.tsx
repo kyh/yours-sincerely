@@ -6,6 +6,7 @@ import { useThemeColors } from "@/components/theme-colors";
 
 export const Input = ({ className, ...props }: ComponentPropsWithRef<typeof TextInput>) => {
   const colors = useThemeColors();
+
   return (
     <TextInput
       className={cn(
@@ -14,8 +15,6 @@ export const Input = ({ className, ...props }: ComponentPropsWithRef<typeof Text
       )}
       placeholderTextColor={colors.mutedForeground}
       {...props}
-      // An explicit line height creates a word-wrapping iOS paragraph style.
-      // Keep single-line fields on one line even while they are not editing.
       lineBreakModeIOS={props.lineBreakModeIOS ?? (props.multiline ? undefined : "clip")}
     />
   );

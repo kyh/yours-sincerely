@@ -16,23 +16,12 @@ import { Text } from "@/components/ui/text";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "cn";
 
-/** NumberFlow substitute — a per-digit odometer. Each digit lives in a
-    fixed-height, overflow-clipped column and rolls vertically when it
-    changes; unchanged digits stay put. Adding/removing a column (e.g. 9→10)
-    fades the new leading digit in. Digits use tabular figures so columns
-    never shift horizontally. */
-
-// ~600ms settle, subtle overshoot — matches NumberFlow's feel.
 const SPRING = { damping: 20, mass: 1, stiffness: 170 };
 
 const TABULAR: TextStyle = { fontVariant: ["tabular-nums"] };
 
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-/** One glyph of a column's dial. The dial is a conceptually infinite strip:
-    `position` is an unbounded index and each glyph places itself at its
-    nearest wrapped offset from it, so any roll distance and any mid-roll
-    retarget stays continuous — there is no strip edge to fall off. */
 const DigitTile = ({
   digit,
   position,
@@ -45,11 +34,12 @@ const DigitTile = ({
   className?: string;
 }) => {
   const tileStyle = useAnimatedStyle(() => {
-    // Wrapped distance from the dial position, centered into (-5, 5].
     let offset = (((digit - position.get()) % 10) + 10) % 10;
+
     if (offset > 5) {
       offset -= 10;
     }
+
     return { transform: [{ translateY: offset * height }] };
   });
 
@@ -74,17 +64,12 @@ const Digit = ({
   className,
 }: {
   value: number;
-  /** The whole number this column belongs to — every column rolls the way it moved. */
   whole: number;
-  /** Digit and whole number the column mounts on; it rolls to `value` from there. */
   initialValue: number;
   initialWhole: number;
   height: number;
   className?: string;
 }) => {
-  // Unbounded dial index; the shown digit is position mod 10. Rolls are
-  // accumulated on `target` (not the mid-flight value) so rapid changes
-  // retarget the spring smoothly instead of teleporting the dial.
   const position = useSharedValue(initialValue);
   const target = useRef(initialValue);
   const previous = useRef(initialValue);
@@ -95,13 +80,13 @@ const Digit = ({
     previousWhole.current = whole;
 
     const from = previous.current;
+
     if (from === value) {
       return;
     }
+
     previous.current = value;
 
-    // Steps to the new digit rolling in the direction the whole number
-    // moved (1..9 tiles — covers multi-step changes and decade wraps).
     const steps = direction >= 0 ? (value - from + 10) % 10 : -((from - value + 10) % 10);
     target.current += steps;
     position.set(withSpring(target.current, SPRING));
@@ -109,7 +94,6 @@ const Digit = ({
 
   return (
     <View style={{ height, overflow: "hidden" }}>
-      {/* Transparent glyph gives the column its intrinsic width. */}
       <Text
         style={[TABULAR, { height, lineHeight: height, opacity: 0 }]}
         className={cn("text-muted-foreground text-sm", className)}
@@ -134,18 +118,15 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   const safe = Math.max(0, Math.trunc(value));
   const text = String(safe);
 
-  // Most counters never change on screen, and the odometer costs ten animated
-  // tiles per digit, so it mounts on the first change.
   const [counter, setCounter] = useState<CounterState>({ from: null, value: safe });
   const next = nextCounterState(counter, safe, reduceMotionEnabled);
+
   if (next !== counter) {
     setCounter(next);
   }
+
   const { from } = next;
 
-  // Column height is derived from the rendered text so it tracks the font
-  // size the className resolves to. Until measured, the odometer holds the
-  // previous value as plain text so its columns can still roll from it.
   const [height, setHeight] = useState(0);
 
   if (from === null) {

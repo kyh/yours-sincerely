@@ -16,14 +16,17 @@ import { resetAfterSessionChanged } from "@/lib/query-policies";
 import { useTabNavigation } from "@/lib/use-tab-navigation";
 
 type FieldErrors = Partial<Record<"password" | "confirmPassword", string>>;
+
 const resetToken = z.string().min(1);
 
-const getFieldErrors = (password: string, confirmPassword: string): FieldErrors => {
+const getFieldErrors = (password: string, confirmPassword: string) => {
   const parsed = setPasswordFormInput.safeParse({ confirmPassword, password });
   const errors: FieldErrors = {};
+
   if (!parsed.success) {
     for (const issue of parsed.error.issues) {
       const [field] = issue.path;
+
       if (field === "password" && errors.password === undefined) {
         errors.password = issue.message;
       } else if (field === "confirmPassword" && errors.confirmPassword === undefined) {
@@ -31,6 +34,7 @@ const getFieldErrors = (password: string, confirmPassword: string): FieldErrors 
       }
     }
   }
+
   return errors;
 };
 
@@ -64,21 +68,28 @@ const PasswordUpdateScreen = () => {
     if (token === undefined || setPasswordMutation.isPending) {
       return;
     }
+
     setSubmitted(true);
     const errors = getFieldErrors(password, confirmPassword);
     setFieldErrors(errors);
+
     if (errors.password !== undefined) {
       passwordInput.current?.focus();
+
       return;
     }
+
     if (errors.confirmPassword !== undefined) {
       confirmPasswordInput.current?.focus();
+
       return;
     }
 
     const payload = setPasswordInput.safeParse({ password, token });
+
     if (!payload.success) {
       setFieldErrors({ password: payload.error.issues[0]?.message ?? "Invalid password" });
+
       return;
     }
 
@@ -101,6 +112,7 @@ const PasswordUpdateScreen = () => {
           value={password}
           onChangeText={(value) => {
             setPassword(value);
+
             if (submitted) {
               setFieldErrors(getFieldErrors(value, confirmPassword));
             }
@@ -122,6 +134,7 @@ const PasswordUpdateScreen = () => {
           value={confirmPassword}
           onChangeText={(value) => {
             setConfirmPassword(value);
+
             if (submitted) {
               setFieldErrors(getFieldErrors(password, value));
             }

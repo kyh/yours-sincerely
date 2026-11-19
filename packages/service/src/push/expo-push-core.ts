@@ -2,12 +2,6 @@ import type { NewCommentNotificationData } from "@repo/contract/notification/not
 import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 
-/**
- * The pure half of push delivery: Expo's client, the token store and the
- * logger arrive as parameters so `expo-push-core.test.ts` can drive every
- * ticket outcome without a network. `expo-push.ts` is the wiring.
- */
-
 /** Every payload a push can carry, so a client parses a tapped notification
     back into one of @repo/contract's shapes rather than a loose dictionary. */
 export type PushData = NewCommentNotificationData;
@@ -49,14 +43,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
     would outlive its app forever and keep the sender throttled by APNs/FCM.
     `push.register` refreshes `lastSeenAt` on every launch, so a device that
     comes back re-registers itself. */
-export const getPushTokenIdleCutoff = (now: Date = new Date()): string =>
+export const getPushTokenIdleCutoff = (now: Date = new Date()) =>
   new Date(now.getTime() - PUSH_TOKEN_MAX_IDLE_DAYS * DAY_MS).toISOString();
 
-const chunk = <T>(items: T[], size: number): T[][] => {
+const chunk = <T>(items: T[], size: number) => {
   const chunks: T[][] = [];
+
   for (let index = 0; index < items.length; index += size) {
     chunks.push(items.slice(index, index + size));
   }
+
   return chunks;
 };
 
@@ -65,10 +61,7 @@ const chunk = <T>(items: T[], size: number): T[][] => {
  * the write that triggered the push has already committed, and a delivery
  * problem must not turn into a failed request for the person who caused it.
  */
-export const sendPushToUserCore = async (
-  message: PushMessage,
-  deps: PushDependencies,
-): Promise<PushOutcome> => {
+export const sendPushToUserCore = async (message: PushMessage, deps: PushDependencies) => {
   const outcome: PushOutcome = { failed: 0, pruned: [], sent: 0 };
 
   try {
@@ -76,7 +69,7 @@ export const sendPushToUserCore = async (
     const tokens = allTokens.filter(deps.isExpoPushToken);
 
     for (const batch of chunk(tokens, deps.chunkSize)) {
-      const messages = batch.map((to): ExpoPushMessage => ({
+      const messages = batch.map((to) => ({
         body: message.body,
         data: message.data,
         sound: "default",
@@ -85,6 +78,7 @@ export const sendPushToUserCore = async (
       }));
 
       let tickets: ExpoPushTicket[];
+
       try {
         tickets = await deps.sendChunk(messages);
       } catch (error) {
@@ -97,7 +91,6 @@ export const sendPushToUserCore = async (
         continue;
       }
 
-      // Tickets are positional: the nth ticket answers the nth message.
       for (const [index, ticket] of tickets.entries()) {
         if (ticket.status === "ok") {
           outcome.sent += 1;
@@ -105,6 +98,7 @@ export const sendPushToUserCore = async (
         }
 
         const token = batch[index] ?? ticket.details?.expoPushToken;
+
         if (ticket.details?.error === "DeviceNotRegistered" && token !== undefined) {
           await deps.deleteToken(token);
           outcome.pruned.push(token);

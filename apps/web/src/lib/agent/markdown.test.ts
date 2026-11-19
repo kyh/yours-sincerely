@@ -12,9 +12,9 @@ import {
 import { contactPage, headingId, privacyPage, termsPage } from "./site-pages";
 
 import type { MarkdownLetter } from "./markdown";
-import type { Block, Inline, ProsePage } from "./site-pages";
+import type { Block, ProsePage } from "./site-pages";
 
-const letter = (overrides: Partial<MarkdownLetter> = {}): MarkdownLetter => ({
+const letter = (overrides: Partial<MarkdownLetter> = {}) => ({
   commentCount: 2,
   content: "Dear you,\n\nI never said it.",
   createdAt: "2026-09-20T10:00:00.000Z",
@@ -24,24 +24,26 @@ const letter = (overrides: Partial<MarkdownLetter> = {}): MarkdownLetter => ({
   ...overrides,
 });
 
-/** Every block a page renders, front matter and footnote included. */
-const blocksOf = (page: ProsePage): Block[] => [
+const blocksOf = (page: ProsePage) => [
   ...(page.intro ?? []),
   ...page.sections.flatMap((section) => section.blocks),
   ...(page.footnote ?? []),
 ];
 
-const inlinesOf = (block: Block): Inline[] => {
+const inlinesOf = (block: Block) => {
   switch (block.kind) {
     case "paragraph": {
       return block.content;
     }
+
     case "list": {
       return block.items.flat();
     }
+
     case "table": {
       return [];
     }
+
     default: {
       const exhaustive: never = block;
       throw new Error(`Unknown block ${String(exhaustive)}`);
@@ -49,12 +51,12 @@ const inlinesOf = (block: Block): Inline[] => {
   }
 };
 
-const hrefsOf = (page: ProsePage): string[] =>
+const hrefsOf = (page: ProsePage) =>
   blocksOf(page)
     .flatMap(inlinesOf)
     .flatMap((part) => (part.kind === "link" ? [part.href] : []));
 
-const headingIdsOf = (page: ProsePage): string[] =>
+const headingIdsOf = (page: ProsePage) =>
   page.sections.map((section) => headingId(section.heading));
 
 describe("renderHomeMarkdown", () => {
@@ -107,6 +109,7 @@ describe("renderProsePageMarkdown", () => {
     assert.ok(body.includes("\n| --- | --- | --- |\n| Service delivery and operations | "));
     const tables = blocksOf(privacyPage).filter((block) => block.kind === "table");
     assert.equal(tables.length, 2);
+
     for (const block of tables) {
       assert.ok(block.rows.every((row) => row.length === block.head.length));
     }
@@ -129,6 +132,7 @@ describe("renderProsePageMarkdown", () => {
       );
       assert.ok(body.endsWith("the deal terms it is used to document.\n"), page.path);
     }
+
     assert.ok(!renderProsePageMarkdown(contactPage).includes("\n---\n"));
   });
 
@@ -145,6 +149,7 @@ describe("renderProsePageMarkdown", () => {
 
   test("keeps the promises the previous privacy policy made", () => {
     const body = renderProsePageMarkdown(privacyPage);
+
     for (const promise of [
       "We do not sell your personal information or share it with advertisers.",
       "We never ask for your phone number, real name, postal address or payment details",
@@ -156,6 +161,7 @@ describe("renderProsePageMarkdown", () => {
     ]) {
       assert.ok(body.includes(promise), promise);
     }
+
     assert.ok(!body.includes("information/know"));
   });
 
@@ -186,6 +192,7 @@ describe("legal page anchors", () => {
   test("every in-page link lands on a heading of that page", () => {
     for (const page of [contactPage, privacyPage, termsPage]) {
       const ids = new Set(headingIdsOf(page));
+
       for (const href of hrefsOf(page).filter((target) => target.startsWith("#"))) {
         assert.ok(ids.has(href.slice(1)), `${page.path} ${href}`);
       }
@@ -196,6 +203,7 @@ describe("legal page anchors", () => {
     const ids = new Set(headingIdsOf(privacyPage));
     const deepLinks = hrefsOf(termsPage).filter((target) => target.startsWith("/privacy#"));
     assert.ok(deepLinks.length > 0);
+
     for (const href of deepLinks) {
       assert.ok(ids.has(href.slice("/privacy#".length)), href);
     }

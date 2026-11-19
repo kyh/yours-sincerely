@@ -10,8 +10,6 @@ export const SITE = {
 
 export const WEB_ORIGIN = `https://${WEB_HOST}`;
 
-/** Percent-encoded: React Native's `Linking.openURL` rejects a mailto with raw
-    spaces on some iOS versions. */
 const mailto = (subject: string) =>
   `mailto:${SITE.supportEmail}?subject=${encodeURIComponent(subject)}`;
 

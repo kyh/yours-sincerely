@@ -22,11 +22,11 @@ interface ProfileFormProps {
 
 export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
   const queryClient = useQueryClient();
+
   const {
     data: { user },
   } = useSuspenseQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
 
-  // The display name shows on the profile and in the workspace identity.
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
       onSuccess: () =>
@@ -43,11 +43,12 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   const onSubmit = (data: UpdateUserInput) => {
     const submitted = form.getValues("displayName");
+
     const promise = updateUser.mutateAsync(data, {
-      // Typing during the save keeps its text, and stays dirty for the next blur.
       onSuccess: () =>
         form.reset(data, { keepValues: form.getValues("displayName") !== submitted }),
     });
+
     toast.promise(promise, {
       error: "Could not update profile. Please try again.",
       loading: "Updating profile...",
@@ -73,6 +74,7 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
                   {...field}
                   onBlur={() => {
                     field.onBlur();
+
                     if (form.getFieldState("displayName").isDirty && !updateUser.isPending) {
                       void form.handleSubmit(onSubmit)();
                     }

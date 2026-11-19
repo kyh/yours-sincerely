@@ -15,13 +15,12 @@ interface Props {
   postId: string;
 }
 
-// The Navigation API lists only this origin's entries, so canGoBack is false on
-// a link opened from another site; history.length covers browsers without it.
 const canGoBackInApp = () =>
   typeof navigation === "undefined" ? window.history.length > 1 : navigation.canGoBack;
 
 export const PostPage = ({ postId }: Props) => {
   const router = useRouter();
+
   const {
     data: { post },
   } = useSuspenseQuery(orpc.post.getPost.queryOptions({ input: { postId } }));

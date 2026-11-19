@@ -29,13 +29,9 @@ export const useInfiniteList = <TPage, TPageParam, TError>(
     isFetching,
     refetch,
   }: InfiniteListQuery<TPage, TPageParam, TError>,
-  // Off where the list is swapped out once data arrives (the card stack): its
-  // last measurement, taken of the full-height spinner, never updates, and that
-  // stale "underfilled" would page through the whole feed.
   { fillViewport = true }: { fillViewport?: boolean } = {},
 ) => {
   const pageCount = data?.pages.length ?? 0;
-  // The page count a load was asked for at: the next page arriving retires it.
   const [requestedAt, setRequestedAt] = useState<number | null>(null);
   const [viewportHeight, setViewportHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
@@ -62,8 +58,6 @@ export const useInfiniteList = <TPage, TPageParam, TError>(
         await ignoreRejection(refetch());
         setRefreshing(false);
       },
-      // Only an explicit pull shows the refresh spinner; `isRefetching` would also
-      // flash it on every background invalidation after a like or flag.
       refreshing,
     },
     loadMore,

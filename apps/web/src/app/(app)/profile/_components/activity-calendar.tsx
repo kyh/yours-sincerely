@@ -20,9 +20,11 @@ const LEGEND_LEVELS: Level[] = [0, 1, 2, 3, 4];
 
 const getTooltipMessage = (contribution: Day) => {
   const date = format(parseISO(contribution.date), DATE_FORMAT);
+
   if (!contribution.count) {
     return `No posts on ${date}`;
   }
+
   return `${contribution.count} post${contribution.count > 1 ? "s" : ""} on ${date}`;
 };
 

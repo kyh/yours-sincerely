@@ -40,10 +40,12 @@ const SettingsScreen = () => {
   const { width } = useWindowDimensions();
   const [appearanceWidth, setAppearanceWidth] = useState(0);
   const appearanceColumns = width >= 768 ? 6 : 4;
+
   const appearanceOptionWidth =
     appearanceWidth > 0
       ? (appearanceWidth - 16 * (appearanceColumns - 1)) / appearanceColumns
       : undefined;
+
   const releasePushIdentity = useReleasePushIdentity();
 
   const [email, setEmail] = useSeededState(user?.email, "");
@@ -62,12 +64,14 @@ const SettingsScreen = () => {
       },
     }),
   );
+
   const requestPasswordReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({
       onError: () => toast.error("Could not send password reset email. Please try again."),
       onSuccess: () => toast.success("Password reset email sent"),
     }),
   );
+
   const endLocalSession = async () => {
     await retireLegacySessionMigration();
     await deleteSessionCookie();
@@ -76,6 +80,7 @@ const SettingsScreen = () => {
   };
 
   const signOutOnServer = useMutation(orpc.auth.signOut.mutationOptions({ networkMode: "always" }));
+
   const deleteAccount = useMutation(
     orpc.user.deleteUser.mutationOptions({
       onError: () => toast.error("Could not delete account. Please try again."),
@@ -85,12 +90,14 @@ const SettingsScreen = () => {
 
   const confirmDeleteAccount = async () => {
     setIsPreparingDelete(true);
+
     try {
       await releasePushIdentity();
       deleteAccount.mutate();
     } catch {
       toast.error("Could not disconnect notifications. Please try again.");
     }
+
     setIsPreparingDelete(false);
   };
 
@@ -98,30 +105,35 @@ const SettingsScreen = () => {
     if (user === null || updateUser.isPending || email === (user.email ?? "")) {
       return;
     }
+
     const parsed = updateUserInput.safeParse({ email });
+
     if (!parsed.success) {
       setEmailError(parsed.error.issues[0]?.message ?? "Invalid email");
+
       return;
     }
+
     setEmailError(null);
     updateUser.mutate(parsed.data);
   };
 
   const signOut = async () => {
     setIsSigningOut(true);
+
     try {
       await releasePushIdentity();
-      // The server only clears its cookie; the local wipe below is what signs
-      // out, so an offline device must not be stuck signed in.
       await ignoreRejection(signOutOnServer.mutateAsync());
       await endLocalSession();
     } catch {
       toast.error("Could not clear this session. Please try again.");
     }
+
     setIsSigningOut(false);
   };
 
   let queryStatus: ReactNode = null;
+
   if (isPending) {
     queryStatus = (
       <View className="flex-1 items-center justify-center py-5">
@@ -193,8 +205,10 @@ const SettingsScreen = () => {
                     onPress={() => {
                       if (user.email === null || user.email === "") {
                         toast.error("Add an email first");
+
                         return;
                       }
+
                       requestPasswordReset.mutate({ email: user.email });
                     }}
                     loading={requestPasswordReset.isPending}

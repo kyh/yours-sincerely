@@ -27,6 +27,7 @@ type Notification = RouterOutputs["notification"]["list"]["notifications"][numbe
 
 const useMarkRead = () => {
   const queryClient = useQueryClient();
+
   return useMutation(
     orpc.notification.markRead.mutationOptions({
       onSuccess: () => refreshNotifications(queryClient),
@@ -34,9 +35,6 @@ const useMarkRead = () => {
   );
 };
 
-// Not a suspense query, and not prefetched: the Sidebar badge observes this key
-// before the page renders, and HydrationBoundary never hydrates into an entry
-// that already exists while pending. A suspense read would then fetch in SSR.
 const MarkAllReadButtonInner = () => {
   const { data } = useQuery(orpc.notification.unreadCount.queryOptions());
   const markRead = useMarkRead();
@@ -57,14 +55,13 @@ const MarkAllReadButtonInner = () => {
   );
 };
 
-// The server page already renders a sign-in prompt instead, but Back after a
-// sign-out restores this tree from Next's client cache with the old inbox in
-// its HydrationBoundary. The client identity is the one that is current.
 export const MarkAllReadButton = () => {
   const user = useWorkspaceUser();
+
   if (user === null) {
     return null;
   }
+
   return <MarkAllReadButtonInner />;
 };
 
@@ -115,6 +112,7 @@ const NotificationList = () => {
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
     orpc.notification.list.infiniteOptions(notificationInfiniteArgs()),
   );
+
   const markRead = useMarkRead();
 
   const [ref] = useInfiniteScroll({
@@ -154,8 +152,10 @@ const NotificationList = () => {
 
 export const NotificationsPage = () => {
   const user = useWorkspaceUser();
+
   if (user === null) {
     return null;
   }
+
   return <NotificationList />;
 };

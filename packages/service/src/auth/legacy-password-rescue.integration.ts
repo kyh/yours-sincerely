@@ -1,18 +1,3 @@
-/** Guards `packages/db/sql/070-legacy-password-rescue.sql`.
- *
- *  Until 2026-03-10 signup went through Supabase Auth, which hashed the password
- *  into `auth.users.encrypted_password`. Signup then moved to the hand-rolled path,
- *  which reads `User.passwordHash` and nothing else — stranding 485 real accounts
- *  that could no longer sign in. The rescue copies the hash across (GoTrue and this
- *  app are both bcrypt cost 10, so it moves verbatim).
- *
- *  THE FAILURE THIS FILE EXISTS TO CATCH: the rescue re-runs on every push, and its
- *  only safety is `WHERE u."passwordHash" IS NULL`. Delete that predicate and every
- *  push silently reverts every rescued account to the password it had before —
- *  including anyone who reset theirs in the meantime, whose reset was their ONLY
- *  way back in. That is a catastrophic, invisible regression, so the "was not
- *  reverted" case below matters more than the happy path.
- */
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
@@ -35,11 +20,9 @@ after(async () => {
   await db.$client.end();
 });
 
-/** `$2a$` is what production's stranded rows actually carry (measured: 485 rows,
-    all `$2a$10$`, length 60). bcryptjs emits `$2b$`, so force the prefix — the
-    point of the test is that the GoTrue-shaped hash survives the move. */
 const gotrueHash = async (password: string) => {
   const hashed = await hash(password, 10);
+
   return hashed.replace(/^\$2[aby]\$/u, "$2a$");
 };
 
@@ -47,15 +30,6 @@ const runRescue = async () => {
   await db.execute(sql.raw(await readFile(RESCUE_SQL, "utf-8")));
 };
 
-/** An identity that signed up through Supabase Auth before the cutover: a row in
-    auth.users holding the password, and a User row holding none.
- *
- *  Both rows are written explicitly. `on_auth_user_created` used to mirror the
- *  second one automatically, and this fixture leaned on that until
- *  `075-retire-legacy-auth.sql` dropped the trigger — at which point the fixture
- *  would have silently produced no User row and every assertion below would have
- *  been vacuous. The state under test is what the cutover LEFT BEHIND, so it is
- *  built directly rather than re-enacted through machinery that no longer exists. */
 const createStrandedAccount = async () => {
   const id = randomUUID();
   const email = `${id}@example.com`;
@@ -65,6 +39,7 @@ const createStrandedAccount = async () => {
         VALUES (${id}::uuid, ${email}, ${encrypted})`,
   );
   await db.insert(user).values({ displayName: "Stranded", email, id, passwordHash: null });
+
   return id;
 };
 
@@ -72,7 +47,9 @@ const passwordHashOf = async (id: string) => {
   const rows = await db.execute<{ passwordHash: string | null }>(
     sql`SELECT "passwordHash" FROM public."User" WHERE id = ${id}`,
   );
+
   assert.equal(rows.length, 1, "expected exactly one User row");
+
   return rows[0]?.passwordHash ?? null;
 };
 
@@ -83,6 +60,7 @@ const cleanup = async (id: string) => {
 
 integrationTest("a stranded account can sign in with its original password again", async () => {
   const id = await createStrandedAccount();
+
   try {
     assert.equal(await passwordHashOf(id), null, "precondition: locked out");
 
@@ -101,12 +79,11 @@ integrationTest("a stranded account can sign in with its original password again
 
 integrationTest("a password set since the cutover is never reverted", async () => {
   const id = await createStrandedAccount();
+
   try {
-    // They did the only thing available to them: reset their password.
     const reset = await hash(RESET_PASSWORD, 10);
     await db.execute(sql`UPDATE public."User" SET "passwordHash" = ${reset} WHERE id = ${id}`);
 
-    // Every subsequent push re-runs the rescue. It must not touch them.
     await runRescue();
     await runRescue();
 
@@ -125,6 +102,7 @@ integrationTest("a password set since the cutover is never reverted", async () =
 
 integrationTest("the rescue is idempotent — a second run changes nothing", async () => {
   const id = await createStrandedAccount();
+
   try {
     await runRescue();
     const first = await passwordHashOf(id);
@@ -136,12 +114,8 @@ integrationTest("the rescue is idempotent — a second run changes nothing", asy
 });
 
 integrationTest("an identity with no real password is left alone, not half-rescued", async () => {
-  // GoTrue stores '' rather than NULL for identities that never had a password
-  // (OAuth, magic link). Copying that would consume the `passwordHash IS NULL`
-  // marker — the row could never be revisited — while signInWithPassword still
-  // rejects the account, because '' is falsy. A permanent lockout dressed as a
-  // rescue. The rescue must skip it and leave the marker intact.
   const id = randomUUID();
+
   try {
     await db.execute(
       sql`INSERT INTO auth.users (id, email, encrypted_password)
@@ -158,12 +132,9 @@ integrationTest("an identity with no real password is left alone, not half-rescu
 });
 
 integrationTest("anonymous authors are untouched", async () => {
-  // `createUserIfNotExists` gives them no password, so they carry the same
-  // `passwordHash IS NULL` the rescue keys on. What keeps them out is the id
-  // join: they have no auth.users row. A stranded account sits alongside so
-  // the run provably matched something, and the anonymous row still did not.
   const anonymousId = randomUUID();
   const strandedId = await createStrandedAccount();
+
   try {
     await db.insert(user).values({ displayName: "Anonymous", id: anonymousId });
     assert.equal(await passwordHashOf(anonymousId), null, "precondition: minted without a hash");

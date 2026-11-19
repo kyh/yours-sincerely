@@ -3,8 +3,6 @@ import { user } from "@repo/db/drizzle-schema";
 import type { AnyColumn } from "drizzle-orm";
 import { and, ne, sql } from "drizzle-orm";
 
-/** `lower(email)` is exactly what `User_email_lower_idx` indexes, so this is an
-    index seek, not a scan of every anonymous row. */
 const sameAddress = (email: AnyColumn, address: string) => sql`lower(${email}) = lower(${address})`;
 
 /**
@@ -17,6 +15,7 @@ const sameAddress = (email: AnyColumn, address: string) => sql`lower(${email}) =
  */
 export const findUserByEmail = async (db: Db, address: string) => {
   const exact = await db.query.user.findFirst({ where: { email: address } });
+
   if (exact) {
     return exact;
   }

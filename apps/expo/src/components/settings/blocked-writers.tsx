@@ -28,7 +28,6 @@ export const BlockedWriters = () => {
 
   const blocks = useQuery({
     ...orpc.block.listBlocks.queryOptions(),
-    // listBlocks is a protected procedure; an anonymous visitor has nothing to list.
     enabled: user !== null,
   });
 
@@ -36,7 +35,6 @@ export const BlockedWriters = () => {
     orpc.block.deleteBlock.mutationOptions({
       onError: () => toast.error("Could not unblock this writer. Please try again."),
       onSuccess: async () => {
-        // The writer's letters return to the feed immediately — no restart.
         await refreshBlocks();
         toast.success("You will see content from this writer again");
       },
@@ -50,6 +48,7 @@ export const BlockedWriters = () => {
   const blocked = blocks.data?.blocks ?? [];
 
   let list: ReactNode;
+
   if (blocks.isPending) {
     list = <Text className="text-muted-foreground text-xs">Loading…</Text>;
   } else if (blocks.isError && blocks.data === undefined) {
@@ -73,6 +72,7 @@ export const BlockedWriters = () => {
       <View className="gap-2">
         {blocked.map((writer) => {
           const displayName = resolveDisplayName(writer.displayName);
+
           return (
             <View key={writer.blockingId} className="flex-row items-center gap-3">
               <ProfileAvatar name={displayName} src={writer.displayImage ?? undefined} size={36} />

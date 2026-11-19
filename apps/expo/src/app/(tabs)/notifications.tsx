@@ -25,7 +25,9 @@ import { useInfiniteList } from "@/lib/use-infinite-list";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 type NotificationPage = RouterOutputs["notification"]["list"];
+
 type NotificationCursor = NotificationPage["nextCursor"];
+
 type NotificationRow = NotificationPage["notifications"][number];
 
 const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress: () => void }) => {
@@ -57,6 +59,7 @@ const NotificationRowItem = ({ item, onPress }: { item: NotificationRow; onPress
 
 const NotificationFeed = () => {
   const router = useRouter();
+
   const {
     data,
     isPending,
@@ -74,6 +77,7 @@ const NotificationFeed = () => {
       input: (pageParam: NotificationCursor) => ({ cursor: pageParam }),
     }),
   );
+
   const { listProps } = useInfiniteList({
     data,
     fetchNextPage,
@@ -98,6 +102,7 @@ const NotificationFeed = () => {
     if (item.readAt === null) {
       markRead.mutate({ ids: [item.id], scope: "ids" });
     }
+
     router.push(resolveNotificationTarget({ parentPostId: item.postId }));
   };
 
@@ -123,6 +128,7 @@ const NotificationFeed = () => {
   }
 
   let footer: ReactNode = null;
+
   if (isError) {
     footer = (
       <View className="items-center gap-3 py-5">
@@ -171,20 +177,19 @@ const NotificationFeed = () => {
 const NotificationsScreen = () => {
   const router = useRouter();
   const { user, isPending, isError, refetch: refetchWorkspace } = useWorkspaceUser();
-  // Stack screens stay mounted, so a reply the polled badge counted while the
-  // user sat elsewhere leaves this list stale until it is looked at again. The
-  // mount fetch already covers the first focus.
   const focusedBefore = useRef(false);
   useFocusEffect(
     useCallback(() => {
       if (focusedBefore.current) {
         void ignoreRejection(refreshNotifications());
       }
+
       focusedBefore.current = true;
     }, []),
   );
 
   let content: ReactNode;
+
   if (isPending) {
     content = (
       <View className="flex-1 items-center justify-center py-5">

@@ -7,8 +7,6 @@ import type { ErrorProps } from "./(app)/error";
 
 import "./styles/globals.css";
 
-// Replaces the root layout, so none of its providers exist here: no theme, no
-// query client. Keep this free of anything that needs them.
 const GlobalError = ({ error, retry }: ErrorProps) => {
   useEffect(() => {
     console.error(error);

@@ -31,15 +31,19 @@ const ProfileNotFound = () => (
 export const Profile = ({ userId }: ProfileProps) => {
   const { resolvedTheme } = useTheme();
   const currentUser = useWorkspaceUser();
+
   const {
     data: { user },
   } = useSuspenseQuery(orpc.user.getUser.queryOptions({ input: { userId } }));
+
   const {
     data: { userStats },
   } = useSuspenseQuery(orpc.user.getUserStats.queryOptions({ input: { userId } }));
+
   const {
     data: { posts },
   } = useSuspenseQuery(orpc.post.getPostsByUser.queryOptions({ input: { userId } }));
+
   const isWide = useMediaQuery(`(min-width: ${HEATMAP_WIDE_MIN_WIDTH}px)`);
 
   if (!user) {

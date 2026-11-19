@@ -17,16 +17,12 @@ interface Props {
 
 export const ShareButton = ({ post }: Props) => {
   const colors = useThemeColors();
-  // Mounted only while on screen: most rows never open it, and a mounted
-  // drawer keeps its animated styles and subscriptions live in every row.
   const [drawer, setDrawer] = useState<"closed" | "open" | "closing">("closed");
   const close = () => setDrawer((current) => (current === "open" ? "closing" : current));
   const postUrl = `${WEB_ORIGIN}/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
   const iconSize = 16;
 
-  // Native share is web parity (the web button prefers navigator.share too);
-  // fall back to the curated drawer only when the OS sheet fails to present.
   const share = async () => {
     try {
       await Share.share(
@@ -41,12 +37,13 @@ export const ShareButton = ({ post }: Props) => {
 
   const copyLink = async () => {
     close();
+
     try {
       await Clipboard.setStringAsync(postUrl);
     } catch {
-      // A copy the OS refused has nothing to confirm.
       return;
     }
+
     toast.success("📝 Copied to Clipboard");
   };
 

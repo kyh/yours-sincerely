@@ -15,16 +15,12 @@ test("safeNextPath rejects protocol-relative URLs", () => {
 });
 
 test("safeNextPath rejects backslash smuggling", () => {
-  // For special schemes the WHATWG URL parser treats `\` as `/`, so these are
-  // cross-origin even though they start with a single `/`.
   assert.equal(safeNextPath("/\\evil.example"), "/");
   assert.equal(safeNextPath("\\/evil.example"), "/");
   assert.equal(safeNextPath("/\\\\evil.example"), "/");
 });
 
 test("safeNextPath rejects paths that normalise into protocol-relative URLs", () => {
-  // `new URL("/.//evil.example", origin)` is same-origin, but its pathname is
-  // `//evil.example` — re-resolving that in the browser lands on evil.example.
   assert.equal(safeNextPath("/.//evil.example"), "/");
   assert.equal(safeNextPath("/..//evil.example"), "/");
   assert.equal(safeNextPath("/a/../..//evil.example"), "/");
@@ -44,7 +40,6 @@ test("safeNextPath rejects non-http schemes", () => {
 });
 
 test("safeNextPath rejects anything that is not a single string", () => {
-  // oxlint-disable-next-line unicorn/no-useless-undefined -- the parameter is required; this is the absent-query-param case
   assert.equal(safeNextPath(undefined), "/");
   assert.equal(safeNextPath(["/settings", "//evil.example"]), "/");
   assert.equal(safeNextPath([]), "/");

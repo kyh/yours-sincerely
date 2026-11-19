@@ -2,14 +2,14 @@ import { siteConfig } from "@/lib/site-config";
 
 import { notForUse, renderList, sitePages, siteSummary, whenToUse } from "./markdown";
 
-const bullets = (lines: string[]): string => lines.map((line) => `- ${line}`).join("\n");
+const bullets = (lines: string[]) => lines.map((line) => `- ${line}`).join("\n");
 
 /**
  * `/llms.txt`, to the llmstxt.org format: H1, blockquote summary, free-form
  * prose, then H2-delimited link lists. The when-to-use guidance sits in the
  * prose block because the spec reserves H2 sections for link lists.
  */
-export const renderLlmsTxt = (): string =>
+export const renderLlmsTxt = () =>
   `${[
     `# ${siteConfig.name}`,
     `> ${siteSummary}`,

@@ -44,6 +44,7 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS, header }: P
       input: (pageParam: FeedCursor) => ({ ...filters, cursor: pageParam }),
     }),
   );
+
   const { listProps, loadMore } = useInfiniteList(
     { data, fetchNextPage, hasNextPage, isError, isFetching, refetch },
     { fillViewport: layout === "list" },
@@ -56,6 +57,7 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS, header }: P
       <Text className="text-sm">No posts</Text>
     </View>
   );
+
   if (isPending) {
     emptyState = (
       <View className="flex-1 items-center justify-center py-10">

@@ -19,22 +19,15 @@ export const queryClient = new QueryClient({
   },
 });
 
-// RN has no window focus events — drive refetch-on-focus from AppState so
-// long-mounted tab screens refresh when the app returns to the foreground.
 if (Platform.OS !== "web") {
   AppState.addEventListener("change", (status) => {
     focusManager.setFocused(status === "active");
   });
 }
 
-// TanStack aborts an in-flight fetch whenever it invalidates the same query,
-// so a cancelled request is routine, not a failure worth a red box.
 const isCancelledFetch = (error: Error) =>
   error.name === "AbortError" || /cancel/iu.test(error.message);
 
-// RPCLink buffers each response, so the session `Set-Cookie` header stays
-// visible to `fetchWithSession`'s cookie jar — a streaming transport would
-// deliver the body before the wrapper could read it.
 const link = new RPCLink({
   fetch: fetchWithSession,
   headers: () => ({ "x-orpc-source": "expo" }),
@@ -46,7 +39,6 @@ const link = new RPCLink({
       }
     }),
   ],
-  // No SSR on React Native, so the origin is stable for the process.
   origin: getBaseUrl(),
   url: "/api/orpc",
 });

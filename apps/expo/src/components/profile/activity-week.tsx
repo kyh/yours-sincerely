@@ -32,6 +32,7 @@ export const ActivityWeek = ({ data, theme }: Props) => {
             {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
               const { count, level } = data[day];
               const summary = `${count} posts written on ${FULL_DAY_LABELS[day]}s`;
+
               return (
                 <Ellipse
                   key={day}

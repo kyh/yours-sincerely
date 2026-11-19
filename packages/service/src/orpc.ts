@@ -20,16 +20,11 @@ import { findSessionUser } from "./auth/session-user";
 export const createORPCContext = async (opts: { headers: Headers }) => {
   const sessionValue = getCookie(opts.headers, SESSION_COOKIE_NAME);
 
-  // Resolves the cookie AND enforces the session epoch: a session revoked by a
-  // password reset or "sign out everywhere" yields no user. Reuses the user row
-  // the context loads anyway, so the check costs zero extra queries.
   const sessionUser = await authenticateSessionValue(sessionValue, (userId) =>
     findSessionUser(db, userId),
   );
 
-  // Renewal is gated behind a valid session and re-signs with the epoch from
-  // the DATABASE, so a revoked session can never renew itself back into
-  // validity. The cookie write inside is a no-op outside a Next request scope.
+  // WARNING: renewal re-signs with the database's epoch, or a revoked session would renew itself back into validity.
   if (sessionUser) {
     await renewSessionIfStale(sessionValue, sessionUser.sessionEpoch);
   }

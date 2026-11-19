@@ -15,9 +15,6 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-// For `$defaultFn` / `$onUpdate`, which run in drizzle, not Postgres: those
-// columns carry no DB default, so a raw SQL INSERT must still supply them, and an
-// UPDATE made by a trigger leaves `updatedAt` alone.
 const isoNow = () => new Date().toISOString();
 
 export const tokenType = pgEnum("TokenType", ["REFRESH_TOKEN", "VERIFY_EMAIL", "RESET_PASSWORD"]);
@@ -45,17 +42,12 @@ export const user = pgTable(
       .$defaultFn(() => randomUUID()),
     passwordHash: text(),
     role: userRole().default("USER").notNull(),
-    // Revocation, NOT expiry. Bumping this invalidates every session cookie
-    // already issued for this user (password reset, "sign out everywhere").
-    // Cookies minted before this column existed carry no `epoch` and are read as
-    // 0, which matches the default — so no existing session is logged out.
+    // WARNING: a cookie with no epoch reads as 0, this default; changing the default logs out every pre-revocation session.
     sessionEpoch: integer().default(0).notNull(),
     weeklyDigestEmail: boolean().default(false).notNull(),
   },
   (table) => [
     uniqueIndex("User_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
-    /** Backs the case-insensitive email lookup. Not unique: accounts that differ
-        only in case exist and must be merged by a person first. */
     index("User_email_lower_idx").using("btree", sql`lower(${table.email})`),
   ],
 );
@@ -67,16 +59,7 @@ export const post = pgTable(
         `baseLikeCount + likeCount`. Conflating the two silently rewrites the
         like count of every seeded post. */
     baseLikeCount: integer(),
-    // `commentCount`, `flagCount` and `likeCount` are denormalized counters,
-    // maintained by the triggers in `sql/085-triggers.sql`. They exist because
-    // the Feed view used to re-aggregate all of "Like", all of "Post" and all of
-    // "Flag" on EVERY page of EVERY feed request.
-    //
-    // Any new write path touching Like / Flag / child-Post must go through those
-    // triggers, or these numbers drift. Drift is the failure mode of
-    // denormalization and nobody notices it for weeks — so `sql/080-reconcile.sql`
-    // recomputes all three from ground truth on every push. Repairing drift is
-    // `pnpm db:push`; there is no separate script to remember.
+    // WARNING: these counters are kept only by the triggers in sql/085-triggers.sql; a new write path to Like, Flag or a child Post must go through them.
     /** Direct child posts. */
     commentCount: integer().default(0).notNull(),
     content: text().notNull(),
@@ -107,10 +90,6 @@ export const post = pgTable(
       "btree",
       table.createdAt.asc().nullsLast().op("timestamp_ops"),
     ),
-    /** Supports the feed's keyset seek. Ascending, because the feed's
-          `ORDER BY createdAt DESC, id DESC` reverses BOTH columns uniformly, and
-          Postgres serves that with a backward scan of this index. Partial,
-          because the feed never looks at comments. */
     index("Post_feed_idx")
       .using(
         "btree",
@@ -118,30 +97,13 @@ export const post = pgTable(
         table.id.asc().nullsLast().op("text_ops"),
       )
       .where(sql`"parentId" IS NULL`),
-    /** DO NOT DROP. This looks like textbook dead weight — it is led by `id`,
-          the primary key, so it can never be more selective than `Post_pkey` — and
-          that reasoning has already been raised once as "pure write overhead".
-          It is wrong, and the argument is seductive enough to be worth writing down.
-
-          Production says the opposite: 1,119,988 scans against `Post_pkey`'s 0
-          (`pg_stat_user_indexes`, lifetime — `stats_reset` is null). It is not
-          competing with the primary key, it is REPLACING it: `(id, userId)` covers
-          "given a post id, whose is it?", which the authorization checks ask
-          constantly, so the planner serves them index-only and never touches the
-          heap. Dropping it moves ~1.1M lookups onto heap fetches.
-
-          Never judge this one locally: on a fresh database every index reports
-          `idx_scan = 0`, which proves nothing at all. Only `pg_stat_user_indexes`
-          on production can answer it, and it already has. */
+    // WARNING: do not drop: production serves ~1.1M ownership lookups index-only from this, not from Post_pkey; never judge it on a fresh database.
     index("Post_id_userId_idx").using(
       "btree",
       table.id.asc().nullsLast().op("text_ops"),
       table.userId.asc().nullsLast().op("text_ops"),
     ),
     index("Post_parentId_idx").using("btree", table.parentId.asc().nullsLast().op("text_ops")),
-    /** Cascades, as do `Like_postId_fkey` and `Flag_postId_fkey`: deleting a
-        letter takes its whole reply thread, and every like and flag on it, in
-        the one statement `deletePost` issues. */
     foreignKey({
       columns: [table.parentId],
       foreignColumns: [table.id],
@@ -152,7 +114,6 @@ export const post = pgTable(
       foreignColumns: [user.id],
       name: "Post_userId_fkey",
     }),
-    /** Supports getPostsByUser and the parameterized getUserStats. */
     index("Post_userId_createdAt_idx").using(
       "btree",
       table.userId.asc().nullsLast().op("text_ops"),
@@ -184,17 +145,7 @@ export const token = pgTable(
     userId: text().notNull(),
   },
   (table) => [
-    /** `type` is the `TokenType` enum, so its btree opclass is `enum_ops`.
-          drizzle-kit's introspection wrote `text_ops` here for every column
-          regardless of type, and Postgres rejects that for an enum:
-          `operator class "text_ops" does not accept data type "TokenType"` (42804).
-
-          It looked harmless because push never hit it against a database that
-          already had this index — i.e. production, or anything built from the old
-          migrations. It only fired on push into an EMPTY database, where it
-          aborted the run and silently skipped every index after it, including the
-          UNIQUE `User_email_key`. A schema that permits duplicate emails, from a
-          push that reported success. */
+    // WARNING: must stay enum_ops: text_ops aborts a push into an empty database and silently skips every later index, User_email_key included.
     uniqueIndex("Token_token_type_key").using(
       "btree",
       table.token.asc().nullsLast().op("text_ops"),
@@ -249,8 +200,6 @@ export const like = pgTable(
     userId: text().notNull(),
   },
   (table) => [
-    /** Its btree IS the `(postId, userId)` index. A second index on the same
-          columns serves no query the key does not, and adds a write to every like. */
     primaryKey({
       columns: [table.postId, table.userId],
       name: "Like_pkey",
@@ -274,30 +223,7 @@ export const flag = pgTable(
   "Flag",
   {
     comment: text(),
-    // Whether this flag carries moderation AUTHORITY, i.e. counts toward the
-    // auto-hide threshold. Anyone may submit a flag — a brand-new cookieless
-    // identity costs one request, so counting every flag let four requests hide
-    // any post in the app. The value is decided ONCE, at insert time, by the
-    // `isEstablishedFlagger` SQL function (the single definition of the rule)
-    // via the `setFlagCountsTowardHide` trigger. Never write it from the app.
-    //
-    // Frozen at insert time on purpose: "established" depends on wall-clock age,
-    // so a live rule could not be denormalized onto Post.flagCount without a
-    // cron re-evaluating every flag. Freezing errs strictly toward counting
-    // FEWER flags, which is the safe direction for a censorship primitive.
-    //
-    // NULLABLE, and deliberately so — the three states are distinct:
-    //
-    //     NULL  = not yet judged
-    //     true  = judged, carries authority, frozen
-    //     false = judged, no authority, frozen
-    //
-    // `NOT NULL DEFAULT false` would collapse "not yet judged" into "judged, no
-    // authority", and the backfill in `sql/080-reconcile.sql` could then never
-    // tell which rows it had already decided. Since that file re-runs on every
-    // push, it would re-judge every flag against a wall-clock rule and could flip
-    // a frozen false to true — hiding a post because someone deployed. The NULL
-    // is what keeps the freeze honest. Read the note in that file before touching.
+    // WARNING: nullable on purpose (NULL = not yet judged) and set only by the setFlagCountsTowardHide trigger, never the app; read sql/080-reconcile.sql first.
     countsTowardHide: boolean(),
     createdAt: timestamp({ mode: "string", precision: 3 })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -311,7 +237,6 @@ export const flag = pgTable(
     userId: text().notNull(),
   },
   (table) => [
-    /** Also the `(postId, userId)` index; see `Like_pkey`. */
     primaryKey({
       columns: [table.postId, table.userId],
       name: "Flag_pkey",
@@ -371,8 +296,6 @@ export const notification = pgTable(
       foreignColumns: [user.id],
       name: "Notification_userId_fkey",
     }).onDelete("cascade"),
-    // One notification per (recipient, comment): the backfill and any retry
-    // of the write path are idempotent because of this, not by convention.
     uniqueIndex("Notification_userId_commentId_key").using(
       "btree",
       table.userId.asc().nullsLast().op("text_ops"),
@@ -452,14 +375,3 @@ export const feed = pgView("Feed", {
   parentId: text(),
   userId: text().notNull(),
 }).existing();
-
-// NOTE: the `UserStats` VIEW is gone. It computed streaks for EVERY user with a
-// window function over every post in the table, and only then filtered to the one
-// caller asked for — and it is fired on profile-link HOVER. It is now the
-// `public."getUserStats"(text)` FUNCTION in `sql/040-user-stats.sql`, which pushes
-// the userId into the CTEs so the work is proportional to one user's posts. The
-// streak logic is a verbatim port; `packages/service/src/user/user-router.ts` calls it.
-//
-// Its absence from this file is what makes push drop it — unlike `Feed` above,
-// which push would have silently left alone. Removing a view here works; changing
-// one does not.

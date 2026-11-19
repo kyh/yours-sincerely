@@ -10,8 +10,6 @@ const buttonVariants = cva(
   {
     compoundVariants: [
       { className: "[&>:first-child]:bg-primary", loading: true, variant: "default" },
-      // The destructive fill is translucent, so an overlay cannot cover the
-      // label; hide the label's color instead and keep the spinner's.
       {
         className: "text-transparent [&>:first-child]:text-destructive",
         loading: true,

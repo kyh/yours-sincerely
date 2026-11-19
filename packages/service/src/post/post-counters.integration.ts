@@ -14,10 +14,6 @@ after(async () => {
   await db.$client.end();
 });
 
-/** Denormalized counters drift. Drift is the failure mode of denormalization, and
-    the first symptom is a wrong number on a popular post that nobody notices for
-    weeks. This asserts the triggers agree with reality across the WHOLE table, so
-    it catches a broken trigger no matter which row broke it. */
 const assertNoDrift = async (label: string) => {
   const rows = await db.execute(sql`
     SELECT
@@ -47,6 +43,7 @@ const counters = async (postId: string) => {
     columns: { commentCount: true, flagCount: true, likeCount: true },
     where: { id: postId },
   });
+
   return row;
 };
 
@@ -55,7 +52,6 @@ const createFixture = async () => {
   const flaggerId = randomUUID();
   const rootId = randomUUID();
   const updatedAt = new Date().toISOString();
-  // Old enough, and about to own a post — an ESTABLISHED flagger, so its flag counts.
   const aged = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
   await db.insert(user).values([
@@ -79,12 +75,15 @@ const createFixture = async () => {
       .select({ id: post.id })
       .from(post)
       .where(inArray(post.userId, [ownerId, flaggerId]));
+
     const postIds = ids.map((row) => row.id);
+
     if (postIds.length > 0) {
       await db.delete(like).where(inArray(like.postId, postIds));
       await db.delete(flag).where(inArray(flag.postId, postIds));
       await db.delete(post).where(inArray(post.id, postIds));
     }
+
     await db.delete(block).where(inArray(block.blockerId, [ownerId, flaggerId]));
     await db.delete(user).where(inArray(user.id, [ownerId, flaggerId]));
   };
@@ -94,6 +93,7 @@ const createFixture = async () => {
 
 integrationTest("counters survive like, unlike, flag and comment", async () => {
   const fixture = await createFixture();
+
   try {
     await assertNoDrift("seed");
 
@@ -108,7 +108,6 @@ integrationTest("counters survive like, unlike, flag and comment", async () => {
     await assertNoDrift("unlike");
 
     await fixture.flaggerCaller.flag.createFlag({ postId: fixture.rootId });
-    // The flagger is registered, so this flag carries authority and IS counted.
     const afterFlag = await counters(fixture.rootId);
     assert.equal(afterFlag?.flagCount, 1);
     await assertNoDrift("flag");
@@ -128,18 +127,18 @@ integrationTest("counters survive like, unlike, flag and comment", async () => {
 integrationTest("a flag from a fresh identity moves no counter", async () => {
   const fixture = await createFixture();
   const freshId = randomUUID();
+
   try {
-    // Brand new, no email, no posts — exactly what a cookieless request mints.
     await db.insert(user).values({ displayName: "Fresh", id: freshId });
     const freshCaller = await callerFor(freshId);
 
     await freshCaller.flag.createFlag({ postId: fixture.rootId });
 
-    // The Flag row exists, but flagCount — the thing that hides posts — did not move.
     const flags = await db
       .select()
       .from(flag)
       .where(and(eq(flag.postId, fixture.rootId), eq(flag.userId, freshId)));
+
     assert.equal(flags.length, 1);
     const afterFreshFlag = await counters(fixture.rootId);
     assert.equal(afterFreshFlag?.flagCount, 0);
@@ -153,11 +152,13 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
 
 integrationTest("counters survive the deletePost bulk cascade", async () => {
   const fixture = await createFixture();
+
   try {
     const comment = await fixture.flaggerCaller.post.createPost({
       content: "A comment that will be cascaded away",
       parentId: fixture.rootId,
     });
+
     const commentId = comment.post?.id;
     assert.ok(commentId);
 
@@ -166,14 +167,13 @@ integrationTest("counters survive the deletePost bulk cascade", async () => {
     await fixture.flaggerCaller.flag.createFlag({ postId: fixture.rootId });
     await assertNoDrift("before cascade");
 
-    // deletePost removes the parent AND its descendants in one statement — the
-    // case where a naive statement-level trigger silently corrupts the counters.
     await fixture.ownerCaller.post.deletePost({ postId: fixture.rootId });
 
     const remaining = await db
       .select({ id: post.id })
       .from(post)
       .where(inArray(post.id, [fixture.rootId, commentId]));
+
     assert.equal(remaining.length, 0);
     await assertNoDrift("deletePost cascade");
   } finally {
@@ -185,9 +185,8 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
   const fixture = await createFixture();
   const survivorId = randomUUID();
   const survivorPostId = randomUUID();
+
   try {
-    // A post that OUTLIVES the deleted user, but that the deleted user has both
-    // liked and commented on — its counters must come back down, not go stale.
     await db.insert(user).values({ displayName: "Survivor", id: survivorId });
     await db.insert(post).values({
       content: "A letter by someone who is staying",
@@ -233,23 +232,24 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
 
 type Caller = Awaited<ReturnType<typeof callerFor>>;
 
-/** Replies to `parentId`, then to that reply, and so on: one level per caller. */
 const replyChain = async (parentId: string, repliers: Caller[]) => {
   const ids: string[] = [];
   let replyTo = parentId;
+
   for (const replier of repliers) {
     const { post: reply } = await replier.post.createPost({
       content: `A reply ${ids.length + 1} deep`,
       parentId: replyTo,
     });
+
     assert.ok(reply);
     ids.push(reply.id);
     replyTo = reply.id;
   }
+
   return ids;
 };
 
-/** Every row that hangs off these posts, by table. */
 const rowsOn = async (postIds: string[]) => {
   const [posts, likes, flags, notifications] = await Promise.all([
     db.select({ id: post.id }).from(post).where(inArray(post.id, postIds)),
@@ -260,6 +260,7 @@ const rowsOn = async (postIds: string[]) => {
       .from(notification)
       .where(or(inArray(notification.postId, postIds), inArray(notification.commentId, postIds))),
   ]);
+
   return {
     flags: flags.length,
     likes: likes.length,
@@ -268,7 +269,6 @@ const rowsOn = async (postIds: string[]) => {
   };
 };
 
-/** A registered third user, whose flags count, plus a letter of their own. */
 const createReader = async () => {
   const readerId = randomUUID();
   const readerPostId = randomUUID();
@@ -297,8 +297,8 @@ const createReader = async () => {
 integrationTest("deletePost takes a 3-deep reply thread and every row under it", async () => {
   const fixture = await createFixture();
   const reader = await createReader();
+
   try {
-    // A letter outside the thread, with a like, a flag and a reply of its own.
     await fixture.flaggerCaller.like.createLike({ postId: reader.readerPostId });
     await fixture.flaggerCaller.flag.createFlag({ postId: reader.readerPostId });
     await fixture.ownerCaller.post.createPost({
@@ -308,7 +308,6 @@ integrationTest("deletePost takes a 3-deep reply thread and every row under it",
     const bystanderBefore = await counters(reader.readerPostId);
     const bystanderRowsBefore = await rowsOn([reader.readerPostId]);
 
-    // Each level has a different author, so the cascade crosses owners.
     const threadIds = [
       fixture.rootId,
       ...(await replyChain(fixture.rootId, [
@@ -317,12 +316,14 @@ integrationTest("deletePost takes a 3-deep reply thread and every row under it",
         fixture.ownerCaller,
       ])),
     ];
+
     for (const postId of threadIds) {
       await fixture.flaggerCaller.like.createLike({ postId });
       await reader.readerCaller.like.createLike({ postId });
       await fixture.flaggerCaller.flag.createFlag({ postId });
       await reader.readerCaller.flag.createFlag({ postId });
     }
+
     assert.deepEqual(await rowsOn(threadIds), { flags: 8, likes: 8, notifications: 3, posts: 4 });
     await assertNoDrift("before thread delete");
 
@@ -342,14 +343,18 @@ integrationTest("deletePost takes a 3-deep reply thread and every row under it",
 
 integrationTest("deleting a reply takes only its subtree", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.ownerCaller.like.createLike({ postId: fixture.rootId });
+
     const [replyId, ...below] = await replyChain(fixture.rootId, [
       fixture.flaggerCaller,
       fixture.ownerCaller,
       fixture.flaggerCaller,
     ]);
+
     assert.ok(replyId);
+
     for (const postId of [replyId, ...below]) {
       await fixture.ownerCaller.like.createLike({ postId });
     }
@@ -380,21 +385,24 @@ integrationTest(
     const reader = await createReader();
     const leaverId = fixture.flaggerId;
     const leaver = fixture.flaggerCaller;
+
     try {
-      // The leaver's own letter, with a thread that interleaves them and others.
       const { post: letter } = await leaver.post.createPost({ content: "A letter that leaves" });
       assert.ok(letter);
+
       const letterThread = [
         letter.id,
         ...(await replyChain(letter.id, [fixture.ownerCaller, leaver, reader.readerCaller])),
       ];
-      // A comment on someone else's letter, answered by a third user.
+
       const commentThread = await replyChain(fixture.rootId, [leaver, reader.readerCaller]);
       const leavingIds = [...letterThread, ...commentThread];
+
       for (const postId of leavingIds) {
         await fixture.ownerCaller.like.createLike({ postId });
         await reader.readerCaller.flag.createFlag({ postId });
       }
+
       await leaver.like.createLike({ postId: fixture.rootId });
       await leaver.flag.createFlag({ postId: fixture.rootId });
       await leaver.like.createLike({ postId: reader.readerPostId });
@@ -418,6 +426,7 @@ integrationTest(
           .from(user)
           .where(inArray(user.id, [fixture.ownerId, reader.readerId])),
       ]);
+
       assert.deepEqual(
         {
           blocks: blocks.length,

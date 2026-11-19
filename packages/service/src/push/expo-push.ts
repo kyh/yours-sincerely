@@ -6,14 +6,12 @@ import { Expo } from "expo-server-sdk";
 import { getPushTokenIdleCutoff, sendPushToUserCore } from "./expo-push-core";
 import type { PushMessage } from "./expo-push-core";
 
-// No access token: Expo's push service accepts unauthenticated sends, and the
-// device tokens are the only credential this side holds.
 const expo = new Expo();
 
 /** The user's tokens still worth sending to. Rows idle past the cut-off are
     deleted on the way, so a dead device stops costing a send the first time it
     would have been paid for. */
-export const findLivePushTokens = async (userId: string): Promise<string[]> => {
+export const findLivePushTokens = async (userId: string) => {
   await db
     .delete(pushToken)
     .where(and(eq(pushToken.userId, userId), lt(pushToken.lastSeenAt, getPushTokenIdleCutoff())));
@@ -22,6 +20,7 @@ export const findLivePushTokens = async (userId: string): Promise<string[]> => {
     .select({ token: pushToken.token })
     .from(pushToken)
     .where(eq(pushToken.userId, userId));
+
   return rows.map((row) => row.token);
 };
 

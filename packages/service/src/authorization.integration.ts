@@ -71,10 +71,8 @@ const createFixture = async () => {
 
 integrationTest("profile updates derive the actor from the authenticated context", async () => {
   const fixture = await createFixture();
+
   try {
-    // A hostile payload naming someone else, parsed the way a real request is:
-    // the retired `userId` field is stripped at the boundary, so the router only
-    // ever sees the display name and writes it to the authenticated actor.
     await fixture.caller.user.updateUser(
       updateUserInput.parse({
         displayName: "Updated actor",
@@ -86,6 +84,7 @@ integrationTest("profile updates derive the actor from the authenticated context
       .select({ displayName: user.displayName, id: user.id })
       .from(user)
       .where(inArray(user.id, [fixture.actorId, fixture.victimId]));
+
     const names = new Map(rows.map((row) => [row.id, row.displayName]));
     assert.equal(names.get(fixture.actorId), "Updated actor");
     assert.equal(names.get(fixture.victimId), "Victim");
@@ -96,15 +95,18 @@ integrationTest("profile updates derive the actor from the authenticated context
 
 integrationTest("post deletion rejects a different owner", async () => {
   const fixture = await createFixture();
+
   try {
     await assert.rejects(
       fixture.caller.post.deletePost({ postId: fixture.outsiderPostId }),
       /Post not found/u,
     );
+
     const remaining = await db
       .select({ id: post.id })
       .from(post)
       .where(eq(post.id, fixture.outsiderPostId));
+
     assert.equal(remaining.length, 1);
   } finally {
     await fixture.cleanup();
@@ -113,6 +115,7 @@ integrationTest("post deletion rejects a different owner", async () => {
 
 integrationTest("owner deletion cascades through descendants, likes, and flags", async () => {
   const fixture = await createFixture();
+
   try {
     await db.insert(like).values([
       { postId: fixture.parentId, updatedAt: fixture.updatedAt, userId: fixture.victimId },
@@ -126,11 +129,13 @@ integrationTest("owner deletion cascades through descendants, likes, and flags",
     await fixture.caller.post.deletePost({ postId: fixture.parentId });
 
     const deletedIds = [fixture.parentId, fixture.childId];
+
     const [posts, likes, flags] = await Promise.all([
       db.select({ id: post.id }).from(post).where(inArray(post.id, deletedIds)),
       db.select().from(like).where(inArray(like.postId, deletedIds)),
       db.select().from(flag).where(inArray(flag.postId, deletedIds)),
     ]);
+
     assert.equal(posts.length, 0);
     assert.equal(likes.length, 0);
     assert.equal(flags.length, 0);
@@ -139,6 +144,7 @@ integrationTest("owner deletion cascades through descendants, likes, and flags",
       .select({ id: post.id })
       .from(post)
       .where(and(eq(post.id, fixture.outsiderPostId), eq(post.userId, fixture.victimId)));
+
     assert.equal(outsider.length, 1);
   } finally {
     await fixture.cleanup();

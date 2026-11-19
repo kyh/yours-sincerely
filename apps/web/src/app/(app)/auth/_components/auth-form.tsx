@@ -33,9 +33,6 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Await the identity refresh BEFORE navigating: redirecting first renders the
-  // destination against the stale `auth.workspace`, so the user lands on the
-  // page still looking signed-out.
   const enterApp = async () => {
     await resetAfterSessionChanged(queryClient);
     router.replace(nextPath);
@@ -47,6 +44,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
       onSuccess: enterApp,
     }),
   );
+
   const signUp = useMutation(
     orpc.auth.signUp.mutationOptions({
       onError: (error) => toast.error(error.message),
@@ -66,6 +64,7 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
     if (type === "signup") {
       signUp.mutate(credentials);
     }
+
     if (type === "signin") {
       signInWithPassword.mutate(credentials);
     }
@@ -134,8 +133,6 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
 export const RequestPasswordResetForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // No invalidation policy: this only sends an email. It changes nothing that
-  // is held in the query cache.
   const requestPasswordReset = useMutation(
     orpc.auth.requestPasswordReset.mutationOptions({
       onError: (error) => toast.error(error.message),
@@ -210,8 +207,6 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
     orpc.auth.setPassword.mutationOptions({
       onError: (error) => toast.error(error.message),
       onSuccess: async () => {
-        // A successful reset re-admits the user with a fresh session, so the
-        // identity changes. Await it before navigating, as with sign-in.
         await resetAfterSessionChanged(queryClient);
         toast.success("Password set successfully!");
         router.push("/");

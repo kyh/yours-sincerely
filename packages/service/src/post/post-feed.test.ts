@@ -15,7 +15,6 @@ test("feed limit is bounded", () => {
 });
 
 test("feed input no longer accepts a parentId filter", () => {
-  // The Feed view only contains root posts, so the filter could never match.
   assert.deepEqual(getFeedInput.parse({ parentId: "some-post-id" }), {});
 });
 

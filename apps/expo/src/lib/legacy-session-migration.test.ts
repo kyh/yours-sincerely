@@ -13,10 +13,12 @@ it("blocks a missing native bridge in release builds and tolerates older develop
   });
   Object.defineProperty(globalThis, "__DEV__", { configurable: true, value: false });
   const legacyModule = "../../modules/legacy-cookie/src/legacy-cookie-module";
+
   const imports = registerHooks({
     resolve: (specifier, context, nextResolve) =>
       nextResolve(specifier === legacyModule ? `${specifier}.ts` : specifier, context),
   });
+
   t.after(() => imports.deregister());
   t.mock.module(legacyModule, {
     exports: { default: null },

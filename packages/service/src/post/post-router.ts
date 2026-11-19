@@ -16,10 +16,9 @@ import { sendPushToUser } from "../push/expo-push";
 import { convertDbPostToFeedPost } from "./post-schema";
 import { getPostHistoryFloor, notBlockedBy, postVisibleTo } from "./post-utils";
 
-/** Which of these posts the viewer has liked. One indexed lookup over the ids on
-    the page, instead of loading every `Like` row of every post to find out. */
-const findMyLikes = async (context: ORPCContext, postIds: string[]): Promise<Set<string>> => {
+const findMyLikes = async (context: ORPCContext, postIds: string[]) => {
   const viewerId = context.user?.id;
+
   if (!viewerId || postIds.length === 0) {
     return new Set();
   }
@@ -38,10 +37,7 @@ export const postRouter = {
   createPost: os.post.createPost.handler(async ({ context, input }) => {
     const userId = await createUserIfNotExists(context, input.createdBy);
 
-    // The comment and its notification commit together: a letter author is
-    // never told about a reply that failed to save, and never misses one that did.
     const { created, reply } = await context.db.transaction(async (tx) => {
-      // The letter being replied to can be deleted while its reply form is open.
       const [inserted] = await rethrowPgError(
         tx
           .insert(post)
@@ -72,13 +68,11 @@ export const postRouter = {
         return { created: inserted, reply: null };
       }
 
-      // A blocked commenter's words must never reach the person who blocked
-      // them: `getPost` hides the reply, so the row would point at nothing and
-      // the push would be the one channel the block did not cover.
       const blocked = await tx.query.block.findFirst({
         columns: { blockerId: true },
         where: { blockerId: parent.userId, blockingId: inserted.userId },
       });
+
       if (blocked) {
         return { created: inserted, reply: null };
       }
@@ -107,9 +101,6 @@ export const postRouter = {
       };
     });
 
-    // After commit, best-effort, and off the response path: the comment is
-    // saved, so a push Expo is slow to accept must neither fail it nor hold the
-    // reply open until the client times out and posts the same comment twice.
     if (reply) {
       await afterResponse(async () => {
         await sendPushToUser({
@@ -147,19 +138,13 @@ export const postRouter = {
   getFeed: os.post.getFeed.handler(async ({ context, input }) => {
     const limit = input.limit ?? FEED_PAGE_SIZE;
 
-    // One extra row is the sentinel that tells us a next page exists. It is
-    // sliced off BEFORE anything else is derived from the page — deriving first
-    // and popping later is what made every page return `limit + 1` posts.
     const feedPosts = await context.db
       .select()
       .from(feed)
       .where(
         and(
-          // The Feed view itself already drops posts flagged into hiding.
           notBlockedBy(context.db, context.user?.id, feed.userId),
-          // A row comparison, not the equivalent `a < x OR (a = x AND b < y)`:
-          // Postgres seeks an index to a row bound but only filters on an OR, so
-          // every page would re-read every newer row.
+          // WARNING: a row comparison, not an OR: Postgres seeks an index to a row bound but only filters an OR.
           input.cursor
             ? sql`(${feed.createdAt}, ${feed.id}) < (${input.cursor.createdAt}, ${input.cursor.postId})`
             : undefined,
@@ -182,9 +167,8 @@ export const postRouter = {
       isLiked: myLikes.has(item.id),
     }));
 
-    // The cursor is the last row the client actually received, so the next
-    // keyset seek (strictly-less-than) resumes immediately after it.
     const lastItem = pageItems.at(-1);
+
     const nextCursor =
       hasMore && lastItem ? { createdAt: lastItem.createdAt, postId: lastItem.id } : undefined;
 
@@ -197,13 +181,9 @@ export const postRouter = {
   getPost: os.post.getPost.handler(async ({ context, input }) => {
     const visible = (row: typeof post) => postVisibleTo(context.db, context.user?.id, row);
 
-    // No `likes`/`flags` relations are loaded any more: the counters on Post
-    // answer both questions, and `isLiked` is one small lookup below.
     const dbPost = await context.db.query.post.findFirst({
       where: { RAW: visible, id: input.postId },
       with: {
-        // Without an ORDER BY the aggregate follows physical row order, which a
-        // like can reshuffle: the counter UPDATE may move the comment's row.
         posts: { orderBy: { createdAt: "asc", id: "asc" }, where: { RAW: visible } },
       },
     });
@@ -218,9 +198,6 @@ export const postRouter = {
     return {
       post: {
         ...convertDbPostToFeedPost(dbPost, {
-          // The comments actually served, not `dbPost.commentCount` (which counts
-          // hidden ones too) — otherwise the count would disagree with the list
-          // right underneath it.
           commentCount: comments.length,
           isLiked: myLikes.has(dbPost.id),
         }),

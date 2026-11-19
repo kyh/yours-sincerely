@@ -22,27 +22,25 @@ export const CardStackProvider = ({ children }: { children: React.ReactNode }) =
 
 const NO_CARD_STACK: CardStackContextType = {
   currentIndex: 0,
-  setCurrentIndex: () => {
-    // No card stack on this page: the root not-found page renders chrome above
-    // the (app) route group, outside CardStackProvider. Resetting is a no-op.
-  },
+  setCurrentIndex: () => null,
 };
 
 /**
  * Safe for chrome (AsideHeader, Sidebar) that renders both inside the (app)
  * group and above it. Falls back to a no-op stack when there is no provider.
  */
-export const useCardStack = (): CardStackContextType =>
-  useContext(CardStackContext) ?? NO_CARD_STACK;
+export const useCardStack = () => useContext(CardStackContext) ?? NO_CARD_STACK;
 
 /**
  * For the feed itself, where a missing provider is a genuine mounting mistake:
  * the stack would silently never advance. Throws instead.
  */
-export const useCardStackStrict = (): CardStackContextType => {
+export const useCardStackStrict = () => {
   const context = useContext(CardStackContext);
+
   if (context === undefined) {
     throw new Error("useCardStackStrict must be used within a CardStackProvider");
   }
+
   return context;
 };

@@ -13,12 +13,15 @@ type SentMessage = Parameters<EmailClient["send"]>[0];
 
 const recordingClient = (error: { message: string; name: string } | null = null) => {
   const sent: SentMessage[] = [];
+
   const emails: EmailClient = {
     send: (message) => {
       sent.push(message);
+
       return Promise.resolve({ error });
     },
   };
+
   return { emails, sent };
 };
 
@@ -68,8 +71,6 @@ describe("reset email sender", () => {
     assert.ok(sent[0]?.html.includes(resetUrl));
   });
 
-  // Resend resolves with `{ error }` instead of throwing, so ignoring the result
-  // tells the user "sent" for an email that never left.
   it("rejects when Resend refuses the email", async () => {
     const { emails } = recordingClient({
       message: "You have reached your daily email sending quota.",

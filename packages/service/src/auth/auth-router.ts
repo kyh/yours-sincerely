@@ -20,11 +20,6 @@ import {
 } from "./session";
 import { toViewer } from "./session-user";
 
-/**
- * Revoke every session this user holds, anywhere, and return the new epoch.
- * The bump invalidates all cookies already issued; the caller decides whether
- * to hand the current device a fresh one.
- */
 const revokeUserSessions = async (db: Pick<Db, "update">, userId: string) => {
   const [updated] = await db
     .update(user)
@@ -43,10 +38,8 @@ const authed = os.auth.use(requireUser);
 
 export const authRouter = {
   requestPasswordReset: os.auth.requestPasswordReset.handler(async ({ context, input }) => {
-    // Checked before the lookup: a deployment with no email provider can
-    // never deliver the link, so refuse outright. The answer does not depend
-    // on `input.email`, so it leaks no enumeration.
     const resendApiKey = env.RESEND_API_KEY;
+
     if (resendApiKey === undefined) {
       throw new ORPCError("PRECONDITION_FAILED", {
         message: "Password reset email is not configured",
@@ -59,17 +52,12 @@ export const authRouter = {
       send: createResetEmailSender(new Resend(resendApiKey).emails),
     });
 
-    // Always return success to prevent email enumeration
     return { success: true };
   }),
   setPassword: os.auth.setPassword.handler(async ({ context, input }) => {
     const now = new Date().toISOString();
 
-    // One transaction: the new password never lands without the revocation
-    // that has to come with it.
     const redeemed = await context.db.transaction(async (tx) => {
-      // The claim IS the check. Only a live, unused link matches, so of two
-      // concurrent redemptions exactly one gets a row back.
       const [claimed] = await tx
         .update(tokenTable)
         .set({ usedAt: now })
@@ -87,21 +75,15 @@ export const authRouter = {
         throw new ORPCError("BAD_REQUEST", { message: "Invalid or expired reset token" });
       }
 
-      // Hashed only after the claim, so a garbage token costs no bcrypt.
       const passwordHash = await createPasswordHash(input.password);
       await tx.update(user).set({ passwordHash }).where(eq(user.id, claimed.userId));
 
-      // A password reset is the remediation a user reaches for after "someone
-      // got into my account", so every session an attacker already holds must
-      // die here, along with any other outstanding link.
       const sessionEpoch = await revokeUserSessions(tx, claimed.userId);
       await burnResetTokens(tx, claimed.userId);
 
       return { sessionEpoch, userId: claimed.userId };
     });
 
-    // Only once the revocation has committed, re-admit the person who actually
-    // did the reset.
     await setSession(redeemed.userId, redeemed.sessionEpoch);
 
     return { success: true };
@@ -152,7 +134,6 @@ export const authRouter = {
 
     const passwordHash = await createPasswordHash(input.password);
 
-    // The lookup above can race a concurrent sign-up; the unique index decides.
     const [newUser] = await rethrowPgError(
       context.user
         ? context.db

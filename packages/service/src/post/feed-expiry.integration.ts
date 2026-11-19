@@ -18,13 +18,11 @@ after(async () => {
 const HOUR_MS = 60 * 60 * 1000;
 const EXPIRY_MS = POST_EXPIRY_DAYS * 24 * HOUR_MS;
 
-/** The Feed view's cutoff is a SQL literal (`sql/090-views.sql`) and the timer is
-    `POST_EXPIRY_DAYS`. Nothing else ties them together, and a cutoff rounded to a
-    day boundary serves letters the timer already shows as "Expired". */
 integrationTest("the feed drops a letter exactly when its timer expires", async () => {
   const authorId = randomUUID();
   const now = Date.now();
   const updatedAt = new Date(now).toISOString();
+
   const letter = (ageMs: number) => ({
     content: "A letter near the end of its ink",
     createdAt: new Date(now - ageMs).toISOString(),
@@ -33,11 +31,13 @@ integrationTest("the feed drops a letter exactly when its timer expires", async 
     updatedAt,
     userId: authorId,
   });
+
   const fading = letter(EXPIRY_MS - HOUR_MS);
   const expired = letter(EXPIRY_MS + HOUR_MS);
 
   await db.insert(user).values({ displayName: "Expiry author", id: authorId });
   await db.insert(post).values([fading, expired]);
+
   try {
     assert.equal(getExpiryProgress(fading.createdAt).isExpired, false);
     assert.equal(getExpiryProgress(expired.createdAt).isExpired, true);

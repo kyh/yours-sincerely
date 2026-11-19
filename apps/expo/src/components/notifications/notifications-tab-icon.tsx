@@ -8,13 +8,11 @@ import { AnimatedView } from "@/lib/css-interop";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
-/** Foreground pushes and app-focus refetches cover the usual paths; polling
-    only catches a reply that lands while the app sits open on another tab. */
 const UNREAD_POLL_INTERVAL_MS = 60_000;
 
-/** Bell tab icon with an unread dot — mirrors the web sidebar badge. */
 const UnreadDot = () => {
   const reduceMotionEnabled = useReducedMotion();
+
   const { data } = useQuery(
     orpc.notification.unreadCount.queryOptions({
       refetchInterval: UNREAD_POLL_INTERVAL_MS,
@@ -26,8 +24,6 @@ const UnreadDot = () => {
     return null;
   }
 
-  // Mirrors the web badge's `animate-in fade-in zoom-in`: scale + fade in on
-  // 0→n, matching scale + fade out on n→0.
   return (
     <AnimatedView
       entering={reduceMotionEnabled ? undefined : ZoomIn.duration(180)}

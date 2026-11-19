@@ -14,9 +14,7 @@ interface FeedLayoutContextValue {
 
 export const FeedLayoutContext = createContext<FeedLayoutContextValue>({
   layout: "list",
-  toggleLayout: () => {
-    /* empty */
-  },
+  toggleLayout: () => null,
 });
 
 export const useFeedLayout = () => useContext(FeedLayoutContext);

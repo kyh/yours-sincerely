@@ -8,9 +8,6 @@ import { setSession } from "./session";
 export const createUserIfNotExists = async (context: ORPCContext, displayName?: string) => {
   let userId = context.user?.id;
 
-  // If the user is not logged in, create an anonymous user. No `passwordHash`:
-  // with no email there is no sign-in that could ever check one, and bcrypt
-  // here would cost every first write ~70ms of CPU.
   if (!userId) {
     const [userData] = await context.db
       .insert(user)

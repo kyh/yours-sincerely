@@ -19,7 +19,7 @@ export interface MarkdownLetter {
   commentCount: number;
 }
 
-export const absoluteUrl = (path: string): string =>
+export const absoluteUrl = (path: string) =>
   path.startsWith("http") || path.startsWith("mailto:") ? path : `${siteConfig.url}${path}`;
 
 export const siteSummary = `${siteConfig.name} is a free, open-source space for anonymous letters written in disappearing ink: anyone can publish a short letter without an account, and every letter fades from the public feed after ${POST_EXPIRY_DAYS} days.`;
@@ -55,24 +55,25 @@ export const sitePages: LinkItem[] = [
   { href: "/terms", label: "Terms", text: "the Terms of Use, including how disputes are resolved" },
 ];
 
-export const renderList = (items: LinkItem[]): string =>
+export const renderList = (items: LinkItem[]) =>
   items.map((item) => `- [${item.label}](${absoluteUrl(item.href)}): ${item.text}`).join("\n");
 
-/** A site path becomes absolute, since the twin is read away from the site; a
-    `#heading` anchor and any other scheme stay as written. */
-const markdownHref = (href: string): string => (href.startsWith("/") ? absoluteUrl(href) : href);
+const markdownHref = (href: string) => (href.startsWith("/") ? absoluteUrl(href) : href);
 
-const renderInlinePart = (part: Inline): string => {
+const renderInlinePart = (part: Inline) => {
   switch (part.kind) {
     case "text": {
       return part.text;
     }
+
     case "strong": {
       return `**${part.text}**`;
     }
+
     case "link": {
       return `[${part.label}](${markdownHref(part.href)})`;
     }
+
     default: {
       const exhaustive: never = part;
       throw new Error(`Unknown inline ${String(exhaustive)}`);
@@ -80,20 +81,21 @@ const renderInlinePart = (part: Inline): string => {
   }
 };
 
-const renderInline = (content: Inline[]): string => content.map(renderInlinePart).join("");
+const renderInline = (content: Inline[]) => content.map(renderInlinePart).join("");
 
-/** A GFM table row. A pipe inside a cell would end it early, so it is escaped. */
-const renderTableRow = (cells: string[]): string =>
+const renderTableRow = (cells: string[]) =>
   `| ${cells.map((cell) => cell.replaceAll("|", "\\|")).join(" | ")} |`;
 
-const renderBlock = (block: Block): string => {
+const renderBlock = (block: Block) => {
   switch (block.kind) {
     case "paragraph": {
       return renderInline(block.content);
     }
+
     case "list": {
       return block.items.map((item) => `- ${renderInline(item)}`).join("\n");
     }
+
     case "table": {
       return [
         renderTableRow(block.head),
@@ -101,6 +103,7 @@ const renderBlock = (block: Block): string => {
         ...block.rows.map(renderTableRow),
       ].join("\n");
     }
+
     default: {
       const exhaustive: never = block;
       throw new Error(`Unknown block ${String(exhaustive)}`);
@@ -108,24 +111,23 @@ const renderBlock = (block: Block): string => {
   }
 };
 
-const recoveryLinks = (): string =>
+const recoveryLinks = () =>
   renderList([
     ...sitePages,
     { href: "/llms.txt", label: "llms.txt", text: "a guide to this site for agents" },
     { href: "/sitemap.xml", label: "Sitemap", text: "every public page" },
   ]);
 
-/** A quoted letter. Every line is prefixed so a letter's own blank lines cannot end the quote. */
-const quote = (text: string): string =>
+const quote = (text: string) =>
   text
     .trim()
     .split("\n")
     .map((line) => (line.trim() ? `> ${line}` : ">"))
     .join("\n");
 
-const letterDate = (createdAt: string): string => createdAt.slice(0, 10);
+const letterDate = (createdAt: string) => createdAt.slice(0, 10);
 
-export const renderLetter = (letter: MarkdownLetter): string =>
+export const renderLetter = (letter: MarkdownLetter) =>
   [
     `### ${letter.createdBy}, ${letterDate(letter.createdAt)}`,
     "",
@@ -134,9 +136,9 @@ export const renderLetter = (letter: MarkdownLetter): string =>
     `${letter.likeCount} likes · ${letter.commentCount} comments · ${absoluteUrl(`/posts/${letter.id}`)}`,
   ].join("\n");
 
-const joinSections = (sections: string[]): string => `${sections.join("\n\n").trimEnd()}\n`;
+const joinSections = (sections: string[]) => `${sections.join("\n\n").trimEnd()}\n`;
 
-export const renderHomeMarkdown = (letters: MarkdownLetter[]): string =>
+export const renderHomeMarkdown = (letters: MarkdownLetter[]) =>
   joinSections([
     `# ${siteConfig.name}`,
     `> ${siteConfig.description}`,
@@ -150,7 +152,7 @@ export const renderHomeMarkdown = (letters: MarkdownLetter[]): string =>
     renderList(sitePages),
   ]);
 
-export const renderLetterMarkdown = (letter: MarkdownLetter, comments: MarkdownLetter[]): string =>
+export const renderLetterMarkdown = (letter: MarkdownLetter, comments: MarkdownLetter[]) =>
   joinSections([
     `# A letter from ${letter.createdBy}`,
     `Published ${letterDate(letter.createdAt)} on ${siteConfig.name}. ${letter.likeCount} likes.`,
@@ -160,7 +162,7 @@ export const renderLetterMarkdown = (letter: MarkdownLetter, comments: MarkdownL
     `[Read more letters](${absoluteUrl("/")})`,
   ]);
 
-export const renderAboutMarkdown = (): string =>
+export const renderAboutMarkdown = () =>
   joinSections([
     `# About ${siteConfig.name}`,
     "> Stories about us, written by you.",
@@ -173,7 +175,7 @@ export const renderAboutMarkdown = (): string =>
 
 /** Headings carry no explicit id: a `## Heading` gets `headingId(heading)` from
     any GitHub-style renderer, which is what the page's `#links` name. */
-export const renderProsePageMarkdown = (page: ProsePage): string =>
+export const renderProsePageMarkdown = (page: ProsePage) =>
   joinSections([
     `# ${page.title}`,
     `> ${page.description}`,
@@ -184,7 +186,7 @@ export const renderProsePageMarkdown = (page: ProsePage): string =>
     ...(page.footnote ? ["---", ...page.footnote.map(renderBlock)] : []),
   ]);
 
-export const renderNotFoundMarkdown = (pathname: string): string =>
+export const renderNotFoundMarkdown = (pathname: string) =>
   joinSections([
     "# Page not found",
     `There is no page at \`${pathname}\` on ${siteConfig.name}. Letters disappear from the feed after ${POST_EXPIRY_DAYS} days, and a deleted letter's link stops working.`,

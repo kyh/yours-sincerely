@@ -6,6 +6,7 @@ import type { Hotkey } from "./use-hotkey";
 
 const next = () => "next";
 const previous = () => "previous";
+
 const hotkeys: Hotkey[] = [
   [" ", next],
   ["arrowleft", previous],

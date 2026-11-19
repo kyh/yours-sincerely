@@ -46,23 +46,28 @@ export const PostForm = ({
 
   const [content, setContent] = useState("");
   const [dialogContentHeight, setDialogContentHeight] = useState(120);
+
   const [createdBy, setCreatedBy] = useSeededState(
     user && resolveDisplayName(user.displayName),
     ANONYMOUS_DISPLAY_NAME,
   );
+
   const [error, setError] = useState<string | null>(null);
   const hasEditedContent = useRef(false);
 
-  // Web carries the same draft between the feed composer and reply forms.
   useEffect(() => {
     let active = true;
+
     const restoreDraft = async () => {
       const draft = await getPostDraft();
+
       if (active && !hasEditedContent.current && draft !== null) {
         setContent(draft);
       }
     };
+
     void ignoreRejection(restoreDraft());
+
     return () => {
       active = false;
     };
@@ -94,16 +99,22 @@ export const PostForm = ({
     if (createPost.isPending) {
       return;
     }
+
     if (user?.disabled === true) {
       toast.error("Your account has been disabled");
+
       return;
     }
+
     const input: CreatePostInput = { content, createdBy, parentId };
     const parsed = createPostInput.safeParse(input);
+
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid post");
+
       return;
     }
+
     setError(null);
     createPost.mutate(parsed.data);
   };

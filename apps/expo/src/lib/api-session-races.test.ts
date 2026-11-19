@@ -22,12 +22,14 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
     exports: {
       deleteItemAsync: async (key: string) => {
         deletionCount += 1;
+
         if (delayDeletion) {
           // oxlint-disable-next-line promise/avoid-new -- Hold native deletion until a competing request starts.
           await new Promise<void>((resolve) => {
             pendingDeletions.push(resolve);
           });
         }
+
         persisted.delete(key);
       },
       getItem: (key: string) => persisted.get(key) ?? null,
@@ -35,6 +37,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
         if (writeError !== null) {
           throw writeError;
         }
+
         persisted.set(key, value);
       },
     },
@@ -46,6 +49,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
         if (retirementError !== null) {
           throw retirementError;
         }
+
         if (delayRetirement) {
           // oxlint-disable-next-line promise/avoid-new -- Change the session generation while retirement is suspended.
           await new Promise<void>((resolve) => {
@@ -75,13 +79,17 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       }),
   );
   const { fetchWithSession } = await import("./api-fetch.ts");
+
   const { deleteSessionCookie, getSessionCookie, setSessionCookie } =
     await import("./session-store.ts");
+
   const request = (procedure: string) =>
     fetchWithSession(`https://yourssincerely.org/api/orpc/${procedure}`, { method: "POST" });
+
   const requestAt = (index: number) => {
     const value = pending[index];
     assert.ok(value);
+
     return value;
   };
 
@@ -117,6 +125,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       } else {
         setSessionCookie(initial);
       }
+
       const post = request("post/createPost");
       const like = request("like/createLike");
       const workspace = request("auth/workspace");
@@ -139,7 +148,6 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       assert.equal(persisted.get("session-cookie"), "anonymous%2Eauthor%3D");
       pending.length = 0;
 
-      // Sign-up receives the durable anonymous identity, so the backend updates that user.
       const signup = request("auth/signUp");
       await setImmediate();
       assert.equal(requestAt(0).cookie, "__session=anonymous%2Eauthor%3D");
@@ -158,16 +166,20 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       const signin = request("auth/signInWithPassword");
       await setImmediate();
       assert.equal(pending.length, 2);
+
       if (renewalFirst) {
         requestAt(0).respond("__session=renewed-old-account; Path=/");
         await feed;
       }
+
       requestAt(1).respond("__session=new-account; Path=/");
       await signin;
+
       if (!renewalFirst) {
         requestAt(0).respond("__session=renewed-old-account; Path=/");
         await feed;
       }
+
       assert.equal(getSessionCookie(), "new-account");
       pending.length = 0;
     });

@@ -33,7 +33,6 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 export const AsideHeader = () => {
   const user = useWorkspaceUser();
   const { theme, setTheme } = useTheme();
-  // Desktop shows About, Privacy and Terms in the sidebar footer instead.
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const { setCurrentIndex } = useCardStack();
 

@@ -37,10 +37,9 @@ export const unstable_settings = { initialRouteName: "(tabs)" };
 
 void ignoreRejection(SplashScreen.preventAutoHideAsync());
 
-// Rendered above every provider, so it can only follow the OS scheme and
-// must style itself without NativeWind.
 export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
   const colors = palettes[useColorScheme() === "dark" ? "dark" : "light"];
+
   return (
     <View
       style={{
@@ -75,8 +74,6 @@ const RootStack = () => {
   const { resolvedTheme, isReady } = useTheme();
   const colors = useThemeColors();
 
-  // Fonts are already loaded by the time this mounts (RootLayout gates on
-  // them), so the stored theme is the last thing the splash waits for.
   useEffect(() => {
     if (isReady) {
       void ignoreRejection(SplashScreen.hideAsync());
@@ -115,11 +112,9 @@ const RootLayout = () => {
     Inter_700Bold,
     Inter_800ExtraBold,
   });
-  // On font failure, proceed with system fonts rather than hang on the splash.
+
   const fontsReady = fontsLoaded || fontError !== null;
 
-  // The probe feeds onlineManager, which query pausing, push retry, and the
-  // connectivity banner all consume — it belongs beside the query client.
   useEffect(() => subscribeToNativeConnectivity(), []);
 
   if (!fontsReady) {

@@ -11,6 +11,7 @@ it("verifies native session writes and removals before reporting success", async
         if (deleteSucceeds) {
           persisted.delete(key);
         }
+
         return Promise.resolve();
       },
       getItem: (key: string) => persisted.get(key) ?? null,
@@ -21,8 +22,10 @@ it("verifies native session writes and removals before reporting success", async
       },
     },
   });
+
   const { deleteSessionCookie, getSessionCookie, setSessionCookie } =
     await import("./session-store.ts");
+
   const session = "signed%2Evalue%3D%3D";
   setSessionCookie(session);
   assert.equal(getSessionCookie(), session);

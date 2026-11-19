@@ -26,18 +26,11 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 import { postDraftKey } from "./post-draft";
 
-// Inside the mobile drawer the letter scrolls within a capped height, so the
-// sheet and its Publish button stay clear of the on-screen keyboard.
 const letterFieldClass =
   "textarea-grow in-data-[slot=drawer-popup]:max-h-[60dvh] in-data-[slot=drawer-popup]:min-h-[25dvh] in-data-[slot=drawer-popup]:overflow-y-auto";
 
-// The post is already published; a failed refetch is not the writer's problem.
 const refreshQuietly = async (queryClient: QueryClient) => {
-  try {
-    await refreshAfterPostCreated(queryClient);
-  } catch {
-    /* the queries refetch on their own next focus */
-  }
+  await refreshAfterPostCreated(queryClient).catch(() => null);
 };
 
 interface PostFormProps {
@@ -47,9 +40,6 @@ interface PostFormProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
-// The letter textarea is labelled with aria-label, not a <label for>: every copy
-// carries the `#post-input` hook id, and the home page keeps a hidden inline
-// composer mounted beside the dialog one, so `for` would name the wrong copy.
 export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: PostFormProps) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
@@ -63,16 +53,19 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
     },
     resolver: zodResolver(createPostInput),
   });
+
   const { getFieldState, resetField } = form;
 
   useEffect(() => {
     const draft = localStorage.getItem(draftKey);
+
     if (draft !== null && !getFieldState("content").isDirty) {
       resetField("content", { defaultValue: draft });
     }
   }, [draftKey, getFieldState, resetField]);
 
   const identityScope = useIdentityScope();
+
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
       onError: (err) => {
@@ -106,6 +99,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
     if (user?.disabled) {
       return toast.error("Your account has been disabled");
     }
+
     createPost.mutate(formData);
   };
 
@@ -129,6 +123,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
                   aria-label="Post content"
                   ref={(element) => {
                     ref(element);
+
                     if (textareaRef) {
                       textareaRef.current = element;
                     }
@@ -140,6 +135,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
                     } else {
                       localStorage.setItem(draftKey, e.target.value);
                     }
+
                     onBlur();
                   }}
                   onKeyDown={(e) => {
@@ -197,16 +193,14 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
     <ResponsiveDialog
       open={open}
       onOpenChange={(nextOpen) => {
-        // The draft saves on blur, and Chromium fires no blur when the closed sheet
-        // unmounts a focused textarea.
         if (!nextOpen) {
           textareaRef.current?.blur();
         }
+
         setOpen(nextOpen);
       }}
       onOpenChangeComplete={(opened) => {
         if (opened) {
-          // No preventScroll: it would also stop a restored draft scrolling to its caret.
           textareaRef.current?.focus();
         }
       }}

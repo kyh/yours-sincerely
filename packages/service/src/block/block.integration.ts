@@ -17,8 +17,6 @@ after(async () => {
   await db.$client.end();
 });
 
-/** Two blockers (A, B) and two authors (C, D). C has a post, so the feed can be
-    checked before and after an unblock. */
 const createFixture = async () => {
   const blockerAId = randomUUID();
   const blockerBId = randomUUID();
@@ -55,16 +53,15 @@ const createFixture = async () => {
   return { authorCId, authorDId, blockerAId, blockerBId, callerA, callerB, cleanup, postByCId };
 };
 
-const feedContainsPost = async (
-  caller: Awaited<ReturnType<typeof callerFor>>,
-  postId: string,
-): Promise<boolean> => {
+const feedContainsPost = async (caller: Awaited<ReturnType<typeof callerFor>>, postId: string) => {
   const feed = await caller.post.getFeed({ limit: 50 });
+
   return feed.posts.some((entry) => entry.id === postId);
 };
 
 integrationTest("listBlocks returns only the caller's own blocks", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.callerA.block.createBlock({ blockingId: fixture.authorCId });
     await fixture.callerB.block.createBlock({ blockingId: fixture.authorDId });
@@ -95,9 +92,8 @@ integrationTest("listBlocks requires an authenticated caller", async () => {
 });
 
 integrationTest("deleteBlock cannot delete another user's block", async () => {
-  // THE SECURITY CASE. A blocks C. B asks to delete a block on C. B's `where` is
-  // scoped to B's own id, so A's block must survive untouched.
   const fixture = await createFixture();
+
   try {
     await fixture.callerA.block.createBlock({ blockingId: fixture.authorCId });
 
@@ -108,9 +104,9 @@ integrationTest("deleteBlock cannot delete another user's block", async () => {
       .select()
       .from(block)
       .where(and(eq(block.blockerId, fixture.blockerAId), eq(block.blockingId, fixture.authorCId)));
+
     assert.equal(survivors.length, 1, "A's block must NOT be deletable by B");
 
-    // And A can still not see C's post — the block is genuinely still in force.
     assert.equal(await feedContainsPost(fixture.callerA, fixture.postByCId), false);
   } finally {
     await fixture.cleanup();
@@ -127,6 +123,7 @@ integrationTest("deleteBlock requires an authenticated caller", async () => {
 
 integrationTest("unblocking makes the author's posts reappear in the feed", async () => {
   const fixture = await createFixture();
+
   try {
     assert.equal(
       await feedContainsPost(fixture.callerA, fixture.postByCId),
@@ -150,6 +147,7 @@ integrationTest("unblocking makes the author's posts reappear in the feed", asyn
 
 integrationTest("block, unblock, and block again round-trips without error", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.callerA.block.createBlock({ blockingId: fixture.authorCId });
     await fixture.callerA.block.deleteBlock({ blockingId: fixture.authorCId });
@@ -165,6 +163,7 @@ integrationTest("block, unblock, and block again round-trips without error", asy
 
 integrationTest("deleting a block the caller does not have is a no-op, not an error", async () => {
   const fixture = await createFixture();
+
   try {
     const result = await fixture.callerA.block.deleteBlock({ blockingId: fixture.authorDId });
     assert.equal(result.block, undefined);
@@ -177,6 +176,7 @@ integrationTest(
   "Block restricts user deletion, and deleteUser clears both directions",
   async () => {
     const fixture = await createFixture();
+
     try {
       await fixture.callerA.block.createBlock({ blockingId: fixture.authorDId });
       await fixture.callerB.block.createBlock({ blockingId: fixture.blockerAId });
@@ -200,6 +200,7 @@ integrationTest(
           .from(user)
           .where(inArray(user.id, [fixture.blockerAId, fixture.blockerBId, fixture.authorDId])),
       ]);
+
       assert.equal(blocks.length, 0);
       assert.deepEqual(
         users.map((row) => row.id).toSorted(),

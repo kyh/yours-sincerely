@@ -1,5 +1,4 @@
 /* oxlint-disable unicorn/prefer-module -- Metro loads this config as CommonJS */
-// Learn more: https://docs.expo.dev/guides/monorepos/
 const path = require("node:path");
 const { getDefaultConfig } = require("expo/metro-config");
 const { FileStore } = require("metro-cache");
@@ -13,5 +12,4 @@ config.cacheStores = [
   }),
 ];
 
-/** @type {import('expo/metro-config').MetroConfig} */
 module.exports = withNativewind(config);

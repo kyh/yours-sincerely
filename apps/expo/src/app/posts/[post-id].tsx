@@ -23,10 +23,12 @@ const PostScreen = () => {
   const { data, error, isPending, isError, refetch } = useQuery(
     orpc.post.getPost.queryOptions({ input: { postId } }),
   );
+
   const post = data?.post;
 
   const isGone = isError && error instanceof ORPCError && error.code === "NOT_FOUND";
   let content: ReactNode;
+
   if (isGone) {
     content = (
       <View className="flex-1 items-center justify-center px-5 py-5">

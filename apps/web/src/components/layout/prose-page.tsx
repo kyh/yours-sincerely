@@ -11,13 +11,16 @@ const InlinePart = ({ part }: { part: Inline }) => {
     case "text": {
       return part.text;
     }
+
     case "strong": {
       return <strong>{part.text}</strong>;
     }
+
     case "link": {
       if (part.href.startsWith("/")) {
         return <Link href={part.href}>{part.label}</Link>;
       }
+
       return (
         <a
           href={part.href}
@@ -27,6 +30,7 @@ const InlinePart = ({ part }: { part: Inline }) => {
         </a>
       );
     }
+
     default: {
       const exhaustive: never = part;
       throw new Error(`Unknown inline ${String(exhaustive)}`);
@@ -46,6 +50,7 @@ const BlockContent = ({ block }: { block: Block }) => {
         </p>
       );
     }
+
     case "list": {
       return (
         <ul>
@@ -57,9 +62,8 @@ const BlockContent = ({ block }: { block: Block }) => {
         </ul>
       );
     }
+
     case "table": {
-      // The CCPA chart has five wide columns. On a phone the table scrolls, not the
-      // page: without inline-size containment its width would widen the grid column.
       return (
         <div className="overflow-x-auto contain-inline-size">
           <table>
@@ -76,8 +80,6 @@ const BlockContent = ({ block }: { block: Block }) => {
               {block.rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {row.map((cell, cellIndex) =>
-                    // A row's first cell names the row. `prose` styles only `tbody td`,
-                    // so the row header takes a first data cell's spacing itself.
                     cellIndex === 0 ? (
                       <th
                         key={cellIndex}
@@ -97,6 +99,7 @@ const BlockContent = ({ block }: { block: Block }) => {
         </div>
       );
     }
+
     default: {
       const exhaustive: never = block;
       throw new Error(`Unknown block ${String(exhaustive)}`);

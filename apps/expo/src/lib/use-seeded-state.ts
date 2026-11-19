@@ -1,4 +1,3 @@
-import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 /**
@@ -10,19 +9,17 @@ import { useState } from "react";
  * A nullish seed means "nothing to seed with yet", so whatever the user has
  * typed survives.
  */
-export const useSeededState = (
-  seed: string | null | undefined,
-  fallback: string,
-): [string, Dispatch<SetStateAction<string>>] => {
+export const useSeededState = (seed: string | null | undefined, fallback: string) => {
   const [value, setValue] = useState(seed ?? fallback);
   const [seenSeed, setSeenSeed] = useState(seed);
 
   if (seed !== seenSeed) {
     setSeenSeed(seed);
+
     if (seed !== null && seed !== undefined) {
       setValue(seed);
     }
   }
 
-  return [value, setValue];
+  return [value, setValue] as const;
 };

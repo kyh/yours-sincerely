@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    "./drizzle-client": "./src/drizzle-client.ts",
+    "./drizzle-schema": "./src/drizzle-schema.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",

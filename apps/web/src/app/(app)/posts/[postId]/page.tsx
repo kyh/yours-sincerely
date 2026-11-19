@@ -16,18 +16,16 @@ interface Props {
   }>;
 }
 
-// The same query the page awaits: the request's query client serves it once.
 const loadLetter = (postId: string) =>
   fetchOrNotFound(orpc.post.getPost.queryOptions({ input: { postId } }));
 
-export const generateMetadata = async (props: Props): Promise<Metadata> => {
+export const generateMetadata = async (props: Props) => {
   const { postId } = await props.params;
   const { post } = await loadLetter(postId);
-  return letterMetadata(post);
+
+  return letterMetadata(post) satisfies Metadata;
 };
 
-// No loading.tsx for this segment: its Suspense boundary would start the stream
-// before the notFound() check, and a dead share link would answer 200.
 const Page = async (props: Props) => {
   const params = await props.params;
 

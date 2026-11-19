@@ -34,20 +34,17 @@ interface Props {
   onDeleted?: () => void;
 }
 
-/** A confirmation replaces the menu rather than opening on top of it, so only
-    one modal traps focus at a time. */
 type Overlay = "menu" | "delete" | "block";
 
 export const MoreButton = ({ post, onDeleted }: Props) => {
   const queryClient = useQueryClient();
   const user = useWorkspaceUser();
   const [overlay, setOverlay] = useState<Overlay | null>(null);
-  // The item that opened a confirmation has unmounted with the menu, so focus
-  // would otherwise fall to <body> when the confirmation closes.
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const closeOverlay = (closing: Overlay) =>
     setOverlay((current) => (current === closing ? null : current));
+
   const overlayState = (name: Overlay) => ({
     onOpenChange: (open: boolean) => {
       if (open) {
@@ -70,30 +67,27 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
       },
     }),
   );
-  // A scope runs its mutations one at a time and holds the next until onSuccess
-  // settles, so these refreshes are fired, not awaited: an awaited feed refetch
-  // walks every loaded page and would queue every like and letter behind it.
+
   const identityScope = useIdentityScope();
+
   const createMutation = useMutation(
     orpc.flag.createFlag.mutationOptions({
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
         closeOverlay("menu");
         toast.success("You have flagged this post, we will be reviewing it shortly");
-        // Enough flags hides the post, so the feed can change.
         void refreshPostContent(queryClient);
       },
       scope: identityScope,
     }),
   );
+
   const blockMutation = useMutation(
     orpc.block.createBlock.mutationOptions({
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
         closeOverlay("block");
         toast.success("You have blocked this user");
-        // Every post by the blocked author drops out of the feed, and the
-        // author joins the viewer's blocked list — refreshBlocks covers both.
         void refreshBlocks(queryClient);
       },
       scope: identityScope,
@@ -109,28 +103,34 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
     if (!post.id) {
       return;
     }
+
     switch (action) {
       case "delete": {
         return deleteMutation.mutate({
           postId: post.id,
         });
       }
+
       case "flag": {
         if (!user) {
           return toast.error("You must be logged in to flag a post");
         }
+
         return createMutation.mutate({
           postId: post.id,
         });
       }
+
       case "block": {
         if (!blockerId || !blockingId) {
           return toast.error("Invalid block");
         }
+
         return blockMutation.mutate({
           blockingId,
         });
       }
+
       default: {
         const exhaustive: never = action;
         throw new Error(`Unknown action ${String(exhaustive)}`);

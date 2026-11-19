@@ -13,6 +13,7 @@ test("a malformed RESET_LINK_ORIGIN falls back to production instead of failing 
       value,
     );
   }
+
   assert.equal(envSchema.parse({}).RESET_LINK_ORIGIN, WEB_ORIGIN);
 });
 

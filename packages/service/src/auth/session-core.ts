@@ -4,14 +4,6 @@ import cookieSignature from "cookie-signature";
 import { z } from "zod";
 
 /**
- * The pure half of session handling: everything that does NOT need
- * `next/headers`. Secrets, the environment and the clock arrive as parameters,
- * which is what makes this testable (see `session-core.test.ts` and
- * `session-secrets.test.ts`). `session.ts` is the thin cookie-store wiring over
- * these functions.
- */
-
-/**
  * `iat` is absent on pre-sliding-renewal cookies; `epoch` is absent on every
  * cookie minted before session revocation existed. Both are in the wild.
  */
@@ -24,7 +16,6 @@ export interface SessionPayload {
 /** Cookies minted before the `sessionEpoch` column existed carry no epoch. */
 export const LEGACY_SESSION_EPOCH = 0;
 
-// Local dev only.
 export const DEV_SIGNING_SECRET = "dev-insecure-signing-secret";
 export const MIN_SECRET_LENGTH = 32;
 
@@ -35,7 +26,7 @@ export interface SecretEnv {
 }
 
 /** Only an explicitly local environment may fall back to the public dev constant. */
-export const isLocalEnv = (nodeEnv: string | undefined): boolean =>
+export const isLocalEnv = (nodeEnv: string | undefined) =>
   nodeEnv === "development" || nodeEnv === "test";
 
 /**
@@ -44,7 +35,7 @@ export const isLocalEnv = (nodeEnv: string | undefined): boolean =>
  * The session cookie *is* the user id, so signing real sessions with a constant
  * that is public in this repository would be an authentication bypass.
  */
-export const resolveCookieSecret = (env: SecretEnv): string => {
+export const resolveCookieSecret = (env: SecretEnv) => {
   const configured = env.COOKIE_SECRET;
 
   if (configured === undefined || configured.length === 0) {
@@ -53,6 +44,7 @@ export const resolveCookieSecret = (env: SecretEnv): string => {
         "COOKIE_SECRET must be set (only NODE_ENV=development|test may use the dev fallback)",
       );
     }
+
     return DEV_SIGNING_SECRET;
   }
 
@@ -79,10 +71,7 @@ export const resolveCookieSecret = (env: SecretEnv): string => {
 export const sessionCookieOptions = (isLocal: boolean) =>
   ({
     httpOnly: true,
-    // The browser's ceiling, not a session lifetime: sliding renewal
-    // (`renewSessionIfStale`) resets it on every visit, so an active web user
-    // never expires, and the native app persists the value in SecureStore
-    // indefinitely.
+    // WARNING: the browser's ceiling, not a session lifetime: sessions never expire (CLAUDE.md).
     maxAge: BROWSER_COOKIE_MAX_AGE_SECONDS,
     path: "/",
     sameSite: "lax",
@@ -94,7 +83,7 @@ export const SESSION_PURPOSE = "session";
 export const PUSH_CLEANUP_PURPOSE = "push-cleanup";
 
 /** HKDF sub-key, so a session signature and a capability signature are unrelated. */
-export const deriveKey = (secret: string, purpose: string): string =>
+export const deriveKey = (secret: string, purpose: string) =>
   Buffer.from(hkdfSync("sha256", secret, "", purpose, 32)).toString("base64url");
 
 /**
@@ -115,40 +104,37 @@ export const buildVerifySecrets = ({
   activeSecret: string;
   legacySecrets: readonly string[];
   purpose: string;
-}): string[] => [
+}) => [
   deriveKey(activeSecret, purpose),
   activeSecret,
   ...legacySecrets.flatMap((secret) => [deriveKey(secret, purpose), secret]),
 ];
 
 /** Unsign against each secret in order (active first, then legacy). */
-export const unsignSession = (value: string, verifySecrets: readonly string[]): string | null => {
+export const unsignSession = (value: string, verifySecrets: readonly string[]) => {
   for (const secret of verifySecrets) {
     const unsigned = cookieSignature.unsign(value, secret);
+
     if (unsigned) {
       return unsigned;
     }
   }
+
   return null;
 };
 
 const sessionPayloadSchema = z.object({
-  // Legacy payloads (pre revocation) have no `epoch`. The `User.sessionEpoch`
-  // column defaults to 0, so reading a missing epoch as 0 keeps every cookie
-  // already in the wild valid. THIS IS THE MASS-LOGOUT GUARD — do not tighten
-  // it into a rejection.
-  // oxlint-disable-next-line promise/prefer-await-to-then -- zod's `.catch()` is a schema fallback, not a promise
+  // WARNING: a missing epoch must read as 0; rejecting it logs out every cookie minted before revocation existed.
   epoch: z.number().catch(LEGACY_SESSION_EPOCH),
-  // Legacy payloads (pre sliding renewal) have no `iat`.
-  // oxlint-disable-next-line promise/prefer-await-to-then -- zod's `.catch()` is a schema fallback, not a promise
   iat: z.number().nullable().catch(null),
   user: z.string(),
 });
 
 /** Parses attacker-supplied bytes. Tolerates every payload variant ever issued. */
-export const parseSessionPayload = (unsignedCookie: string): SessionPayload | null => {
+export const parseSessionPayload = (unsignedCookie: string) => {
   try {
     const parsed = sessionPayloadSchema.safeParse(JSON.parse(atob(unsignedCookie)));
+
     return parsed.success ? parsed.data : null;
   } catch {
     return null;
@@ -159,16 +145,16 @@ export const encodeSessionPayload = (
   userId: string,
   issuedAtSeconds: number,
   sessionEpoch: number,
-): string =>
+) =>
   Buffer.from(JSON.stringify({ epoch: sessionEpoch, iat: issuedAtSeconds, user: userId })).toString(
     "base64",
   );
 
-export const signSession = (payload: string, secret: string): string =>
+export const signSession = (payload: string, secret: string) =>
   cookieSignature.sign(payload, secret);
 
 /** `COOKIE_SECRET_LEGACY` is a comma-separated list; blanks are dropped. */
-export const parseLegacySecrets = (raw: string | undefined): string[] =>
+export const parseLegacySecrets = (raw: string | undefined) =>
   (raw ?? "")
     .split(",")
     .map((secret) => secret.trim())
@@ -194,28 +180,29 @@ export const resolveSessionUser = async <TUser extends { sessionEpoch: number }>
   sessionValue: string | null | undefined;
   verifySecrets: readonly string[];
   findUser: (userId: string) => Promise<TUser | null>;
-}): Promise<TUser | null> => {
+}) => {
   if (!sessionValue) {
     return null;
   }
 
   const unsigned = unsignSession(sessionValue, verifySecrets);
+
   if (unsigned === null) {
     return null;
   }
 
   const payload = parseSessionPayload(unsigned);
+
   if (payload === null) {
     return null;
   }
 
   const user = await findUser(payload.user);
+
   if (user === null) {
     return null;
   }
 
-  // A stale epoch means this session was deliberately revoked. (Sessions still
-  // never EXPIRE — nothing here consults the clock.)
   return payload.epoch === user.sessionEpoch ? user : null;
 };
 
@@ -239,30 +226,29 @@ export interface RenewalInput {
  * by a legacy secret must be re-issued even when it is fresh, so active sessions
  * migrate onto the active signer after a rotation.
  */
-export const decideRenewal = ({
+export const decideRenewal: (input: RenewalInput) => RenewalOutcome = ({
   sessionValue,
   verifySecrets,
   activeSecret,
   nowSeconds,
   renewAfterSeconds,
-}: RenewalInput): RenewalOutcome => {
+}) => {
   if (!sessionValue) {
     return { decision: "no-session", payload: null };
   }
 
   const unsigned = unsignSession(sessionValue, verifySecrets);
+
   if (unsigned === null) {
     return { decision: "invalid", payload: null };
   }
 
   const payload = parseSessionPayload(unsigned);
+
   if (payload === null) {
     return { decision: "invalid", payload: null };
   }
 
-  // A legacy payload has no `iat`, so its age computes as `nowSeconds - 0` — an
-  // enormous number that always renews. That is deliberate: it is how
-  // pre-renewal cookies get upgraded.
   const ageSeconds = nowSeconds - (payload.iat ?? 0);
   const signedByActiveSecret = cookieSignature.unsign(sessionValue, activeSecret) !== false;
 

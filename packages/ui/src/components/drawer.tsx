@@ -34,6 +34,7 @@ const Drawer = ({
   showSwipeHandle?: boolean;
 }) => {
   const hasSnapPoints = snapPoints !== undefined && snapPoints.length > 0;
+
   const contextValue = React.useMemo(
     () => ({ hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
     [hasSnapPoints, modal, showSwipeHandle, swipeDirection],
@@ -60,9 +61,6 @@ const DrawerPortal = ({ ...props }: DrawerPrimitive.Portal.Props) => (
   <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />
 );
 
-// Fixed on iOS too: the registry's iOS `absolute` needs `body { position: relative }`, which
-// this app does not set; without it the backdrop sits at the document top, off-screen once
-// the feed is scrolled.
 const DrawerOverlay = ({ className, ...props }: DrawerPrimitive.Backdrop.Props) => (
   <DrawerPrimitive.Backdrop
     data-slot="drawer-overlay"

@@ -37,11 +37,13 @@ export const callerFor = async (userId: string) => {
 export const runWithoutCookieScope = async <T>(operation: () => Promise<T>) => {
   try {
     await operation();
+
     return "completed";
   } catch (error) {
     if (error instanceof Error && error.message.includes("outside a request scope")) {
       return "reached-cookie-write";
     }
+
     throw error;
   }
 };

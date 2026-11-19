@@ -35,7 +35,6 @@ const createFixture = async () => {
   return { cleanup, email, userId };
 };
 
-/** A link issued earlier and still outstanding, stored the way issuing stores it. */
 const seedResetToken = async (
   userId: string,
   {
@@ -59,6 +58,7 @@ const seedResetToken = async (
     updatedAt: new Date().toISOString(),
     userId,
   });
+
   return resetToken;
 };
 
@@ -72,6 +72,7 @@ const usedAtOf = async (userId: string, resetToken: string) => {
   const rows = await tokenRows(userId);
   const row = rows.find((candidate) => candidate.token === hashResetToken(resetToken));
   assert.ok(row, "the link is stored by its digest");
+
   return row.usedAt;
 };
 
@@ -80,7 +81,9 @@ const readUser = async (userId: string) => {
     columns: { passwordHash: true, sessionEpoch: true },
     where: { id: userId },
   });
+
   assert.ok(found);
+
   return found;
 };
 
@@ -89,25 +92,30 @@ const redeem = (resetToken: string) =>
     createCaller(null).auth.setPassword({ password: NEW_PASSWORD, token: resetToken }),
   );
 
-/** Delivers nothing; hands back the link the user would have clicked. */
 const capturingSender = () => {
   const delivered: ResetEmail[] = [];
+
   const send = (email: ResetEmail) => {
     delivered.push(email);
+
     return Promise.resolve();
   };
+
   const tokenFromLink = () => {
     const [email] = delivered;
     assert.ok(email, "the link was sent");
     const resetToken = new URL(email.resetUrl).searchParams.get("token");
     assert.ok(resetToken);
+
     return resetToken;
   };
+
   return { delivered, send, tokenFromLink };
 };
 
 integrationTest("a delivered link is stored only as its digest and redeems once", async () => {
   const fixture = await createFixture();
+
   try {
     const sender = capturingSender();
     await issuePasswordReset(db, {
@@ -138,6 +146,7 @@ integrationTest("a delivered link is stored only as its digest and redeems once"
 
 integrationTest("a failed send leaves no new link and the old ones working", async () => {
   const fixture = await createFixture();
+
   try {
     const outstanding = await seedResetToken(fixture.userId);
 
@@ -162,12 +171,12 @@ integrationTest("a failed send leaves no new link and the old ones working", asy
 
 integrationTest("a delivered link burns older links, but not a newer one", async () => {
   const fixture = await createFixture();
+
   try {
     const older = await seedResetToken(fixture.userId, {
       createdAt: new Date(Date.now() - 60_000).toISOString(),
     });
-    // What a concurrent request issued after this one looks like by the time
-    // this one burns.
+
     const newer = await seedResetToken(fixture.userId, {
       createdAt: new Date(Date.now() + 60_000).toISOString(),
     });
@@ -190,6 +199,7 @@ integrationTest("a delivered link burns older links, but not a newer one", async
 
 integrationTest("two concurrent redemptions of one link: exactly one wins", async () => {
   const fixture = await createFixture();
+
   try {
     const resetToken = await seedResetToken(fixture.userId);
 
@@ -208,6 +218,7 @@ integrationTest("two concurrent redemptions of one link: exactly one wins", asyn
 
 integrationTest("an expired link changes nothing", async () => {
   const fixture = await createFixture();
+
   try {
     const expired = await seedResetToken(fixture.userId, {
       expiresAt: new Date(Date.now() - 1000).toISOString(),
@@ -224,10 +235,9 @@ integrationTest("an expired link changes nothing", async () => {
   }
 });
 
-// Redemption looks up the digest only. A raw-token fallback would make a read
-// of the Token table a working link again.
 integrationTest("a link stored in plaintext does not redeem", async () => {
   const fixture = await createFixture();
+
   try {
     const plaintext = await seedResetToken(fixture.userId, { stored: (resetToken) => resetToken });
 

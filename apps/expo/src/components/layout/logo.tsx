@@ -5,6 +5,7 @@ import { useThemeColors } from "@/components/theme-colors";
 /** Same vector wordmark as the web sidebar. */
 export const Logo = () => {
   const colors = useThemeColors();
+
   return (
     <Svg width={110} height={(110 * 270) / 775} viewBox="0 0 775 270">
       <G fill="none" fillRule="evenodd">

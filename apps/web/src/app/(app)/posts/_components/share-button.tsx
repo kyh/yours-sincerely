@@ -20,8 +20,6 @@ interface Props {
 
 export const ShareButton = ({ post }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  // Canonical, not the dev-aware siteConfig.url: a link is shared to be opened
-  // on someone else's device, where localhost names nothing.
   const postUrl = `${WEB_ORIGIN}/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
 
@@ -30,31 +28,32 @@ export const ShareButton = ({ post }: Props) => {
       await navigator.clipboard.writeText(postUrl);
     } catch {
       toast.error("Could not copy the link");
+
       return;
     }
+
     toast.success("📝 Copied to Clipboard");
   };
 
   const share = async () => {
     if (!navigator.share) {
       setIsOpen(true);
+
       return;
     }
+
     try {
       await navigator.share({
         title: "A tiny beautiful letter",
         url: postUrl,
       });
     } catch (error) {
-      // AbortError is the user dismissing the share sheet; anything else means
-      // the native sheet is unusable here, so offer the in-app options instead.
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         setIsOpen(true);
       }
     }
   };
 
-  // Opening tries the native share sheet first; the menu is its fallback.
   const handleOpenChange = (open: boolean) => {
     if (open) {
       void share();

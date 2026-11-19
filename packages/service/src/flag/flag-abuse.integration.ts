@@ -21,12 +21,6 @@ interface Flagger {
   kind: "fresh" | "registered" | "aged";
 }
 
-/** A post by one author, plus a pool of flaggers of a given kind.
- *
- *  A "fresh" flagger is exactly what a cookieless HTTP request produces today:
- *  `createUserIfNotExists` mints a User row with no email and no posts, created
- *  right now. Seeding the row directly is the same thing without the cookie
- *  plumbing — the establishment rule looks at the User row, not at the transport. */
 const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
   const authorId = randomUUID();
   const postId = randomUUID();
@@ -48,8 +42,6 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
     flaggers.map((flagger) => ({
       createdAt: flagger.kind === "aged" ? aged : new Date().toISOString(),
       displayName: flagger.kind,
-      // Registered: has an email. Aged: 24h+ old (and gets a post below).
-      // Fresh: no email, created now, never wrote anything.
       email: flagger.kind === "registered" ? `${flagger.id}@example.com` : null,
       id: flagger.id,
     })),
@@ -57,6 +49,7 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
 
   const agedFlaggers = flaggers.filter((flagger) => flagger.kind === "aged");
   const agedPostIds = agedFlaggers.map(() => randomUUID());
+
   if (agedFlaggers.length > 0) {
     await db.insert(post).values(
       agedFlaggers.map((flagger, index) => ({
@@ -70,7 +63,6 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
     );
   }
 
-  // A reader with no session at all — the caller the permalink actually serves.
   const reader = createCaller(null);
 
   const cleanup = async () => {
@@ -85,31 +77,27 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
   return { authorId, cleanup, flaggers, postId, reader };
 };
 
-const flagWith = async (
-  fixture: Awaited<ReturnType<typeof createFixture>>,
-  reason?: string,
-): Promise<void> => {
+const flagWith = async (fixture: Awaited<ReturnType<typeof createFixture>>, reason?: string) => {
   for (const flagger of fixture.flaggers) {
     const caller = await callerFor(flagger.id);
     await caller.flag.createFlag({ postId: fixture.postId, reason });
   }
 };
 
-const isInFeed = async (fixture: Awaited<ReturnType<typeof createFixture>>): Promise<boolean> => {
+const isInFeed = async (fixture: Awaited<ReturnType<typeof createFixture>>) => {
   const page = await fixture.reader.post.getFeed({ limit: 50, userId: fixture.authorId });
+
   return page.posts.some((row) => row.id === fixture.postId);
 };
 
-/** THE REGRESSION. Four cookieless requests used to hide any post in the app. */
 integrationTest("a flag storm from fresh anonymous identities does NOT hide a post", async () => {
   const fixture = await createFixture(["fresh", "fresh", "fresh", "fresh"]);
+
   try {
     await flagWith(fixture);
 
-    // Every flag was recorded — submitting is still allowed for anyone.
     const rows = await db.select().from(flag).where(eq(flag.postId, fixture.postId));
     assert.equal(rows.length, 4);
-    // ...but none of them carries moderation authority.
     assert.equal(
       rows.every((row) => row.countsTowardHide === false),
       true,
@@ -123,9 +111,9 @@ integrationTest("a flag storm from fresh anonymous identities does NOT hide a po
   }
 });
 
-/** The safety valve must still work, or abuse was traded for a moderation outage. */
 integrationTest("four flags from established identities DO hide a post", async () => {
   const fixture = await createFixture(["registered", "registered", "aged", "aged"]);
+
   try {
     await flagWith(fixture);
 
@@ -147,7 +135,6 @@ integrationTest("four flags from established identities DO hide a post", async (
 });
 
 integrationTest("the threshold counts only established flags, never the noise", async () => {
-  // Three real reports plus a pile of minted identities still sits at 3.
   const fixture = await createFixture([
     "registered",
     "aged",
@@ -158,6 +145,7 @@ integrationTest("the threshold counts only established flags, never the noise", 
     "fresh",
     "fresh",
   ]);
+
   try {
     await flagWith(fixture);
 
@@ -171,12 +159,12 @@ integrationTest("the threshold counts only established flags, never the noise", 
 
 integrationTest("the feed and the permalink agree on what is hidden", async () => {
   const fixture = await createFixture(["registered", "registered", "registered", "registered"]);
+
   try {
     await flagWith(fixture);
 
-    // One rule, one column: a post hidden from the feed must 404 at its
-    // permalink, and vice versa. These drifted apart once already.
     const inFeed = await isInFeed(fixture);
+
     const servedAtPermalink = await fixture.reader.post
       .getPost({ postId: fixture.postId })
       .then(() => true)
@@ -191,6 +179,7 @@ integrationTest("the feed and the permalink agree on what is hidden", async () =
 
 integrationTest("a flag's reason is persisted to Flag.comment", async () => {
   const fixture = await createFixture(["registered"]);
+
   try {
     await flagWith(fixture, "  This is harassment  ");
 

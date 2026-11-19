@@ -132,9 +132,18 @@ Supabase and are deliberately outside CI — run them yourself with `pnpm -F @re
 when you touch a router, a query or the schema.
 
 **Lint is a clean gate.** `oxlint.config.ts` extends the ultracite presets (`ultracite/oxlint/core`,
-`react`, `anti-slop`, with `next` scoped to `apps/web` and `packages/service`); every rule is an
-error and `lint` fails on the first one. `no-await-in-loop` is the one deliberate override
-(sequential awaits are intentional). `no-restricted-imports` draws the package boundaries:
+`react`, `anti-slop`, `landmines`, with `next` scoped to `apps/web` and `packages/service`); every
+rule is an error and `lint` fails on the first one. Two rules are off on purpose:
+`no-await-in-loop` (sequential awaits are intentional: ordered SQL statements, batched seed
+writes) and `anti-slop/require-safety-comment-for-type-assertion` (it demands a `// SAFETY:`
+comment that landmines' `no-comments` forbids, so the two cannot both pass). landmines bans
+prose comments (keep functional directives, TSDoc on an exported API, and single-line
+`// WARNING:` lines for a dangerous, recurring footgun; the reasoning goes in the commit or the
+PR) and annotated return types on functions with a body (pin a contract with `satisfies` or a
+typed variable, e.g. `const f: (x: X) => Href = (x) => …`), plus its test rules: no module
+mocks or stubbed globals (the expo suites' `context.mock.module` calls predate the rule, which
+does not detect them; don't add more), no fixed sleeps or retries, tests beside their subject named
+`*.test.ts`, and explicit package `exports` (no `./*` wildcard). `no-restricted-imports` draws the package boundaries:
 `@repo/db` is off limits in `apps/web`, `apps/expo`, `packages/contract` and `packages/ui` (only
 `packages/service` talks to Postgres), and `apps/expo` may not import `@repo/service` at all
 (wire types come from `@repo/contract`). Prefer fixing code over `oxlint-disable` comments; when
@@ -186,7 +195,8 @@ Capacitor→Expo session-migration fixture.
 - **Shared domain logic lives in `packages/contract`**, used by both web and expo — not
   duplicated per platform.
 - **No `any`, no non-null `!`, no `as` casts.** Kebab-case filenames. Make illegal states
-  unrepresentable.
+  unrepresentable. No prose comments and no annotated return types (see the lint gate above):
+  a `// WARNING:` line is for a footgun that has already bitten, not for narration.
 - **The schema is declared, not migrated.** `pnpm db:push` is the whole deploy. `drizzle-kit`
   does not diff a view's body, so every view is `.existing()` in `drizzle-schema.ts` and its
   DDL lives in `packages/db/sql/090-views.sql`. `pnpm db:push-remote` writes **production** —
@@ -202,6 +212,8 @@ Capacitor→Expo session-migration fixture.
   Drizzle schema + `sql/` · `packages/ui` — shadcn
 - `CLAUDE.md` — architecture decisions and tracked constraints (read before changing anything
   structural) · `README.md` — human-facing setup · `docs/` — phone testing, release inputs,
-  the legacy-to-Expo upgrade verification
+  the legacy-to-Expo upgrade verification · `pnpm og:video` re-renders `public/og/og.mp4` and its
+  poster from `apps/web/scripts/og-video.ts` (needs Playwright's Chromium and ffmpeg; not part of
+  `verify`)
 - `packages/service/src/auth/session.ts` + `session-core.ts` — the hand-rolled auth
   (**not** Supabase Auth) · `packages/db/src/drizzle-schema.ts` — the tables

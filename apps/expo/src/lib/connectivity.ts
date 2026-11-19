@@ -7,23 +7,20 @@ import { ignoreRejection } from "./ignore-rejection";
 
 const PROBE_TIMEOUT_MS = 5000;
 
-/** `isInternetReachable` is undefined while the OS is still deciding; treat
-    that as online so a cold start never paints the offline banner first. */
 const isOnline = (state: Network.NetworkState) =>
   state.isInternetReachable ?? state.isConnected ?? true;
 
-const probeApiReachability = async (): Promise<boolean> => {
+const probeApiReachability = async () => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
 
   try {
-    // Any HTTP response proves reachability. This works before a dedicated
-    // health route is deployed and avoids coupling connectivity to auth.
     await fetch(getBaseUrl(), {
       cache: "no-store",
       method: "HEAD",
       signal: controller.signal,
     });
+
     return true;
   } catch {
     return false;
@@ -37,6 +34,7 @@ const probeApiReachability = async (): Promise<boolean> => {
 export const refreshConnectivity = async () => {
   const online = await probeApiReachability();
   onlineManager.setOnline(online);
+
   return online;
 };
 
@@ -47,9 +45,7 @@ const applyCurrentState = async () => {
 
 export const subscribeToNativeConnectivity = () => {
   if (Platform.OS === "web") {
-    return () => {
-      // Web has no native listener to remove.
-    };
+    return () => null;
   }
 
   const subscription = Network.addNetworkStateListener((state) => {

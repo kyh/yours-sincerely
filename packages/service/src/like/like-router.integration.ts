@@ -18,8 +18,6 @@ after(async () => {
 
 const BASE_LIKE_COUNT = 5;
 
-/** One letter with a seeded offset and one like already on it, so the returned
-    count has to add both. */
 const createFixture = async () => {
   const likerId = randomUUID();
   const otherLikerId = randomUUID();
@@ -61,6 +59,7 @@ const isNotFound = (error: Error) => error instanceof ORPCError && error.code ==
 
 integrationTest("createLike returns the post's new like state, counted like the feed", async () => {
   const fixture = await createFixture();
+
   try {
     const first = await fixture.caller.like.createLike({ postId: fixture.postId });
     assert.deepEqual(first.post, {
@@ -88,6 +87,7 @@ integrationTest("createLike returns the post's new like state, counted like the 
 
 integrationTest("deleteLike returns the post's new like state", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.caller.like.createLike({ postId: fixture.postId });
 
@@ -109,13 +109,12 @@ integrationTest("deleteLike returns the post's new like state", async () => {
 
 integrationTest("liking a deleted letter is NOT_FOUND; unliking it still succeeds", async () => {
   const fixture = await createFixture();
+
   try {
     await db.delete(like).where(eq(like.postId, fixture.postId));
     await db.delete(post).where(eq(post.id, fixture.postId));
 
     await assert.rejects(fixture.caller.like.createLike({ postId: fixture.postId }), isNotFound);
-    // Shipped clients treat an unlike failure as an error toast; main answered
-    // `{ like: undefined }` here, so this must keep succeeding.
     const unliked = await fixture.caller.like.deleteLike({ postId: fixture.postId });
     assert.equal(unliked.like, undefined);
     assert.equal(unliked.post, undefined);

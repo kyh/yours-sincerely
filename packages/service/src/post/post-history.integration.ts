@@ -55,7 +55,6 @@ const createFixture = async () => {
     },
   ]);
 
-  // An unauthenticated caller — this is exactly the caller the endpoint exposes.
   const caller = createCaller(null);
 
   const cleanup = async () => {
@@ -70,10 +69,12 @@ const createFixture = async () => {
 
 integrationTest("getPostsByUser hands out dates, never post ids", async () => {
   const fixture = await createFixture();
+
   try {
     const { posts } = await fixture.caller.post.getPostsByUser({ userId: fixture.authorId });
 
     assert.ok(posts.length > 0);
+
     for (const row of posts) {
       assert.deepEqual(Object.keys(row), ["createdAt"]);
       assert.equal("id" in row, false);
@@ -85,13 +86,13 @@ integrationTest("getPostsByUser hands out dates, never post ids", async () => {
 
 integrationTest("getPostsByUser is bounded by the profile history window", async () => {
   const fixture = await createFixture();
+
   try {
     const { posts } = await fixture.caller.post.getPostsByUser({ userId: fixture.authorId });
 
-    // The recent and the expired-but-in-window letters both count toward the
-    // heatmap; the one beyond the window does not (it is not an unbounded scan).
     assert.equal(posts.length, 2);
     const floor = new Date(Date.now() - POST_HISTORY_WINDOW_DAYS * DAY_MS);
+
     for (const row of posts) {
       assert.ok(new Date(`${row.createdAt}Z`) >= floor);
     }
@@ -100,12 +101,9 @@ integrationTest("getPostsByUser is bounded by the profile history window", async
   }
 });
 
-/** PRODUCT DECISION, deliberately locked in: an expired letter STAYS READABLE at
-    its permalink, forever. The feed drops it after 21 days; the share link does
-    not die. If someone later "fixes" `getPost` to 404 expired posts, this test
-    fails on purpose — that is a product change, not a bug fix. */
 integrationTest("getPost still serves a letter past the 21-day feed window", async () => {
   const fixture = await createFixture();
+
   try {
     const { post: expired } = await fixture.caller.post.getPost({ postId: fixture.expiredId });
 

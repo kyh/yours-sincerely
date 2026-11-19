@@ -15,23 +15,20 @@ const MESSAGE: PushMessage = {
 
 const tokenFor = (index: number) => `ExponentPushToken[device-${index}]`;
 
-const okTicket = (): ExpoPushTicket => ({ id: "receipt", status: "ok" });
-const errorTicket = (
-  error: "DeviceNotRegistered" | "MessageTooBig" | "ProviderError",
-): ExpoPushTicket => ({ details: { error }, message: `Expo said ${error}`, status: "error" });
+const okTicket = () => ({ id: "receipt", status: "ok" }) satisfies ExpoPushTicket;
 
-interface Harness {
-  deps: PushDependencies;
-  sends: ExpoPushMessage[][];
-  deleted: string[];
-  logged: string[];
-}
+const errorTicket = (error: "DeviceNotRegistered" | "MessageTooBig" | "ProviderError") =>
+  ({
+    details: { error },
+    message: `Expo said ${error}`,
+    status: "error",
+  }) satisfies ExpoPushTicket;
 
 const createHarness = (
   tokens: string[],
   respond: (messages: ExpoPushMessage[]) => Promise<ExpoPushTicket[]>,
   chunkSize = 100,
-): Harness => {
+) => {
   const sends: ExpoPushMessage[][] = [];
   const deleted: string[] = [];
   const logged: string[] = [];
@@ -42,6 +39,7 @@ const createHarness = (
       chunkSize,
       deleteToken: (token) => {
         deleted.push(token);
+
         return Promise.resolve();
       },
       findTokens: () => Promise.resolve(tokens),
@@ -51,9 +49,10 @@ const createHarness = (
       },
       sendChunk: (messages) => {
         sends.push(messages);
+
         return respond(messages);
       },
-    },
+    } satisfies PushDependencies,
     logged,
     sends,
   };

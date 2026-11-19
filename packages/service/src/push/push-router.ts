@@ -33,6 +33,7 @@ export const pushRouter = {
       session — the capability minted while signed in is what authorizes it. */
   unregister: os.push.unregister.handler(async ({ context, input }) => {
     const userId = verifyPushCleanupCapability(input.capability);
+
     if (userId === null) {
       throw new ORPCError("UNAUTHORIZED");
     }

@@ -10,6 +10,7 @@ const balloonDefaultSize = {
   height: 609,
   width: 233,
 };
+
 const balloonSvgHTML = `
 <svg
 
@@ -119,7 +120,6 @@ const createBallonElement = ({
     transform: "translate(calc(-100% + 1px), calc(-100% + 1px))",
     transformOrigin: `${width / 2}px ${width / 2}px`,
     transformStyle: "preserve-3d",
-    // Improves rendering performance in Safari
     willChange: "transform",
   });
 
@@ -423,22 +423,13 @@ const svgFiltersHtml = `
 </svg>
 `;
 
-const easings = [
-  // easeOutQuint
-  "cubic-bezier(0.22, 1, 0.36, 1)",
-  // easeOutCubic
-  "cubic-bezier(0.33, 1, 0.68, 1)",
-];
+const easings = ["cubic-bezier(0.22, 1, 0.36, 1)", "cubic-bezier(0.33, 1, 0.68, 1)"];
+
 const colorPairs = [
-  // yellow
   ["#ffec37ee", "#f8b13dff"],
-  // red
   ["#f89640ee", "#c03940ff"],
-  //blue
   ["#3bc0f0ee", "#0075bcff"],
-  // green
   ["#b0cb47ee", "#3d954bff"],
-  // purple
   ["#cf85b8ee", "#a3509dff"],
 ];
 
@@ -462,13 +453,12 @@ const createBalloonAnimation = ({
   zIndex: number;
 }) => {
   balloon.style.zIndex = zIndex.toString();
-  // Add blur to the closes ballons for bokeh effect
   balloon.style.filter = `blur(${zIndex > 7 ? 8 : 0}px)`;
+
   const getAnimation = () => {
-    // Random tilt angle between 8 and 15 degrees
     const tiltAngle = Math.random() * (15 - 8) + 8;
-    // Random tilt direction
     const tiltDirection = Math.random() < 0.5 ? 1 : -1;
+
     return balloon.animate(
       [
         {
@@ -500,6 +490,7 @@ const createBalloonAnimation = ({
       },
     );
   };
+
   return { balloon, getAnimation };
 };
 
@@ -509,8 +500,7 @@ const nextFrame = () =>
     requestAnimationFrame(() => resolve());
   });
 
-export const balloons = async (): Promise<void> => {
-  // Web Animations bypass both the global reduced-motion CSS and MotionConfig.
+export const balloons = async () => {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return;
   }
@@ -532,13 +522,10 @@ export const balloons = async (): Promise<void> => {
   document.documentElement.append(balloonsContainer);
 
   const sceneSize = { height: window.innerHeight, width: window.innerWidth };
-  // make balloon height relative to screen size for this nice bokeh/perspective effect
   const balloonHeight = Math.floor(Math.min(sceneSize.width, sceneSize.height) * 1);
 
   const balloonWidth = (balloonDefaultSize.width / balloonDefaultSize.height) * balloonHeight;
   const amount = Math.max(7, Math.round(window.innerWidth / (balloonWidth / 2)));
-  // make max dist depend on number of balloons and their size for realistic effect
-  // we dont want them to be too separated or too squeezed together
   const maxDist = Math.max((amount * balloonWidth) / 2, (balloonWidth / 2) * 10);
 
   interface BallonPosition {
@@ -554,15 +541,14 @@ export const balloons = async (): Promise<void> => {
 
   for (let i = 0; i < amount; i += 1) {
     const x = Math.round(sceneSize.width * Math.random());
-    // make sure balloons first render below the bottom of the screen
     const y = window.innerHeight;
     const z = Math.round(-1 * (Math.random() * maxDist));
 
     const targetX = Math.round(
       x + Math.random() * balloonWidth * 6 * (Math.random() > 0.5 ? 1 : -1),
     );
+
     const targetY = -window.innerHeight;
-    // balloons don't move in the Z direction
     const targetZ = z;
     balloonPositions.push({
       targetX,
@@ -596,6 +582,7 @@ export const balloons = async (): Promise<void> => {
       lightColor: colorPair?.[0] ?? defaultBalloonColor,
       width: balloonWidth,
     });
+
     balloonsContainer.append(balloon);
 
     return createBalloonAnimation({
@@ -605,7 +592,6 @@ export const balloons = async (): Promise<void> => {
     });
   });
 
-  // Wait a bit for the balloon prerender
   await nextFrame();
   await Promise.all(
     animations.map(async ({ balloon, getAnimation }) => {

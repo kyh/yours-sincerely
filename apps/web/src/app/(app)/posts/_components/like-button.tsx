@@ -47,7 +47,6 @@ const CircleAnimation = () => {
         }}
         transition={{
           duration: 0.4,
-          // cubic-out
           ease: [0.33, 1, 0.68, 1],
         }}
       />
@@ -59,7 +58,6 @@ const BURST_RADIUS = 32;
 const START_RADIUS = 4;
 const PATH_SCALE_FACTOR = 0.8;
 
-// Particle component for burst animation
 const Particle = ({
   fromColor,
   toColor,
@@ -71,22 +69,16 @@ const Particle = ({
   index: number;
   totalParticles: number;
 }) => {
-  // Calculate angle based on index with 45 degree offset
   const angle = (index / totalParticles) * 360 + 45;
   const radians = (angle * Math.PI) / 180;
 
-  // Both randoms are drawn once per mount — a particle is remounted for every
-  // burst — so a re-render mid-flight cannot retarget the animation.
-  // Add randomness to the burst distance (±15%)
   // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [randomFactor] = useState(() => 0.85 + Math.random() * 0.3);
   const burstDistance = BURST_RADIUS * randomFactor;
 
-  // Randomize duration between 500-700ms
   // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
   const [duration] = useState(() => 500 + Math.random() * 200);
 
-  // Calculate the degree shift (13 degrees in radians)
   const degreeShift = (13 * Math.PI) / 180;
 
   return (
@@ -120,19 +112,16 @@ const Particle = ({
         scale: {
           delay: 0.3,
           duration: duration / 1000,
-          // quad.in for scaling
           ease: [0.55, 0.085, 0.68, 0.53],
         },
         x: {
           delay: 0.3,
           duration: duration / 1000,
-          // quint.out for movement
           ease: [0.23, 1, 0.32, 1],
         },
         y: {
           delay: 0.3,
           duration: duration / 1000,
-          // quint.out for movement
           ease: [0.23, 1, 0.32, 1],
         },
       }}
@@ -140,7 +129,6 @@ const Particle = ({
   );
 };
 
-// Burst animation with particles
 const BurstAnimation = () => (
   <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
     {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
@@ -160,12 +148,12 @@ interface Props {
 }
 
 type FeedQueryData = InfiniteData<RouterOutputs["post"]["getFeed"]>;
+
 type PostQueryData = RouterOutputs["post"]["getPost"];
 
 const FEED_FILTER = { queryKey: orpc.post.getFeed.key({ type: "infinite" }) };
 const POST_FILTER = { queryKey: orpc.post.getPost.key() };
 
-/** Binds the shared like bookkeeping to this client's feed and post-detail caches. */
 const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: boolean) => {
   const handlers = createLikeMutationHandlers<FeedQueryData, PostQueryData>(
     {
@@ -177,7 +165,6 @@ const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: b
       },
       readFeeds: () => queryClient.getQueriesData<FeedQueryData>(FEED_FILTER),
       readPosts: () => queryClient.getQueriesData<PostQueryData>(POST_FILTER),
-      // A failed like can still have minted the anonymous user.
       refresh: () => {
         void markPostContentStale(queryClient);
         void refreshWorkspaceIdentityIfAnonymous(queryClient);
@@ -188,17 +175,20 @@ const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: b
     postId,
     liked,
   );
+
   return {
     ...handlers,
     onError: (...args: Parameters<typeof handlers.onError>) => {
       handlers.onError(...args);
       const [error] = args;
+
       if (error instanceof ORPCError && error.code === "NOT_FOUND") {
         toast.error("This letter has been deleted.");
-        // Unlike a like, this changes which letters the feed holds.
         void refreshPostContent(queryClient);
+
         return;
       }
+
       toast.error("Could not update this like. Please try again.");
     },
   };
@@ -209,15 +199,18 @@ export const LikeButton = ({ post }: Props) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const identityScope = useIdentityScope();
+
   const createMutate = useMutation(
     orpc.like.createLike.mutationOptions({
       ...likeMutationHandlers(queryClient, post.id, true),
       scope: identityScope,
     }),
   );
+
   const deleteMutate = useMutation(
     orpc.like.deleteLike.mutationOptions(likeMutationHandlers(queryClient, post.id, false)),
   );
+
   const mutationPending = createMutate.isPending || deleteMutate.isPending;
   const { isLiked, likeCount } = post;
 

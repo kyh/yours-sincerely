@@ -18,9 +18,6 @@ after(async () => {
 
 const MINUTE_MS = 60 * 1000;
 
-/** A letter with three replies from three different commenters, a minute apart.
-    The replies are INSERTED newest first, so the physical row order disagrees
-    with `createdAt` from the start. */
 const createFixture = async () => {
   const authorId = randomUUID();
   const readerId = randomUUID();
@@ -39,7 +36,6 @@ const createFixture = async () => {
     userId: authorId,
   });
 
-  // Oldest first: index 0 is the first reply written.
   const replies = commenterIds.map((userId, index) => ({
     content: `Reply number ${index}`,
     createdAt: new Date(now - (commenterIds.length - index) * MINUTE_MS).toISOString(),
@@ -49,6 +45,7 @@ const createFixture = async () => {
     updatedAt,
     userId,
   }));
+
   await db.insert(post).values(replies.toReversed());
 
   const cleanup = async () => {
@@ -72,11 +69,10 @@ const createFixture = async () => {
 
 integrationTest("comments are served oldest first, and a like does not reorder them", async () => {
   const fixture = await createFixture();
+
   try {
     const [firstReplyId] = fixture.replyIds;
     assert.ok(firstReplyId);
-    // The counter trigger UPDATEs the liked comment's row, which is what can
-    // move it to the end of the physical order.
     await fixture.reader.like.createLike({ postId: firstReplyId });
 
     const { post: served } = await fixture.reader.post.getPost({ postId: fixture.letterId });
@@ -94,6 +90,7 @@ integrationTest("comments are served oldest first, and a like does not reorder t
 
 integrationTest("a blocked commenter's reply is neither served nor counted", async () => {
   const fixture = await createFixture();
+
   try {
     const [, blockedId] = fixture.commenterIds;
     assert.ok(blockedId);
@@ -106,10 +103,10 @@ integrationTest("a blocked commenter's reply is neither served nor counted", asy
     );
     assert.equal(forReader.commentCount, 2);
 
-    // Only the blocker's view changes.
     const { post: forAnyone } = await fixture.anonymous.post.getPost({
       postId: fixture.letterId,
     });
+
     assert.equal(forAnyone.commentCount, 3);
   } finally {
     await fixture.cleanup();
@@ -118,6 +115,7 @@ integrationTest("a blocked commenter's reply is neither served nor counted", asy
 
 integrationTest("a letter by an author the viewer blocked is NOT_FOUND to them alone", async () => {
   const fixture = await createFixture();
+
   try {
     await fixture.reader.block.createBlock({ blockingId: fixture.authorId });
 
@@ -125,9 +123,11 @@ integrationTest("a letter by an author the viewer blocked is NOT_FOUND to them a
       fixture.reader.post.getPost({ postId: fixture.letterId }),
       (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
     );
+
     const { post: forAnyone } = await fixture.anonymous.post.getPost({
       postId: fixture.letterId,
     });
+
     assert.equal(forAnyone.id, fixture.letterId);
   } finally {
     await fixture.cleanup();
@@ -136,6 +136,7 @@ integrationTest("a letter by an author the viewer blocked is NOT_FOUND to them a
 
 integrationTest("a reply flagged into hiding leaves the permalink", async () => {
   const fixture = await createFixture();
+
   try {
     const hiddenId = fixture.replyIds.at(-1);
     assert.ok(hiddenId);

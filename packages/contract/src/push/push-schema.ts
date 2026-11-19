@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const PUSH_PLATFORMS = ["ios", "android"] as const;
+
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
 
 /** A device that has not launched the app in this long is treated as gone: its
@@ -19,6 +20,7 @@ export const registerPushTokenInput = z.object({
   platform: z.enum(PUSH_PLATFORMS),
   token: expoPushToken,
 });
+
 export type RegisterPushTokenInput = z.infer<typeof registerPushTokenInput>;
 
 /** Signed-out devices unregister with the capability minted while they were
@@ -27,4 +29,5 @@ export const unregisterPushTokenInput = z.object({
   capability: z.string().min(1),
   token: expoPushToken,
 });
+
 export type UnregisterPushTokenInput = z.infer<typeof unregisterPushTokenInput>;

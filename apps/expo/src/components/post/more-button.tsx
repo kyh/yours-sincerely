@@ -50,6 +50,7 @@ export const MoreButton = ({ post }: Props) => {
       },
     }),
   );
+
   const flagMutation = useMutation(
     orpc.flag.createFlag.mutationOptions({
       onError: () => toast.error("Could not flag this post. Please try again."),
@@ -60,13 +61,12 @@ export const MoreButton = ({ post }: Props) => {
       },
     }),
   );
+
   const blockMutation = useMutation(
     orpc.block.createBlock.mutationOptions({
       onError: () => toast.error("Could not block this user. Please try again."),
       onSuccess: () => {
         toast.success("You have blocked this user");
-        // The blocked author's letters leave the feed AND the author joins the
-        // viewer's blocked list — refreshBlocks covers both.
         void ignoreRejection(refreshBlocks());
       },
     }),
@@ -74,6 +74,7 @@ export const MoreButton = ({ post }: Props) => {
 
   const isPostOwner = post.userId === user?.id;
   const iconSize = 16;
+
   const items: PostMenuItem[] = [
     {
       handlePress: async () => {
@@ -89,6 +90,7 @@ export const MoreButton = ({ post }: Props) => {
       label: "Report Post",
     },
   ];
+
   if (user !== null && isPostOwner) {
     items.push({
       handlePress: () => deleteMutation.mutate({ postId: post.id }),
@@ -96,6 +98,7 @@ export const MoreButton = ({ post }: Props) => {
       label: "Delete Post",
     });
   }
+
   if (user !== null && !isPostOwner) {
     items.push({
       handlePress: () => flagMutation.mutate({ postId: post.id }),
@@ -103,6 +106,7 @@ export const MoreButton = ({ post }: Props) => {
       label: "Mark as inappropriate",
     });
     const blockingId = post.userId;
+
     if (blockingId !== null) {
       items.push({
         handlePress: () => blockMutation.mutate({ blockingId }),
@@ -111,6 +115,7 @@ export const MoreButton = ({ post }: Props) => {
       });
     }
   }
+
   const menuItems = items.map((item, index) =>
     isWide ? (
       <Button

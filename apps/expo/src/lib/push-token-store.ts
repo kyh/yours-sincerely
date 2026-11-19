@@ -10,10 +10,11 @@ export interface RegisteredPushDevice {
   userId: string;
 }
 
-export const getRegisteredPushDevice = (): RegisteredPushDevice | null => {
+export const getRegisteredPushDevice = () => {
   const token = SecureStore.getItem(PUSH_TOKEN_KEY);
   const userId = SecureStore.getItem(PUSH_TOKEN_USER_KEY);
   const cleanupCapability = SecureStore.getItem(PUSH_CLEANUP_CAPABILITY_KEY);
+
   return token === null || userId === null || cleanupCapability === null
     ? null
     : { cleanupCapability, token, userId };

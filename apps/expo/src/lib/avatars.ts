@@ -29,5 +29,6 @@ const avatarSources: ImageSourcePropType[] = [
     display name maps to the same avatar on web and native. */
 export const getAvatarSource = (str = ANONYMOUS_DISPLAY_NAME) => {
   const source = avatarSources[getLegacyAvatarIndex(str)];
+
   return source ?? avatarSources[0];
 };

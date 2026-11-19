@@ -4,7 +4,6 @@ import { ImageResponse } from "next/og";
 
 import { SHARE_CARD_SIZE } from "@/lib/seo";
 
-/** The light theme's tokens (`src/app/styles/themes.css`), as the card draws them. */
 const THEME = {
   background: "hsl(45 60% 96%)",
   card: "hsl(34 10% 98%)",
@@ -14,9 +13,6 @@ const THEME = {
 
 const svgDataUrl = (svg: Buffer) => `data:image/svg+xml;base64,${svg.toString("base64")}`;
 
-/** Paths from the app root, which is the working directory under `next build`,
-    `next start` and on Vercel. Each is a literal so file tracing ships exactly
-    these files. */
 const loadAssets = async () => {
   const [regular, italic, logo, lion] = await Promise.all([
     readFile(path.join(process.cwd(), "assets/fonts/inter-regular.ttf")),
@@ -24,6 +20,7 @@ const loadAssets = async () => {
     readFile(path.join(process.cwd(), "public/logo.svg")),
     readFile(path.join(process.cwd(), "public/characters/lion.svg")),
   ]);
+
   return { italic, lion: svgDataUrl(lion), logo: svgDataUrl(logo), regular };
 };
 
@@ -31,9 +28,11 @@ const fontSizeFor = (length: number) => {
   if (length <= 90) {
     return 46;
   }
+
   if (length <= 180) {
     return 38;
   }
+
   return 32;
 };
 
@@ -52,7 +51,7 @@ export interface ShareCard {
 
 /** Every share card the site draws: the app's letter card on its paper, in
     Inter, with the logo and the lion, so a letter and a page look alike. */
-export const renderShareCard = async (card: ShareCard): Promise<ImageResponse> => {
+export const renderShareCard = async (card: ShareCard) => {
   const { italic, lion, logo, regular } = await loadAssets();
 
   return new ImageResponse(
@@ -113,7 +112,6 @@ export const renderShareCard = async (card: ShareCard): Promise<ImageResponse> =
             display: "flex",
             fontSize: fontSizeFor(card.text.length),
             lineHeight: 1.45,
-            // Clear of the lion in the corner.
             paddingRight: 96,
             whiteSpace: "pre-wrap",
           }}

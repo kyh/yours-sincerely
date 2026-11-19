@@ -11,9 +11,6 @@ import * as schema from "./drizzle-schema";
     its `from`/`to` so nothing is left to inference. */
 export const relations = defineRelations(schema, (r) => ({
   block: {
-    /** `optional: false` on both: the FKs are NOT NULL, so the user row always
-        exists whatever their ON DELETE action, and `listBlocks` reads it without
-        a guard — exactly the type the non-null FK gave these relations before 1.0. */
     user_blockerId: r.one.user({
       alias: "block_blockerId_user_id",
       from: r.block.blockerId,
@@ -51,13 +48,11 @@ export const relations = defineRelations(schema, (r) => ({
   post: {
     flags: r.many.flag(),
     likes: r.many.like(),
-    /** The parent letter of a comment. */
     post: r.one.post({
       alias: "post_parentId_post_id",
       from: r.post.parentId,
       to: r.post.id,
     }),
-    /** Direct comments. */
     posts: r.many.post({
       alias: "post_parentId_post_id",
       from: r.post.id,

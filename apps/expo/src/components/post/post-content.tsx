@@ -40,10 +40,12 @@ export const PostContent = ({
 
   const openPost = () =>
     router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" });
+
   const openProfile = () => {
     if (post.userId === null) {
       return;
     }
+
     router.push({ params: { "user-id": post.userId }, pathname: "/profile/[user-id]" });
   };
 

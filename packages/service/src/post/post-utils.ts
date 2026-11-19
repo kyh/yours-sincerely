@@ -1,4 +1,3 @@
-import type { SQL } from "@repo/db";
 import { and, eq, lte, notExists, sql } from "@repo/db";
 import type { Db } from "@repo/db/drizzle-client";
 import { block } from "@repo/db/drizzle-schema";
@@ -8,29 +7,13 @@ import type { AnyColumn } from "drizzle-orm";
     `flagCount <= 3` in the Feed view (`sql/090-views.sql`), which cannot import it. */
 export const FLAG_HIDE_THRESHOLD = 3;
 
-/** The community has not flagged this post into hiding.
- *
- *  `Post.flagCount` is THE count of flags that count, and it is maintained in
- *  exactly one place: the `syncPostFlagCount` trigger (`sql/085-triggers.sql`), which
- *  moves it only for flags whose `Flag.countsTowardHide` the `isEstablishedFlagger`
- *  function (`sql/010-flagger.sql`) already decided. The Feed view's `flagCount <= 3`
- *  reads the same column.
- *
- *  So "a flag that counts" has one definition, in one place, and SQL and
- *  TypeScript cannot drift apart on it — which they have already done once in
- *  this schema. Re-deriving "established" here from `User.email`/`User.createdAt`
- *  would recreate that risk and re-open the censorship hole the moment the two
- *  disagreed, and counting raw `Flag` rows would re-open it immediately. */
-const visibleByFlags = (flagCount: AnyColumn): SQL => lte(flagCount, FLAG_HIDE_THRESHOLD);
+// WARNING: Post.flagCount is the one definition of a flag that counts; never re-derive "established" or count raw Flag rows here.
+const visibleByFlags = (flagCount: AnyColumn) => lte(flagCount, FLAG_HIDE_THRESHOLD);
 
 /** The viewer has not blocked this author. A correlated NOT EXISTS rather than
     the viewer's whole block list fetched on a separate round-trip and passed back
     down as a literal array. No viewer, no blocks, no filter. */
-export const notBlockedBy = (
-  database: Db,
-  viewerId: string | undefined,
-  authorId: AnyColumn,
-): SQL | undefined =>
+export const notBlockedBy = (database: Db, viewerId: string | undefined, authorId: AnyColumn) =>
   viewerId === undefined
     ? undefined
     : notExists(
@@ -50,8 +33,9 @@ export const postVisibleTo = (
   database: Db,
   viewerId: string | undefined,
   row: { flagCount: AnyColumn; userId: AnyColumn },
-): SQL => {
+) => {
   const unflagged = visibleByFlags(row.flagCount);
+
   return and(unflagged, notBlockedBy(database, viewerId, row.userId)) ?? unflagged;
 };
 
@@ -69,5 +53,5 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The oldest `createdAt` `getPostsByUser` will return, as a Postgres
     `timestamp`-comparable ISO string (the column is `mode: "string"`). */
-export const getPostHistoryFloor = (now: Date = new Date()): string =>
+export const getPostHistoryFloor = (now: Date = new Date()) =>
   new Date(now.getTime() - POST_HISTORY_WINDOW_DAYS * DAY_MS).toISOString();

@@ -9,9 +9,11 @@ import { useWorkspaceUser } from "@/lib/use-workspace-user";
 
 export const MarkAllReadButton = () => {
   const { user } = useWorkspaceUser();
+
   const { data: unread } = useQuery(
     orpc.notification.unreadCount.queryOptions({ enabled: user !== null }),
   );
+
   const markAllRead = useMutation(
     orpc.notification.markRead.mutationOptions({
       onError: () => toast.error("Could not mark notifications as read. Please try again."),

@@ -29,9 +29,13 @@ export const contract = {
 };
 
 export type Contract = typeof contract;
+
 export type ContractClient = RouterContractClient<Contract>;
+
 export type RouterInputs = InferContractRouterInputs<Contract>;
+
 export type RouterOutputs = InferContractRouterOutputs<Contract>;
 
 export type { FeedPost, WirePost } from "./post/post-contract.ts";
+
 export type FeedFilters = Omit<RouterInputs["post"]["getFeed"], "cursor">;

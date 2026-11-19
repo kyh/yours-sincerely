@@ -9,7 +9,6 @@ import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 import { cn } from "cn";
 
-/* Mirrors packages/ui button variants (pill buttons). */
 const buttonVariants = cva(
   "flex-row items-center justify-center rounded-full border border-transparent",
   {
@@ -65,6 +64,7 @@ type ButtonProps = Omit<PressableProps, "children"> &
 
 const buttonLabel = z.string();
 const buttonHitSlop = { default: 4, icon: 4, "icon-lg": 2, "icon-sm": 6, lg: 2, sm: 6 };
+
 const loadingBackground = {
   default: "bg-primary",
   destructive: "bg-destructive/10",
@@ -86,6 +86,7 @@ export const Button = ({
   ...props
 }: ButtonProps) => {
   const colors = useThemeColors();
+
   const loadingColor = {
     default: colors.primaryForeground,
     destructive: colors.destructive,
@@ -94,8 +95,10 @@ export const Button = ({
     outline: colors.foreground,
     secondary: colors.foreground,
   };
+
   const label = buttonLabel.safeParse(children);
   const isDisabled = loading === true || disabled === true;
+
   return (
     <Pressable
       accessibilityRole="button"
