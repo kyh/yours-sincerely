@@ -69,7 +69,6 @@ overrides:
   lucide-react: "catalog:"
 
 minimumReleaseAgeExclude:
-  - "@interfere/landmines@0.1.0"
   - "@orpc/client@2.0.0-beta.45"
   - "@orpc/contract@2.0.0-beta.45"
   - "@orpc/json-schema@2.0.0-beta.45"
@@ -78,4 +77,3 @@ minimumReleaseAgeExclude:
   - "@orpc/shared@2.0.0-beta.45"
   - "@orpc/tanstack-query@2.0.0-beta.45"
   - expo-notifications@57.0.24
-  - "ultracite@8.3.0"
