@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { LIKE_BURST_COLOR_PAIRS } from "@repo/contract/content";
-import { createLikeMutationHandlers } from "@repo/contract/like-cache";
+import { LIKE_BURST_COLOR_PAIRS } from "@repo/contract/like/like-burst";
+import { createLikeMutationHandlers } from "@repo/contract/like/like-cache";
 import { toast } from "@repo/ui/components/sonner";
 import NumberFlow from "@number-flow/react";
 import { ORPCError } from "@orpc/client";
@@ -16,7 +16,7 @@ import {
   refreshPostContent,
   refreshWorkspaceIdentityIfAnonymous,
 } from "@/lib/query-policies";
-import { useIdentityScope } from "@/lib/use-identity-scope";
+import { useIdentityScope } from "./use-identity-scope";
 import { orpc } from "@/orpc/react";
 
 const CircleAnimation = () => {

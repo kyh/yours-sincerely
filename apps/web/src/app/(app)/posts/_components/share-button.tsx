@@ -8,7 +8,7 @@ import {
   ResponsiveMenuLinkItem,
   ResponsiveMenuTrigger,
 } from "@repo/ui/components/responsive-menu";
-import { WEB_ORIGIN } from "@repo/contract/site";
+import { WEB_ORIGIN } from "@repo/contract/site/site";
 import { toast } from "@repo/ui/components/sonner";
 import { ClipboardCopyIcon, ShareIcon } from "lucide-react";
 

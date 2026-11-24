@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "cn";
 
-import type { FeedLayout } from "@repo/contract/preferences";
+import type { FeedLayout } from "@repo/contract/client/preferences";
 import type { FeedPost } from "@repo/contract";
 import { ProfileLink } from "@/app/(app)/profile/_components/profile-link";
 import { CommentButton } from "./comment-button";

@@ -1,6 +1,6 @@
 /* oxlint-disable unicorn/prefer-module, node/global-require -- Metro resolves static assets through require() */
 import type { ImageSourcePropType } from "react-native";
-import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex } from "@repo/contract/content";
+import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex } from "@repo/contract/user/user-display";
 
 const avatarSources: ImageSourcePropType[] = [
   require("../../assets/avatars/0.svg"),

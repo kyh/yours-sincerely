@@ -80,7 +80,7 @@ backend interruption before its second write; B and Direct did not.
 
 ### Legacy persistence compatibility fix — immediate-upgrade regression passed
 
-`apps/web/src/lib/persist-legacy-session.ts` now awaits a native persistence barrier after
+`apps/web/src/orpc/persist-legacy-session.ts` now awaits a native persistence barrier after
 every oRPC response on Android when the `CapacitorCookies` plugin exists. Reads can renew a
 session too. The barrier deletes only reserved, unused key `__ys_persistence_barrier` at
 the current origin; it never reads, reissues, or weakens the HttpOnly session cookie.

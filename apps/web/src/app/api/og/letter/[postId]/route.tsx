@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 
 import { isLetterIndexable, letterExcerpt } from "@/lib/seo";
-import { renderShareCard } from "@/lib/share-card";
+import { renderShareCard } from "@/app/api/og/share-card";
 import { caller } from "@/orpc/server";
 
 interface Params {

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Modal, Pressable, useWindowDimensions, View } from "react-native";
-import { getExpiryProgress } from "@repo/contract/content";
+import { getExpiryProgress } from "@repo/contract/post/post-content";
 import { formatDistance } from "date-fns";
 import Svg, { Circle, Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { FeedPost } from "@/lib/api";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
-import { sectorPath } from "@/lib/timer-geometry";
+import { sectorPath } from "./timer-geometry";
 
 const SIZE = 16;
 const RADIUS = SIZE / 2;

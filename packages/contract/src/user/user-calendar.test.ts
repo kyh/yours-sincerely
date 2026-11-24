@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { addDays, eachDayOfInterval, format, parseISO } from "date-fns";
 
-import type { CalendarDay, CalendarPost } from "./calendar.ts";
+import type { CalendarDay, CalendarPost } from "./user-calendar.ts";
 import {
   calendarLevelColor,
   createPostsDailyActivity,
@@ -11,7 +11,7 @@ import {
   getCalendarMonthLabels,
   groupCalendarDaysByWeeks,
   PROFILE_CALENDAR_THEMES,
-} from "./calendar.ts";
+} from "./user-calendar.ts";
 
 const emptyDays = (from: string, to: string) =>
   eachDayOfInterval({ end: parseISO(to), start: parseISO(from) }).map(

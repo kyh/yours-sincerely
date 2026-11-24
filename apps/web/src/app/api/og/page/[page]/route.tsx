@@ -1,5 +1,5 @@
 import { PAGE_CARDS, isPageCardKey } from "@/lib/seo";
-import { renderShareCard } from "@/lib/share-card";
+import { renderShareCard } from "@/app/api/og/share-card";
 
 interface Params {
   params: Promise<{ page: string }>;

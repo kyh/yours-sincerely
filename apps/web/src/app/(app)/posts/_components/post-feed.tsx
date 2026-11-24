@@ -5,7 +5,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
 import type { FeedFilters } from "@repo/contract";
-import type { FeedLayout } from "@repo/contract/preferences";
+import type { FeedLayout } from "@repo/contract/client/preferences";
 import { CardStack } from "@/app/(app)/posts/_components/card-stack";
 import { PostContent } from "@/app/(app)/posts/_components/post-content";
 import { feedInfiniteArgs } from "@/lib/feed-query";

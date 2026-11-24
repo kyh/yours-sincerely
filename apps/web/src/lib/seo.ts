@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getExpiryProgress, parseServerDate } from "@repo/contract/content";
+import { getExpiryProgress } from "@repo/contract/post/post-content";
+import { parseServerDate } from "@repo/contract/server-date";
 
 import { contactPage, privacyPage, termsPage } from "@/lib/agent/site-pages";
 import { siteConfig } from "@/lib/site-config";
@@ -38,7 +39,7 @@ const ogVideoTag = {
   width: OG_VIDEO.width,
 };
 
-/** Every card `src/lib/share-card.tsx` draws is this size. */
+/** Every card `src/app/api/og/share-card.tsx` draws is this size. */
 export const SHARE_CARD_SIZE = { height: 630, width: 1200 } as const;
 
 export interface PageCard {
@@ -68,7 +69,7 @@ export const isPageCardKey = (value: string): value is PageCardKey =>
 
 export const pageCardPath = (key: PageCardKey) => `/api/og/page/${key}`;
 
-/** A card drawn by `src/lib/share-card.tsx`: a URL and what it shows. */
+/** A card drawn by `src/app/api/og/share-card.tsx`: a URL and what it shows. */
 interface ShareCardImage {
   url: string;
   alt: string;

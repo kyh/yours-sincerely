@@ -1,4 +1,4 @@
-import { resolveDisplayName } from "@repo/contract/content";
+import { resolveDisplayName } from "@repo/contract/user/user-display";
 import { user } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";
 

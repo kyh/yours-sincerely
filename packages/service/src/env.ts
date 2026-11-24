@@ -1,4 +1,4 @@
-import { WEB_ORIGIN } from "@repo/contract/site";
+import { WEB_ORIGIN } from "@repo/contract/site/site";
 import { z } from "zod";
 
 // WARNING: COOKIE_SECRET stays out of here: auth/session-core.ts parses it failing closed, and an optional copy would be an authentication bypass.

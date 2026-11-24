@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { HEATMAP_DAYS } from "@repo/contract/calendar";
+import { HEATMAP_DAYS } from "@repo/contract/user/user-calendar";
 import { POST_HISTORY_WINDOW_DAYS } from "./post-utils.ts";
 
 test("the post history window covers the widest profile heatmap", () => {

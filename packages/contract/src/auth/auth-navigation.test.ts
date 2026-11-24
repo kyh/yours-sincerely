@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { safeNextPath } from "./navigation.ts";
+import { safeNextPath } from "./auth-navigation.ts";
 
 test("safeNextPath keeps same-origin absolute paths", () => {
   assert.equal(safeNextPath("/"), "/");

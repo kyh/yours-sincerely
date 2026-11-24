@@ -52,9 +52,10 @@ router has `src/<router>/<router>-contract.ts`, built on `publicBase` / `protect
 `src/index.ts` assembles them into `contract`. A new procedure starts in its contract.
 Its zod inputs, with the constants and rules that travel with them, live beside it in
 `src/<router>/<router>-schema.ts`, exported as `@repo/contract/<router>/<router>-schema` so a
-form validates with the schema the server does. The flat modules next to the router folders
-(`content.ts`, `calendar.ts`, `preferences.ts`, …) are pure rules both clients share, not
-wire. Outputs are `type<T>()` over wire interfaces
+form validates with the schema the server does. Pure rules both clients share, not wire,
+sit in the folder of the domain they belong to (`post/post-content.ts`, `user/user-calendar.ts`,
+`like/like-cache.ts`, …); rules with no router go in `site/` or `client/`. Only `index.ts`,
+`base.ts` and `server-date.ts` stay at the root. Each module is its own subpath export. Outputs are `type<T>()` over wire interfaces
 written in the contract: compile-time only, no runtime validation, and never a `@repo/db`
 type, because Expo compiles the contract. `@repo/service` implements it with one
 `os = implement(contract)` in `src/orpc.ts`: public procedures are
@@ -278,7 +279,7 @@ It is tempting to delete `apps/mobile` on the grounds that its `appId`
 
 On Android it is the opposite: `apps/mobile/android/app/build.gradle` declares
 `applicationId "com.kyh.yourssincerely"`, which is **exactly** `MOBILE_ANDROID_PACKAGE` in
-`packages/contract/src/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
+`packages/contract/src/site/mobile-identity.ts` — the live Play Store package. So `apps/mobile`
 is the only source in the repo that can rebuild the shipped legacy **Android** app, and
 the release gate (GitHub issue #125) still has its store-delivered Capacitor → Expo
 identity check open on physical phones (the emulator journey passed; the Play-delivered
@@ -297,7 +298,7 @@ quality without sharing presentation code; a DOM/native component layer is not.
   email and password on the current user rather than minting one, so pre-sign-up letters
   and likes stay theirs.
 - **External legal pages are acceptable.** Native About, Privacy and Terms open the website.
-- **Preserve the avatar mapping.** `getLegacyAvatarIndex` (`packages/contract/src/content.ts`)
+- **Preserve the avatar mapping.** `getLegacyAvatarIndex` (`packages/contract/src/user/user-display.ts`)
   hashes the display name modulo `LEGACY_AVATAR_COUNT`. Changing the hash or the modulus —
   adding an avatar counts — reshuffles every existing user's avatar.
 

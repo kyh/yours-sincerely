@@ -8,8 +8,8 @@ import type {
   CalendarLevel as Level,
   CalendarTheme as Theme,
   PostsHeatmap,
-} from "@repo/contract/calendar";
-import { calendarLevelColor as levelColor } from "@repo/contract/calendar";
+} from "@repo/contract/user/user-calendar";
+import { calendarLevelColor as levelColor } from "@repo/contract/user/user-calendar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 

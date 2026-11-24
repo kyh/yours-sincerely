@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { WEB_ORIGIN } from "@repo/contract/site";
+import { WEB_ORIGIN } from "@repo/contract/site/site";
 
 import { envSchema } from "./env.ts";
 

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { POST_EXPIRY_DAYS, resolveDisplayName } from "@repo/contract/content";
+import { POST_EXPIRY_DAYS } from "@repo/contract/post/post-content";
+import { resolveDisplayName } from "@repo/contract/user/user-display";
 import { createPostInput } from "@repo/contract/post/post-schema";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -21,7 +22,7 @@ import { useForm } from "react-hook-form";
 import type { CreatePostInput } from "@repo/contract/post/post-schema";
 import { balloons } from "@/components/animations/balloons";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
-import { useIdentityScope } from "@/lib/use-identity-scope";
+import { useIdentityScope } from "./use-identity-scope";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 import { postDraftKey } from "./post-draft";

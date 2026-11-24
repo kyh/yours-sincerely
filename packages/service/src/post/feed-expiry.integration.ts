@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, test } from "node:test";
 
-import { getExpiryProgress, POST_EXPIRY_DAYS } from "@repo/contract/content";
+import { getExpiryProgress, POST_EXPIRY_DAYS } from "@repo/contract/post/post-content";
 import { inArray } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { post, user } from "@repo/db/drizzle-schema";

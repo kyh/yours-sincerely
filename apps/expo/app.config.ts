@@ -5,7 +5,7 @@ import {
   MOBILE_DEEP_LINK_PATH_PREFIXES,
   MOBILE_IOS_BUNDLE_ID,
   WEB_HOST,
-} from "@repo/contract/mobile-identity";
+} from "@repo/contract/site/mobile-identity";
 
 const defineConfig: (context: ConfigContext) => ExpoConfig = ({ config }) => {
   // WARNING: key on APP_VARIANT from eas.json, never EAS_BUILD_PROFILE, which exists only on the build server and would give production the preview identity.
