@@ -7,12 +7,9 @@ import type {
   CalendarDay as Day,
   CalendarLevel as Level,
   CalendarTheme as Theme,
+  PostsHeatmap,
 } from "@repo/contract/calendar";
-import {
-  calendarLevelColor as levelColor,
-  getCalendarMonthLabels as getMonthLabels,
-  groupCalendarDaysByWeeks as groupByWeeks,
-} from "@repo/contract/calendar";
+import { calendarLevelColor as levelColor } from "@repo/contract/calendar";
 import { Text } from "@/components/ui/text";
 import { useThemeColors } from "@/components/theme-colors";
 
@@ -34,15 +31,12 @@ const getTooltipMessage = (day: Day) => {
 };
 
 interface Props {
-  data: Day[];
+  heatmap: PostsHeatmap;
   theme: Theme;
 }
 
-export const ActivityCalendar = ({ data, theme }: Props) => {
+export const ActivityCalendar = ({ heatmap: { monthLabels, weeks }, theme }: Props) => {
   const colors = useThemeColors();
-  const weeks = groupByWeeks(data);
-  const monthLabels = getMonthLabels(weeks);
-
   const textHeight = FONT_SIZE + 2 * BLOCK_MARGIN;
   const width = weeks.length * (BLOCK_SIZE + BLOCK_MARGIN) - BLOCK_MARGIN;
   const height = textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * 7 - BLOCK_MARGIN;

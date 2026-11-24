@@ -107,7 +107,7 @@ export const ProfileContent = ({ userId }: Props) => {
     >
       <Card className="lg:rounded-t-[33px]">
         <ProfileForm userId={userId} readonly={!allowEdit} />
-        <ActivityCalendar data={heatmapData.stats} theme={theme} />
+        <ActivityCalendar heatmap={heatmapData} theme={theme} />
       </Card>
       <View className={cn("gap-4", width >= 1024 && "flex-row")}>
         <Card className="min-h-60 flex-1 items-center justify-center py-8 lg:rounded-bl-[33px]">

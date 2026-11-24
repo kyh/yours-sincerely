@@ -134,6 +134,13 @@ test("an empty heatmap has a zero max and all-zero levels", () => {
   assert.ok(stats.every((day) => day.count === 0 && day.level === 0));
 });
 
+test("the heatmap comes laid out in weeks with their month labels", () => {
+  const heatmap = createPostsHeatmap([], 200, NOW);
+
+  assert.deepEqual(heatmap.weeks, groupCalendarDaysByWeeks(heatmap.stats));
+  assert.deepEqual(heatmap.monthLabels, getCalendarMonthLabels(heatmap.weeks));
+});
+
 test("daily activity aggregates posts by weekday", () => {
   const posts = [
     ...Array.from({ length: 10 }, () => atNoon("2026-06-01")),

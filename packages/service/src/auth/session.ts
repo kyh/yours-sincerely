@@ -50,10 +50,9 @@ export const verifyPushCleanupCapability = (capability: string) =>
 /**
  * Verify a session cookie value and resolve it to a user, rejecting revoked
  * sessions. `findUser` is the lookup the request context already performs, so
- * the epoch check costs no extra query. `createORPCContext` calls it with the
- * cookie read from the request headers; `session-revocation.integration.ts`
- * calls it with the real database, so the tested path and the shipped path
- * cannot diverge.
+ * the epoch check costs no extra query. `authenticateRequestSession` wraps it
+ * for each request; `session-revocation.integration.ts` calls it with the real
+ * database, so the tested path and the shipped path cannot diverge.
  */
 export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>(
   sessionValue: string | null | undefined,
@@ -78,24 +77,8 @@ export const setSession = async (userId: string, sessionEpoch: number) => {
   cookieStore.set(SESSION_COOKIE_NAME, signedCookie, sessionCookieOptions(IS_LOCAL_ENV));
 };
 
-/**
- * Sliding renewal: re-issue the session cookie (fresh maxAge) when it was
- * issued more than SESSION_RENEW_AFTER_SECONDS ago, has a legacy payload
- * without `iat`, or is still signed by a superseded key. This is what keeps an
- * active session from ever expiring. No-op when there is no validly signed
- * session.
- *
- * `sessionEpoch` MUST be the user's live value from the database — the caller
- * has already loaded the user row. The epoch inside the old cookie is
- * deliberately never read here: re-signing with it would let a revoked session
- * renew itself back into validity. (The caller also only reaches this after
- * the epoch gate in `authenticateSessionValue` has passed, so a revoked
- * session never gets this far in the first place.)
- */
-export const renewSessionIfStale = async (
-  sessionValue: string | undefined,
-  sessionEpoch: number,
-) => {
+// WARNING: sessionEpoch must be the user row's live value; re-signing with the cookie's epoch revives revoked sessions.
+const renewSessionIfStale = async (sessionValue: string | undefined, sessionEpoch: number) => {
   const { decision, payload } = decideRenewal({
     activeSecret: SESSION_KEY,
     nowSeconds: Math.floor(Date.now() / 1000),
@@ -109,6 +92,28 @@ export const renewSessionIfStale = async (
   }
 
   await setSession(payload.user, sessionEpoch).catch(() => null);
+};
+
+/**
+ * A request's session: the user it resolves to, or null. Sliding renewal
+ * re-issues the cookie (fresh maxAge) when it was issued more than
+ * SESSION_RENEW_AFTER_SECONDS ago, has a legacy payload without `iat`, or is
+ * still signed by a superseded key; this is what keeps an active session from
+ * ever expiring. Renewal re-signs with the epoch from the user row just
+ * loaded, never the cookie's, and runs only after the epoch gate in
+ * `authenticateSessionValue` has passed, so a revoked session never renews.
+ */
+export const authenticateRequestSession = async <TUser extends { sessionEpoch: number }>(
+  sessionValue: string | undefined,
+  findUser: (userId: string) => Promise<TUser | null>,
+) => {
+  const user = await authenticateSessionValue(sessionValue, findUser);
+
+  if (user) {
+    await renewSessionIfStale(sessionValue, user.sessionEpoch);
+  }
+
+  return user;
 };
 
 /**

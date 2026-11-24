@@ -4,7 +4,7 @@ import { db } from "@repo/db/drizzle-client";
 import { implement, ORPCError, os as builder } from "@orpc/server";
 import { getCookie } from "@orpc/server/helpers";
 
-import { authenticateSessionValue, renewSessionIfStale } from "./auth/session";
+import { authenticateRequestSession } from "./auth/session";
 import { findSessionUser } from "./auth/session-user";
 
 /**
@@ -20,14 +20,9 @@ import { findSessionUser } from "./auth/session-user";
 export const createORPCContext = async (opts: { headers: Headers }) => {
   const sessionValue = getCookie(opts.headers, SESSION_COOKIE_NAME);
 
-  const sessionUser = await authenticateSessionValue(sessionValue, (userId) =>
+  const sessionUser = await authenticateRequestSession(sessionValue, (userId) =>
     findSessionUser(db, userId),
   );
-
-  // WARNING: renewal re-signs with the database's epoch, or a revoked session would renew itself back into validity.
-  if (sessionUser) {
-    await renewSessionIfStale(sessionValue, sessionUser.sessionEpoch);
-  }
 
   return { db, user: sessionUser };
 };
