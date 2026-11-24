@@ -3,12 +3,9 @@ import type {
   CalendarDay as Day,
   CalendarLevel as Level,
   CalendarTheme as Theme,
+  PostsHeatmap,
 } from "@repo/contract/calendar";
-import {
-  calendarLevelColor,
-  getCalendarMonthLabels as getMonthLabels,
-  groupCalendarDaysByWeeks as groupByWeeks,
-} from "@repo/contract/calendar";
+import { calendarLevelColor } from "@repo/contract/calendar";
 import { format, parseISO } from "date-fns";
 
 const BLOCK_SIZE = 12;
@@ -29,23 +26,22 @@ const getTooltipMessage = (contribution: Day) => {
 };
 
 interface Props {
-  data: Day[];
+  heatmap: PostsHeatmap;
   theme: Theme;
 }
 
-export const ActivityCalendar = ({ data, theme }: Props) => {
-  if (data.length === 0) {
+export const ActivityCalendar = ({ heatmap: { monthLabels, weeks }, theme }: Props) => {
+  if (weeks.length === 0) {
     return null;
   }
 
-  const weeks = groupByWeeks(data);
   const textHeight = FONT_SIZE + 2 * BLOCK_MARGIN;
   const height = textHeight + (BLOCK_SIZE + BLOCK_MARGIN) * 7 - BLOCK_MARGIN;
   const width = weeks.length * (BLOCK_SIZE + BLOCK_MARGIN) - BLOCK_MARGIN;
 
   const renderLabels = () => (
     <g className="legend-month fill-foreground" style={{ fontSize: FONT_SIZE }}>
-      {getMonthLabels(weeks).map(({ text, x }) => (
+      {monthLabels.map(({ text, x }) => (
         <text x={(BLOCK_SIZE + BLOCK_MARGIN) * x} alignmentBaseline="hanging" key={x}>
           {text}
         </text>

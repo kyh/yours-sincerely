@@ -245,8 +245,12 @@ export const createPostsHeatmap = (
     level: getPostLevel(count, max),
   }));
 
-  return { max, stats };
+  const weeks = groupCalendarDaysByWeeks(stats);
+
+  return { max, monthLabels: getCalendarMonthLabels(weeks), stats, weeks };
 };
+
+export type PostsHeatmap = ReturnType<typeof createPostsHeatmap>;
 
 export const createPostsDailyActivity = (posts: CalendarPost[]) => {
   const counts = new Map<WeekdayLabel, number>(DEFAULT_WEEKDAY_LABELS.map((day) => [day, 0]));

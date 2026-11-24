@@ -61,7 +61,7 @@ export const Profile = ({ userId }: ProfileProps) => {
         <Card className="lg:rounded-t-[calc(2rem+1px)]">
           <ProfileForm userId={userId} readonly={!allowEdit} />
           <div className="mx-auto">
-            <ActivityCalendar data={heatmapData.stats} theme={theme} />
+            <ActivityCalendar heatmap={heatmapData} theme={theme} />
           </div>
         </Card>
       </div>
