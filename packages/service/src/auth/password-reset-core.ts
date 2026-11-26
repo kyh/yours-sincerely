@@ -33,7 +33,7 @@ export interface ResetEmail {
 }
 
 /** Resolves once the email is accepted for delivery; rejects otherwise. */
-export type SendResetEmail = (email: ResetEmail) => Promise<void>;
+export type SendResetEmail = (email: ResetEmail) => Promise<void> | void;
 
 /** The slice of Resend's `emails` client this uses. */
 export interface EmailClient {
@@ -51,7 +51,9 @@ export interface EmailClient {
  * that into a logged failure instead of a "sent" toast for an email that never
  * left.
  */
-export const createResetEmailSender: (emails: EmailClient) => SendResetEmail =
+export const createResetEmailSender: (
+  emails: EmailClient,
+) => (email: ResetEmail) => Promise<void> =
   (emails) =>
   async ({ resetUrl, to }) => {
     const { error } = await emails.send({
@@ -91,10 +93,8 @@ export const resetEmailWarningOf = (mode: ResetEmailMode) =>
     : null;
 
 /** The log half of the reset email: the link, written where the dev server shows it. */
-export const createResetLogSender: (
-  write: (line: string) => void | Promise<void>,
-) => SendResetEmail =
+export const createResetLogSender: (write: (line: string) => void) => SendResetEmail =
   (write) =>
-  async ({ resetUrl, to }) => {
-    await write(`[reset-email] not sent (no RESEND_API_KEY), logged here: to ${to}: ${resetUrl}`);
+  ({ resetUrl, to }) => {
+    write(`[reset-email] not sent (no RESEND_API_KEY), logged here: to ${to}: ${resetUrl}`);
   };

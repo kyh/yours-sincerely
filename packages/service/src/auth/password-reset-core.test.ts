@@ -109,7 +109,7 @@ describe("reset email without a provider", () => {
     assert.deepEqual(mode, { kind: "log" });
     assert.equal(resetEmailWarningOf(mode), null);
     assert.equal(lines.length, 1);
-    assert.ok(lines[0]?.includes(resetUrl) === true);
+    assert.equal(lines[0]?.includes(resetUrl), true);
   });
 
   it("is off in production: nothing is logged, and boot warns that no email goes out", () => {
