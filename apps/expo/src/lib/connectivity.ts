@@ -12,7 +12,10 @@ const isOnline = (state: Network.NetworkState) =>
 
 const probeApiReachability = async () => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, PROBE_TIMEOUT_MS);
 
   try {
     await fetch(getBaseUrl(), {
@@ -54,5 +57,7 @@ export const subscribeToNativeConnectivity = () => {
 
   void ignoreRejection(applyCurrentState());
 
-  return () => subscription.remove();
+  return () => {
+    subscription.remove();
+  };
 };

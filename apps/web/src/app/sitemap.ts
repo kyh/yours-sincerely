@@ -11,18 +11,21 @@ export const dynamic = "force-dynamic";
 const SITEMAP_PAGE_SIZE = 50;
 const MAX_LETTERS = 1000;
 
-const liveLetters = async () => {
-  const letters: FeedPost[] = [];
-  let cursor: RouterOutputs["post"]["getFeed"]["nextCursor"];
+type FeedCursor = RouterOutputs["post"]["getFeed"]["nextCursor"];
 
-  do {
-    const page = await caller.post.getFeed({ cursor, limit: SITEMAP_PAGE_SIZE });
-    letters.push(...page.posts);
-    cursor = page.nextCursor;
-  } while (cursor && letters.length < MAX_LETTERS);
+const lettersFrom: (cursor: FeedCursor, collected: FeedPost[]) => Promise<FeedPost[]> = async (
+  cursor,
+  collected,
+) => {
+  const page = await caller.post.getFeed({ cursor, limit: SITEMAP_PAGE_SIZE });
+  const letters = [...collected, ...page.posts];
 
-  return letters.slice(0, MAX_LETTERS);
+  return page.nextCursor === undefined || letters.length >= MAX_LETTERS
+    ? letters.slice(0, MAX_LETTERS)
+    : await lettersFrom(page.nextCursor, letters);
 };
+
+const liveLetters = async () => await lettersFrom(undefined, []);
 
 const staticPages = () =>
   [

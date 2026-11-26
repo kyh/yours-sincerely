@@ -25,7 +25,9 @@ const ThemeGallery = () => {
             accessibilityRole="radio"
             accessibilityLabel={option.label}
             accessibilityState={{ selected: theme === option.id }}
-            onPress={() => setTheme(option.id)}
+            onPress={() => {
+              setTheme(option.id);
+            }}
             className={
               theme === option.id
                 ? "border-ring min-h-11 min-w-11 items-center justify-center rounded-full border-2 p-1"

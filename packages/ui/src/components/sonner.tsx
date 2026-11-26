@@ -13,6 +13,13 @@ import {
 
 export { toast } from "sonner";
 
+const toasterStyle: React.CSSProperties & Record<`--${string}`, string> = {
+  "--border-radius": "var(--radius)",
+  "--normal-bg": "var(--popover)",
+  "--normal-border": "var(--border)",
+  "--normal-text": "var(--popover-foreground)",
+};
+
 export const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 
@@ -27,14 +34,7 @@ export const Toaster = ({ ...props }: ToasterProps) => {
         success: <CircleCheckIcon className="size-4" />,
         warning: <TriangleAlertIcon className="size-4" />,
       }}
-      style={
-        {
-          "--border-radius": "var(--radius)",
-          "--normal-bg": "var(--popover)",
-          "--normal-border": "var(--border)",
-          "--normal-text": "var(--popover-foreground)",
-        } as React.CSSProperties
-      }
+      style={toasterStyle}
       toastOptions={{
         classNames: {
           toast: "cn-toast",

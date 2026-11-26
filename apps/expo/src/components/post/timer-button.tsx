@@ -60,7 +60,9 @@ const ExpiryTooltip = ({
           accessibilityLabel={text}
           accessibilityLiveRegion="polite"
           className="rounded-md px-3 py-1.5"
-          onLayout={(event) => setSize(event.nativeEvent.layout)}
+          onLayout={(event) => {
+            setSize(event.nativeEvent.layout);
+          }}
           style={{
             backgroundColor: colors.foreground,
             left,
@@ -107,11 +109,13 @@ export const TimerButton = ({ post }: Props) => {
         accessibilityLabel={formattedTime}
         hitSlop={6}
         className="size-8 items-center justify-center rounded-lg active:bg-accent"
-        onLayout={() => setAnchor(null)}
+        onLayout={() => {
+          setAnchor(null);
+        }}
         onPress={() =>
-          button.current?.measureInWindow((x, y, width, height) =>
-            setAnchor({ height, width, x, y }),
-          )
+          button.current?.measureInWindow((x, y, width, height) => {
+            setAnchor({ height, width, x, y });
+          })
         }
       >
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
@@ -135,7 +139,13 @@ export const TimerButton = ({ post }: Props) => {
         </Svg>
       </Pressable>
       {anchor !== null && (
-        <ExpiryTooltip anchor={anchor} text={formattedTime} onClose={() => setAnchor(null)} />
+        <ExpiryTooltip
+          anchor={anchor}
+          text={formattedTime}
+          onClose={() => {
+            setAnchor(null);
+          }}
+        />
       )}
     </>
   );

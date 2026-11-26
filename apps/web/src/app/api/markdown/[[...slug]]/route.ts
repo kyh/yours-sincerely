@@ -71,11 +71,17 @@ const buildMarkdown = async (pathname: string) => {
     }
 
     case "letter": {
-      return letterMarkdown(pathname, route.postId);
+      return await letterMarkdown(pathname, route.postId);
+    }
+
+    case "html-only":
+    case "not-found": {
+      return notFound(pathname);
     }
 
     default: {
-      return notFound(pathname);
+      const exhaustive: never = route;
+      throw new Error(`Unknown markdown route ${String(exhaustive)}`);
     }
   }
 };

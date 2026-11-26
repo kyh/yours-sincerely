@@ -97,8 +97,8 @@ export const SettingsForm = () => {
 
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
-      onSuccess: () =>
-        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
+      onSuccess: async () =>
+        await Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 
@@ -118,7 +118,9 @@ export const SettingsForm = () => {
   const deleteUser = useMutation(
     orpc.user.deleteUser.mutationOptions({
       onError: () => toast.error("Could not delete account. Please try again."),
-      onSuccess: () => window.location.assign("/"),
+      onSuccess: () => {
+        window.location.assign("/");
+      },
     }),
   );
 
@@ -133,7 +135,9 @@ export const SettingsForm = () => {
     const submitted = form.getValues("email");
 
     const promise = updateUser.mutateAsync(data, {
-      onSuccess: () => form.reset(data, { keepValues: form.getValues("email") !== submitted }),
+      onSuccess: () => {
+        form.reset(data, { keepValues: form.getValues("email") !== submitted });
+      },
     });
 
     toast.promise(promise, {
@@ -158,7 +162,11 @@ export const SettingsForm = () => {
   return (
     <div className="-space-y-px">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={(e) => {
+            void form.handleSubmit(onSubmit)(e);
+          }}
+        >
           <FormField
             control={form.control}
             name="email"
@@ -199,7 +207,9 @@ export const SettingsForm = () => {
           type="button"
           variant="outline"
           loading={signOut.isPending}
-          onClick={() => signOut.mutate()}
+          onClick={() => {
+            signOut.mutate();
+          }}
         >
           Log out
         </Button>
@@ -220,7 +230,9 @@ export const SettingsForm = () => {
                 type="button"
                 variant="destructive"
                 loading={deleteUser.isPending}
-                onClick={() => deleteUser.mutate()}
+                onClick={() => {
+                  deleteUser.mutate();
+                }}
               >
                 Delete my account
               </AlertDialogAction>

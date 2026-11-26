@@ -125,7 +125,11 @@ const ResponsiveMenuContent = ({
         <DrawerTitle>{title}</DrawerTitle>
         <DrawerDescription>{description}</DrawerDescription>
       </DrawerHeader>
-      {drawerListClassName ? <div className={drawerListClassName}>{children}</div> : children}
+      {drawerListClassName !== undefined && drawerListClassName !== "" ? (
+        <div className={drawerListClassName}>{children}</div>
+      ) : (
+        children
+      )}
     </DrawerContent>
   );
 };
@@ -161,7 +165,7 @@ const ResponsiveMenuItem = ({
         data-slot="responsive-menu-item"
         className={itemClassName}
         closeOnClick={closeOnClick}
-        disabled={disabled || loading}
+        disabled={disabled === true || loading}
         aria-busy={loading || undefined}
         onClick={onClick}
       >
@@ -174,7 +178,7 @@ const ResponsiveMenuItem = ({
     <ButtonPrimitive
       data-slot="responsive-menu-item"
       className={rowClassName}
-      disabled={disabled || loading}
+      disabled={disabled === true || loading}
       focusableWhenDisabled={loading}
       aria-busy={loading || undefined}
       onClick={() => {

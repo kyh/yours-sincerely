@@ -77,14 +77,16 @@ export const MoreButton = ({ post }: Props) => {
 
   const items: PostMenuItem[] = [
     {
-      handlePress: async () => {
-        try {
-          await Linking.openURL(reportPostMailto(post.id));
-        } catch {
-          toast.error(
-            `Could not open your mail app. Report this post to ${siteConfig.supportEmail}`,
-          );
-        }
+      handlePress: () => {
+        void (async () => {
+          try {
+            await Linking.openURL(reportPostMailto(post.id));
+          } catch {
+            toast.error(
+              `Could not open your mail app. Report this post to ${siteConfig.supportEmail}`,
+            );
+          }
+        })();
       },
       icon: <Flag size={iconSize} color={colors.foreground} />,
       label: "Report Post",
@@ -93,7 +95,9 @@ export const MoreButton = ({ post }: Props) => {
 
   if (user !== null && isPostOwner) {
     items.push({
-      handlePress: () => deleteMutation.mutate({ postId: post.id }),
+      handlePress: () => {
+        deleteMutation.mutate({ postId: post.id });
+      },
       icon: <Trash2 size={iconSize} color={colors.foreground} />,
       label: "Delete Post",
     });
@@ -101,7 +105,9 @@ export const MoreButton = ({ post }: Props) => {
 
   if (user !== null && !isPostOwner) {
     items.push({
-      handlePress: () => flagMutation.mutate({ postId: post.id }),
+      handlePress: () => {
+        flagMutation.mutate({ postId: post.id });
+      },
       icon: <TriangleAlert size={iconSize} color={colors.foreground} />,
       label: "Mark as inappropriate",
     });
@@ -109,7 +115,9 @@ export const MoreButton = ({ post }: Props) => {
 
     if (blockingId !== null) {
       items.push({
-        handlePress: () => blockMutation.mutate({ blockingId }),
+        handlePress: () => {
+          blockMutation.mutate({ blockingId });
+        },
         icon: <Ban size={iconSize} color={colors.foreground} />,
         label: "Stop seeing content from this user",
       });
@@ -143,14 +151,18 @@ export const MoreButton = ({ post }: Props) => {
         accessibilityLabel="Post options"
         hitSlop={6}
         className="active:bg-accent size-8 items-center justify-center rounded-lg"
-        onPress={() => setIsOpen(true)}
+        onPress={() => {
+          setIsOpen(true);
+        }}
       >
         <MoreVertical size={iconSize} color={colors.mutedForeground} />
       </Pressable>
       {isWide ? (
         <Dialog
           open={isOpen}
-          onClose={() => setIsOpen(false)}
+          onClose={() => {
+            setIsOpen(false);
+          }}
           label="Post Settings"
           padding={0}
           showCloseButton={false}
@@ -158,7 +170,12 @@ export const MoreButton = ({ post }: Props) => {
           {menuItems}
         </Dialog>
       ) : (
-        <BottomDrawer open={isOpen} onClose={() => setIsOpen(false)}>
+        <BottomDrawer
+          open={isOpen}
+          onClose={() => {
+            setIsOpen(false);
+          }}
+        >
           {menuItems}
         </BottomDrawer>
       )}

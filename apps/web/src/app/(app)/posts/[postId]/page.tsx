@@ -16,8 +16,8 @@ interface Props {
   }>;
 }
 
-const loadLetter = (postId: string) =>
-  fetchOrNotFound(orpc.post.getPost.queryOptions({ input: { postId } }));
+const loadLetter = async (postId: string) =>
+  await fetchOrNotFound(orpc.post.getPost.queryOptions({ input: { postId } }));
 
 export const generateMetadata = async (props: Props) => {
   const { postId } = await props.params;

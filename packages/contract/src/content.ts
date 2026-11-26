@@ -5,7 +5,8 @@ export const ANONYMOUS_DISPLAY_NAME = "Anonymous";
 /** `||`, not `??`: a cleared pen name arrives as `""`, and a blank name must read
     as Anonymous everywhere, or the same writer gets a different name and avatar
     per surface. */
-export const resolveDisplayName = (name?: string | null) => name || ANONYMOUS_DISPLAY_NAME;
+export const resolveDisplayName = (name?: string | null) =>
+  name === undefined || name === null || name === "" ? ANONYMOUS_DISPLAY_NAME : name;
 
 export const POST_EXPIRY_DAYS = 21;
 const LEGACY_AVATAR_COUNT = 20;

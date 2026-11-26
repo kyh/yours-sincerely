@@ -2,6 +2,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 
+import { inSequence } from "@repo/contract/in-sequence";
 import postgres from "postgres";
 
 import { toDirectConnectionUrl } from "./connection-url";
@@ -10,7 +11,7 @@ const SQL_DIR = path.join(import.meta.dirname, "..", "sql");
 
 const connectionUrl = process.env.POSTGRES_URL;
 
-if (!connectionUrl) {
+if (connectionUrl === undefined || connectionUrl === "") {
   throw new Error("Missing POSTGRES_URL");
 }
 
@@ -19,7 +20,7 @@ const nonPoolingUrl = toDirectConnectionUrl(connectionUrl);
 const sql = postgres(nonPoolingUrl, {
   max: 1,
   onnotice: (notice) => {
-    if (notice.message) {
+    if (notice.message !== undefined && notice.message !== "") {
       console.log(`  note: ${notice.message}`);
     }
   },
@@ -39,9 +40,14 @@ const main = async () => {
     // WARNING: without this lock_timeout one slow query parks the push, and every feed read, like and post queues behind it.
     await tx.unsafe("SET LOCAL lock_timeout = '5s'").simple();
 
-    for (const file of files) {
-      const content = await readFile(path.join(SQL_DIR, file), "utf-8");
+    const contents = await Promise.all(
+      files.map(async (file) => ({
+        content: await readFile(path.join(SQL_DIR, file), "utf-8"),
+        file,
+      })),
+    );
 
+    await inSequence(contents, async ({ content, file }) => {
       try {
         await tx.unsafe(content).simple();
       } catch (error) {
@@ -50,7 +56,7 @@ const main = async () => {
       }
 
       console.log(`  applied ${file}`);
-    }
+    });
   });
 
   console.log("Done. Schema is functions + triggers + grants in sync.");

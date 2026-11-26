@@ -260,9 +260,9 @@ config change.
 ### Legacy Capacitor runtime in `apps/web` is load-bearing
 
 `apps/web` still depends on `@capacitor/app`, `@capacitor/core`, `@capacitor/splash-screen`
-and mounts `apps/web/src/components/providers/capacitor-provider.tsx` in the root layout.
+and mounts `apps/web/src/components/providers/capacitor-bridge.tsx` in the root layout.
 **Do not remove them.** The legacy Capacitor app is a _remote WebView_ pointed at production
-web — it runs `apps/web`'s JavaScript live on users' phones today. The provider hides its
+web — it runs `apps/web`'s JavaScript live on users' phones today. The bridge hides its
 splash screen (`launchAutoHide: false` makes `SplashScreen.hide()` mandatory) and wires the
 Android back button. Removing it strands every remaining legacy install on a permanent
 splash screen. Gated on store-rollout data; tracked as GitHub issue #72.

@@ -25,14 +25,16 @@ export const findLivePushTokens = async (userId: string) => {
 };
 
 /** Best-effort, never throws. See `sendPushToUserCore`. */
-export const sendPushToUser = (message: PushMessage) =>
-  sendPushToUserCore(message, {
+export const sendPushToUser = async (message: PushMessage) =>
+  await sendPushToUserCore(message, {
     chunkSize: Expo.pushNotificationChunkSizeLimit,
     deleteToken: async (token) => {
       await db.delete(pushToken).where(eq(pushToken.token, token));
     },
     findTokens: findLivePushTokens,
     isExpoPushToken: (token) => Expo.isExpoPushToken(token),
-    logError: (line) => console.error(line),
-    sendChunk: (messages) => expo.sendPushNotificationsAsync(messages),
+    logError: (line) => {
+      console.error(line);
+    },
+    sendChunk: async (messages) => await expo.sendPushNotificationsAsync(messages),
   });

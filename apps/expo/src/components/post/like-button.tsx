@@ -253,8 +253,12 @@ const likeMutationHandlers = (postId: string, liked: boolean) => {
         void ignoreRejection(markPostContentStale());
         void ignoreRejection(refreshWorkspaceIdentityIfAnonymous());
       },
-      writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
-      writePost: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+      writeFeed: (queryKey, data) => {
+        queryClient.setQueryData(queryKey, data);
+      },
+      writePost: (queryKey, data) => {
+        queryClient.setQueryData(queryKey, data);
+      },
     },
     postId,
     liked,
@@ -283,7 +287,10 @@ export const LikeButton = ({ post }: Props) => {
   const reduceMotionEnabled = useReducedMotion();
   const [burst, setBurst] = useState<BurstPlan | null>(null);
   const activeBurst = reduceMotionEnabled ? null : burst;
-  const finishBurst = useCallback(() => setBurst(null), []);
+
+  const finishBurst = useCallback(() => {
+    setBurst(null);
+  }, []);
 
   const createMutate = useMutation(
     orpc.like.createLike.mutationOptions(likeMutationHandlers(post.id, true)),

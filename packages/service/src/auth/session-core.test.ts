@@ -188,11 +188,13 @@ const createUserStore = (users: Record<string, number>) => {
   let lookups = 0;
 
   return {
-    findUser: (userId: string) => {
+    findUser: async (userId: string) => {
       lookups += 1;
       const sessionEpoch = users[userId];
 
-      return Promise.resolve(sessionEpoch === undefined ? null : { id: userId, sessionEpoch });
+      return await Promise.resolve(
+        sessionEpoch === undefined ? null : { id: userId, sessionEpoch },
+      );
     },
     get lookups() {
       return lookups;

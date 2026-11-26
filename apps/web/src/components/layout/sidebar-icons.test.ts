@@ -11,7 +11,11 @@ test("sidebar icons carry no expressions, which the light Lottie player silently
   const files = entries.filter((file) => file.endsWith(".json"));
   assert.ok(files.length > 0);
 
-  for (const file of files) {
-    assert.doesNotMatch(await readFile(new URL(file, iconsDir), "utf-8"), expression, file);
+  const icons = await Promise.all(
+    files.map(async (file) => ({ file, source: await readFile(new URL(file, iconsDir), "utf-8") })),
+  );
+
+  for (const { file, source } of icons) {
+    assert.doesNotMatch(source, expression, file);
   }
 });

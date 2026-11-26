@@ -17,12 +17,14 @@ export const SignUpContent = ({ next }: { next: Href }) => (
       <Text
         accessibilityRole="link"
         className="underline"
-        onPress={async () => {
-          try {
-            await Linking.openURL(`${siteConfig.url}/terms`);
-          } catch {
-            toast.error("Could not open Terms of Use. Please try again.");
-          }
+        onPress={() => {
+          void (async () => {
+            try {
+              await Linking.openURL(`${siteConfig.url}/terms`);
+            } catch {
+              toast.error("Could not open Terms of Use. Please try again.");
+            }
+          })();
         }}
       >
         Terms of Use
@@ -31,12 +33,14 @@ export const SignUpContent = ({ next }: { next: Href }) => (
       <Text
         accessibilityRole="link"
         className="underline"
-        onPress={async () => {
-          try {
-            await Linking.openURL(`${siteConfig.url}/privacy`);
-          } catch {
-            toast.error("Could not open Privacy Policy. Please try again.");
-          }
+        onPress={() => {
+          void (async () => {
+            try {
+              await Linking.openURL(`${siteConfig.url}/privacy`);
+            } catch {
+              toast.error("Could not open Privacy Policy. Please try again.");
+            }
+          })();
         }}
       >
         Privacy Policy

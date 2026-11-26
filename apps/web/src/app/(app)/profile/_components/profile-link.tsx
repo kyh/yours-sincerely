@@ -20,7 +20,14 @@ const ProfilePreview = ({ userId, displayName }: Props) => {
 
   return (
     <div className="flex flex-col items-center gap-1 py-1.5 not-italic">
-      <ProfileAvatar className="size-10" src={getAvatarUrl(displayName || userId)} />
+      <ProfileAvatar
+        className="size-10"
+        src={getAvatarUrl(
+          displayName === undefined || displayName === null || displayName === ""
+            ? userId
+            : displayName,
+        )}
+      />
       <h4 className="mb-1 text-center font-bold">{resolveDisplayName(displayName)}</h4>
       {!isLoading && data ? (
         <ActivityStats

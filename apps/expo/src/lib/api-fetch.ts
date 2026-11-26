@@ -1,7 +1,8 @@
 import type { AnyProcedureContract } from "@orpc/contract";
 import type { Contract } from "@repo/contract";
 import { SESSION_COOKIE_NAME as SESSION_COOKIE } from "@repo/contract/auth/auth-schema";
-import { parse, splitCookiesString } from "set-cookie-parser";
+import { parseSetCookie } from "set-cookie-parser";
+import type { Cookie } from "set-cookie-parser";
 
 import {
   ensureLegacySessionMigrated,
@@ -11,10 +12,10 @@ import { ignoreRejection } from "./ignore-rejection.ts";
 import {
   advanceSessionGeneration,
   deleteSessionCookie,
-  getPendingSessionDeletion,
   getSessionCookie,
   getSessionGeneration,
   setSessionCookie,
+  waitForSessionDeletion,
 } from "./session-store.ts";
 
 type ProcedurePath<TRouter> = {
@@ -40,14 +41,48 @@ const identityProcedures = new Set<string>(identityProcedurePaths);
 
 let identityRequests: Promise<void> | null = null;
 
+const waitForIdentityRequests = async () => {
+  const pending = identityRequests;
+
+  if (pending === null) {
+    return;
+  }
+
+  await pending;
+  await waitForIdentityRequests();
+};
+
+const applySessionCookies = async (cookies: Cookie[], generation: number) => {
+  const [cookie, ...rest] = cookies;
+
+  if (cookie === undefined) {
+    return;
+  }
+
+  if (cookie.name === SESSION_COOKIE) {
+    const expired =
+      cookie.maxAge === 0 ||
+      (cookie.expires !== undefined && cookie.expires.getTime() <= Date.now());
+
+    if (expired || cookie.value === "") {
+      await retireLegacySessionMigration();
+
+      if (generation !== getSessionGeneration()) {
+        return;
+      }
+
+      await deleteSessionCookie();
+    } else {
+      setSessionCookie(cookie.value);
+    }
+  }
+
+  await applySessionCookies(rest, generation);
+};
+
 // WARNING: keep credentials "omit" and decodeValues false: native cookie jars would shadow SecureStore, and the signed value must round-trip byte-for-byte.
 const sendRequest: typeof fetch = async (input, init) => {
-  let pendingDeletion = getPendingSessionDeletion();
-
-  while (pendingDeletion !== null) {
-    await pendingDeletion;
-    pendingDeletion = getPendingSessionDeletion();
-  }
+  await waitForSessionDeletion();
 
   const headers = new Headers(
     init?.headers ?? (input instanceof Request ? input.headers : undefined),
@@ -66,29 +101,10 @@ const sendRequest: typeof fetch = async (input, init) => {
   const rawSetCookie = response.headers.get("set-cookie");
 
   if (rawSetCookie !== null && generation === getSessionGeneration()) {
-    const cookies = parse(splitCookiesString(rawSetCookie), { decodeValues: false });
-
-    for (const cookie of cookies) {
-      if (cookie.name !== SESSION_COOKIE) {
-        continue;
-      }
-
-      const expired =
-        cookie.maxAge === 0 ||
-        (cookie.expires !== undefined && cookie.expires.getTime() <= Date.now());
-
-      if (expired || cookie.value === "") {
-        await retireLegacySessionMigration();
-
-        if (generation !== getSessionGeneration()) {
-          return response;
-        }
-
-        await deleteSessionCookie();
-      } else {
-        setSessionCookie(cookie.value);
-      }
-    }
+    await applySessionCookies(
+      parseSetCookie(rawSetCookie, { decodeValues: false, split: true }),
+      generation,
+    );
   }
 
   return response;
@@ -130,12 +146,7 @@ export const fetchWithSession: typeof fetch = async (input, init) => {
     return await sendIdentityRequest(input, init);
   }
 
-  let pendingIdentity = identityRequests;
-
-  while (pendingIdentity !== null) {
-    await pendingIdentity;
-    pendingIdentity = identityRequests;
-  }
+  await waitForIdentityRequests();
 
   return await sendRequest(input, init);
 };

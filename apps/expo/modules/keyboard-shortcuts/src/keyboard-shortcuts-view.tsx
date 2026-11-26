@@ -23,7 +23,9 @@ export const KeyboardShortcutsView = (props: Props) => {
     useCallback(() => {
       setFocused(true);
 
-      return () => setFocused(false);
+      return () => {
+        setFocused(false);
+      };
     }, []),
   );
 

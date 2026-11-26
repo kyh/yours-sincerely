@@ -9,7 +9,7 @@ const countAttempts = async (error: Error) => {
   const queryClient = new QueryClient();
   let attempts = 0;
   await assert.rejects(
-    queryClient.fetchQuery({
+    queryClient.query({
       queryFn: () => {
         attempts += 1;
         throw error;
@@ -27,9 +27,13 @@ const countAttempts = async (error: Error) => {
 
 describe("shouldRetryQuery", () => {
   it("fails a request the server rejected for good on the first answer", async () => {
-    for (const code of ["BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "CONFLICT"]) {
-      assert.equal(await countAttempts(new ORPCError(code)), 1, code);
-    }
+    const codes = ["BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "CONFLICT"];
+
+    const attempts = await Promise.all(
+      codes.map(async (code) => await countAttempts(new ORPCError(code))),
+    );
+
+    assert.deepEqual(attempts, [1, 1, 1, 1, 1]);
   });
 
   it("retries network and server failures three times", async () => {

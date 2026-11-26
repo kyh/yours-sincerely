@@ -494,11 +494,14 @@ const createBalloonAnimation = ({
   return { balloon, getAnimation };
 };
 
-const nextFrame = () =>
+const nextFrame = async () => {
   // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame is callback-only
-  new Promise<void>((resolve) => {
-    requestAnimationFrame(() => resolve());
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
   });
+};
 
 export const balloons = async () => {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {

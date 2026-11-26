@@ -61,7 +61,7 @@ export const ActivityCalendar = ({ heatmap: { monthLabels, weeks }, theme }: Pro
           {weeks.map((week, weekIndex) => (
             <G
               key={week.map((day) => day?.date ?? "empty").join("|")}
-              x={(BLOCK_SIZE + BLOCK_MARGIN) * weekIndex}
+              transform={[{ translateX: (BLOCK_SIZE + BLOCK_MARGIN) * weekIndex }]}
             >
               {week.map((day, dayIndex) =>
                 day === undefined ? null : (
@@ -76,7 +76,9 @@ export const ActivityCalendar = ({ heatmap: { monthLabels, weeks }, theme }: Pro
                     stroke={theme.stroke}
                     accessible
                     accessibilityLabel={getTooltipMessage(day)}
-                    onPress={() => toast(getTooltipMessage(day))}
+                    onPress={() => {
+                      toast(getTooltipMessage(day));
+                    }}
                   />
                 ),
               )}

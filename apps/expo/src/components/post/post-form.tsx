@@ -135,7 +135,9 @@ export const PostForm = ({
           scrollEnabled={presentation !== "dialog"}
           onContentSizeChange={
             presentation === "dialog"
-              ? (event) => setDialogContentHeight(event.nativeEvent.contentSize.height)
+              ? (event) => {
+                  setDialogContentHeight(event.nativeEvent.contentSize.height);
+                }
               : undefined
           }
           onChangeText={(value) => {

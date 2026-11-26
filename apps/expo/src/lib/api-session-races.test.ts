@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 import { it } from "node:test";
+import { inSequence } from "@repo/contract/in-sequence";
 
 interface PendingRequest {
   cookie: string | null;
@@ -44,7 +45,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
   });
   context.mock.module("./legacy-session-migration.ts", {
     exports: {
-      ensureLegacySessionMigrated: () => Promise.resolve("complete"),
+      ensureLegacySessionMigrated: async () => await Promise.resolve("complete"),
       retireLegacySessionMigration: async () => {
         if (retirementError !== null) {
           throw retirementError;
@@ -63,9 +64,9 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
   context.mock.method(
     globalThis,
     "fetch",
-    (input: Parameters<typeof fetch>[0], init?: RequestInit) =>
+    async (input: Parameters<typeof fetch>[0], init?: RequestInit) =>
       // oxlint-disable-next-line promise/avoid-new -- Deferred responses exercise out-of-order network delivery.
-      new Promise<Response>((resolve, reject) => {
+      await new Promise<Response>((resolve, reject) => {
         pending.push({
           cookie: new Headers(init?.headers).get("cookie"),
           pathname: new URL(input instanceof Request ? input.url : input).pathname,
@@ -83,8 +84,8 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
   const { deleteSessionCookie, getSessionCookie, setSessionCookie } =
     await import("./session-store.ts");
 
-  const request = (procedure: string) =>
-    fetchWithSession(`https://yourssincerely.org/api/orpc/${procedure}`, { method: "POST" });
+  const request = async (procedure: string) =>
+    await fetchWithSession(`https://yourssincerely.org/api/orpc/${procedure}`, { method: "POST" });
 
   const requestAt = (index: number) => {
     const value = pending[index];
@@ -118,7 +119,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
     pending.length = 0;
   });
 
-  for (const initial of [null, "revoked-session"]) {
+  await inSequence([null, "revoked-session"], async (initial) => {
     await context.test(`first writes share identity with initial cookie ${initial}`, async () => {
       if (initial === null) {
         await deleteSessionCookie();
@@ -156,9 +157,9 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       assert.equal(getSessionCookie(), "registered%2Eauthor%3D");
       pending.length = 0;
     });
-  }
+  });
 
-  for (const renewalFirst of [false, true]) {
+  await inSequence([false, true], async (renewalFirst) => {
     await context.test(`sign-in wins over old renewal, renewal first ${renewalFirst}`, async () => {
       setSessionCookie("old-account");
       const feed = request("post/getFeed");
@@ -183,9 +184,9 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       assert.equal(getSessionCookie(), "new-account");
       pending.length = 0;
     });
-  }
+  });
 
-  for (const procedure of ["auth/signOut", "auth/signOutEverywhere"]) {
+  await inSequence(["auth/signOut", "auth/signOutEverywhere"], async (procedure) => {
     await context.test(`${procedure} cannot be undone by an older response`, async () => {
       setSessionCookie("old-account");
       const feed = request("post/getFeed");
@@ -199,7 +200,7 @@ it("keeps identity changes ordered without serializing ordinary reads", async (c
       assert.equal(getSessionCookie(), null);
       pending.length = 0;
     });
-  }
+  });
 
   await context.test("local signout also invalidates outstanding response cookies", async () => {
     setSessionCookie("old-account");

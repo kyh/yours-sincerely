@@ -125,7 +125,11 @@ const SidebarFooter = () => {
           accessibilityLabel="View source on GitHub"
           accessibilityRole="link"
           className="text-xs"
-          onPress={() => openLink("https://github.com/kyh/yours-sincerely")}
+          onPress={() => {
+            void (async () => {
+              await openLink("https://github.com/kyh/yours-sincerely");
+            })();
+          }}
         >
           💻
         </Text>
@@ -136,7 +140,11 @@ const SidebarFooter = () => {
             key={label}
             accessibilityRole="link"
             className="min-h-11 justify-center"
-            onPress={() => openLink(`${siteConfig.url}/${label.toLowerCase()}`)}
+            onPress={() => {
+              void (async () => {
+                await openLink(`${siteConfig.url}/${label.toLowerCase()}`);
+              })();
+            }}
           >
             <Text className="text-xs">{label}</Text>
           </Pressable>
@@ -177,7 +185,9 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
               accessibilityRole="link"
               accessibilityLabel="Yours Sincerely, home"
               style={{ height: headerHeight, justifyContent: "center" }}
-              onPress={() => navigateToTab("/")}
+              onPress={() => {
+                navigateToTab("/");
+              }}
             >
               <Logo />
             </Pressable>

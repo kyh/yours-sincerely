@@ -47,7 +47,9 @@ export const ProfileAvatar = ({ name, src, size = 80 }: Props) => {
         contentFit="cover"
         tintColor={src === undefined && isDarkTheme(resolvedTheme) ? "#fff" : undefined}
         transition={reduceMotionEnabled ? 0 : 200}
-        onLoad={() => setLoadedSource(source)}
+        onLoad={() => {
+          setLoadedSource(source);
+        }}
         accessibilityLabel={`${label}'s avatar`}
       />
     </View>

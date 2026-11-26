@@ -10,7 +10,7 @@ import { ORPCError } from "@orpc/server";
 import { callerFor, createCaller } from "../test-utils";
 import { FLAG_HIDE_THRESHOLD } from "./post-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -67,12 +67,12 @@ const createFixture = async () => {
   };
 };
 
-integrationTest("comments are served oldest first, and a like does not reorder them", async () => {
+test("comments are served oldest first, and a like does not reorder them", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const [firstReplyId] = fixture.replyIds;
-    assert.ok(firstReplyId);
+    assert.ok(firstReplyId !== undefined);
     await fixture.reader.like.createLike({ postId: firstReplyId });
 
     const { post: served } = await fixture.reader.post.getPost({ postId: fixture.letterId });
@@ -88,12 +88,12 @@ integrationTest("comments are served oldest first, and a like does not reorder t
   }
 });
 
-integrationTest("a blocked commenter's reply is neither served nor counted", async () => {
+test("a blocked commenter's reply is neither served nor counted", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const [, blockedId] = fixture.commenterIds;
-    assert.ok(blockedId);
+    assert.ok(blockedId !== undefined);
     await fixture.reader.block.createBlock({ blockingId: blockedId });
 
     const { post: forReader } = await fixture.reader.post.getPost({ postId: fixture.letterId });
@@ -113,7 +113,7 @@ integrationTest("a blocked commenter's reply is neither served nor counted", asy
   }
 });
 
-integrationTest("a letter by an author the viewer blocked is NOT_FOUND to them alone", async () => {
+test("a letter by an author the viewer blocked is NOT_FOUND to them alone", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -134,12 +134,12 @@ integrationTest("a letter by an author the viewer blocked is NOT_FOUND to them a
   }
 });
 
-integrationTest("a reply flagged into hiding leaves the permalink", async () => {
+test("a reply flagged into hiding leaves the permalink", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const hiddenId = fixture.replyIds.at(-1);
-    assert.ok(hiddenId);
+    assert.ok(hiddenId !== undefined);
     await db
       .update(post)
       .set({ flagCount: FLAG_HIDE_THRESHOLD + 1 })

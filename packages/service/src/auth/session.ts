@@ -54,10 +54,10 @@ export const verifyPushCleanupCapability = (capability: string) =>
  * for each request; `session-revocation.integration.ts` calls it with the real
  * database, so the tested path and the shipped path cannot diverge.
  */
-export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>(
+export const authenticateSessionValue = async <TUser extends { sessionEpoch: number }>(
   sessionValue: string | null | undefined,
   findUser: (userId: string) => Promise<TUser | null>,
-) => resolveSessionUser({ findUser, sessionValue, verifySecrets: SESSION_VERIFY_SECRETS });
+) => await resolveSessionUser({ findUser, sessionValue, verifySecrets: SESSION_VERIFY_SECRETS });
 
 /**
  * Issue a session cookie for `userId` at the user's CURRENT `sessionEpoch`.
@@ -67,7 +67,7 @@ export const authenticateSessionValue = <TUser extends { sessionEpoch: number }>
  */
 export const setSession = async (userId: string, sessionEpoch: number) => {
   if (!userId) {
-    return null;
+    return;
   }
 
   const cookieStore = await cookies();

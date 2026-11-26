@@ -8,7 +8,7 @@ import { setSession } from "./session";
 export const createUserIfNotExists = async (context: ORPCContext, displayName?: string) => {
   let userId = context.user?.id;
 
-  if (!userId) {
+  if (userId === undefined || userId === "") {
     const [userData] = await context.db
       .insert(user)
       .values({

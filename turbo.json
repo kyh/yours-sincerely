@@ -33,6 +33,9 @@
     "clean": {
       "cache": false
     },
+    "//#typecheck:scripts": {
+      "outputs": [".cache/tsbuildinfo.json"]
+    },
     "//#clean": {
       "cache": false
     }

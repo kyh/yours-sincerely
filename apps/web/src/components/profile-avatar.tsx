@@ -9,7 +9,10 @@ interface ProfileAvatarProps {
 }
 
 export const ProfileAvatar = ({ className, displayName, src, alt = "" }: ProfileAvatarProps) => {
-  const initials = displayName?.slice(0, 1) || "?";
+  const initials =
+    displayName === undefined || displayName === null || displayName === ""
+      ? "?"
+      : displayName.slice(0, 1);
 
   return (
     <Avatar className={cn("size-9", className)}>

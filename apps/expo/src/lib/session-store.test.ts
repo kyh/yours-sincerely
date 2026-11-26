@@ -7,12 +7,12 @@ it("verifies native session writes and removals before reporting success", async
   let deleteSucceeds = true;
   context.mock.module("expo-secure-store", {
     exports: {
-      deleteItemAsync: (key: string) => {
+      deleteItemAsync: async (key: string) => {
         if (deleteSucceeds) {
           persisted.delete(key);
         }
 
-        return Promise.resolve();
+        await Promise.resolve();
       },
       getItem: (key: string) => persisted.get(key) ?? null,
       setItem: (key: string, value: string) => {
@@ -31,7 +31,9 @@ it("verifies native session writes and removals before reporting success", async
   assert.equal(getSessionCookie(), session);
 
   writeSucceeds = false;
-  assert.throws(() => setSessionCookie("replacement"), /could not be verified/u);
+  assert.throws(() => {
+    setSessionCookie("replacement");
+  }, /could not be verified/u);
   assert.throws(() => getSessionCookie(), /could not be verified/u);
   assert.equal(persisted.get("session-cookie"), session);
 

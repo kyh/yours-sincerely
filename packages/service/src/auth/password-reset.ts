@@ -84,7 +84,12 @@ export const sendPasswordReset = async (
 ) => {
   const account = await findUserByEmail(db, address);
 
-  if (!account?.email) {
+  if (
+    account === undefined ||
+    account.email === undefined ||
+    account.email === null ||
+    account.email === ""
+  ) {
     return;
   }
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@repo/ui/components/button";
-import { useQuery } from "@tanstack/react-query";
+import { noop, useQuery } from "@tanstack/react-query";
 import type { AnimationItem } from "lottie-web/build/player/lottie_light";
 
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
@@ -23,7 +23,7 @@ const useLottieIcon = (path: string) => {
     const container = containerRef.current;
 
     if (!container) {
-      return;
+      return noop;
     }
 
     let animation: AnimationItem | undefined;

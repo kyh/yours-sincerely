@@ -20,7 +20,10 @@ export const withLockTimeout = (connectionUrl: string, timeout: string) => {
   const params = new URLSearchParams(queryStart === -1 ? "" : connectionUrl.slice(queryStart + 1));
   const lockTimeout = `-c lock_timeout=${timeout}`;
   const existing = params.get("options");
-  params.set("options", existing ? `${existing} ${lockTimeout}` : lockTimeout);
+  params.set(
+    "options",
+    existing !== null && existing !== "" ? `${existing} ${lockTimeout}` : lockTimeout,
+  );
 
   return `${base}?${params.toString()}`;
 };
@@ -35,7 +38,7 @@ export const resolveRuntimeConnectionUrl = (env: {
   NODE_ENV?: string | undefined;
   POSTGRES_URL?: string | undefined;
 }) => {
-  if (env.POSTGRES_URL) {
+  if (env.POSTGRES_URL !== undefined && env.POSTGRES_URL !== "") {
     return env.POSTGRES_URL;
   }
 

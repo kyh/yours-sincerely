@@ -6,6 +6,9 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
+const isORPCError = (error: Error): error is ORPCError<string, unknown> =>
+  error instanceof ORPCError;
+
 const serializer = new RPCSerializer();
 
 export const createQueryClient = () => {
@@ -24,7 +27,7 @@ export const createQueryClient = () => {
         retry: (failureCount, error) =>
           !environmentManager.isServer() &&
           failureCount < MAX_QUERY_RETRIES &&
-          !(error instanceof ORPCError && isPermanentErrorCode(error.code)),
+          !(isORPCError(error) && isPermanentErrorCode(error.code)),
         staleTime: 30 * 1000,
       },
     },

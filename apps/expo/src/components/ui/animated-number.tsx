@@ -144,7 +144,9 @@ export const AnimatedNumber = ({ value, className }: { value: number; className?
   return (
     <View accessible accessibilityLabel={text} style={{ flexDirection: "row" }}>
       <Text
-        onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
+        onLayout={(e) => {
+          setHeight(e.nativeEvent.layout.height);
+        }}
         style={[TABULAR, { opacity: 0, position: "absolute" }]}
         className={cn("text-muted-foreground text-sm", className)}
       >

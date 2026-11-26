@@ -98,7 +98,7 @@ const Card = ({
 
 interface Props<T> {
   data: T[];
-  render: (d: T) => React.ReactNode;
+  render: (d: T) => React.ReactElement;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
 }
@@ -135,7 +135,7 @@ export const CardStack = <T extends { id: string }>({
 
     const postsLeft = total - safeIndex - 1;
 
-    if (postsLeft <= 1 && hasNextPage && onLoadMore) {
+    if (postsLeft <= 1 && hasNextPage === true && onLoadMore) {
       onLoadMore();
     }
 

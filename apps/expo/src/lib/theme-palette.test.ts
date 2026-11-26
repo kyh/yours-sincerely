@@ -38,7 +38,10 @@ const CSS_VARIABLES = [
 const readBlock = (selector: string, source = css) => {
   const blocks = [
     ...source.matchAll(/^(?<selectors>[.:][\w-]+(?:\s*,\s*[.:][\w-]+)*)\s*\{(?<body>[^{}]*)\}/gmu),
-  ].filter((match) => match.groups?.selectors?.split(",").some((item) => item.trim() === selector));
+  ].filter(
+    (match) =>
+      match.groups?.selectors?.split(",").some((item) => item.trim() === selector) === true,
+  );
 
   assert.ok(blocks.length > 0, `styles.css has no ${selector} block`);
   const variables = new Map<string, string>();

@@ -14,7 +14,9 @@ test("a session change drops the old identity's cache without blanking mounted q
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
 
-  t.after(() => queryClient.clear());
+  t.after(() => {
+    queryClient.clear();
+  });
 
   const blocksKey = orpc.block.listBlocks.queryKey();
   queryClient.setQueryData(blocksKey, { blocks: [] });
@@ -25,9 +27,9 @@ test("a session change drops the old identity's cache without blanking mounted q
   const viewerRequests: ((value: Viewer) => void)[] = [];
 
   const viewer = new QueryObserver(queryClient, {
-    queryFn: () =>
+    queryFn: async () =>
       // oxlint-disable-next-line promise/avoid-new -- Hold the new session's answer while checking what the page shows meanwhile.
-      new Promise<Viewer>((resolve) => {
+      await new Promise<Viewer>((resolve) => {
         viewerRequests.push(resolve);
       }),
     queryKey: viewerKey,
@@ -75,7 +77,9 @@ test("deleting a post refetches every mounted post but the deleted one", async (
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
 
-  t.after(() => queryClient.clear());
+  t.after(() => {
+    queryClient.clear();
+  });
 
   const requests: string[] = [];
 

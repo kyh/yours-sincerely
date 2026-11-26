@@ -55,10 +55,12 @@ export const ConnectivityBanner = () => {
           "h-11 w-11 items-center justify-center rounded-full",
           dark ? "bg-black/10 active:bg-black/20" : "bg-white/10 active:bg-white/20",
         )}
-        onPress={async () => {
-          setChecking(true);
-          await ignoreRejection(refreshConnectivity());
-          setChecking(false);
+        onPress={() => {
+          void (async () => {
+            setChecking(true);
+            await ignoreRejection(refreshConnectivity());
+            setChecking(false);
+          })();
         }}
       >
         <RefreshCw size={18} color={dark ? "#171717" : "#fff"} />

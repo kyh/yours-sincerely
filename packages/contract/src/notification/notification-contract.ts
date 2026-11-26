@@ -11,7 +11,7 @@ export interface NotificationItem {
   id: string;
   kind: NotificationKind;
   postId: string;
-  /** The comment, cut to `NOTIFICATION_PREVIEW_MAX_CHARS` code points. */
+  /** The comment, cut to `NOTIFICATION_PREVIEW_MAX_CHARS` graphemes, so no emoji is split. */
   preview: string;
   readAt: string | null;
 }

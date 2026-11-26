@@ -169,8 +169,12 @@ const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: b
         void markPostContentStale(queryClient);
         void refreshWorkspaceIdentityIfAnonymous(queryClient);
       },
-      writeFeed: (queryKey, data) => queryClient.setQueryData(queryKey, data),
-      writePost: (queryKey, data) => queryClient.setQueryData(queryKey, data),
+      writeFeed: (queryKey, data) => {
+        queryClient.setQueryData(queryKey, data);
+      },
+      writePost: (queryKey, data) => {
+        queryClient.setQueryData(queryKey, data);
+      },
     },
     postId,
     liked,
@@ -248,7 +252,9 @@ export const LikeButton = ({ post }: Props) => {
               stiffness: 300,
               type: "spring",
             }}
-            onAnimationComplete={() => setIsAnimating(false)}
+            onAnimationComplete={() => {
+              setIsAnimating(false);
+            }}
             className="text-red-500"
             width="16"
             height="16"
@@ -260,7 +266,7 @@ export const LikeButton = ({ post }: Props) => {
           </m.svg>
         ) : (
           <svg
-            className={`${isLiked ? "text-red-500" : "text-inherit"}`}
+            className={isLiked ? "text-red-500" : "text-inherit"}
             width="16"
             height="16"
             viewBox="0 0 24 24"
