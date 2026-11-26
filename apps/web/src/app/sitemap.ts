@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { parseServerDate } from "@repo/contract/content";
+import { parseServerDate } from "@repo/contract/server-date";
 
 import type { FeedPost, RouterOutputs } from "@repo/contract";
 import { letterPath } from "@/lib/seo";

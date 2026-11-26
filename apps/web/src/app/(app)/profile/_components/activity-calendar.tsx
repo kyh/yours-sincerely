@@ -4,8 +4,8 @@ import type {
   CalendarLevel as Level,
   CalendarTheme as Theme,
   PostsHeatmap,
-} from "@repo/contract/calendar";
-import { calendarLevelColor } from "@repo/contract/calendar";
+} from "@repo/contract/user/user-calendar";
+import { calendarLevelColor } from "@repo/contract/user/user-calendar";
 import { format, parseISO } from "date-fns";
 
 const BLOCK_SIZE = 12;

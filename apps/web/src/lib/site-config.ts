@@ -1,5 +1,5 @@
-import { MOBILE_ANDROID_PACKAGE } from "@repo/contract/mobile-identity";
-import { SITE, WEB_ORIGIN } from "@repo/contract/site";
+import { MOBILE_ANDROID_PACKAGE } from "@repo/contract/site/mobile-identity";
+import { SITE, WEB_ORIGIN } from "@repo/contract/site/site";
 
 const repository = "https://github.com/kyh/yours-sincerely";
 

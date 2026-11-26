@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { resolveDisplayName } from "@repo/contract/content";
+import { resolveDisplayName } from "@repo/contract/user/user-display";
 import { updateUserInput } from "@repo/contract/user/user-schema";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/form";

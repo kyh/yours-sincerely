@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { resolveDisplayName } from "@repo/contract/content";
+import { resolveDisplayName } from "@repo/contract/user/user-display";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";

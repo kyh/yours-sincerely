@@ -1,4 +1,4 @@
-import { SITE, WEB_ORIGIN } from "@repo/contract/site";
+import { SITE, WEB_ORIGIN } from "@repo/contract/site/site";
 
 export const siteConfig = {
   ...SITE,

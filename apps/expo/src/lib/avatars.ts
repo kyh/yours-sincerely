@@ -1,5 +1,5 @@
 import type { ImageSourcePropType } from "react-native";
-import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex } from "@repo/contract/content";
+import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex } from "@repo/contract/user/user-display";
 
 import avatar0 from "../../assets/avatars/0.svg";
 import avatar1 from "../../assets/avatars/1.svg";

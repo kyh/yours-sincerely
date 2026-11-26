@@ -1,4 +1,4 @@
-import { WEB_ORIGIN } from "@repo/contract/site";
+import { WEB_ORIGIN } from "@repo/contract/site/site";
 import { z } from "zod";
 
 import { resetEmailModeOf, resetEmailWarningOf } from "./auth/password-reset-core";

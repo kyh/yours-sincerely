@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { serverTimestamp } from "../content.ts";
+import { serverTimestamp } from "../server-date.ts";
 
 /** Push payload. The API sends it and every client routes a tapped
     notification by it, so a renamed key here silently breaks deep-opening

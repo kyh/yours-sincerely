@@ -1,11 +1,11 @@
 import { Pressable, View } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
-import { safeNextPath } from "@repo/contract/navigation";
+import { safeNextPath } from "@repo/contract/auth/auth-navigation";
 
 import { AuthForm } from "@/components/auth/auth-form";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { Text } from "@/components/ui/text";
-import { resolveNextRoute } from "@/lib/next-route";
+import { resolveNextRoute } from "@/components/auth/next-route";
 
 const SignInScreen = () => {
   const { next } = useLocalSearchParams<{ next?: string | string[] }>();

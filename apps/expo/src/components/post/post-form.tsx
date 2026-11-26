@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TextInput, useWindowDimensions, View } from "react-native";
-import {
-  ANONYMOUS_DISPLAY_NAME,
-  POST_EXPIRY_DAYS,
-  resolveDisplayName,
-} from "@repo/contract/content";
+import { POST_EXPIRY_DAYS } from "@repo/contract/post/post-content";
+import { ANONYMOUS_DISPLAY_NAME, resolveDisplayName } from "@repo/contract/user/user-display";
 import { createPostInput } from "@repo/contract/post/post-schema";
 import type { CreatePostInput } from "@repo/contract/post/post-schema";
 import { useMutation } from "@tanstack/react-query";
@@ -18,7 +15,7 @@ import { useThemeColors } from "@/components/theme-colors";
 import { useBalloons } from "@/components/animations/balloons";
 import { orpc } from "@/lib/api";
 import { ignoreRejection } from "@/lib/ignore-rejection";
-import { clearPostDraft, getPostDraft, setPostDraft } from "@/lib/post-draft";
+import { clearPostDraft, getPostDraft, setPostDraft } from "./post-draft";
 import { refreshAfterPostCreated } from "@/lib/query-policies";
 import { useSeededState } from "@/lib/use-seeded-state";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";

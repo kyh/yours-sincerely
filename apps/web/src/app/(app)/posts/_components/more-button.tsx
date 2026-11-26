@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
-import { reportPostMailto } from "@repo/contract/site";
+import { reportPostMailto } from "@repo/contract/site/site";
 import {
   ResponsiveMenu,
   ResponsiveMenuContent,
@@ -25,7 +25,7 @@ import { BanIcon, FlagIcon, MoreVerticalIcon, Trash2Icon, TriangleAlertIcon } fr
 
 import type { FeedPost } from "@repo/contract";
 import { refreshAfterPostDeleted, refreshBlocks, refreshPostContent } from "@/lib/query-policies";
-import { useIdentityScope } from "@/lib/use-identity-scope";
+import { useIdentityScope } from "./use-identity-scope";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 

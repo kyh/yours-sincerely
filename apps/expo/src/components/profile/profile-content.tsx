@@ -13,7 +13,7 @@ import {
   HEATMAP_DAYS,
   HEATMAP_WIDE_MIN_WIDTH,
   PROFILE_CALENDAR_THEMES,
-} from "@repo/contract/calendar";
+} from "@repo/contract/user/user-calendar";
 import type { RouterOutputs } from "@/lib/api";
 import { orpc } from "@/lib/api";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";

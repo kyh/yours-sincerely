@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getExpiryProgress } from "@repo/contract/content";
+import { getExpiryProgress } from "@repo/contract/post/post-content";
 import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/components/popover";
 import { formatDistance } from "date-fns";
 

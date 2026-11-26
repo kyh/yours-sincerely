@@ -67,7 +67,7 @@ const readLogoIcon = async () => {
 
 const readBurstColors = async () => {
   const source = await readFile(
-    path.join(webRoot, "../../packages/contract/src/content.ts"),
+    path.join(webRoot, "../../packages/contract/src/like/like-burst.ts"),
     "utf-8",
   );
 
@@ -80,7 +80,7 @@ const readBurstColors = async () => {
   ].map(({ groups }) => [groups?.from, groups?.to]);
 
   if (pairs.length === 0) {
-    throw new Error("packages/contract/src/content.ts has no LIKE_BURST_COLOR_PAIRS");
+    throw new Error("packages/contract/src/like/like-burst.ts has no LIKE_BURST_COLOR_PAIRS");
   }
 
   return pairs;

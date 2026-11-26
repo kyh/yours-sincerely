@@ -1,11 +1,11 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/tooltip";
 
-import type { CalendarTheme, WeekdayActivity } from "@repo/contract/calendar";
+import type { CalendarTheme, WeekdayActivity } from "@repo/contract/user/user-calendar";
 import {
   calendarLevelColor,
   DEFAULT_WEEKDAY_LABELS,
   FULL_DAY_LABELS,
-} from "@repo/contract/calendar";
+} from "@repo/contract/user/user-calendar";
 
 interface Props {
   data: WeekdayActivity;

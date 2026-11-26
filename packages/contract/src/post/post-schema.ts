@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { serverTimestamp } from "../content.ts";
+import { serverTimestamp } from "../server-date.ts";
 
 /** A letter, not an essay. There is no cap in the compose UI and none in the
     database, so this is the only bound on a public, unauthenticated endpoint.

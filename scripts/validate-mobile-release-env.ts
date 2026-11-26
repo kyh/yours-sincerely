@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { z } from "zod";
 
-import { MOBILE_ANDROID_PACKAGE } from "../packages/contract/src/mobile-identity.ts";
+import { MOBILE_ANDROID_PACKAGE } from "../packages/contract/src/site/mobile-identity.ts";
 
 const webRequired = ["COOKIE_SECRET", "RESEND_API_KEY"];
 

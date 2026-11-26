@@ -14,12 +14,12 @@ import { Text } from "@/components/ui/text";
 import { orpc } from "@/lib/api";
 import { appConfig } from "@/lib/app-config";
 import { ignoreRejection } from "@/lib/ignore-rejection";
-import { resolveNotificationTarget } from "@/lib/notification-target";
+import { resolveNotificationTarget } from "./notification-target";
 import {
   deleteRegisteredPushDevice,
   getRegisteredPushDevice,
   setRegisteredPushDevice,
-} from "@/lib/push-token-store";
+} from "./push-token-store";
 import { refreshNotifications } from "@/lib/query-policies";
 import { createPushSession, patchPushSession } from "./push-session";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";

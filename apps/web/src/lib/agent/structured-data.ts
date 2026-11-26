@@ -1,6 +1,7 @@
 import { siteConfig } from "@/lib/site-config";
 
-import { getExpiryProgress, parseServerDate } from "@repo/contract/content";
+import { getExpiryProgress } from "@repo/contract/post/post-content";
+import { parseServerDate } from "@repo/contract/server-date";
 
 import { OG_VIDEO, letterExcerpt, letterPath } from "@/lib/seo";
 import type { SeoLetter } from "@/lib/seo";

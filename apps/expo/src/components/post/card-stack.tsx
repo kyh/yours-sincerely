@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { PAPER_SHADOW } from "@/components/ui/card";
 import { AnimatedView } from "@/lib/css-interop";
 import { nativeGesture, panGesture } from "@/lib/gesture";
-import { clamp01, easeIn, mix, progress, wrap } from "@/lib/motion";
+import { clamp01, easeIn, mix, progress, wrap } from "./motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { KeyboardShortcutsView } from "../../../modules/keyboard-shortcuts/src/keyboard-shortcuts-view";
 

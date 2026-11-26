@@ -14,7 +14,7 @@ import {
 } from "motion/react";
 
 import { useCardStackStrict } from "@/components/providers/card-stack-provider";
-import { useHotkeys } from "@/lib/use-hotkey";
+import { useHotkeys } from "./use-hotkey";
 
 interface CardProps {
   index: number;

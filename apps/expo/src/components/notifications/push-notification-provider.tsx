@@ -5,7 +5,7 @@ import { AppState } from "react-native";
 import { noop, onlineManager } from "@tanstack/react-query";
 
 import { ignoreRejection } from "@/lib/ignore-rejection";
-import { getRegisteredPushDevice } from "@/lib/push-token-store";
+import { getRegisteredPushDevice } from "./push-token-store";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { PushNotificationCoordinator } from "./push-notification-registration";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";

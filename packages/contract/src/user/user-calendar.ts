@@ -11,7 +11,7 @@ import {
   subWeeks,
 } from "date-fns";
 
-import { parseServerDate } from "./content.ts";
+import { parseServerDate } from "../server-date.ts";
 
 export type CalendarLevel = 0 | 1 | 2 | 3 | 4;
 

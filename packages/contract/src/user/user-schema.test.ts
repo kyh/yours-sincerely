@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { ANONYMOUS_DISPLAY_NAME, getLegacyAvatarIndex, resolveDisplayName } from "../content.ts";
+import {
+  ANONYMOUS_DISPLAY_NAME,
+  getLegacyAvatarIndex,
+  resolveDisplayName,
+} from "./user-display.ts";
 import { MAX_DISPLAY_NAME_LENGTH } from "../post/post-schema.ts";
 import { updateUserInput } from "./user-schema.ts";
 

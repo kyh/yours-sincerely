@@ -7,7 +7,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { ContractClient } from "@repo/contract";
-import { persistLegacySession } from "@/lib/persist-legacy-session";
+import { persistLegacySession } from "./persist-legacy-session";
 import { createQueryClient } from "./query-client";
 
 let clientQueryClientSingleton: QueryClient | undefined;

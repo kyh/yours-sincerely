@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { parseFeedLayout } from "@repo/contract/preferences";
+import { parseFeedLayout } from "@repo/contract/client/preferences";
 
 export const FEED_LAYOUT_COOKIE = "postView";
 
