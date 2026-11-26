@@ -28,6 +28,10 @@
           {
             "type": "command",
             "command": "[ \"$(id -u)\" = 0 ] && [ -n \"$CLAUDE_ENV_FILE\" ] && { id -u supabase-postgres >/dev/null 2>&1 || useradd --system --user-group supabase-postgres; } && echo 'export SUPABASE_NATIVE_POSTGRES_USER=supabase-postgres' >> \"$CLAUDE_ENV_FILE\" || true"
+          },
+          {
+            "type": "command",
+            "command": "sid=$(sed -n 's/.*\"session_id\" *: *\"\\([^\"]*\\)\".*/\\1/p' | cut -c1-8); [ -z \"$CLAUDE_ENV_FILE\" ] || echo \"export AGENT_BROWSER_SESSION=${sid:-$$}\" >> \"$CLAUDE_ENV_FILE\""
           }
         ]
       }
