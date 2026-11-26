@@ -91,8 +91,10 @@ export const resetEmailWarningOf = (mode: ResetEmailMode) =>
     : null;
 
 /** The log half of the reset email: the link, written where the dev server shows it. */
-export const createResetLogSender: (write: (line: string) => void) => SendResetEmail =
+export const createResetLogSender: (
+  write: (line: string) => void | Promise<void>,
+) => SendResetEmail =
   (write) =>
   async ({ resetUrl, to }) => {
-    write(`[reset-email] not sent (no RESEND_API_KEY), logged here: to ${to}: ${resetUrl}`);
+    await write(`[reset-email] not sent (no RESEND_API_KEY), logged here: to ${to}: ${resetUrl}`);
   };
