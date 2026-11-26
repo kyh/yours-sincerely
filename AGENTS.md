@@ -9,19 +9,20 @@ architecture decisions you must not reverse; this one holds the workflow.
 ## Quickstart (headless)
 
 ```sh
-pnpm install
-# .env with a generated COOKIE_SECRET: `pnpm verify` and `pnpm build` need one (see below)
-{ grep -v '^COOKIE_SECRET=' .env.example; printf 'COOKIE_SECRET="%s"\n' "$(openssl rand -base64 32)"; } > .env
-pnpm db:start          # local Supabase; writes POSTGRES_URL into .env.local
-pnpm db:push           # REQUIRED: a new local database is EMPTY
+pnpm install && pnpm bootstrap --yes
 pnpm dev:web           # → http://localhost:3000
 ```
 
-There is no bootstrap script; the five commands above are the whole provisioning story.
+`pnpm bootstrap` (`scripts/bootstrap.ts`) is the whole provisioning story, and it is safe to
+re-run: it never prompts, and each step skips or no-ops what is already done. It copies
+`.env.example` to `.env` if there is no `.env`, then runs `pnpm db:start` (local Supabase;
+writes POSTGRES_URL into `.env.local`), `pnpm db:push` and `pnpm db:seed`. It never touches
+production: no `db:push-remote`, no `.env.production*`.
 
-`pnpm db:push` is not optional. There is no `packages/db/supabase/migrations` directory —
-the schema is declared, not migrated — so a fresh clone (or a new branch: see below) that
-skips it gets a database with no tables and a 500 on first page load. `db:push` runs
+`pnpm db:push` is not optional when you provision by hand. There is no
+`packages/db/supabase/migrations` directory — the schema is declared, not migrated — so a
+fresh clone (or a new branch: see below) that skips it gets a database with no tables and a
+500 on first page load. `db:push` runs
 `drizzle-kit push --force` (forced so it cannot hang on a TTY confirmation) and then
 applies every file in `packages/db/sql/`.
 
@@ -41,7 +42,7 @@ own data and its own port, so `db:start` then has the CLI write this branch's UR
 `.env.local` (`supabase status --env`, `DB_URL` renamed to `POSTGRES_URL`). The `with-env`
 scripts load `.env.local` before `.env`, so it wins; delete it to use `.env`'s instead.
 
-- **A new branch or worktree starts with an empty database**: `pnpm db:start && pnpm db:push`
+- **A new branch or worktree starts with an empty database**: `pnpm bootstrap --yes`
   there. The previous branch keeps its own, and `pnpm db:start` after switching back
   points `.env.local` at it. Worktrees and parallel agents never share a database or a port.
 - The first start downloads Postgres (~400 MB from GitHub releases, cached in
@@ -68,14 +69,15 @@ app. `pnpm verify` and `pnpm build` need no database at all, only `COOKIE_SECRET
 `NODE_ENV=development` or `test` an empty value falls back to a public dev constant, so
 `pnpm dev:web` works without one. Every other environment fails to boot without it — that
 is deliberate (`packages/service/src/auth/session-core.ts`) — and that includes `next build`,
-which runs as production: `pnpm build` and `pnpm verify` fail on an empty secret. The
-quickstart generates one; by hand it is `openssl rand -base64 32` (32-character minimum).
+which runs as production: `pnpm build` and `pnpm verify` fail on an empty secret. `.env.example`
+ships a local-only dummy, so the bootstrap's copy builds; anywhere real, generate one with
+`openssl rand -base64 32` (32-character minimum).
 
 `POSTGRES_URL` fails closed the same way. Only tests fall back, to a URL nothing listens on;
 anything else without it throws `Missing POSTGRES_URL`, development included, because local
 Supabase has no fixed port to guess (`pnpm db:start` writes the real one into `.env.local`).
 So `pnpm build` and `pnpm verify` need it set, but any URL passes the build — postgres.js
-connects lazily, and CI sets an unreachable one. The quickstart's copy of `.env.example`
+connects lazily, and CI sets an unreachable one. The bootstrap's copy of `.env.example`
 carries a placeholder.
 
 Every other key in `.env.example` may stay empty. A missing one disables its feature rather
@@ -89,9 +91,9 @@ is the `Notification` table and push goes through Expo's service unauthenticated
 
 **There is no seeded login.** `pnpm db:seed` runs `packages/db/src/seed/initial.ts`, which is a
 _performance_ fixture — 200 users, ~8k letters, 40k likes, shaped to make `EXPLAIN` honest. It
-sets no password hash, so none of those accounts can sign in, and it is **not idempotent**:
-running it twice duplicates the whole dataset. Reach for it when profiling, not when you need
-an account.
+sets no password hash, so none of those accounts can sign in. It runs once per database: a
+second run sees the fixture and skips, and `pnpm db:reset` wipes and re-seeds it. Reach for it
+when profiling, not when you need an account.
 
 You usually do not need one. Identity here is **anonymous-first**: writing a letter requires no
 account — the server mints a credential-less user on first write. Only Settings, Profile and
@@ -101,7 +103,7 @@ the blocked-writers list need a real account, and you make one in three steps:
 agent-browser open http://localhost:3000/auth/sign-up
 agent-browser fill '[data-test="email-input"]' dev@yourssincerely.local
 agent-browser fill '[data-test="password-input"]' password
-agent-browser find text 'Sign Up' click
+agent-browser find role button click --name 'Sign Up'   # not `find text`: it resolves to a hidden match
 ```
 
 The session comes back as a signed `Set-Cookie` and the browser keeps it. `/auth/sign-in`

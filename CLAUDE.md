@@ -74,12 +74,13 @@ handler and RSC caller import `@repo/service`, and lint bans it from `apps/expo`
 pnpm dev              # All packages (turbo run)
 pnpm dev:web          # Web only
 pnpm dev:expo         # Expo only
+pnpm bootstrap --yes  # Provision: .env from .env.example, db:start, db:push, db:seed; re-runnable
 pnpm db:start         # Local Supabase, native; writes POSTGRES_URL into .env.local
 pnpm db:stop          # Stop Supabase
 pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
-pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
+pnpm db:seed          # Perf fixture — large, skips if already seeded, no signable accounts
 pnpm verify           # typecheck + lint + format + test + build — mirrors CI, run before commit
 pnpm lint             # oxlint (NOT ESLint) via ultracite presets incl. landmines, every rule an error
 pnpm format           # oxfmt --check (use format:fix to write)
