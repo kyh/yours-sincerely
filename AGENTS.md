@@ -171,8 +171,19 @@ agent-browser screenshot /tmp/after.png
 
 Stable hooks that already exist, so you do not have to add any: `#post-input` (the letter
 textarea), `[data-test="email-input"]` and `[data-test="password-input"]` (the auth form).
-The inline compose box is desktop-only — below the `md` breakpoint, open the floating
-"New Post" button first (`agent-browser find text 'New Post' click`).
+The recipe is for agent-browser's default desktop viewport (1280px), where the inline compose
+box is on screen and there is no "New Post" button to click. Below the `md` breakpoint (or with
+the feed in its stack layout) the inline box is hidden and composing opens from the floating
+"New Post" button instead. The hidden box stays in the DOM, so `#post-input` and `'Publish'`
+then match it first: open the dialog, take refs from the snapshot and use them.
+
+```sh
+agent-browser set viewport 390 844
+agent-browser find role button click --name 'New Post'
+agent-browser snapshot -i                    # the dialog's "Post content" textbox and "Publish" button
+agent-browser fill @eN 'A letter from an agent'
+agent-browser click @eM
+```
 
 Don't stop at typecheck and tests. Exercise the flow and look at the result.
 
