@@ -495,7 +495,7 @@ const createBalloonAnimation = ({
 };
 
 const nextFrame = async () => {
-  // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame is callback-only
+  // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame has no promise form, and Promise.withResolvers is newer than the browsers this ES2023 build targets
   await new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
       resolve();

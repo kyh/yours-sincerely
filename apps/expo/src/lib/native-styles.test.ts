@@ -1,4 +1,4 @@
-/* oxlint-disable typescript/no-unsafe-assignment, typescript/no-unsafe-return -- require() is untyped; each binding is annotated with its module's own types */
+/* oxlint-disable typescript/no-unsafe-assignment, typescript/no-unsafe-return -- react-native-css's ESM compiler and native builds do not load under Node, so these come from its CommonJS build through require(), which is untyped; each binding is annotated with its module's own types */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";

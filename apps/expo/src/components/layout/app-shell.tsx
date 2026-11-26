@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { ReactNode } from "react";
 import { Linking, Pressable, View, useWindowDimensions } from "react-native";
 import { usePathname } from "expo-router";
@@ -15,6 +14,7 @@ import { Text } from "@/components/ui/text";
 import { SafeAreaView } from "@/lib/css-interop";
 import { useFeedLayout } from "@/lib/feed-layout";
 import { siteConfig } from "@/lib/site-config";
+import { useCurrentYear } from "@/lib/use-current-year";
 import { useTabNavigation } from "@/lib/use-tab-navigation";
 import type { TabHref } from "@/lib/use-tab-navigation";
 
@@ -114,8 +114,7 @@ const openLink = async (url: string) => {
 };
 
 const SidebarFooter = () => {
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [year] = useState(() => new Date().getFullYear());
+  const year = useCurrentYear();
 
   return (
     <View className="border-border mt-auto gap-2 border-t py-4">

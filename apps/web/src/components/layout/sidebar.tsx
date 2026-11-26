@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@repo/ui/components/button";
 import { noop, useQuery } from "@tanstack/react-query";
 import type { AnimationItem } from "lottie-web/build/player/lottie_light";
 
+import { useCurrentYear } from "@/lib/use-current-year";
 import { useWorkspaceUser } from "@/lib/use-workspace-user";
 import { orpc } from "@/orpc/react";
 
@@ -67,8 +68,7 @@ const useLottieIcon = (path: string) => {
 
 export const Sidebar = () => {
   const user = useWorkspaceUser();
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [year] = useState(() => new Date().getFullYear());
+  const year = useCurrentYear();
 
   const unread = useQuery({
     ...orpc.notification.unreadCount.queryOptions(),

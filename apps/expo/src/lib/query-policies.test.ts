@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { getEventListeners, once } from "node:events";
 import { registerHooks } from "node:module";
 import { it } from "node:test";
 import { createORPCClient } from "@orpc/client";
@@ -54,24 +55,26 @@ it("updates retained tab observers and drops inactive account data on account ch
   queryClient.setQueryData(workspaceKey, oldWorkspace);
   queryClient.setQueryData(feedKey, oldFeed);
 
-  const workspaceRequests: ((value: Workspace) => void)[] = [];
-  const feedRequests: ((value: Feed) => void)[] = [];
+  const workspaceAnswered = new EventTarget();
+  const feedAnswered = new EventTarget();
+  let workspaceAnswer = oldWorkspace;
+  let feedAnswer = oldFeed;
 
   const workspace = new QueryObserver(queryClient, {
-    queryFn: async () =>
-      // oxlint-disable-next-line promise/avoid-new -- Keep the new session response pending while checking stale-data removal.
-      await new Promise<Workspace>((resolve) => {
-        workspaceRequests.push(resolve);
-      }),
+    queryFn: async () => {
+      await once(workspaceAnswered, "answer");
+
+      return workspaceAnswer;
+    },
     queryKey: workspaceKey,
   });
 
   const feed = new QueryObserver(queryClient, {
-    queryFn: async () =>
-      // oxlint-disable-next-line promise/avoid-new -- Retained feed observers must drop old personalized data before this response.
-      await new Promise<Feed>((resolve) => {
-        feedRequests.push(resolve);
-      }),
+    queryFn: async () => {
+      await once(feedAnswered, "answer");
+
+      return feedAnswer;
+    },
     queryKey: feedKey,
   });
 
@@ -136,14 +139,12 @@ it("updates retained tab observers and drops inactive account data on account ch
 
     const nextWorkspace: Workspace = { userId };
     const nextFeed: Feed = { liked: false, viewerId: userId };
-    assert.equal(workspaceRequests.length, 1);
-    assert.equal(feedRequests.length, 1);
-    const respondWorkspace = workspaceRequests.shift();
-    const respondFeed = feedRequests.shift();
-    assert.ok(respondWorkspace);
-    assert.ok(respondFeed);
-    respondWorkspace(nextWorkspace);
-    respondFeed(nextFeed);
+    assert.equal(getEventListeners(workspaceAnswered, "answer").length, 1);
+    assert.equal(getEventListeners(feedAnswered, "answer").length, 1);
+    workspaceAnswer = nextWorkspace;
+    feedAnswer = nextFeed;
+    workspaceAnswered.dispatchEvent(new Event("answer"));
+    feedAnswered.dispatchEvent(new Event("answer"));
     await changed;
 
     assert.deepEqual(workspaceUpdates.slice(-1), [nextWorkspace]);

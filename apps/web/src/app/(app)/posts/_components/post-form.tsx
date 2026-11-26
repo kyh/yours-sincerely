@@ -65,6 +65,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
   }, [draftKey, getFieldState, resetField]);
 
   const identityScope = useIdentityScope();
+  const [expiry, setExpiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
 
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
@@ -79,6 +80,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
           createdBy: variables.createdBy,
           parentId,
         });
+        setExpiry(addDays(new Date(), POST_EXPIRY_DAYS));
         onSuccess?.();
         setTimeout(() => {
           toast.success("Your love letter has been published");
@@ -106,9 +108,6 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
 
     createPost.mutate(formData);
   };
-
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [expiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
 
   return (
     <Form {...form}>

@@ -58,26 +58,38 @@ const BURST_RADIUS = 32;
 const START_RADIUS = 4;
 const PATH_SCALE_FACTOR = 0.8;
 
+interface ParticleSpread {
+  colors: (typeof LIKE_BURST_COLOR_PAIRS)[number];
+  duration: number;
+  randomFactor: number;
+}
+
+const spreadBurst = () =>
+  LIKE_BURST_COLOR_PAIRS.map<ParticleSpread>((colors) => ({
+    colors,
+    duration: 500 + Math.random() * 200,
+    randomFactor: 0.85 + Math.random() * 0.3,
+  }));
+
 const Particle = ({
   fromColor,
   toColor,
   index,
   totalParticles,
+  randomFactor,
+  duration,
 }: {
   fromColor: string;
   toColor: string;
   index: number;
   totalParticles: number;
+  randomFactor: number;
+  duration: number;
 }) => {
   const angle = (index / totalParticles) * 360 + 45;
   const radians = (angle * Math.PI) / 180;
 
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [randomFactor] = useState(() => 0.85 + Math.random() * 0.3);
   const burstDistance = BURST_RADIUS * randomFactor;
-
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [duration] = useState(() => 500 + Math.random() * 200);
 
   const degreeShift = (13 * Math.PI) / 180;
 
@@ -129,15 +141,17 @@ const Particle = ({
   );
 };
 
-const BurstAnimation = () => (
+const BurstAnimation = ({ spreads }: { spreads: ParticleSpread[] }) => (
   <div className="pointer-events-none absolute -top-3 -left-3 grid size-10 place-items-center">
-    {LIKE_BURST_COLOR_PAIRS.map((colors, index) => (
+    {spreads.map(({ colors, duration, randomFactor }, index) => (
       <Particle
         key={colors.id}
         fromColor={colors.from}
         toColor={colors.to}
         index={index}
-        totalParticles={LIKE_BURST_COLOR_PAIRS.length}
+        totalParticles={spreads.length}
+        randomFactor={randomFactor}
+        duration={duration}
       />
     ))}
   </div>
@@ -200,7 +214,7 @@ const likeMutationHandlers = (queryClient: QueryClient, postId: string, liked: b
 
 export const LikeButton = ({ post }: Props) => {
   const queryClient = useQueryClient();
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [burst, setBurst] = useState<ParticleSpread[] | null>(null);
 
   const identityScope = useIdentityScope();
 
@@ -226,7 +240,7 @@ export const LikeButton = ({ post }: Props) => {
     if (isLiked) {
       deleteMutate.mutate({ postId: post.id });
     } else {
-      setIsAnimating(true);
+      setBurst(spreadBurst());
       createMutate.mutate({ postId: post.id });
     }
   };
@@ -239,9 +253,20 @@ export const LikeButton = ({ post }: Props) => {
       onClick={toggleLike}
     >
       <div className="relative">
-        {isAnimating && <CircleAnimation />}
-        {isAnimating && <BurstAnimation />}
-        {isAnimating ? (
+        {burst !== null && <CircleAnimation />}
+        {burst !== null && <BurstAnimation spreads={burst} />}
+        {burst === null ? (
+          <svg
+            className={isLiked ? "text-red-500" : "text-inherit"}
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            fill="currentColor"
+          >
+            <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
+          </svg>
+        ) : (
           <m.svg
             key="animating-heart"
             initial={{ scale: 0 }}
@@ -253,7 +278,7 @@ export const LikeButton = ({ post }: Props) => {
               type: "spring",
             }}
             onAnimationComplete={() => {
-              setIsAnimating(false);
+              setBurst(null);
             }}
             className="text-red-500"
             width="16"
@@ -264,17 +289,6 @@ export const LikeButton = ({ post }: Props) => {
           >
             <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
           </m.svg>
-        ) : (
-          <svg
-            className={isLiked ? "text-red-500" : "text-inherit"}
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            fill="currentColor"
-          >
-            <path d="m18.199 2.04c-2.606-.284-4.262.961-6.199 3.008-2.045-2.047-3.593-3.292-6.199-3.008-3.544.388-6.321 4.43-5.718 7.96.966 5.659 5.944 9 11.917 12 5.973-3 10.951-6.341 11.917-12 .603-3.53-2.174-7.572-5.718-7.96z" />
-          </svg>
         )}
       </div>
       <span className="min-w-[0.75rem]">

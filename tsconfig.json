@@ -2,6 +2,7 @@
   "extends": "@kyh/tsconfig/base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
+    "lib": ["ES2024"],
     "types": ["node"]
   },
   "include": ["scripts", "oxlint.config.ts"]

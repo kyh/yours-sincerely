@@ -110,7 +110,10 @@ const FormItem = ({
   );
 };
 
-const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) => {
+const FormLabel = ({
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Label>, "htmlFor">) => {
   const { error, formItemId } = useFormField();
 
   return (

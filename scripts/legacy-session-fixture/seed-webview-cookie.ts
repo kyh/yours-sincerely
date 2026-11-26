@@ -31,41 +31,59 @@ if (debuggerUrl === undefined) {
 
 const ws = new WebSocket(debuggerUrl);
 
-// oxlint-disable-next-line promise/avoid-new -- WebSocket open is event-based
-await new Promise((resolve, reject) => {
-  ws.addEventListener("open", resolve, { once: true });
-  ws.addEventListener("error", reject, { once: true });
-});
+const opened = Promise.withResolvers<null>();
+
+ws.addEventListener(
+  "open",
+  () => {
+    opened.resolve(null);
+  },
+  { once: true },
+);
+
+ws.addEventListener(
+  "error",
+  (event) => {
+    opened.reject(new Error(event.type));
+  },
+  { once: true },
+);
+
+await opened.promise;
 
 let nextId = 1;
 
-const call = async (method: string, params: Record<string, boolean | number | string | string[]>) =>
-  // oxlint-disable-next-line promise/avoid-new -- DevTools replies arrive as socket messages
-  await new Promise<unknown>((resolve, reject) => {
-    const id = nextId;
-    nextId += 1;
+const call = async (
+  method: string,
+  params: Record<string, boolean | number | string | string[]>,
+) => {
+  const id = nextId;
+  nextId += 1;
+  const replied = Promise.withResolvers<unknown>();
 
-    const onMessage = (event: MessageEvent) => {
-      const reply = replySchema.parse(JSON.parse(String(event.data)));
+  const onMessage = (event: MessageEvent) => {
+    const reply = replySchema.parse(JSON.parse(String(event.data)));
 
-      if (reply.id !== id) {
-        return;
-      }
+    if (reply.id !== id) {
+      return;
+    }
 
-      ws.removeEventListener("message", onMessage);
+    ws.removeEventListener("message", onMessage);
 
-      if (reply.error !== undefined) {
-        reject(new Error(JSON.stringify(reply.error)));
+    if (reply.error !== undefined) {
+      replied.reject(new Error(JSON.stringify(reply.error)));
 
-        return;
-      }
+      return;
+    }
 
-      resolve(reply.result);
-    };
+    replied.resolve(reply.result);
+  };
 
-    ws.addEventListener("message", onMessage);
-    ws.send(JSON.stringify({ id, method, params }));
-  });
+  ws.addEventListener("message", onMessage);
+  ws.send(JSON.stringify({ id, method, params }));
+
+  return await replied.promise;
+};
 
 await call("Network.enable", {});
 

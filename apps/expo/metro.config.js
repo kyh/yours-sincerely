@@ -1,4 +1,4 @@
-/* oxlint-disable unicorn/prefer-module -- Metro loads this config as CommonJS */
+/* oxlint-disable unicorn/prefer-module -- as ESM this config would load nativewind/metro's ESM build, whose react-native-css dependency reads __dirname and throws; CommonJS loads its CJS build */
 const path = require("node:path");
 const { getDefaultConfig } = require("expo/metro-config");
 const { FileStore } = require("metro-cache");

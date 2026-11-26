@@ -96,8 +96,7 @@ const ExpiryTooltip = ({
 export const TimerButton = ({ post }: Props) => {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
   const { percentage, end, isExpired } = getExpiryProgress(post.createdAt, now);
   const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
@@ -112,11 +111,12 @@ export const TimerButton = ({ post }: Props) => {
         onLayout={() => {
           setAnchor(null);
         }}
-        onPress={() =>
+        onPress={() => {
+          setNow(new Date());
           button.current?.measureInWindow((x, y, width, height) => {
             setAnchor({ height, width, x, y });
-          })
-        }
+          });
+        }}
       >
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
           {percentage === 0 || percentage >= 100 ? (

@@ -1,14 +1,7 @@
-import { NativeModule, registerWebModule } from "expo";
-
-class LegacyCookieModule extends NativeModule {
-  // oxlint-disable-next-line class-methods-use-this -- instance method shape mirrors the native module
-  async read() {
-    return await Promise.resolve(null);
-  }
-  // oxlint-disable-next-line class-methods-use-this -- instance method shape mirrors the native module
-  async clear() {
+/** The web build has no Capacitor cookie jar: there is nothing to read or clear. */
+export default {
+  clear: async () => {
     await Promise.resolve();
-  }
-}
-
-export default registerWebModule(LegacyCookieModule, "LegacyCookieModule");
+  },
+  read: async () => await Promise.resolve(null),
+};

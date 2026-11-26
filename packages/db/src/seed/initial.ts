@@ -22,21 +22,18 @@ const HISTORY_DAYS = 365;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 
-/* oxlint-disable no-bitwise -- mulberry32 is int32 bit math; `| 0` is the wrap, not a truncation */
+const MINSTD_MODULUS = 2_147_483_647;
+const MINSTD_MULTIPLIER = 48_271;
+
 const createRandom = (seed: number) => {
   let state = seed;
 
   return () => {
-    // oxlint-disable-next-line unicorn/prefer-math-trunc -- `| 0` wraps to int32; Math.trunc would not
-    state = (state + 0x6d_2b_79_f5) | 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    state = (state * MINSTD_MULTIPLIER) % MINSTD_MODULUS;
 
-    return ((t ^ (t >>> 14)) >>> 0) / 4_294_967_296;
+    return (state - 1) / (MINSTD_MODULUS - 1);
   };
 };
-/* oxlint-enable no-bitwise */
 
 const random = createRandom(20_260_712);
 
