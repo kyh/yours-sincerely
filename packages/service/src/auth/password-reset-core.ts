@@ -65,3 +65,36 @@ export const createResetEmailSender: (emails: EmailClient) => SendResetEmail =
       throw new Error(`Resend ${error.name}: ${error.message}`);
     }
   };
+
+export type ResetEmailMode =
+  | { readonly kind: "resend"; readonly apiKey: string }
+  | { readonly kind: "log" }
+  | { readonly kind: "off" };
+
+/**
+ * Resend when a key is set. Without one, the server's log outside production,
+ * so local dev and tests can follow a reset, and nothing in production, where
+ * a logged link is a live login to whoever reads the logs.
+ */
+export const resetEmailModeOf = (apiKey: string | undefined, production: boolean) => {
+  if (apiKey !== undefined) {
+    return { apiKey, kind: "resend" } satisfies ResetEmailMode;
+  }
+
+  return (production ? { kind: "off" } : { kind: "log" }) satisfies ResetEmailMode;
+};
+
+/** For the boot log: what an operator must know about the mode, if anything. */
+export const resetEmailWarningOf = (mode: ResetEmailMode) =>
+  mode.kind === "off"
+    ? "This deployment sends no email: RESEND_API_KEY is unset, so a password reset is refused."
+    : null;
+
+/** The log half of the reset email: the link, written where the dev server shows it. */
+export const createResetLogSender: (write: (line: string) => void) => SendResetEmail =
+  (write) =>
+  ({ resetUrl, to }) => {
+    write(`[reset-email] not sent (no RESEND_API_KEY), logged here: to ${to}: ${resetUrl}`);
+
+    return Promise.resolve();
+  };

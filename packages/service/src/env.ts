@@ -1,6 +1,8 @@
 import { WEB_ORIGIN } from "@repo/contract/site";
 import { z } from "zod";
 
+import { resetEmailModeOf, resetEmailWarningOf } from "./auth/password-reset-core";
+
 // WARNING: COOKIE_SECRET stays out of here: auth/session-core.ts parses it failing closed, and an optional copy would be an authentication bypass.
 const optionalSetting = z
   .string()
@@ -20,3 +22,10 @@ export const env = envSchema.parse({
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESET_LINK_ORIGIN: process.env.RESET_LINK_ORIGIN,
 });
+
+export const RESET_EMAIL_MODE = resetEmailModeOf(
+  env.RESEND_API_KEY,
+  process.env.NODE_ENV === "production",
+);
+
+export const RESET_EMAIL_WARNING = resetEmailWarningOf(RESET_EMAIL_MODE);

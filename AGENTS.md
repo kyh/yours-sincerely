@@ -81,8 +81,13 @@ connects lazily, and CI sets an unreachable one. The bootstrap's copy of `.env.e
 carries a placeholder.
 
 Every other key in `.env.example` may stay empty. A missing one disables its feature rather
-than crashing boot: no `RESEND_API_KEY` means `auth.requestPasswordReset` returns
-`PRECONDITION_FAILED` instead of sending mail. `RESET_LINK_ORIGIN` is the exception: empty (or
+than crashing boot. Without `RESEND_API_KEY`, `auth.requestPasswordReset` writes the reset
+link to the server's log instead of sending it when `NODE_ENV` is not `production` (so a local
+reset can be followed headlessly; set `RESET_LINK_ORIGIN` to the local origin to click it), and
+in production sends and logs nothing, since a logged link is a live login: it returns
+`PRECONDITION_FAILED` up front, and the server warns once at boot that it sends no email
+(`resetEmailModeOf` in `packages/service/src/auth/password-reset-core.ts`,
+`apps/web/src/instrumentation.ts`). `RESET_LINK_ORIGIN` is the exception: empty (or
 malformed) means the production origin, so emailed links from a local or preview deploy open
 production unless it is set. Notifications need no key at all — the feed
 is the `Notification` table and push goes through Expo's service unauthenticated.
