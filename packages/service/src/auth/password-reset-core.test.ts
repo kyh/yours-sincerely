@@ -102,12 +102,14 @@ describe("reset email without a provider", () => {
     const lines: string[] = [];
     const resetUrl = buildResetUrl("http://localhost:3000", "abc123");
 
-    await createResetLogSender((line) => lines.push(line))({ resetUrl, to: "a@b.test" });
+    await createResetLogSender((line) => {
+      lines.push(line);
+    })({ resetUrl, to: "a@b.test" });
 
     assert.deepEqual(mode, { kind: "log" });
     assert.equal(resetEmailWarningOf(mode), null);
     assert.equal(lines.length, 1);
-    assert.ok(lines[0]?.includes(resetUrl));
+    assert.equal(lines[0]?.includes(resetUrl), true);
   });
 
   it("is off in production: nothing is logged, and boot warns that no email goes out", () => {
