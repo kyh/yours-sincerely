@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { eq } from "drizzle-orm";
+
 import { db } from "../drizzle-client";
 import { block, flag, like, post, user } from "../drizzle-schema";
 
@@ -110,7 +112,22 @@ const writeStreakPattern = (pattern: StreakPattern, addPost: (msAgo: number) => 
   }
 };
 
+const SEEDED_EMAIL = "seed-0@example.com";
+
 const seed = async () => {
+  const seeded = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, SEEDED_EMAIL))
+    .limit(1);
+
+  if (seeded.length > 0) {
+    console.log("Already seeded, skipping. `pnpm db:reset` wipes and re-seeds.");
+    await db.$client.end();
+
+    return;
+  }
+
   console.log("Seeding…");
 
   const users = Array.from({ length: USER_COUNT }, (_, index) => ({

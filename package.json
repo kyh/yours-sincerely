@@ -13,6 +13,7 @@
     "db:push": "pnpm -F db push",
     "db:push-remote": "pnpm -F db push:remote",
     "db:seed": "pnpm -F db seed",
+    "bootstrap": "node scripts/bootstrap.ts",
     "dev": "turbo run dev --continue",
     "dev:web": "turbo run dev -F @repo/web",
     "dev:expo": "turbo run dev -F @repo/expo",
