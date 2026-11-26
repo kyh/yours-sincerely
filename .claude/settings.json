@@ -3,15 +3,17 @@
   "prompt": "This repo is driven by coding agents — read AGENTS.md first. Provision with `pnpm install && pnpm bootstrap --yes`: .env from .env.example, local Supabase, the schema pushed and seeded. Re-run it on a new branch or worktree, whose local database starts EMPTY. Gate every change with `pnpm verify`.",
   "permissions": {
     "allow": [
-      "Bash(pnpm verify)",
       "Bash(pnpm db:start)",
       "Bash(pnpm db:stop)",
       "Bash(pnpm db:push)",
       "Bash(pnpm db:reset)",
       "Bash(pnpm db:seed)",
-      "Bash(pnpm dev:web)",
-      "Bash(agent-browser:*)"
-    ]
+      "Bash(agent-browser:*)",
+      "Bash(pnpm bootstrap:*)",
+      "Bash(pnpm verify:*)",
+      "Bash(pnpm dev:*)"
+    ],
+    "deny": ["Bash(pnpm db:push-remote:*)", "Bash(pnpm * db:push-remote:*)"]
   },
   "hooks": {
     "SessionStart": [
