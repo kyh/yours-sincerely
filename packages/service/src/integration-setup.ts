@@ -6,7 +6,7 @@
  * sharing a database makes it race.
  */
 export const globalSetup = () => {
-  if (!process.env.POSTGRES_URL) {
+  if (process.env.POSTGRES_URL === undefined || process.env.POSTGRES_URL === "") {
     throw new Error(
       "test:db needs POSTGRES_URL, from the root .env or the shell. It will not fall back to the default local database.",
     );

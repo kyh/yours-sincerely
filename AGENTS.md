@@ -9,19 +9,20 @@ architecture decisions you must not reverse; this one holds the workflow.
 ## Quickstart (headless)
 
 ```sh
-pnpm install
-# .env with a generated COOKIE_SECRET: `pnpm verify` and `pnpm build` need one (see below)
-{ grep -v '^COOKIE_SECRET=' .env.example; printf 'COOKIE_SECRET="%s"\n' "$(openssl rand -base64 32)"; } > .env
-pnpm db:start          # local Supabase; writes POSTGRES_URL into .env.local
-pnpm db:push           # REQUIRED: a new local database is EMPTY
+pnpm install && pnpm bootstrap --yes
 pnpm dev:web           # → http://localhost:3000
 ```
 
-There is no bootstrap script; the five commands above are the whole provisioning story.
+`pnpm bootstrap` (`scripts/bootstrap.ts`) is the whole provisioning story, and it is safe to
+re-run: it never prompts, and each step skips or no-ops what is already done. It copies
+`.env.example` to `.env` if there is no `.env`, then runs `pnpm db:start` (local Supabase;
+writes POSTGRES_URL into `.env.local`), `pnpm db:push` and `pnpm db:seed`. It never touches
+production: no `db:push-remote`, no `.env.production*`.
 
-`pnpm db:push` is not optional. There is no `packages/db/supabase/migrations` directory —
-the schema is declared, not migrated — so a fresh clone (or a new branch: see below) that
-skips it gets a database with no tables and a 500 on first page load. `db:push` runs
+`pnpm db:push` is not optional when you provision by hand. There is no
+`packages/db/supabase/migrations` directory — the schema is declared, not migrated — so a
+fresh clone (or a new branch: see below) that skips it gets a database with no tables and a
+500 on first page load. `db:push` runs
 `drizzle-kit push --force` (forced so it cannot hang on a TTY confirmation) and then
 applies every file in `packages/db/sql/`.
 
@@ -41,7 +42,7 @@ own data and its own port, so `db:start` then has the CLI write this branch's UR
 `.env.local` (`supabase status --env`, `DB_URL` renamed to `POSTGRES_URL`). The `with-env`
 scripts load `.env.local` before `.env`, so it wins; delete it to use `.env`'s instead.
 
-- **A new branch or worktree starts with an empty database**: `pnpm db:start && pnpm db:push`
+- **A new branch or worktree starts with an empty database**: `pnpm bootstrap --yes`
   there. The previous branch keeps its own, and `pnpm db:start` after switching back
   points `.env.local` at it. Worktrees and parallel agents never share a database or a port.
 - The first start downloads Postgres (~400 MB from GitHub releases, cached in
@@ -68,19 +69,25 @@ app. `pnpm verify` and `pnpm build` need no database at all, only `COOKIE_SECRET
 `NODE_ENV=development` or `test` an empty value falls back to a public dev constant, so
 `pnpm dev:web` works without one. Every other environment fails to boot without it — that
 is deliberate (`packages/service/src/auth/session-core.ts`) — and that includes `next build`,
-which runs as production: `pnpm build` and `pnpm verify` fail on an empty secret. The
-quickstart generates one; by hand it is `openssl rand -base64 32` (32-character minimum).
+which runs as production: `pnpm build` and `pnpm verify` fail on an empty secret. `.env.example`
+ships a local-only dummy, so the bootstrap's copy builds; anywhere real, generate one with
+`openssl rand -base64 32` (32-character minimum).
 
 `POSTGRES_URL` fails closed the same way. Only tests fall back, to a URL nothing listens on;
 anything else without it throws `Missing POSTGRES_URL`, development included, because local
 Supabase has no fixed port to guess (`pnpm db:start` writes the real one into `.env.local`).
 So `pnpm build` and `pnpm verify` need it set, but any URL passes the build — postgres.js
-connects lazily, and CI sets an unreachable one. The quickstart's copy of `.env.example`
+connects lazily, and CI sets an unreachable one. The bootstrap's copy of `.env.example`
 carries a placeholder.
 
 Every other key in `.env.example` may stay empty. A missing one disables its feature rather
-than crashing boot: no `RESEND_API_KEY` means `auth.requestPasswordReset` returns
-`PRECONDITION_FAILED` instead of sending mail. `RESET_LINK_ORIGIN` is the exception: empty (or
+than crashing boot. Without `RESEND_API_KEY`, `auth.requestPasswordReset` writes the reset
+link to the server's log instead of sending it when `NODE_ENV` is not `production` (so a local
+reset can be followed headlessly; set `RESET_LINK_ORIGIN` to the local origin to click it), and
+in production sends and logs nothing, since a logged link is a live login: it returns
+`PRECONDITION_FAILED` up front, and the server warns once at boot that it sends no email
+(`resetEmailModeOf` in `packages/service/src/auth/password-reset-core.ts`,
+`apps/web/src/instrumentation.ts`). `RESET_LINK_ORIGIN` is the exception: empty (or
 malformed) means the production origin, so emailed links from a local or preview deploy open
 production unless it is set. Notifications need no key at all — the feed
 is the `Notification` table and push goes through Expo's service unauthenticated.
@@ -89,9 +96,9 @@ is the `Notification` table and push goes through Expo's service unauthenticated
 
 **There is no seeded login.** `pnpm db:seed` runs `packages/db/src/seed/initial.ts`, which is a
 _performance_ fixture — 200 users, ~8k letters, 40k likes, shaped to make `EXPLAIN` honest. It
-sets no password hash, so none of those accounts can sign in, and it is **not idempotent**:
-running it twice duplicates the whole dataset. Reach for it when profiling, not when you need
-an account.
+sets no password hash, so none of those accounts can sign in. It runs once per database: a
+second run sees the fixture and skips, and `pnpm db:reset` wipes and re-seeds it. Reach for it
+when profiling, not when you need an account.
 
 You usually do not need one. Identity here is **anonymous-first**: writing a letter requires no
 account — the server mints a credential-less user on first write. Only Settings, Profile and
@@ -101,7 +108,7 @@ the blocked-writers list need a real account, and you make one in three steps:
 agent-browser open http://localhost:3000/auth/sign-up
 agent-browser fill '[data-test="email-input"]' dev@yourssincerely.local
 agent-browser fill '[data-test="password-input"]' password
-agent-browser find text 'Sign Up' click
+agent-browser find role button click --name 'Sign Up'   # not `find text`: it resolves to a hidden match
 ```
 
 The session comes back as a signed `Set-Cookie` and the browser keeps it. `/auth/sign-in`
@@ -133,10 +140,11 @@ when you touch a router, a query or the schema.
 
 **Lint is a clean gate.** `oxlint.config.ts` extends the ultracite presets (`ultracite/oxlint/core`,
 `react`, `anti-slop`, `landmines`, with `next` scoped to `apps/web` and `packages/service`); every
-rule is an error and `lint` fails on the first one. Two rules are off on purpose:
-`no-await-in-loop` (sequential awaits are intentional: ordered SQL statements, batched seed
-writes) and `anti-slop/require-safety-comment-for-type-assertion` (it demands a `// SAFETY:`
-comment that landmines' `no-comments` forbids, so the two cannot both pass). landmines bans
+rule is an error and `lint` fails on the first one, and no preset rule is turned off. Lint is
+type-aware (`options.typeAware`, run by the `oxlint-tsgolint` devDependency), so files outside
+every tsconfig read as untyped: the root `tsconfig.json` covers `scripts/` (`pnpm
+typecheck:scripts`). Awaits that must run in order go through `inSequence`
+(`@repo/contract/in-sequence`) or a recursive call, never an `await` inside a loop. landmines bans
 prose comments (keep functional directives, TSDoc on an exported API, and single-line
 `// WARNING:` lines for a dangerous, recurring footgun; the reasoning goes in the commit or the
 PR) and annotated return types on functions with a body (pin a contract with `satisfies` or a
@@ -164,8 +172,19 @@ agent-browser screenshot /tmp/after.png
 
 Stable hooks that already exist, so you do not have to add any: `#post-input` (the letter
 textarea), `[data-test="email-input"]` and `[data-test="password-input"]` (the auth form).
-The inline compose box is desktop-only — below the `md` breakpoint, open the floating
-"New Post" button first (`agent-browser find text 'New Post' click`).
+The recipe is for agent-browser's default desktop viewport (1280px), where the inline compose
+box is on screen and there is no "New Post" button to click. Below the `md` breakpoint (or with
+the feed in its stack layout) the inline box is hidden and composing opens from the floating
+"New Post" button instead. The hidden box stays in the DOM, so `#post-input` and `'Publish'`
+then match it first: open the dialog, take refs from the snapshot and use them.
+
+```sh
+agent-browser set viewport 390 844
+agent-browser find role button click --name 'New Post'
+agent-browser snapshot -i                    # the dialog's "Post content" textbox and "Publish" button
+agent-browser fill @eN 'A letter from an agent'
+agent-browser click @eM
+```
 
 Don't stop at typecheck and tests. Exercise the flow and look at the result.
 
@@ -213,7 +232,7 @@ Capacitor→Expo session-migration fixture.
 - `CLAUDE.md` — architecture decisions and tracked constraints (read before changing anything
   structural) · `README.md` — human-facing setup · `docs/` — phone testing, release inputs,
   the legacy-to-Expo upgrade verification · `pnpm og:video` re-renders `public/og/og.mp4` and its
-  poster from `apps/web/scripts/og-video.ts` (needs Playwright's Chromium and ffmpeg; not part of
+  poster from `apps/web/scripts/og-video.ts` (needs Playwright's Chromium, `pnpm -F @repo/web exec playwright install chromium`, and ffmpeg; not part of
   `verify`)
 - `packages/service/src/auth/session.ts` + `session-core.ts` — the hand-rolled auth
   (**not** Supabase Auth) · `packages/db/src/drizzle-schema.ts` — the tables

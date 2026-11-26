@@ -29,8 +29,8 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   const updateUser = useMutation(
     orpc.user.updateUser.mutationOptions({
-      onSuccess: () =>
-        Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
+      onSuccess: async () =>
+        await Promise.all([refreshProfileData(queryClient), refreshWorkspaceIdentity(queryClient)]),
     }),
   );
 
@@ -45,8 +45,9 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
     const submitted = form.getValues("displayName");
 
     const promise = updateUser.mutateAsync(data, {
-      onSuccess: () =>
-        form.reset(data, { keepValues: form.getValues("displayName") !== submitted }),
+      onSuccess: () => {
+        form.reset(data, { keepValues: form.getValues("displayName") !== submitted });
+      },
     });
 
     toast.promise(promise, {
@@ -58,8 +59,23 @@ export const ProfileForm = ({ userId, readonly }: ProfileFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center gap-2">
-        <ProfileAvatar className="size-20" src={getAvatarUrl(user?.displayName || user?.id)} />
+      <form
+        onSubmit={(e) => {
+          void form.handleSubmit(onSubmit)(e);
+        }}
+        className="flex flex-col items-center gap-2"
+      >
+        <ProfileAvatar
+          className="size-20"
+          src={getAvatarUrl(
+            user === undefined ||
+              user.displayName === undefined ||
+              user.displayName === null ||
+              user.displayName === ""
+              ? user?.id
+              : user.displayName,
+          )}
+        />
         <FormField
           control={form.control}
           name="displayName"

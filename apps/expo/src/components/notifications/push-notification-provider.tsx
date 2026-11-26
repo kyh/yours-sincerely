@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import * as Notifications from "expo-notifications";
 import { AppState } from "react-native";
-import { onlineManager } from "@tanstack/react-query";
+import { noop, onlineManager } from "@tanstack/react-query";
 
 import { ignoreRejection } from "@/lib/ignore-rejection";
 import { getRegisteredPushDevice } from "./push-token-store";
@@ -19,7 +19,7 @@ export const PushNotificationProvider = ({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     if (isPending || isError || user !== null || getRegisteredPushDevice() === null) {
-      return;
+      return noop;
     }
 
     const retryCleanup = () => {

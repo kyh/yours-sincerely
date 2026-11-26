@@ -20,7 +20,7 @@ import {
 } from "./session-core";
 import { findSessionUser } from "./session-user";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -52,8 +52,10 @@ const seedAccounts = async (accounts: readonly { email: string; password?: strin
   return { cleanup, ids };
 };
 
-const signIn = (email: string, password = PASSWORD) =>
-  runWithoutCookieScope(() => createCaller(null).auth.signInWithPassword({ email, password }));
+const signIn = async (email: string, password = PASSWORD) =>
+  await runWithoutCookieScope(
+    async () => await createCaller(null).auth.signInWithPassword({ email, password }),
+  );
 
 const INVALID_CREDENTIALS = { code: "UNAUTHORIZED", message: "Invalid email or password" };
 
@@ -84,10 +86,10 @@ const idsAnExactLookupFinds = async (address: string) => {
 const capturingSender = () => {
   const delivered: ResetEmail[] = [];
 
-  const send = (email: ResetEmail) => {
+  const send = async (email: ResetEmail) => {
     delivered.push(email);
 
-    return Promise.resolve();
+    await Promise.resolve();
   };
 
   return { delivered, send };
@@ -109,19 +111,20 @@ const resetLinkOwners = async (userIds: string[]) => {
   return rows.map((row) => row.userId);
 };
 
-integrationTest(
+test(
   "a sign-up keeps its casing, so a rolled-back exact lookup still finds it",
+  { skip },
   async () => {
     const typed = addressFor("MiXeD");
 
-    const outcome = await runWithoutCookieScope(() =>
-      createCaller(null).auth.signUp({ email: ` ${typed} `, password: PASSWORD }),
+    const outcome = await runWithoutCookieScope(
+      async () => await createCaller(null).auth.signUp({ email: ` ${typed} `, password: PASSWORD }),
     );
 
     assert.equal(outcome, "reached-cookie-write");
 
     const [userId, ...others] = await idsHoldingAddress(typed);
-    assert.ok(userId);
+    assert.ok(userId !== undefined && userId !== "");
     assert.deepEqual(others, []);
 
     try {
@@ -138,8 +141,9 @@ integrationTest(
   },
 );
 
-integrationTest(
+test(
   "a legacy mixed-case account signs in with its own casing and any other",
+  { skip },
   async () => {
     const legacy = addressFor("Legacy");
     const fixture = await seedAccounts([{ email: legacy }]);
@@ -151,7 +155,7 @@ integrationTest(
       await assert.rejects(signIn(legacy.toLowerCase(), OTHER_PASSWORD), INVALID_CREDENTIALS);
 
       const [userId] = fixture.ids;
-      assert.ok(userId);
+      assert.ok(userId !== undefined);
       assert.equal(await storedEmail(userId), legacy, "sign-in never rewrites the address");
     } finally {
       await fixture.cleanup();
@@ -159,7 +163,7 @@ integrationTest(
   },
 );
 
-integrationTest("accounts differing only in case each keep their own sign-in", async () => {
+test("accounts differing only in case each keep their own sign-in", { skip }, async () => {
   const upper = addressFor("Kai");
   const lower = upper.toLowerCase();
 
@@ -182,31 +186,28 @@ integrationTest("accounts differing only in case each keep their own sign-in", a
   }
 });
 
-integrationTest(
-  "a reset in any casing reaches the one account, at its stored address",
-  async () => {
-    const legacy = addressFor("Resetter");
-    const fixture = await seedAccounts([{ email: legacy }]);
+test("a reset in any casing reaches the one account, at its stored address", { skip }, async () => {
+  const legacy = addressFor("Resetter");
+  const fixture = await seedAccounts([{ email: legacy }]);
 
-    try {
-      assert.deepEqual(await requestReset(legacy.toLowerCase()), [legacy]);
-      assert.deepEqual(await requestReset(legacy), [legacy]);
-      assert.deepEqual(await resetLinkOwners(fixture.ids), [fixture.ids[0], fixture.ids[0]]);
+  try {
+    assert.deepEqual(await requestReset(legacy.toLowerCase()), [legacy]);
+    assert.deepEqual(await requestReset(legacy), [legacy]);
+    assert.deepEqual(await resetLinkOwners(fixture.ids), [fixture.ids[0], fixture.ids[0]]);
 
-      assert.deepEqual(await requestReset(addressFor("Nobody")), []);
-    } finally {
-      await fixture.cleanup();
-    }
-  },
-);
+    assert.deepEqual(await requestReset(addressFor("Nobody")), []);
+  } finally {
+    await fixture.cleanup();
+  }
+});
 
-integrationTest("a reset for one of two case-twins targets that account only", async () => {
+test("a reset for one of two case-twins targets that account only", { skip }, async () => {
   const upper = addressFor("Twin");
   const lower = upper.toLowerCase();
   const fixture = await seedAccounts([{ email: upper }, { email: lower }]);
   const [upperId, lowerId] = fixture.ids;
-  assert.ok(upperId);
-  assert.ok(lowerId);
+  assert.ok(upperId !== undefined);
+  assert.ok(lowerId !== undefined);
 
   try {
     assert.deepEqual(await requestReset(upper), [upper]);
@@ -223,7 +224,7 @@ integrationTest("a reset for one of two case-twins targets that account only", a
   }
 });
 
-integrationTest("sign-up cannot create an account that differs from one only in case", async () => {
+test("sign-up cannot create an account that differs from one only in case", { skip }, async () => {
   const legacy = addressFor("Taken");
   const fixture = await seedAccounts([{ email: legacy }]);
 
@@ -238,12 +239,12 @@ integrationTest("sign-up cannot create an account that differs from one only in 
   }
 });
 
-integrationTest("updateUser keeps the casing typed and refuses another's address", async () => {
+test("updateUser keeps the casing typed and refuses another's address", { skip }, async () => {
   const mine = addressFor("Mine");
   const theirs = addressFor("Theirs");
   const fixture = await seedAccounts([{ email: mine }, { email: theirs }]);
   const [myId] = fixture.ids;
-  assert.ok(myId);
+  assert.ok(myId !== undefined);
 
   try {
     const me = await callerFor(myId);
@@ -263,7 +264,7 @@ integrationTest("updateUser keeps the casing typed and refuses another's address
 const SESSION_KEY = deriveKey(resolveCookieSecret(process.env), SESSION_PURPOSE);
 const NOW_SECONDS = Math.floor(Date.now() / 1000);
 
-const findDbUser = (userId: string) => findSessionUser(db, userId);
+const findDbUser = async (userId: string) => await findSessionUser(db, userId);
 
 const authenticatedId = async (sessionValue: string) => {
   const sessionUser = await authenticateSessionValue(sessionValue, findDbUser);
@@ -279,13 +280,14 @@ const workspaceOf = async (userId: string) => {
   return viewer;
 };
 
-integrationTest(
+test(
   "case-insensitive sign-in and reset leave every existing session alone",
+  { skip },
   async () => {
     const legacy = addressFor("Signed-In");
     const fixture = await seedAccounts([{ email: legacy }]);
     const [userId] = fixture.ids;
-    assert.ok(userId);
+    assert.ok(userId !== undefined);
 
     try {
       const current = signSession(encodeSessionPayload(userId, NOW_SECONDS, 0), SESSION_KEY);

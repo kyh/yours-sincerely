@@ -7,7 +7,7 @@ import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { cn } from "cn";
 
 import { JsonLd } from "@/components/json-ld";
-import { CapacitorProvider } from "@/components/providers/capacitor-provider";
+import { CapacitorBridge } from "@/components/providers/capacitor-bridge";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { buildSiteGraph } from "@/lib/agent/structured-data";
 import { OG_IMAGE, rootOpenGraphVideos } from "@/lib/seo";
@@ -96,16 +96,15 @@ interface LayoutProps {
 const RootLayout = (props: LayoutProps) => (
   <html lang="en" suppressHydrationWarning>
     <body className={cn("bg-background text-foreground font-sans antialiased", fontSans.variable)}>
-      <CapacitorProvider>
-        <MotionProvider>
-          <ThemeProvider>
-            <TooltipProvider>
-              <ORPCReactProvider>{props.children}</ORPCReactProvider>
-              <Toaster />
-            </TooltipProvider>
-          </ThemeProvider>
-        </MotionProvider>
-      </CapacitorProvider>
+      <CapacitorBridge />
+      <MotionProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <ORPCReactProvider>{props.children}</ORPCReactProvider>
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </MotionProvider>
       <Analytics />
       <JsonLd node={buildSiteGraph()} />
     </body>

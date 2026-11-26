@@ -11,7 +11,7 @@ import { ORPCError } from "@orpc/server";
 import { FOREIGN_KEY_VIOLATION, pgErrorCode } from "../pg-error";
 import { callerFor, createCaller, runWithoutCookieScope } from "../test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -59,7 +59,7 @@ const feedContainsPost = async (caller: Awaited<ReturnType<typeof callerFor>>, p
   return feed.posts.some((entry) => entry.id === postId);
 };
 
-integrationTest("listBlocks returns only the caller's own blocks", async () => {
+test("listBlocks returns only the caller's own blocks", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -83,7 +83,7 @@ integrationTest("listBlocks returns only the caller's own blocks", async () => {
   }
 });
 
-integrationTest("listBlocks requires an authenticated caller", async () => {
+test("listBlocks requires an authenticated caller", { skip }, async () => {
   const anonymous = createCaller(null);
   await assert.rejects(
     anonymous.block.listBlocks(),
@@ -91,7 +91,7 @@ integrationTest("listBlocks requires an authenticated caller", async () => {
   );
 });
 
-integrationTest("deleteBlock cannot delete another user's block", async () => {
+test("deleteBlock cannot delete another user's block", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -113,7 +113,7 @@ integrationTest("deleteBlock cannot delete another user's block", async () => {
   }
 });
 
-integrationTest("deleteBlock requires an authenticated caller", async () => {
+test("deleteBlock requires an authenticated caller", { skip }, async () => {
   const anonymous = createCaller(null);
   await assert.rejects(
     anonymous.block.deleteBlock({ blockingId: randomUUID() }),
@@ -121,7 +121,7 @@ integrationTest("deleteBlock requires an authenticated caller", async () => {
   );
 });
 
-integrationTest("unblocking makes the author's posts reappear in the feed", async () => {
+test("unblocking makes the author's posts reappear in the feed", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -145,7 +145,7 @@ integrationTest("unblocking makes the author's posts reappear in the feed", asyn
   }
 });
 
-integrationTest("block, unblock, and block again round-trips without error", async () => {
+test("block, unblock, and block again round-trips without error", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -161,7 +161,7 @@ integrationTest("block, unblock, and block again round-trips without error", asy
   }
 });
 
-integrationTest("deleting a block the caller does not have is a no-op, not an error", async () => {
+test("deleting a block the caller does not have is a no-op, not an error", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -172,42 +172,39 @@ integrationTest("deleting a block the caller does not have is a no-op, not an er
   }
 });
 
-integrationTest(
-  "Block restricts user deletion, and deleteUser clears both directions",
-  async () => {
-    const fixture = await createFixture();
+test("Block restricts user deletion, and deleteUser clears both directions", { skip }, async () => {
+  const fixture = await createFixture();
 
-    try {
-      await fixture.callerA.block.createBlock({ blockingId: fixture.authorDId });
-      await fixture.callerB.block.createBlock({ blockingId: fixture.blockerAId });
+  try {
+    await fixture.callerA.block.createBlock({ blockingId: fixture.authorDId });
+    await fixture.callerB.block.createBlock({ blockingId: fixture.blockerAId });
 
-      await assert.rejects(
-        db.delete(user).where(eq(user.id, fixture.authorDId)),
-        (error) => pgErrorCode(error) === FOREIGN_KEY_VIOLATION,
-      );
+    await assert.rejects(
+      db.delete(user).where(eq(user.id, fixture.authorDId)),
+      (error) => pgErrorCode(error) === FOREIGN_KEY_VIOLATION,
+    );
 
-      await runWithoutCookieScope(() => fixture.callerA.user.deleteUser());
+    await runWithoutCookieScope(async () => await fixture.callerA.user.deleteUser());
 
-      const [blocks, users] = await Promise.all([
-        db
-          .select()
-          .from(block)
-          .where(
-            or(eq(block.blockerId, fixture.blockerAId), eq(block.blockingId, fixture.blockerAId)),
-          ),
-        db
-          .select({ id: user.id })
-          .from(user)
-          .where(inArray(user.id, [fixture.blockerAId, fixture.blockerBId, fixture.authorDId])),
-      ]);
+    const [blocks, users] = await Promise.all([
+      db
+        .select()
+        .from(block)
+        .where(
+          or(eq(block.blockerId, fixture.blockerAId), eq(block.blockingId, fixture.blockerAId)),
+        ),
+      db
+        .select({ id: user.id })
+        .from(user)
+        .where(inArray(user.id, [fixture.blockerAId, fixture.blockerBId, fixture.authorDId])),
+    ]);
 
-      assert.equal(blocks.length, 0);
-      assert.deepEqual(
-        users.map((row) => row.id).toSorted(),
-        [fixture.authorDId, fixture.blockerBId].toSorted(),
-      );
-    } finally {
-      await fixture.cleanup();
-    }
-  },
-);
+    assert.equal(blocks.length, 0);
+    assert.deepEqual(
+      users.map((row) => row.id).toSorted(),
+      [fixture.authorDId, fixture.blockerBId].toSorted(),
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});

@@ -224,7 +224,9 @@ const SettingsScreen = () => {
               <View
                 accessibilityRole="radiogroup"
                 className="flex-row flex-wrap gap-4"
-                onLayout={(event) => setAppearanceWidth(event.nativeEvent.layout.width)}
+                onLayout={(event) => {
+                  setAppearanceWidth(event.nativeEvent.layout.width);
+                }}
               >
                 {themes.map((option) => (
                   <Pressable
@@ -234,7 +236,9 @@ const SettingsScreen = () => {
                     accessibilityState={{ selected: theme === option.id }}
                     className="min-h-11 min-w-11 items-center gap-1"
                     style={{ width: appearanceOptionWidth }}
-                    onPress={() => setTheme(option.id)}
+                    onPress={() => {
+                      setTheme(option.id);
+                    }}
                   >
                     <View
                       className={
@@ -264,9 +268,9 @@ const SettingsScreen = () => {
             <View className="flex-row flex-wrap gap-2 px-3 py-4">
               {user === null ? (
                 <Button
-                  onPress={() =>
-                    router.push({ params: { next: "/settings" }, pathname: "/auth/sign-in" })
-                  }
+                  onPress={() => {
+                    router.push({ params: { next: "/settings" }, pathname: "/auth/sign-in" });
+                  }}
                 >
                   Sign in
                 </Button>
@@ -274,7 +278,9 @@ const SettingsScreen = () => {
                 <>
                   <Button
                     variant="outline"
-                    onPress={signOut}
+                    onPress={() => {
+                      void signOut();
+                    }}
                     loading={isSigningOut}
                     disabled={deleteAccount.isPending || isPreparingDelete}
                   >
@@ -282,7 +288,9 @@ const SettingsScreen = () => {
                   </Button>
                   <Button
                     variant="destructive"
-                    onPress={() => setDeleteDialogOpen(true)}
+                    onPress={() => {
+                      setDeleteDialogOpen(true);
+                    }}
                     disabled={isSigningOut}
                   >
                     Delete account
@@ -297,7 +305,9 @@ const SettingsScreen = () => {
       )}
       <Dialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+        }}
         label="Delete account?"
       >
         <View className="gap-6">
@@ -311,7 +321,9 @@ const SettingsScreen = () => {
           </View>
           <Button
             variant="destructive"
-            onPress={confirmDeleteAccount}
+            onPress={() => {
+              void confirmDeleteAccount();
+            }}
             loading={deleteAccount.isPending || isPreparingDelete}
             disabled={isSigningOut}
           >

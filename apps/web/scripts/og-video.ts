@@ -1,8 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
+
+import { inSequence } from "@repo/contract/in-sequence";
+import { chromium } from "playwright";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -22,26 +24,14 @@ const LETTER = [
 
 const TAGLINE = "Anonymous love letters written in disappearing ink.";
 
-const loadPlaywright = () => {
-  const require = createRequire(import.meta.url);
-
-  try {
-    return require("playwright");
-  } catch {
-    throw new Error(
-      "Playwright is not installed here. Run with NODE_PATH pointing at a global install, e.g. NODE_PATH=$(npm root -g) pnpm og:video",
-    );
-  }
-};
-
 const readThemeTokens = async () => {
   const css = await readFile(path.join(webRoot, "src/app/styles/themes.css"), "utf-8");
   const root = css.slice(css.indexOf(":root"), css.indexOf("}"));
 
   const token = (name: string) => {
-    const match = root.match(new RegExp(`--${name}:\\s*([^;]+);`, "u"));
+    const match = new RegExp(`--${name}:\\s*([^;]+);`, "u").exec(root);
 
-    if (!match?.[1]) {
+    if (match === null || match[1] === undefined || match[1] === "") {
       throw new Error(`themes.css has no --${name} in :root`);
     }
 
@@ -66,9 +56,9 @@ const fontFace = async (file: string, style: "normal" | "italic") => {
 
 const readLogoIcon = async () => {
   const svg = await readFile(path.join(webRoot, "public/logo.svg"), "utf-8");
-  const mark = svg.match(/<path[^>]*\sd="(?<d>[^"]+)"/u)?.groups?.d;
+  const mark = /<path[^>]*\sd="(?<d>[^"]+)"/u.exec(svg)?.groups?.d;
 
-  if (!mark) {
+  if (mark === undefined || mark === "") {
     throw new Error("public/logo.svg has no path for its icon");
   }
 
@@ -402,7 +392,6 @@ const encode = (framesDir: string, output: string) => {
 const frameScript = (t: number) => `window.setFrame(${t})`;
 
 const main = async () => {
-  const { chromium } = loadPlaywright();
   const html = await buildScene();
   const framesDir = await mkdtemp(path.join(tmpdir(), "ys-og-frames-"));
   await mkdir(outDir, { recursive: true });
@@ -416,15 +405,18 @@ const main = async () => {
     });
 
     await page.setContent(html, { waitUntil: "load" });
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(async () => await document.fonts.ready);
 
     const frameCount = FPS * SECONDS;
 
-    for (let frame = 0; frame < frameCount; frame += 1) {
-      await page.evaluate(frameScript(frame / FPS));
-      const name = `frame-${String(frame).padStart(4, "0")}.png`;
-      await page.screenshot({ path: path.join(framesDir, name) });
-    }
+    await inSequence(
+      Array.from({ length: frameCount }, (_, frame) => frame),
+      async (frame) => {
+        await page.evaluate(frameScript(frame / FPS));
+        const name = `frame-${String(frame).padStart(4, "0")}.png`;
+        await page.screenshot({ path: path.join(framesDir, name) });
+      },
+    );
 
     await page.evaluate(frameScript(POSTER_AT));
     await page.screenshot({

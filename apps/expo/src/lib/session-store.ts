@@ -14,7 +14,18 @@ export const advanceSessionGeneration = () => {
 
 let pendingSessionWrite: string | null = null;
 let pendingSessionDeletion: Promise<void> | null = null;
-export const getPendingSessionDeletion = () => pendingSessionDeletion;
+
+/** Resolves once no cookie deletion is in flight, including ones that start while waiting. */
+export const waitForSessionDeletion = async () => {
+  const pending = pendingSessionDeletion;
+
+  if (pending === null) {
+    return;
+  }
+
+  await pending;
+  await waitForSessionDeletion();
+};
 
 const persistPendingSession = () => {
   const value = pendingSessionWrite;
@@ -51,9 +62,11 @@ const removeCookie = async () => {
   }
 };
 
-export const deleteSessionCookie = () => {
+export const deleteSessionCookie = async () => {
   if (pendingSessionDeletion !== null) {
-    return pendingSessionDeletion;
+    await pendingSessionDeletion;
+
+    return;
   }
 
   const finishDeletion = async () => {
@@ -70,7 +83,7 @@ export const deleteSessionCookie = () => {
 
   pendingSessionDeletion = finishDeletion();
 
-  return pendingSessionDeletion;
+  await pendingSessionDeletion;
 };
 
 export const getLegacySessionMigrationCheckpoint: () => LegacySessionMigrationCheckpoint = () => {

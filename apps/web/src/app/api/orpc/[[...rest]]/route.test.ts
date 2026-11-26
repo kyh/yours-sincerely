@@ -9,7 +9,7 @@ interface PostOptions {
   origin?: string;
 }
 
-const post = ({
+const post = async ({
   url = "http://localhost:3000/api/orpc/block/listBlocks",
   origin,
 }: PostOptions = {}) => {
@@ -19,7 +19,7 @@ const post = ({
     headers.set("origin", origin);
   }
 
-  return route.POST(
+  return await route.POST(
     new NextRequest(url, { body: JSON.stringify({ json: {} }), headers, method: "POST" }),
   );
 };

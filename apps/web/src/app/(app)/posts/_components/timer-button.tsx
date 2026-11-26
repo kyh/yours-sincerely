@@ -12,8 +12,7 @@ interface Props {
 }
 
 export const TimerButton = ({ post }: Props) => {
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
 
   if (!post.createdAt) {
     return null;
@@ -23,7 +22,13 @@ export const TimerButton = ({ post }: Props) => {
   const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
   return (
-    <Popover>
+    <Popover
+      onOpenChange={(open) => {
+        if (open) {
+          setNow(new Date());
+        }
+      }}
+    >
       <PopoverTrigger
         openOnHover
         className="hover:bg-accent grid size-8 cursor-pointer place-items-center rounded-lg p-2 transition"

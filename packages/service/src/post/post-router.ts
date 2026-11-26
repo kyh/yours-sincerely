@@ -19,7 +19,7 @@ import { getPostHistoryFloor, notBlockedBy, postVisibleTo } from "./post-utils";
 const findMyLikes = async (context: ORPCContext, postIds: string[]) => {
   const viewerId = context.user?.id;
 
-  if (!viewerId || postIds.length === 0) {
+  if (viewerId === undefined || viewerId === "" || postIds.length === 0) {
     return new Set();
   }
 
@@ -57,12 +57,16 @@ export const postRouter = {
         () => new ORPCError("NOT_FOUND", { message: "Post not found" }),
       );
 
-      const parent = inserted?.parentId
-        ? await tx.query.post.findFirst({
-            columns: { id: true, userId: true },
-            where: { id: inserted.parentId ?? "" },
-          })
-        : undefined;
+      const parent =
+        inserted !== undefined &&
+        inserted.parentId !== undefined &&
+        inserted.parentId !== null &&
+        inserted.parentId !== ""
+          ? await tx.query.post.findFirst({
+              columns: { id: true, userId: true },
+              where: { id: inserted.parentId ?? "" },
+            })
+          : undefined;
 
       if (!inserted || !parent || parent.userId === inserted.userId) {
         return { created: inserted, reply: null };
@@ -148,7 +152,9 @@ export const postRouter = {
           input.cursor
             ? sql`(${feed.createdAt}, ${feed.id}) < (${input.cursor.createdAt}, ${input.cursor.postId})`
             : undefined,
-          input.userId ? eq(feed.userId, input.userId) : undefined,
+          input.userId !== undefined && input.userId !== ""
+            ? eq(feed.userId, input.userId)
+            : undefined,
         ),
       )
       .orderBy(desc(feed.createdAt), desc(feed.id))

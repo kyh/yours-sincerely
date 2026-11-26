@@ -1,3 +1,4 @@
+import { noop } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
 import type { FeedLayout } from "@repo/contract/client/preferences";
 
@@ -14,7 +15,7 @@ interface FeedLayoutContextValue {
 
 export const FeedLayoutContext = createContext<FeedLayoutContextValue>({
   layout: "list",
-  toggleLayout: () => null,
+  toggleLayout: noop,
 });
 
 export const useFeedLayout = () => useContext(FeedLayoutContext);

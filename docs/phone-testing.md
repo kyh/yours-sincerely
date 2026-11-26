@@ -190,7 +190,7 @@ its APK with `~/.android/debug.keystore` via `apksigner` or the update is refuse
 adb install apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.kyh.yourssincerely/.MainActivity
 adb forward tcp:9333 "localabstract:$(adb shell cat /proc/net/unix | grep -o 'webview_devtools_remote_[0-9]*' | head -1)"
-node scripts/legacy-session-fixture/seed-webview-cookie.mjs http://localhost:9333/json \
+node scripts/legacy-session-fixture/seed-webview-cookie.ts http://localhost:9333/json \
   yourssincerely.org __session "$COOKIE"
 sleep 35 && adb shell input keyevent KEYCODE_HOME && sleep 5   # let Chromium flush the jar
 adb shell am force-stop com.kyh.yourssincerely

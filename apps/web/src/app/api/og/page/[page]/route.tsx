@@ -23,7 +23,7 @@ export const GET = async (_request: Request, { params }: Params) => {
 
   const card = PAGE_CARDS[page];
 
-  return renderShareCard({
+  return await renderShareCard({
     heading: card.title,
     maxAge: ONE_DAY,
     signature: "Anonymous",

@@ -42,8 +42,9 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
   const [overlay, setOverlay] = useState<Overlay | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const closeOverlay = (closing: Overlay) =>
+  const closeOverlay = (closing: Overlay) => {
     setOverlay((current) => (current === closing ? null : current));
+  };
 
   const overlayState = (name: Overlay) => ({
     onOpenChange: (open: boolean) => {
@@ -106,29 +107,39 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
 
     switch (action) {
       case "delete": {
-        return deleteMutation.mutate({
+        deleteMutation.mutate({
           postId: post.id,
         });
+
+        return;
       }
 
       case "flag": {
         if (!user) {
-          return toast.error("You must be logged in to flag a post");
+          toast.error("You must be logged in to flag a post");
+
+          return;
         }
 
-        return createMutation.mutate({
+        createMutation.mutate({
           postId: post.id,
         });
+
+        return;
       }
 
       case "block": {
-        if (!blockerId || !blockingId) {
-          return toast.error("Invalid block");
+        if (blockerId === undefined || blockerId === "" || !blockingId) {
+          toast.error("Invalid block");
+
+          return;
         }
 
-        return blockMutation.mutate({
+        blockMutation.mutate({
           blockingId,
         });
+
+        return;
       }
 
       default: {
@@ -154,7 +165,9 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
               type="button"
               variant="destructive"
               loading={deleteMutation.isPending}
-              onClick={() => handleSubmit("delete")}
+              onClick={() => {
+                handleSubmit("delete");
+              }}
             >
               Delete Post
             </AlertDialogAction>
@@ -175,7 +188,9 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
               type="button"
               variant="destructive"
               loading={blockMutation.isPending}
-              onClick={() => handleSubmit("block")}
+              onClick={() => {
+                handleSubmit("block");
+              }}
             >
               Block
             </AlertDialogAction>
@@ -205,7 +220,11 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
             Report Post
           </ResponsiveMenuLinkItem>
           {!!user && isPostOwner && (
-            <ResponsiveMenuItem onClick={() => setOverlay("delete")}>
+            <ResponsiveMenuItem
+              onClick={() => {
+                setOverlay("delete");
+              }}
+            >
               <Trash2Icon aria-hidden="true" className="size-4" />
               Delete Post
             </ResponsiveMenuItem>
@@ -215,12 +234,18 @@ export const MoreButton = ({ post, onDeleted }: Props) => {
               <ResponsiveMenuItem
                 closeOnClick={false}
                 loading={createMutation.isPending}
-                onClick={() => handleSubmit("flag")}
+                onClick={() => {
+                  handleSubmit("flag");
+                }}
               >
                 <TriangleAlertIcon aria-hidden="true" className="size-4" />
                 Mark as inappropriate
               </ResponsiveMenuItem>
-              <ResponsiveMenuItem onClick={() => setOverlay("block")}>
+              <ResponsiveMenuItem
+                onClick={() => {
+                  setOverlay("block");
+                }}
+              >
                 <BanIcon aria-hidden="true" className="size-4" />
                 Stop seeing content from this user
               </ResponsiveMenuItem>

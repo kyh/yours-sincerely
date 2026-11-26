@@ -15,7 +15,7 @@ export const Input = ({ className, ...props }: ComponentPropsWithRef<typeof Text
       )}
       placeholderTextColor={colors.mutedForeground}
       {...props}
-      lineBreakModeIOS={props.lineBreakModeIOS ?? (props.multiline ? undefined : "clip")}
+      lineBreakModeIOS={props.lineBreakModeIOS ?? (props.multiline === true ? undefined : "clip")}
     />
   );
 };

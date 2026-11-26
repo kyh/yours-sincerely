@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { getEventListeners, once } from "node:events";
 import test from "node:test";
 import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
@@ -14,7 +15,9 @@ test("a session change drops the old identity's cache without blanking mounted q
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
 
-  t.after(() => queryClient.clear());
+  t.after(() => {
+    queryClient.clear();
+  });
 
   const blocksKey = orpc.block.listBlocks.queryKey();
   queryClient.setQueryData(blocksKey, { blocks: [] });
@@ -22,14 +25,15 @@ test("a session change drops the old identity's cache without blanking mounted q
   const viewerKey = ["viewer"];
   const oldViewer: Viewer = { userId: "account-a" };
   queryClient.setQueryData(viewerKey, oldViewer);
-  const viewerRequests: ((value: Viewer) => void)[] = [];
+  const viewerAnswered = new EventTarget();
+  let viewerAnswer = oldViewer;
 
   const viewer = new QueryObserver(queryClient, {
-    queryFn: () =>
-      // oxlint-disable-next-line promise/avoid-new -- Hold the new session's answer while checking what the page shows meanwhile.
-      new Promise<Viewer>((resolve) => {
-        viewerRequests.push(resolve);
-      }),
+    queryFn: async () => {
+      await once(viewerAnswered, "answer");
+
+      return viewerAnswer;
+    },
     queryKey: viewerKey,
   });
 
@@ -60,10 +64,10 @@ test("a session change drops the old identity's cache without blanking mounted q
   assert.deepEqual(viewer.getCurrentResult().data, oldViewer);
   assert.equal(viewer.getCurrentResult().isFetching, true);
 
-  const [respond] = viewerRequests;
-  assert.ok(respond);
+  assert.equal(getEventListeners(viewerAnswered, "answer").length, 1);
   const newViewer: Viewer = { userId: "account-b" };
-  respond(newViewer);
+  viewerAnswer = newViewer;
+  viewerAnswered.dispatchEvent(new Event("answer"));
   await changed;
 
   assert.deepEqual(viewer.getCurrentResult().data, newViewer);
@@ -75,7 +79,9 @@ test("deleting a post refetches every mounted post but the deleted one", async (
     defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
   });
 
-  t.after(() => queryClient.clear());
+  t.after(() => {
+    queryClient.clear();
+  });
 
   const requests: string[] = [];
 

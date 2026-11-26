@@ -32,24 +32,41 @@ export const NewPostButton = ({ bottom, right }: { bottom: number; right: number
           shadowOpacity: 0.2,
           shadowRadius: 4,
         }}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          setOpen(true);
+        }}
       >
         <Plus size={22} color={colors.primaryForeground} />
       </Pressable>
       {width >= 640 ? (
-        <Dialog open={open} onClose={() => setOpen(false)} label="New Post">
+        <Dialog
+          open={open}
+          onClose={() => {
+            setOpen(false);
+          }}
+          label="New Post"
+        >
           <PostForm
             placeholder={placeholder}
-            onSuccess={() => setOpen(false)}
+            onSuccess={() => {
+              setOpen(false);
+            }}
             presentation="dialog"
           />
         </Dialog>
       ) : (
-        <BottomDrawer open={open} onClose={() => setOpen(false)}>
+        <BottomDrawer
+          open={open}
+          onClose={() => {
+            setOpen(false);
+          }}
+        >
           <View className="py-4">
             <PostForm
               placeholder={placeholder}
-              onSuccess={() => setOpen(false)}
+              onSuccess={() => {
+                setOpen(false);
+              }}
               presentation="drawer"
             />
           </View>

@@ -5,12 +5,16 @@ import { ORPCError } from "@orpc/server";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { Resend } from "resend";
 
-import { env } from "../env";
+import { env, RESET_EMAIL_MODE } from "../env";
 import { os, requireUser } from "../orpc";
 import { rethrowPgError, UNIQUE_VIOLATION } from "../pg-error";
 import { findUserByEmail, isEmailTaken } from "./email-identity";
 import { burnResetTokens, sendPasswordReset } from "./password-reset";
-import { createResetEmailSender, hashResetToken } from "./password-reset-core";
+import {
+  createResetEmailSender,
+  createResetLogSender,
+  hashResetToken,
+} from "./password-reset-core";
 import {
   clearSession,
   createPasswordHash,
@@ -38,18 +42,19 @@ const authed = os.auth.use(requireUser);
 
 export const authRouter = {
   requestPasswordReset: os.auth.requestPasswordReset.handler(async ({ context, input }) => {
-    const resendApiKey = env.RESEND_API_KEY;
-
-    if (resendApiKey === undefined) {
+    if (RESET_EMAIL_MODE.kind === "off") {
       throw new ORPCError("PRECONDITION_FAILED", {
-        message: "Password reset email is not configured",
+        message: "This site can't send email right now, so a password can't be reset by email.",
       });
     }
 
     await sendPasswordReset(context.db, {
       address: input.email,
       appUrl: env.RESET_LINK_ORIGIN,
-      send: createResetEmailSender(new Resend(resendApiKey).emails),
+      send:
+        RESET_EMAIL_MODE.kind === "resend"
+          ? createResetEmailSender(new Resend(RESET_EMAIL_MODE.apiKey).emails)
+          : createResetLogSender(console.info),
     });
 
     return { success: true };
@@ -91,7 +96,12 @@ export const authRouter = {
   signInWithPassword: os.auth.signInWithPassword.handler(async ({ context, input }) => {
     const existingUser = await findUserByEmail(context.db, input.email);
 
-    if (!existingUser?.passwordHash) {
+    if (
+      existingUser === undefined ||
+      existingUser.passwordHash === undefined ||
+      existingUser.passwordHash === null ||
+      existingUser.passwordHash === ""
+    ) {
       throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
     }
 

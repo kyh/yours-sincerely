@@ -10,7 +10,7 @@ import { ORPCError } from "@orpc/server";
 
 import { callerFor } from "../test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -57,7 +57,7 @@ const createFixture = async () => {
 
 const isNotFound = (error: Error) => error instanceof ORPCError && error.code === "NOT_FOUND";
 
-integrationTest("createLike returns the post's new like state, counted like the feed", async () => {
+test("createLike returns the post's new like state, counted like the feed", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -85,7 +85,7 @@ integrationTest("createLike returns the post's new like state, counted like the 
   }
 });
 
-integrationTest("deleteLike returns the post's new like state", async () => {
+test("deleteLike returns the post's new like state", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -107,7 +107,7 @@ integrationTest("deleteLike returns the post's new like state", async () => {
   }
 });
 
-integrationTest("liking a deleted letter is NOT_FOUND; unliking it still succeeds", async () => {
+test("liking a deleted letter is NOT_FOUND; unliking it still succeeds", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

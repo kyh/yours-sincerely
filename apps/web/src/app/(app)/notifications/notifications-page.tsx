@@ -30,7 +30,7 @@ const useMarkRead = () => {
 
   return useMutation(
     orpc.notification.markRead.mutationOptions({
-      onSuccess: () => refreshNotifications(queryClient),
+      onSuccess: async () => await refreshNotifications(queryClient),
     }),
   );
 };
@@ -48,7 +48,9 @@ const MarkAllReadButtonInner = () => {
       variant="ghost"
       size="sm"
       loading={markRead.isPending}
-      onClick={() => markRead.mutate({ scope: "all" })}
+      onClick={() => {
+        markRead.mutate({ scope: "all" });
+      }}
     >
       Mark all as read
     </Button>

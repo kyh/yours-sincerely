@@ -9,7 +9,7 @@ import { ORPCError } from "@orpc/server";
 
 import { callerFor } from "./test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -46,7 +46,7 @@ const createFixture = async () => {
   return { actorId, authorId, caller, cleanup, postId };
 };
 
-integrationTest("liking the same post twice is a no-op, not a 500", async () => {
+test("liking the same post twice is a no-op, not a 500", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -69,15 +69,15 @@ integrationTest("liking the same post twice is a no-op, not a 500", async () => 
   }
 });
 
-integrationTest("flagging the same post twice is a no-op, not a 500", async () => {
+test("flagging the same post twice is a no-op, not a 500", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const first = await fixture.caller.flag.createFlag({ postId: fixture.postId });
     const second = await fixture.caller.flag.createFlag({ postId: fixture.postId });
 
-    assert.ok(first.flag);
-    assert.ok(second.flag);
+    assert.equal(first.flag.postId, fixture.postId);
+    assert.equal(second.flag.postId, fixture.postId);
     assert.equal(second.flag.postId, fixture.postId);
 
     const rows = await db
@@ -91,7 +91,7 @@ integrationTest("flagging the same post twice is a no-op, not a 500", async () =
   }
 });
 
-integrationTest("blocking the same author twice is a no-op, not a 500", async () => {
+test("blocking the same author twice is a no-op, not a 500", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -113,7 +113,7 @@ integrationTest("blocking the same author twice is a no-op, not a 500", async ()
   }
 });
 
-integrationTest("flagging or replying to a deleted letter is NOT_FOUND, not a 500", async () => {
+test("flagging or replying to a deleted letter is NOT_FOUND, not a 500", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -138,7 +138,7 @@ integrationTest("flagging or replying to a deleted letter is NOT_FOUND, not a 50
   }
 });
 
-integrationTest("blocking an account that does not exist is NOT_FOUND", async () => {
+test("blocking an account that does not exist is NOT_FOUND", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -151,7 +151,7 @@ integrationTest("blocking an account that does not exist is NOT_FOUND", async ()
   }
 });
 
-integrationTest("mutations hand back only the keys they mean to", async () => {
+test("mutations hand back only the keys they mean to", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -175,7 +175,7 @@ integrationTest("mutations hand back only the keys they mean to", async () => {
   }
 });
 
-integrationTest("blocking yourself is rejected", async () => {
+test("blocking yourself is rejected", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

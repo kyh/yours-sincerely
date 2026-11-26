@@ -13,6 +13,7 @@
     "./client/preferences": "./src/client/preferences.ts",
     "./client/query-retry": "./src/client/query-retry.ts",
     "./flag/flag-schema": "./src/flag/flag-schema.ts",
+    "./in-sequence": "./src/in-sequence.ts",
     "./like/like-burst": "./src/like/like-burst.ts",
     "./like/like-cache": "./src/like/like-cache.ts",
     "./like/like-schema": "./src/like/like-schema.ts",

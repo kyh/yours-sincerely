@@ -6,7 +6,7 @@ import { eq, inArray, sql } from "@repo/db";
 import { db } from "@repo/db/drizzle-client";
 import { flag, post, user } from "@repo/db/drizzle-schema";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -49,7 +49,7 @@ const createFixture = async () => {
   return { cleanup, commentId, firstId, secondId, updatedAt, userId };
 };
 
-integrationTest("reparenting a comment moves its count between parents", async () => {
+test("reparenting a comment moves its count between parents", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -70,7 +70,7 @@ const judgeUnjudgedFlags = (userId: string) =>
     WHERE "countsTowardHide" IS NULL AND "userId" = ${userId}
   `);
 
-integrationTest("judging an unjudged flag moves flagCount", async () => {
+test("judging an unjudged flag moves flagCount", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

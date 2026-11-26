@@ -58,7 +58,7 @@ const updatePostDetail = <T extends PostDetail>(
   update: LikeUpdate,
 ) => {
   if (data === undefined) {
-    return;
+    return data;
   }
 
   const post = data.post.id === postId ? update(data.post) : data.post;

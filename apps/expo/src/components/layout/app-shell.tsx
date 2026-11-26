@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { ReactNode } from "react";
 import { Linking, Pressable, View, useWindowDimensions } from "react-native";
 import { usePathname } from "expo-router";
@@ -15,6 +14,7 @@ import { Text } from "@/components/ui/text";
 import { SafeAreaView } from "@/lib/css-interop";
 import { useFeedLayout } from "@/lib/feed-layout";
 import { siteConfig } from "@/lib/site-config";
+import { useCurrentYear } from "@/lib/use-current-year";
 import { useTabNavigation } from "@/lib/use-tab-navigation";
 import type { TabHref } from "@/lib/use-tab-navigation";
 
@@ -114,8 +114,7 @@ const openLink = async (url: string) => {
 };
 
 const SidebarFooter = () => {
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [year] = useState(() => new Date().getFullYear());
+  const year = useCurrentYear();
 
   return (
     <View className="border-border mt-auto gap-2 border-t py-4">
@@ -125,7 +124,11 @@ const SidebarFooter = () => {
           accessibilityLabel="View source on GitHub"
           accessibilityRole="link"
           className="text-xs"
-          onPress={() => openLink("https://github.com/kyh/yours-sincerely")}
+          onPress={() => {
+            void (async () => {
+              await openLink("https://github.com/kyh/yours-sincerely");
+            })();
+          }}
         >
           💻
         </Text>
@@ -136,7 +139,11 @@ const SidebarFooter = () => {
             key={label}
             accessibilityRole="link"
             className="min-h-11 justify-center"
-            onPress={() => openLink(`${siteConfig.url}/${label.toLowerCase()}`)}
+            onPress={() => {
+              void (async () => {
+                await openLink(`${siteConfig.url}/${label.toLowerCase()}`);
+              })();
+            }}
           >
             <Text className="text-xs">{label}</Text>
           </Pressable>
@@ -177,7 +184,9 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
               accessibilityRole="link"
               accessibilityLabel="Yours Sincerely, home"
               style={{ height: headerHeight, justifyContent: "center" }}
-              onPress={() => navigateToTab("/")}
+              onPress={() => {
+                navigateToTab("/");
+              }}
             >
               <Logo />
             </Pressable>

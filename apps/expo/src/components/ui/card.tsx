@@ -4,7 +4,7 @@ import { Platform, View } from "react-native";
 import { cn } from "cn";
 
 export const PAPER_SHADOW = (
-  Platform.OS === "android" && Number(Platform.Version) < 28
+  Platform.OS === "android" && Platform.Version < 28
     ? { elevation: 2 }
     : { boxShadow: "0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)" }
 ) satisfies ViewStyle;

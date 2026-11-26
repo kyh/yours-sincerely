@@ -115,7 +115,7 @@ export const unsignSession = (value: string, verifySecrets: readonly string[]) =
   for (const secret of verifySecrets) {
     const unsigned = cookieSignature.unsign(value, secret);
 
-    if (unsigned) {
+    if (unsigned !== false) {
       return unsigned;
     }
   }
@@ -181,7 +181,7 @@ export const resolveSessionUser = async <TUser extends { sessionEpoch: number }>
   verifySecrets: readonly string[];
   findUser: (userId: string) => Promise<TUser | null>;
 }) => {
-  if (!sessionValue) {
+  if (sessionValue === undefined || sessionValue === null || sessionValue === "") {
     return null;
   }
 
@@ -233,7 +233,7 @@ export const decideRenewal: (input: RenewalInput) => RenewalOutcome = ({
   nowSeconds,
   renewAfterSeconds,
 }) => {
-  if (!sessionValue) {
+  if (sessionValue === undefined || sessionValue === null || sessionValue === "") {
     return { decision: "no-session", payload: null };
   }
 

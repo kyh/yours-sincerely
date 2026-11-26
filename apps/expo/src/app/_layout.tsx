@@ -59,7 +59,9 @@ export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
       </NativeText>
       <Pressable
         accessibilityRole="button"
-        onPress={retry}
+        onPress={() => {
+          void retry();
+        }}
         style={{ justifyContent: "center", minHeight: 44, paddingHorizontal: 20 }}
       >
         <NativeText style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>

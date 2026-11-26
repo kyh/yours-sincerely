@@ -4,21 +4,24 @@ import { describe, it } from "node:test";
 import {
   buildResetUrl,
   createResetEmailSender,
+  createResetLogSender,
   createResetToken,
   hashResetToken,
+  resetEmailModeOf,
+  resetEmailWarningOf,
 } from "./password-reset-core.ts";
 import type { EmailClient } from "./password-reset-core.ts";
 
 type SentMessage = Parameters<EmailClient["send"]>[0];
 
-const recordingClient = (error: { message: string; name: string } | null = null) => {
+const recordingClient = (failure: { message: string; name: string } | null = null) => {
   const sent: SentMessage[] = [];
 
   const emails: EmailClient = {
-    send: (message) => {
+    send: async (message) => {
       sent.push(message);
 
-      return Promise.resolve({ error });
+      return await Promise.resolve({ error: failure });
     },
   };
 
@@ -84,5 +87,35 @@ describe("reset email sender", () => {
       }),
       /Resend daily_quota_exceeded: You have reached your daily email sending quota\./u,
     );
+  });
+});
+
+describe("reset email without a provider", () => {
+  it("sends through Resend whenever a key is set, production or not", () => {
+    assert.deepEqual(resetEmailModeOf("re_test", true), { apiKey: "re_test", kind: "resend" });
+    assert.deepEqual(resetEmailModeOf("re_test", false), { apiKey: "re_test", kind: "resend" });
+    assert.equal(resetEmailWarningOf(resetEmailModeOf("re_test", true)), null);
+  });
+
+  it("logs the link outside production, so local dev can follow a reset", async () => {
+    const mode = resetEmailModeOf(undefined, false);
+    const lines: string[] = [];
+    const resetUrl = buildResetUrl("http://localhost:3000", "abc123");
+
+    await createResetLogSender((line) => {
+      lines.push(line);
+    })({ resetUrl, to: "a@b.test" });
+
+    assert.deepEqual(mode, { kind: "log" });
+    assert.equal(resetEmailWarningOf(mode), null);
+    assert.equal(lines.length, 1);
+    assert.ok(lines[0]?.includes(resetUrl) === true);
+  });
+
+  it("is off in production: nothing is logged, and boot warns that no email goes out", () => {
+    const mode = resetEmailModeOf(undefined, true);
+
+    assert.deepEqual(mode, { kind: "off" });
+    assert.match(resetEmailWarningOf(mode) ?? "", /sends no email/u);
   });
 });

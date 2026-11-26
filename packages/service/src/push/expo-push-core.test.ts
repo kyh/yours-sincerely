@@ -37,20 +37,20 @@ const createHarness = (
     deleted,
     deps: {
       chunkSize,
-      deleteToken: (token) => {
+      deleteToken: async (token) => {
         deleted.push(token);
 
-        return Promise.resolve();
+        await Promise.resolve();
       },
-      findTokens: () => Promise.resolve(tokens),
+      findTokens: async () => await Promise.resolve(tokens),
       isExpoPushToken: (token) => token.startsWith("ExponentPushToken["),
       logError: (message) => {
         logged.push(message);
       },
-      sendChunk: (messages) => {
+      sendChunk: async (messages) => {
         sends.push(messages);
 
-        return respond(messages);
+        return await respond(messages);
       },
     } satisfies PushDependencies,
     logged,
@@ -58,7 +58,7 @@ const createHarness = (
   };
 };
 
-const allOk = (messages: ExpoPushMessage[]) => Promise.resolve(messages.map(okTicket));
+const allOk = async (messages: ExpoPushMessage[]) => await Promise.resolve(messages.map(okTicket));
 
 test("sends one message per device with the shared payload", async () => {
   const harness = createHarness([tokenFor(1), tokenFor(2)], allOk);
@@ -112,8 +112,9 @@ test("skips tokens that are not Expo push tokens and sends nothing for none", as
 });
 
 test("DeviceNotRegistered prunes exactly that token, silently", async () => {
-  const harness = createHarness([tokenFor(1), tokenFor(2), tokenFor(3)], () =>
-    Promise.resolve([okTicket(), errorTicket("DeviceNotRegistered"), okTicket()]),
+  const harness = createHarness(
+    [tokenFor(1), tokenFor(2), tokenFor(3)],
+    async () => await Promise.resolve([okTicket(), errorTicket("DeviceNotRegistered"), okTicket()]),
   );
 
   const outcome = await sendPushToUserCore(MESSAGE, harness.deps);
@@ -124,8 +125,9 @@ test("DeviceNotRegistered prunes exactly that token, silently", async () => {
 });
 
 test("other ticket errors keep the token and log once with it redacted", async () => {
-  const harness = createHarness([tokenFor(1), tokenFor(2)], () =>
-    Promise.resolve([errorTicket("MessageTooBig"), okTicket()]),
+  const harness = createHarness(
+    [tokenFor(1), tokenFor(2)],
+    async () => await Promise.resolve([errorTicket("MessageTooBig"), okTicket()]),
   );
 
   const outcome = await sendPushToUserCore(MESSAGE, harness.deps);
@@ -134,14 +136,15 @@ test("other ticket errors keep the token and log once with it redacted", async (
   assert.deepEqual(harness.deleted, []);
   assert.equal(harness.logged.length, 1);
   const [line] = harness.logged;
-  assert.ok(line);
+  assert.ok(line !== undefined && line !== "");
   assert.match(line, /MessageTooBig/u);
   assert.ok(!line.includes("device-1"));
 });
 
 test("a failed send is swallowed and reported, never thrown", async () => {
-  const harness = createHarness([tokenFor(1), tokenFor(2)], () =>
-    Promise.reject(new Error("expo is down")),
+  const harness = createHarness(
+    [tokenFor(1), tokenFor(2)],
+    async () => await Promise.reject(new Error("expo is down")),
   );
 
   const outcome = await sendPushToUserCore(MESSAGE, harness.deps);
@@ -153,7 +156,7 @@ test("a failed send is swallowed and reported, never thrown", async () => {
 
 test("a failing token lookup is swallowed too", async () => {
   const harness = createHarness([], allOk);
-  harness.deps.findTokens = () => Promise.reject(new Error("database gone"));
+  harness.deps.findTokens = async () => await Promise.reject(new Error("database gone"));
 
   const outcome = await sendPushToUserCore(MESSAGE, harness.deps);
 

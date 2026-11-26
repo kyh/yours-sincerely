@@ -43,7 +43,7 @@ export const parsePushCleanupCapability = (
   for (const secret of signingSecrets) {
     const unsigned = cookieSignature.unsign(capability, secret);
 
-    if (!unsigned) {
+    if (unsigned === false) {
       continue;
     }
 

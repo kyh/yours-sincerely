@@ -6,7 +6,7 @@ import { notificationTargetData } from "@repo/contract/notification/notification
 import type { PushPlatform } from "@repo/contract/push/push-schema";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { onlineManager, useMutation } from "@tanstack/react-query";
+import { noop, onlineManager, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,8 @@ import { createPushSession, patchPushSession } from "./push-session";
 import { usePushDeviceCleanup } from "./use-push-device-cleanup";
 
 Notifications.setNotificationHandler({
-  handleNotification: () =>
-    Promise.resolve({
+  handleNotification: async () =>
+    await Promise.resolve({
       shouldPlaySound: false,
       shouldSetBadge: false,
       shouldShowBanner: true,
@@ -84,7 +84,10 @@ interface PushRegistrationContextValue {
 }
 
 const PushRegistrationContext = createContext<PushRegistrationContextValue | null>(null);
-const ReleasePushIdentityContext = createContext<() => Promise<void>>(() => Promise.resolve());
+
+const ReleasePushIdentityContext = createContext<() => Promise<void>>(async () => {
+  await Promise.resolve();
+});
 
 export const useReleasePushIdentity = () => useContext(ReleasePushIdentityContext);
 
@@ -124,12 +127,14 @@ export const PushNotificationRegistration = () => {
       <Button
         size="sm"
         variant="outline"
-        onPress={async () => {
-          try {
-            await (denied ? Linking.openSettings() : register());
-          } catch {
-            toast.error("Could not enable notifications. Please try again.");
-          }
+        onPress={() => {
+          void (async () => {
+            try {
+              await (denied ? Linking.openSettings() : register());
+            } catch {
+              toast.error("Could not enable notifications. Please try again.");
+            }
+          })();
         }}
         loading={registering}
       >
@@ -195,7 +200,9 @@ export const PushNotificationCoordinator = ({
 
     try {
       if (previousDevice !== null && previousDevice.userId !== userId) {
-        await cleanupStoredDevice(previousDevice).catch(() => deleteRegisteredPushDevice());
+        await cleanupStoredDevice(previousDevice).catch(async () => {
+          await deleteRegisteredPushDevice();
+        });
       }
 
       const acquired = await acquireExpoPushToken();
@@ -233,7 +240,7 @@ export const PushNotificationCoordinator = ({
 
   useEffect(() => {
     if (userId === null) {
-      return;
+      return noop;
     }
 
     const refreshPermission = async () => {
@@ -297,7 +304,7 @@ export const PushNotificationCoordinator = ({
 
   useEffect(() => {
     if (userId === null) {
-      return;
+      return noop;
     }
 
     const openNotification = (response: Notifications.NotificationResponse) => {

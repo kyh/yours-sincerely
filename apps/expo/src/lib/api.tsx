@@ -1,5 +1,5 @@
 import { AppState, Platform } from "react-native";
-import { createORPCClient, onError } from "@orpc/client";
+import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { focusManager, QueryClient } from "@tanstack/react-query";
@@ -32,12 +32,17 @@ const link = new RPCLink({
   fetch: fetchWithSession,
   headers: () => ({ "x-orpc-source": "expo" }),
   interceptors: [
-    // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
-    onError((error) => {
-      if (__DEV__ && !(error instanceof Error && isCancelledFetch(error))) {
-        console.error(error);
+    async (options) => {
+      try {
+        return await options.next();
+      } catch (error) {
+        if (__DEV__ && !(error instanceof Error && isCancelledFetch(error))) {
+          console.error(error);
+        }
+
+        throw error;
       }
-    }),
+    },
   ],
   origin: getBaseUrl(),
   url: "/api/orpc",

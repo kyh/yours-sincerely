@@ -62,7 +62,14 @@ export const AsideHeader = () => {
         >
           <ProfileAvatar
             className="size-8"
-            src={getAvatarUrl(user?.displayName || user?.id)}
+            src={getAvatarUrl(
+              user === null ||
+                user.displayName === undefined ||
+                user.displayName === null ||
+                user.displayName === ""
+                ? user?.id
+                : user.displayName,
+            )}
             alt="Profile"
           />
         </ResponsiveMenuTrigger>
@@ -94,7 +101,12 @@ export const AsideHeader = () => {
             </span>
             Theme
           </ResponsiveMenuItem>
-          <ResponsiveMenuItem onClick={toggleLayout} closeOnClick={false}>
+          <ResponsiveMenuItem
+            onClick={() => {
+              void toggleLayout();
+            }}
+            closeOnClick={false}
+          >
             <LayoutDashboardIcon aria-hidden="true" className="size-4" />
             Layout
           </ResponsiveMenuItem>

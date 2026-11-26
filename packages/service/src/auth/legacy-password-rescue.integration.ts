@@ -9,7 +9,7 @@ import { db } from "@repo/db/drizzle-client";
 import { user } from "@repo/db/drizzle-schema";
 import { compare, hash } from "bcryptjs";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 const RESCUE_SQL = path.join(import.meta.dirname, "../../../db/sql/070-legacy-password-rescue.sql");
 
@@ -58,7 +58,7 @@ const cleanup = async (id: string) => {
   await db.execute(sql`DELETE FROM auth.users WHERE id::text = ${id}`);
 };
 
-integrationTest("a stranded account can sign in with its original password again", async () => {
+test("a stranded account can sign in with its original password again", { skip }, async () => {
   const id = await createStrandedAccount();
 
   try {
@@ -67,7 +67,7 @@ integrationTest("a stranded account can sign in with its original password again
     await runRescue();
 
     const rescued = await passwordHashOf(id);
-    assert.ok(rescued, "rescue must give the account a passwordHash");
+    assert.ok(rescued !== null && rescued !== "", "rescue must give the account a passwordHash");
     assert.ok(
       await compare(ORIGINAL_PASSWORD, rescued),
       "the account must authenticate with the password it originally chose",
@@ -77,7 +77,7 @@ integrationTest("a stranded account can sign in with its original password again
   }
 });
 
-integrationTest("a password set since the cutover is never reverted", async () => {
+test("a password set since the cutover is never reverted", { skip }, async () => {
   const id = await createStrandedAccount();
 
   try {
@@ -88,7 +88,7 @@ integrationTest("a password set since the cutover is never reverted", async () =
     await runRescue();
 
     const stored = await passwordHashOf(id);
-    assert.ok(stored);
+    assert.ok(stored !== null && stored !== "");
     assert.ok(await compare(RESET_PASSWORD, stored), "the reset password must still work");
     assert.equal(
       await compare(ORIGINAL_PASSWORD, stored),
@@ -100,7 +100,7 @@ integrationTest("a password set since the cutover is never reverted", async () =
   }
 });
 
-integrationTest("the rescue is idempotent — a second run changes nothing", async () => {
+test("the rescue is idempotent — a second run changes nothing", { skip }, async () => {
   const id = await createStrandedAccount();
 
   try {
@@ -113,7 +113,7 @@ integrationTest("the rescue is idempotent — a second run changes nothing", asy
   }
 });
 
-integrationTest("an identity with no real password is left alone, not half-rescued", async () => {
+test("an identity with no real password is left alone, not half-rescued", { skip }, async () => {
   const id = randomUUID();
 
   try {
@@ -131,7 +131,7 @@ integrationTest("an identity with no real password is left alone, not half-rescu
   }
 });
 
-integrationTest("anonymous authors are untouched", async () => {
+test("anonymous authors are untouched", { skip }, async () => {
   const anonymousId = randomUUID();
   const strandedId = await createStrandedAccount();
 
@@ -141,7 +141,10 @@ integrationTest("anonymous authors are untouched", async () => {
 
     await runRescue();
 
-    assert.ok(await passwordHashOf(strandedId), "the rescue ran and matched its target");
+    assert.ok(
+      ((await passwordHashOf(strandedId)) ?? "") !== "",
+      "the rescue ran and matched its target",
+    );
     assert.equal(await passwordHashOf(anonymousId), null);
   } finally {
     await cleanup(anonymousId);

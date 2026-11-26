@@ -42,7 +42,7 @@ const copyLegacySession: () => Promise<MigrationResult> = async () => {
   const { result, legacyProvenance } = await migrateLegacySession({
     getCheckpoint: getLegacySessionMigrationCheckpoint,
     getStored: getSessionCookie,
-    readLegacy: () => legacyCookie.read(SESSION_COOKIE, HOST),
+    readLegacy: async () => await legacyCookie.read(SESSION_COOKIE, HOST),
     setCheckpoint: setLegacySessionMigrationCheckpoint,
     setStored: setSessionCookie,
   });
@@ -54,7 +54,7 @@ const copyLegacySession: () => Promise<MigrationResult> = async () => {
 
 /** Share startup work across requests. A failed import blocks requests and
     remains retryable, so a temporary native error cannot replace the identity. */
-export const ensureLegacySessionMigrated = () => {
+export const ensureLegacySessionMigrated = async () => {
   const attemptMigration = async () => {
     try {
       return await copyLegacySession();
@@ -67,24 +67,28 @@ export const ensureLegacySessionMigrated = () => {
 
   migration ??= attemptMigration();
 
-  return migration;
+  return await migration;
 };
 
 /** Delete the legacy cookie only after the server accepted a session that is
     also present in SecureStore. Failures remain retryable and never destroy
     the only copy of a user's session. */
-export const finalizeLegacySessionMigration = (authenticated: boolean) => {
+export const finalizeLegacySessionMigration = async (authenticated: boolean) => {
   const legacyCookie = LegacyCookie;
 
   if (!authenticated || finalized || legacyCookie === null || !migrationProvenanceEstablished) {
-    return Promise.resolve();
+    await Promise.resolve();
+
+    return;
   }
 
   const clearLegacySession = async () => {
     try {
       const result = await finalizeLegacySession({
         authenticated,
-        clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
+        clearLegacy: async () => {
+          await legacyCookie.clear(SESSION_COOKIE, HOST);
+        },
         getCheckpoint: getLegacySessionMigrationCheckpoint,
         getStored: getSessionCookie,
         setCheckpoint: setLegacySessionMigrationCheckpoint,
@@ -104,7 +108,7 @@ export const finalizeLegacySessionMigration = (authenticated: boolean) => {
 
   finalization ??= clearLegacySession();
 
-  return finalization;
+  await finalization;
 };
 
 /** Call when the user ends their session here (sign-out, account deletion) so
@@ -118,7 +122,9 @@ export const retireLegacySessionMigration = async () => {
 
   try {
     await retireLegacySession({
-      clearLegacy: () => legacyCookie.clear(SESSION_COOKIE, HOST),
+      clearLegacy: async () => {
+        await legacyCookie.clear(SESSION_COOKIE, HOST);
+      },
       getCheckpoint: getLegacySessionMigrationCheckpoint,
       setCheckpoint: setLegacySessionMigrationCheckpoint,
     });

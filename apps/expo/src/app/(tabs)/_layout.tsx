@@ -13,7 +13,12 @@ const TabLayout = () => {
   const [width, setWidth] = useState(0);
 
   return (
-    <View className="flex-1" onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+    <View
+      className="flex-1"
+      onLayout={(event) => {
+        setWidth(event.nativeEvent.layout.width);
+      }}
+    >
       <Tabs
         initialRouteName="index"
         backBehavior="history"

@@ -55,7 +55,7 @@ Its zod inputs, with the constants and rules that travel with them, live beside 
 form validates with the schema the server does. Pure rules both clients share, not wire,
 sit in the folder of the domain they belong to (`post/post-content.ts`, `user/user-calendar.ts`,
 `like/like-cache.ts`, …); rules with no router go in `site/` or `client/`. Only `index.ts`,
-`base.ts` and `server-date.ts` stay at the root. Each module is its own subpath export. Outputs are `type<T>()` over wire interfaces
+`base.ts`, `server-date.ts` and `in-sequence.ts` stay at the root. Each module is its own subpath export. Outputs are `type<T>()` over wire interfaces
 written in the contract: compile-time only, no runtime validation, and never a `@repo/db`
 type, because Expo compiles the contract. `@repo/service` implements it with one
 `os = implement(contract)` in `src/orpc.ts`: public procedures are
@@ -75,12 +75,13 @@ handler and RSC caller import `@repo/service`, and lint bans it from `apps/expo`
 pnpm dev              # All packages (turbo run)
 pnpm dev:web          # Web only
 pnpm dev:expo         # Expo only
+pnpm bootstrap --yes  # Provision: .env from .env.example, db:start, db:push, db:seed; re-runnable
 pnpm db:start         # Local Supabase, native; writes POSTGRES_URL into .env.local
 pnpm db:stop          # Stop Supabase
 pnpm db:reset         # Reset DB
 pnpm db:push          # Push schema to local
 pnpm db:push-remote   # Push schema to production
-pnpm db:seed          # Perf fixture — large, NOT idempotent, no signable accounts
+pnpm db:seed          # Perf fixture — large, skips if already seeded, no signable accounts
 pnpm verify           # typecheck + lint + format + test + build — mirrors CI, run before commit
 pnpm lint             # oxlint (NOT ESLint) via ultracite presets incl. landmines, every rule an error
 pnpm format           # oxfmt --check (use format:fix to write)
@@ -261,9 +262,9 @@ config change.
 ### Legacy Capacitor runtime in `apps/web` is load-bearing
 
 `apps/web` still depends on `@capacitor/app`, `@capacitor/core`, `@capacitor/splash-screen`
-and mounts `apps/web/src/components/providers/capacitor-provider.tsx` in the root layout.
+and mounts `apps/web/src/components/providers/capacitor-bridge.tsx` in the root layout.
 **Do not remove them.** The legacy Capacitor app is a _remote WebView_ pointed at production
-web — it runs `apps/web`'s JavaScript live on users' phones today. The provider hides its
+web — it runs `apps/web`'s JavaScript live on users' phones today. The bridge hides its
 splash screen (`launchAutoHide: false` makes `SplashScreen.hide()` mandatory) and wires the
 Android back button. Removing it strands every remaining legacy install on a permanent
 splash screen. Gated on store-rollout data; tracked as GitHub issue #72.

@@ -20,8 +20,9 @@ import { findSessionUser } from "./auth/session-user";
 export const createORPCContext = async (opts: { headers: Headers }) => {
   const sessionValue = getCookie(opts.headers, SESSION_COOKIE_NAME);
 
-  const sessionUser = await authenticateRequestSession(sessionValue, (userId) =>
-    findSessionUser(db, userId),
+  const sessionUser = await authenticateRequestSession(
+    sessionValue,
+    async (userId) => await findSessionUser(db, userId),
   );
 
   return { db, user: sessionUser };

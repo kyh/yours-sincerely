@@ -5,8 +5,10 @@ import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { safeNextPath } from "@repo/contract/auth/auth-navigation";
 
 import { AuthForm } from "../_components/auth-form";
+import { NOINDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  robots: NOINDEX,
   title: "Sign Up",
 };
 

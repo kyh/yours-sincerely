@@ -11,5 +11,5 @@ export const createFlagInput = z.object({
     .trim()
     .max(500)
     .optional()
-    .transform((reason) => reason || undefined),
+    .transform((reason) => (reason === undefined || reason === "" ? undefined : reason)),
 });

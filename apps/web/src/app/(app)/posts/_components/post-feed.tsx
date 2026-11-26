@@ -38,7 +38,9 @@ export const PostFeed = ({ layout = "list", filters = EMPTY_FILTERS }: Props) =>
         <CardStack
           data={posts}
           hasNextPage={hasNextPage}
-          onLoadMore={fetchNextPage}
+          onLoadMore={() => {
+            void fetchNextPage();
+          }}
           render={(post) => (
             <PostContent
               layout="stack"

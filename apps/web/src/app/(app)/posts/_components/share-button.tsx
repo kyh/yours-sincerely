@@ -36,7 +36,7 @@ export const ShareButton = ({ post }: Props) => {
   };
 
   const share = async () => {
-    if (!navigator.share) {
+    if (!("share" in navigator)) {
       setIsOpen(true);
 
       return;
@@ -107,7 +107,11 @@ export const ShareButton = ({ post }: Props) => {
           </svg>
           Share on X
         </ResponsiveMenuLinkItem>
-        <ResponsiveMenuItem onClick={copyLink}>
+        <ResponsiveMenuItem
+          onClick={() => {
+            void copyLink();
+          }}
+        >
           <ClipboardCopyIcon aria-hidden="true" className="size-4" />
           Copy Link
         </ResponsiveMenuItem>

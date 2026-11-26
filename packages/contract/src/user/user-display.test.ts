@@ -16,6 +16,9 @@ test("legacy avatar mapping is stable — DO NOT change these expected values", 
   assert.equal(getLegacyAvatarIndex("🙂"), 5);
   assert.equal(getLegacyAvatarIndex("The quick brown fox"), 9);
   assert.equal(getLegacyAvatarIndex("x".repeat(500)), 4);
+  assert.equal(getLegacyAvatarIndex("Long letter writer name that overflows"), 6);
+  assert.equal(getLegacyAvatarIndex("\uFFFF".repeat(7)), 7);
+  assert.equal(getLegacyAvatarIndex("Ünïcödé 💌 letters"), 13);
 });
 
 test("legacy avatar mapping defaults to Anonymous", () => {

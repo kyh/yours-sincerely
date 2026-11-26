@@ -18,7 +18,11 @@ interface Props {
 export const ShareButton = ({ post }: Props) => {
   const colors = useThemeColors();
   const [drawer, setDrawer] = useState<"closed" | "open" | "closing">("closed");
-  const close = () => setDrawer((current) => (current === "open" ? "closing" : current));
+
+  const close = () => {
+    setDrawer((current) => (current === "open" ? "closing" : current));
+  };
+
   const postUrl = `${WEB_ORIGIN}/posts/${post.id}`;
   const encodedPostUrl = encodeURIComponent(postUrl);
   const iconSize = 16;
@@ -54,7 +58,9 @@ export const ShareButton = ({ post }: Props) => {
         accessibilityLabel="Share post"
         hitSlop={6}
         className="active:bg-accent size-8 items-center justify-center rounded-lg"
-        onPress={share}
+        onPress={() => {
+          void share();
+        }}
       >
         <ShareIcon size={iconSize} color={colors.mutedForeground} />
       </Pressable>
@@ -62,9 +68,9 @@ export const ShareButton = ({ post }: Props) => {
         <BottomDrawer
           open={drawer === "open"}
           onClose={close}
-          onExitComplete={() =>
-            setDrawer((current) => (current === "closing" ? "closed" : current))
-          }
+          onExitComplete={() => {
+            setDrawer((current) => (current === "closing" ? "closed" : current));
+          }}
         >
           <DrawerItem
             icon={
@@ -97,7 +103,9 @@ export const ShareButton = ({ post }: Props) => {
           <DrawerItem
             icon={<ClipboardCopy size={iconSize} color={colors.foreground} />}
             label="Copy Link"
-            onPress={copyLink}
+            onPress={() => {
+              void copyLink();
+            }}
           />
         </BottomDrawer>
       )}

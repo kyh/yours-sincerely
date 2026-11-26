@@ -24,11 +24,16 @@ export const ActivityWeek = ({ data, theme }: Props) => {
   const step = width / DEFAULT_WEEKDAY_LABELS.length;
 
   return (
-    <View className="w-full" onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+    <View
+      className="w-full"
+      onLayout={(event) => {
+        setWidth(event.nativeEvent.layout.width);
+      }}
+    >
       {width > 0 && (
         <Svg width={width} height={100}>
           <Rect fill={theme.level0} width={width} height={16} rx={8} ry={8} y={84} />
-          <G x={width * 0.055}>
+          <G transform={[{ translateX: width * 0.055 }]}>
             {DEFAULT_WEEKDAY_LABELS.map((day, index) => {
               const { count, level } = data[day];
               const summary = `${count} posts written on ${FULL_DAY_LABELS[day]}s`;
@@ -45,12 +50,14 @@ export const ActivityWeek = ({ data, theme }: Props) => {
                   stroke={theme.stroke}
                   accessible
                   accessibilityLabel={summary}
-                  onPress={() => toast(summary)}
+                  onPress={() => {
+                    toast(summary);
+                  }}
                 />
               );
             })}
           </G>
-          <G x={width * 0.05}>
+          <G transform={[{ translateX: width * 0.05 }]}>
             {DEFAULT_WEEKDAY_LABELS.map((day, index) => (
               <SvgText
                 key={day}

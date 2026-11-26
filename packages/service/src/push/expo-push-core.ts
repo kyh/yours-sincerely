@@ -1,4 +1,5 @@
 import type { NewCommentNotificationData } from "@repo/contract/notification/notification-schema";
+import { inSequence } from "@repo/contract/in-sequence";
 import { PUSH_TOKEN_MAX_IDLE_DAYS } from "@repo/contract/push/push-schema";
 import type { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 
@@ -68,7 +69,7 @@ export const sendPushToUserCore = async (message: PushMessage, deps: PushDepende
     const allTokens = await deps.findTokens(message.userId);
     const tokens = allTokens.filter(deps.isExpoPushToken);
 
-    for (const batch of chunk(tokens, deps.chunkSize)) {
+    await inSequence(chunk(tokens, deps.chunkSize), async (batch) => {
       const messages = batch.map((to) => ({
         body: message.body,
         data: message.data,
@@ -88,13 +89,15 @@ export const sendPushToUserCore = async (message: PushMessage, deps: PushDepende
             error instanceof Error ? error.message : String(error)
           }`,
         );
-        continue;
+
+        return;
       }
 
-      for (const [index, ticket] of tickets.entries()) {
+      await inSequence(tickets, async (ticket, index) => {
         if (ticket.status === "ok") {
           outcome.sent += 1;
-          continue;
+
+          return;
         }
 
         const token = batch[index] ?? ticket.details?.expoPushToken;
@@ -102,7 +105,8 @@ export const sendPushToUserCore = async (message: PushMessage, deps: PushDepende
         if (ticket.details?.error === "DeviceNotRegistered" && token !== undefined) {
           await deps.deleteToken(token);
           outcome.pruned.push(token);
-          continue;
+
+          return;
         }
 
         outcome.failed += 1;
@@ -111,8 +115,8 @@ export const sendPushToUserCore = async (message: PushMessage, deps: PushDepende
             token === undefined ? "unknown device" : redactPushToken(token)
           }: ${ticket.message}`,
         );
-      }
-    }
+      });
+    });
   } catch (error) {
     deps.logError(
       `push: aborted for user ${message.userId}: ${

@@ -9,7 +9,7 @@ import Constants from "expo-constants";
 export const getBaseUrl = () => {
   const override = process.env.EXPO_PUBLIC_API_URL;
 
-  if (override) {
+  if (override !== undefined && override !== "") {
     return override;
   }
 
@@ -19,7 +19,7 @@ export const getBaseUrl = () => {
 
   const host = Constants.expoConfig?.hostUri?.split(":")[0];
 
-  if (!host) {
+  if (host === undefined || host === "") {
     return WEB_ORIGIN;
   }
 

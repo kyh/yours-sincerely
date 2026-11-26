@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { getEventListeners, once } from "node:events";
 import { registerHooks } from "node:module";
 import { it } from "node:test";
 import { createORPCClient } from "@orpc/client";
@@ -6,6 +7,7 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
 import type { ContractClient } from "@repo/contract";
+import { inSequence } from "@repo/contract/in-sequence";
 
 interface Workspace {
   userId: string | null;
@@ -22,7 +24,7 @@ it("updates retained tab observers and drops inactive account data on account ch
   });
 
   const client: ContractClient = createORPCClient({
-    call: () => Promise.reject(new Error("No network in unit tests")),
+    call: async () => await Promise.reject(new Error("No network in unit tests")),
   });
 
   const orpc = createTanstackQueryUtils(client);
@@ -37,7 +39,9 @@ it("updates retained tab observers and drops inactive account data on account ch
       nextResolve(specifier === "./api" ? "./api.tsx" : specifier, context),
   });
 
-  t.after(() => imports.deregister());
+  t.after(() => {
+    imports.deregister();
+  });
   t.mock.module("./api", { exports: { orpc, queryClient } });
   const { resetAfterSessionChanged } = await import("./query-policies.ts");
 
@@ -51,31 +55,40 @@ it("updates retained tab observers and drops inactive account data on account ch
   queryClient.setQueryData(workspaceKey, oldWorkspace);
   queryClient.setQueryData(feedKey, oldFeed);
 
-  const workspaceRequests: ((value: Workspace) => void)[] = [];
-  const feedRequests: ((value: Feed) => void)[] = [];
+  const workspaceAnswered = new EventTarget();
+  const feedAnswered = new EventTarget();
+  let workspaceAnswer = oldWorkspace;
+  let feedAnswer = oldFeed;
 
   const workspace = new QueryObserver(queryClient, {
-    queryFn: () =>
-      // oxlint-disable-next-line promise/avoid-new -- Keep the new session response pending while checking stale-data removal.
-      new Promise<Workspace>((resolve) => {
-        workspaceRequests.push(resolve);
-      }),
+    queryFn: async () => {
+      await once(workspaceAnswered, "answer");
+
+      return workspaceAnswer;
+    },
     queryKey: workspaceKey,
   });
 
   const feed = new QueryObserver(queryClient, {
-    queryFn: () =>
-      // oxlint-disable-next-line promise/avoid-new -- Retained feed observers must drop old personalized data before this response.
-      new Promise<Feed>((resolve) => {
-        feedRequests.push(resolve);
-      }),
+    queryFn: async () => {
+      await once(feedAnswered, "answer");
+
+      return feedAnswer;
+    },
     queryKey: feedKey,
   });
 
   const workspaceUpdates: (Workspace | undefined)[] = [];
   const feedUpdates: (Feed | undefined)[] = [];
-  const unsubscribeWorkspace = workspace.subscribe((result) => workspaceUpdates.push(result.data));
-  const unsubscribeFeed = feed.subscribe((result) => feedUpdates.push(result.data));
+
+  const unsubscribeWorkspace = workspace.subscribe((result) => {
+    workspaceUpdates.push(result.data);
+  });
+
+  const unsubscribeFeed = feed.subscribe((result) => {
+    feedUpdates.push(result.data);
+  });
+
   t.after(() => {
     unsubscribeWorkspace();
     unsubscribeFeed();
@@ -84,7 +97,7 @@ it("updates retained tab observers and drops inactive account data on account ch
   assert.deepEqual(workspace.getCurrentResult().data, oldWorkspace);
   assert.deepEqual(feed.getCurrentResult().data, oldFeed);
 
-  for (const userId of ["account-b", null]) {
+  await inSequence(["account-b", null], async (userId) => {
     queryClient.setQueryData(inactiveKey, [{ message: "Previous account's notification" }]);
     workspaceUpdates.length = 0;
     feedUpdates.length = 0;
@@ -126,18 +139,16 @@ it("updates retained tab observers and drops inactive account data on account ch
 
     const nextWorkspace: Workspace = { userId };
     const nextFeed: Feed = { liked: false, viewerId: userId };
-    assert.equal(workspaceRequests.length, 1);
-    assert.equal(feedRequests.length, 1);
-    const respondWorkspace = workspaceRequests.shift();
-    const respondFeed = feedRequests.shift();
-    assert.ok(respondWorkspace);
-    assert.ok(respondFeed);
-    respondWorkspace(nextWorkspace);
-    respondFeed(nextFeed);
+    assert.equal(getEventListeners(workspaceAnswered, "answer").length, 1);
+    assert.equal(getEventListeners(feedAnswered, "answer").length, 1);
+    workspaceAnswer = nextWorkspace;
+    feedAnswer = nextFeed;
+    workspaceAnswered.dispatchEvent(new Event("answer"));
+    feedAnswered.dispatchEvent(new Event("answer"));
     await changed;
 
-    assert.deepEqual(workspaceUpdates.at(-1), nextWorkspace);
-    assert.deepEqual(feedUpdates.at(-1), nextFeed);
+    assert.deepEqual(workspaceUpdates.slice(-1), [nextWorkspace]);
+    assert.deepEqual(feedUpdates.slice(-1), [nextFeed]);
     assert.deepEqual(workspace.getCurrentResult().data, nextWorkspace);
     assert.deepEqual(feed.getCurrentResult().data, nextFeed);
     assert.equal(queryClient.getQueryData(inactiveKey), undefined);
@@ -146,5 +157,5 @@ it("updates retained tab observers and drops inactive account data on account ch
     for (const unsubscribe of unsubscribeProtected) {
       unsubscribe();
     }
-  }
+  });
 });

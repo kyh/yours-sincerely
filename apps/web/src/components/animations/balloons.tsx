@@ -494,11 +494,14 @@ const createBalloonAnimation = ({
   return { balloon, getAnimation };
 };
 
-const nextFrame = () =>
-  // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame is callback-only
-  new Promise<void>((resolve) => {
-    requestAnimationFrame(() => resolve());
+const nextFrame = async () => {
+  // oxlint-disable-next-line promise/avoid-new -- requestAnimationFrame has no promise form, and Promise.withResolvers is newer than the browsers this ES2023 build targets
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
   });
+};
 
 export const balloons = async () => {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {

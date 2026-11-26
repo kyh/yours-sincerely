@@ -72,3 +72,6 @@ credentials.json
 /.credentials/
 !docs/certificates/android-upload.pem
 !docs/certificates/fcm-push.pem
+
+# next dev writes these for coding agents; agent docs live at the root
+apps/*/AGENTS.md

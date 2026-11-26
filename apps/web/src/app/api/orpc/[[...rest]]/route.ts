@@ -1,19 +1,22 @@
 import type { NextRequest } from "next/server";
 import { appRouter, createORPCContext } from "@repo/service";
-import { COMMON_ERROR_STATUS_MAP, onError, ORPCError } from "@orpc/server";
+import { COMMON_ERROR_STATUS_MAP, ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
 // WARNING: never add CORS headers: with Allow-Credentials they hand a cross-origin page an authenticated path in.
 const handler = new RPCHandler(appRouter, {
   clientInterceptors: [
-    // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor, not a node-style callback
-    onError((error) => {
-      if (error instanceof ORPCError) {
-        return;
-      }
+    async (options) => {
+      try {
+        return await options.next();
+      } catch (error) {
+        if (!(error instanceof ORPCError)) {
+          console.error(">>> oRPC Error", error);
+        }
 
-      console.error(">>> oRPC Error", error);
-    }),
+        throw error;
+      }
+    },
   ],
 });
 

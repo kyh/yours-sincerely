@@ -35,7 +35,7 @@ export const GET = async (_request: Request, { params }: Params) => {
   const { postId } = await params;
   const letter = await loadLetterText(postId);
 
-  return renderShareCard({
+  return await renderShareCard({
     maxAge: ONE_HOUR,
     muted: !letter,
     signature: letter?.signature ?? "Anonymous",

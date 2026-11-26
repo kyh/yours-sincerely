@@ -3,8 +3,10 @@ import Link from "next/link";
 
 import { PageContent, PageHeader } from "@/components/layout/page-layout";
 import { RequestPasswordResetForm } from "../_components/auth-form";
+import { NOINDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  robots: NOINDEX,
   title: "Request Password Reset",
 };
 

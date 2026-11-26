@@ -49,6 +49,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "dotenv-cli": "catalog:",
+    "playwright": "1.65.1",
     "postcss": "^8.5.33",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",

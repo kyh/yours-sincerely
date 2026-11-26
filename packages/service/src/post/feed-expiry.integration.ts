@@ -9,7 +9,7 @@ import { post, user } from "@repo/db/drizzle-schema";
 
 import { createCaller } from "../test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -18,7 +18,7 @@ after(async () => {
 const HOUR_MS = 60 * 60 * 1000;
 const EXPIRY_MS = POST_EXPIRY_DAYS * 24 * HOUR_MS;
 
-integrationTest("the feed drops a letter exactly when its timer expires", async () => {
+test("the feed drops a letter exactly when its timer expires", { skip }, async () => {
   const authorId = randomUUID();
   const now = Date.now();
   const updatedAt = new Date(now).toISOString();

@@ -97,14 +97,28 @@ const callWithMalformedInput = async (path: string, user: ORPCContext["user"]) =
 
 describe("the app router", () => {
   test("an anonymous call is refused before its input is judged", async () => {
-    for (const path of protectedPaths) {
-      assert.equal(await callWithMalformedInput(path, null), 401, path);
+    const statuses = await Promise.all(
+      protectedPaths.map(async (path) => ({
+        path,
+        status: await callWithMalformedInput(path, null),
+      })),
+    );
+
+    for (const { path, status } of statuses) {
+      assert.equal(status, 401, path);
     }
   });
 
   test("a signed-in caller's malformed input is still judged", async () => {
-    for (const path of protectedPathsWithInput) {
-      assert.equal(await callWithMalformedInput(path, viewer), 400, path);
+    const statuses = await Promise.all(
+      protectedPathsWithInput.map(async (path) => ({
+        path,
+        status: await callWithMalformedInput(path, viewer),
+      })),
+    );
+
+    for (const { path, status } of statuses) {
+      assert.equal(status, 400, path);
     }
   });
 });
