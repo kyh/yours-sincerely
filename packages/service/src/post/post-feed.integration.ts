@@ -8,7 +8,7 @@ import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
 import { callerFor } from "../test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -53,7 +53,7 @@ const createFixture = async () => {
   return { authorId, caller, cleanup, now, postIds, posts, readerId, updatedAt };
 };
 
-integrationTest("getFeed returns exactly the requested page size", async () => {
+test("getFeed returns exactly the requested page size", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -66,7 +66,7 @@ integrationTest("getFeed returns exactly the requested page size", async () => {
   }
 });
 
-integrationTest("getFeed pages through the cursor without duplicates or gaps", async () => {
+test("getFeed pages through the cursor without duplicates or gaps", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -94,7 +94,7 @@ integrationTest("getFeed pages through the cursor without duplicates or gaps", a
   }
 });
 
-integrationTest("letters sharing a timestamp page by id, without gaps or repeats", async () => {
+test("letters sharing a timestamp page by id, without gaps or repeats", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -103,19 +103,21 @@ integrationTest("letters sharing a timestamp page by id, without gaps or repeats
       .set({ createdAt: new Date(fixture.now).toISOString() })
       .where(inArray(post.id, fixture.postIds));
 
-    const seen: string[] = [];
-    let cursor: Awaited<ReturnType<typeof fixture.caller.post.getFeed>>["nextCursor"];
+    type Cursor = Awaited<ReturnType<typeof fixture.caller.post.getFeed>>["nextCursor"];
 
-    do {
+    const feedFrom: (cursor: Cursor) => Promise<string[]> = async (cursor) => {
       const page = await fixture.caller.post.getFeed({
         cursor,
         limit: 3,
         userId: fixture.authorId,
       });
 
-      seen.push(...page.posts.map((row) => row.id));
-      cursor = page.nextCursor;
-    } while (cursor);
+      const ids = page.posts.map((row) => row.id);
+
+      return page.nextCursor === undefined ? ids : [...ids, ...(await feedFrom(page.nextCursor))];
+    };
+
+    const seen = await feedFrom(undefined);
 
     const whole = await fixture.caller.post.getFeed({ limit: 50, userId: fixture.authorId });
     assert.deepEqual(
@@ -128,7 +130,7 @@ integrationTest("letters sharing a timestamp page by id, without gaps or repeats
   }
 });
 
-integrationTest("getFeed only serves root posts, never comments", async () => {
+test("getFeed only serves root posts, never comments", { skip }, async () => {
   const fixture = await createFixture();
   const [parent] = fixture.posts;
   assert.ok(parent);
@@ -157,7 +159,7 @@ integrationTest("getFeed only serves root posts, never comments", async () => {
   }
 });
 
-integrationTest("getFeed reports like, comment and isLiked exactly", async () => {
+test("getFeed reports like, comment and isLiked exactly", { skip }, async () => {
   const fixture = await createFixture();
   const [liked, commented] = fixture.posts;
   assert.ok(liked);

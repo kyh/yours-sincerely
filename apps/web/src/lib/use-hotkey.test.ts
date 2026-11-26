@@ -4,8 +4,15 @@ import test from "node:test";
 import { matchHotkeys } from "./use-hotkey";
 import type { Hotkey } from "./use-hotkey";
 
-const next = () => "next";
-const previous = () => "previous";
+const pressed: string[] = [];
+
+const next = () => {
+  pressed.push("next");
+};
+
+const previous = () => {
+  pressed.push("previous");
+};
 
 const hotkeys: Hotkey[] = [
   [" ", next],

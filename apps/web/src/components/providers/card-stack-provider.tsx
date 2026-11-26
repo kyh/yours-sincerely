@@ -1,5 +1,7 @@
 "use client";
 
+import { noop } from "@tanstack/react-query";
+
 import { createContext, useContext, useMemo, useState } from "react";
 
 interface CardStackContextType {
@@ -22,7 +24,7 @@ export const CardStackProvider = ({ children }: { children: React.ReactNode }) =
 
 const NO_CARD_STACK: CardStackContextType = {
   currentIndex: 0,
-  setCurrentIndex: () => null,
+  setCurrentIndex: noop,
 };
 
 /**

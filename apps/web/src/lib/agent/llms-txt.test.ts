@@ -9,7 +9,7 @@ test("follows the llmstxt.org shape: H1, then a blockquote summary", () => {
   const [h1, blank, summary] = body.split("\n");
   assert.equal(h1, "# Yours Sincerely");
   assert.equal(blank, "");
-  assert.ok(summary?.startsWith("> "));
+  assert.ok(summary?.startsWith("> ") === true);
 });
 
 test("tells agents when to use the product", () => {

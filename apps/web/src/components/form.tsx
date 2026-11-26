@@ -84,7 +84,9 @@ const FormItem = ({
   const registerDescription = React.useCallback(() => {
     setHasDescription(true);
 
-    return () => setHasDescription(false);
+    return () => {
+      setHasDescription(false);
+    };
   }, []);
 
   const contextValue = React.useMemo(
@@ -97,7 +99,7 @@ const FormItem = ({
       <div
         data-slot="form-item"
         className={cn(
-          noStyles
+          noStyles === true
             ? null
             : "group outline-border focus-within:outline-primary flex flex-col gap-1.5 px-3 pt-4 pb-3 outline -outline-offset-1 first-of-type:rounded-t-md last-of-type:rounded-b-md focus-within:relative focus-within:outline focus-within:-outline-offset-1 [&>input]:focus-visible:outline-0",
           className,
@@ -108,7 +110,10 @@ const FormItem = ({
   );
 };
 
-const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) => {
+const FormLabel = ({
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Label>, "htmlFor">) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -157,9 +162,9 @@ const FormDescription = ({ className, ...props }: React.ComponentProps<"p">) => 
 
 const FormMessage = ({ className, ...props }: React.ComponentProps<"p">) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error.message ?? "") : props.children;
+  const body = error ? (error.message ?? "") : props.children;
 
-  if (!body) {
+  if (body === undefined || body === null || body === "") {
     return null;
   }
 

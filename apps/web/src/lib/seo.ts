@@ -98,7 +98,9 @@ export const pageMetadata: (input: PageMetadataInput) => Metadata = ({
   video = true,
 }) => {
   const image = shareImage(card);
-  const shareTitle = title ? `${siteConfig.name} | ${title}` : siteConfig.name;
+
+  const shareTitle =
+    title !== undefined && title !== "" ? `${siteConfig.name} | ${title}` : siteConfig.name;
 
   const metadata: Metadata = {
     alternates: { canonical: path },
@@ -122,7 +124,7 @@ export const pageMetadata: (input: PageMetadataInput) => Metadata = ({
     },
   };
 
-  if (title) {
+  if (title !== undefined && title !== "") {
     metadata.title = title;
   }
 

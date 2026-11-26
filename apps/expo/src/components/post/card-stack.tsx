@@ -191,7 +191,7 @@ export const CardStack = <T extends { id: string }>({
 
     const postsLeft = data.length - safeIndex - 1;
 
-    if (postsLeft <= 1 && hasNextPage && onLoadMore) {
+    if (postsLeft <= 1 && hasNextPage === true && onLoadMore) {
       onLoadMore();
     }
 
@@ -222,7 +222,9 @@ export const CardStack = <T extends { id: string }>({
       <View className="flex-1 items-center gap-3 pb-4">
         <View
           className="relative h-full w-full flex-1"
-          onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+          onLayout={(event) => {
+            setWidth(event.nativeEvent.layout.width);
+          }}
         >
           {data.map((item, index) =>
             isMounted(index) ? (

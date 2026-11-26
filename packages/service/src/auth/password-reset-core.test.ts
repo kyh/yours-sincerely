@@ -14,14 +14,14 @@ import type { EmailClient } from "./password-reset-core.ts";
 
 type SentMessage = Parameters<EmailClient["send"]>[0];
 
-const recordingClient = (error: { message: string; name: string } | null = null) => {
+const recordingClient = (failure: { message: string; name: string } | null = null) => {
   const sent: SentMessage[] = [];
 
   const emails: EmailClient = {
-    send: (message) => {
+    send: async (message) => {
       sent.push(message);
 
-      return Promise.resolve({ error });
+      return await Promise.resolve({ error: failure });
     },
   };
 

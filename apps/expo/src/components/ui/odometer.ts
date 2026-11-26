@@ -32,16 +32,16 @@ export interface OdometerColumn {
 }
 
 export const odometerColumns = (value: number, from: number) => {
-  const digits = [...String(value)];
-  const fromDigits = [...String(from)];
+  const digits = Array.from(String(value), Number);
+  const fromDigits = Array.from(String(from), Number);
 
-  return digits.map((char, index) => {
+  return digits.map((digit, index) => {
     const position = digits.length - 1 - index;
-    const fromChar = fromDigits.at(-1 - position);
+    const fromDigit = fromDigits.at(-1 - position);
 
     return {
-      digit: Number(char),
-      from: fromChar === undefined ? null : Number(fromChar),
+      digit,
+      from: fromDigit ?? null,
       position,
     };
   });

@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { appRouter, createORPCContext } from "@repo/service";
 import { ORPCError, createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, noop } from "@tanstack/react-query";
 import type {
   DefaultError,
-  FetchInfiniteQueryOptions,
-  FetchQueryOptions,
+  InfiniteQueryExecuteOptions,
+  QueryExecuteOptions,
   QueryKey,
 } from "@tanstack/react-query";
 
@@ -17,7 +17,7 @@ import { createQueryClient } from "./query-client";
 const createContext = cache(async () => {
   const heads = new Headers(await headers());
 
-  return createORPCContext({
+  return await createORPCContext({
     headers: heads,
   });
 });
@@ -40,10 +40,10 @@ export const HydrateClient = (props: { children: React.ReactNode }) => {
 };
 
 export const prefetch = <TQueryFnData, TError, TData, TQueryKey extends QueryKey>(
-  queryOptions: FetchQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+  queryOptions: QueryExecuteOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
 ) => {
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(queryOptions);
+  void queryClient.query(queryOptions).catch(noop);
 };
 
 /**
@@ -58,10 +58,10 @@ export const fetchOrNotFound = async <
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  queryOptions: FetchQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+  queryOptions: QueryExecuteOptions<TQueryFnData, TError, TData, TQueryFnData, TQueryKey>,
 ) => {
   try {
-    return await getQueryClient().fetchQuery(queryOptions);
+    return await getQueryClient().query(queryOptions);
   } catch (error) {
     if (
       error instanceof ORPCError &&
@@ -81,8 +81,8 @@ export const prefetchInfinite = <
   TQueryKey extends QueryKey,
   TPageParam,
 >(
-  queryOptions: FetchInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
+  queryOptions: InfiniteQueryExecuteOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
 ) => {
   const queryClient = getQueryClient();
-  void queryClient.prefetchInfiniteQuery(queryOptions);
+  void queryClient.infiniteQuery(queryOptions).catch(noop);
 };

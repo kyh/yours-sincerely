@@ -38,8 +38,8 @@ test("the site graph describes the og:video with absolute URLs and an ISO durati
   assert.equal(video["@type"], "VideoObject");
   assert.equal(video.contentUrl, "https://yourssincerely.org/og/og.mp4");
   assert.equal(video.thumbnailUrl, "https://yourssincerely.org/og/og-poster.jpg");
-  assert.match(String(video.duration), /^PT\d+S$/u);
-  assert.match(String(video.uploadDate), /^\d{4}-\d{2}-\d{2}$/u);
+  assert.match(JSON.stringify(video.duration), /^"PT\d+S"$/u);
+  assert.match(JSON.stringify(video.uploadDate), /^"\d{4}-\d{2}-\d{2}"$/u);
   assert.ok(JSON.stringify(buildSiteGraph()).includes('"@type":"VideoObject"'));
 });
 

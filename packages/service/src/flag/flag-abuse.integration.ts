@@ -7,8 +7,9 @@ import { db } from "@repo/db/drizzle-client";
 import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
 import { callerFor, createCaller } from "../test-utils";
+import { inSequence } from "@repo/contract/in-sequence";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -78,10 +79,10 @@ const createFixture = async (flaggerKinds: Flagger["kind"][]) => {
 };
 
 const flagWith = async (fixture: Awaited<ReturnType<typeof createFixture>>, reason?: string) => {
-  for (const flagger of fixture.flaggers) {
+  await inSequence(fixture.flaggers, async (flagger) => {
     const caller = await callerFor(flagger.id);
     await caller.flag.createFlag({ postId: fixture.postId, reason });
-  }
+  });
 };
 
 const isInFeed = async (fixture: Awaited<ReturnType<typeof createFixture>>) => {
@@ -90,7 +91,7 @@ const isInFeed = async (fixture: Awaited<ReturnType<typeof createFixture>>) => {
   return page.posts.some((row) => row.id === fixture.postId);
 };
 
-integrationTest("a flag storm from fresh anonymous identities does NOT hide a post", async () => {
+test("a flag storm from fresh anonymous identities does NOT hide a post", { skip }, async () => {
   const fixture = await createFixture(["fresh", "fresh", "fresh", "fresh"]);
 
   try {
@@ -111,7 +112,7 @@ integrationTest("a flag storm from fresh anonymous identities does NOT hide a po
   }
 });
 
-integrationTest("four flags from established identities DO hide a post", async () => {
+test("four flags from established identities DO hide a post", { skip }, async () => {
   const fixture = await createFixture(["registered", "registered", "aged", "aged"]);
 
   try {
@@ -134,7 +135,7 @@ integrationTest("four flags from established identities DO hide a post", async (
   }
 });
 
-integrationTest("the threshold counts only established flags, never the noise", async () => {
+test("the threshold counts only established flags, never the noise", { skip }, async () => {
   const fixture = await createFixture([
     "registered",
     "aged",
@@ -157,7 +158,7 @@ integrationTest("the threshold counts only established flags, never the noise", 
   }
 });
 
-integrationTest("the feed and the permalink agree on what is hidden", async () => {
+test("the feed and the permalink agree on what is hidden", { skip }, async () => {
   const fixture = await createFixture(["registered", "registered", "registered", "registered"]);
 
   try {
@@ -177,7 +178,7 @@ integrationTest("the feed and the permalink agree on what is hidden", async () =
   }
 });
 
-integrationTest("a flag's reason is persisted to Flag.comment", async () => {
+test("a flag's reason is persisted to Flag.comment", { skip }, async () => {
   const fixture = await createFixture(["registered"]);
 
   try {

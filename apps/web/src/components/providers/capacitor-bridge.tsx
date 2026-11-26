@@ -6,8 +6,9 @@ import { App } from "@capacitor/app";
 import type { PluginListenerHandle } from "@capacitor/core";
 import { Capacitor } from "@capacitor/core";
 import { SplashScreen } from "@capacitor/splash-screen";
+import { noop } from "@tanstack/react-query";
 
-export const CapacitorProvider = ({ children }: { children: React.ReactNode }) => {
+export const CapacitorBridge = () => {
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
     }
 
     if (Capacitor.getPlatform() !== "android" || !Capacitor.isPluginAvailable("App")) {
-      return;
+      return noop;
     }
 
     let disposed = false;
@@ -27,7 +28,7 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
         if (canGoBack) {
           router.back();
         } else {
-          App.exitApp();
+          void App.exitApp();
         }
       });
 
@@ -48,5 +49,5 @@ export const CapacitorProvider = ({ children }: { children: React.ReactNode }) =
     };
   }, [router]);
 
-  return children;
+  return null;
 };

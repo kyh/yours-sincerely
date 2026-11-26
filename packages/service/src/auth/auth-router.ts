@@ -96,7 +96,12 @@ export const authRouter = {
   signInWithPassword: os.auth.signInWithPassword.handler(async ({ context, input }) => {
     const existingUser = await findUserByEmail(context.db, input.email);
 
-    if (!existingUser?.passwordHash) {
+    if (
+      existingUser === undefined ||
+      existingUser.passwordHash === undefined ||
+      existingUser.passwordHash === null ||
+      existingUser.passwordHash === ""
+    ) {
       throw new ORPCError("UNAUTHORIZED", { message: "Invalid email or password" });
     }
 

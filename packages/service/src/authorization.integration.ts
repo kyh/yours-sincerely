@@ -9,7 +9,7 @@ import { flag, like, post, user } from "@repo/db/drizzle-schema";
 
 import { callerFor } from "./test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -69,7 +69,7 @@ const createFixture = async () => {
   return { actorId, caller, childId, cleanup, outsiderPostId, parentId, updatedAt, victimId };
 };
 
-integrationTest("profile updates derive the actor from the authenticated context", async () => {
+test("profile updates derive the actor from the authenticated context", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -93,7 +93,7 @@ integrationTest("profile updates derive the actor from the authenticated context
   }
 });
 
-integrationTest("post deletion rejects a different owner", async () => {
+test("post deletion rejects a different owner", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -113,7 +113,7 @@ integrationTest("post deletion rejects a different owner", async () => {
   }
 });
 
-integrationTest("owner deletion cascades through descendants, likes, and flags", async () => {
+test("owner deletion cascades through descendants, likes, and flags", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

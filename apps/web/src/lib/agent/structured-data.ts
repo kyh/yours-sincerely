@@ -148,7 +148,7 @@ export const buildLetterGraph: (letter: SeoLetter & LetterStats, imageUrl: strin
     url,
   };
 
-  if (letter.parentId) {
+  if (letter.parentId !== null && letter.parentId !== "") {
     posting.parentItem = { "@id": `${absoluteUrl(letterPath(letter.parentId))}#letter` };
   }
 

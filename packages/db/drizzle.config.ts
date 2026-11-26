@@ -2,11 +2,13 @@ import type { Config } from "drizzle-kit";
 
 import { toDirectConnectionUrl, withLockTimeout } from "./src/connection-url";
 
-if (!process.env.POSTGRES_URL) {
+const postgresUrl = process.env.POSTGRES_URL;
+
+if (postgresUrl === undefined || postgresUrl === "") {
   throw new Error("Missing POSTGRES_URL");
 }
 
-const nonPoolingUrl = toDirectConnectionUrl(process.env.POSTGRES_URL);
+const nonPoolingUrl = toDirectConnectionUrl(postgresUrl);
 
 /** There is no `out`, and no `generate`/`migrate` script, because this schema is
     declared rather than accumulated: `drizzle-kit push` syncs tables, columns and

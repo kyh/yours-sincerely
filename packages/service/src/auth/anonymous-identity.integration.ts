@@ -10,7 +10,7 @@ import { compare } from "bcryptjs";
 import { callerFor, createCaller, runWithoutCookieScope } from "../test-utils";
 import { createUserIfNotExists } from "./auth-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -19,7 +19,9 @@ after(async () => {
 const mintAnonymousUser = async () => {
   const displayName = `anon-${randomUUID()}`;
   assert.equal(
-    await runWithoutCookieScope(() => createUserIfNotExists({ db, user: null }, displayName)),
+    await runWithoutCookieScope(
+      async () => await createUserIfNotExists({ db, user: null }, displayName),
+    ),
     "reached-cookie-write",
   );
 
@@ -35,7 +37,7 @@ const mintAnonymousUser = async () => {
 
 const INVALID_CREDENTIALS = { code: "UNAUTHORIZED", message: "Invalid email or password" };
 
-integrationTest("an anonymous user is minted without a password hash", async () => {
+test("an anonymous user is minted without a password hash", { skip }, async () => {
   const anonymous = await mintAnonymousUser();
 
   try {
@@ -46,8 +48,9 @@ integrationTest("an anonymous user is minted without a password hash", async () 
   }
 });
 
-integrationTest(
+test(
   "an anonymous user with an email but no password fails sign-in like an unknown email",
+  { skip },
   async () => {
     const anonymous = await mintAnonymousUser();
 
@@ -73,7 +76,7 @@ integrationTest(
   },
 );
 
-integrationTest("an anonymous user can still claim the account through signUp", async () => {
+test("an anonymous user can still claim the account through signUp", { skip }, async () => {
   const anonymous = await mintAnonymousUser();
 
   try {
@@ -81,8 +84,8 @@ integrationTest("an anonymous user can still claim the account through signUp", 
     const caller = await callerFor(anonymous.id);
 
     assert.equal(
-      await runWithoutCookieScope(() =>
-        caller.auth.signUp({ email, password: "a-real-password-123" }),
+      await runWithoutCookieScope(
+        async () => await caller.auth.signUp({ email, password: "a-real-password-123" }),
       ),
       "reached-cookie-write",
     );
@@ -93,14 +96,14 @@ integrationTest("an anonymous user can still claim the account through signUp", 
     });
 
     assert.equal(claimed?.email, email);
-    assert.ok(claimed?.passwordHash);
+    assert.ok(claimed.passwordHash !== null && claimed.passwordHash !== "");
     assert.ok(await compare("a-real-password-123", claimed.passwordHash));
   } finally {
     await anonymous.cleanup();
   }
 });
 
-integrationTest("auth.workspace hands the client its viewer fields and nothing else", async () => {
+test("auth.workspace hands the client its viewer fields and nothing else", { skip }, async () => {
   const anonymous = await mintAnonymousUser();
 
   try {

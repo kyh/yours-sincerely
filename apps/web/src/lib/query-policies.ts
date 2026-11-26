@@ -23,16 +23,16 @@ export const refreshWorkspaceIdentity = async (queryClient: QueryClient) => {
 
 /** Content mutations (like/flag/post) only change identity when they mint the
     anonymous user — skip the workspace roundtrip once a user exists. */
-export const refreshWorkspaceIdentityIfAnonymous = (queryClient: QueryClient) => {
+export const refreshWorkspaceIdentityIfAnonymous = async (queryClient: QueryClient) => {
   const workspace = queryClient.getQueryData(orpc.auth.workspace.queryKey());
 
-  return workspace === undefined || workspace.user === null
-    ? refreshWorkspaceIdentity(queryClient)
-    : Promise.resolve();
+  if (workspace === undefined || workspace.user === null) {
+    await refreshWorkspaceIdentity(queryClient);
+  }
 };
 
-export const refreshPostContent = (queryClient: QueryClient) =>
-  Promise.all([
+export const refreshPostContent = async (queryClient: QueryClient) =>
+  await Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.post.getFeed.key({ type: "infinite" }) }),
     queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key() }),
   ]);
@@ -40,8 +40,8 @@ export const refreshPostContent = (queryClient: QueryClient) =>
 /** For a like, whose response already carries the post's new state: stale, not
     refetched, because refetching an infinite query walks every loaded page in
     series, one round trip per page. */
-export const markPostContentStale = (queryClient: QueryClient) =>
-  Promise.all([
+export const markPostContentStale = async (queryClient: QueryClient) =>
+  await Promise.all([
     queryClient.invalidateQueries({
       queryKey: orpc.post.getFeed.key({ type: "infinite" }),
       refetchType: "none",
@@ -49,8 +49,8 @@ export const markPostContentStale = (queryClient: QueryClient) =>
     queryClient.invalidateQueries({ queryKey: orpc.post.getPost.key(), refetchType: "none" }),
   ]);
 
-export const refreshProfileData = (queryClient: QueryClient) =>
-  Promise.all([
+export const refreshProfileData = async (queryClient: QueryClient) =>
+  await Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.post.getPostsByUser.key() }),
     queryClient.invalidateQueries({ queryKey: orpc.user.getUser.key() }),
     queryClient.invalidateQueries({ queryKey: orpc.user.getUserStats.key() }),
@@ -77,23 +77,23 @@ export const refreshAfterPostDeleted = async (queryClient: QueryClient, postId: 
 /** Blocking or unblocking changes both the viewer's block inventory and which
     letters the feed is allowed to show them. Refresh both, or an unblocked author
     stays invisible until a hard reload. */
-export const refreshBlocks = (queryClient: QueryClient) =>
-  Promise.all([
+export const refreshBlocks = async (queryClient: QueryClient) =>
+  await Promise.all([
     queryClient.invalidateQueries({ queryKey: orpc.block.listBlocks.key() }),
     refreshPostContent(queryClient),
   ]);
 
 /** Reading changes the row and the sidebar badge together. */
-export const refreshNotifications = (queryClient: QueryClient) =>
-  Promise.all([
+export const refreshNotifications = async (queryClient: QueryClient) =>
+  await Promise.all([
     queryClient.invalidateQueries({
       queryKey: orpc.notification.list.key({ type: "infinite" }),
     }),
     queryClient.invalidateQueries({ queryKey: orpc.notification.unreadCount.key() }),
   ]);
 
-export const refreshAfterPostCreated = (queryClient: QueryClient) =>
-  Promise.all([
+export const refreshAfterPostCreated = async (queryClient: QueryClient) =>
+  await Promise.all([
     refreshWorkspaceIdentityIfAnonymous(queryClient),
     refreshPostContent(queryClient),
     refreshProfileData(queryClient),

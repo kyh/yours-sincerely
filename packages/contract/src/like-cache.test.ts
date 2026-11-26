@@ -131,10 +131,10 @@ const createCacheHarness = () => {
 
   return {
     cache: {
-      cancel: () => {
+      cancel: async () => {
         cancelCount += 1;
 
-        return Promise.resolve();
+        await Promise.resolve();
       },
       readFeeds: () =>
         [feedKey, emptyFeedKey].map((key) => [

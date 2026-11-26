@@ -41,7 +41,7 @@ type MenuState =
   | { kind: "dropdown"; left: number; top: number };
 
 const DROPDOWN_SHADOW = (
-  Platform.OS === "android" && Number(Platform.Version) < 28
+  Platform.OS === "android" && Platform.Version < 28
     ? { elevation: 4 }
     : { boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)" }
 ) satisfies ViewStyle;
@@ -100,7 +100,9 @@ const AvatarDropdown = ({
         accessibilityRole="menu"
         onAccessibilityEscape={onClose}
         className="bg-popover border-foreground/10 rounded-md border p-1"
-        onLayout={(event) => setMenuHeight(event.nativeEvent.layout.height)}
+        onLayout={(event) => {
+          setMenuHeight(event.nativeEvent.layout.height);
+        }}
         style={[
           DROPDOWN_SHADOW,
           {
@@ -142,7 +144,9 @@ export const AvatarMenu = () => {
   const MenuItem = wide ? DropdownItem : DrawerItem;
   const showLogin = user === null && !isPending && !isError;
 
-  const close = () => setMenu({ kind: "closed" });
+  const close = () => {
+    setMenu({ kind: "closed" });
+  };
 
   const cycleTheme = () => {
     const index = themes.findIndex((option) => option.id === theme);
@@ -218,24 +222,40 @@ export const AvatarMenu = () => {
       <MenuItem
         icon={<HelpCircle size={16} color={colors.foreground} />}
         label="Support"
-        onPress={() => openUrl(supportMailto(user?.id))}
+        onPress={() => {
+          void (async () => {
+            await openUrl(supportMailto(user?.id));
+          })();
+        }}
       />
       {!wide && (
         <>
           <MenuItem
             icon={<BookCheck size={16} color={colors.foreground} />}
             label="About"
-            onPress={() => openUrl(`${siteConfig.url}/about`)}
+            onPress={() => {
+              void (async () => {
+                await openUrl(`${siteConfig.url}/about`);
+              })();
+            }}
           />
           <MenuItem
             icon={<GlobeLock size={16} color={colors.foreground} />}
             label="Privacy"
-            onPress={() => openUrl(`${siteConfig.url}/privacy`)}
+            onPress={() => {
+              void (async () => {
+                await openUrl(`${siteConfig.url}/privacy`);
+              })();
+            }}
           />
           <MenuItem
             icon={<Handshake size={16} color={colors.foreground} />}
             label="Terms"
-            onPress={() => openUrl(`${siteConfig.url}/terms`)}
+            onPress={() => {
+              void (async () => {
+                await openUrl(`${siteConfig.url}/terms`);
+              })();
+            }}
           />
         </>
       )}
@@ -266,7 +286,17 @@ export const AvatarMenu = () => {
           }
         }}
       >
-        <ProfileAvatar name={user?.displayName || user?.id} size={32} />
+        <ProfileAvatar
+          name={
+            user === null ||
+            user.displayName === undefined ||
+            user.displayName === null ||
+            user.displayName === ""
+              ? user?.id
+              : user.displayName
+          }
+          size={32}
+        />
       </Pressable>
       <BottomDrawer open={menu.kind === "drawer"} onClose={close}>
         {items}

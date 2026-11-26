@@ -1,3 +1,4 @@
+/* oxlint-disable typescript/no-unsafe-assignment, typescript/no-unsafe-return -- react-native-css's ESM compiler and native builds do not load under Node, so these come from its CommonJS build through require(), which is untyped; each binding is annotated with its module's own types */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -13,6 +14,7 @@ import type * as NativeRules from "../../node_modules/react-native-css/dist/type
 import type * as NativeReactivity from "../../node_modules/react-native-css/dist/typescript/commonjs/src/native/reactivity.js";
 import type * as NativeStyles from "../../node_modules/react-native-css/dist/typescript/commonjs/src/native/styles/calculate-props.js";
 import type * as NativeProps from "../../node_modules/react-native-css/dist/typescript/commonjs/src/native/styles/index.js";
+import { inSequence } from "@repo/contract/in-sequence";
 
 type TailwindPlugin = ReturnType<typeof tailwind>;
 
@@ -66,7 +68,7 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
   );
 
   const createState: () => Parameters<typeof updateRules>[0] = () => {
-    const effect: NativeReactivity.Effect = { observers: new Set(), run: () => null };
+    const effect: NativeReactivity.Effect = { observers: new Set(), run: () => {} };
 
     return {
       configs: [{ source: "className", target: "style" }],
@@ -81,7 +83,7 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
 
   const from = path.join(import.meta.dirname, "..", "styles.css");
 
-  for (const optimize of [false, true]) {
+  await inSequence([false, true], async (optimize) => {
     const output = await postcss([tailwind({ optimize })]).process(
       `${readFileSync(from, "utf-8")}\n@source inline("text-base leading-6 px-5 min-h-11 rounded-xl rounded-2xl size-3 size-4 bg-background bg-card text-foreground bg-input dark:bg-card");`,
       { from },
@@ -147,14 +149,14 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
         assert.ok(variables);
         assert.ok(containers);
         const rootProps = getStyledProps(root, props);
-        assert.ok(rootProps?.onPress);
+        assert.notEqual(rootProps?.onPress, undefined);
         assert.equal(rootProps?.accessible, false);
         assert.equal(rootProps?.focusable, false);
 
         const styles = children.map((child) => {
           if (
             child.state.guards === undefined ||
-            testGuards(child.state, child.props, variables, containers)
+            testGuards(child.state, child.props, variables, containers) === true
           ) {
             child.state = updateRules(child.state, child.props, variables, containers, true, false);
           }
@@ -171,5 +173,5 @@ it("the Tailwind-to-native pipeline preserves web typography, spacing, and radii
         ]);
       }
     });
-  }
+  });
 });

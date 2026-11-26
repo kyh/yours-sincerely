@@ -53,6 +53,7 @@ export const PostForm = ({
   );
 
   const [error, setError] = useState<string | null>(null);
+  const [expiry, setExpiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
   const hasEditedContent = useRef(false);
 
   useEffect(() => {
@@ -82,6 +83,7 @@ export const PostForm = ({
         void ignoreRejection(clearPostDraft());
         setContent("");
         setError(null);
+        setExpiry(addDays(new Date(), POST_EXPIRY_DAYS));
         void ignoreRejection(refreshAfterPostCreated());
         onSuccess?.();
         void ignoreRejection(Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success));
@@ -119,9 +121,6 @@ export const PostForm = ({
     createPost.mutate(parsed.data);
   };
 
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [expiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
-
   return (
     <KeyboardShortcutsView mode="compose" onSubmit={handleSubmit}>
       <View className="flex-col gap-2">
@@ -135,7 +134,9 @@ export const PostForm = ({
           scrollEnabled={presentation !== "dialog"}
           onContentSizeChange={
             presentation === "dialog"
-              ? (event) => setDialogContentHeight(event.nativeEvent.contentSize.height)
+              ? (event) => {
+                  setDialogContentHeight(event.nativeEvent.contentSize.height);
+                }
               : undefined
           }
           onChangeText={(value) => {

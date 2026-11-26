@@ -8,8 +8,9 @@ import { like, post, user } from "@repo/db/drizzle-schema";
 import { ORPCError } from "@orpc/server";
 
 import { callerFor, createCaller } from "../test-utils";
+import { inSequence } from "@repo/contract/in-sequence";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -51,15 +52,15 @@ const createFixture = async () => {
   return { authorId, cleanup, postIds, readerIds, replyId, seededId };
 };
 
-integrationTest("totalLikeCount matches a ground-truth count of Like rows", async () => {
+test("totalLikeCount matches a ground-truth count of Like rows", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
-    for (const readerId of fixture.readerIds) {
+    await inSequence(fixture.readerIds, async (readerId) => {
       const reader = await callerFor(readerId);
       await reader.like.createLike({ postId: fixture.seededId });
       await reader.like.createLike({ postId: fixture.replyId });
-    }
+    });
 
     const [truth] = await db.execute(sql`
       SELECT
@@ -84,19 +85,19 @@ integrationTest("totalLikeCount matches a ground-truth count of Like rows", asyn
   }
 });
 
-integrationTest("getUserStats answers undefined for a user that does not exist", async () => {
+test("getUserStats answers undefined for a user that does not exist", { skip }, async () => {
   const { userStats } = await createCaller(null).user.getUserStats({ userId: randomUUID() });
   assert.equal(userStats, undefined);
 });
 
-integrationTest("taking an email another account holds is CONFLICT, not a 500", async () => {
+test("taking an email another account holds is CONFLICT, not a 500", { skip }, async () => {
   const fixture = await createFixture();
   const email = `${fixture.authorId}@example.com`;
 
   try {
     await db.update(user).set({ email }).where(eq(user.id, fixture.authorId));
     const [readerId] = fixture.readerIds;
-    assert.ok(readerId);
+    assert.ok(readerId !== undefined);
     const reader = await callerFor(readerId);
 
     await assert.rejects(

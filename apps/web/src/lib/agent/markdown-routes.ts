@@ -34,7 +34,7 @@ export const resolveMarkdownRoute: (pathname: string) => MarkdownRoute = (pathna
 
   const [, first, postId, ...rest] = path.split("/");
 
-  if (first === "posts" && postId && rest.length === 0) {
+  if (first === "posts" && postId !== undefined && postId !== "" && rest.length === 0) {
     return { kind: "letter", postId };
   }
 

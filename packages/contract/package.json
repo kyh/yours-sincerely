@@ -14,6 +14,7 @@
     "./flag/flag-schema": "./src/flag/flag-schema.ts",
     "./like-cache": "./src/like-cache.ts",
     "./like/like-schema": "./src/like/like-schema.ts",
+    "./in-sequence": "./src/in-sequence.ts",
     "./mobile-identity": "./src/mobile-identity.ts",
     "./navigation": "./src/navigation.ts",
     "./notification/notification-schema": "./src/notification/notification-schema.ts",

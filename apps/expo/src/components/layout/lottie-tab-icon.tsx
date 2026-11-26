@@ -1,15 +1,14 @@
-/* oxlint-disable unicorn/prefer-module, node/global-require -- Metro resolves static assets through require() */
 import { useEffect, useRef } from "react";
 import LottieView from "lottie-react-native";
 
 import { isDarkTheme, useTheme } from "@/components/theme-provider";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-const icons = {
-  bell: require("../../../assets/icons/bell-icon.json"),
-  home: require("../../../assets/icons/home-icon.json"),
-  user: require("../../../assets/icons/user-icon.json"),
-};
+import bellIcon from "../../../assets/icons/bell-icon.json";
+import homeIcon from "../../../assets/icons/home-icon.json";
+import userIcon from "../../../assets/icons/user-icon.json";
+
+const icons = { bell: bellIcon, home: homeIcon, user: userIcon };
 
 interface Props {
   name: keyof typeof icons;

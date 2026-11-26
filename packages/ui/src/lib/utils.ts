@@ -9,7 +9,9 @@ export const useMediaQuery = (query: string) => {
       const result = matchMedia(query);
       result.addEventListener("change", onStoreChange);
 
-      return () => result.removeEventListener("change", onStoreChange);
+      return () => {
+        result.removeEventListener("change", onStoreChange);
+      };
     },
     [query],
   );

@@ -9,7 +9,7 @@ const countAttempts = async (error: Error) => {
   const queryClient = createQueryClient();
   let attempts = 0;
   await assert.rejects(
-    queryClient.fetchQuery({
+    queryClient.query({
       queryFn: () => {
         attempts += 1;
         throw error;
@@ -25,11 +25,17 @@ const countAttempts = async (error: Error) => {
 
 test("the browser retries transient failures, never a deterministic oRPC answer", async (t) => {
   environmentManager.setIsServer(() => false);
-  t.after(() => environmentManager.setIsServer(() => true));
+  t.after(() => {
+    environmentManager.setIsServer(() => true);
+  });
 
-  for (const code of ["BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "CONFLICT"]) {
-    assert.equal(await countAttempts(new ORPCError(code)), 1, code);
-  }
+  const codes = ["BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "CONFLICT"];
+
+  const attempts = await Promise.all(
+    codes.map(async (code) => await countAttempts(new ORPCError(code))),
+  );
+
+  assert.deepEqual(attempts, [1, 1, 1, 1, 1]);
 
   assert.equal(await countAttempts(new ORPCError("INTERNAL_SERVER_ERROR")), 4);
   assert.equal(await countAttempts(new TypeError("Failed to fetch")), 4);

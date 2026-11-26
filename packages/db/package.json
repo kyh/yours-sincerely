@@ -26,6 +26,7 @@
     "with-env": "dotenv -e ../../.env.local -e ../../.env --"
   },
   "dependencies": {
+    "@repo/contract": "workspace:^",
     "drizzle-orm": "catalog:",
     "postgres": "^3.4.9"
   },

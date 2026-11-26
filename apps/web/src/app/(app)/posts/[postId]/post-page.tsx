@@ -50,7 +50,9 @@ export const PostPage = ({ postId }: Props) => {
           layout="stack"
           asLink={false}
           showComment={false}
-          onDeleted={() => router.replace("/")}
+          onDeleted={() => {
+            router.replace("/");
+          }}
         />
       </Card>
       <PostForm parentId={post.id} placeholder="Comment on this love letter..." />

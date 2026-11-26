@@ -92,7 +92,7 @@ export const renderShareCard = async (card: ShareCard) => {
           width: 900,
         }}
       >
-        {card.heading ? (
+        {card.heading !== undefined && card.heading !== "" ? (
           <div
             style={{
               color: THEME.mutedForeground,
@@ -108,7 +108,7 @@ export const renderShareCard = async (card: ShareCard) => {
         ) : null}
         <div
           style={{
-            color: card.muted ? THEME.mutedForeground : THEME.foreground,
+            color: card.muted === true ? THEME.mutedForeground : THEME.foreground,
             display: "flex",
             fontSize: fontSizeFor(card.text.length),
             lineHeight: 1.45,

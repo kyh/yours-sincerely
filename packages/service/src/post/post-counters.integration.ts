@@ -7,8 +7,9 @@ import { db } from "@repo/db/drizzle-client";
 import { block, flag, like, notification, post, token, user } from "@repo/db/drizzle-schema";
 
 import { callerFor, runWithoutCookieScope } from "../test-utils";
+import { inSequence } from "@repo/contract/in-sequence";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -91,7 +92,7 @@ const createFixture = async () => {
   return { cleanup, flaggerCaller, flaggerId, ownerCaller, ownerId, rootId };
 };
 
-integrationTest("counters survive like, unlike, flag and comment", async () => {
+test("counters survive like, unlike, flag and comment", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -124,7 +125,7 @@ integrationTest("counters survive like, unlike, flag and comment", async () => {
   }
 });
 
-integrationTest("a flag from a fresh identity moves no counter", async () => {
+test("a flag from a fresh identity moves no counter", { skip }, async () => {
   const fixture = await createFixture();
   const freshId = randomUUID();
 
@@ -150,7 +151,7 @@ integrationTest("a flag from a fresh identity moves no counter", async () => {
   }
 });
 
-integrationTest("counters survive the deletePost bulk cascade", async () => {
+test("counters survive the deletePost bulk cascade", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -160,7 +161,7 @@ integrationTest("counters survive the deletePost bulk cascade", async () => {
     });
 
     const commentId = comment.post?.id;
-    assert.ok(commentId);
+    assert.ok(commentId !== undefined && commentId !== "");
 
     await fixture.ownerCaller.like.createLike({ postId: commentId });
     await fixture.flaggerCaller.like.createLike({ postId: fixture.rootId });
@@ -181,7 +182,7 @@ integrationTest("counters survive the deletePost bulk cascade", async () => {
   }
 });
 
-integrationTest("counters survive the deleteUser bulk cascade", async () => {
+test("counters survive the deleteUser bulk cascade", { skip }, async () => {
   const fixture = await createFixture();
   const survivorId = randomUUID();
   const survivorPostId = randomUUID();
@@ -209,7 +210,7 @@ integrationTest("counters survive the deleteUser bulk cascade", async () => {
       { comment: 1, flag: 1, like: 1 },
     );
 
-    await runWithoutCookieScope(() => fixture.flaggerCaller.user.deleteUser());
+    await runWithoutCookieScope(async () => await fixture.flaggerCaller.user.deleteUser());
 
     const afterDelete = await counters(survivorPostId);
     assert.deepEqual(
@@ -236,7 +237,7 @@ const replyChain = async (parentId: string, repliers: Caller[]) => {
   const ids: string[] = [];
   let replyTo = parentId;
 
-  for (const replier of repliers) {
+  await inSequence(repliers, async (replier) => {
     const { post: reply } = await replier.post.createPost({
       content: `A reply ${ids.length + 1} deep`,
       parentId: replyTo,
@@ -245,7 +246,7 @@ const replyChain = async (parentId: string, repliers: Caller[]) => {
     assert.ok(reply);
     ids.push(reply.id);
     replyTo = reply.id;
-  }
+  });
 
   return ids;
 };
@@ -294,7 +295,7 @@ const createReader = async () => {
   return { cleanup, readerCaller: await callerFor(readerId), readerId, readerPostId };
 };
 
-integrationTest("deletePost takes a 3-deep reply thread and every row under it", async () => {
+test("deletePost takes a 3-deep reply thread and every row under it", { skip }, async () => {
   const fixture = await createFixture();
   const reader = await createReader();
 
@@ -317,12 +318,12 @@ integrationTest("deletePost takes a 3-deep reply thread and every row under it",
       ])),
     ];
 
-    for (const postId of threadIds) {
+    await inSequence(threadIds, async (postId) => {
       await fixture.flaggerCaller.like.createLike({ postId });
       await reader.readerCaller.like.createLike({ postId });
       await fixture.flaggerCaller.flag.createFlag({ postId });
       await reader.readerCaller.flag.createFlag({ postId });
-    }
+    });
 
     assert.deepEqual(await rowsOn(threadIds), { flags: 8, likes: 8, notifications: 3, posts: 4 });
     await assertNoDrift("before thread delete");
@@ -341,7 +342,7 @@ integrationTest("deletePost takes a 3-deep reply thread and every row under it",
   }
 });
 
-integrationTest("deleting a reply takes only its subtree", async () => {
+test("deleting a reply takes only its subtree", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -353,11 +354,11 @@ integrationTest("deleting a reply takes only its subtree", async () => {
       fixture.flaggerCaller,
     ]);
 
-    assert.ok(replyId);
+    assert.ok(replyId !== undefined && replyId !== "");
 
-    for (const postId of [replyId, ...below]) {
+    await inSequence([replyId, ...below], async (postId) => {
       await fixture.ownerCaller.like.createLike({ postId });
-    }
+    });
 
     await fixture.flaggerCaller.post.deletePost({ postId: replyId });
 
@@ -378,84 +379,81 @@ integrationTest("deleting a reply takes only its subtree", async () => {
   }
 });
 
-integrationTest(
-  "deleteUser takes their threads, blocks and tokens, and no one else's",
-  async () => {
-    const fixture = await createFixture();
-    const reader = await createReader();
-    const leaverId = fixture.flaggerId;
-    const leaver = fixture.flaggerCaller;
+test("deleteUser takes their threads, blocks and tokens, and no one else's", { skip }, async () => {
+  const fixture = await createFixture();
+  const reader = await createReader();
+  const leaverId = fixture.flaggerId;
+  const leaver = fixture.flaggerCaller;
 
-    try {
-      const { post: letter } = await leaver.post.createPost({ content: "A letter that leaves" });
-      assert.ok(letter);
+  try {
+    const { post: letter } = await leaver.post.createPost({ content: "A letter that leaves" });
+    assert.ok(letter);
 
-      const letterThread = [
-        letter.id,
-        ...(await replyChain(letter.id, [fixture.ownerCaller, leaver, reader.readerCaller])),
-      ];
+    const letterThread = [
+      letter.id,
+      ...(await replyChain(letter.id, [fixture.ownerCaller, leaver, reader.readerCaller])),
+    ];
 
-      const commentThread = await replyChain(fixture.rootId, [leaver, reader.readerCaller]);
-      const leavingIds = [...letterThread, ...commentThread];
+    const commentThread = await replyChain(fixture.rootId, [leaver, reader.readerCaller]);
+    const leavingIds = [...letterThread, ...commentThread];
 
-      for (const postId of leavingIds) {
-        await fixture.ownerCaller.like.createLike({ postId });
-        await reader.readerCaller.flag.createFlag({ postId });
-      }
+    await inSequence(leavingIds, async (postId) => {
+      await fixture.ownerCaller.like.createLike({ postId });
+      await reader.readerCaller.flag.createFlag({ postId });
+    });
 
-      await leaver.like.createLike({ postId: fixture.rootId });
-      await leaver.flag.createFlag({ postId: fixture.rootId });
-      await leaver.like.createLike({ postId: reader.readerPostId });
-      await leaver.block.createBlock({ blockingId: reader.readerId });
-      await fixture.ownerCaller.block.createBlock({ blockingId: leaverId });
-      await db
-        .insert(token)
-        .values({ token: randomUUID(), type: "RESET_PASSWORD", userId: leaverId });
+    await leaver.like.createLike({ postId: fixture.rootId });
+    await leaver.flag.createFlag({ postId: fixture.rootId });
+    await leaver.like.createLike({ postId: reader.readerPostId });
+    await leaver.block.createBlock({ blockingId: reader.readerId });
+    await fixture.ownerCaller.block.createBlock({ blockingId: leaverId });
+    await db
+      .insert(token)
+      .values({ token: randomUUID(), type: "RESET_PASSWORD", userId: leaverId });
 
-      await runWithoutCookieScope(() => leaver.user.deleteUser());
+    await runWithoutCookieScope(async () => await leaver.user.deleteUser());
 
-      const [leaverRows, blocks, tokens, survivors] = await Promise.all([
-        db.select({ id: user.id }).from(user).where(eq(user.id, leaverId)),
-        db
-          .select()
-          .from(block)
-          .where(or(eq(block.blockerId, leaverId), eq(block.blockingId, leaverId))),
-        db.select({ id: token.id }).from(token).where(eq(token.userId, leaverId)),
-        db
-          .select({ id: user.id })
-          .from(user)
-          .where(inArray(user.id, [fixture.ownerId, reader.readerId])),
-      ]);
+    const [leaverRows, blocks, tokens, survivors] = await Promise.all([
+      db.select({ id: user.id }).from(user).where(eq(user.id, leaverId)),
+      db
+        .select()
+        .from(block)
+        .where(or(eq(block.blockerId, leaverId), eq(block.blockingId, leaverId))),
+      db.select({ id: token.id }).from(token).where(eq(token.userId, leaverId)),
+      db
+        .select({ id: user.id })
+        .from(user)
+        .where(inArray(user.id, [fixture.ownerId, reader.readerId])),
+    ]);
 
-      assert.deepEqual(
-        {
-          blocks: blocks.length,
-          leaver: leaverRows.length,
-          survivors: survivors.length,
-          tokens: tokens.length,
-        },
-        { blocks: 0, leaver: 0, survivors: 2, tokens: 0 },
-      );
-      assert.deepEqual(await rowsOn(leavingIds), {
-        flags: 0,
-        likes: 0,
-        notifications: 0,
-        posts: 0,
-      });
-      assert.deepEqual(await counters(fixture.rootId), {
-        commentCount: 0,
-        flagCount: 0,
-        likeCount: 0,
-      });
-      assert.deepEqual(await counters(reader.readerPostId), {
-        commentCount: 0,
-        flagCount: 0,
-        likeCount: 0,
-      });
-      await assertNoDrift("deleteUser thread cascade");
-    } finally {
-      await reader.cleanup();
-      await fixture.cleanup();
-    }
-  },
-);
+    assert.deepEqual(
+      {
+        blocks: blocks.length,
+        leaver: leaverRows.length,
+        survivors: survivors.length,
+        tokens: tokens.length,
+      },
+      { blocks: 0, leaver: 0, survivors: 2, tokens: 0 },
+    );
+    assert.deepEqual(await rowsOn(leavingIds), {
+      flags: 0,
+      likes: 0,
+      notifications: 0,
+      posts: 0,
+    });
+    assert.deepEqual(await counters(fixture.rootId), {
+      commentCount: 0,
+      flagCount: 0,
+      likeCount: 0,
+    });
+    assert.deepEqual(await counters(reader.readerPostId), {
+      commentCount: 0,
+      flagCount: 0,
+      likeCount: 0,
+    });
+    await assertNoDrift("deleteUser thread cascade");
+  } finally {
+    await reader.cleanup();
+    await fixture.cleanup();
+  }
+});

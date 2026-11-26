@@ -86,7 +86,9 @@ export const BlockedWriters = () => {
                 loading={
                   deleteBlock.isPending && deleteBlock.variables.blockingId === writer.blockingId
                 }
-                onPress={() => deleteBlock.mutate({ blockingId: writer.blockingId })}
+                onPress={() => {
+                  deleteBlock.mutate({ blockingId: writer.blockingId });
+                }}
               >
                 Unblock
               </Button>

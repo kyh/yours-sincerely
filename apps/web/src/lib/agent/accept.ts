@@ -112,7 +112,7 @@ const bestMatchFor = (entries: AcceptEntry[], candidate: string) => {
  * empty or unparseable header likewise means "no constraint".
  */
 export const negotiateMediaType: (header: string | null) => ProducedMediaType = (header) => {
-  if (!header?.trim()) {
+  if (header === null || header.trim() === "") {
     return "text/html";
   }
 
@@ -152,7 +152,7 @@ export const negotiateMediaType: (header: string | null) => ProducedMediaType = 
  * hand a flight payload to a document request.
  */
 export const withVaryAccept = (existing: string | null) => {
-  if (!existing?.trim()) {
+  if (existing === null || existing.trim() === "") {
     return "Accept";
   }
 

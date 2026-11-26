@@ -1,3 +1,4 @@
+import { noop } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { View, useColorScheme } from "react-native";
@@ -37,7 +38,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue>({
   isReady: false,
   resolvedTheme: "light",
-  setTheme: () => null,
+  setTheme: noop,
   theme: "system",
 });
 

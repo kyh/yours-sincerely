@@ -1,3 +1,4 @@
+import { noop } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
   createContext,
@@ -235,7 +236,7 @@ interface BalloonsContextValue {
 }
 
 const BalloonsContext = createContext<BalloonsContextValue>({
-  celebrate: () => null,
+  celebrate: noop,
 });
 
 export const useBalloons = () => useContext(BalloonsContext);

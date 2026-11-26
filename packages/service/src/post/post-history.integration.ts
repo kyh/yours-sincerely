@@ -9,7 +9,7 @@ import { flag, like, post, user } from "@repo/db/drizzle-schema";
 import { createCaller } from "../test-utils";
 import { POST_HISTORY_WINDOW_DAYS } from "./post-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -67,7 +67,7 @@ const createFixture = async () => {
   return { ancientId, authorId, caller, cleanup, expiredId, recentId };
 };
 
-integrationTest("getPostsByUser hands out dates, never post ids", async () => {
+test("getPostsByUser hands out dates, never post ids", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -84,7 +84,7 @@ integrationTest("getPostsByUser hands out dates, never post ids", async () => {
   }
 });
 
-integrationTest("getPostsByUser is bounded by the profile history window", async () => {
+test("getPostsByUser is bounded by the profile history window", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -101,7 +101,7 @@ integrationTest("getPostsByUser is bounded by the profile history window", async
   }
 });
 
-integrationTest("getPost still serves a letter past the 21-day feed window", async () => {
+test("getPost still serves a letter past the 21-day feed window", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

@@ -10,7 +10,12 @@ const NotFoundScreen = () => {
   return (
     <View className="flex-1 items-start gap-5 py-5">
       <Text>Could not find the page you were looking for</Text>
-      <Button variant="outline" onPress={() => navigateToTab("/")}>
+      <Button
+        variant="outline"
+        onPress={() => {
+          navigateToTab("/");
+        }}
+      >
         Return Home
       </Button>
     </View>

@@ -12,7 +12,7 @@ import { issuePasswordReset } from "./password-reset";
 import type { ResetEmail } from "./password-reset-core";
 import { hashResetToken } from "./password-reset-core";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -87,25 +87,26 @@ const readUser = async (userId: string) => {
   return found;
 };
 
-const redeem = (resetToken: string) =>
-  runWithoutCookieScope(() =>
-    createCaller(null).auth.setPassword({ password: NEW_PASSWORD, token: resetToken }),
+const redeem = async (resetToken: string) =>
+  await runWithoutCookieScope(
+    async () =>
+      await createCaller(null).auth.setPassword({ password: NEW_PASSWORD, token: resetToken }),
   );
 
 const capturingSender = () => {
   const delivered: ResetEmail[] = [];
 
-  const send = (email: ResetEmail) => {
+  const send = async (email: ResetEmail) => {
     delivered.push(email);
 
-    return Promise.resolve();
+    await Promise.resolve();
   };
 
   const tokenFromLink = () => {
     const [email] = delivered;
     assert.ok(email, "the link was sent");
     const resetToken = new URL(email.resetUrl).searchParams.get("token");
-    assert.ok(resetToken);
+    assert.ok(resetToken !== null && resetToken !== "");
 
     return resetToken;
   };
@@ -113,7 +114,7 @@ const capturingSender = () => {
   return { delivered, send, tokenFromLink };
 };
 
-integrationTest("a delivered link is stored only as its digest and redeems once", async () => {
+test("a delivered link is stored only as its digest and redeems once", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -134,7 +135,7 @@ integrationTest("a delivered link is stored only as its digest and redeems once"
 
     assert.equal(await redeem(resetToken), "reached-cookie-write");
     const reset = await readUser(fixture.userId);
-    assert.ok(reset.passwordHash);
+    assert.ok(reset.passwordHash !== null && reset.passwordHash !== "");
     assert.ok(await compare(NEW_PASSWORD, reset.passwordHash));
     assert.equal(reset.sessionEpoch, 1);
 
@@ -144,7 +145,7 @@ integrationTest("a delivered link is stored only as its digest and redeems once"
   }
 });
 
-integrationTest("a failed send leaves no new link and the old ones working", async () => {
+test("a failed send leaves no new link and the old ones working", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -154,7 +155,9 @@ integrationTest("a failed send leaves no new link and the old ones working", asy
       issuePasswordReset(db, {
         appUrl: APP_URL,
         email: fixture.email,
-        send: () => Promise.reject(new Error("Resend daily_quota_exceeded: quota reached")),
+        send: async () => {
+          await Promise.reject(new Error("Resend daily_quota_exceeded: quota reached"));
+        },
         userId: fixture.userId,
       }),
       /Resend daily_quota_exceeded/u,
@@ -169,7 +172,7 @@ integrationTest("a failed send leaves no new link and the old ones working", asy
   }
 });
 
-integrationTest("a delivered link burns older links, but not a newer one", async () => {
+test("a delivered link burns older links, but not a newer one", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -197,7 +200,7 @@ integrationTest("a delivered link burns older links, but not a newer one", async
   }
 });
 
-integrationTest("two concurrent redemptions of one link: exactly one wins", async () => {
+test("two concurrent redemptions of one link: exactly one wins", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -216,7 +219,7 @@ integrationTest("two concurrent redemptions of one link: exactly one wins", asyn
   }
 });
 
-integrationTest("an expired link changes nothing", async () => {
+test("an expired link changes nothing", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -235,7 +238,7 @@ integrationTest("an expired link changes nothing", async () => {
   }
 });
 
-integrationTest("a link stored in plaintext does not redeem", async () => {
+test("a link stored in plaintext does not redeem", { skip }, async () => {
   const fixture = await createFixture();
 
   try {

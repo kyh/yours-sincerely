@@ -29,6 +29,6 @@ export const convertDbPostToFeedPost: (dbPost: DbPost, options: ConvertOptions) 
   id: dbPost.id,
   isLiked: options.isLiked,
   likeCount: (dbPost.baseLikeCount ?? 0) + dbPost.likeCount,
-  parentId: dbPost.parentId || "",
+  parentId: dbPost.parentId === null || dbPost.parentId === "" ? "" : dbPost.parentId,
   userId: dbPost.userId,
 });

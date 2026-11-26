@@ -31,7 +31,9 @@ export const MarkAllReadButton = () => {
     <Button
       size="sm"
       variant="ghost"
-      onPress={() => markAllRead.mutate({ scope: "all" })}
+      onPress={() => {
+        markAllRead.mutate({ scope: "all" });
+      }}
       loading={markAllRead.isPending}
     >
       Mark all as read

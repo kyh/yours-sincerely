@@ -50,10 +50,14 @@ export const useHotkeys = (hotkeys: Hotkey[]) => {
   });
 
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => dispatch(event);
+    const onKeyDown = (event: KeyboardEvent) => {
+      dispatch(event);
+    };
 
     window.addEventListener("keydown", onKeyDown);
 
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 };

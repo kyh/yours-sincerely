@@ -12,11 +12,11 @@ it("blocks failed imports, retries, and shares migration before sending session 
   let checkpointError: Error | null = null;
   let readError: Error | null = new Error("native jar unavailable");
 
-  const read = t.mock.fn(() =>
-    readError === null ? Promise.resolve(legacy) : Promise.reject(readError),
+  const read = t.mock.fn(async () =>
+    readError === null ? await Promise.resolve(legacy) : await Promise.reject(readError),
   );
 
-  const clear = t.mock.fn(() => Promise.reject(new Error("native jar unavailable")));
+  const clear = t.mock.fn(async () => await Promise.reject(new Error("native jar unavailable")));
 
   const legacyModule = "../../modules/legacy-cookie/src/legacy-cookie-module";
 
@@ -25,16 +25,18 @@ it("blocks failed imports, retries, and shares migration before sending session 
       nextResolve(specifier === legacyModule ? `${specifier}.ts` : specifier, context),
   });
 
-  t.after(() => imports.deregister());
+  t.after(() => {
+    imports.deregister();
+  });
   t.mock.module(legacyModule, {
     exports: { default: { clear, read } },
   });
   t.mock.module("expo-secure-store", {
     exports: {
-      deleteItemAsync: () => {
+      deleteItemAsync: async () => {
         stored = null;
 
-        return Promise.resolve();
+        await Promise.resolve();
       },
       getItem: (key: string) => (key === "session-cookie" ? stored : checkpoint),
       setItem: (key: string, value: string) => {
@@ -60,11 +62,11 @@ it("blocks failed imports, retries, and shares migration before sending session 
   const network = t.mock.method(
     globalThis,
     "fetch",
-    (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+    async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
       requestHeaders.push(new Headers(init?.headers));
       assert.equal(init?.credentials, "omit");
 
-      return Promise.resolve(new Response("{}"));
+      return await Promise.resolve(new Response("{}"));
     },
   );
 

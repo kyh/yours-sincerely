@@ -17,7 +17,7 @@ import { FLAG_HIDE_THRESHOLD } from "./post/post-utils";
 import { findLivePushTokens } from "./push/expo-push";
 import { callerFor, runWithoutCookieScope } from "./test-utils";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -93,7 +93,7 @@ const seedNotifications = async (
   return rows;
 };
 
-integrationTest("a reply notifies the letter's author with a preview", async () => {
+test("a reply notifies the letter's author with a preview", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -126,7 +126,7 @@ integrationTest("a reply notifies the letter's author with a preview", async () 
   }
 });
 
-integrationTest("replying to your own letter creates no notification", async () => {
+test("replying to your own letter creates no notification", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -143,7 +143,7 @@ integrationTest("replying to your own letter creates no notification", async () 
   }
 });
 
-integrationTest("a reply from someone the author blocked is never stored", async () => {
+test("a reply from someone the author blocked is never stored", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -171,8 +171,9 @@ integrationTest("a reply from someone the author blocked is never stored", async
   }
 });
 
-integrationTest(
+test(
   "blocking the commenter afterwards hides the reply from list and badge",
+  { skip },
   async () => {
     const fixture = await createFixture();
 
@@ -198,7 +199,7 @@ integrationTest(
   },
 );
 
-integrationTest("a reply flagged into hiding leaves list and badge", async () => {
+test("a reply flagged into hiding leaves list and badge", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -223,8 +224,9 @@ integrationTest("a reply flagged into hiding leaves list and badge", async () =>
   }
 });
 
-integrationTest(
+test(
   "a letter flagged into hiding takes its notifications off list and badge",
+  { skip },
   async () => {
     const fixture = await createFixture();
 
@@ -253,7 +255,7 @@ integrationTest(
   },
 );
 
-integrationTest("the unread badge stops counting at the cap", async () => {
+test("the unread badge stops counting at the cap", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -267,7 +269,7 @@ integrationTest("the unread badge stops counting at the cap", async () => {
   }
 });
 
-integrationTest("list is newest first and the cursor pages without gaps", async () => {
+test("list is newest first and the cursor pages without gaps", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -306,7 +308,7 @@ integrationTest("list is newest first and the cursor pages without gaps", async 
   }
 });
 
-integrationTest("rows sharing a timestamp page by id, without gaps or repeats", async () => {
+test("rows sharing a timestamp page by id, without gaps or repeats", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -317,14 +319,17 @@ integrationTest("rows sharing a timestamp page by id, without gaps or repeats", 
       .set({ createdAt: sharedAt })
       .where(eq(notification.userId, fixture.authorId));
 
-    const seen: string[] = [];
-    let cursor: Awaited<ReturnType<typeof fixture.author.notification.list>>["nextCursor"];
+    type Cursor = Awaited<ReturnType<typeof fixture.author.notification.list>>["nextCursor"];
 
-    do {
+    const listFrom: (cursor: Cursor) => Promise<string[]> = async (cursor) => {
       const page = await fixture.author.notification.list({ cursor, limit: 1 });
-      seen.push(...page.notifications.map((row) => row.id));
-      cursor = page.nextCursor;
-    } while (cursor);
+
+      const ids = page.notifications.map((row) => row.id);
+
+      return page.nextCursor === undefined ? ids : [...ids, ...(await listFrom(page.nextCursor))];
+    };
+
+    const seen = await listFrom(undefined);
 
     const whole = await fixture.author.notification.list({});
     assert.deepEqual(
@@ -337,7 +342,7 @@ integrationTest("rows sharing a timestamp page by id, without gaps or repeats", 
   }
 });
 
-integrationTest("markRead by ids touches only those rows, and only mine", async () => {
+test("markRead by ids touches only those rows, and only mine", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -371,7 +376,7 @@ integrationTest("markRead by ids touches only those rows, and only mine", async 
   }
 });
 
-integrationTest("markRead all clears the unread count", async () => {
+test("markRead all clears the unread count", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -394,7 +399,7 @@ integrationTest("markRead all clears the unread count", async () => {
   }
 });
 
-integrationTest("deleting the comment takes its notification with it", async () => {
+test("deleting the comment takes its notification with it", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -416,7 +421,7 @@ integrationTest("deleting the comment takes its notification with it", async () 
   }
 });
 
-integrationTest("push.register upserts, and a token follows its latest user", async () => {
+test("push.register upserts, and a token follows its latest user", { skip }, async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
 
@@ -449,8 +454,9 @@ integrationTest("push.register upserts, and a token follows its latest user", as
   }
 });
 
-integrationTest(
+test(
   "a token idle past the cut-off is dropped until the device registers again",
+  { skip },
   async () => {
     const fixture = await createFixture();
     const token = `ExponentPushToken[${randomUUID()}]`;
@@ -477,14 +483,14 @@ integrationTest(
   },
 );
 
-integrationTest("push.unregister honours only a genuine capability for my own token", async () => {
+test("push.unregister honours only a genuine capability for my own token", { skip }, async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
 
   try {
     await fixture.author.push.register({ platform: "ios", token });
     const { pushCleanupCapability } = await fixture.author.auth.workspace();
-    assert.ok(pushCleanupCapability);
+    assert.ok(pushCleanupCapability !== null && pushCleanupCapability !== "");
 
     const forged = signPushCleanupCapability(fixture.authorId, "not-the-server-secret");
     await assert.rejects(
@@ -493,7 +499,7 @@ integrationTest("push.unregister honours only a genuine capability for my own to
     );
 
     const { pushCleanupCapability: otherCapability } = await fixture.commenter.auth.workspace();
-    assert.ok(otherCapability);
+    assert.ok(otherCapability !== null && otherCapability !== "");
     await fixture.commenter.push.unregister({ capability: otherCapability, token });
     const afterForeign = await db.select().from(pushToken).where(eq(pushToken.token, token));
     assert.equal(afterForeign.length, 1);
@@ -507,7 +513,7 @@ integrationTest("push.unregister honours only a genuine capability for my own to
   }
 });
 
-integrationTest("deleting the account cascades its notifications and tokens", async () => {
+test("deleting the account cascades its notifications and tokens", { skip }, async () => {
   const fixture = await createFixture();
   const token = `ExponentPushToken[${randomUUID()}]`;
 
@@ -515,7 +521,7 @@ integrationTest("deleting the account cascades its notifications and tokens", as
     await seedNotifications(fixture, 2);
     await fixture.author.push.register({ platform: "ios", token });
 
-    await runWithoutCookieScope(() => fixture.author.user.deleteUser());
+    await runWithoutCookieScope(async () => await fixture.author.user.deleteUser());
 
     const remainingNotifications = await db
       .select({ id: notification.id })

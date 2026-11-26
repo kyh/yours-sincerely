@@ -55,7 +55,12 @@ const PasswordResetScreen = () => {
               password.
             </Text>
           </View>
-          <Button variant="outline" onPress={() => router.replace("/auth/sign-in")}>
+          <Button
+            variant="outline"
+            onPress={() => {
+              router.replace("/auth/sign-in");
+            }}
+          >
             Back to sign in
           </Button>
         </View>

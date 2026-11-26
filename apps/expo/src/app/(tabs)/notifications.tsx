@@ -162,7 +162,12 @@ const NotificationFeed = () => {
       contentContainerStyle={{ paddingVertical: 20 }}
       ListHeaderComponent={<PushNotificationRegistration />}
       renderItem={({ item }) => (
-        <NotificationRowItem item={item} onPress={() => openNotification(item)} />
+        <NotificationRowItem
+          item={item}
+          onPress={() => {
+            openNotification(item);
+          }}
+        />
       )}
       ListEmptyComponent={
         <View className="items-center justify-center py-10">
@@ -214,9 +219,9 @@ const NotificationsScreen = () => {
           Sign in to see replies to your love letters.
         </Text>
         <Button
-          onPress={() =>
-            router.push({ params: { next: "/notifications" }, pathname: "/auth/sign-in" })
-          }
+          onPress={() => {
+            router.push({ params: { next: "/notifications" }, pathname: "/auth/sign-in" });
+          }}
         >
           Sign in
         </Button>

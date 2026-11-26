@@ -60,7 +60,9 @@ const ExpiryTooltip = ({
           accessibilityLabel={text}
           accessibilityLiveRegion="polite"
           className="rounded-md px-3 py-1.5"
-          onLayout={(event) => setSize(event.nativeEvent.layout)}
+          onLayout={(event) => {
+            setSize(event.nativeEvent.layout);
+          }}
           style={{
             backgroundColor: colors.foreground,
             left,
@@ -94,8 +96,7 @@ const ExpiryTooltip = ({
 export const TimerButton = ({ post }: Props) => {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
   const { percentage, end, isExpired } = getExpiryProgress(post.createdAt, now);
   const formattedTime = isExpired ? "Expired" : `Disappears in ${formatDistance(now, end)}`;
 
@@ -107,12 +108,15 @@ export const TimerButton = ({ post }: Props) => {
         accessibilityLabel={formattedTime}
         hitSlop={6}
         className="size-8 items-center justify-center rounded-lg active:bg-accent"
-        onLayout={() => setAnchor(null)}
-        onPress={() =>
-          button.current?.measureInWindow((x, y, width, height) =>
-            setAnchor({ height, width, x, y }),
-          )
-        }
+        onLayout={() => {
+          setAnchor(null);
+        }}
+        onPress={() => {
+          setNow(new Date());
+          button.current?.measureInWindow((x, y, width, height) => {
+            setAnchor({ height, width, x, y });
+          });
+        }}
       >
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
           {percentage === 0 || percentage >= 100 ? (
@@ -135,7 +139,13 @@ export const TimerButton = ({ post }: Props) => {
         </Svg>
       </Pressable>
       {anchor !== null && (
-        <ExpiryTooltip anchor={anchor} text={formattedTime} onClose={() => setAnchor(null)} />
+        <ExpiryTooltip
+          anchor={anchor}
+          text={formattedTime}
+          onClose={() => {
+            setAnchor(null);
+          }}
+        />
       )}
     </>
   );

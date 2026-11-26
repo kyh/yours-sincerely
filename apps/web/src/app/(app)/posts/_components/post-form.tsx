@@ -65,6 +65,7 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
   }, [draftKey, getFieldState, resetField]);
 
   const identityScope = useIdentityScope();
+  const [expiry, setExpiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
 
   const createPost = useMutation(
     orpc.post.createPost.mutationOptions({
@@ -79,16 +80,19 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
           createdBy: variables.createdBy,
           parentId,
         });
+        setExpiry(addDays(new Date(), POST_EXPIRY_DAYS));
         onSuccess?.();
         setTimeout(() => {
           toast.success("Your love letter has been published");
         }, 500);
-        setTimeout(async () => {
-          try {
-            await balloons();
-          } catch (error) {
-            console.error(error);
-          }
+        setTimeout(() => {
+          void (async () => {
+            try {
+              await balloons();
+            } catch (error) {
+              console.error(error);
+            }
+          })();
         }, 600);
       },
       scope: identityScope,
@@ -96,21 +100,22 @@ export const PostForm = ({ placeholder, parentId, onSuccess, textareaRef }: Post
   );
 
   const handlePostForm = (formData: CreatePostInput) => {
-    if (user?.disabled) {
-      return toast.error("Your account has been disabled");
+    if (user?.disabled === true) {
+      toast.error("Your account has been disabled");
+
+      return;
     }
 
     createPost.mutate(formData);
   };
 
-  // oxlint-disable-next-line react/hook-use-state -- initializer-only state, never set
-  const [expiry] = useState(() => addDays(new Date(), POST_EXPIRY_DAYS));
-
   return (
     <Form {...form}>
       <form
         className="flex flex-col gap-2 in-data-[slot=drawer-popup]:min-h-0"
-        onSubmit={form.handleSubmit(handlePostForm)}
+        onSubmit={(e) => {
+          void form.handleSubmit(handlePostForm)(e);
+        }}
       >
         <FormField
           control={form.control}
@@ -215,7 +220,9 @@ export const NewPostButton = ({ placeholder }: PostFormProps) => {
       >
         <PostForm
           placeholder={placeholder}
-          onSuccess={() => setOpen(false)}
+          onSuccess={() => {
+            setOpen(false);
+          }}
           textareaRef={textareaRef}
         />
       </ResponsiveDialogContent>

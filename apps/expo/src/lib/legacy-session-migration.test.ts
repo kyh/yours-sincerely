@@ -19,20 +19,30 @@ it("blocks a missing native bridge in release builds and tolerates older develop
       nextResolve(specifier === legacyModule ? `${specifier}.ts` : specifier, context),
   });
 
-  t.after(() => imports.deregister());
+  t.after(() => {
+    imports.deregister();
+  });
   t.mock.module(legacyModule, {
     exports: { default: null },
   });
   const writeCheckpoint = t.mock.fn();
   t.mock.module("expo-secure-store", {
     exports: {
-      deleteItemAsync: () => Promise.resolve(),
+      deleteItemAsync: async () => {
+        await Promise.resolve();
+      },
       getItem: () => null,
       setItem: writeCheckpoint,
     },
   });
   t.mock.method(console, "warn", () => {});
-  const network = t.mock.method(globalThis, "fetch", () => Promise.resolve(new Response("{}")));
+
+  const network = t.mock.method(
+    globalThis,
+    "fetch",
+    async () => await Promise.resolve(new Response("{}")),
+  );
+
   const { fetchWithSession } = await import("./api-fetch.ts");
   const endpoint = "https://yourssincerely.org/api/orpc/auth/workspace";
 

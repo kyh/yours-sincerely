@@ -20,7 +20,9 @@ export const CommentButton = ({ post }: Props) => {
       accessibilityLabel={`${post.commentCount} comments, open post`}
       hitSlop={6}
       className="active:bg-accent h-8 flex-row items-center gap-1.5 rounded-lg px-2"
-      onPress={() => router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" })}
+      onPress={() => {
+        router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" });
+      }}
     >
       <MessageCircle size={16} color={colors.mutedForeground} />
       <View className="min-w-3">

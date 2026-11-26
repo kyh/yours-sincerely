@@ -18,7 +18,7 @@ import {
 } from "./session-core";
 import { findSessionUser } from "./session-user";
 
-const integrationTest = process.env.RUN_DB_TESTS === "1" ? test : test.skip;
+const skip = process.env.RUN_DB_TESTS === "1" ? false : "RUN_DB_TESTS is unset";
 
 after(async () => {
   await db.$client.end();
@@ -35,7 +35,7 @@ const mintSessionCookie = (userId: string, sessionEpoch: number, iat = NOW_SECON
 const mintLegacyCookieWithoutEpoch = (userId: string, iat = NOW_SECONDS) =>
   signSession(Buffer.from(JSON.stringify({ iat, user: userId })).toString("base64"), SESSION_KEY);
 
-const findDbUser = (userId: string) => findSessionUser(db, userId);
+const findDbUser = async (userId: string) => await findSessionUser(db, userId);
 
 const authenticates = async (sessionValue: string) =>
   (await authenticateSessionValue(sessionValue, findDbUser)) !== null;
@@ -81,8 +81,9 @@ const createResetToken = async (userId: string) => {
   return tokenValue;
 };
 
-integrationTest(
+test(
   "THE MASS-LOGOUT GUARD: a cookie with no `epoch` field still authenticates",
+  { skip },
   async () => {
     const fixture = await createFixture();
 
@@ -109,7 +110,7 @@ integrationTest(
   },
 );
 
-integrationTest("a password reset revokes sessions captured beforehand", async () => {
+test("a password reset revokes sessions captured beforehand", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -119,8 +120,12 @@ integrationTest("a password reset revokes sessions captured beforehand", async (
     assert.equal(await authenticates(legacyCaptured), true);
 
     const resetToken = await createResetToken(fixture.userId);
-    await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: resetToken }),
+    await runWithoutCookieScope(
+      async () =>
+        await fixture.caller.auth.setPassword({
+          password: "a-new-password-123",
+          token: resetToken,
+        }),
     );
 
     assert.equal(await readSessionEpoch(fixture.userId), 1);
@@ -139,13 +144,17 @@ integrationTest("a password reset revokes sessions captured beforehand", async (
   }
 });
 
-integrationTest("the person who reset the password stays signed in", async () => {
+test("the person who reset the password stays signed in", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const resetToken = await createResetToken(fixture.userId);
-    await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: resetToken }),
+    await runWithoutCookieScope(
+      async () =>
+        await fixture.caller.auth.setPassword({
+          password: "a-new-password-123",
+          token: resetToken,
+        }),
     );
 
     const issuedByTheReset = mintSessionCookie(
@@ -159,7 +168,7 @@ integrationTest("the person who reset the password stays signed in", async () =>
   }
 });
 
-integrationTest("sliding renewal cannot resurrect a revoked session", async () => {
+test("sliding renewal cannot resurrect a revoked session", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
@@ -171,7 +180,7 @@ integrationTest("sliding renewal cannot resurrect a revoked session", async () =
 
     assert.equal(await authenticates(staleCookie), true);
 
-    await runWithoutCookieScope(() => fixture.caller.auth.signOutEverywhere());
+    await runWithoutCookieScope(async () => await fixture.caller.auth.signOutEverywhere());
     assert.equal(await readSessionEpoch(fixture.userId), 1);
 
     assert.equal(
@@ -186,14 +195,14 @@ integrationTest("sliding renewal cannot resurrect a revoked session", async () =
   }
 });
 
-integrationTest("signOutEverywhere invalidates a cookie captured beforehand", async () => {
+test("signOutEverywhere invalidates a cookie captured beforehand", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const captured = mintSessionCookie(fixture.userId, 0);
     assert.equal(await authenticates(captured), true);
 
-    await runWithoutCookieScope(() => fixture.caller.auth.signOutEverywhere());
+    await runWithoutCookieScope(async () => await fixture.caller.auth.signOutEverywhere());
 
     assert.equal(await authenticates(captured), false);
     assert.equal(
@@ -207,15 +216,19 @@ integrationTest("signOutEverywhere invalidates a cookie captured beforehand", as
   }
 });
 
-integrationTest("issuing a new reset link burns the outstanding ones", async () => {
+test("issuing a new reset link burns the outstanding ones", { skip }, async () => {
   const fixture = await createFixture();
 
   try {
     const firstToken = await createResetToken(fixture.userId);
     const secondToken = await createResetToken(fixture.userId);
 
-    await runWithoutCookieScope(() =>
-      fixture.caller.auth.setPassword({ password: "a-new-password-123", token: secondToken }),
+    await runWithoutCookieScope(
+      async () =>
+        await fixture.caller.auth.setPassword({
+          password: "a-new-password-123",
+          token: secondToken,
+        }),
     );
 
     const rows = await db

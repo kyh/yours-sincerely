@@ -45,14 +45,20 @@ export const useInfiniteList = <TPage, TPageParam, TError>(
     }
   }, [wantsMore, hasNextPage, isFetching, isError, fetchNextPage]);
 
-  const loadMore = () => setRequestedAt(pageCount);
+  const loadMore = () => {
+    setRequestedAt(pageCount);
+  };
 
   return {
     listProps: {
-      onContentSizeChange: (_width: number, height: number) => setContentHeight(height),
+      onContentSizeChange: (_width: number, height: number) => {
+        setContentHeight(height);
+      },
       onEndReached: loadMore,
       onEndReachedThreshold: 0.5,
-      onLayout: (event: LayoutChangeEvent) => setViewportHeight(event.nativeEvent.layout.height),
+      onLayout: (event: LayoutChangeEvent) => {
+        setViewportHeight(event.nativeEvent.layout.height);
+      },
       onRefresh: async () => {
         setRefreshing(true);
         await ignoreRejection(refetch());

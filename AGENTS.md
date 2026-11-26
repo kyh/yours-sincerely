@@ -140,10 +140,11 @@ when you touch a router, a query or the schema.
 
 **Lint is a clean gate.** `oxlint.config.ts` extends the ultracite presets (`ultracite/oxlint/core`,
 `react`, `anti-slop`, `landmines`, with `next` scoped to `apps/web` and `packages/service`); every
-rule is an error and `lint` fails on the first one. Two rules are off on purpose:
-`no-await-in-loop` (sequential awaits are intentional: ordered SQL statements, batched seed
-writes) and `anti-slop/require-safety-comment-for-type-assertion` (it demands a `// SAFETY:`
-comment that landmines' `no-comments` forbids, so the two cannot both pass). landmines bans
+rule is an error and `lint` fails on the first one, and no preset rule is turned off. Lint is
+type-aware (`options.typeAware`, run by the `oxlint-tsgolint` devDependency), so files outside
+every tsconfig read as untyped: the root `tsconfig.json` covers `scripts/` (`pnpm
+typecheck:scripts`). Awaits that must run in order go through `inSequence`
+(`@repo/contract/in-sequence`) or a recursive call, never an `await` inside a loop. landmines bans
 prose comments (keep functional directives, TSDoc on an exported API, and single-line
 `// WARNING:` lines for a dangerous, recurring footgun; the reasoning goes in the commit or the
 PR) and annotated return types on functions with a body (pin a contract with `satisfies` or a
@@ -231,7 +232,7 @@ Capacitor→Expo session-migration fixture.
 - `CLAUDE.md` — architecture decisions and tracked constraints (read before changing anything
   structural) · `README.md` — human-facing setup · `docs/` — phone testing, release inputs,
   the legacy-to-Expo upgrade verification · `pnpm og:video` re-renders `public/og/og.mp4` and its
-  poster from `apps/web/scripts/og-video.ts` (needs Playwright's Chromium and ffmpeg; not part of
+  poster from `apps/web/scripts/og-video.ts` (needs Playwright's Chromium, `pnpm -F @repo/web exec playwright install chromium`, and ffmpeg; not part of
   `verify`)
 - `packages/service/src/auth/session.ts` + `session-core.ts` — the hand-rolled auth
   (**not** Supabase Auth) · `packages/db/src/drizzle-schema.ts` — the tables

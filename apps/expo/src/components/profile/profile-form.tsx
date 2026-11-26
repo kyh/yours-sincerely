@@ -72,7 +72,16 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
   if (readonly) {
     return (
       <View className="items-center gap-2">
-        <ProfileAvatar name={user?.displayName || user?.id} />
+        <ProfileAvatar
+          name={
+            user === undefined ||
+            user.displayName === undefined ||
+            user.displayName === null ||
+            user.displayName === ""
+              ? user?.id
+              : user.displayName
+          }
+        />
         <Text className="px-3 py-1 text-center text-xl font-bold">{displayName}</Text>
       </View>
     );
@@ -80,7 +89,16 @@ export const ProfileForm = ({ userId, readonly = false }: Props) => {
 
   return (
     <View className="items-center gap-2">
-      <ProfileAvatar name={user?.displayName || user?.id} />
+      <ProfileAvatar
+        name={
+          user === undefined ||
+          user.displayName === undefined ||
+          user.displayName === null ||
+          user.displayName === ""
+            ? user?.id
+            : user.displayName
+        }
+      />
       <TextInput
         accessibilityLabel="Display name"
         lineBreakModeIOS="clip"

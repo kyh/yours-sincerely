@@ -10,8 +10,12 @@ import {
 import { os, requireUser } from "../orpc";
 import { postVisibleTo } from "../post/post-utils";
 
+const graphemes = new Intl.Segmenter();
+
 const previewOf = (content: string) =>
-  [...content].slice(0, NOTIFICATION_PREVIEW_MAX_CHARS).join("");
+  Array.from(graphemes.segment(content), ({ segment }) => segment)
+    .slice(0, NOTIFICATION_PREVIEW_MAX_CHARS)
+    .join("");
 
 const letter = alias(post, "letter");
 

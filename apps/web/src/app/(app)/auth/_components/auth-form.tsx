@@ -73,7 +73,9 @@ export const AuthForm = ({ className, type, nextPath }: AuthFormProps) => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleAuthWithPassword)}
+        onSubmit={(e) => {
+          void form.handleSubmit(handleAuthWithPassword)(e);
+        }}
         className={cn("flex flex-col gap-5", className)}
       >
         <div className="-space-y-px">
@@ -169,7 +171,12 @@ export const RequestPasswordResetForm = () => {
 
   return (
     <Form {...form}>
-      <form className="grid gap-4" onSubmit={form.handleSubmit(handlePasswordReset)}>
+      <form
+        className="grid gap-4"
+        onSubmit={(e) => {
+          void form.handleSubmit(handlePasswordReset)(e);
+        }}
+      >
         <FormField
           control={form.control}
           name="email"
@@ -228,7 +235,12 @@ export const SetPasswordForm = ({ token }: { token: string }) => {
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-5" onSubmit={form.handleSubmit(handleSetPassword)}>
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={(e) => {
+          void form.handleSubmit(handleSetPassword)(e);
+        }}
+      >
         <div className="-space-y-px">
           <FormField
             control={form.control}

@@ -25,10 +25,10 @@ const createMigrationHarness = (initial: {
     deps: {
       getCheckpoint: () => checkpoint,
       getStored: () => stored,
-      readLegacy: () => {
+      readLegacy: async () => {
         readCount += 1;
 
-        return Promise.resolve(initial.legacy ?? null);
+        return await Promise.resolve(initial.legacy ?? null);
       },
       setCheckpoint: (value: Exclude<LegacySessionMigrationCheckpoint, null>) => {
         checkpoint = value;
@@ -54,7 +54,7 @@ describe("copyLegacySession", () => {
 
     const result = await copyLegacySession({
       getStored: () => stored,
-      readLegacy: () => Promise.resolve(legacy),
+      readLegacy: async () => await Promise.resolve(legacy),
       setStored: (value) => {
         stored = value;
       },
@@ -70,7 +70,7 @@ describe("copyLegacySession", () => {
 
     const result = await copyLegacySession({
       getStored: () => stored,
-      readLegacy: () => Promise.resolve(null),
+      readLegacy: async () => await Promise.resolve(null),
       setStored: (value) => {
         stored = value;
       },
@@ -84,7 +84,7 @@ describe("copyLegacySession", () => {
     await assert.rejects(
       copyLegacySession({
         getStored: () => null,
-        readLegacy: () => Promise.resolve("legacy"),
+        readLegacy: async () => await Promise.resolve("legacy"),
         setStored: () => {
           throw new Error("keychain unavailable");
         },
@@ -97,7 +97,7 @@ describe("copyLegacySession", () => {
     await assert.rejects(
       copyLegacySession({
         getStored: () => null,
-        readLegacy: () => Promise.resolve("legacy"),
+        readLegacy: async () => await Promise.resolve("legacy"),
         setStored: () => {},
       }),
       /could not be verified/u,
@@ -109,10 +109,10 @@ describe("copyLegacySession", () => {
 
     const result = await copyLegacySession({
       getStored: () => "stored",
-      readLegacy: () => {
+      readLegacy: async () => {
         readCount += 1;
 
-        return Promise.resolve("legacy");
+        return await Promise.resolve("legacy");
       },
       setStored: () => {},
     });
@@ -201,10 +201,10 @@ describe("finalizeLegacySession", () => {
     let clearCount = 0;
     let checkpoint: "cleanup-pending" | "complete" | null = "cleanup-pending";
 
-    const clearLegacy = () => {
+    const clearLegacy = async () => {
       clearCount += 1;
 
-      return Promise.resolve();
+      await Promise.resolve();
     };
 
     assert.equal(
@@ -268,10 +268,10 @@ describe("finalizeLegacySession", () => {
     await assert.rejects(
       finalizeLegacySession({
         authenticated: true,
-        clearLegacy: () => {
+        clearLegacy: async () => {
           clearCount += 1;
 
-          return Promise.reject(new Error("native clear failed"));
+          await Promise.reject(new Error("native clear failed"));
         },
         getCheckpoint: () => checkpoint,
         getStored: () => "renewed-session",
@@ -287,10 +287,10 @@ describe("finalizeLegacySession", () => {
     assert.equal(
       await finalizeLegacySession({
         authenticated: true,
-        clearLegacy: () => {
+        clearLegacy: async () => {
           clearCount += 1;
 
-          return Promise.resolve();
+          await Promise.resolve();
         },
         getCheckpoint: () => checkpoint,
         getStored: () => "renewed-session",
@@ -308,7 +308,9 @@ describe("finalizeLegacySession", () => {
     await assert.rejects(
       finalizeLegacySession({
         authenticated: true,
-        clearLegacy: () => Promise.resolve(),
+        clearLegacy: async () => {
+          await Promise.resolve();
+        },
         getCheckpoint: () => "cleanup-pending",
         getStored: () => "stored",
         setCheckpoint: () => {},
@@ -331,11 +333,11 @@ describe("retireLegacySession", () => {
     assert.equal(
       await retireLegacySession({
         ...harness.deps,
-        clearLegacy: () => {
+        clearLegacy: async () => {
           assert.equal(harness.checkpoint, "complete");
           clearCount += 1;
 
-          return Promise.resolve();
+          await Promise.resolve();
         },
       }),
       "retired",
@@ -355,7 +357,9 @@ describe("retireLegacySession", () => {
     assert.equal(
       await retireLegacySession({
         ...harness.deps,
-        clearLegacy: () => Promise.reject(new Error("jar locked")),
+        clearLegacy: async () => {
+          await Promise.reject(new Error("jar locked"));
+        },
       }),
       "retired",
     );
@@ -369,10 +373,10 @@ describe("retireLegacySession", () => {
     assert.equal(
       await retireLegacySession({
         ...harness.deps,
-        clearLegacy: () => {
+        clearLegacy: async () => {
           clearCount += 1;
 
-          return Promise.resolve();
+          await Promise.resolve();
         },
       }),
       "already-complete",
@@ -383,7 +387,9 @@ describe("retireLegacySession", () => {
   it("rejects when the completion checkpoint cannot be verified", async () => {
     await assert.rejects(
       retireLegacySession({
-        clearLegacy: () => Promise.resolve(),
+        clearLegacy: async () => {
+          await Promise.resolve();
+        },
         getCheckpoint: () => null,
         setCheckpoint: () => {},
       }),

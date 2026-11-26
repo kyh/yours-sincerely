@@ -38,8 +38,9 @@ export const PostContent = ({
   const colors = useThemeColors();
   const { height } = useWindowDimensions();
 
-  const openPost = () =>
+  const openPost = () => {
     router.push({ params: { "post-id": post.id }, pathname: "/posts/[post-id]" });
+  };
 
   const openProfile = () => {
     if (post.userId === null) {

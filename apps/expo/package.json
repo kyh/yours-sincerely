@@ -9,7 +9,7 @@
     "dev:ios": "pnpm with-env expo start --ios",
     "android": "pnpm with-env expo run:android",
     "ios": "pnpm with-env expo run:ios",
-    "eas-build-post-install": "node ../../scripts/validate-mobile-release-env.mjs --target eas --if-production",
+    "eas-build-post-install": "node ../../scripts/validate-mobile-release-env.ts --target eas --if-production",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-test-module-mocks --test 'src/**/*.test.ts'",
     "typecheck": "expo customize tsconfig.json && tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
@@ -67,7 +67,6 @@
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:expo",
-    "@types/set-cookie-parser": "^2.4.10",
     "dotenv-cli": "catalog:",
     "metro-cache": "^0.87.3",
     "tailwindcss": "catalog:",

@@ -1,9 +1,16 @@
 import { randomUUID } from "node:crypto";
 
+import { inSequence } from "@repo/contract/in-sequence";
 import { eq } from "drizzle-orm";
 
 import { db } from "../drizzle-client";
 import { block, flag, like, post, user } from "../drizzle-schema";
+
+const chunksOf = function* chunksOf<T>(rows: T[], size: number) {
+  for (let index = 0; index < rows.length; index += size) {
+    yield rows.slice(index, index + size);
+  }
+};
 
 const USER_COUNT = 200;
 const ROOT_POSTS_PER_ACTIVE_USER = 30;
@@ -15,21 +22,18 @@ const HISTORY_DAYS = 365;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 
-/* oxlint-disable no-bitwise -- mulberry32 is int32 bit math; `| 0` is the wrap, not a truncation */
+const MINSTD_MODULUS = 2_147_483_647;
+const MINSTD_MULTIPLIER = 48_271;
+
 const createRandom = (seed: number) => {
   let state = seed;
 
   return () => {
-    // oxlint-disable-next-line unicorn/prefer-math-trunc -- `| 0` wraps to int32; Math.trunc would not
-    state = (state + 0x6d_2b_79_f5) | 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    state = (state * MINSTD_MULTIPLIER) % MINSTD_MODULUS;
 
-    return ((t ^ (t >>> 14)) >>> 0) / 4_294_967_296;
+    return (state - 1) / (MINSTD_MODULUS - 1);
   };
 };
-/* oxlint-enable no-bitwise */
 
 const random = createRandom(20_260_712);
 
@@ -58,7 +62,9 @@ const STREAK_PATTERNS: StreakPattern[] = [
 ];
 
 const writeStreakPattern = (pattern: StreakPattern, addPost: (msAgo: number) => void) => {
-  const write = (daysAgo: number) => addPost(daysAgo * DAY_MS + 12 * HOUR_MS);
+  const write = (daysAgo: number) => {
+    addPost(daysAgo * DAY_MS + 12 * HOUR_MS);
+  };
 
   switch (pattern) {
     case "none": {
@@ -163,7 +169,9 @@ const seed = async () => {
     const author = users[index];
 
     if (author !== undefined) {
-      writeStreakPattern(pattern, (msAgo) => addPost(author.id, author.displayName, msAgo));
+      writeStreakPattern(pattern, (msAgo) => {
+        addPost(author.id, author.displayName, msAgo);
+      });
     }
   }
 
@@ -180,13 +188,13 @@ const seed = async () => {
   for (let n = 0; n < COMMENT_COUNT; n += 1) {
     const parent = pick(rootPosts);
     const author = pick(users);
-    const parentAgeMs = now - new Date(`${parent.createdAt ?? ""}`).getTime();
+    const parentAgeMs = now - new Date(parent.createdAt ?? "").getTime();
     addPost(author.id, author.displayName, Math.max(0, parentAgeMs - HOUR_MS), parent.id);
   }
 
-  for (let index = 0; index < posts.length; index += 1000) {
-    await db.insert(post).values(posts.slice(index, index + 1000));
-  }
+  await inSequence(chunksOf(posts, 1000), async (rows) => {
+    await db.insert(post).values(rows);
+  });
 
   console.log(`  ${posts.length} posts (${rootPosts.length} roots, ${COMMENT_COUNT} comments)`);
 
@@ -206,9 +214,9 @@ const seed = async () => {
     likes.push({ postId: target.id, updatedAt: at(0), userId: liker.id });
   }
 
-  for (let index = 0; index < likes.length; index += 2000) {
-    await db.insert(like).values(likes.slice(index, index + 2000));
-  }
+  await inSequence(chunksOf(likes, 2000), async (rows) => {
+    await db.insert(like).values(rows);
+  });
 
   console.log(`  ${likes.length} likes`);
 

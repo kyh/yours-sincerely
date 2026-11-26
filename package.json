@@ -22,23 +22,28 @@
     "og:video": "pnpm -F @repo/web og:video",
     "lint": "oxlint --report-unused-disable-directives",
     "test": "turbo run test",
-    "typecheck": "turbo run typecheck",
+    "typecheck": "turbo run typecheck typecheck:scripts",
+    "typecheck:scripts": "tsc",
     "format": "oxfmt --check",
     "verify": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm build",
     "lint:fix": "oxlint --fix",
     "format:fix": "oxfmt --write",
-    "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs",
-    "release:mobile:check:eas": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target eas",
-    "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.mjs --target web"
+    "release:mobile:check": "dotenv -e .env -- node scripts/validate-mobile-release-env.ts",
+    "release:mobile:check:eas": "dotenv -e .env -- node scripts/validate-mobile-release-env.ts --target eas",
+    "release:mobile:check:web": "dotenv -e .env -- node scripts/validate-mobile-release-env.ts --target web"
   },
   "devDependencies": {
     "@interfere/landmines": "0.1.1",
+    "@kyh/tsconfig": "catalog:",
+    "@types/node": "catalog:",
     "dotenv-cli": "catalog:",
     "oxfmt": "^0.73.0",
     "oxlint": "^1.94.0",
+    "oxlint-tsgolint": "^7.0.2008",
     "turbo": "^2.11.13",
     "typescript": "catalog:",
-    "ultracite": "8.3.1"
+    "ultracite": "8.3.1",
+    "zod": "catalog:"
   },
   "engines": {
     "node": "24.x"
